@@ -115,13 +115,15 @@ typedef unsigned char byte;
     dispatch_once(&onceToken, ^{
         
         NSMutableCharacterSet *allowedSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+        [allowedSet addCharactersInString:@" "];
         [allowedSet removeCharactersInString:@"!$&'()*+,/:;=?@"];
         
         // This set is essentially english alphanumeric plus -_.~
         set = allowedSet;
     });
     
-    return [self stringByAddingPercentEncodingWithAllowedCharacters:set];
+    NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
+    return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
 }
 
 - (NSString *)msidWWWFormURLEncode
@@ -228,7 +230,7 @@ typedef unsigned char byte;
          }
          
          NSString *trimmedKey = [key msidTrimmedString];
-         NSString *encodedKey = formEncode? [trimmedKey msidWWWFormURLEncode] : trimmedKey;
+         NSString *encodedKey = formEncode? [trimmedKey msidWWWFormURLEncode] : [trimmedKey msidURLEncode];
          
          if (!encodedString)
          {
@@ -248,7 +250,7 @@ typedef unsigned char byte;
          }
          
          NSString *trimmedValue = [v msidTrimmedString];
-         NSString *encodedValue = formEncode? [trimmedValue msidWWWFormURLEncode] : trimmedValue;
+         NSString *encodedValue = formEncode? [trimmedValue msidWWWFormURLEncode] : [trimmedValue msidURLEncode];
          
          if (![NSString msidIsStringNilOrBlank:encodedValue])
          {

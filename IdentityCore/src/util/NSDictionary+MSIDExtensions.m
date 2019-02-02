@@ -59,7 +59,7 @@
             continue;
         }
         
-        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString];
+        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString].msidURLDecode;
         if ([NSString msidIsStringNilOrBlank:key])
         {
             MSID_LOG_WARN(nil, @"Query parameter must have a key");
@@ -69,7 +69,7 @@
         NSString *value = @"";
         if (queryElements.count == 2)
         {
-            value = decode ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString];
+            value = decode ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString].msidURLDecode;
         }
         
         [queryDict setValue:value forKey:key];

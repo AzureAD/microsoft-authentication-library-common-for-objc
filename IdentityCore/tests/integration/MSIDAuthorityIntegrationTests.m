@@ -568,7 +568,7 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
@@ -609,7 +609,7 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:webFingerRequestUrl
                                                          respondWithError:error];
@@ -657,7 +657,7 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
@@ -753,7 +753,7 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
@@ -808,7 +808,7 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",

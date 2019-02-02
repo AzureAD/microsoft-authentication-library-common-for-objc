@@ -145,7 +145,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -176,7 +176,7 @@
                                       @"redirect_uri": @"my-redirect://com.microsoft.test",
                                       @"broker_key": @"brokerKey",
                                       @"client_version": [MSIDVersion sdkVersion],
-                                      @"extra_qp": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
+                                      @"extra_qp": @"my_eqp1%2C%20%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"claims": @"%7B%22access_token%22%3A%7B%22polids%22%3A%7B%22values%22%3A%5B%225ce770ea-8690-4747-aa73-c5b3cd509cd4%22%5D%2C%22essential%22%3Atrue%7D%7D%7D",
                                       @"client_capabilities": @"cp1,cp2",
                                       @"client_app_name": @"MSIDTestsHostApp",
@@ -185,7 +185,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -257,7 +257,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
