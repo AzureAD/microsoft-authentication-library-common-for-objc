@@ -96,7 +96,7 @@
     NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
     NSString *qpString = [components percentEncodedQuery];
     //expect to either response or error and description, AND correlation_id AND hash.
-    NSDictionary *queryParamsMap =  [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
+    NSDictionary *queryParamsMap =  [NSDictionary msidDictionaryFromURLEncodedString:qpString];
 
     NSError *cacheError = nil;
     self.tokenCache = [self cacheAccessorWithKeychainGroup:keychainGroup error:&cacheError];

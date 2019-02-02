@@ -141,7 +141,7 @@
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:configuration.authorizationEndpoint resolvingAgainstBaseURL:NO];
     NSDictionary *parameters = [self authorizationParametersFromConfiguration:configuration requestState:state];
     
-    urlComponents.percentEncodedQuery = [parameters msidWWWFormURLEncode];
+    urlComponents.percentEncodedQuery = [parameters msidURLEncode];
     
     return urlComponents.URL;
 }

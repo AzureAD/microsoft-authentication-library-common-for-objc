@@ -33,7 +33,7 @@ const unichar queryStringSeparator = '?';
 // Decodes configuration contained in a URL fragment
 - (NSDictionary *)msidFragmentParameters
 {
-    return [NSDictionary msidDictionaryFromWWWFormURLEncodedString:self.fragment];
+    return [NSDictionary msidDictionaryFromURLEncodedString:self.fragment];
 }
 
 // Decodes configuration contains in a URL query
@@ -41,7 +41,7 @@ const unichar queryStringSeparator = '?';
 {
     NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
     
-    return [NSDictionary msidDictionaryFromWWWFormURLEncodedString:[components percentEncodedQuery]];
+    return [NSDictionary msidDictionaryFromURLEncodedString:[components percentEncodedQuery]];
 }
 
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL
@@ -278,7 +278,7 @@ const unichar queryStringSeparator = '?';
             continue;
         }
 
-        NSString *queryEntry = [NSString stringWithFormat:@"%@=%@", key.msidWWWFormURLEncode, [queryParameters[key] msidWWWFormURLEncode]];
+        NSString *queryEntry = [NSString stringWithFormat:@"%@=%@", key, queryParameters[key]];
 
         if (query)
         {
@@ -292,7 +292,7 @@ const unichar queryStringSeparator = '?';
 
     if (query)
     {
-        [components setPercentEncodedQuery:query];
+        [components setPercentEncodedQuery:[query msidURLEncode]];
     }
 
     return [components URL];

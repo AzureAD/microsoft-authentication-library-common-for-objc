@@ -95,26 +95,40 @@ typedef unsigned char byte;
     return [self stringByTrimmingCharactersInSet:set];
 }
 
+- (NSString *)msidURLDecode
+{
+    return CFBridgingRelease(CFURLCreateStringByReplacingPercentEscapes(kCFAllocatorDefault, (CFStringRef)self, CFSTR("")));
+}
 
 - (NSString *)msidWWWFormURLDecode
 {
     // Two step decode: first replace + with a space, then percent unescape
-    CFMutableStringRef decodedString = CFStringCreateMutableCopy( NULL, 0, (__bridge CFStringRef)self );
-    CFStringFindAndReplace( decodedString, CFSTR("+"), CFSTR(" "), CFRangeMake( 0, CFStringGetLength( decodedString ) ), kCFCompareCaseInsensitive );
-    
-    CFStringRef unescapedString = CFURLCreateStringByReplacingPercentEscapes( NULL,                    // Allocator
-                                                                                          decodedString,           // Original string
-                                                                                          CFSTR("")); // Encoding
-    CFRelease( decodedString );
-    
-    return CFBridgingRelease(unescapedString);
+    NSString *replacedString = [self stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+    return [replacedString msidURLDecode];
 }
 
+- (NSString *)msidURLEncode
+{
+    static NSCharacterSet* set = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        
+        NSMutableCharacterSet *allowedSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+        [allowedSet removeCharactersInString:@"!$&'()*+,/:;=?@"];
+        
+        // This set is essentially english alphanumeric plus -_.~
+        set = allowedSet;
+    });
+    
+    return [self stringByAddingPercentEncodingWithAllowedCharacters:set];
+}
 
 - (NSString *)msidWWWFormURLEncode
 {
+    // Same as percent encode, with exception of replacing space with + instead of %20
     static NSCharacterSet* set = nil;
- 
+    
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         
@@ -128,7 +142,6 @@ typedef unsigned char byte;
     NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
     return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
 }
-
 
 - (NSString *)msidTokenHash
 {
@@ -192,8 +205,18 @@ typedef unsigned char byte;
 }
 
 
-/*! Generate a www-form-urlencoded string of random data */
++ (NSString *)msidURLEncodedStringFromDictionary:(NSDictionary *)dict
+{
+    return [self msidEncodeStringFromDictionary:dict formEncode:NO];
+}
+
 + (NSString *)msidWWWFormURLEncodedStringFromDictionary:(NSDictionary *)dict
+{
+    return [self msidEncodeStringFromDictionary:dict formEncode:YES];
+}
+
++ (NSString *)msidEncodeStringFromDictionary:(NSDictionary *)dict
+                                  formEncode:(BOOL)formEncode
 {
     __block NSMutableString *encodedString = nil;
     
@@ -204,7 +227,8 @@ typedef unsigned char byte;
              return;
          }
          
-         NSString *encodedKey = [[key msidTrimmedString] msidWWWFormURLEncode];
+         NSString *trimmedKey = [key msidTrimmedString];
+         NSString *encodedKey = formEncode? [trimmedKey msidWWWFormURLEncode] : trimmedKey;
          
          if (!encodedString)
          {
@@ -222,7 +246,9 @@ typedef unsigned char byte;
          {
              v = ((NSUUID *)value).UUIDString;
          }
-         NSString *encodedValue = [[v msidTrimmedString] msidWWWFormURLEncode];
+         
+         NSString *trimmedValue = [v msidTrimmedString];
+         NSString *encodedValue = formEncode? [trimmedValue msidWWWFormURLEncode] : trimmedValue;
          
          if (![NSString msidIsStringNilOrBlank:encodedValue])
          {
@@ -232,7 +258,6 @@ typedef unsigned char byte;
      }];
     return encodedString;
 }
-
 
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases
 {

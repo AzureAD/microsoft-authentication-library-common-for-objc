@@ -27,20 +27,20 @@
 
 @implementation NSDictionary (MSIDExtensions)
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
++ (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:NO];
+    return [self msidDictionaryFromURLEncodedString:string WWWURLFormDecode:NO];
 }
 
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
 + (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:YES];
+    return [self msidDictionaryFromURLEncodedString:string WWWURLFormDecode:YES];
 }
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
-                                WWWURLFormDecode:(BOOL)decode
++ (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string
+                                         WWWURLFormDecode:(BOOL)decode
 {
     if ([NSString msidIsStringNilOrBlank:string])
     {
@@ -87,6 +87,10 @@
     return json;
 }
 
+- (NSString *)msidURLEncode
+{
+    return [NSString msidURLEncodedStringFromDictionary:self];
+}
 
 - (NSString *)msidWWWFormURLEncode
 {

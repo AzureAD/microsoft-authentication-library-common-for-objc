@@ -42,10 +42,10 @@
     [super tearDown];
 }
 
-- (void)testMsidDictionaryFromQueryString_whenStringContainsQuery_shouldReturnDictWithoutDecoding
+- (void)testmsidDictionaryFromURLEncodedString_whenStringContainsQuery_shouldReturnDictWithoutDecoding
 {
     NSString *string = @"key=val+val";
-    NSDictionary *dict = [NSDictionary msidDictionaryFromQueryString:string];
+    NSDictionary *dict = [NSDictionary msidDictionaryFromURLEncodedString:string];
     
     XCTAssertTrue([[dict allKeys] containsObject:@"key"]);
     XCTAssertEqualObjects(dict[@"key"], @"val+val");
@@ -60,10 +60,10 @@
     XCTAssertEqualObjects(dict[@"key"], @"Some interesting test/+-)(*&^%$#@!~|");
 }
 
-- (void)testMsidDictionaryFromQueryString_whenMalformedQuery_shouldReturnDictWithoutBadQuery
+- (void)testmsidDictionaryFromURLEncodedString_whenMalformedQuery_shouldReturnDictWithoutBadQuery
 {
     NSString *string = @"key=val+val&malformed=v1=v2&=noval";
-    NSDictionary *dict = [NSDictionary msidDictionaryFromQueryString:string];
+    NSDictionary *dict = [NSDictionary msidDictionaryFromURLEncodedString:string];
     
     XCTAssertTrue(dict.count == 1);
     XCTAssertTrue([dict.allKeys containsObject:@"key"]);
