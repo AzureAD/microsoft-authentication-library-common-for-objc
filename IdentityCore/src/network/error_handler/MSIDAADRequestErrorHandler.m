@@ -26,10 +26,12 @@
 #import "MSIDHttpResponseSerializer.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDAADTokenResponse.h"
+#import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDPKeyAuthHandler.h"
 
 @implementation MSIDAADRequestErrorHandler
 
-- (void)handleError:(NSError * )error
+- (void)handleError:(NSError *)error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
         httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
@@ -58,6 +60,37 @@
         });
         
         return;
+    }
+    
+    // pkeyauth challenge
+    if (httpResponse.statusCode == 400 || httpResponse.statusCode == 401)
+    {
+        NSString *wwwAuthValue = [httpResponse.allHeaderFields valueForKey:kMSIDWwwAuthenticateHeader];
+        
+        if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kMSIDPKeyAuthName])
+        {
+            [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:wwwAuthValue
+                                                  requestUrl:httpRequest.urlRequest.URL
+                                                     context:context
+                                           completionHandler:^void (NSString *authHeader, NSError *error){
+                                               if (![NSString msidIsStringNilOrBlank:authHeader])
+                                               {
+                                                   // append auth header
+                                                   NSMutableURLRequest *newRequest = [httpRequest.urlRequest mutableCopy];
+                                                   [newRequest setValue:authHeader forHTTPHeaderField:@"Authorization"];
+                                                   httpRequest.urlRequest = newRequest;
+                                                   
+                                                   // resend the request
+                                                   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                                       [httpRequest sendWithBlock:completionBlock];
+                                                   });
+                                                   return;
+                                               }
+                                               
+                                               if (completionBlock) { completionBlock(nil, error); }
+                                           }];
+            return;
+        }
     }
 
     __auto_type responseSerializer = [MSIDHttpResponseSerializer new];

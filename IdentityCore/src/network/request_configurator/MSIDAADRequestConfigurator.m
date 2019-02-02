@@ -33,6 +33,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDConstants.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 static NSTimeInterval const s_defaultTimeoutInterval = 300;
 
@@ -76,6 +77,7 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     mutableUrlRequest.URL = requestUrl;
     mutableUrlRequest.timeoutInterval = self.timeoutInterval;
     mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+    [mutableUrlRequest setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];

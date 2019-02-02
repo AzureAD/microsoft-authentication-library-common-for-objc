@@ -84,6 +84,7 @@
     XCTAssertNotNil(headers[@"x-client-OS"]);
     XCTAssertNotNil(headers[@"x-client-SKU"]);
     XCTAssertNotNil(headers[@"x-client-Ver"]);
+    XCTAssertNotNil(headers[@"x-ms-PkeyAuth"]);
 #if TARGET_OS_IPHONE
     XCTAssertNotNil(headers[@"x-client-DM"]);
 #endif
