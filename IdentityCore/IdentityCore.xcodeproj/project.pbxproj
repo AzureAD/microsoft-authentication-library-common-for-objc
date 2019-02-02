@@ -495,6 +495,27 @@
 		B214C3A31FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.h in Headers */ = {isa = PBXBuildFile; fileRef = B214C3A11FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.h */; };
 		B214C3A41FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B214C3A21FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m */; };
 		B214C3A51FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = B214C3A21FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.m */; };
+		B21FA9DA22063CEA00806B68 /* MSIDAutomationActionConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A39EE21C4CD6300213A62 /* MSIDAutomationActionConstants.h */; };
+		B21FA9DB22063CED00806B68 /* MSIDAutomationActionConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */; };
+		B21FA9DC22063CEE00806B68 /* MSIDAutomationActionConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */; };
+		B21FA9DD22063CF400806B68 /* MSIDAutomationTestResult.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A437021C34A26000B3DD4 /* MSIDAutomationTestResult.h */; };
+		B21FA9DE22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A437121C34A26000B3DD4 /* MSIDAutomationTestResult.m */; };
+		B21FA9DF22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A437121C34A26000B3DD4 /* MSIDAutomationTestResult.m */; };
+		B21FA9E022063CFA00806B68 /* MSIDAutomationErrorResult.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D0A68821D0875C0071E0DA /* MSIDAutomationErrorResult.h */; };
+		B21FA9E122063CFD00806B68 /* MSIDAutomationErrorResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A68921D0875C0071E0DA /* MSIDAutomationErrorResult.m */; };
+		B21FA9E222063CFE00806B68 /* MSIDAutomationErrorResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A68921D0875C0071E0DA /* MSIDAutomationErrorResult.m */; };
+		B21FA9E322063D0100806B68 /* MSIDAutomationUserInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D0A69921D09F220071E0DA /* MSIDAutomationUserInformation.h */; };
+		B21FA9E422063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A69A21D09F220071E0DA /* MSIDAutomationUserInformation.m */; };
+		B21FA9E522063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A69A21D09F220071E0DA /* MSIDAutomationUserInformation.m */; };
+		B21FA9E622063D0700806B68 /* MSIDAutomationSuccessResult.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D0A68D21D087790071E0DA /* MSIDAutomationSuccessResult.h */; };
+		B21FA9E722063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A68E21D087790071E0DA /* MSIDAutomationSuccessResult.m */; };
+		B21FA9E822063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A68E21D087790071E0DA /* MSIDAutomationSuccessResult.m */; };
+		B21FA9E922063D0D00806B68 /* MSIDAutomationAccountsResult.h in Headers */ = {isa = PBXBuildFile; fileRef = B2D0A69E21D09F8D0071E0DA /* MSIDAutomationAccountsResult.h */; };
+		B21FA9EA22063D0F00806B68 /* MSIDAutomationAccountsResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A69F21D09F8D0071E0DA /* MSIDAutomationAccountsResult.m */; };
+		B21FA9EB22063D1000806B68 /* MSIDAutomationAccountsResult.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D0A69F21D09F8D0071E0DA /* MSIDAutomationAccountsResult.m */; };
+		B21FA9EC22063D1300806B68 /* NSString+MSIDAutomationUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */; };
+		B21FA9ED22063D1600806B68 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
+		B21FA9EE22063D1600806B68 /* NSString+MSIDAutomationUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */; };
 		B227F28D2056264F00F7B822 /* MSIDMacTokenCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCache.m */; };
 		B233F8BC219CE03F00DC90E3 /* MSIDTestURLResponse+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8B1219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.m */; };
 		B233F8BD219CE04000DC90E3 /* MSIDTestURLResponse+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = B233F8B1219CDF5B00DC90E3 /* MSIDTestURLResponse+Util.m */; };
@@ -1525,8 +1546,8 @@
 		B26A0B982072BABD006BD95A /* MSIDAADV2Oauth2FactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2Oauth2FactoryTests.m; sourceTree = "<group>"; };
 		B274DEC621FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDInteractiveRequestParametersTests.m; sourceTree = "<group>"; };
 		B27551AF20816B4800AA7A38 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
-		B27551C8208179EE00AA7A38 /* libIdentityAutomation iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityAutomation iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B27551D520817A1E00AA7A38 /* libIdentityAutomation Mac.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libIdentityAutomation Mac.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B27551C8208179EE00AA7A38 /* libIdentityAutomationAppLib iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityAutomationAppLib iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B27551D520817A1E00AA7A38 /* libIdentityAutomationAppLib Mac.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libIdentityAutomationAppLib Mac.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27551E120817AF400AA7A38 /* identitycore__automation__common.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__common.xcconfig; sourceTree = "<group>"; };
 		B27551E220817AF400AA7A38 /* identitycore__automation__mac.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__mac.xcconfig; sourceTree = "<group>"; };
 		B27551E320817AF400AA7A38 /* identitycore__automation__ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = identitycore__automation__ios.xcconfig; sourceTree = "<group>"; };
@@ -1756,8 +1777,8 @@
 		B2DD5BA3204761720084313F /* MSIDRefreshTokenTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDRefreshTokenTests.m; sourceTree = "<group>"; };
 		B2DD5BB0204789FB0084313F /* MSIDIdTokenTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenTests.m; sourceTree = "<group>"; };
 		B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryCacheEventTests.m; sourceTree = "<group>"; };
-		B2ED1BA62204D24700A24E82 /* libIdentityLabAutomation iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityLabAutomation iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		B2ED1BB32204D26700A24E82 /* libIdentityLabAutomation Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityLabAutomation Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2ED1BA62204D24700A24E82 /* libIdentityAutomationTestLib iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityAutomationTestLib iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2ED1BB32204D26700A24E82 /* libIdentityAutomationTestLib Mac.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libIdentityAutomationTestLib Mac.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B2EF14381FF2F21D005DC1C0 /* MSIDAADV2TokenResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2TokenResponse.m; sourceTree = "<group>"; };
 		B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADV2TokenResponse.h; sourceTree = "<group>"; };
 		B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAccountCacheItem+MSIDAccountMatchers.h"; sourceTree = "<group>"; };
@@ -2565,6 +2586,61 @@
 			path = accessor;
 			sourceTree = "<group>";
 		};
+		B21FA9D722063C2B00806B68 /* ui_tests_lib */ = {
+			isa = PBXGroup;
+			children = (
+				B27551F7208182BE00AA7A38 /* keyvault */,
+				B27551E620817CD400AA7A38 /* MSIDTestConfigurationProvider.h */,
+				B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */,
+				B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */,
+				B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */,
+				B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */,
+				B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */,
+				B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */,
+				B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */,
+				B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */,
+				B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */,
+			);
+			path = ui_tests_lib;
+			sourceTree = "<group>";
+		};
+		B21FA9D822063C3200806B68 /* ui_app_lib */ = {
+			isa = PBXGroup;
+			children = (
+				B2D8581B21C1DABD0043035A /* ui_common */,
+				B25A437B21C34CC7000B3DD4 /* ios */,
+				B25A437A21C34CC7000B3DD4 /* macos */,
+				B25A436B21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h */,
+				B25A436C21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m */,
+				B25A437521C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h */,
+				B25A39E121C4C81B00213A62 /* MSIDOpenURLAction.h */,
+			);
+			path = ui_app_lib;
+			sourceTree = "<group>";
+		};
+		B21FA9D922063C3A00806B68 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				B25A39EE21C4CD6300213A62 /* MSIDAutomationActionConstants.h */,
+				B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */,
+				B25A437F21C3516B000B3DD4 /* MSIDAutomationTestRequest.h */,
+				B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */,
+				B25A437021C34A26000B3DD4 /* MSIDAutomationTestResult.h */,
+				B25A437121C34A26000B3DD4 /* MSIDAutomationTestResult.m */,
+				B2D0A68821D0875C0071E0DA /* MSIDAutomationErrorResult.h */,
+				B2D0A68921D0875C0071E0DA /* MSIDAutomationErrorResult.m */,
+				B2D0A69921D09F220071E0DA /* MSIDAutomationUserInformation.h */,
+				B2D0A69A21D09F220071E0DA /* MSIDAutomationUserInformation.m */,
+				B2D0A68D21D087790071E0DA /* MSIDAutomationSuccessResult.h */,
+				B2D0A68E21D087790071E0DA /* MSIDAutomationSuccessResult.m */,
+				B2D0A69E21D09F8D0071E0DA /* MSIDAutomationAccountsResult.h */,
+				B2D0A69F21D09F8D0071E0DA /* MSIDAutomationAccountsResult.m */,
+				B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */,
+				B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */,
+			);
+			path = shared;
+			sourceTree = "<group>";
+		};
 		B226D85B1FFB07840012BF8B /* token */ = {
 			isa = PBXGroup;
 			children = (
@@ -2666,32 +2742,6 @@
 			path = logger;
 			sourceTree = "<group>";
 		};
-		B25A436A21C33D70000B3DD4 /* action_common */ = {
-			isa = PBXGroup;
-			children = (
-				B25A437B21C34CC7000B3DD4 /* ios */,
-				B25A437A21C34CC7000B3DD4 /* macos */,
-				B25A436B21C33D88000B3DD4 /* MSIDClearCookiesTestAction.h */,
-				B25A436C21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m */,
-				B25A437021C34A26000B3DD4 /* MSIDAutomationTestResult.h */,
-				B25A437121C34A26000B3DD4 /* MSIDAutomationTestResult.m */,
-				B2D0A68821D0875C0071E0DA /* MSIDAutomationErrorResult.h */,
-				B2D0A68921D0875C0071E0DA /* MSIDAutomationErrorResult.m */,
-				B2D0A69921D09F220071E0DA /* MSIDAutomationUserInformation.h */,
-				B2D0A69A21D09F220071E0DA /* MSIDAutomationUserInformation.m */,
-				B2D0A68D21D087790071E0DA /* MSIDAutomationSuccessResult.h */,
-				B2D0A68E21D087790071E0DA /* MSIDAutomationSuccessResult.m */,
-				B2D0A69E21D09F8D0071E0DA /* MSIDAutomationAccountsResult.h */,
-				B2D0A69F21D09F8D0071E0DA /* MSIDAutomationAccountsResult.m */,
-				B2D8581B21C1DABD0043035A /* ui_common */,
-				B25A437521C34CB6000B3DD4 /* MSIDClearKeychainTestAction.h */,
-				B25A39E121C4C81B00213A62 /* MSIDOpenURLAction.h */,
-				B25A39EE21C4CD6300213A62 /* MSIDAutomationActionConstants.h */,
-				B25A39EF21C4CD6300213A62 /* MSIDAutomationActionConstants.m */,
-			);
-			path = action_common;
-			sourceTree = "<group>";
-		};
 		B25A437A21C34CC7000B3DD4 /* macos */ = {
 			isa = PBXGroup;
 			children = (
@@ -2707,15 +2757,6 @@
 				B25A39E221C4C81B00213A62 /* MSIDOpenURLAction.m */,
 			);
 			path = ios;
-			sourceTree = "<group>";
-		};
-		B25A437E21C350A0000B3DD4 /* request_common */ = {
-			isa = PBXGroup;
-			children = (
-				B25A437F21C3516B000B3DD4 /* MSIDAutomationTestRequest.h */,
-				B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */,
-			);
-			path = request_common;
 			sourceTree = "<group>";
 		};
 		B27551F7208182BE00AA7A38 /* keyvault */ = {
@@ -2909,21 +2950,9 @@
 		B2C758FE207EE58200C1FE74 /* automation */ = {
 			isa = PBXGroup;
 			children = (
-				B25A437E21C350A0000B3DD4 /* request_common */,
-				B25A436A21C33D70000B3DD4 /* action_common */,
-				B27551F7208182BE00AA7A38 /* keyvault */,
-				B27551E620817CD400AA7A38 /* MSIDTestConfigurationProvider.h */,
-				B27551E520817CD400AA7A38 /* MSIDTestConfigurationProvider.m */,
-				B27551E420817CD300AA7A38 /* MSIDTestAutomationConfiguration.h */,
-				B27551E720817CD400AA7A38 /* MSIDTestAutomationConfiguration.m */,
-				B27551E820817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.h */,
-				B27551E920817CD400AA7A38 /* MSIDTestAutomationConfigurationRequest.m */,
-				B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */,
-				B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */,
-				B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */,
-				B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */,
-				B25A39FD21C60A9E00213A62 /* NSString+MSIDAutomationUtils.h */,
-				B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */,
+				B21FA9D922063C3A00806B68 /* shared */,
+				B21FA9D822063C3200806B68 /* ui_app_lib */,
+				B21FA9D722063C2B00806B68 /* ui_tests_lib */,
 			);
 			path = automation;
 			sourceTree = "<group>";
@@ -3129,10 +3158,10 @@
 				D626FFD31FBD1F2B00EE4487 /* libIdentityTest.a */,
 				D626FFE01FBD1F5700EE4487 /* libIdentityTest.a */,
 				231CE99D1FE86EA300E95D3E /* MSIDTestsHostApp.app */,
-				B27551C8208179EE00AA7A38 /* libIdentityAutomation iOS.a */,
-				B27551D520817A1E00AA7A38 /* libIdentityAutomation Mac.dylib */,
-				B2ED1BA62204D24700A24E82 /* libIdentityLabAutomation iOS.a */,
-				B2ED1BB32204D26700A24E82 /* libIdentityLabAutomation Mac.a */,
+				B27551C8208179EE00AA7A38 /* libIdentityAutomationAppLib iOS.a */,
+				B27551D520817A1E00AA7A38 /* libIdentityAutomationAppLib Mac.dylib */,
+				B2ED1BA62204D24700A24E82 /* libIdentityAutomationTestLib iOS.a */,
+				B2ED1BB32204D26700A24E82 /* libIdentityAutomationTestLib Mac.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3326,6 +3355,7 @@
 			files = (
 				B2D8582E21C1DC2E0043035A /* MSIDAutomationPassedInWebViewController.h in Headers */,
 				B2D8582F21C1DC2E0043035A /* MSIDAutomationMainViewController.h in Headers */,
+				B21FA9EC22063D1300806B68 /* NSString+MSIDAutomationUtils.h in Headers */,
 				B2D0A68A21D0875C0071E0DA /* MSIDAutomationErrorResult.h in Headers */,
 				B25A39E321C4C81B00213A62 /* MSIDOpenURLAction.h in Headers */,
 				B2D8582521C1DAF20043035A /* MSIDAutomationActionManager.h in Headers */,
@@ -3348,13 +3378,19 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B21FA9DD22063CF400806B68 /* MSIDAutomationTestResult.h in Headers */,
 				B2ED1BBC2204D29400A24E82 /* MSIDAutomationTestRequest.h in Headers */,
 				B2ED1BD12204D34D00A24E82 /* MSIDTestAutomationConfigurationRequest.h in Headers */,
 				B2ED1BD72204D35C00A24E82 /* MSIDAutomation-Bridging-Header.h in Headers */,
+				B21FA9E022063CFA00806B68 /* MSIDAutomationErrorResult.h in Headers */,
 				B2ED1BD42204D35400A24E82 /* MSIDClientCredentialHelper.h in Headers */,
 				B2ED1BDA2204D36C00A24E82 /* NSString+MSIDAutomationUtils.h in Headers */,
+				B21FA9E322063D0100806B68 /* MSIDAutomationUserInformation.h in Headers */,
 				B2ED1BCB2204D2C800A24E82 /* MSIDTestConfigurationProvider.h in Headers */,
+				B21FA9E622063D0700806B68 /* MSIDAutomationSuccessResult.h in Headers */,
+				B21FA9DA22063CEA00806B68 /* MSIDAutomationActionConstants.h in Headers */,
 				B2ED1BCE2204D2D100A24E82 /* MSIDTestAutomationConfiguration.h in Headers */,
+				B21FA9E922063D0D00806B68 /* MSIDAutomationAccountsResult.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3593,9 +3629,9 @@
 			productReference = 231CE99D1FE86EA300E95D3E /* MSIDTestsHostApp.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B27551C7208179EE00AA7A38 /* IdentityAutomation iOS */ = {
+		B27551C7208179EE00AA7A38 /* IdentityAutomationAppLib iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B27551CE208179EF00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomation iOS" */;
+			buildConfigurationList = B27551CE208179EF00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomationAppLib iOS" */;
 			buildPhases = (
 				B27551C4208179EE00AA7A38 /* Sources */,
 				B27551C5208179EE00AA7A38 /* Frameworks */,
@@ -3605,14 +3641,14 @@
 			);
 			dependencies = (
 			);
-			name = "IdentityAutomation iOS";
+			name = "IdentityAutomationAppLib iOS";
 			productName = "IdentityAutomation iOS";
-			productReference = B27551C8208179EE00AA7A38 /* libIdentityAutomation iOS.a */;
+			productReference = B27551C8208179EE00AA7A38 /* libIdentityAutomationAppLib iOS.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		B27551D420817A1E00AA7A38 /* IdentityAutomation Mac */ = {
+		B27551D420817A1E00AA7A38 /* IdentityAutomationAppLib Mac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B27551DB20817A1E00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomation Mac" */;
+			buildConfigurationList = B27551DB20817A1E00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomationAppLib Mac" */;
 			buildPhases = (
 				B27551D120817A1E00AA7A38 /* Sources */,
 				B27551D220817A1E00AA7A38 /* Frameworks */,
@@ -3622,14 +3658,14 @@
 			);
 			dependencies = (
 			);
-			name = "IdentityAutomation Mac";
+			name = "IdentityAutomationAppLib Mac";
 			productName = "IdentityAutomation Mac";
-			productReference = B27551D520817A1E00AA7A38 /* libIdentityAutomation Mac.dylib */;
+			productReference = B27551D520817A1E00AA7A38 /* libIdentityAutomationAppLib Mac.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		B2ED1BA52204D24700A24E82 /* IdentityLabAutomation iOS */ = {
+		B2ED1BA52204D24700A24E82 /* IdentityAutomationTestLib iOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B2ED1BAE2204D24700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation iOS" */;
+			buildConfigurationList = B2ED1BAE2204D24700A24E82 /* Build configuration list for PBXNativeTarget "IdentityAutomationTestLib iOS" */;
 			buildPhases = (
 				B2ED1BA22204D24700A24E82 /* Sources */,
 				B2ED1BA32204D24700A24E82 /* Frameworks */,
@@ -3639,14 +3675,14 @@
 			);
 			dependencies = (
 			);
-			name = "IdentityLabAutomation iOS";
+			name = "IdentityAutomationTestLib iOS";
 			productName = "IdentityLabAutomation iOS";
-			productReference = B2ED1BA62204D24700A24E82 /* libIdentityLabAutomation iOS.a */;
+			productReference = B2ED1BA62204D24700A24E82 /* libIdentityAutomationTestLib iOS.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		B2ED1BB22204D26700A24E82 /* IdentityLabAutomation Mac */ = {
+		B2ED1BB22204D26700A24E82 /* IdentityAutomationTestLib Mac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B2ED1BB92204D26700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation Mac" */;
+			buildConfigurationList = B2ED1BB92204D26700A24E82 /* Build configuration list for PBXNativeTarget "IdentityAutomationTestLib Mac" */;
 			buildPhases = (
 				B2ED1BAF2204D26700A24E82 /* Headers */,
 				B2ED1BB02204D26700A24E82 /* Sources */,
@@ -3656,9 +3692,9 @@
 			);
 			dependencies = (
 			);
-			name = "IdentityLabAutomation Mac";
+			name = "IdentityAutomationTestLib Mac";
 			productName = "IdentityLabAutomation Mac";
-			productReference = B2ED1BB32204D26700A24E82 /* libIdentityLabAutomation Mac.a */;
+			productReference = B2ED1BB32204D26700A24E82 /* libIdentityAutomationTestLib Mac.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 		D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */ = {
@@ -3852,10 +3888,10 @@
 				D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */,
 				D626FF671FBA6EDF00EE4487 /* IdentityCoreTests Mac */,
 				231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */,
-				B27551C7208179EE00AA7A38 /* IdentityAutomation iOS */,
-				B27551D420817A1E00AA7A38 /* IdentityAutomation Mac */,
-				B2ED1BA52204D24700A24E82 /* IdentityLabAutomation iOS */,
-				B2ED1BB22204D26700A24E82 /* IdentityLabAutomation Mac */,
+				B27551C7208179EE00AA7A38 /* IdentityAutomationAppLib iOS */,
+				B27551D420817A1E00AA7A38 /* IdentityAutomationAppLib Mac */,
+				B2ED1BA52204D24700A24E82 /* IdentityAutomationTestLib iOS */,
+				B2ED1BB22204D26700A24E82 /* IdentityAutomationTestLib Mac */,
 			);
 		};
 /* End PBXProject section */
@@ -3913,6 +3949,7 @@
 				B2D8582221C1DAF20043035A /* MSIDAutomationActionManager.m in Sources */,
 				B25A437321C34A26000B3DD4 /* MSIDAutomationTestResult.m in Sources */,
 				B2D0A69C21D09F220071E0DA /* MSIDAutomationUserInformation.m in Sources */,
+				B21FA9ED22063D1600806B68 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8583921C1DD830043035A /* MSIDAutomationMainViewController.m in Sources */,
 				B2D0A68B21D0875C0071E0DA /* MSIDAutomationErrorResult.m in Sources */,
 				B2D0A6A121D09F8D0071E0DA /* MSIDAutomationAccountsResult.m in Sources */,
@@ -3927,6 +3964,7 @@
 				B25A436F21C33D88000B3DD4 /* MSIDClearCookiesTestAction.m in Sources */,
 				B2D8584421C1DD9A0043035A /* MSIDAutomationMainViewController.m in Sources */,
 				B25A438321C3516B000B3DD4 /* MSIDAutomationTestRequest.m in Sources */,
+				B21FA9EE22063D1600806B68 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2D8584221C1DD9A0043035A /* MSIDAutomationResultViewController.m in Sources */,
 				B2D0A69121D087790071E0DA /* MSIDAutomationSuccessResult.m in Sources */,
 				B2D8584121C1DD9A0043035A /* MSIDAutomationRequestViewController.m in Sources */,
@@ -3948,15 +3986,21 @@
 				B2ED1BD52204D35700A24E82 /* MSIDClientCredentialHelper.m in Sources */,
 				B2ED1BC12204D2B400A24E82 /* Result.swift in Sources */,
 				B2ED1BC72204D2BF00A24E82 /* KeyVaultError.swift in Sources */,
+				B21FA9EB22063D1000806B68 /* MSIDAutomationAccountsResult.m in Sources */,
 				B2ED1BCF2204D34900A24E82 /* MSIDTestAutomationConfiguration.m in Sources */,
 				B2ED1BDB2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2ED1BD82204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */,
+				B21FA9E822063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */,
 				B2ED1BCC2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
 				B2ED1BC92204D2C300A24E82 /* AuthHeader.swift in Sources */,
 				B2ED1BC52204D2BC00A24E82 /* Secret.swift in Sources */,
+				B21FA9DC22063CEE00806B68 /* MSIDAutomationActionConstants.m in Sources */,
 				B2ED1BBD2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
 				B2ED1BC32204D2B800A24E82 /* Network.swift in Sources */,
 				B2ED1BD22204D35000A24E82 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
+				B21FA9E222063CFE00806B68 /* MSIDAutomationErrorResult.m in Sources */,
+				B21FA9DF22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
+				B21FA9E522063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */,
 				B2ED1BBF2204D2B000A24E82 /* Authentication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3968,15 +4012,21 @@
 				B2ED1BD62204D35800A24E82 /* MSIDClientCredentialHelper.m in Sources */,
 				B2ED1BC22204D2B400A24E82 /* Result.swift in Sources */,
 				B2ED1BC82204D2C000A24E82 /* KeyVaultError.swift in Sources */,
+				B21FA9EA22063D0F00806B68 /* MSIDAutomationAccountsResult.m in Sources */,
 				B2ED1BD02204D34900A24E82 /* MSIDTestAutomationConfiguration.m in Sources */,
 				B2ED1BDC2204D36F00A24E82 /* NSString+MSIDAutomationUtils.m in Sources */,
 				B2ED1BD92204D36200A24E82 /* KeyvaultAuthentication.swift in Sources */,
+				B21FA9E722063D0A00806B68 /* MSIDAutomationSuccessResult.m in Sources */,
 				B2ED1BCD2204D2CC00A24E82 /* MSIDTestConfigurationProvider.m in Sources */,
 				B2ED1BCA2204D2C300A24E82 /* AuthHeader.swift in Sources */,
 				B2ED1BC62204D2BC00A24E82 /* Secret.swift in Sources */,
+				B21FA9DB22063CED00806B68 /* MSIDAutomationActionConstants.m in Sources */,
 				B2ED1BBE2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
 				B2ED1BC42204D2B800A24E82 /* Network.swift in Sources */,
 				B2ED1BD32204D35100A24E82 /* MSIDTestAutomationConfigurationRequest.m in Sources */,
+				B21FA9E122063CFD00806B68 /* MSIDAutomationErrorResult.m in Sources */,
+				B21FA9DE22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
+				B21FA9E422063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */,
 				B2ED1BC02204D2B100A24E82 /* Authentication.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5472,7 +5522,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B27551CE208179EF00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomation iOS" */ = {
+		B27551CE208179EF00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomationAppLib iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B27551CF208179EF00AA7A38 /* Debug */,
@@ -5481,7 +5531,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B27551DB20817A1E00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomation Mac" */ = {
+		B27551DB20817A1E00AA7A38 /* Build configuration list for PBXNativeTarget "IdentityAutomationAppLib Mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B27551DC20817A1E00AA7A38 /* Debug */,
@@ -5490,7 +5540,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B2ED1BAE2204D24700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation iOS" */ = {
+		B2ED1BAE2204D24700A24E82 /* Build configuration list for PBXNativeTarget "IdentityAutomationTestLib iOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B2ED1BAC2204D24700A24E82 /* Debug */,
@@ -5499,7 +5549,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B2ED1BB92204D26700A24E82 /* Build configuration list for PBXNativeTarget "IdentityLabAutomation Mac" */ = {
+		B2ED1BB92204D26700A24E82 /* Build configuration list for PBXNativeTarget "IdentityAutomationTestLib Mac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B2ED1BBA2204D26700A24E82 /* Debug */,
