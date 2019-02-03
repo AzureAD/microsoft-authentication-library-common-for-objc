@@ -43,10 +43,6 @@
         allScopes = [NSMutableOrderedSet new];
     }
     
-    [allScopes addObject:MSID_OAUTH2_SCOPE_OPENID_VALUE];
-    [allScopes addObject:MSID_OAUTH2_SCOPE_OFFLINE_ACCESS_VALUE];
-    [allScopes addObject:MSID_OAUTH2_SCOPE_PROFILE_VALUE];
-    
     parameters[MSID_OAUTH2_SCOPE] = allScopes.msidToString;
     parameters[MSID_OAUTH2_CLIENT_INFO] = @"1";
     
