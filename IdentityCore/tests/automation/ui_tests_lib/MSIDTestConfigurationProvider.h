@@ -52,6 +52,11 @@
 - (MSIDAutomationTestRequest *)defaultConvergedAppRequestWithTenantId:(NSString *)targetTenantId;
 - (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
                                            targetTenantId:(NSString *)targetTenantId;
+
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
+                                           targetTenantId:(NSString *)targetTenantId
+                                            brokerEnabled:(BOOL)brokerEnabled;
+
 - (MSIDAutomationTestRequest *)defaultAppRequest;
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;

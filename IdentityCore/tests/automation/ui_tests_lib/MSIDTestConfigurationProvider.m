@@ -220,9 +220,17 @@
 - (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
                                            targetTenantId:(NSString *)targetTenantId
 {
-    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSDictionary *defaultConf = self.defaultClients[@"default_converged"];
+    return [self defaultConvergedAppRequest:environment targetTenantId:targetTenantId brokerEnabled:NO];
+}
 
+- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
+                                           targetTenantId:(NSString *)targetTenantId
+                                            brokerEnabled:(BOOL)brokerEnabled
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    NSString *confName = brokerEnabled ? @"brokered_converged" : @"default_converged";
+    NSDictionary *defaultConf = self.defaultClients[confName];
+    
     if (defaultConf)
     {
         request.clientId = defaultConf[@"client_id"];
@@ -237,8 +245,9 @@
         request.configurationAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
         request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
         request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+        request.brokerEnabled = brokerEnabled;
     }
-
+    
     return request;
 }
 
