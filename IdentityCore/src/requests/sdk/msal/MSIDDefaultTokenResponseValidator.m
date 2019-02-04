@@ -44,7 +44,7 @@
      we'd like to throw an error and specify which scopes were granted and which ones not
      */
 
-    NSMutableOrderedSet *grantedScopes = tokenResult.tokenResponse ? [[tokenResult.tokenResponse.scope msidScopeSet] mutableCopy] : [tokenResult.accessToken.scopes mutableCopy];
+    NSMutableOrderedSet *grantedScopes = [tokenResult.accessToken.scopes mutableCopy];
     NSOrderedSet *oidcScopes = [oidcScope msidScopeSet];
 
     if (![configuration.scopes isSubsetOfOrderedSet:grantedScopes])
