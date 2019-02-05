@@ -22,19 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
 
-@interface MSIDPKeyAuthHandler : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (BOOL)handleChallenge:(NSString *)challengeUrl
-                context:(id<MSIDRequestContext>)context
-      completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
+@interface NSUUID (MSIDTestUtil)
 
-+ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
-                         requestUrl:(NSURL *)requestUrl
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
++ (void)mockUUID:(NSUUID *)uuid;
 
-+ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
++ (void)reset;
 
 @end
+
+NS_ASSUME_NONNULL_END

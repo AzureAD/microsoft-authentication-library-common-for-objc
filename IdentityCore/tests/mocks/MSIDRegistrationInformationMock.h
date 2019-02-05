@@ -21,20 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#import "MSIDRegistrationInformation.h"
 
-@interface MSIDPKeyAuthHandler : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (BOOL)handleChallenge:(NSString *)challengeUrl
-                context:(id<MSIDRequestContext>)context
-      completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
+@interface MSIDRegistrationInformationMock : MSIDRegistrationInformation
 
-+ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
-                         requestUrl:(NSURL *)requestUrl
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
+@property (nonatomic) BOOL isWorkPlaceJoinedFlag;
 
-+ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
+- (void)setPrivateKey:(SecKeyRef)privateKey;
+- (void)setCertificateIssuer:(NSString *)certificateIssuer;
 
 @end
+
+NS_ASSUME_NONNULL_END
