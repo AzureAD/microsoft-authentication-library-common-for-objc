@@ -100,6 +100,67 @@
     XCTAssertEqualObjects(response.cloudHostName, @"cloudHost");
 }
 
+- (void)testInit_whenURLContainsBothFragmentAndQuery_withCodeInQuery_shouldContainResponseWithAllValues
+{
+    NSString *state = @"state";
+    
+    NSError *error;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
+    urlComponents.queryItems = @{
+                                 MSID_OAUTH2_CODE : @"code",
+                                 MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost",
+                                 MSID_OAUTH2_STATE : state.msidBase64UrlEncode
+                                 }.urlQueryItemsArray;
+    urlComponents.fragment = @"_=_";
+    
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.authorizationCode, @"code");
+    XCTAssertEqualObjects(response.cloudHostName, @"cloudHost");
+}
+
+- (void)testInit_whenURLContainsBothFragmentAndQuery_withCodeInFragment_shouldContainResponseWithAllValues
+{
+    NSString *state = @"state";
+    
+    NSError *error;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
+    urlComponents.queryItems = @{
+                                 MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost",
+                                 MSID_OAUTH2_STATE : state.msidBase64UrlEncode
+                                 }.urlQueryItemsArray;
+    urlComponents.fragment = @"code=fragment_code";
+    
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.authorizationCode, @"fragment_code");
+    XCTAssertEqualObjects(response.cloudHostName, @"cloudHost");
+}
+
+- (void)testInit_whenURLContainsBothFragmentAndQuery_withCodeInBoth_shouldUseCodeFromTheQuery
+{
+    NSString *state = @"state";
+    
+    NSError *error;
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithString:@"https://contoso.com"];
+    urlComponents.queryItems = @{
+                                 MSID_OAUTH2_CODE : @"query_code",
+                                 MSID_AUTH_CLOUD_INSTANCE_HOST_NAME : @"cloudHost",
+                                 MSID_OAUTH2_STATE : state.msidBase64UrlEncode
+                                 }.urlQueryItemsArray;
+    urlComponents.fragment = @"code=fragment_code&_=_";
+    
+    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.authorizationCode, @"query_code");
+    XCTAssertEqualObjects(response.cloudHostName, @"cloudHost");
+}
 
 - (void)testInit_whenNoCloudHostInstanceNameExist_shouldNotContainCloudInstanceHostName
 {
