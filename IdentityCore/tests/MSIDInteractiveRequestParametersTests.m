@@ -81,7 +81,7 @@
                                                                                                          error:nil];
     
     NSOrderedSet *allScopes = [parameters allAuthorizeRequestScopes];
-    XCTAssertEqualObjects([@"scope scope2 openid" msidScopeSet], allScopes);
+    XCTAssertEqualObjects([@"scope scope2" msidScopeSet], allScopes);
     
 }
 
