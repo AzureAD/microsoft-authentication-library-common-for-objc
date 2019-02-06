@@ -38,7 +38,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 @implementation MSIDPkeyAuthHelperTests
 
-+ (void)setUp
+- (void)setUp
 {
     [self swizzleMethod:@selector(getRegistrationInformation:error:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
@@ -49,11 +49,11 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     [NSDate mockCurrentDate:[[NSDate alloc] initWithTimeIntervalSince1970:5]];
 }
 
-+ (void)tearDown
+- (void)tearDown
 {
     [self swizzleMethod:@selector(getRegistrationInformation:error:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
-             withMethod:@selector(getRegistrationInformation:error:)
+             withMethod:@selector(getRegistrationInformationMock:error:)
               fromClass:[self class]
      ];
     
@@ -121,7 +121,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     return signingKey;
 }
 
-+ (void)swizzleMethod:(SEL)defaultMethod
+- (void)swizzleMethod:(SEL)defaultMethod
               inClass:(Class)class
            withMethod:(SEL)swizzledMethod
             fromClass:(Class)aNewClass
