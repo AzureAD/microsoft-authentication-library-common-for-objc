@@ -77,7 +77,9 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     mutableUrlRequest.URL = requestUrl;
     mutableUrlRequest.timeoutInterval = self.timeoutInterval;
     mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+#if TARGET_OS_IPHONE
     [mutableUrlRequest setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
+#endif
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];
