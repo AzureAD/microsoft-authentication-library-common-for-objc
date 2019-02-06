@@ -40,8 +40,6 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 - (void)setUp
 {
-    s_registrationInformationToReturn = nil;
-    
     [self swizzleMethod:@selector(getRegistrationInformation:error:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
              withMethod:@selector(getRegistrationInformationMock:error:)
@@ -64,32 +62,12 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 #pragma mark - Tests
 
-- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJ_shouldCreateProperResponse
+- (void)testCreateDeviceAuthResponse_shouldCreateProperResponse
 {
     if (@available(iOS 10.0, *))
     {
-        __auto_type regInfo = [MSIDRegistrationInformationMock new];
-        regInfo.isWorkPlaceJoinedFlag = YES;
-        [regInfo setPrivateKey:[self privateKey]];
-        [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
-        s_registrationInformationToReturn = regInfo;
-        __auto_type challengeData = @{@"Context": @"some context",
-                                      @"Version": @"1.0",
-                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
-                                      @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
-        
-        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:@"https://someurl.com" challengeData:challengeData context:nil error:nil];
-        
-        __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21ldXJsLmNvbSIsCiAgIm5vbmNlIiA6ICJYTm1lNlpsbm5aZ0lTNGJNSFB6WTRSaWhrSEZxQ0g2czFoblJnanY4WTBRIiwKICAiaWF0IiA6ICI1Igp9.NI9E37170Ykse1oRZlBqkzCn-VLbde3HGi6MdQOFlnkIopSDlzeh00Fc2-YAVcKMPbmmbHZRpOppoZGTFItRSzOyiDQkpVaC_l89w1ip2OdarOffdc2SmGmFL80RqlsnWEvz7h1tC-Ziq5A1va58alL2hrPwdZe8fTGzQmo87MUz_gLwdf8GHbGqVqgE_csavbFrPo1iHu6qZiIcI8CBYzRpXOZsILDlvjBjtuxQ1cJDSBkmTg1TUemU8yrbxoB4wcTxvgmDbe8QCCCJwyxbo4Ww8leQd0D3cCrhRHihs6bHjI2y9z00vOj-4Qj0JC20hGUW9EdZFuB8vmvwsyT34g\", Context=\"some context\", Version=\"1.0\"";
-        
-        XCTAssertEqualObjects(expectedResponse, response);
-    }
-}
-
-- (void)testCreateDeviceAuthResponse_whenDeviceIsNotWPJ_shouldCreateProperResponse
-{
-    if (@available(iOS 10.0, *))
-    {
+        // Not WPJoined.
+        s_registrationInformationToReturn = nil;
         __auto_type challengeData = @{@"Context": @"some context",
                                       @"Version": @"1.0",
                                       @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
@@ -98,6 +76,19 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
         __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:@"https://someurl.com" challengeData:challengeData context:nil error:nil];
         
         __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
+        
+        XCTAssertEqualObjects(expectedResponse, response);
+        
+        // WPJoined.
+        __auto_type regInfo = [MSIDRegistrationInformationMock new];
+        regInfo.isWorkPlaceJoinedFlag = YES;
+        [regInfo setPrivateKey:[self privateKey]];
+        [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+        s_registrationInformationToReturn = regInfo;
+        
+        response = [MSIDPkeyAuthHelper createDeviceAuthResponse:@"https://someurl.com" challengeData:challengeData context:nil error:nil];
+        
+        expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21ldXJsLmNvbSIsCiAgIm5vbmNlIiA6ICJYTm1lNlpsbm5aZ0lTNGJNSFB6WTRSaWhrSEZxQ0g2czFoblJnanY4WTBRIiwKICAiaWF0IiA6ICI1Igp9.NI9E37170Ykse1oRZlBqkzCn-VLbde3HGi6MdQOFlnkIopSDlzeh00Fc2-YAVcKMPbmmbHZRpOppoZGTFItRSzOyiDQkpVaC_l89w1ip2OdarOffdc2SmGmFL80RqlsnWEvz7h1tC-Ziq5A1va58alL2hrPwdZe8fTGzQmo87MUz_gLwdf8GHbGqVqgE_csavbFrPo1iHu6qZiIcI8CBYzRpXOZsILDlvjBjtuxQ1cJDSBkmTg1TUemU8yrbxoB4wcTxvgmDbe8QCCCJwyxbo4Ww8leQd0D3cCrhRHihs6bHjI2y9z00vOj-4Qj0JC20hGUW9EdZFuB8vmvwsyT34g\", Context=\"some context\", Version=\"1.0\"";
         
         XCTAssertEqualObjects(expectedResponse, response);
     }
