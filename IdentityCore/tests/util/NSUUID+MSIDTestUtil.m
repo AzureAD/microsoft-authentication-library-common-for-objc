@@ -21,20 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#import "NSUUID+MSIDTestUtil.h"
+#import <objc/runtime.h>
 
-@interface MSIDPKeyAuthHandler : NSObject
+static NSUUID *s_mockUUID;
+static BOOL s_swizzleState = NO;
 
-+ (BOOL)handleChallenge:(NSString *)challengeUrl
-                context:(id<MSIDRequestContext>)context
-      completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
+@implementation NSUUID (MSIDTestUtil)
 
-+ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
-                         requestUrl:(NSURL *)requestUrl
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
++ (void)mockUUID:(NSUUID *)uuid
+{
+    s_mockUUID = uuid;
+    
+    if (!s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = YES;
+    }
+}
 
-+ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
++ (void)reset
+{
+    if (s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = NO;
+    }
+}
+
++ (instancetype)mockedUUID
+{
+    return s_mockUUID;
+}
+
+#pragma mark - Private
+
++ (void)swapMethods
+{
+    Method origMethod = class_getClassMethod(NSUUID.class, @selector(UUID));
+    Method mockMethod = class_getClassMethod(NSUUID.class, @selector(mockedUUID));
+    method_exchangeImplementations(origMethod, mockMethod);
+}
 
 @end

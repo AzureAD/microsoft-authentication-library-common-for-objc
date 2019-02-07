@@ -91,9 +91,6 @@
                             context:(id<MSIDRequestContext>)context
                   completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler
 {
-    //pkeyauth word length=8 + 1 whitespace
-    wwwAuthHeaderValue = [wwwAuthHeaderValue substringFromIndex:[kMSIDPKeyAuthName length] + 1];
-    
     NSDictionary *authHeaderParams = [self parseAuthHeader:wwwAuthHeaderValue];
     
     if (!authHeaderParams)
@@ -107,7 +104,6 @@
                                                           challengeData:authHeaderParams
                                                                 context:context
                                                                   error:&error];
-    
     if (completionHandler)
     {
         completionHandler(authHeader, error);
@@ -128,6 +124,9 @@
     {
         return nil;
     }
+    
+    //pkeyauth word length=8 + 1 whitespace
+    authHeader = [authHeader substringFromIndex:[kMSIDPKeyAuthName length] + 1];
     
     NSMutableDictionary *params = [NSMutableDictionary new];
     NSUInteger strLength = [authHeader length];
@@ -243,7 +242,6 @@
         currentRange.location += length;
         currentRange.length -= length;
     }
-    
     
     return params;
 }

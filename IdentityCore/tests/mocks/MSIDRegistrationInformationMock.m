@@ -21,20 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#import "MSIDRegistrationInformationMock.h"
 
-@interface MSIDPKeyAuthHandler : NSObject
+@implementation MSIDRegistrationInformationMock
 
-+ (BOOL)handleChallenge:(NSString *)challengeUrl
-                context:(id<MSIDRequestContext>)context
-      completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _securityIdentity = (SecIdentityRef)@"";
+        _certificate = (SecCertificateRef)@"";
+        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    return self;
+}
 
-+ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
-                         requestUrl:(NSURL *)requestUrl
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
+- (void)setPrivateKey:(SecKeyRef)privateKey
+{
+    _privateKey = privateKey;
+}
 
-+ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
+- (void)setCertificateIssuer:(NSString *)certificateIssuer
+{
+    _certificateIssuer = certificateIssuer;
+}
+
+- (BOOL)isWorkPlaceJoined
+{
+    return self.isWorkPlaceJoinedFlag;
+}
 
 @end
