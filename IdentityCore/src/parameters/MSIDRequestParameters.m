@@ -92,7 +92,6 @@
 - (void)initDefaultSettings
 {
     _tokenExpirationBuffer = 300;
-    _oidcScope = MSID_OAUTH2_SCOPE_OPENID_VALUE;
     _extendedLifetimeEnabled = NO;
     _logComponent = [MSIDVersion sdkName];
     _telemetryRequestId = [[MSIDTelemetry sharedInstance] generateRequestId];

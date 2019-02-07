@@ -30,4 +30,9 @@
                 context:(id<MSIDRequestContext>)context
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
 
++ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
+                         requestUrl:(NSURL *)requestUrl
+                            context:(id<MSIDRequestContext>)context
+                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
+
 @end

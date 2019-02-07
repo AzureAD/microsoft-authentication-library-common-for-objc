@@ -32,8 +32,8 @@
  Result could be any type, it depens on specific implementation in a subclass.
  */
 - (nullable id)responseObjectForResponse:(nullable NSHTTPURLResponse *)httpResponse
-                           data:(nullable NSData *)data
-                        context:(nullable id <MSIDRequestContext>)context
-                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+                                    data:(nullable NSData *)data
+                                 context:(nullable id <MSIDRequestContext>)context
+                                   error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

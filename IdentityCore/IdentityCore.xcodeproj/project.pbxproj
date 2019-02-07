@@ -280,6 +280,7 @@
 		6035CD8D207EA67300369E69 /* MSIDTelemetryIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6035CD8B207EA67300369E69 /* MSIDTelemetryIntegrationTests.m */; };
 		6057EE9020B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6057EE8F20B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m */; };
 		6057EE9120B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6057EE8F20B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m */; };
+		6065B06822051B0100C66DDF /* MSIDPKeyAuthHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */; };
 		606830062098ACED00CCA6AB /* MSIDNegotiateHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 606830042098ACED00CCA6AB /* MSIDNegotiateHandler.m */; };
 		6068300A2098C9D300CCA6AB /* MSIDCredentialCollectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 606830092098C9D300CCA6AB /* MSIDCredentialCollectionController.m */; };
 		606830102098E94100CCA6AB /* MSIDCertificateChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6068300F2098E94100CCA6AB /* MSIDCertificateChooser.m */; };
@@ -3926,6 +3927,7 @@
 				B251CC3D2041058D005E0179 /* MSIDAccessToken.m in Sources */,
 				B297E1E820A12BDE00F370EC /* MSIDDefaultAccountCacheKey.m in Sources */,
 				B251CC4D204105A7005E0179 /* MSIDIdToken.m in Sources */,
+				6065B06822051B0100C66DDF /* MSIDPKeyAuthHandler.m in Sources */,
 				B2893CB11FCF6A8C00E348E9 /* NSMutableDictionary+MSIDExtensions.m in Sources */,
 				B2AF1D30218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.m in Sources */,
 				04930F961FEDB2E100FC4DCD /* MSIDAuthority.m in Sources */,
@@ -4874,6 +4876,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					arm64e,
+					armv7s,
+				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 			};
 			name = Debug;
@@ -4882,6 +4889,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
+				ARCHS = (
+					"$(ARCHS_STANDARD)",
+					arm64e,
+					armv7s,
+				);
 			};
 			name = Release;
 		};

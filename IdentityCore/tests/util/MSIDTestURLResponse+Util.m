@@ -42,6 +42,7 @@
         headers[@"Accept"] = @"application/json";
         headers[@"x-app-name"] = @"MSIDTestsHostApp";
         headers[@"x-app-ver"] = @"1.0";
+        headers[@"x-ms-PkeyAuth"] = @"1.0";
 
         s_msidHeaders = [headers copy];
     });
