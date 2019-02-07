@@ -106,7 +106,7 @@
 {
     if (self.clientId && self.realm)
     {
-        return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:nil];
+        return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:self.appKey];
     }
     
     return nil;

@@ -32,6 +32,7 @@
 
 @property (nonatomic) NSInteger retryCounter;
 @property (nonatomic) NSTimeInterval retryInterval;
+@property (nonatomic) NSURLRequest *urlRequest;
 
 @end
 
