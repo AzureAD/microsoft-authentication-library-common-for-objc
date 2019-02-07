@@ -25,6 +25,12 @@
 
 @interface NSDictionary (MSIDExtensions)
 
+typedef NS_ENUM(NSInteger, MSIDEncodingType){
+    MSIDEncodingTypeURLEncoding,
+    MSIDEncodingTypeWWWFormURLEncoding,
+    MSIDEncodingNone
+};
+
 + (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error;

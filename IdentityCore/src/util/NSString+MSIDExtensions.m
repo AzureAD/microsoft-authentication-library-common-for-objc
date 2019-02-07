@@ -109,27 +109,18 @@ typedef unsigned char byte;
 
 - (NSString *)msidURLEncode
 {
-    static NSCharacterSet* set = nil;
-    
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        
-        NSMutableCharacterSet *allowedSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
-        [allowedSet addCharactersInString:@" "];
-        [allowedSet removeCharactersInString:@"!$&'()*+,/:;=?@"];
-        
-        // This set is essentially english alphanumeric plus -_.~
-        set = allowedSet;
-    });
-    
-    NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
-    return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
+    return [[self msidURLEncodedIgnoreSpace] stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
 }
 
 - (NSString *)msidWWWFormURLEncode
 {
     // Same as percent encode, with exception of replacing space with + instead of %20
-    static NSCharacterSet* set = nil;
+    return [[self msidURLEncodedIgnoreSpace] stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+}
+
+- (NSString *)msidURLEncodedIgnoreSpace
+{
+    static NSCharacterSet *set = nil;
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -140,9 +131,7 @@ typedef unsigned char byte;
         
         set = allowedSet;
     });
-    
-    NSString *encodedString = [self stringByAddingPercentEncodingWithAllowedCharacters:set];
-    return [encodedString stringByReplacingOccurrencesOfString:@" " withString:@"+"];
+    return [self stringByAddingPercentEncodingWithAllowedCharacters:set];
 }
 
 - (NSString *)msidTokenHash
