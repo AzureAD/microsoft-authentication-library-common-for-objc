@@ -93,7 +93,7 @@
 
     [contents addEntriesFromDictionary:protocolContents];
 
-    NSString *query = [NSString msidURLEncodedStringFromDictionary:contents];
+    NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", self.requestParameters.supportedBrokerProtocolScheme, query]];
 
@@ -146,7 +146,7 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidURLEncode] : @"";
+    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -221,7 +221,7 @@
         return nil;
     }
 
-    return [claimsString msidURLEncode];
+    return [claimsString msidWWWFormURLEncode];
 }
 
 - (NSString *)intuneEnrollmentIdsParameterWithError:(NSError **)error

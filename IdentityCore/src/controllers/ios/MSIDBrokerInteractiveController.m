@@ -120,7 +120,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
 
-    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidURLEncode];
+    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
 
     if (!base64UrlKey)
     {
