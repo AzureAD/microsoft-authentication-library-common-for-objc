@@ -21,20 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#import "NSDate+MSIDTestUtil.h"
+#import <objc/runtime.h>
 
-@interface MSIDPKeyAuthHandler : NSObject
+static NSDate *s_mockDate;
+static BOOL s_swizzleState = NO;
 
-+ (BOOL)handleChallenge:(NSString *)challengeUrl
-                context:(id<MSIDRequestContext>)context
-      completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
+@implementation NSDate (MSIDTestUtil)
 
-+ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
-                         requestUrl:(NSURL *)requestUrl
-                            context:(id<MSIDRequestContext>)context
-                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
++ (void)mockCurrentDate:(NSDate *)date
+{
+    s_mockDate = date;
+    
+    if (!s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = YES;
+    }
+}
 
-+ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
++ (void)reset
+{
+    if (s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = NO;
+    }
+}
+
++ (instancetype)mockDate
+{
+    return s_mockDate;
+}
+
+#pragma mark - Private
+
++ (void)swapMethods
+{
+    Method origMethod = class_getClassMethod(NSDate.class, @selector(date));
+    Method mockMethod = class_getClassMethod(NSDate.class, @selector(mockDate));
+    method_exchangeImplementations(origMethod, mockMethod);
+}
 
 @end
