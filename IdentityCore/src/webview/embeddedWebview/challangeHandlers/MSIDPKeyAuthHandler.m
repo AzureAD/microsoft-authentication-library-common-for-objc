@@ -53,12 +53,8 @@
         return YES;
     }
     
-    // Extract authority from submit url
-    NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
-    NSString *authority = [authorityParts objectAtIndex:0];
-    
     error = nil;
-    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
+    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[[NSURL alloc] initWithString:submitUrl]
                                                           challengeData:queryParamsMap
                                                                 context:context
                                                                   error:&error];
@@ -100,7 +96,7 @@
     }
     
     NSError *error = nil;
-    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:requestUrl.absoluteString
+    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:requestUrl
                                                           challengeData:authHeaderParams
                                                                 context:context
                                                                   error:&error];
