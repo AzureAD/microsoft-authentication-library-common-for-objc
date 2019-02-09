@@ -26,17 +26,23 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "NSString+MSIDAutomationUtils.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDTestResetAPIRequest.h"
+#import "MSIDClientCredentialHelper.h"
 
 @interface MSIDTestConfigurationProvider()
 
 @property (nonatomic, strong) NSMutableDictionary *cachedConfigurations;
 @property (nonatomic, strong) NSDictionary *appInstallLinks;
 @property (nonatomic, strong) KeyvaultAuthentication *keyvaultAuthentication;
-@property (nonatomic, strong) NSString *apiPath;
+@property (nonatomic, strong) NSString *userAPIPath;
 @property (nonatomic, strong) NSDictionary *defaultClients;
 @property (nonatomic, strong) NSDictionary *defaultEnvironments;
 @property (nonatomic, strong) NSDictionary *defaultScopes;
 @property (nonatomic, strong) NSDictionary *defaultResources;
+@property (nonatomic, strong) NSString *labAPIPassword;
+@property (nonatomic, strong) NSString *resetAPIPath;
+@property (nonatomic, strong) NSString *resetAPIKeyvaultPath;
+@property (nonatomic, strong) NSDictionary *resetAPIConfiguration;
 
 @end
 
@@ -46,13 +52,14 @@
                               certificatePassword:(NSString *)password
                          additionalConfigurations:(NSDictionary *)additionalConfigurations
                                   appInstallLinks:(NSDictionary *)appInstallLinks
-                                          apiPath:(NSString *)apiPath
+                                      userAPIPath:(NSString *)userAPIPath
                                    defaultClients:(NSDictionary *)defaultClients
                               defaultEnvironments:(NSDictionary *)defaultEnvironments
                             wwEnvironmentIdenfier:(NSString *)wwEnrivonmentIdentifier
                                stressTestInterval:(int)stressTestInterval
                                     defaultScopes:(NSDictionary *)defaultScopes
                                  defaultResources:(NSDictionary *)defaultResources
+                                     resetAPIConf:(NSDictionary *)resetAPIConfiguration
 {
     self = [super init];
 
@@ -60,7 +67,7 @@
     {
         _cachedConfigurations = [NSMutableDictionary dictionary];
         _keyvaultAuthentication = [[KeyvaultAuthentication alloc] initWithCertContents:certificate certPassword:password];
-        _apiPath = apiPath;
+        _userAPIPath = userAPIPath;
         [_cachedConfigurations addEntriesFromDictionary:additionalConfigurations];
         _appInstallLinks = appInstallLinks;
         _defaultClients = defaultClients;
@@ -69,6 +76,9 @@
         _defaultScopes = defaultScopes;
         _defaultResources = defaultResources;
         _stressTestInterval = stressTestInterval;
+        _resetAPIConfiguration = resetAPIConfiguration;
+        _resetAPIPath = resetAPIConfiguration[@"reset_api_path"];
+        _resetAPIKeyvaultPath = resetAPIConfiguration[@"reset_api_keyvault"];
     }
 
     return self;
@@ -113,13 +123,14 @@
                                certificatePassword:certificatePassword
                           additionalConfigurations:additionalConfsDictionary
                                    appInstallLinks:configurationDictionary[@"app_install_urls"]
-                                           apiPath:apiPath
+                                       userAPIPath:apiPath
                                     defaultClients:configurationDictionary[@"default_clients"]
                                defaultEnvironments:configurationDictionary[@"environments"]
                              wwEnvironmentIdenfier:configurationDictionary[@"default_environment"]
                                 stressTestInterval:[configurationDictionary[@"stress_test_interval"] intValue]
                                      defaultScopes:configurationDictionary[@"scopes"]
-                                  defaultResources:configurationDictionary[@"resources"]];
+                                  defaultResources:configurationDictionary[@"resources"]
+                                      resetAPIConf:configurationDictionary[@"reset_api_conf"]];
 
 }
 
@@ -141,7 +152,7 @@
         return;
     }
 
-    NSURL *resultURL = [request requestURLWithAPIPath:_apiPath];
+    NSURL *resultURL = [request requestURLWithAPIPath:self.userAPIPath];
 
     [[[NSURLSession sharedSession] dataTaskWithURL:resultURL
                                  completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
@@ -199,6 +210,110 @@
             completionHandler(secret.value);
         }
     }];
+}
+
+- (void)passwordForLabAPIWithCompletionHandler:(void (^)(NSString *password, NSError *error))completionHandler
+{
+    if (self.labAPIPassword)
+    {
+        completionHandler(self.labAPIPassword, nil);
+        return;
+    }
+    
+    NSURL *url = [NSURL URLWithString:self.resetAPIKeyvaultPath];
+    [Secret getWithUrl:url completion:^(NSError *error, Secret *secret) {
+        
+        if (error)
+        {
+            if (completionHandler)
+            {
+                completionHandler(nil, error);
+            }
+            
+            return;
+        }
+        
+        self.labAPIPassword = secret.value;
+        if (completionHandler) completionHandler(secret.value, nil);
+    }];
+}
+
+- (void)resetPasswordForAccount:(MSIDTestAccount *)account
+              completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
+{
+    MSIDTestResetAPIRequest *request = [MSIDTestResetAPIRequest new];
+    request.apiOperation = @"Password";
+    request.userUPN = account.account;
+    [self callLabAPIWithRequest:request completionHandler:completionHandler];
+}
+
+- (void)removeDeviceForAccount:(MSIDTestAccount *)account
+                      deviceId:(NSString *)deviceId
+             completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
+{
+    MSIDTestResetAPIRequest *request = [MSIDTestResetAPIRequest new];
+    request.apiOperation = @"Device";
+    request.userUPN = account.account;
+    request.deviceGUID = deviceId;
+    [self callLabAPIWithRequest:request completionHandler:completionHandler];
+}
+
+- (void)callLabAPIWithRequest:(MSIDTestResetAPIRequest *)request
+            completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
+{
+    [self passwordForLabAPIWithCompletionHandler:^(NSString *password, NSError *error) {
+        
+        if (!password)
+        {
+            if (completionHandler)
+            {
+                completionHandler(NO, error);
+            }
+            
+            return;
+        }
+        
+        [self getAccessTokenAndCallLabAPI:request
+                              apiPassword:password
+                        completionHandler:completionHandler];
+       
+    }];
+}
+
+- (void)getAccessTokenAndCallLabAPI:(MSIDTestResetAPIRequest *)request
+                        apiPassword:(NSString *)apiPassword
+                  completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
+{
+    [MSIDClientCredentialHelper getAccessTokenForAuthority:self.resetAPIConfiguration[@"reset_api_authority"]
+                                                  resource:self.resetAPIConfiguration[@"reset_api_resource"]
+                                                  clientId:self.resetAPIConfiguration[@"reset_api_client_id"]
+                                          clientCredential:self.resetAPIConfiguration[@"reset_api_client_secret"]
+                                         completionHandler:^(NSString *accessToken, NSError *error) {
+                                             
+                                             NSURL *resultURL = [request requestURLWithAPIPath:self.resetAPIPath labPassword:apiPassword];
+                                             
+                                             NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];
+                                             NSString *bearerHeader = [NSString stringWithFormat:@"Bearer %@", accessToken];
+                                             [urlRequest addValue:bearerHeader forHTTPHeaderField:@"Authorization"];
+                                             
+                                             [[[NSURLSession sharedSession] dataTaskWithRequest:urlRequest
+                                                                              completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+                                               {
+                                                   NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+                                                   
+                                                   if (httpResponse.statusCode == 200)
+                                                   {
+                                                       if (completionHandler)
+                                                       {
+                                                           completionHandler(YES, nil);
+                                                       }
+                                                       
+                                                       return;
+                                                   }
+                                                   
+                                                   completionHandler(NO, error);
+                                               }] resume];
+                                         }];
 }
 
 #pragma mark - Default apps

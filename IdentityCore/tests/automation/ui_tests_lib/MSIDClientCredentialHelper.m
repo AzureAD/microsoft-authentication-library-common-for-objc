@@ -45,6 +45,42 @@
     return accessTokenCache;
 }
 
++ (void)getAccessTokenForAuthority:(NSString *)authority
+                          resource:(NSString *)resource
+                          clientId:(NSString *)clientId
+                  clientCredential:(NSString *)clientCredential
+                 completionHandler:(void (^)(NSString *, NSError *))completionHandler
+{
+    MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authority]
+                                                                                  clientId:clientId
+                                                                                  resource:resource
+                                                                              legacyUserId:clientId];
+    
+    MSIDAccessToken *accessToken = self.accessTokenCache[cacheKey];
+    
+    if (accessToken && !accessToken.isExpired)
+    {
+        if (completionHandler)
+        {
+            completionHandler(accessToken.accessToken, nil);
+        }
+        
+        return;
+    }
+    
+    NSDictionary *postParams = @{@"client_id": clientId,
+                                 @"grant_type": @"client_credentials",
+                                 @"client_secret": clientCredential,
+                                 @"resource": resource,
+                                 };
+    
+    [self getAccessTokenForAuthority:authority
+                            resource:resource
+                            clientId:clientId
+                      postParameters:postParams
+                   completionHandler:completionHandler];
+}
+
 + (void)getAccessTokenForAuthority:(NSString *)authorityString
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
@@ -92,6 +128,21 @@
                                  @"resource": resource,
                                  @"client_assertion": assertion
                                  };
+    
+    [self getAccessTokenForAuthority:authorityString
+                            resource:resource
+                            clientId:clientId
+                      postParameters:postParams
+                   completionHandler:completionHandler];
+}
+
++ (void)getAccessTokenForAuthority:(NSString *)authorityString
+                          resource:(NSString *)resource
+                          clientId:(NSString *)clientId
+                    postParameters:(NSDictionary *)postParams
+                 completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler
+{
+    NSString *tokenEndpoint = [NSString stringWithFormat:@"%@/oauth2/token", authorityString];
     
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:tokenEndpoint]];
     [request setHTTPMethod:@"POST"];
@@ -151,6 +202,12 @@
           }
           
           MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:configuration];
+          
+          MSIDLegacyTokenCacheKey *cacheKey = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:[NSURL URLWithString:authorityString]
+                                                                                        clientId:clientId
+                                                                                        resource:resource
+                                                                                    legacyUserId:clientId];
+          
           self.accessTokenCache[cacheKey] = accessToken;
           
           if (completionHandler)

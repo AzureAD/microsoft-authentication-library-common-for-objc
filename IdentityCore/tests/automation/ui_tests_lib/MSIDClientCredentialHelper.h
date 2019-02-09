@@ -28,6 +28,12 @@
 + (void)getAccessTokenForAuthority:(NSString *)authority
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
+                  clientCredential:(NSString *)clientCredential
+                 completionHandler:(void (^)(NSString *, NSError *))completionHandler;
+
++ (void)getAccessTokenForAuthority:(NSString *)authority
+                          resource:(NSString *)resource
+                          clientId:(NSString *)clientId
                        certificate:(NSData *)certificateData
                certificatePassword:(NSString *)password
                  completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler;

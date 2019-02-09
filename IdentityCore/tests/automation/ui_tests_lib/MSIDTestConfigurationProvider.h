@@ -41,6 +41,14 @@
 - (void)passwordForAccount:(MSIDTestAccount *)account
          completionHandler:(void (^)(NSString *password))completionHandler;
 
+- (void)passwordForLabAPIWithCompletionHandler:(void (^)(NSString *password, NSError *error))completionHandler;
+- (void)resetPasswordForAccount:(MSIDTestAccount *)account
+              completionHandler:(void (^)(BOOL result, NSError *error))completionHandler;
+
+- (void)removeDeviceForAccount:(MSIDTestAccount *)account
+                      deviceId:(NSString *)deviceId
+             completionHandler:(void (^)(BOOL result, NSError *error))completionHandler;
+
 // Default configuration
 - (MSIDAutomationTestRequest *)defaultFociRequestWithBroker;
 - (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker;
