@@ -21,20 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSData+MSIDTestUtil.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation NSData (MSIDTestUtil)
 
-@interface MSIDTestBrokerKeyProviderHelper : NSObject
-
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTag:(NSString *)applicationTag;
-
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTagData:(NSData *)applicationTagData;
++ (NSData *)hexStringToData:(NSString *)dataHexString
+{
+    dataHexString = [dataHexString stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSMutableData *result = [NSMutableData new];
+    unsigned char wholeByte;
+    char byteChars[3] = {'\0','\0','\0'};
+    int i;
+    for (i = 0; i < [dataHexString length] / 2; i++)
+    {
+        byteChars[0] = [dataHexString characterAtIndex:i * 2];
+        byteChars[1] = [dataHexString characterAtIndex:i * 2 + 1];
+        wholeByte = strtol(byteChars, NULL, 16);
+        [result appendBytes:&wholeByte length:1];
+    }
+    
+    return result;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

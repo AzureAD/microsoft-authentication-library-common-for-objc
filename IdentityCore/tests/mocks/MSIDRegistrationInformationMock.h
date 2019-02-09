@@ -21,19 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDRegistrationInformation.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDTestBrokerKeyProviderHelper : NSObject
+@interface MSIDRegistrationInformationMock : MSIDRegistrationInformation
 
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTag:(NSString *)applicationTag;
+@property (nonatomic) BOOL isWorkPlaceJoinedFlag;
 
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTagData:(NSData *)applicationTagData;
+- (void)setPrivateKey:(SecKeyRef)privateKey;
+- (void)setCertificateIssuer:(NSString *)certificateIssuer;
 
 @end
 
