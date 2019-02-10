@@ -25,15 +25,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDTestBrokerKeyProviderHelper : NSObject
+@interface NSUUID (MSIDTestUtil)
 
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTag:(NSString *)applicationTag;
++ (void)mockUUID:(NSUUID *)uuid;
 
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTagData:(NSData *)applicationTagData;
++ (void)reset;
 
 @end
 

@@ -21,20 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSDate+MSIDTestUtil.h"
+#import <objc/runtime.h>
 
-NS_ASSUME_NONNULL_BEGIN
+static NSDate *s_mockDate;
+static BOOL s_swizzleState = NO;
 
-@interface MSIDTestBrokerKeyProviderHelper : NSObject
+@implementation NSDate (MSIDTestUtil)
 
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTag:(NSString *)applicationTag;
++ (void)mockCurrentDate:(NSDate *)date
+{
+    s_mockDate = date;
+    
+    if (!s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = YES;
+    }
+}
 
-+ (void)addKey:(NSData *)keyData
-   accessGroup:(NSString *)accessGroup
-applicationTagData:(NSData *)applicationTagData;
++ (void)reset
+{
+    if (s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = NO;
+    }
+}
+
++ (instancetype)mockDate
+{
+    return s_mockDate;
+}
+
+#pragma mark - Private
+
++ (void)swapMethods
+{
+    Method origMethod = class_getClassMethod(NSDate.class, @selector(date));
+    Method mockMethod = class_getClassMethod(NSDate.class, @selector(mockDate));
+    method_exchangeImplementations(origMethod, mockMethod);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

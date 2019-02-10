@@ -35,4 +35,6 @@
                             context:(id<MSIDRequestContext>)context
                   completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler;
 
++ (NSDictionary *)parseAuthHeader:(NSString *)authHeader;
+
 @end
