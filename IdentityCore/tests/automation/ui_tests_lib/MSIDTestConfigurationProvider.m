@@ -303,9 +303,13 @@
                                                    
                                                    if (httpResponse.statusCode == 200)
                                                    {
+                                                       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                                                       // TODO: ask lab to return operation success in a more reasonable way
+                                                       BOOL operationSuccessful = [responseString containsString:@"successful"];
+                                                       
                                                        if (completionHandler)
                                                        {
-                                                           completionHandler(YES, nil);
+                                                           completionHandler(operationSuccessful, nil);
                                                        }
                                                        
                                                        return;
