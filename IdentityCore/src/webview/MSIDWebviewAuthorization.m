@@ -115,8 +115,8 @@ static MSIDWebviewSession *s_currentSession = nil;
     
     void (^startCompletionBlock)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *error) {
         if (error) {
-            completionHandler(nil, error);
             [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
+            completionHandler(nil, error);
             return;
         }
         
@@ -128,8 +128,8 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                                           context:nil
                                                                             error:&responseError];
         
-        completionHandler(response, responseError);
         [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
+        completionHandler(response, responseError);
     };
     
     [s_currentSession.webviewController startWithCompletionHandler:startCompletionBlock];
