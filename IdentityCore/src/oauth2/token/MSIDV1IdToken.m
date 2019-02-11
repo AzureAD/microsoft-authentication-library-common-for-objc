@@ -21,32 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDNetworkConfiguration.h"
-#import "MSIDAuthority.h"
+#import "MSIDV1IdToken.h"
+#import "MSIDCredentialCacheItem.h"
 
-@interface MSIDConfiguration : NSObject <NSCopying>
+@implementation MSIDV1IdToken
 
-// Commonly used or needed properties
-@property (readwrite) MSIDAuthority *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readonly) NSString *target;
-
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-@property (readwrite) BOOL requestV1IdToken;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                         resource:(NSString *)resource
-                           scopes:(NSOrderedSet<NSString *> *)scopes;
+- (MSIDCredentialCacheItem *)tokenCacheItem
+{
+    MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.isLegacyToken = YES;
+    return cacheItem;
+}
 
 @end

@@ -86,7 +86,7 @@
         && self.target
         && self.targetMatchingOptions == MSIDExactStringMatch)
     {
-        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
+        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey isLegacyToken:self.isLegacyToken];
     }
 
     return nil;
@@ -96,7 +96,7 @@
 {
     if (self.queryClientId)
     {
-        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:nil enrollmentId:nil target:nil appKey:self.appKey];
+        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:nil enrollmentId:nil target:nil appKey:self.appKey isLegacyToken:self.isLegacyToken];
     }
 
     return nil;
@@ -106,7 +106,7 @@
 {
     if (self.clientId && self.realm)
     {
-        return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:self.appKey];
+        return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:self.appKey isLegacyToken:self.isLegacyToken];
     }
     
     return nil;

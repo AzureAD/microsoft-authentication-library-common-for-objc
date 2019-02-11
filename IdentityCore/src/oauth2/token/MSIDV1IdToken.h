@@ -21,32 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDNetworkConfiguration.h"
-#import "MSIDAuthority.h"
+#import "MSIDIdToken.h"
 
-@interface MSIDConfiguration : NSObject <NSCopying>
-
-// Commonly used or needed properties
-@property (readwrite) MSIDAuthority *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readonly) NSString *target;
-
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-@property (readwrite) BOOL requestV1IdToken;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                         resource:(NSString *)resource
-                           scopes:(NSOrderedSet<NSString *> *)scopes;
+@interface MSIDV1IdToken : MSIDIdToken
 
 @end

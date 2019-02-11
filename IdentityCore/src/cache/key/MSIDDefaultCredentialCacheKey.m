@@ -30,6 +30,7 @@
 
 static NSString *keyDelimiter = @"-";
 static NSInteger kCredentialTypePrefix = 2000;
+static NSString *legacyTokenPrefix = @"v1";
 
 @implementation MSIDDefaultCredentialCacheKey
 
@@ -42,6 +43,7 @@ static NSInteger kCredentialTypePrefix = 2000;
                  enrollmentId:(NSString *)enrollmentId
                        target:(NSString *)target
                        appKey:(NSString *)appKey
+                isLegacyToken:(BOOL)isLegacyToken
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
@@ -49,7 +51,8 @@ static NSInteger kCredentialTypePrefix = 2000;
     enrollmentId = enrollmentId.msidTrimmedString.lowercaseString;
 
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm enrollmentId:enrollmentId];
-    NSString *service = [NSString stringWithFormat:@"%@%@%@",
+    NSString *service = [NSString stringWithFormat:@"%@%@%@%@",
+                         (isLegacyToken ? legacyTokenPrefix : @""),
                          credentialId,
                          keyDelimiter,
                          (target ? target : @"")];
@@ -137,7 +140,13 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)service
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
+    return [self serviceWithType:self.credentialType
+                        clientID:clientId
+                           realm:self.realm
+                    enrollmentId:self.enrollmentId
+                          target:self.target
+                          appKey:self.appKey
+                   isLegacyToken:self.isLegacyToken];
 }
 
 @end

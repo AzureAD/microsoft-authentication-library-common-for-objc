@@ -37,13 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *target;
 @property (nullable, nonatomic) NSString *enrollmentId;
 @property (nonatomic) MSIDCredentialType credentialType;
+@property (nonatomic) BOOL isLegacyToken;
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
                           environment:(NSString *)environment
                              clientId:(NSString *)clientId
                        credentialType:(MSIDCredentialType)type;
 
-- (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId target:(nullable NSString *)target appKey:(nullable NSString *)appKey;
+- (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId target:(nullable NSString *)target appKey:(nullable NSString *)appKey isLegacyToken:(BOOL)isLegacyToken;
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId;
 - (NSString *)accountIdWithHomeAccountId:(NSString *)homeAccountId environment:(NSString *)environment;
 - (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType;

@@ -166,6 +166,12 @@
     [self updateMSIDConfiguration];
 }
 
+- (void)setRequestV1IdToken:(BOOL)requestV1IdToken
+{
+    [self updateMSIDConfiguration];
+    _msidConfiguration.requestV1IdToken = requestV1IdToken;
+}
+
 - (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error
 {
     NSString *trimmedClaims = claims.msidTrimmedString;

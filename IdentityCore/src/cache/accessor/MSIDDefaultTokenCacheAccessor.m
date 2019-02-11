@@ -306,6 +306,7 @@
     query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
+    query.isLegacyToken = configuration.requestV1IdToken;
     query.credentialType = MSIDIDTokenType;
 
     return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority

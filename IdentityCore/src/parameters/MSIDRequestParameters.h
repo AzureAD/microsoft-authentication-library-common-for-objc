@@ -77,6 +77,8 @@
 
 - (BOOL)validateParametersWithError:(NSError **)error;
 
+- (void)setRequestV1IdToken:(BOOL)requestV1IdToken;
+
 #pragma mark - Init
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
