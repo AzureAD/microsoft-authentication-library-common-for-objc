@@ -103,35 +103,29 @@ typedef unsigned char byte;
 - (NSString *)msidWWWFormURLDecode
 {
     // Two step decode: first replace + with a space, then percent unescape
-    NSString *replacedString = [self stringByReplacingOccurrencesOfString:@"+" withString:@" "];
+    // Note, percentage decoding of " " is " ", which is same for "%20" but for clarity, changing this to %20.
+    NSString *replacedString = [self stringByReplacingOccurrencesOfString:@"+" withString:@"%20"];
     return [replacedString msidURLDecode];
 }
 
 - (NSString *)msidURLEncode
 {
-    return [[self msidURLEncodedIgnoreSpace] stringByReplacingOccurrencesOfString:@" " withString:@"%20"];
+    static NSCharacterSet *set = nil;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSMutableCharacterSet *allowedSet = [[NSCharacterSet alphanumericCharacterSet] mutableCopy];
+        [allowedSet addCharactersInString:@"-._~"];
+        set = allowedSet;
+    });
+    
+    return [self stringByAddingPercentEncodingWithAllowedCharacters:set];
 }
 
 - (NSString *)msidWWWFormURLEncode
 {
     // Same as percent encode, with exception of replacing space with + instead of %20
-    return [[self msidURLEncodedIgnoreSpace] stringByReplacingOccurrencesOfString:@" " withString:@"+"];
-}
-
-- (NSString *)msidURLEncodedIgnoreSpace
-{
-    static NSCharacterSet *set = nil;
-    
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        
-        NSMutableCharacterSet *allowedSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
-        [allowedSet addCharactersInString:@" "];
-        [allowedSet removeCharactersInString:@"!$&'()*+,/:;=?@"];
-        
-        set = allowedSet;
-    });
-    return [self stringByAddingPercentEncodingWithAllowedCharacters:set];
+    return [[self msidURLEncode] stringByReplacingOccurrencesOfString:@"%20" withString:@"+"];
 }
 
 - (NSString *)msidTokenHash
