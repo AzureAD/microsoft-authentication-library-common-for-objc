@@ -31,6 +31,10 @@ NS_ASSUME_NONNULL_BEGIN
    accessGroup:(NSString *)accessGroup
 applicationTag:(NSString *)applicationTag;
 
++ (void)addKey:(NSData *)keyData
+   accessGroup:(NSString *)accessGroup
+applicationTagData:(NSData *)applicationTagData;
+
 @end
 
 NS_ASSUME_NONNULL_END

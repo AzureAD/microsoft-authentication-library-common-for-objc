@@ -34,13 +34,20 @@
 applicationTag:(NSString *)applicationTag
 {
     NSData *symmetricTag = [applicationTag dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *keychainGroup = [MSIDKeychainUtil accessGroup:accessGroup];
+    [self addKey:keyData accessGroup:accessGroup applicationTagData:symmetricTag];
+}
 
++ (void)addKey:(NSData *)keyData
+   accessGroup:(NSString *)accessGroup
+applicationTagData:(NSData *)applicationTagData
+{
+    NSString *keychainGroup = [MSIDKeychainUtil accessGroup:accessGroup];
+    
     NSDictionary *symmetricKeyAttr =
     @{
       (id)kSecClass : (id)kSecClassKey,
       (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric,
-      (id)kSecAttrApplicationTag : (id)symmetricTag,
+      (id)kSecAttrApplicationTag : (id)applicationTagData,
       (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
       (id)kSecAttrKeySizeInBits : @(kChosenCipherKeySize << 3),
       (id)kSecAttrEffectiveKeySize : @(kChosenCipherKeySize << 3),
@@ -50,7 +57,7 @@ applicationTag:(NSString *)applicationTag
       (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
       (id)kSecAttrAccessGroup : keychainGroup
       };
-
+    
     SecItemAdd((__bridge CFDictionaryRef)symmetricKeyAttr, NULL);
 }
 
