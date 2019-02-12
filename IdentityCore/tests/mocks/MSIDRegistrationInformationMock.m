@@ -21,14 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
+#import "MSIDRegistrationInformationMock.h"
 
-@interface MSIDPkeyAuthHelper : NSObject
+@implementation MSIDRegistrationInformationMock
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                                        context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError * _Nullable * _Nullable)error;
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _securityIdentity = (SecIdentityRef)@"";
+        _certificate = (SecCertificateRef)@"";
+        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    return self;
+}
+
+- (void)setPrivateKey:(SecKeyRef)privateKey
+{
+    _privateKey = privateKey;
+}
+
+- (void)setCertificateIssuer:(NSString *)certificateIssuer
+{
+    _certificateIssuer = certificateIssuer;
+}
+
+- (BOOL)isWorkPlaceJoined
+{
+    return self.isWorkPlaceJoinedFlag;
+}
 
 @end

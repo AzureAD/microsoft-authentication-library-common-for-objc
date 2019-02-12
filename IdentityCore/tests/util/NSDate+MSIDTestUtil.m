@@ -21,14 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
+#import "NSDate+MSIDTestUtil.h"
+#import <objc/runtime.h>
 
-@interface MSIDPkeyAuthHelper : NSObject
+static NSDate *s_mockDate;
+static BOOL s_swizzleState = NO;
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                                        context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError * _Nullable * _Nullable)error;
+@implementation NSDate (MSIDTestUtil)
+
++ (void)mockCurrentDate:(NSDate *)date
+{
+    s_mockDate = date;
+    
+    if (!s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = YES;
+    }
+}
+
++ (void)reset
+{
+    if (s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = NO;
+    }
+}
+
++ (instancetype)mockDate
+{
+    return s_mockDate;
+}
+
+#pragma mark - Private
+
++ (void)swapMethods
+{
+    Method origMethod = class_getClassMethod(NSDate.class, @selector(date));
+    Method mockMethod = class_getClassMethod(NSDate.class, @selector(mockDate));
+    method_exchangeImplementations(origMethod, mockMethod);
+}
 
 @end

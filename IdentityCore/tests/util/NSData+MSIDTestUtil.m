@@ -21,14 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
+#import "NSData+MSIDTestUtil.h"
 
-@interface MSIDPkeyAuthHelper : NSObject
+@implementation NSData (MSIDTestUtil)
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                                        context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError * _Nullable * _Nullable)error;
++ (NSData *)hexStringToData:(NSString *)dataHexString
+{
+    dataHexString = [dataHexString stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSMutableData *result = [NSMutableData new];
+    unsigned char wholeByte;
+    char byteChars[3] = {'\0','\0','\0'};
+    int i;
+    for (i = 0; i < [dataHexString length] / 2; i++)
+    {
+        byteChars[0] = [dataHexString characterAtIndex:i * 2];
+        byteChars[1] = [dataHexString characterAtIndex:i * 2 + 1];
+        wholeByte = strtol(byteChars, NULL, 16);
+        [result appendBytes:&wholeByte length:1];
+    }
+    
+    return result;
+}
 
 @end

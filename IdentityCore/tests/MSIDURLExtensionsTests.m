@@ -82,8 +82,8 @@
 - (void)testAdQueryParameters_whenURINotURL
 {
     // Valid redirect url
-    NSDictionary *simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
-    XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bar2"] msidQueryParameters]));
+    NSDictionary *simple = @{@"foo1":@"bar1", @"foo2":@"bars s"};
+    XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?foo1=bar1&foo2=bars%20s"] msidQueryParameters]));
 }
 
 - (void)testAdQueryParamters_whenMixedQueryFragment
@@ -91,12 +91,6 @@
     //Mixed query and fragment configuration:
     NSDictionary *simple = @{@"foo1":@"bar1", @"foo2":@"bar2"};
     XCTAssertEqualObjects(simple, ([[NSURL URLWithString:@"https://stuff.com?foo1=bar1&foo2=bar2#foo3=bar3"] msidQueryParameters]));
-}
-
-- (void)testMsQueryParameters_whenContainsPercentEncoding
-{
-    NSDictionary *withEncoded = @{@"foo1" : @"bar1", @"foo2" : @"bar2", @"foo3=bar3" : @"foo4&bar4=bar5"};
-    XCTAssertEqualObjects(withEncoded, ([[NSURL URLWithString:@"https://contoso.com?foo1=bar1&foo2=bar2&foo3%3Dbar3=foo4%26bar4%3Dbar5"] msidQueryParameters]));
 }
 
 - (void)testMsidHostWithPortIfNecessary_whenNoPortSpecified
@@ -369,7 +363,7 @@
 
     NSURL *resultURL = [inputURL msidURLWithQueryParameters:@{@"spec ial,":@"value1", @"key2": @"value2"}];
 
-    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&spec+ial%2C=value1&key2=value2"];
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://somehost.com:652?existing1=value2&spec%20ial%2C=value1&key2=value2"];
 
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }

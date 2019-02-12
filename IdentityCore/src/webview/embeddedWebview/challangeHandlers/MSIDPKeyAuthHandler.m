@@ -41,7 +41,7 @@
     
     NSArray *parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
-    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qp];
+    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromURLEncodedString:qp];
     NSString *submitUrl = [queryParamsMap valueForKey:@"SubmitUrl"];
     
     // Fail if the PKeyAuth challenge doesn't contain the required info
@@ -53,12 +53,8 @@
         return YES;
     }
     
-    // Extract authority from submit url
-    NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
-    NSString *authority = [authorityParts objectAtIndex:0];
-    
     error = nil;
-    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
+    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[[NSURL alloc] initWithString:submitUrl]
                                                           challengeData:queryParamsMap
                                                                 context:context
                                                                   error:&error];
@@ -77,13 +73,173 @@
         [queryDict setValue:item.value forKey:item.name];
     }
     [queryDict setValue:MSIDDeviceId.deviceId[MSID_VERSION_KEY] forKey:MSID_VERSION_KEY];
-    responseUrlComp.percentEncodedQuery = [queryDict msidWWWFormURLEncode];
+    responseUrlComp.percentEncodedQuery = [queryDict msidURLEncode];
     
     NSMutableURLRequest *responseReq = [[NSMutableURLRequest alloc] initWithURL:responseUrlComp.URL];
     [responseReq setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
     [responseReq setValue:authHeader forHTTPHeaderField:MSID_OAUTH2_AUTHORIZATION];
     completionHandler(responseReq, nil);
     return YES;
+}
+
++ (void)handleWwwAuthenticateHeader:(NSString *)wwwAuthHeaderValue
+                         requestUrl:(NSURL *)requestUrl
+                            context:(id<MSIDRequestContext>)context
+                  completionHandler:(void (^)(NSString *authHeader, NSError *error))completionHandler
+{
+    NSDictionary *authHeaderParams = [self parseAuthHeader:wwwAuthHeaderValue];
+    
+    if (!authHeaderParams)
+    {
+        MSID_LOG_ERROR(context, @"Unparseable wwwAuthHeader received");
+        MSID_LOG_ERROR_PII(context, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
+    }
+    
+    NSError *error = nil;
+    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:requestUrl
+                                                          challengeData:authHeaderParams
+                                                                context:context
+                                                                  error:&error];
+    if (completionHandler)
+    {
+        completionHandler(authHeader, error);
+    }
+}
+
+// Decodes the parameters that come in the Authorization header. We expect them in the following
+// format:
+//
+// <key>="<value>", key="<value>", key="<value>"
+// i.e. version="1.0",CertAuthorities="OU=MyOrganization,CN=MyThingy,DN=windows,DN=net",Context="context!"
+//
+// This parser is lenient on whitespace, and on the presence of enclosing quotation marks. It also
+// will allow commented out quotation marks
++ (NSDictionary *)parseAuthHeader:(NSString *)authHeader
+{
+    if (!authHeader)
+    {
+        return nil;
+    }
+    
+    //pkeyauth word length=8 + 1 whitespace
+    authHeader = [authHeader substringFromIndex:[kMSIDPKeyAuthName length] + 1];
+    
+    NSMutableDictionary *params = [NSMutableDictionary new];
+    NSUInteger strLength = [authHeader length];
+    NSRange currentRange = NSMakeRange(0, strLength);
+    NSCharacterSet *whiteChars = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+    NSCharacterSet *alphaNum = [NSCharacterSet alphanumericCharacterSet];
+    
+    while (currentRange.location < strLength)
+    {
+        // Eat up any whitepace at the beginning
+        while (currentRange.location < strLength && [whiteChars characterIsMember:[authHeader characterAtIndex:currentRange.location]])
+        {
+            ++currentRange.location;
+            --currentRange.length;
+        }
+        
+        if (currentRange.location == strLength)
+        {
+            return params;
+        }
+        
+        if (![alphaNum characterIsMember:[authHeader characterAtIndex:currentRange.location]])
+        {
+            // malformed string
+            return nil;
+        }
+        
+        // Find the key
+        NSUInteger found = [authHeader rangeOfString:@"=" options:0 range:currentRange].location;
+        // If there are no keys left then exit out
+        if (found == NSNotFound)
+        {
+            // If there still is string left that means it's malformed
+            if (currentRange.length > 0)
+            {
+                return nil;
+            }
+            
+            // Otherwise we're at the end, return params
+            return params;
+        }
+        NSUInteger length = found - currentRange.location;
+        NSString *key = [authHeader substringWithRange:NSMakeRange(currentRange.location, length)];
+        
+        // don't want the '='
+        ++length;
+        currentRange.location += length;
+        currentRange.length -= length;
+        
+        NSString *value = nil;
+        
+        
+        if ([authHeader characterAtIndex:currentRange.location] == '"')
+        {
+            ++currentRange.location;
+            --currentRange.length;
+            
+            found = currentRange.location;
+            
+            do {
+                NSRange range = NSMakeRange(found, strLength - found);
+                found = [authHeader rangeOfString:@"\"" options:0 range:range].location;
+            } while (found != NSNotFound && [authHeader characterAtIndex:found-1] == '\\');
+            
+            // If we couldn't find a matching closing quote then we have a malformed string and return NULL
+            if (found == NSNotFound)
+            {
+                return nil;
+            }
+            
+            length = found - currentRange.location;
+            value = [authHeader substringWithRange:NSMakeRange(currentRange.location, length)];
+            
+            ++length;
+            currentRange.location += length;
+            currentRange.length -= length;
+            
+            // find the next comma
+            found = [authHeader rangeOfString:@"," options:0 range:currentRange].location;
+            if (found != NSNotFound)
+            {
+                length = found - currentRange.location;
+            }
+            
+        }
+        else
+        {
+            found = [authHeader rangeOfString:@"," options:0 range:currentRange].location;
+            // If we didn't find the comma that means we're at the end of the list
+            if (found == NSNotFound)
+            {
+                length = currentRange.length;
+            }
+            else
+            {
+                length = found - currentRange.location;
+            }
+            
+            value = [authHeader substringWithRange:NSMakeRange(currentRange.location, length)];
+        }
+        
+        NSString *existingValue = [params valueForKey:key];
+        if (existingValue)
+        {
+            [params setValue:[existingValue stringByAppendingFormat:@".%@", value] forKey:key];
+        }
+        else
+        {
+            [params setValue:value forKey:key];
+        }
+        
+        ++length;
+        currentRange.location += length;
+        currentRange.length -= length;
+    }
+    
+    return params;
 }
 
 @end

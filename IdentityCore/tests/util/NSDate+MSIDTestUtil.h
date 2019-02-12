@@ -22,13 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
 
-@interface MSIDPkeyAuthHelper : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                                        context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError * _Nullable * _Nullable)error;
+@interface NSDate (MSIDTestUtil)
+
++ (void)mockCurrentDate:(NSDate *)date;
+
++ (void)reset;
 
 @end
+
+NS_ASSUME_NONNULL_END
