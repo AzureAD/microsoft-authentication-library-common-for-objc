@@ -123,7 +123,7 @@
         tokenEndpoint.host = self.cloudAuthority.environment;
     }
 
-    NSMutableDictionary *endpointQPs = [[NSDictionary msidDictionaryFromWWWFormURLEncodedString:tokenEndpoint.percentEncodedQuery] mutableCopy];
+    NSMutableDictionary *endpointQPs = [[NSDictionary msidDictionaryFromURLEncodedString:tokenEndpoint.percentEncodedQuery] mutableCopy];
 
     if (!endpointQPs)
     {
@@ -135,7 +135,7 @@
         [endpointQPs addEntriesFromDictionary:self.extraURLQueryParameters];
     }
 
-    tokenEndpoint.query = [endpointQPs msidWWWFormURLEncode];
+    tokenEndpoint.query = [endpointQPs msidURLEncode];
     return tokenEndpoint.URL;
 }
 
