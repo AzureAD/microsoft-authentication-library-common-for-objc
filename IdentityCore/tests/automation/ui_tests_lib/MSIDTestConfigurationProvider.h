@@ -66,6 +66,7 @@
                                             brokerEnabled:(BOOL)brokerEnabled;
 
 - (MSIDAutomationTestRequest *)defaultAppRequest;
+- (MSIDAutomationTestRequest *)defaultInstanceAwareAppRequest;
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
 // Environment configuration

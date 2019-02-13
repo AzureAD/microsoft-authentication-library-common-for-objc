@@ -401,6 +401,22 @@
     return request;
 }
 
+- (MSIDAutomationTestRequest *)defaultInstanceAwareAppRequest
+{
+    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
+    NSDictionary *defaultConf = self.defaultClients[@"default_sovereign"];
+    
+    if (defaultConf)
+    {
+        request.clientId = defaultConf[@"client_id"];
+        request.redirectUri = defaultConf[@"redirect_uri"];
+        request.validateAuthority = YES;
+        request.webViewType = self.defaultWebviewTypeForPlatform;
+    }
+    
+    return request;
+}
+
 - (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
