@@ -134,6 +134,7 @@
 - (void)testAllAuthorizeRequestParameters_whenOnlyAuthorizeParameters_shouldReturnAuthorizeParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    parameters.appRequestMetadata = nil;
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     
@@ -145,6 +146,7 @@
 - (void)testAllAuthorizeRequestParameters_whenOnlyTokenParameters_shouldReturnTokenParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    parameters.appRequestMetadata = nil;
     NSDictionary *additionalParams = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraURLQueryParameters = additionalParams;
     
@@ -156,6 +158,7 @@
 - (void)testAllAuthorizeRequestParameters_whenBothAuthorizeAndTokenParameters_shouldReturnAllParametersCombined
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    parameters.appRequestMetadata = nil;
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     parameters.extraURLQueryParameters = @{@"add1": @"val1", @"add2": @"val2"};
