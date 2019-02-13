@@ -82,6 +82,15 @@
     return MSIDLegacyIdentifierTypeOptionalDisplayableId; // default for broker.
 }
 
++ (NSString *)homeAccountIdentifierFromUid:(NSString *)uid utid:(NSString *)utid
+{
+    if (uid && utid)
+    {
+        return [NSString stringWithFormat:@"%@.%@", uid, utid];
+    }
+    else return nil;
+}
+
 #pragma mark - Copy
 
 - (instancetype)copyWithZone:(NSZone *)zone

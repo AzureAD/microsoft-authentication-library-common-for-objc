@@ -103,9 +103,6 @@
                                  MSID_OAUTH2_STATE : state.msidBase64UrlEncode
                                  }.urlQueryItemsArray;
     
-    
-    
-    
     MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:urlComponents.URL
                                                                     requestState:state
                                                               ignoreInvalidState:NO
