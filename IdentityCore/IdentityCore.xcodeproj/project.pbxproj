@@ -1078,6 +1078,7 @@
 		2338ECD4208A7B3200809B9E /* MSIDTestContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestContext.h; sourceTree = "<group>"; };
 		2338ECD5208A7B3200809B9E /* MSIDTestContext.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestContext.m; sourceTree = "<group>"; };
 		2338ECD9208A7CBD00809B9E /* MSIDAADRequestErrorHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADRequestErrorHandlerTests.m; sourceTree = "<group>"; };
+		2353747E22140466002436FC /* MSIDKeychainTokenCache+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDKeychainTokenCache+Internal.h"; sourceTree = "<group>"; };
 		235480BE20DDF80E00246F72 /* MSIDADFSAuthority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDADFSAuthority.h; sourceTree = "<group>"; };
 		235480BF20DDF80E00246F72 /* MSIDAuthorityFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthorityFactory.m; sourceTree = "<group>"; };
 		235480C020DDF80E00246F72 /* MSIDB2CAuthority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDB2CAuthority.h; sourceTree = "<group>"; };
@@ -2266,6 +2267,7 @@
 			children = (
 				9641B51E1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.h */,
 				9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m */,
+				2353747E22140466002436FC /* MSIDKeychainTokenCache+Internal.h */,
 			);
 			path = ios;
 			sourceTree = "<group>";

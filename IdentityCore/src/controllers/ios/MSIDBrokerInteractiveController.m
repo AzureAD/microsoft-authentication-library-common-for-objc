@@ -89,22 +89,30 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    MSID_LOG_INFO(self.requestParameters, @"Beginning broker flow.");
+    
     if (!completionBlock)
     {
-        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
+        MSID_LOG_ERROR(self.requestParameters, @"Passed nil completionBlock. End broker flow.");
         return;
     }
+    
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
+    {
+        MSID_LOG_INFO(self.requestParameters, @"Broker flow finished.");
+        completionBlock(result, error);
+    };
 
     if ([self.class currentBrokerController])
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil);
-        completionBlock(nil, error);
+        completionBlockWrapper(nil, error);
         return;
     }
 
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
-    self.requestCompletionBlock = completionBlock;
+    self.requestCompletionBlock = completionBlockWrapper;
 
     NSError *brokerError = nil;
 
@@ -116,7 +124,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve broker key with error %@", brokerError);
 
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
-        completionBlock(nil, brokerError);
+        completionBlockWrapper(nil, brokerError);
         return;
     }
 
@@ -128,7 +136,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
         NSError *brokerKeyError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, self.requestParameters.correlationId, nil);
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerKeyError];
-        completionBlock(nil, brokerKeyError);
+        completionBlockWrapper(nil, brokerKeyError);
         return;
     }
 
@@ -140,7 +148,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         MSID_LOG_ERROR(self.requestParameters, @"Couldn't create broker request");
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
-        completionBlock(nil, brokerError);
+        completionBlockWrapper(nil, brokerError);
         return;
     }
 
@@ -152,6 +160,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (void)callBrokerWithRequest:(MSIDBrokerTokenRequest *)brokerRequest
 {
+    MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication.");
+    
     [self.class setCurrentBrokerController:self];
     [self.class startTrackingAppState];
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER];

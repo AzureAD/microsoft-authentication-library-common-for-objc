@@ -93,7 +93,7 @@
 
     [contents addEntriesFromDictionary:protocolContents];
 
-    NSString* query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
+    NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", self.requestParameters.supportedBrokerProtocolScheme, query]];
 
@@ -132,8 +132,6 @@
     if (![self checkParameter:self.requestParameters.redirectUri parameterName:@"redirectUri" error:error]) return nil;
     if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
-
-    MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication");
 
     NSString *enrollmentIds = [self intuneEnrollmentIdsParameterWithError:error];
     if (!enrollmentIds) return nil;

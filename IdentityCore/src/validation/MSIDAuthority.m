@@ -85,6 +85,16 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
     [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
+    if ([self isKnown])
+    {
+        MSID_LOG_INFO(context, @"Resolving authority: %@, upn: %@", self.url, _PII_NULLIFY(upn));
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"Resolving authority: %@, upn: %@", _PII_NULLIFY(self.url), _PII_NULLIFY(upn));
+        MSID_LOG_INFO_PII(context, @"Resolving authority: %@, upn: %@", self.url, upn);
+    }
+    
     [resolver resolveAuthority:self
              userPrincipalName:upn
                       validate:validate
@@ -97,6 +107,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
          [validationEvent setAuthorityValidationStatus:validated ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
          [validationEvent setAuthority:self];
          [[MSIDTelemetry sharedInstance] stopEvent:context.telemetryRequestId event:validationEvent];
+         
+         MSID_LOG_INFO(context, @"Resolved authority, validated: %@, error: %ld", validated ? @"YES" : @"NO", (long)error.code);
          
          if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
      }];

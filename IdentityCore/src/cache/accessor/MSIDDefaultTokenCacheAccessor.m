@@ -332,6 +332,7 @@
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
+    MSID_LOG_INFO(context, @"(Default accessor) Get accounts.");
     MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", authority.environment, clientId, familyId);
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId, accountIdentifier.displayableId);
 
@@ -395,12 +396,12 @@
 
     if ([filteredAccountsSet count])
     {
-        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor.", (unsigned long)[filteredAccountsSet count]);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
     {
-        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor");
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor.");
         [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
     }
 
@@ -413,6 +414,15 @@
                                                     context:context
                                                       error:error];
         [filteredAccountsSet addObjectsFromArray:accounts];
+    }
+    
+    if ([filteredAccountsSet count])
+    {
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in other accessors.", (unsigned long)[filteredAccountsSet count]);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in other accessors.");
     }
 
     return [filteredAccountsSet allObjects];
