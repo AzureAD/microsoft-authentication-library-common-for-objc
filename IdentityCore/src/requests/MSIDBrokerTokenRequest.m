@@ -93,7 +93,7 @@
 
     [contents addEntriesFromDictionary:protocolContents];
 
-    NSString* query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
+    NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", self.requestParameters.supportedBrokerProtocolScheme, query]];
 

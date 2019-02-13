@@ -150,14 +150,14 @@ static NSString *s_redirectScheme = nil;
             if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
                 && ![item.value.lowercaseString hasPrefix:s_redirectScheme.lowercaseString])
             {
-                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidWWWFormURLEncode];
+                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value];
             }
             else
             {
                 newQueryItems[item.name] = item.value;
             }
         }
-        requestURLComponents.percentEncodedQuery = [newQueryItems msidWWWFormURLEncode];
+        requestURLComponents.percentEncodedQuery = [newQueryItems msidURLEncode];
         requestURL = requestURLComponents.URL;
     }
     

@@ -60,8 +60,8 @@
 
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock
 {
-    self.sendWithBlockCounter++;
     self.passedBlock = completionBlock;
+    self.sendWithBlockCounter++;
 }
 
 @end
@@ -115,6 +115,7 @@
     
     XCTAssertEqualObjects(block, httpRequest.passedBlock);
     XCTAssertEqual(1, httpRequest.sendWithBlockCounter);
+    XCTAssertEqual(0, httpRequest.retryCounter);
     XCTAssertFalse(isBlockInvoked);
 }
 

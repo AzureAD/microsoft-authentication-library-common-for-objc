@@ -95,7 +95,11 @@
 
 -(void)dealloc
 {
-    [self.webView setNavigationDelegate:nil];
+    if ([self.webView.navigationDelegate isEqual:self])
+    {
+        [self.webView setNavigationDelegate:nil];
+    }
+    
     self.webView = nil;
 }
 
