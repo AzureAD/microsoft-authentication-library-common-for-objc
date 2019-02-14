@@ -2002,7 +2002,7 @@
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:@"uid.utid2"];
     NSError *error = nil;
-    MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account configuration:configuration context:nil error:&error];
+    MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account configuration:configuration idTokenType:MSIDIDTokenType context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(idToken);
