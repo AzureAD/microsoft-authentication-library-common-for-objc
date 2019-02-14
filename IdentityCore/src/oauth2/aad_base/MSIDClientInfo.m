@@ -27,6 +27,7 @@
 
 #import "MSIDClientInfo.h"
 #import "MSIDOAuth2Constants.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDClientInfo
 
@@ -50,11 +51,7 @@ MSID_JSON_RW(@"client_info", rawClientInfo, setRawClientInfo)
 
 - (NSString *)accountIdentifier
 {
-    if (self.uid && self.utid)
-    {
-        return [NSString stringWithFormat:@"%@.%@", self.uid, self.utid];
-    }
-    else return nil;
+    return [MSIDAccountIdentifier homeAccountIdentifierFromUid:self.uid utid:self.utid];
 }
 
 #pragma mark - NSCopying
