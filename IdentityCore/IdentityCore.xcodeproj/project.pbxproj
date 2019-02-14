@@ -1258,6 +1258,7 @@
 		60F7BE8D21DA504900F1BBA1 /* MSIDPRTCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDPRTCacheItem.m; sourceTree = "<group>"; };
 		60F94D302210E8A70035D956 /* MSIDV1IdToken.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDV1IdToken.h; sourceTree = "<group>"; };
 		60F94D312210E8BD0035D956 /* MSIDV1IdToken.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDV1IdToken.m; sourceTree = "<group>"; };
+		60F94D65221549830035D956 /* MSIDDefaultTokenRequestProvider+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDDefaultTokenRequestProvider+Internal.h"; sourceTree = "<group>"; };
 		60FDA9C421A18D3F001E09B8 /* MSIDDefaultBrokerRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultBrokerRequestTests.m; sourceTree = "<group>"; };
 		60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultBrokerResponseHandlerTests.m; sourceTree = "<group>"; };
 		60FDA9D921A5EBBA001E09B8 /* MSIDTestCacheAccessorHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestCacheAccessorHelper.h; sourceTree = "<group>"; };
@@ -2702,6 +2703,7 @@
 				B28D90A8218FD1F800E230D6 /* MSIDDefaultTokenResponseValidator.h */,
 				B28D90A9218FD1F800E230D6 /* MSIDDefaultTokenResponseValidator.m */,
 				B2C707F12192524700D917B8 /* MSIDDefaultTokenRequestProvider.h */,
+				60F94D65221549830035D956 /* MSIDDefaultTokenRequestProvider+Internal.h */,
 				B2C707F22192524700D917B8 /* MSIDDefaultTokenRequestProvider.m */,
 				B2C707FB2192530E00D917B8 /* MSIDDefaultSilentTokenRequest.h */,
 				B2C707FC2192530E00D917B8 /* MSIDDefaultSilentTokenRequest.m */,

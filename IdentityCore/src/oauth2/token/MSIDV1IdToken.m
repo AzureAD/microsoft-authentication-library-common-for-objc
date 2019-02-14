@@ -26,11 +26,20 @@
 
 @implementation MSIDV1IdToken
 
+#pragma mark - Cache
+
 - (MSIDCredentialCacheItem *)tokenCacheItem
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
-    cacheItem.isLegacyToken = YES;
+    cacheItem.credentialType = MSIDLegacyIDTokenType;
     return cacheItem;
+}
+
+#pragma mark - Token type
+
+- (MSIDCredentialType)credentialType
+{
+    return MSIDLegacyIDTokenType;
 }
 
 @end

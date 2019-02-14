@@ -156,16 +156,7 @@
 - (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response
                        configuration:(MSIDConfiguration *)configuration
 {
-    MSIDIdToken *idToken;
-    if (configuration.requestV1IdToken)
-    {
-        idToken = [[MSIDV1IdToken alloc] init];
-    }
-    else
-    {
-        idToken = [[MSIDIdToken alloc] init];
-    }
-    
+    MSIDIdToken *idToken = [[MSIDIdToken alloc] init];
     BOOL result = [self fillIDToken:idToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;

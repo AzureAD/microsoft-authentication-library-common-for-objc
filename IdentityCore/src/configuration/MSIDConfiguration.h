@@ -36,8 +36,6 @@
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 
-@property (readwrite) BOOL requestV1IdToken;
-
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId

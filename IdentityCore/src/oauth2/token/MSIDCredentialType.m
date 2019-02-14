@@ -44,6 +44,9 @@
         case MSIDPrimaryRefreshTokenType:
             return MSID_PRT_TOKEN_CACHE_TYPE;
             
+        case MSIDLegacyIDTokenType:
+            return MSID_LEGACY_ID_TOKEN_CACHE_TYPE;
+            
         default:
             return MSID_GENERAL_TOKEN_CACHE_TYPE;
     }
@@ -62,6 +65,7 @@ static NSDictionary *sCredentialTypes = nil;
                              [MSID_LEGACY_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDLegacySingleResourceTokenType),
                              [MSID_ID_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDIDTokenType),
                              [MSID_PRT_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDPrimaryRefreshTokenType),
+                             [MSID_LEGACY_ID_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDLegacyIDTokenType),
                              [MSID_GENERAL_TOKEN_CACHE_TYPE lowercaseString]: @(MSIDCredentialTypeOther),
                              };
     });

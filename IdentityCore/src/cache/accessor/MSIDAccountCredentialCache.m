@@ -234,7 +234,6 @@
     key.realm = credential.realm;
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
-    key.isLegacyToken = credential.isLegacyToken;
 
     return [_dataSource saveToken:credential
                               key:key
