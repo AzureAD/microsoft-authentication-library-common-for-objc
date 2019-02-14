@@ -27,6 +27,10 @@
 MSIDTestAccountProvider MSIDTestAccountProviderWW = @"AzureCloud";
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
 MSIDTestAccountProvider MSIDTestAccountProviderBlackForest = @"AzureGermanyCloud";
+/*! Us gov is an MSID account hosted in the US government sovereign cloud (.us) */
+MSIDTestAccountProvider MSIDTestAccountProviderAzureUSGov = @"AzureUSGovernment";
+/*! Mooncake is an MSID account hosted in the China sovereign cloud (.cn) */
+MSIDTestAccountProvider MSIDTestAccountProviderChinaCloud = @"AzureChinaCloud";
 /*! MSA is a Microsoft consumer account */
 MSIDTestAccountProvider MSIDTestAccountProviderMSA = @"MSA";
 /*! B2C is a Microsoft B2C account */
@@ -64,7 +68,9 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
 - (BOOL)federated
 {
     if ([self.accountProvider isEqualToString:MSIDTestAccountProviderWW]
-        || [self.accountProvider isEqualToString:MSIDTestAccountProviderBlackForest])
+        || [self.accountProvider isEqualToString:MSIDTestAccountProviderBlackForest]
+        || [self.accountProvider isEqualToString:MSIDTestAccountProviderAzureUSGov]
+        || [self.accountProvider isEqualToString:MSIDTestAccountProviderChinaCloud])
     {
         return NO;
     }

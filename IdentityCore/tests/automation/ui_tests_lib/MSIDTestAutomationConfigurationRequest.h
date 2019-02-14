@@ -34,6 +34,10 @@ extern MSIDTestAccountProvider MSIDTestAccountProviderB2CMSA;
 extern MSIDTestAccountProvider MSIDTestAccountProviderWW;
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
 extern MSIDTestAccountProvider MSIDTestAccountProviderBlackForest;
+/*! Us gov is an MSID account hosted in the US government sovereign cloud (.us) */
+extern MSIDTestAccountProvider MSIDTestAccountProviderAzureUSGov;
+/*! Mooncake is an MSID account hosted in the China sovereign cloud (.cn) */
+extern MSIDTestAccountProvider MSIDTestAccountProviderChinaCloud;
 /*! MSA is a Microsoft consumer account */
 extern MSIDTestAccountProvider MSIDTestAccountProviderMSA;
 /*! A WW account federated using MSIDFSv2 (these accounts can also be used for on-prem tests) */
