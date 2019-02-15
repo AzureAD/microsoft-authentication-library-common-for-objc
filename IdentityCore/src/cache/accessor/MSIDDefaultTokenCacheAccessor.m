@@ -290,10 +290,16 @@
                                                                                           context:context
                                                                                             error:nil];
 
-    return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority
-                                                cacheQuery:query
-                                                   context:context
-                                                     error:error];
+    __auto_type accessToken = (MSIDAccessToken *)[self getTokenWithAuthority:configuration.authority
+                                                                  cacheQuery:query
+                                                                     context:context
+                                                                       error:error];
+    
+    NSTimeInterval expiresIn = [accessToken.expiresOn timeIntervalSinceNow];
+    MSID_LOG_INFO(context, @"Found access token for account %@ which expires in %f", _PII_NULLIFY(accountIdentifier), expiresIn);
+    MSID_LOG_INFO_PII(context, @"Found access token for account %@ which expires in %f", accountIdentifier, expiresIn);
+    
+    return accessToken;
 }
 
 - (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
@@ -397,6 +403,8 @@
     if ([filteredAccountsSet count])
     {
         MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor.", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO_PII(context, @"(Default accessor) Found the following accounts in default accessor: %@", [filteredAccountsSet allObjects]);
+        
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
@@ -419,6 +427,7 @@
     if ([filteredAccountsSet count])
     {
         MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in other accessors.", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO_PII(context, @"(Default accessor) Found the following accounts in other accessors: %@", [filteredAccountsSet allObjects]);
     }
     else
     {

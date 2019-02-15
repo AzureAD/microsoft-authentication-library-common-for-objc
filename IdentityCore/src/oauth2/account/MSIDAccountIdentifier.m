@@ -26,6 +26,11 @@
 
 @implementation MSIDAccountIdentifier
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"MSIDAccountIdentifier displayableId: %@, homeAccountId: %@", self.displayableId, self.homeAccountId];
+}
+
 #pragma mark - Init
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId

@@ -175,8 +175,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ localAccountId=%@)",
-            _authority, _username, _accountIdentifier.homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _localAccountId];
+    return [NSString stringWithFormat:@"MSIDAccount authority: %@ username: %@ homeAccountId: %@ clientInfo: %@ accountType: %@ localAccountId: %@",self.authority, self.username, self.accountIdentifier.homeAccountId, self.clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId];
 }
 
 @end
