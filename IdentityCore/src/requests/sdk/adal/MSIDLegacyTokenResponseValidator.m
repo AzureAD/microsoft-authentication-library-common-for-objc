@@ -35,6 +35,18 @@
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
 {
+    if (!tokenResult.account && accountIdentifier)
+    {
+        MSID_LOG_ERROR_CORR(correlationID, @"No account returned from server.");
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account identifier returned from server.", nil, nil, nil, correlationID, nil);
+        }
+        
+        return NO;
+    }
+    
     // Validate correct account returned
     BOOL accountValid = [self checkAccount:tokenResult
                          accountIdentifier:accountIdentifier
@@ -62,33 +74,33 @@
 {
     MSID_LOG_VERBOSE_CORR(correlationID, @"Checking returned account");
     MSID_LOG_VERBOSE_CORR_PII(correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
-
-    if (!accountIdentifier.displayableId)
-    {
-        return YES;
-    }
-
-    if (!tokenResult.account)
-    {
-        return NO;
-    }
-
+    
     switch (accountIdentifier.legacyAccountIdentifierType)
     {
         case MSIDLegacyIdentifierTypeRequiredDisplayableId:
         {
+            if (!accountIdentifier.displayableId)
+            {
+                return YES;
+            }
+            
             return [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString];
         }
-
+            
         case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
         {
+            if (!accountIdentifier.localAccountId)
+            {
+                return YES;
+            }
+            
             return [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
         }
         case MSIDLegacyIdentifierTypeOptionalDisplayableId:
         {
             return YES;
         }
-
+            
         default:
             return NO;
     }

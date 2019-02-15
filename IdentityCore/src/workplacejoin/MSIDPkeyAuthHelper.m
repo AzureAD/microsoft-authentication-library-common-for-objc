@@ -32,8 +32,8 @@
 
 @implementation MSIDPkeyAuthHelper
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
-                                  challengeData:(nullable NSDictionary*)challengeData
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
+                                  challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
                                           error:(NSError **)error
 {
@@ -98,12 +98,14 @@
     NSString *pKeyAuthHeader = @"";
     if (info)
     {
-        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+        NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
+        urlComponents.query = nil; // Strip out query parameters.
+        __auto_type audience = urlComponents.string;
+        
+        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:audience nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
         info = nil;
     }
-    
-    
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }

@@ -629,6 +629,8 @@
 		B28AC66521A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */; };
 		B28AC66621A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */; };
 		B28AC66A21A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B28AC66821A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.m */; };
+		B28BBD3F221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B28BBD3E221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m */; };
+		B28BBD40221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B28BBD3E221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m */; };
 		B28BDA7A217E961F003E5670 /* MSIDB2COauth2Factory.h in Headers */ = {isa = PBXBuildFile; fileRef = B28BDA78217E961F003E5670 /* MSIDB2COauth2Factory.h */; };
 		B28BDA7B217E961F003E5670 /* MSIDB2COauth2Factory.m in Sources */ = {isa = PBXBuildFile; fileRef = B28BDA79217E961F003E5670 /* MSIDB2COauth2Factory.m */; };
 		B28BDA7C217E961F003E5670 /* MSIDB2COauth2Factory.m in Sources */ = {isa = PBXBuildFile; fileRef = B28BDA79217E961F003E5670 /* MSIDB2COauth2Factory.m */; };
@@ -1507,6 +1509,7 @@
 		B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestBrokerResponseHelper.m; sourceTree = "<group>"; };
 		B28AC66721A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestBrokerKeyProviderHelper.h; sourceTree = "<group>"; };
 		B28AC66821A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestBrokerKeyProviderHelper.m; sourceTree = "<group>"; };
+		B28BBD3E221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacyTokenResponseValidatorTests.m; sourceTree = "<group>"; };
 		B28BDA78217E961F003E5670 /* MSIDB2COauth2Factory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDB2COauth2Factory.h; sourceTree = "<group>"; };
 		B28BDA79217E961F003E5670 /* MSIDB2COauth2Factory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDB2COauth2Factory.m; sourceTree = "<group>"; };
 		B28BDA7D217E964B003E5670 /* MSIDB2CTokenResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDB2CTokenResponse.h; sourceTree = "<group>"; };
@@ -3131,6 +3134,7 @@
 				B2BE923321A0F80000F5AB8C /* MSIDLegacyTokenRequestProviderTests.m */,
 				B25D496321B4BE2A00502BE5 /* MSIDRequestParametersTests.m */,
 				23D204A421D5A745009B5975 /* MSIDDefaultTokenResponseValidatorTests.m */,
+				B28BBD3E221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m */,
 				B274DEC621FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m */,
 				23CA0C49220A3B6900768729 /* MSIDPKeyAuthHandlerTests.m */,
 				23CA0C5E220A68D400768729 /* MSIDPkeyAuthHelperTests.m */,
@@ -3794,6 +3798,7 @@
 				B2936F4A20AA8E1F0050C585 /* MSIDCacheItemJsonSerializerTests.m in Sources */,
 				238AB2A920BF473F00CD8675 /* MSIDURLSessionDelegateTests.m in Sources */,
 				B2808001204CB29900944D89 /* MSIDAADTokenResponseTests.m in Sources */,
+				B28BBD3F221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m in Sources */,
 				239DF9C120E04BC9002D428B /* MSIDB2CAuthorityTests.m in Sources */,
 				B2DD4B4020A934170047A66E /* MSIDCredentialTypeTests.m in Sources */,
 				B2C708DF219BC67F00D917B8 /* MSIDDefaultSilentTokenRequestTests.m in Sources */,
@@ -4047,6 +4052,7 @@
 				B210F42D1FDDE6A5005A8F76 /* MSIDJsonObjectTests.m in Sources */,
 				23AE9DA8213A169200B285F3 /* MSIDOpenIdConfigurationInfoResponseSerializerTests.m in Sources */,
 				B2DD5B952047564C0084313F /* MSIDCredentialTypeTests.m in Sources */,
+				B28BBD40221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m in Sources */,
 				B29A36B920AFAAF200427B63 /* MSIDLegacyAccessorSSOIntegrationTests.m in Sources */,
 				B2DD5BC320479D9D0084313F /* MSIDKeyedArchiverSerializerTests.m in Sources */,
 				238EF081208FFA4C0035ABE6 /* MSIDUrlRequestSerializerTests.m in Sources */,

@@ -24,6 +24,7 @@
 #import "MSIDConstants.h"
 
 NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
+NSString *const MSID_SOURCE_PLATFORM_KEY        = @"x-client-src-SKU";
 NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
 NSString *const MSID_CPU_KEY                    = @"x-client-CPU";
 NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";

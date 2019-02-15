@@ -70,6 +70,7 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
+extern NSString * _Nonnull const MSID_SOURCE_PLATFORM_KEY;//The source SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_VERSION_KEY;
 extern NSString * _Nonnull const MSID_CPU_KEY;//E.g. ARM64
 extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
