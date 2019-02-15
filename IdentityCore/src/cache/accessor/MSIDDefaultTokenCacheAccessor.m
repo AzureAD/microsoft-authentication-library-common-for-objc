@@ -302,7 +302,16 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
-    if (idTokenType!=MSIDIDTokenType && idTokenType!=MSIDLegacyIDTokenType) return nil;
+    if (idTokenType!=MSIDIDTokenType && idTokenType!=MSIDLegacyIDTokenType)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        MSID_LOG_ERROR(context, @"Wrong id token type passed: %@.", [MSIDCredentialTypeHelpers credentialTypeAsString:idTokenType]);
+        return nil;
+    }
     
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accountIdentifier.homeAccountId;
