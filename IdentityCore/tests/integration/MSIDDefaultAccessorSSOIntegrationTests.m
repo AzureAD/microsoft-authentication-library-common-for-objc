@@ -2086,6 +2086,7 @@
     XCTAssertNil(error);
     XCTAssertTrue([v1IdTokenInCache isMemberOfClass:MSIDV1IdToken.class]);
     XCTAssertEqualObjects(v1IdTokenInCache.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(v1IdTokenInCache.rawIdToken, @"v1idToken");
     
     // get v2 id token
     error = nil;
@@ -2094,6 +2095,7 @@
     XCTAssertNil(error);
     XCTAssertTrue([v2IdTokenInCache isMemberOfClass:MSIDIdToken.class]);
     XCTAssertEqualObjects(v2IdTokenInCache.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(v2IdTokenInCache.rawIdToken, @"v2idToken");
                            
 }
 
