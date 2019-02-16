@@ -197,7 +197,7 @@
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError *__autoreleasing *)error
 {
-    if (credentialType!=MSIDRefreshTokenType && credentialType!=MSIDPrimaryRefreshTokenType) return nil;
+    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return nil;
     
     if (![NSString msidIsStringNilOrBlank:accountIdentifier.homeAccountId])
     {
@@ -295,9 +295,16 @@
                                                                      context:context
                                                                        error:error];
     
-    NSTimeInterval expiresIn = [accessToken.expiresOn timeIntervalSinceNow];
-    MSID_LOG_INFO(context, @"Found access token for account %@ which expires in %f", _PII_NULLIFY(accountIdentifier), expiresIn);
-    MSID_LOG_INFO_PII(context, @"Found access token for account %@ which expires in %f", accountIdentifier, expiresIn);
+    if (accessToken)
+    {
+        NSTimeInterval expiresIn = [accessToken.expiresOn timeIntervalSinceNow];
+        MSID_LOG_INFO(context, @"Found access token for account %@ which expires in %f", _PII_NULLIFY(accountIdentifier), expiresIn);
+        MSID_LOG_INFO_PII(context, @"Found access token for account %@ which expires in %f", accountIdentifier, expiresIn);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"Access token wasn't found.");
+    }
     
     return accessToken;
 }
@@ -314,10 +321,22 @@
     query.clientId = configuration.clientId;
     query.credentialType = MSIDIDTokenType;
 
-    return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority
-                                            cacheQuery:query
-                                               context:context
-                                                 error:error];
+    __auto_type idToken = (MSIDIdToken *)[self getTokenWithAuthority:configuration.authority
+                                                          cacheQuery:query
+                                                             context:context
+                                                               error:error];
+    
+    if (idToken)
+    {
+        MSID_LOG_INFO(context, @"Found id token for account %@.", _PII_NULLIFY(accountIdentifier));
+        MSID_LOG_INFO_PII(context, @"Found id token %@ for account %@.", idToken.rawIdToken, accountIdentifier);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"Id token wasn't found.");
+    }
+    
+    return idToken;
 }
 
 - (BOOL)removeAccessToken:(MSIDAccessToken *)token
