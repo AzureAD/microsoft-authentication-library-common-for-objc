@@ -99,6 +99,7 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
                                     httpResponse:httpResponse
                                             data:data
                                      httpRequest:self
+                              responseSerializer:self.responseSerializer
                                          context:self.context
                                  completionBlock:completionBlock];
               }

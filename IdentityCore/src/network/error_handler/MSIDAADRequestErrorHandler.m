@@ -35,6 +35,7 @@
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
         httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+ responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
@@ -91,36 +92,15 @@
                                            }];
             return;
         }
-    }
-
-    __auto_type responseSerializer = [MSIDHttpResponseSerializer new];
-    responseSerializer.preprocessor = [MSIDAADJsonResponsePreprocessor new];
-    id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
-
-    if (responseObject)
-    {
-        MSIDAADTokenResponse *tokenResponse = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:responseObject error:nil];
-
-        if (![NSString msidIsStringNilOrBlank:tokenResponse.error])
+        
+        NSError *responseError = nil;
+        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:&responseError];
+        
+        if (completionBlock)
         {
-            NSError *oauthError = MSIDCreateError(MSIDOAuthErrorDomain,
-                                                  tokenResponse.oauthErrorCode,
-                                                  tokenResponse.errorDescription,
-                                                  tokenResponse.error,
-                                                  tokenResponse.suberror,
-                                                  nil,
-                                                  context.correlationId,
-                                                  nil);
-
-            NSString *message = [NSString stringWithFormat:@"Oauth error raised: %@, sub error: %@, correlation ID: %@", tokenResponse.error, tokenResponse.suberror, tokenResponse.correlationId];
-            NSString *messagePII = [NSString stringWithFormat:@"Oauth error raised: %@, sub error: %@, correlation ID: %@, description: %@", tokenResponse.error, tokenResponse.suberror, tokenResponse.correlationId, tokenResponse.errorDescription];
-
-            MSID_LOG_WARN(context, @"%@", message);
-            MSID_LOG_WARN_PII(context, @"%@", messagePII);
-
-            if (completionBlock) completionBlock(nil, oauthError);
-            return;
+            completionBlock(responseObject, responseError);
         }
+        return;
     }
 
     id errorDescription = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];

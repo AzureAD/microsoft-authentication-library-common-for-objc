@@ -51,6 +51,24 @@
         return nil;
     }
     
+    if ([jsonObject msidAssertContainsField:@"error" context:context error:nil]
+        && [jsonObject msidAssertType:NSString.class ofField:@"error" context:context errorCode:MSIDErrorServerInvalidResponse error:nil])
+    {
+        NSError *oauthError = MSIDCreateError(MSIDOAuthErrorDomain,
+                                              MSIDErrorAuthorityValidation,
+                                              jsonObject[@"error_description"],
+                                              jsonObject[@"error"],
+                                              nil,
+                                              nil,
+                                              context.correlationId,
+                                              nil);
+        if (error)
+        {
+            *error = oauthError;
+        }
+        return nil;
+    }
+    
     __auto_type reponse = [MSIDAADAuthorityMetadataResponse new];
     reponse.metadata = jsonObject[@"metadata"];
     

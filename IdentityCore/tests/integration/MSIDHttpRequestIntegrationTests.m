@@ -59,6 +59,7 @@
 @property (nonatomic) id<MSIDHttpRequestProtocol> passedHttpRequest;
 @property (nonatomic) id<MSIDRequestContext> passedContext;
 @property (nonatomic, copy) MSIDHttpRequestDidCompleteBlock passedBlock;
+@property (nonatomic) id<MSIDResponseSerialization> responseSerializer;
 
 @end
 
@@ -68,6 +69,7 @@
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
         httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+ responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
@@ -78,6 +80,7 @@
     self.passedHttpRequest = httpRequest;
     self.passedContext = context;
     self.passedBlock = completionBlock;
+    self.responseSerializer = responseSerializer;
 }
 
 @end
