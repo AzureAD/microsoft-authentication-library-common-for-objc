@@ -30,6 +30,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBasicContext.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -46,9 +47,10 @@
         return nil;
     }
 
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.correlationId = correlationID;
     NSError *verificationError = nil;
-
-    if (![factory verifyResponse:tokenResponse context:nil error:&verificationError])
+    if (![factory verifyResponse:tokenResponse context:context error:&verificationError])
     {
         if (error)
         {
