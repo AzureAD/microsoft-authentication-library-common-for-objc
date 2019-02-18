@@ -134,6 +134,7 @@
 - (void)testAllAuthorizeRequestParameters_whenOnlyAuthorizeParameters_shouldReturnAuthorizeParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    parameters.appRequestMetadata = nil;
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     
@@ -145,6 +146,7 @@
 - (void)testAllAuthorizeRequestParameters_whenOnlyTokenParameters_shouldReturnTokenParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    parameters.appRequestMetadata = nil;
     NSDictionary *additionalParams = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraURLQueryParameters = additionalParams;
     
@@ -156,6 +158,7 @@
 - (void)testAllAuthorizeRequestParameters_whenBothAuthorizeAndTokenParameters_shouldReturnAllParametersCombined
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    parameters.appRequestMetadata = nil;
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     parameters.extraURLQueryParameters = @{@"add1": @"val1", @"add2": @"val2"};
@@ -164,6 +167,51 @@
     XCTAssertNotNil(eqp);
     NSDictionary *expectedParams = @{@"eqp1": @"val1", @"eqp2": @"val2", @"add1": @"val1", @"add2": @"val2"};
     XCTAssertEqualObjects(eqp, expectedParams);
+}
+
+- (void)testAllAuthorizeRequestParameters_whenOnlyAuthorizeParametersAndAppMetadata_shouldReturnAuthorizeParametersAndAppMetadata
+{
+    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
+    parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
+    NSMutableDictionary *combinedParameters = [NSMutableDictionary new];
+    [combinedParameters addEntriesFromDictionary:parameters.appRequestMetadata];
+    [combinedParameters addEntriesFromDictionary:authorizeEndpointParameters];
+    
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    XCTAssertNotNil(eqp);
+    XCTAssertEqualObjects(eqp, combinedParameters);
+}
+
+- (void)testAllAuthorizeRequestParameters_whenOnlyTokenParametersAndAppMetadata_shouldReturnTokenParametersAndAppMetadata
+{
+    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    NSDictionary *tokenParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
+    parameters.extraURLQueryParameters = tokenParameters;
+    NSMutableDictionary *combinedParameters = [NSMutableDictionary new];
+    [combinedParameters addEntriesFromDictionary:parameters.appRequestMetadata];
+    [combinedParameters addEntriesFromDictionary:tokenParameters];
+    
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    XCTAssertNotNil(eqp);
+    XCTAssertEqualObjects(eqp, combinedParameters);
+}
+
+- (void)testAllAuthorizeRequestParameters_whenAllAuthorizeAndTokenParametersAndAppMetadata_shouldReturnAllParametersCombined
+{
+    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
+    parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
+    NSDictionary *tokenParameters = @{@"add1": @"val1", @"add2": @"val2"};
+    parameters.extraURLQueryParameters = tokenParameters;
+    NSMutableDictionary *combinedParameters = [NSMutableDictionary new];
+    [combinedParameters addEntriesFromDictionary:parameters.appRequestMetadata];
+    [combinedParameters addEntriesFromDictionary:authorizeEndpointParameters];
+    [combinedParameters addEntriesFromDictionary:tokenParameters];
+    
+    NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
+    XCTAssertNotNil(eqp);
+    XCTAssertEqualObjects(eqp, combinedParameters);
 }
 
 @end
