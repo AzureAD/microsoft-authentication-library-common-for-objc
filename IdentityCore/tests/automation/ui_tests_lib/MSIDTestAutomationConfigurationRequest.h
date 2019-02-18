@@ -60,6 +60,8 @@ typedef NSString *MSIDTestAccountFeature;
 extern MSIDTestAccountFeature MSIDTestAccountFeatureMDMEnabled;
 /*! The account has a license to be able to use MAM features */
 extern MSIDTestAccountFeature MSIDTestAccountFeatureMAMEnabled;
+/*! The account has a license to be able to use advanced Intune app protection features */
+extern MSIDTestAccountFeature MSIDTestAccountFeatureTrueMAMEnabled;
 /*! The account is capable of registering a device so that it can respond to device auth challenges. */
 extern MSIDTestAccountFeature MSIDTestAccountFeatureDeviceAuth;
 /*! The account is MFA enabled */

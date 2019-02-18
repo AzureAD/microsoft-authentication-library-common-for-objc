@@ -52,6 +52,7 @@ MSIDTestAccountProvider MSIDTestAccountProviderNTLM = @"NTLM";
 
 MSIDTestAccountFeature MSIDTestAccountFeatureMDMEnabled = @"mam";
 MSIDTestAccountFeature MSIDTestAccountFeatureMAMEnabled = @"mdm";
+MSIDTestAccountFeature MSIDTestAccountFeatureTrueMAMEnabled = @"truemam";
 MSIDTestAccountFeature MSIDTestAccountFeatureDeviceAuth = @"device";
 MSIDTestAccountFeature MSIDTestAccountFeatureMFAEnabled = @"mfa";
 MSIDTestAccountFeature MSIDTestAccountFeatureGuestUser = @"Guest";
@@ -98,9 +99,13 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
     {
         return @"mdmca";
     }
-    else if([self.accountFeatures containsObject:MSIDTestAccountFeatureMFAEnabled])
+    else if ([self.accountFeatures containsObject:MSIDTestAccountFeatureMFAEnabled])
     {
         return @"mfa";
+    }
+    else if ([self.accountFeatures containsObject:MSIDTestAccountFeatureTrueMAMEnabled])
+    {
+        return @"truemam";
     }
 
     return nil;
