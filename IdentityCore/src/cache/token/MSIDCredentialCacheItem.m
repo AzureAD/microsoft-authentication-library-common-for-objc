@@ -51,7 +51,7 @@
     NSString *secretHash = [self.secret dataUsingEncoding:NSUTF8StringEncoding].msidSHA256.msidHexString;
     if (secretHash.length > 8) secretHash = [secretHash substringToIndex:8];
     
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %ld, target: %@, realm: %@, environment: %@ expiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, self.credentialType, self.target, self.realm, self.environment, self.expiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, secretHash];
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@ expiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, secretHash];
 }
 
 #pragma mark - MSIDCacheItem
