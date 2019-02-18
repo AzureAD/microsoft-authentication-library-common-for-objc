@@ -160,7 +160,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (void)callBrokerWithRequest:(MSIDBrokerTokenRequest *)brokerRequest
 {
-    MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication.");
+    MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication, correlationId %@", brokerRequest.requestParameters.correlationId.UUIDString);
     
     [self.class setCurrentBrokerController:self];
     [self.class startTrackingAppState];
