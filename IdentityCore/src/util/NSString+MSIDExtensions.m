@@ -288,4 +288,12 @@ typedef unsigned char byte;
     return [resource stringByAppendingString:@"/.default"];
 }
 
+- (NSString *)msidSecretLoggingHash
+{
+    NSString *secretHash = [self dataUsingEncoding:NSUTF8StringEncoding].msidSHA256.msidHexString;
+    if (secretHash.length > 8) secretHash = [secretHash substringToIndex:8];
+    
+    return secretHash;
+}
+
 @end

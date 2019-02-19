@@ -94,4 +94,7 @@
 /*! Convert resource to scope */
 + (NSString *)msidScopeFromResource:(NSString *)resource;
 
+/* Use this method to log sensitive information like password, access token etc. */
+- (NSString *)msidSecretLoggingHash;
+
 @end
