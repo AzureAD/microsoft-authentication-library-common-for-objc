@@ -245,7 +245,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         return NO;
     }
     
-    MSID_LOG_INFO_PII(context, @"Saveing keychain item, item info %@", item);
+    MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", item);
     
     return [self saveData:itemData
                       key:key
