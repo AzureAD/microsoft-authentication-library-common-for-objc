@@ -298,15 +298,27 @@
 
 - (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
                         configuration:(MSIDConfiguration *)configuration
+                          idTokenType:(MSIDCredentialType)idTokenType
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
+    if (idTokenType!=MSIDIDTokenType && idTokenType!=MSIDLegacyIDTokenType)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        MSID_LOG_ERROR(context, @"Wrong id token type passed: %@.", [MSIDCredentialTypeHelpers credentialTypeAsString:idTokenType]);
+        return nil;
+    }
+    
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accountIdentifier.homeAccountId;
     query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
-    query.credentialType = MSIDIDTokenType;
+    query.credentialType = idTokenType;
 
     return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority
                                             cacheQuery:query

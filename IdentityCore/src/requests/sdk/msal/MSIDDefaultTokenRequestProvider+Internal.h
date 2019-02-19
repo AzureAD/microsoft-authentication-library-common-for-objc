@@ -21,24 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
+@interface MSIDDefaultTokenRequestProvider ()
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDIdToken;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDDefaultSilentTokenRequest : MSIDSilentTokenRequest
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache;
-
--(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
-                                 error:(NSError **)error;
+@property (nonatomic) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 
 @end
-
-NS_ASSUME_NONNULL_END

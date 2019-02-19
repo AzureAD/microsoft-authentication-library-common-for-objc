@@ -72,6 +72,10 @@
         {
             return [self serviceForIDToken];
         }
+        case MSIDLegacyIDTokenType:
+        {
+            return [self serviceForLegacyIDToken];
+        }
         default:
             break;
     }
@@ -107,6 +111,16 @@
     if (self.clientId && self.realm)
     {
         return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:self.appKey];
+    }
+    
+    return nil;
+}
+
+- (NSString *)serviceForLegacyIDToken
+{
+    if (self.clientId && self.realm)
+    {
+        return [self serviceWithType:MSIDLegacyIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:self.appKey];
     }
     
     return nil;
