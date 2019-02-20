@@ -329,7 +329,7 @@
     if (idToken)
     {
         MSID_LOG_INFO(context, @"Found id token for account %@.", _PII_NULLIFY(accountIdentifier));
-        MSID_LOG_INFO_PII(context, @"Found id token %@ for account %@.", idToken.rawIdToken, accountIdentifier);
+        MSID_LOG_INFO_PII(context, @"Found id token %@ for account %@.", [idToken.rawIdToken msidSecretLoggingHash], accountIdentifier);
     }
     else
     {
