@@ -95,10 +95,13 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
           {
               if (self.errorHandler)
               {
+                  id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;
+                  
                   [self.errorHandler handleError:error
                                     httpResponse:httpResponse
                                             data:data
                                      httpRequest:self
+                              responseSerializer:responseSerializer
                                          context:self.context
                                  completionBlock:completionBlock];
               }

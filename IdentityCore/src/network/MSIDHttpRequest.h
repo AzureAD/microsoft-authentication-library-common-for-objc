@@ -53,6 +53,8 @@
 
 @property (nonatomic, nonnull) id<MSIDResponseSerialization> responseSerializer;
 
+@property (nonatomic, nonnull) id<MSIDResponseSerialization> errorResponseSerializer;
+
 @property (nonatomic, nullable) id<MSIDHttpRequestTelemetryHandling> telemetry;
 
 @property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;

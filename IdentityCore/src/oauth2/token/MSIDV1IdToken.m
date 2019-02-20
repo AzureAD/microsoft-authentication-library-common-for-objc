@@ -21,24 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
+#import "MSIDV1IdToken.h"
+#import "MSIDCredentialCacheItem.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDIdToken;
+@implementation MSIDV1IdToken
 
-NS_ASSUME_NONNULL_BEGIN
+#pragma mark - Cache
 
-@interface MSIDDefaultSilentTokenRequest : MSIDSilentTokenRequest
+- (MSIDCredentialCacheItem *)tokenCacheItem
+{
+    MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.credentialType = MSIDLegacyIDTokenType;
+    return cacheItem;
+}
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache;
+#pragma mark - Token type
 
--(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
-                                 error:(NSError **)error;
+- (MSIDCredentialType)credentialType
+{
+    return MSIDLegacyIDTokenType;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
