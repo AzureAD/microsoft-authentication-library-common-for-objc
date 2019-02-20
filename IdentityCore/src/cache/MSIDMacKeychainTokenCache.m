@@ -259,8 +259,10 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                     (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
                 if (account == nil) {
                     NSString *errorMessage = @"Failed to deserialize account";
-                    *error = MSIDCreateError(
-                        MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+                    if (error) {
+                        *error = MSIDCreateError(
+                            MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+                    }
                     MSID_LOG_WARN(context, @"%@", errorMessage);
                     continue;
                 }
