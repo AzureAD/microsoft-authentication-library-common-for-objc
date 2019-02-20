@@ -56,8 +56,8 @@
     {
         NSError *oauthError = MSIDCreateError(MSIDOAuthErrorDomain,
                                               MSIDErrorAuthorityValidation,
-                                              jsonObject[@"error_description"],
-                                              jsonObject[@"error"],
+                                              jsonObject[MSID_OAUTH2_ERROR_DESCRIPTION],
+                                              jsonObject[MSID_OAUTH2_ERROR],
                                               nil,
                                               nil,
                                               context.correlationId,
