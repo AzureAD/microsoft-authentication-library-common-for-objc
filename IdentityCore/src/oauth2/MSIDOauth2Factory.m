@@ -45,6 +45,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDTokenResponseSerializer.h"
+#import "MSIDV1IdToken.h"
 
 @implementation MSIDOauth2Factory
 
