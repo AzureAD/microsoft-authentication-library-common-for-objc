@@ -133,8 +133,6 @@
     if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
-    MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication");
-
     NSString *enrollmentIds = [self intuneEnrollmentIdsParameterWithError:error];
     if (!enrollmentIds) return nil;
 
