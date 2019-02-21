@@ -1500,6 +1500,42 @@
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
 }
 
+- (void)testAccountsWithAuthority_whenNilAuthority_NilClientId_nonNilFamilyId_andHomeAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
+{
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:nil
+                         utid:nil
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+    
+    [self saveResponseWithUPN:@"upn2@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid2"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+    
+    NSError *error = nil;
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:@"uid.utid2"];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:@"3" accountIdentifier:identifier context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid2");
+}
+
 - (void)testAccountsWithAuthority_whenNilAuthority_NonNilClientId_andNonNilFamilyId_andNilAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
 {
     [self saveResponseWithUPN:@"upn@test.com"
