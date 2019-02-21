@@ -131,19 +131,6 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error {
     MSID_TRACE;
-    // Get previous account, so we don't lose any fields
-    NSError* readError;
-    MSIDAccountCacheItem *previousAccount = [self accountWithKey:key serializer:serializer context:context error:&readError];
-    if (readError) {
-        if (error) {
-            *error = readError;
-        }
-        return FALSE;
-    }
-    if (previousAccount) {
-        [account updateFieldsFromAccount:previousAccount];
-    }
-
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
     if (!jsonData) {
         NSString *errorMessage = @"Failed to serialize account to json data.";
@@ -155,16 +142,13 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         return FALSE;
     }
 
-    NSDictionary *query = [self defaultAccountQuery:key];
+    NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
     NSDictionary *update = @{(id)kSecValueData: jsonData};
 
-    OSStatus status;
-    if (previousAccount) {
-        status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-    } else {
-        NSMutableDictionary *dict = [query mutableCopy];
-        [dict addEntriesFromDictionary:update];
-        status = SecItemAdd((CFDictionaryRef)dict, NULL);
+    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+    if (status == errSecItemNotFound) {
+        [query addEntriesFromDictionary:update];
+        status = SecItemAdd((CFDictionaryRef)query, NULL);
     }
 
     if (status != errSecSuccess) {
@@ -255,13 +239,19 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                 continue;
             }
             if (jsonData) {
-                MSIDAccountCacheItem *account =
-                    (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
+                MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
                 if (account == nil) {
                     NSString *errorMessage = @"Failed to deserialize account";
                     if (error) {
                         *error = MSIDCreateError(
-                            MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+                            MSIDErrorDomain,
+                            (NSInteger)MSIDErrorInternal,
+                            errorMessage,
+                            nil,
+                            nil,
+                            nil,
+                            context.correlationId,
+                            nil);
                     }
                     MSID_LOG_WARN(context, @"%@", errorMessage);
                     continue;
