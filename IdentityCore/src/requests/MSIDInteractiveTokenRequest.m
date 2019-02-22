@@ -31,6 +31,7 @@
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebMSAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #endif
@@ -125,8 +126,15 @@
 
             if (oauthResponse.authorizationCode)
             {
+#if AD_BROKER
+                if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
+                {
+                    MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
+                    self.requestParameters.redirectUri = cbaResponse.redirectUri;
+                }
+#endif
                 // handle instance aware flow (cloud host)
-                if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
+                else if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
                 {
                     MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
                     [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];

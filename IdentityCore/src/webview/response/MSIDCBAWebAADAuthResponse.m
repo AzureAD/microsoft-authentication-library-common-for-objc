@@ -25,12 +25,40 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewResponse.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 
-@interface MSIDWebOpenBrowserResponse : MSIDWebviewResponse
+@implementation MSIDCBAWebAADAuthResponse
 
-@property (readonly) NSURL *browserURL;
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    NSString *scheme = url.scheme;
+    NSString *host = url.host;
+    
+    // Check for WPJ or broker response
+    if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"code"]))
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+                                     MSIDErrorServerInvalidResponse,
+                                     @"MSAuth CBA response should have msauth as a scheme and code as a host",
+                                     nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        NSURLComponents *resultUrlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+        resultUrlComponents.query = nil;
+        
+        _redirectUri = resultUrlComponents.URL.absoluteString;
+    }
+    
+    return self;
+}
 
 @end
-

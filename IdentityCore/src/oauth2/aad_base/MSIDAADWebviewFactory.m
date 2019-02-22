@@ -33,6 +33,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -96,6 +97,12 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
+    // Try to create CBA response
+#if AD_BROKER
+    MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
+    if (cbaResponse) return cbaResponse;
+#endif
+    
     // Try to create a WPJ response
     MSIDWebMSAuthResponse *wpjResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;

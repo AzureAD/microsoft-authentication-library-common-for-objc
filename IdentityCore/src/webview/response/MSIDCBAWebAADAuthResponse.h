@@ -25,12 +25,14 @@
 //
 //------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewResponse.h"
+#import "MSIDWebAADAuthResponse.h"
 
-@interface MSIDWebOpenBrowserResponse : MSIDWebviewResponse
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readonly) NSURL *browserURL;
+@interface MSIDCBAWebAADAuthResponse : MSIDWebAADAuthResponse
+
+@property (nonatomic) NSString *redirectUri;
 
 @end
 
+NS_ASSUME_NONNULL_END
