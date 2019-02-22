@@ -132,7 +132,8 @@
                     self.requestParameters.redirectUri = cbaResponse.redirectUri;
                 }
                 // handle instance aware flow (cloud host)
-                else if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
+                
+                if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
                 {
                     MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
                     [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
