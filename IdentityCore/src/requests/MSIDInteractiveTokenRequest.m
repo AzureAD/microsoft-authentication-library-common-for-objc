@@ -126,13 +126,11 @@
 
             if (oauthResponse.authorizationCode)
             {
-#if AD_BROKER
                 if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
                 {
                     MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
                     self.requestParameters.redirectUri = cbaResponse.redirectUri;
                 }
-#endif
                 // handle instance aware flow (cloud host)
                 else if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
                 {
