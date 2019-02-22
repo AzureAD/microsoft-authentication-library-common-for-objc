@@ -33,19 +33,27 @@ static MSIDURLSessionManager *s_defaultManager = nil;
     if (self == [MSIDURLSessionManager self])
     {
         __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.networking.delegateQueue-%@", [NSUUID UUID].UUIDString];
+        __auto_type delegateQueue = [NSOperationQueue new];
+        delegateQueue.name = queueName;
+        delegateQueue.maxConcurrentOperationCount = 1;
+        
         s_defaultManager = [[MSIDURLSessionManager alloc] initWithConfiguration:configuration
-                                                                       delegate:[MSIDURLSessionDelegate new]];
+                                                                       delegate:[MSIDURLSessionDelegate new]
+                                                                  delegateQueue:delegateQueue];
     }
 }
 
-- (instancetype _Nullable )initWithConfiguration:(nonnull NSURLSessionConfiguration *)configuration
-                                        delegate:(nullable MSIDURLSessionDelegate *)delegate
+- (instancetype)initWithConfiguration:(NSURLSessionConfiguration *)configuration
+                             delegate:(MSIDURLSessionDelegate *)delegate
+                        delegateQueue:(NSOperationQueue *)delegateQueue
 {
     self = [super init];
     if (self)
     {
         _configuration = configuration;
-        _session = [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:nil];
+        _session = [NSURLSession sessionWithConfiguration:configuration delegate:delegate delegateQueue:delegateQueue];
     }
     
     return self;
