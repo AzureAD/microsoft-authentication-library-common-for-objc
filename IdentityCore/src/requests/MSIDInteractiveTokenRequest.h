@@ -28,9 +28,9 @@
 @class MSIDInteractiveRequestParameters;
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
-@class MSIDWebMSAuthResponse;
+@class MSIDWebWPJResponse;
 
-typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse);
+typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
 @interface MSIDInteractiveTokenRequest : NSObject
 

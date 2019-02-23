@@ -150,7 +150,7 @@ static NSString *s_redirectScheme = nil;
             if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
                 && ![item.value.lowercaseString hasPrefix:s_redirectScheme.lowercaseString])
             {
-                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value];
+                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidURLEncode];
             }
             else
             {

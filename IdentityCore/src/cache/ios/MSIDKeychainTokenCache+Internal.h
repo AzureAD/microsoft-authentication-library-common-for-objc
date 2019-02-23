@@ -21,41 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestInteractiveTokenRequest.h"
+#import "MSIDKeychainTokenCache.h"
 
-@interface MSIDTestInteractiveTokenRequest()
+@interface MSIDKeychainTokenCache (Internal)
 
-@property (nonatomic) MSIDTokenResult *testTokenResult;
-@property (nonatomic) NSError *testError;
-@property (nonatomic) MSIDWebWPJResponse *testBrokerResponse;
+- (NSString *)keychainGroupLoggingName;
 
-@end
+- (NSMutableArray<MSIDCredentialCacheItem *> *)filterTokenItemsFromKeychainItems:(NSArray *)items
+                                                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                                                         context:(id<MSIDRequestContext>)context;
 
-@implementation MSIDTestInteractiveTokenRequest
+- (MSIDCacheKey *)overrideTokenKey:(MSIDCacheKey *)key;
 
-#pragma mark - Init
-
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
-{
-    self = [super init];
-
-    if (self)
-    {
-        _testTokenResult = tokenResult;
-        _testError = error;
-        _testBrokerResponse = brokerResponse;
-    }
-
-    return self;
-}
-
-#pragma mark - MSIDInteractiveTokenRequest
-
-- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
-{
-    completionBlock(self.testTokenResult, self.testError, self.testBrokerResponse);
-}
+- (NSString *)extractAppKey:(NSString *)cacheKeyString;
 
 @end

@@ -65,6 +65,8 @@
 
 - (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response error:(NSError **)error
 {
+    MSID_LOG_INFO(nil, @"Handling broker response.");
+    
     // Verify resume dictionary
     NSDictionary *resumeState = [self verifyResumeStateDicrionary:response error:error];
 

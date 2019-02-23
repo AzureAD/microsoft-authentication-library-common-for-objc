@@ -270,6 +270,11 @@
             return YES;
         }
         
+        if (accountIdentifier.homeAccountId && ![tokenCacheItem.homeAccountId isEqualToString:accountIdentifier.homeAccountId])
+        {
+            return NO;
+        }
+        
         if (!clientId && !familyId)
         {
             // Nothing else to match by as neither clientId or familyId have been provided

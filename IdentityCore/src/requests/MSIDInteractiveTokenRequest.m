@@ -29,8 +29,9 @@
 #import "MSIDWebviewResponse.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebAADAuthResponse.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #endif
@@ -125,7 +126,13 @@
 
             if (oauthResponse.authorizationCode)
             {
+                if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
+                {
+                    MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
+                    self.requestParameters.redirectUri = cbaResponse.redirectUri;
+                }
                 // handle instance aware flow (cloud host)
+                
                 if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
                 {
                     MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
@@ -140,9 +147,9 @@
             completionBlock(nil, oauthResponse.oauthError, nil);
             return;
         }
-        else if ([response isKindOfClass:MSIDWebMSAuthResponse.class])
+        else if ([response isKindOfClass:MSIDWebWPJResponse.class])
         {
-            completionBlock(nil, nil, (MSIDWebMSAuthResponse *)response);
+            completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {

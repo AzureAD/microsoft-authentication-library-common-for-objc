@@ -35,6 +35,8 @@
 #import "MSIDIdToken.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDClientInfo.h"
+#import "NSData+MSIDExtensions.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
 
@@ -43,6 +45,11 @@
 @end
 
 @implementation MSIDCredentialCacheItem
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@ expiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, [self.secret msidSecretLoggingHash]];
+}
 
 #pragma mark - MSIDCacheItem
 

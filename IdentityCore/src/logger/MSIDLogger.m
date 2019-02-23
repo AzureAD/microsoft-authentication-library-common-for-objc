@@ -146,7 +146,7 @@ static NSDateFormatter *s_dateFormatter = nil;
                 threadName = [NSThread currentThread].name ?: @"";
             }
             
-            __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID = %llu%@", tid, threadName];
+            __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID=%llu%@", tid, threadName];
             
             if (self.NSLoggingEnabled)
             {
