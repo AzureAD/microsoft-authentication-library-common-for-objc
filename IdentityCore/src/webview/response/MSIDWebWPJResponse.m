@@ -25,10 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDClientInfo.h"
 
-@implementation MSIDWebMSAuthResponse
+@implementation MSIDWebWPJResponse
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context

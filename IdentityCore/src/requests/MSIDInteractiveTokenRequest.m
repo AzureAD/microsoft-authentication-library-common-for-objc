@@ -29,7 +29,7 @@
 #import "MSIDWebviewResponse.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebAADAuthResponse.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDCBAWebAADAuthResponse.h"
 #if TARGET_OS_IPHONE
@@ -147,9 +147,9 @@
             completionBlock(nil, oauthResponse.oauthError, nil);
             return;
         }
-        else if ([response isKindOfClass:MSIDWebMSAuthResponse.class])
+        else if ([response isKindOfClass:MSIDWebWPJResponse.class])
         {
-            completionBlock(nil, nil, (MSIDWebMSAuthResponse *)response);
+            completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {

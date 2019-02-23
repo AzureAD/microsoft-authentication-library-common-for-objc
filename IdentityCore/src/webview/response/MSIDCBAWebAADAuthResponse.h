@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSString *redirectUri;
 
++ (BOOL)isCBAWebAADAuthResponse:(NSURL *)url;
+
 @end
 
 NS_ASSUME_NONNULL_END

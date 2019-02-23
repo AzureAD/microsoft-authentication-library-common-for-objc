@@ -26,18 +26,22 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDCBAWebAADAuthResponse.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDCBAWebAADAuthResponse
+
++ (BOOL)isCBAWebAADAuthResponse:(NSURL *)url
+{
+    if (!url) return NO;
+    return ([url.scheme isEqualToString:@"msauth"] && [url.host isEqualToString:@"code"]);
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    NSString *scheme = url.scheme;
-    NSString *host = url.host;
-    
     // Check for WPJ or broker response
-    if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"code"]))
+    if (![self.class isCBAWebAADAuthResponse:url])
     {
         if (error)
         {

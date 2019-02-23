@@ -34,7 +34,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
 #endif
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -78,7 +78,7 @@
 
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable msauthResponse)
+    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable msauthResponse)
     {
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
         {
@@ -99,7 +99,7 @@
     }];
 }
 
-- (void)handleWebMSAuthResponse:(MSIDWebMSAuthResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
+- (void)handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_INFO(self.requestParameters, @"Handling msauth response.");
     
@@ -131,7 +131,7 @@
     completionBlock(nil, appInstallError);
 }
 
-- (void)promptBrokerInstallWithResponse:(__unused MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
+- (void)promptBrokerInstallWithResponse:(__unused MSIDWebWPJResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
 {
 #if TARGET_OS_IPHONE
     if ([NSString msidIsStringNilOrBlank:response.appInstallLink])

@@ -44,7 +44,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDPkce.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDAuthority.h"
 #import "NSString+MSIDTestUtil.h"
