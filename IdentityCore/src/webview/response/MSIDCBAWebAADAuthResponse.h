@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,47 +17,24 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDTestInteractiveTokenRequest.h"
+#import "MSIDWebAADAuthResponse.h"
 
-@interface MSIDTestInteractiveTokenRequest()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) MSIDTokenResult *testTokenResult;
-@property (nonatomic) NSError *testError;
-@property (nonatomic) MSIDWebWPJResponse *testBrokerResponse;
+@interface MSIDCBAWebAADAuthResponse : MSIDWebAADAuthResponse
 
-@end
+@property (nonatomic) NSString *redirectUri;
 
-@implementation MSIDTestInteractiveTokenRequest
-
-#pragma mark - Init
-
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
-{
-    self = [super init];
-
-    if (self)
-    {
-        _testTokenResult = tokenResult;
-        _testError = error;
-        _testBrokerResponse = brokerResponse;
-    }
-
-    return self;
-}
-
-#pragma mark - MSIDInteractiveTokenRequest
-
-- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
-{
-    completionBlock(self.testTokenResult, self.testError, self.testBrokerResponse);
-}
++ (BOOL)isCBAWebAADAuthResponse:(NSURL *)url;
 
 @end
+
+NS_ASSUME_NONNULL_END

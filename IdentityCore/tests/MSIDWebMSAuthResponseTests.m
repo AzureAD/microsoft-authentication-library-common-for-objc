@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 
 @interface MSIDWebMSAuthResponseTests : XCTestCase
 
@@ -38,7 +38,7 @@
 - (void)testInit_whenWrongScheme_shouldReturnNilWithError
 {
     NSError *error = nil;
-    MSIDWebMSAuthResponse *response = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://wpj"]]
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://wpj"]]
                                                                            context:nil
                                                                              error:&error];
 
@@ -53,7 +53,7 @@
 - (void)testInit_whenMSAuthScheme_shouldReturnResponsewithNoError
 {
     NSError *error = nil;
-    MSIDWebMSAuthResponse *response = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&username=user"]]
+    MSIDWebWPJResponse *response = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"msauth://wpj?app_link=applink&username=user"]]
                                                                            context:nil
                                                                              error:&error];
 

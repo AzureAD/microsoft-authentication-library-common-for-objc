@@ -38,7 +38,7 @@
 #import "MSIDRefreshToken.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDTestBrokerResponseHandler.h"
 #endif
@@ -249,7 +249,7 @@
     parameters.telemetryApiId = @"api_broker_success";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2&username=my@test.com"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
@@ -349,7 +349,7 @@
     parameters.telemetryApiId = @"api_broker_wpj";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?username=my@test.com&client_info=eyJ1aWQiOiIwZWE5OWM1OC02NGIzLTRhZmEtYmU1MC00NGU2NDA4ZWRjZDUiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:nil resumeDictionary:nil];
 
     NSError *error = nil;
@@ -412,7 +412,7 @@
     parameters.telemetryApiId = @"api_broker_link_failure";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link_wrong=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:[NSURL URLWithString:@"https://contoso.com"] resumeDictionary:@{}];
 

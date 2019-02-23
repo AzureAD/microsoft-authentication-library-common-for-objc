@@ -33,7 +33,7 @@
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
 #import "MSIDApplicationTestUtil.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDTestBrokerResponseHandler.h"
 #import "MSIDTestTokenRequestProvider.h"

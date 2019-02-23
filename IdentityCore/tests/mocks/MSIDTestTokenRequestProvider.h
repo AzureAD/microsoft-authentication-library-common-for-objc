@@ -25,17 +25,17 @@
 #import "MSIDTokenRequestProviding.h"
 
 @class MSIDTokenResult;
-@class MSIDWebMSAuthResponse;
+@class MSIDWebWPJResponse;
 
 @interface MSIDTestTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebMSAuthResponse *)brokerResponse;
+               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse;
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebMSAuthResponse *)brokerResponse
+               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
                     brokerRequestURL:(NSURL *)brokerRequestURL
                     resumeDictionary:(NSDictionary *)brokerResumeDictionary;
 
