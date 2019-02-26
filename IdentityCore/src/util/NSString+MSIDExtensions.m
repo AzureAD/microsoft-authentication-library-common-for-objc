@@ -94,11 +94,6 @@ typedef unsigned char byte;
     return [self stringByTrimmingCharactersInSet:set];
 }
 
-- (NSString *)msidNormalizedString
-{
-    return [[self msidTrimmedString] lowercaseString];
-}
-
 - (NSString *)msidURLDecode
 {
     return CFBridgingRelease(CFURLCreateStringByReplacingPercentEscapes(kCFAllocatorDefault, (CFStringRef)self, CFSTR("")));

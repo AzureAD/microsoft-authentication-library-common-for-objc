@@ -85,12 +85,4 @@
     XCTAssertEqualObjects(_testAccount, account2);
 }
 
-- (MSIDCacheKey *)makeAccountKey:(MSIDAccountCacheItem *)account {
-    NSString *accountId = [NSString stringWithFormat:@"%@-%@-%@",
-                                                     [account.homeAccountId msidNormalizedString],
-                                                     [account.environment msidNormalizedString],
-                                                     [account.realm msidNormalizedString]];
-    return [[MSIDCacheKey alloc] initWithAccount:accountId service:nil generic:nil type:nil];
-}
-
 @end
