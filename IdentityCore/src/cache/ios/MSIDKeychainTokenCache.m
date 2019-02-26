@@ -181,7 +181,14 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    MSID_LOG_INFO(context, @"itemUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil);
+    MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
+    NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
+    
+    if (items.count > 1)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil);
         }
         
         return nil;
