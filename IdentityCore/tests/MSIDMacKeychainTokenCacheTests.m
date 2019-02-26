@@ -25,6 +25,7 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDCacheKey.h"
 #import "MSIDClientInfo.h"
+#import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDMacKeychainTokenCache.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
@@ -58,7 +59,10 @@
     _testAccount.alternativeAccountId = @"alt";
     _testAccount.name = @"test user";
 
-    _testAccountKey = [self makeAccountKey:_testAccount];
+    _testAccountKey = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:_testAccount.homeAccountId
+                                                                    environment:_testAccount.environment
+                                                                          realm:_testAccount.realm
+                                                                           type:_testAccount.accountType];
 }
 
 - (void)tearDown {

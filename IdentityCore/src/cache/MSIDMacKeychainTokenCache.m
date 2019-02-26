@@ -64,7 +64,9 @@ Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
 ATTRIBUTE         VALUE
 ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
 kSecClass         kSecClassGenericPassword
-kSecAttrAccount   <home_account_id>-<environment>-<realm>
+kSecAttrAccount   <home_account_id>-<environment>
+kSecAttrService   <realm>
+kSecAttrCreator   'MSAL'
 kSecValueData     JSON data (UTF8 encoded) – account object
 
 Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
@@ -131,6 +133,13 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error {
     MSID_TRACE;
+    MSID_LOG_INFO(
+        context,
+        @"Set keychain item, key info (account: %@ service: %@)",
+        _PII_NULLIFY(key.account),
+        _PII_NULLIFY(key.service));
+    MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
+
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
     if (!jsonData) {
         NSString *errorMessage = @"Failed to serialize account to json data.";
@@ -146,9 +155,12 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     NSDictionary *update = @{(id)kSecValueData: jsonData};
 
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
+
     if (status == errSecItemNotFound) {
         [query addEntriesFromDictionary:update];
         status = SecItemAdd((CFDictionaryRef)query, NULL);
+        MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
     }
 
     if (status != errSecSuccess) {
@@ -168,7 +180,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 // If multiple matches are found, return nil and set an error.
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDAccountItemSerializer>)serializer
-                                 context:(__unused id<MSIDRequestContext>)context
+                                 context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error {
     MSID_TRACE;
 
@@ -199,13 +211,15 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                                error:(NSError **)error {
     MSID_TRACE;
 
-    NSMutableDictionary *query = [NSMutableDictionary new];
-    query[(id)kSecClass] = (id)kSecClassGenericPassword;
+    NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
+    // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
+    // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
-    query[(id)kSecReturnAttributes] = @YES;
+    query[(id)kSecReturnRef] = @YES;
 
-    NSArray *items;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (void *)&items);
+    CFTypeRef cfItems = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
+    NSArray *items = CFBridgingRelease(cfItems);
     if (status == errSecItemNotFound) {
         return @[];
     } else if (status != errSecSuccess) {
@@ -218,64 +232,54 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         return nil;
     }
 
+    NSMutableDictionary *query2 = [[self defaultAccountQuery:key] mutableCopy];
+    // Note: For efficiency, use kSecUseItemList to query the items returned above rather actually querying
+    // the keychain again. With this second query we can set a specific kSecMatchLimit which lets us get the data
+    // objects.
+    query2[(id)kSecUseItemList] = items;
+    query2[(id)kSecMatchLimit] = @(items.count + 1); // always set a limit > 1 so we consistently get an NSArray result
+    query2[(id)kSecReturnAttributes] = @YES;
+    query2[(id)kSecReturnData] = @YES;
+
+    CFTypeRef cfItemDicts = nil;
+    status = SecItemCopyMatching((CFDictionaryRef)query2, &cfItemDicts);
+    NSArray *itemDicts = CFBridgingRelease(cfItemDicts);
+
     NSMutableArray<MSIDAccountCacheItem *> *accountList = [NSMutableArray new];
-    for (NSDictionary *itemDict in items) {
-        if ([self accountItem:itemDict matchesKey:key]) {
-            // This item matches the key, so try to deserialize it and allocate an account object for it
-            NSMutableDictionary *itemQuery = [self defaultAccountQuery:nil];
-            itemQuery[(id)kSecAttrAccount] = itemDict[(id)kSecAttrAccount];
-            itemQuery[(id)kSecReturnData] = @YES;
-            NSData *jsonData;
-            status = SecItemCopyMatching((CFDictionaryRef)itemQuery, (void *)&jsonData);
-            if (status != errSecSuccess) {
+    for (NSDictionary *dict in itemDicts) {
+        NSData *jsonData = dict[(id)kSecValueData];
+        if (jsonData) {
+            MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
+            if (account == nil) {
+                NSString *errorMessage = @"Failed to deserialize account";
                 if (error) {
-                    NSString *errorMessage = @"Failed to read account from keychain";
-                    MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-                    if (error) {
-                        *error = MSIDCreateError(
-                            NSOSStatusErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
-                    }
+                    *error = MSIDCreateError(
+                        MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
                 }
+                MSID_LOG_WARN(context, @"%@", errorMessage);
                 continue;
             }
-            if (jsonData) {
-                MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
-                if (account == nil) {
-                    NSString *errorMessage = @"Failed to deserialize account";
-                    if (error) {
-                        *error = MSIDCreateError(
-                            MSIDErrorDomain,
-                            (NSInteger)MSIDErrorInternal,
-                            errorMessage,
-                            nil,
-                            nil,
-                            nil,
-                            context.correlationId,
-                            nil);
-                    }
-                    MSID_LOG_WARN(context, @"%@", errorMessage);
-                    continue;
-                }
-                [accountList addObject:account];
-            }
+            [accountList addObject:account];
         }
     }
-
     return accountList;
 }
 
-// Remove one or more accounts from the keychain that match the key (see accountItem:matchesKey).
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
-                          context:(__unused id<MSIDRequestContext>)context
-                            error:(NSError **)error {
+// Remove one or more accounts from the keychain that match the key.
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError **)error {
     MSID_TRACE;
-    NSMutableDictionary *query = [NSMutableDictionary new];
-    query[(id)kSecClass] = (id)kSecClassGenericPassword;
+    MSID_LOG_INFO(
+        context,
+        @"Remove keychain items, key info (account: %@ service: %@)",
+        _PII_NULLIFY(key.account),
+        _PII_NULLIFY(key.service));
+    MSID_LOG_INFO_PII(context, @"Remove keychain items, key info (account: %@ service: %@)", key.account, key.service);
+
+    NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnAttributes] = @YES;
 
-    NSArray *items;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (void *)&items);
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
 
     if (status != errSecSuccess) {
         NSString *errorMessage = @"Failed to remove multiple accounts from keychain";
@@ -287,31 +291,12 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         return FALSE;
     }
 
-    NSInteger deleteCount = 0;
-    for (NSDictionary *itemDict in items) {
-        if ([self accountItem:itemDict matchesKey:key]) {
-            // This item actually matches the key, so delete it
-            NSMutableDictionary *deleteQuery = [self defaultAccountQuery:nil];
-            deleteQuery[(id)kSecAttrAccount] = itemDict[(id)kSecAttrAccount];
-            OSStatus delStatus = SecItemDelete((CFDictionaryRef)deleteQuery);
-            if (status != errSecSuccess) {
-                NSString *errorMessage = @"Failed to remove account from keychain";
-                MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, delStatus);
-                if (error) {
-                    *error = MSIDCreateError(
-                        NSOSStatusErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
-                }
-            }
-            ++deleteCount;
-        }
-    }
-
-    return (deleteCount > 0);
+    return (status == errSecSuccess);
 }
 
 #pragma mark - Credentials
 
-// Write an credential to the macOS keychain cache.
+// Write a credential to the macOS keychain cache.
 - (BOOL)saveToken:(__unused MSIDCredentialCacheItem *)item
               key:(__unused MSIDCacheKey *)key
        serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
@@ -395,9 +380,28 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - clear
 
 // A test-only method that deletes all items from the cache for the given context.
-- (BOOL)clearWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error {
-    [self createUnimplementedError:error];
-    return FALSE;
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error {
+    MSID_TRACE;
+    MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
+
+    NSMutableDictionary *query = [[self defaultAccountQuery:nil] mutableCopy];
+    query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
+    query[(id)kSecReturnAttributes] = @YES;
+
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
+
+    if (status != errSecSuccess && status != errSecItemNotFound) {
+        NSString *errorMessage = @"Failed to remove items from keychain.";
+        MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
+        if (error) {
+            *error = MSIDCreateError(
+                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+        }
+        return FALSE;
+    }
+
+    return TRUE;
 }
 
 #pragma mark - Utilities
@@ -406,45 +410,25 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (NSMutableDictionary *)defaultAccountQuery:(__unused MSIDCacheKey *)key {
     MSID_TRACE;
     NSMutableDictionary *query = [NSMutableDictionary new];
-
-    // Note: this initial implementation follows the cache schema, relying only on the basic key
-    // ("<homeAccountId>-<environment>-<realm>"). Additinal macOS-specific extensions
-    // are deferred for now until they are required.
     query[(id)kSecClass] = (id)kSecClassGenericPassword;
-    if (key.account) {
-        query[(id)kSecAttrAccount] = key.account; // "<homeAccountId>-<environment>-<realm>"
+
+    // Add a marker for our cache items in the keychain
+    query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
+    // Note: Would this be better?
+    // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
+
+    if (key.account.length > 0) {
+        query[(id)kSecAttrAccount] = key.account; // <homeAccountId>-<environment>
     }
+    if (key.service.length > 0) {
+        query[(id)kSecAttrService] = key.service; // <realm>
+    }
+    // MSIDDefaultAccountCacheKey forces 0 to be kAccountTypePrefix (1000), so look at this later:
+    // if (key.type != 0) {
+    //    query[(id)kSecAttrType] = key.type;
+    //}
 
     return query;
-}
-
-// Determine whether the account item matches the cache key.
-- (BOOL)accountItem:(NSDictionary *)itemDict matchesKey:(MSIDCacheKey *)key {
-    MSID_TRACE;
-
-    // The MSIDCacheKey "account" property for MSIDAccountCacheItems is "<homeAccountId>-<environment>-<realm>".
-    // For multiple-account operations, it might be set to just "<homeAccountId>-<environment>-" or "<homeAccountId>--".
-    // For comparisons, start by looking for a "--" in key.account. Since <homeAccountId> is required,
-    // the double-dash is either at the end ("<homeAccountId>--") or in the middle ("<homeAccountId>--<realm>").
-    // In both cases, everything to the left of the double-dash needs to appear at the beginning
-    // of the keychain item's kSecAttrAccount attribute. If something appears after the double-dash,
-    // it needs to appear at the end of the attribute. If the double-dash isn't present, use
-    // the full key.account string for matching.
-    NSString *prefix = @"";
-    NSString *suffix = @"";
-
-    NSArray<NSString *> *parts = [key.account componentsSeparatedByString:@"--"];
-    if (parts.count > 0) {
-        prefix = parts[0];
-    }
-    if (parts.count > 1) {
-        suffix = parts[1];
-    }
-
-    NSString *accountAttr = itemDict[(id)kSecAttrAccount];
-    return (
-        ((prefix.length > 0 && [accountAttr hasPrefix:prefix]) && (suffix.length == 0 || [accountAttr hasSuffix:suffix]))
-        || [accountAttr isEqualToString:key.account]);
 }
 
 // Allocate a "Not Implemented" NSError object.
