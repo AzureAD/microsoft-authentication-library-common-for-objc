@@ -168,7 +168,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
         if (error) {
             *error = MSIDCreateError(
-                NSOSStatusErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return FALSE;
     }
@@ -227,7 +227,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
         if (error) {
             *error = MSIDCreateError(
-                NSOSStatusErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }
@@ -251,12 +251,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         if (jsonData) {
             MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
             if (account == nil) {
-                NSString *errorMessage = @"Failed to deserialize account";
-                if (error) {
-                    *error = MSIDCreateError(
-                        MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
-                }
-                MSID_LOG_WARN(context, @"%@", errorMessage);
+                MSID_LOG_WARN(context, @"Failed to deserialize account");
                 continue;
             }
             [accountList addObject:account];
@@ -286,7 +281,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
         if (error) {
             *error = MSIDCreateError(
-                NSOSStatusErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return FALSE;
     }
