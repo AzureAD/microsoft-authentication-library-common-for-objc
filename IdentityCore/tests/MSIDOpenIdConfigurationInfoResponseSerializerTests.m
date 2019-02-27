@@ -181,4 +181,27 @@
     XCTAssertNil(response);
 }
 
+- (void)testResponseObjectForResponse_whenErrorMessage_shouldReturnNilWithError
+{
+    __auto_type responseJson = @{ @"error": @"invalid_tenant",
+                                  @"error_description": @"Tenant not found.",
+                                  @"error_codes": @5049,
+                                  @"timestamp": @"2019-02-22 07:49:38Z",
+                                  @"trace_id": @"d855",
+                                  @"correlation_id": @"6f62"
+                                  };
+    
+    NSData *data = [NSJSONSerialization dataWithJSONObject:responseJson options:0 error:nil];
+    __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
+    
+    NSError *error = nil;
+    __auto_type response = (MSIDOpenIdProviderMetadata *)[responseSerializer responseObjectForResponse:[NSHTTPURLResponse new] data:data context:nil error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorAuthorityValidation);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Tenant not found.");
+}
+
 @end
