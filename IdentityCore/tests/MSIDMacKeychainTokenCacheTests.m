@@ -32,7 +32,8 @@
 #import "NSString+MSIDExtensions.h"
 #import <XCTest/XCTest.h>
 
-@interface MSIDMacKeychainTokenCacheTests : XCTestCase {
+@interface MSIDMacKeychainTokenCacheTests : XCTestCase
+{
     MSIDMacKeychainTokenCache *_cache;
     MSIDCacheItemJsonSerializer *_serializer;
     MSIDAccountCacheItem *_testAccount;
@@ -42,7 +43,8 @@
 
 @implementation MSIDMacKeychainTokenCacheTests
 
-- (void)setUp {
+- (void)setUp
+{
     _cache = [MSIDMacKeychainTokenCache new];
     _serializer = [MSIDCacheItemJsonSerializer new];
 
@@ -65,12 +67,14 @@
                                                                            type:_testAccount.accountType];
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
     [_cache removeItemsWithAccountKey:_testAccountKey context:nil error:nil];
     _cache = nil;
 }
 
-- (void)testMacKeychainCache_whenAccountWritten_writesAccountToKeychain {
+- (void)testMacKeychainCache_whenAccountWritten_writesAccountToKeychain
+{
     NSError *error;
     BOOL result = [_cache saveAccount:_testAccount key:_testAccountKey serializer:_serializer context:nil error:&error];
     XCTAssertTrue(result);
