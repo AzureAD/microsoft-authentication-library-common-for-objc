@@ -38,7 +38,7 @@ static MSIDURLSessionManager *s_defaultManager = nil;
         __auto_type delegateQueue = [NSOperationQueue new];
         delegateQueue.name = queueName;
         delegateQueue.maxConcurrentOperationCount = 1;
-        
+        delegateQueue.qualityOfService = NSQualityOfServiceUserInitiated;
         s_defaultManager = [[MSIDURLSessionManager alloc] initWithConfiguration:configuration
                                                                        delegate:[MSIDURLSessionDelegate new]
                                                                   delegateQueue:delegateQueue];
