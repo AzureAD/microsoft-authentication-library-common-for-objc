@@ -75,7 +75,6 @@
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    self.handleErrorInvokedCounts++;
     self.passedError = error;
     self.passedHttpResponse = httpResponse;
     self.passedData = data;
@@ -83,6 +82,7 @@
     self.passedContext = context;
     self.passedBlock = completionBlock;
     self.responseSerializer = responseSerializer;
+    self.handleErrorInvokedCounts++;
 }
 
 @end
