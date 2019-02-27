@@ -119,7 +119,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 
 #pragma mark - init
 
-- (id)init {
+- (id)init
+{
     self = [super init];
     return self;
 }
@@ -131,7 +132,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                 key:(MSIDCacheKey *)key
          serializer:(id<MSIDAccountItemSerializer>)serializer
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error {
+              error:(NSError **)error
+{
     MSID_TRACE;
     MSID_LOG_INFO(
         context,
@@ -141,10 +143,12 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
 
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
-    if (!jsonData) {
+    if (!jsonData)
+    {
         NSString *errorMessage = @"Failed to serialize account to json data.";
         MSID_LOG_WARN(context, @"%@", errorMessage);
-        if (error) {
+        if (error)
+        {
             *error = MSIDCreateError(
                 MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
@@ -157,16 +161,19 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
 
-    if (status == errSecItemNotFound) {
+    if (status == errSecItemNotFound)
+    {
         [query addEntriesFromDictionary:update];
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
     }
 
-    if (status != errSecSuccess) {
+    if (status != errSecSuccess)
+    {
         NSString *errorMessage = @"Failed to write account to keychain";
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error) {
+        if (error)
+        {
             *error = MSIDCreateError(
                 MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
@@ -181,7 +188,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDAccountItemSerializer>)serializer
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error {
+                                   error:(NSError **)error
+{
     MSID_TRACE;
 
     NSArray<MSIDAccountCacheItem *> *items = [self accountsWithKey:key
@@ -189,8 +197,10 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                                            context:context
                                                              error:error];
 
-    if (items.count > 1) {
-        if (error) {
+    if (items.count > 1)
+    {
+        if (error)
+        {
             NSString *errorMessage = @"The token cache store for this resource contains more than one user";
             MSID_LOG_WARN(context, @"%@", errorMessage);
             *error = MSIDCreateError(
@@ -208,7 +218,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDAccountItemSerializer>)serializer
                                              context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error {
+                                               error:(NSError **)error
+{
     MSID_TRACE;
 
     NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
@@ -220,12 +231,16 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     CFTypeRef cfItems = nil;
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
     NSArray *items = CFBridgingRelease(cfItems);
-    if (status == errSecItemNotFound) {
+    if (status == errSecItemNotFound)
+    {
         return @[];
-    } else if (status != errSecSuccess) {
+    }
+    else if (status != errSecSuccess)
+    {
         NSString *errorMessage = @"Failed to read account from keychain";
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error) {
+        if (error)
+        {
             *error = MSIDCreateError(
                 MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
@@ -246,11 +261,14 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     NSArray *itemDicts = CFBridgingRelease(cfItemDicts);
 
     NSMutableArray<MSIDAccountCacheItem *> *accountList = [NSMutableArray new];
-    for (NSDictionary *dict in itemDicts) {
+    for (NSDictionary *dict in itemDicts)
+    {
         NSData *jsonData = dict[(id)kSecValueData];
-        if (jsonData) {
+        if (jsonData)
+        {
             MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
-            if (account == nil) {
+            if (account == nil)
+            {
                 MSID_LOG_WARN(context, @"Failed to deserialize account");
                 continue;
             }
@@ -261,7 +279,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 }
 
 // Remove one or more accounts from the keychain that match the key.
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError **)error {
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError **)error
+{
     MSID_TRACE;
     MSID_LOG_INFO(
         context,
@@ -276,10 +295,12 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
 
-    if (status != errSecSuccess) {
+    if (status != errSecSuccess)
+    {
         NSString *errorMessage = @"Failed to remove multiple accounts from keychain";
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error) {
+        if (error)
+        {
             *error = MSIDCreateError(
                 MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
@@ -296,7 +317,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
               key:(__unused MSIDCacheKey *)key
        serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
           context:(__unused id<MSIDRequestContext>)context
-            error:(__unused NSError **)error {
+            error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return FALSE;
 }
@@ -306,7 +328,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (MSIDCredentialCacheItem *)tokenWithKey:(__unused MSIDCacheKey *)key
                                serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
                                   context:(__unused id<MSIDRequestContext>)context
-                                    error:(__unused NSError **)error {
+                                    error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return nil;
 }
@@ -316,7 +339,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(__unused MSIDCacheKey *)key
                                            serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
                                               context:(__unused id<MSIDRequestContext>)context
-                                                error:(__unused NSError **)error {
+                                                error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return nil;
 }
@@ -324,7 +348,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 // Remove one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
 - (BOOL)removeItemsWithTokenKey:(__unused MSIDCacheKey *)key
                         context:(__unused id<MSIDRequestContext>)context
-                          error:(__unused NSError **)error {
+                          error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return FALSE;
 }
@@ -336,7 +361,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                     key:(__unused MSIDCacheKey *)key
              serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
                 context:(__unused id<MSIDRequestContext>)context
-                  error:(__unused NSError **)error {
+                  error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return FALSE;
 }
@@ -345,7 +371,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
                                                         serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
                                                            context:(__unused id<MSIDRequestContext>)context
-                                                             error:(__unused NSError **)error {
+                                                             error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return nil;
 }
@@ -353,7 +380,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 // Remove items with the given Metadata key from the macOS keychain cache.
 - (BOOL)removeItemsWithMetadataKey:(__unused MSIDCacheKey *)key
                            context:(__unused id<MSIDRequestContext>)context
-                             error:(__unused NSError **)error {
+                             error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return FALSE;
 }
@@ -361,13 +389,15 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - Wipe Info
 
 // Saves information about the app which most-recently removed a token.
-- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error {
+- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return FALSE;
 }
 
 // Read information about the app which most-recently removed a token.
-- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error {
+- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
+{
     [self createUnimplementedError:error];
     return nil;
 }
@@ -375,7 +405,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - clear
 
 // A test-only method that deletes all items from the cache for the given context.
-- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error {
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+{
     MSID_TRACE;
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
@@ -386,10 +417,12 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
 
-    if (status != errSecSuccess && status != errSecItemNotFound) {
+    if (status != errSecSuccess && status != errSecItemNotFound)
+    {
         NSString *errorMessage = @"Failed to remove items from keychain.";
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error) {
+        if (error)
+        {
             *error = MSIDCreateError(
                 MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
@@ -402,7 +435,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - Utilities
 
 // Get the basic/default keychain query dictionary for account items.
-- (NSMutableDictionary *)defaultAccountQuery:(__unused MSIDCacheKey *)key {
+- (NSMutableDictionary *)defaultAccountQuery:(__unused MSIDCacheKey *)key
+{
     MSID_TRACE;
     NSMutableDictionary *query = [NSMutableDictionary new];
     query[(id)kSecClass] = (id)kSecClassGenericPassword;
@@ -412,10 +446,12 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     // Note: Would this be better?
     // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
 
-    if (key.account.length > 0) {
+    if (key.account.length > 0)
+    {
         query[(id)kSecAttrAccount] = key.account; // <homeAccountId>-<environment>
     }
-    if (key.service.length > 0) {
+    if (key.service.length > 0)
+    {
         query[(id)kSecAttrService] = key.service; // <realm>
     }
     // MSIDDefaultAccountCacheKey forces 0 to be kAccountTypePrefix (1000), so look at this later:
@@ -427,8 +463,10 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 }
 
 // Allocate a "Not Implemented" NSError object.
-- (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error {
-    if (error) {
+- (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error
+{
+    if (error)
+    {
         *error = MSIDCreateError(
             MSIDErrorDomain, (NSInteger)MSIDErrorUnsupportedFunctionality, @"Not Implemented", nil, nil, nil, nil, nil);
     }
