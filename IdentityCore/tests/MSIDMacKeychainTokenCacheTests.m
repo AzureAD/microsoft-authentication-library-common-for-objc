@@ -89,4 +89,79 @@
     XCTAssertEqualObjects(_testAccount, account2);
 }
 
+- (void)testMacKeychainCache_whenAccountOverwritten_writesMergedAccountToKeychain
+{
+    NSError *error;
+    MSIDAccountCacheItem* accountA = [MSIDAccountCacheItem new];
+    MSIDAccountCacheItem* accountB = [MSIDAccountCacheItem new];
+
+    accountA.environment = DEFAULT_TEST_ENVIRONMENT;
+    accountA.realm = @"Contoso.COM";
+    accountA.homeAccountId = @"uid.utid";
+    accountA.localAccountId = @"homeAccountIdA";
+    accountA.accountType = MSIDAccountTypeAADV1;
+    accountA.username = @"UsernameA";
+    accountA.givenName = @"GivenNameA";
+    accountA.familyName = @"FamilyNameA";
+    accountA.middleName = @"MiddleNameA";
+    accountA.name = @"NameA";
+    accountA.alternativeAccountId = @"AltIdA";
+    accountA.additionalAccountFields = @{@"key1": @"value1", @"key2": @"value2"};
+
+    accountB.environment = accountA.environment;
+    accountB.realm = accountA.realm;
+    accountB.homeAccountId = accountA.homeAccountId;
+    accountB.localAccountId = @"homeAccountIdB";
+    accountB.accountType = MSIDAccountTypeMSSTS;
+    accountB.username = @"UsernameB";
+    accountB.givenName = @"GivenNameB";
+    accountB.familyName = @"FamilyNameB";
+    accountB.middleName = @"MiddleNameB";
+    accountB.name = @"NameB";
+    accountB.alternativeAccountId = @"AltIdB";
+    accountB.additionalAccountFields = @{@"key1": @"VALUE1", @"key3": @"VALUE3"};
+    [accountB updateFieldsFromAccount:accountA]; // merge the additionalAccountFields dictionaries
+
+    MSIDCacheKey *keyA = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:accountA.homeAccountId
+                                                                       environment:accountA.environment
+                                                                             realm:accountA.realm
+                                                                              type:accountA.accountType];
+    MSIDCacheKey *keyB = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:accountB.homeAccountId
+                                                                       environment:accountB.environment
+                                                                             realm:accountB.realm
+                                                                              type:accountB.accountType];
+
+    BOOL result = [_cache saveAccount:accountA key:keyA serializer:_serializer context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    result = [_cache saveAccount:accountB key:keyB serializer:_serializer context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    MSIDAccountCacheItem* expectedAccount = accountB;
+    [expectedAccount setAdditionalAccountFields:@{@"key1": @"VALUE1", @"key2": @"value2", @"key3": @"VALUE3"}];
+
+    MSIDAccountCacheItem *actualAccount = [_cache accountWithKey:keyB
+                                                      serializer:_serializer
+                                                         context:nil
+                                                           error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(actualAccount);
+    XCTAssertTrue([expectedAccount isEqual:actualAccount]);
+
+    result = [_cache removeItemsWithAccountKey:keyB context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    // removing with keyB should delete the same keychain item referred to by keyA since they
+    // have the same primary key values
+    MSIDAccountCacheItem *deletedAccountA = [_cache accountWithKey:keyA
+                                                        serializer:_serializer
+                                                           context:nil
+                                                             error:&error];
+    XCTAssertNil(deletedAccountA);
+}
+
 @end
