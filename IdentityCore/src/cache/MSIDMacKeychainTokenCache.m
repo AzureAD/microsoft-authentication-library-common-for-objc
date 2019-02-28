@@ -222,7 +222,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 {
     MSID_TRACE;
 
-    NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
+    NSDictionary *defaultQuery = [self defaultAccountQuery:key];
+    NSMutableDictionary *query = [defaultQuery mutableCopy];
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
@@ -247,17 +248,17 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         return nil;
     }
 
-    NSMutableDictionary *query2 = [[self defaultAccountQuery:key] mutableCopy];
+    query = [defaultQuery mutableCopy];
     // Note: For efficiency, use kSecUseItemList to query the items returned above rather actually querying
     // the keychain again. With this second query we can set a specific kSecMatchLimit which lets us get the data
     // objects.
-    query2[(id)kSecUseItemList] = items;
-    query2[(id)kSecMatchLimit] = @(items.count + 1); // always set a limit > 1 so we consistently get an NSArray result
-    query2[(id)kSecReturnAttributes] = @YES;
-    query2[(id)kSecReturnData] = @YES;
+    query[(id)kSecUseItemList] = items;
+    query[(id)kSecMatchLimit] = @(items.count + 1); // always set a limit > 1 so we consistently get an NSArray result
+    query[(id)kSecReturnAttributes] = @YES;
+    query[(id)kSecReturnData] = @YES;
 
     CFTypeRef cfItemDicts = nil;
-    status = SecItemCopyMatching((CFDictionaryRef)query2, &cfItemDicts);
+    status = SecItemCopyMatching((CFDictionaryRef)query, &cfItemDicts);
     NSArray *itemDicts = CFBridgingRelease(cfItemDicts);
 
     NSMutableArray<MSIDAccountCacheItem *> *accountList = [NSMutableArray new];
@@ -279,7 +280,9 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 }
 
 // Remove one or more accounts from the keychain that match the key.
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError **)error
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
 {
     MSID_TRACE;
     MSID_LOG_INFO(
@@ -380,7 +383,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 // Remove items with the given Metadata key from the macOS keychain cache.
 - (BOOL)removeItemsWithMetadataKey:(__unused MSIDCacheKey *)key
                            context:(__unused id<MSIDRequestContext>)context
-                             error:(__unused NSError **)error
+                             error:(NSError **)error
 {
     [self createUnimplementedError:error];
     return FALSE;
@@ -389,14 +392,16 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - Wipe Info
 
 // Saves information about the app which most-recently removed a token.
-- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
+- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     [self createUnimplementedError:error];
     return FALSE;
 }
 
 // Read information about the app which most-recently removed a token.
-- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
+- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
+                     error:(NSError **)error
 {
     [self createUnimplementedError:error];
     return nil;
@@ -405,7 +410,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - clear
 
 // A test-only method that deletes all items from the cache for the given context.
-- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
 {
     MSID_TRACE;
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
@@ -435,16 +441,11 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - Utilities
 
 // Get the basic/default keychain query dictionary for account items.
-- (NSMutableDictionary *)defaultAccountQuery:(__unused MSIDCacheKey *)key
+- (NSMutableDictionary *)defaultAccountQuery:(MSIDCacheKey *)key
 {
     MSID_TRACE;
     NSMutableDictionary *query = [NSMutableDictionary new];
     query[(id)kSecClass] = (id)kSecClassGenericPassword;
-
-    // Add a marker for our cache items in the keychain
-    query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
-    // Note: Would this be better?
-    // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
 
     if (key.account.length > 0)
     {
@@ -454,11 +455,20 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     {
         query[(id)kSecAttrService] = key.service; // <realm>
     }
-    // MSIDDefaultAccountCacheKey forces 0 to be kAccountTypePrefix (1000), so look at this later:
-    // if (key.type != 0) {
-    //    query[(id)kSecAttrType] = key.type;
-    //}
+    if (key.generic.length > 0)
+    {
+        query[(id)kSecAttrGeneric] = key.generic;
+    }
+    if (key.type != nil)
+    {
+        query[(id)kSecAttrType] = key.type;
+    }
 
+    // Add a marker for our cache items in the keychain
+    query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
+    // Note: Would this be better?
+    // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
+    
     return query;
 }
 
