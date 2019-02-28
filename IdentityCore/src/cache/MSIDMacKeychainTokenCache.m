@@ -156,8 +156,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     }
 
     NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
-    NSDictionary *update = @{(id)kSecValueData: jsonData};
-
+    NSMutableDictionary *update = [[self defaultAccountUpdate:key] mutableCopy];
+    update[(id)kSecValueData] = jsonData;
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
 
@@ -455,21 +455,35 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     {
         query[(id)kSecAttrService] = key.service; // <realm>
     }
-    if (key.generic.length > 0)
-    {
-        query[(id)kSecAttrGeneric] = key.generic;
-    }
-    if (key.type != nil)
-    {
-        query[(id)kSecAttrType] = key.type;
-    }
 
     // Add a marker for our cache items in the keychain
+    // TODO: Determine if this is ok, or if there's a better way to identify our items that avoids
+    // attempting to deserialize their data, potentially triggering a UI prompt.
     query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
-    // Note: Would this be better?
+    // Note: Would something like this be better?
     // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
     
     return query;
+}
+
+// Get the basic/default keychain update dictionary for account items.
+// These are not _primary_ keys, but if they're present in the key object we
+// want to set them when adding/updating.
+- (NSMutableDictionary *)defaultAccountUpdate:(MSIDCacheKey *)key
+{
+    MSID_TRACE;
+    NSMutableDictionary *update = [NSMutableDictionary new];
+    
+    if (key.generic.length > 0)
+    {
+        update[(id)kSecAttrGeneric] = key.generic;
+    }
+    if (key.type != nil)
+    {
+        update[(id)kSecAttrType] = key.type;
+    }
+    
+    return update;
 }
 
 // Allocate a "Not Implemented" NSError object.
