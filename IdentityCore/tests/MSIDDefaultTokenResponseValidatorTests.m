@@ -29,6 +29,10 @@
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDTestTokenResponse.h"
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDTestIdentifiers.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDDefaultTokenResponseValidatorTests : XCTestCase
 
@@ -94,5 +98,79 @@
     XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], grantedScopes);
 }
 
+- (void)testValidateTokenResult_whenUIDMatchWithValidResponse_shouldReturnValidResult
+{
+    __auto_type defaultOidcScope = @"openid profile offline_access";
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:DEFAULT_TEST_SCOPE];
+
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:nil
+                                                                   idToken:response.idToken
+                                                                   account:account
+                                                                 authority:authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:response];
+
+    NSError *error;
+    
+    BOOL validated = [self.validator validateTokenResult:result
+                                        configuration:configuration
+                                            oidcScope:defaultOidcScope
+                                        requestAccount:[[MSIDAccountIdentifier alloc] initWithDisplayableId:@"somedisplayableid"
+                                                                                              homeAccountId:[NSString stringWithFormat:@"%@.someutid", DEFAULT_TEST_UID]]
+                                        correlationID:correlationID
+                                                error:&error];
+    
+    XCTAssertTrue(validated);
+    XCTAssertNil(error);
+}
+
+- (void)testValidateTokenResult_whenUIDMismatchWithValidResponse_shouldReturnInWrongUserError
+{
+    __auto_type defaultOidcScope = @"openid profile offline_access";
+    __auto_type correlationID = [NSUUID new];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+                                                                        redirectUri:@"some_uri"
+                                                                           clientId:@"myclient"
+                                                                             target:DEFAULT_TEST_SCOPE];
+    
+    MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
+    MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:nil
+                                                                   idToken:response.idToken
+                                                                   account:account
+                                                                 authority:authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:response];
+    
+    NSError *error;
+    
+    BOOL validated = [self.validator validateTokenResult:result
+                                           configuration:configuration
+                                               oidcScope:defaultOidcScope
+                                          requestAccount:[[MSIDAccountIdentifier alloc] initWithDisplayableId:@"somedisplayableid"
+                                                                                                homeAccountId:@"someuid.someutid"]
+                                           correlationID:correlationID
+                                                   error:&error];
+    
+    XCTAssertFalse(validated);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorMismatchedAccount);
+}
 
 @end

@@ -74,8 +74,8 @@
         return NO;
     }
 
-    if (accountIdentifier.homeAccountId != nil
-        && ![accountIdentifier.homeAccountId isEqualToString:tokenResult.accessToken.accountIdentifier.homeAccountId])
+    if (accountIdentifier.uid != nil
+        && ![accountIdentifier.uid isEqualToString:tokenResult.accessToken.accountIdentifier.uid])
     {
         if (error)
         {
