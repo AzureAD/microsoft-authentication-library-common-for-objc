@@ -315,7 +315,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         return FALSE;
     }
 
-    return (status == errSecSuccess);
+    return TRUE;
 }
 
 #pragma mark - Credentials
