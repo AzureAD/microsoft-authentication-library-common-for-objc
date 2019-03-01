@@ -59,28 +59,6 @@ kSecAttrService   “Microsoft Credentials”
 kSecValueData     JSON data (UTF8 encoded) – shared credentials objects (multiple credentials saved in one keychain
 item)
 
-Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
-================================================================
-ATTRIBUTE         VALUE
-~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-kSecClass         kSecClassGenericPassword
-kSecAttrAccount   <home_account_id>-<environment>
-kSecAttrService   <realm>
-kSecAttrCreator   'MSAL'
-kSecValueData     JSON data (UTF8 encoded) – account object
-
-Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
-===============================================================
-ATTRIBUTE         VALUE
-~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-kSecClass         kSecClassGenericPassword
-kSecAttrAccount   <access_group>-<app_bundle_id>-<home_account_id>-<environment>
-kSecAttrService   <credential_id>-<target>
-kSetAttrGeneric   <credential_id>
-kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
-kSecValueData     JSON data (UTF8 encoded) – credential object
-
-
 Type 1 JSON Data Example:
 {
   "cache": {
@@ -96,6 +74,39 @@ Type 1 JSON Data Example:
     }
   }
 }
+
+Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
+================================================================
+ATTRIBUTE         VALUE
+~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
+kSecClass         kSecClassGenericPassword
+kSecAttrAccount   <account_id>
+kSecAttrService   <realm>
+kSecAttrCreator   'MSAL'
+kSecValueData     JSON data (UTF8 encoded) – account object
+
+Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
+===============================================================
+ATTRIBUTE         VALUE
+~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
+kSecClass         kSecClassGenericPassword
+kSecAttrAccount   <access_group>-<app_bundle_id>-<account_id>
+kSecAttrService   <credential_id>-<target>
+kSetAttrGeneric   <credential_id>
+kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
+kSecValueData     JSON data (UTF8 encoded) – credential object
+
+Error handling: 
+* Generally this class has three error cases: success, recoverable
+  error, and unrecoverable error. Whenever possible, recoverable
+  errors should be handled here, locally, without surfacing them
+  to the caller. (For example, when writing an account to the
+  keychain, the SecItemUpdate() may fail since the item isn't in
+  the keychian yet. This is normal, and the code continues using
+  SecItemAdd() without returning an error. If this add failed, a
+  non-recoverable error would be returned to the caller.) Where
+  applicable, macOS keychain OSStatus results are surfaced to the
+  caller as MSID-standard NSError objects.
 
 Additional Notes:
 * For a given <access_group>, multiple credentials are stored in
@@ -145,8 +156,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@", errorMessage);
         if (error)
         {
-            *error = MSIDCreateError(
-                MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return FALSE;
     }
@@ -170,8 +180,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
         if (error)
         {
-            *error = MSIDCreateError(
-                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return FALSE;
     }
@@ -187,7 +196,6 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                    error:(NSError **)error
 {
     MSID_TRACE;
-
     NSArray<MSIDAccountCacheItem *> *items = [self accountsWithKey:key
                                                         serializer:serializer
                                                            context:context
@@ -199,8 +207,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         {
             NSString *errorMessage = @"The token cache store for this resource contains more than one user";
             MSID_LOG_WARN(context, @"%@", errorMessage);
-            *error = MSIDCreateError(
-                MSIDErrorDomain, MSIDErrorCacheMultipleUsers, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
 
         return nil;
@@ -217,11 +224,12 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                                error:(NSError **)error
 {
     MSID_TRACE;
-
     NSDictionary *defaultQuery = [self defaultAccountQuery:key];
     NSMutableDictionary *query = [defaultQuery mutableCopy];
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
+    // For this reason, we retrieve references to the items, then (below) use a second SecItemCopyMatching() 
+    // to retrieve the data for each, deserializing each into an account object.
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnRef] = @YES;
 
@@ -240,8 +248,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
         if (error)
         {
-            *error = MSIDCreateError(
-                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return nil;
     }
@@ -302,8 +309,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
         if (error)
         {
-            *error = MSIDCreateError(
-                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return FALSE;
     }
@@ -320,7 +326,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
           context:(__unused id<MSIDRequestContext>)context
             error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return FALSE;
 }
 
@@ -331,7 +337,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                   context:(__unused id<MSIDRequestContext>)context
                                     error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return nil;
 }
 
@@ -342,7 +348,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                               context:(__unused id<MSIDRequestContext>)context
                                                 error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return nil;
 }
 
@@ -351,7 +357,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                         context:(__unused id<MSIDRequestContext>)context
                           error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return FALSE;
 }
 
@@ -364,7 +370,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                 context:(__unused id<MSIDRequestContext>)context
                   error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return FALSE;
 }
 
@@ -374,7 +380,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                                            context:(__unused id<MSIDRequestContext>)context
                                                              error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return nil;
 }
 
@@ -383,7 +389,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                            context:(__unused id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return FALSE;
 }
 
@@ -393,7 +399,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return FALSE;
 }
 
@@ -401,7 +407,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 - (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    [self createUnimplementedError:error];
+    [self createUnimplementedError:error context:context];
     return nil;
 }
 
@@ -427,8 +433,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
         if (error)
         {
-            *error = MSIDCreateError(
-                MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
         return FALSE;
     }
@@ -486,11 +491,11 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 
 // Allocate a "Not Implemented" NSError object.
 - (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error
+                         context:(id<MSIDRequestContext>)context
 {
     if (error)
     {
-        *error = MSIDCreateError(
-            MSIDErrorDomain, (NSInteger)MSIDErrorUnsupportedFunctionality, @"Not Implemented", nil, nil, nil, nil, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, (NSInteger)MSIDErrorUnsupportedFunctionality, @"Not Implemented", nil, nil, nil, context.correlationId, nil);
     }
 }
 
