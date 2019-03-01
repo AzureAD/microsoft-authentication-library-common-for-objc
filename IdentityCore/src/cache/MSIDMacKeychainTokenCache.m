@@ -135,11 +135,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
               error:(NSError **)error
 {
     MSID_TRACE;
-    MSID_LOG_INFO(
-        context,
-        @"Set keychain item, key info (account: %@ service: %@)",
-        _PII_NULLIFY(key.account),
-        _PII_NULLIFY(key.service));
+    MSID_LOG_INFO(context, @"Set keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
 
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
@@ -230,8 +226,10 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     query[(id)kSecReturnRef] = @YES;
 
     CFTypeRef cfItems = nil;
+    MSID_LOG_INFO(context, @"Trying to find keychain items...");
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
-    NSArray *items = CFBridgingRelease(cfItems);
+    MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
+
     if (status == errSecItemNotFound)
     {
         return @[];
@@ -247,6 +245,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         }
         return nil;
     }
+    
+    NSArray *items = CFBridgingRelease(cfItems);
 
     query = [defaultQuery mutableCopy];
     // Note: For efficiency, use kSecUseItemList to query the items returned above rather actually querying
@@ -285,20 +285,18 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                             error:(NSError **)error
 {
     MSID_TRACE;
-    MSID_LOG_INFO(
-        context,
-        @"Remove keychain items, key info (account: %@ service: %@)",
-        _PII_NULLIFY(key.account),
-        _PII_NULLIFY(key.service));
+    MSID_LOG_INFO( context, @"Remove keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Remove keychain items, key info (account: %@ service: %@)", key.account, key.service);
 
     NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnAttributes] = @YES;
 
+    MSID_LOG_INFO(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
 
-    if (status != errSecSuccess)
+    if (status != errSecSuccess && status != errSecItemNotFound)
     {
         NSString *errorMessage = @"Failed to remove multiple accounts from keychain";
         MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
