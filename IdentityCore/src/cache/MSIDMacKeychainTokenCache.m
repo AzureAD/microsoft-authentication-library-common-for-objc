@@ -421,25 +421,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     MSID_TRACE;
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
-    NSMutableDictionary *query = [self defaultAccountQuery:nil];
-    query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
-    query[(id)kSecReturnAttributes] = @YES;
-
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
-
-    if (status != errSecSuccess && status != errSecItemNotFound)
-    {
-        NSString *errorMessage = @"Failed to remove items from keychain.";
-        MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-        return FALSE;
-    }
-
-    return TRUE;
+    // for now, this just deletes all accounts
+    return [self removeItemsWithAccountKey:nil context:context error:error];
 }
 
 #pragma mark - Utilities
