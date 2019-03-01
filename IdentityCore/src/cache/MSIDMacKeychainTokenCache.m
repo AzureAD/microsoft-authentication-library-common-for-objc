@@ -274,12 +274,14 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         if (jsonData)
         {
             MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
-            if (account == nil)
+            if (account != nil)
+            {
+                [accountList addObject:account];
+            }
+            else
             {
                 MSID_LOG_WARN(context, @"Failed to deserialize account");
-                continue;
             }
-            [accountList addObject:account];
         }
     }
     return accountList;
