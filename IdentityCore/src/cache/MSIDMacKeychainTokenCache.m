@@ -56,8 +56,7 @@ ATTRIBUTE         VALUE
 kSecClass         kSecClassGenericPassword
 kSecAttrAccount   <access_group>
 kSecAttrService   “Microsoft Credentials”
-kSecValueData     JSON data (UTF8 encoded) – shared credentials objects (multiple credentials saved in one keychain
-item)
+kSecValueData     JSON data (UTF8 encoded) – shared credentials (multiple credentials saved in one keychain item)
 
 Type 1 JSON Data Example:
 {
@@ -96,7 +95,7 @@ kSetAttrGeneric   <credential_id>
 kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
 kSecValueData     JSON data (UTF8 encoded) – credential object
 
-Error handling: 
+Error handling:
 * Generally this class has three error cases: success, recoverable
   error, and unrecoverable error. Whenever possible, recoverable
   errors should be handled here, locally, without surfacing them
@@ -227,7 +226,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     NSMutableDictionary *query = [self defaultAccountQuery:key];
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
-    // For this reason, we retrieve references to the items, then (below) use a second SecItemCopyMatching() 
+    // For this reason, we retrieve references to the items, then (below) use a second SecItemCopyMatching()
     // to retrieve the data for each, deserializing each into an account object.
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnRef] = @YES;
@@ -251,7 +250,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         }
         return nil;
     }
-    
+
     NSArray *items = CFBridgingRelease(cfItems);
 
     query = [self defaultAccountQuery:key];
@@ -449,7 +448,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
     // Note: Would something like this be better?
     // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
-    
+
     return query;
 }
 
@@ -460,7 +459,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 {
     MSID_TRACE;
     NSMutableDictionary *update = [NSMutableDictionary new];
-    
+
     if (key.generic.length > 0)
     {
         update[(id)kSecAttrGeneric] = key.generic;
@@ -469,7 +468,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     {
         update[(id)kSecAttrType] = key.type;
     }
-    
+
     return update;
 }
 
