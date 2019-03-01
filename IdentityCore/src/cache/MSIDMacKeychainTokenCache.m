@@ -161,8 +161,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         return FALSE;
     }
 
-    NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
-    NSMutableDictionary *update = [[self defaultAccountUpdate:key] mutableCopy];
+    NSMutableDictionary *query = [self defaultAccountQuery:key];
+    NSMutableDictionary *update = [self defaultAccountUpdate:key];
     update[(id)kSecValueData] = jsonData;
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
@@ -224,8 +224,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                                error:(NSError **)error
 {
     MSID_TRACE;
-    NSDictionary *defaultQuery = [self defaultAccountQuery:key];
-    NSMutableDictionary *query = [defaultQuery mutableCopy];
+    NSMutableDictionary *query = [self defaultAccountQuery:key];
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
     // For this reason, we retrieve references to the items, then (below) use a second SecItemCopyMatching() 
@@ -255,7 +254,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     
     NSArray *items = CFBridgingRelease(cfItems);
 
-    query = [defaultQuery mutableCopy];
+    query = [self defaultAccountQuery:key];
     // Note: For efficiency, use kSecUseItemList to query the items returned above rather actually querying
     // the keychain again. With this second query we can set a specific kSecMatchLimit which lets us get the data
     // objects.
@@ -295,7 +294,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     MSID_LOG_INFO( context, @"Remove keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Remove keychain items, key info (account: %@ service: %@)", key.account, key.service);
 
-    NSMutableDictionary *query = [[self defaultAccountQuery:key] mutableCopy];
+    NSMutableDictionary *query = [self defaultAccountQuery:key];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnAttributes] = @YES;
 
@@ -420,7 +419,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     MSID_TRACE;
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
-    NSMutableDictionary *query = [[self defaultAccountQuery:nil] mutableCopy];
+    NSMutableDictionary *query = [self defaultAccountQuery:nil];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnAttributes] = @YES;
 
