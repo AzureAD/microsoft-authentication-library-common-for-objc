@@ -81,7 +81,7 @@ ATTRIBUTE         VALUE
 kSecClass         kSecClassGenericPassword
 kSecAttrAccount   <account_id>
 kSecAttrService   <realm>
-kSecAttrCreator   'MSAL' (temporary, until ACL support is added)
+kSecAttrCreator   'MSAL' (A flag marking our items, see defaultAccountQuery:)
 kSecValueData     JSON data (UTF8 encoded) – account object
 
  Type 2 JSON Data Example:
@@ -255,7 +255,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 // If not found, return an empty list without setting an error.
 //
 // Errors:
-// * MSIDKeychainErrorDomain/OSStatus: Apple status codes from SecItemUpdate()/SecItemAdd()
+// * MSIDKeychainErrorDomain/OSStatus: Apple status codes from SecItemCopyMatching()
 //
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDAccountItemSerializer>)serializer
@@ -487,10 +487,11 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     }
 
     // Add a marker for our cache items in the keychain.
-    // This is temporary until we have implemented ACL support.
     // It avoids keychain errors, in particular with clearWithContext.
-    // This should be deleted when we implement ACL support.
+    // This property is a FourCC integer, not a string:
     query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
+    // Note: Would something like this be better?
+    // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
 
     return query;
 }
