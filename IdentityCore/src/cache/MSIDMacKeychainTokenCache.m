@@ -154,6 +154,11 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 #pragma mark - Accounts
 
 // Write an account to the macOS keychain cache.
+//
+// Errors:
+// * MSIDErrorDomain/MSIDErrorInternal: invalid key or json deserialization error
+// * MSIDKeychainErrorDomain/OSStatus: Apple status codes from SecItemUpdate()/SecItemAdd()
+//
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)account
                 key:(MSIDCacheKey *)key
          serializer:(id<MSIDAccountItemSerializer>)serializer
@@ -216,6 +221,10 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 
 // Read a single account from the macOS keychain cache.
 // If multiple matches are found, return nil and set an error.
+//
+// Errors:
+// * MSIDErrorDomain/MSIDErrorCacheMultipleUsers: more than one keychain item matched the account key
+//
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
                               serializer:(id<MSIDAccountItemSerializer>)serializer
                                  context:(id<MSIDRequestContext>)context
@@ -244,6 +253,10 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 
 // Read one or more accounts from the keychain that match the key (see accountItem:matchesKey).
 // If not found, return an empty list without setting an error.
+//
+// Errors:
+// * MSIDKeychainErrorDomain/OSStatus: Apple status codes from SecItemUpdate()/SecItemAdd()
+//
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
                                           serializer:(id<MSIDAccountItemSerializer>)serializer
                                              context:(id<MSIDRequestContext>)context
@@ -314,6 +327,10 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 }
 
 // Remove one or more accounts from the keychain that match the key.
+//
+// Errors:
+// * MSIDKeychainErrorDomain/OSStatus: Apple status codes from SecItemDelete()
+//
 - (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
