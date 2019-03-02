@@ -81,8 +81,24 @@ ATTRIBUTE         VALUE
 kSecClass         kSecClassGenericPassword
 kSecAttrAccount   <account_id>
 kSecAttrService   <realm>
-kSecAttrCreator   'MSAL'
+kSecAttrCreator   'MSAL' (temporary, until ACL support is added)
 kSecValueData     JSON data (UTF8 encoded) – account object
+
+ Type 2 JSON Data Example:
+ {
+   "home_account_id": "uid.utid",
+   "environment": "login.microsoftonline.com",
+   "realm": "Contoso.COM",
+   "authority_type": "MSSTS",
+   "username": "username",
+   "given_name": "First name",
+   "family_name": "Last name",
+   "name": "test user",
+   "local_account_id": "0000004-0000004-000004",
+   "alternative_account_id": "alt",
+   "test": "test2",
+   "test3": "test4"
+ }
 
 Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
 ===============================================================
@@ -147,6 +163,17 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     MSID_TRACE;
     MSID_LOG_INFO(context, @"Set keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
+
+    if (!key.service)
+    {
+        NSString *errorMessage = @"Set keychain item with invalid key (service is nil).";
+        MSID_LOG_WARN(context, @"%@", errorMessage);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+        }
+        return FALSE;
+    }
 
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
     if (!jsonData)
@@ -442,12 +469,11 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
         query[(id)kSecAttrService] = key.service; // <realm>
     }
 
-    // Add a marker for our cache items in the keychain
-    // TODO: Determine if this is ok, or if there's a better way to identify our items that avoids
-    // attempting to deserialize their data, potentially triggering a UI prompt.
+    // Add a marker for our cache items in the keychain.
+    // This is temporary until we have implemented ACL support.
+    // It avoids keychain errors, in particular with clearWithContext.
+    // This should be deleted when we implement ACL support.
     query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
-    // Note: Would something like this be better?
-    // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
 
     return query;
 }
