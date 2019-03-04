@@ -62,7 +62,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -106,7 +106,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -149,7 +149,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -190,7 +190,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -216,7 +216,7 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    parameters.requiredBrokerSchemes = @[MSID_BROKER_SCHEME];
     return parameters;
 }
 

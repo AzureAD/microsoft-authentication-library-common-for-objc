@@ -150,8 +150,17 @@
 
     if (![MSIDAppExtensionUtil isExecutingInAppExtension])
     {
-        // Verify broker app url can be opened
-        return [[MSIDAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", parameters.supportedBrokerProtocolScheme]]];
+        // A valid broker should own all the required broker url schemes
+        for (NSString *urlScheme in parameters.requiredBrokerSchemes)
+        {
+            NSURL *urlWithScheme = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", urlScheme]];
+            
+            if (![[MSIDAppExtensionUtil sharedApplication] canOpenURL:urlWithScheme])
+            {
+                return NO;
+            }
+        }
+        return YES;
     }
     else
     {

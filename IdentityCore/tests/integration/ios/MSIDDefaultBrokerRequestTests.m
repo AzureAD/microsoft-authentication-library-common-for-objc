@@ -62,7 +62,7 @@
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -108,7 +108,7 @@
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -154,7 +154,7 @@
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -199,7 +199,7 @@
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"%@://broker?%@", MSID_BROKER_SCHEME, [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -227,7 +227,7 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    parameters.requiredBrokerSchemes = @[MSID_BROKER_SCHEME];
     parameters.promptType = MSIDPromptTypeSelectAccount;
     parameters.oidcScope = @"oidcscope1 oidcscope2";
     return parameters;

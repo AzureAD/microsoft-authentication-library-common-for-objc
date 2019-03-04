@@ -46,7 +46,7 @@
                                                                                           extraScopesToConsent:[@"extra extra2" msidScopeSet]
                                                                                                  correlationId:correlationID
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                         requiredBrokerSchemes:@[MSID_BROKER_SCHEME]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:&error];
     
@@ -59,7 +59,7 @@
     XCTAssertEqualObjects(parameters.extraScopesToConsent, @"extra extra2");
     XCTAssertEqualObjects(parameters.correlationId, correlationID);
     XCTAssertEqualObjects(parameters.telemetryApiId, @"100");
-    XCTAssertEqualObjects(parameters.supportedBrokerProtocolScheme, @"2");
+    XCTAssertEqualObjects(parameters.requiredBrokerSchemes, @[MSID_BROKER_SCHEME]);
     XCTAssertEqual(parameters.requestType, MSIDInteractiveRequestBrokeredType);
     
     XCTAssertNil(error);
@@ -76,7 +76,7 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                         requiredBrokerSchemes:@[MSID_BROKER_SCHEME]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     
@@ -96,7 +96,7 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                         requiredBrokerSchemes:@[MSID_BROKER_SCHEME]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     
@@ -115,7 +115,7 @@
                                                                                           extraScopesToConsent:[@"extra1 extra5" msidScopeSet]
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                         requiredBrokerSchemes:@[MSID_BROKER_SCHEME]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     
