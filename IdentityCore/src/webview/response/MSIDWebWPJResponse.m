@@ -34,11 +34,8 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    NSString *scheme = url.scheme;
-    NSString *host = url.host;
-    
     // Check for WPJ or broker response
-    if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"]))
+    if (![self isBrokerInstallResponse:url])
     {
         if (error)
         {
@@ -70,6 +67,33 @@
     return self;
 }
 
+- (BOOL)isBrokerInstallResponse:(NSURL *)url
+{
+    NSString *scheme = url.scheme;
+    NSString *host = url.host;
+    
+    if ([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"])
+    {
+        return YES;
+    }
+    
+    NSArray *pathComponents = url.pathComponents;
+    
+    if ([pathComponents count] < 2)
+    {
+        return NO;
+    }
+    
+    NSUInteger pathComponentCount = pathComponents.count;
+    
+    if ([pathComponents[pathComponentCount - 1] isEqualToString:@"wpj"]
+        && [pathComponents[pathComponentCount - 2] isEqualToString:@"msauth"])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
 
 
 @end
