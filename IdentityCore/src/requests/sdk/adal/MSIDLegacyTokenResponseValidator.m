@@ -61,22 +61,22 @@
     {
         case MSIDLegacyIdentifierTypeRequiredDisplayableId:
         {
-            if (!accountIdentifier.displayableId)
+            if (!accountIdentifier.displayableId
+                || [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString])
             {
                 return YES;
             }
-            
-            return [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString];
+            break;
         }
             
         case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
         {
-            if (!accountIdentifier.localAccountId)
+            if (!accountIdentifier.localAccountId
+                || [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString])
             {
                 return YES;
             }
-            
-            return [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
+            break;
         }
         case MSIDLegacyIdentifierTypeOptionalDisplayableId:
         {
@@ -84,15 +84,16 @@
         }
             
         default:
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
-            }
-            
-            return NO;
-        }
+            break;
+        
     }
+    
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
+    }
+    
+    return NO;
 }
 
 @end
