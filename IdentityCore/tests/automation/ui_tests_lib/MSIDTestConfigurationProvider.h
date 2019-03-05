@@ -53,6 +53,7 @@
 - (MSIDAutomationTestRequest *)defaultFociRequestWithBroker;
 - (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker;
 - (MSIDAutomationTestRequest *)sharepointFociRequestWithBroker;
+- (MSIDAutomationTestRequest *)outlookFociRequestWithBroker;
 
 - (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest:(NSString *)environment
                                               targetTenantId:(NSString *)targetTenantId;

@@ -403,56 +403,33 @@
 
 - (MSIDAutomationTestRequest *)defaultInstanceAwareAppRequest
 {
-    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSDictionary *defaultConf = self.defaultClients[@"default_sovereign"];
-    
-    if (defaultConf)
-    {
-        request.clientId = defaultConf[@"client_id"];
-        request.redirectUri = defaultConf[@"redirect_uri"];
-        request.validateAuthority = YES;
-        request.webViewType = self.defaultWebviewTypeForPlatform;
-    }
-    
-    return request;
+    return [self requestWithIdentifier:@"default_sovereign"];
 }
 
 - (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker
 {
-    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSDictionary *defaultConf = self.defaultClients[@"default_foci_nobroker"];
-
-    if (defaultConf)
-    {
-        request.clientId = defaultConf[@"client_id"];
-        request.redirectUri = defaultConf[@"redirect_uri"];
-        request.validateAuthority = YES;
-        request.webViewType = self.defaultWebviewTypeForPlatform;
-    }
-
-    return request;
+    return [self requestWithIdentifier:@"default_foci_nobroker"];
 }
 
 - (MSIDAutomationTestRequest *)defaultFociRequestWithBroker
 {
-    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSDictionary *defaultConf = self.defaultClients[@"default_foci_broker"];
-
-    if (defaultConf)
-    {
-        request.clientId = defaultConf[@"client_id"];
-        request.redirectUri = defaultConf[@"redirect_uri"];
-        request.validateAuthority = YES;
-        request.webViewType = self.defaultWebviewTypeForPlatform;
-    }
-
-    return request;
+    return [self requestWithIdentifier:@"default_foci_broker"];
 }
 
 - (MSIDAutomationTestRequest *)sharepointFociRequestWithBroker
 {
+    return [self requestWithIdentifier:@"default_foci_sharepoint"];
+}
+
+- (MSIDAutomationTestRequest *)outlookFociRequestWithBroker
+{
+    return [self requestWithIdentifier:@"default_foci_outlook"];
+}
+
+- (MSIDAutomationTestRequest *)requestWithIdentifier:(NSString *)requestIdentifier
+{
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSDictionary *defaultConf = self.defaultClients[@"default_foci_sharepoint"];
+    NSDictionary *defaultConf = self.defaultClients[requestIdentifier];
     
     if (defaultConf)
     {
