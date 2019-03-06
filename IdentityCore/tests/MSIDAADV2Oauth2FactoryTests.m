@@ -227,7 +227,7 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertNotNil(token.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
+    XCTAssertNotNil(token.extendedExpireTime);
 
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
@@ -293,7 +293,7 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertNotNil(token.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
+    XCTAssertNotNil(token.extendedExpireTime);
     
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
