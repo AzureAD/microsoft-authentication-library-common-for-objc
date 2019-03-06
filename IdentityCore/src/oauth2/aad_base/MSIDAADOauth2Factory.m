@@ -169,9 +169,6 @@
                                                                                            legacyUserId:accessToken.accountIdentifier.displayableId
                                                                                                 context:nil
                                                                                                   error:nil];
-
-    if (!response.extendedExpiresOnDate) return YES;
-
     accessToken.extendedExpireTime = response.extendedExpiresOnDate;
 
     return YES;
