@@ -48,7 +48,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@ expiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, [self.secret msidSecretLoggingHash]];
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, [self.secret msidSecretLoggingHash]];
 }
 
 #pragma mark - MSIDCacheItem
@@ -78,6 +78,7 @@
     result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
     result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
     result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqual:item.expiresOn];
+    result &= (!self.extendedExpiresOn && !item.extendedExpiresOn) || [self.extendedExpiresOn isEqual:item.extendedExpiresOn];
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
@@ -98,6 +99,7 @@
     hash = hash * 31 + self.realm.hash;
     hash = hash * 31 + self.environment.hash;
     hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
@@ -118,6 +120,7 @@
     item.realm = [self.realm copyWithZone:zone];
     item.environment = [self.environment copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
+    item.extendedExpiresOn = [self.extendedExpiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
