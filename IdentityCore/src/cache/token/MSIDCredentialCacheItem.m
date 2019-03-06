@@ -158,6 +158,7 @@
     _realm = json[MSID_REALM_CACHE_KEY];
     _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
+    _extendedExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
     _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
@@ -166,10 +167,8 @@
     // Additional Info
     
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
-    NSDate *extendedExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
     NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
     additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
-    additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = extendedExpiresOn;
     
     if ([additionalInfo count])
     {
@@ -182,7 +181,7 @@
 - (NSDictionary *)jsonDictionary
 {
     MSID_TRACE;
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:_additionalInfo];
 
     if (_json)
     {
@@ -196,12 +195,12 @@
     dictionary[MSID_REALM_CACHE_KEY] = _realm;
     dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
     dictionary[MSID_EXPIRES_ON_CACHE_KEY] = _expiresOn.msidDateToTimestamp;
+    dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = _extendedExpiresOn.msidDateToTimestamp;;
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
-    dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
-    dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = [_additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] msidDateToTimestamp];
+
     return dictionary;
 }
 
