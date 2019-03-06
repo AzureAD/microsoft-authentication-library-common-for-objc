@@ -506,6 +506,8 @@
         @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
         @"expires_on": expiresOn,
         @"cached_at": cachedAt,
+        @"not_before": @1538801260,
+        @"refresh_token_expires_in": @1209600,
         @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372",
         @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8"
     };
@@ -549,6 +551,8 @@
         @"credential_type": @"IdToken",
         @"environment": @"login.microsoftonline.com",
         @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
+        @"not_before": @1538801260,
+        @"refresh_token_expires_in": @1209600,
         @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
         @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372"
     };
@@ -592,6 +596,8 @@
                                    @"secret": @"<removed_rt>",
                                    @"environment": @"login.microsoftonline.com",
                                    @"credential_type": @"RefreshToken",
+                                   @"not_before": @1538801260,
+                                   @"refresh_token_expires_in": @1209600,
                                    @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8"
                                    };
 
@@ -705,6 +711,8 @@
                                    @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
                                    @"expires_on": expiresOn,
                                    @"cached_at": cachedAt,
+                                   @"not_before": @1538801260,
+                                   @"refresh_token_expires_in": @1209600,
                                    @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372",
                                    @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8"
                                    };
@@ -747,6 +755,8 @@
                                    @"secret": @"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1Mzg4MDQ4NjAsIm5iZiI6MTUzODgwMTI2MCwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tL2JhNmMwZDk0LWE4ZGEtNDViMi04M2FlLTMzODcxZjljMmRkOC92Mi4wLyIsInN1YiI6ImFkMDIwZjhlLWIxYmEtNDRiMi1iZDY5LWMyMmJlODY3MzdmNSIsImF1ZCI6IjBhN2Y1MmRkLTI2MGUtNDMyZi05NGRlLWI0NzgyOGMzZjM3MiIsImlhdCI6MTUzODgwMTI2MCwiYXV0aF90aW1lIjoxNTM4ODAxMjYwLCJpZHAiOiJsaXZlLmNvbSIsIm5hbWUiOiJNU0FMIFNESyBUZXN0Iiwib2lkIjoiYWQwMjBmOGUtYjFiYS00NGIyLWJkNjktYzIyYmU4NjczN2Y1IiwiZmFtaWx5X25hbWUiOiJTREsgVGVzdCIsImdpdmVuX25hbWUiOiJNU0FMIiwiZW1haWxzIjpbIm1zYWxzZGt0ZXN0QG91dGxvb2suY29tIl0sInRmcCI6IkIyQ18xX1NpZ25pbiIsImF0X2hhc2giOiJRNE8zSERDbGNhTGw3eTB1VS1iSkFnIiwidGlkIjoiYmE2YzBkOTQtYThkYS00NWIyLTgzYWUtMzM4NzFmOWMyZGQ4IiwicHJlZmVycmVkX3VzZXJuYW1lIjoibXNhbHNka3Rlc3RAb3V0bG9vay5jb20ifQ.",
                                    @"credential_type": @"IdToken",
                                    @"environment": @"login.microsoftonline.com",
+                                   @"not_before": @1538801260,
+                                   @"refresh_token_expires_in": @1209600,
                                    @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
                                    @"realm": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
                                    @"client_id": @"0a7f52dd-260e-432f-94de-b47828c3f372"
@@ -791,7 +801,9 @@
                                    @"secret": @"<removed_rt>",
                                    @"environment": @"login.microsoftonline.com",
                                    @"credential_type": @"RefreshToken",
-                                   @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8"
+                                   @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
+                                   @"not_before": @1538801260,
+                                   @"refresh_token_expires_in": @1209600
                                    };
 
     XCTAssertEqualObjects(credential.jsonDictionary, expectedJSON);
