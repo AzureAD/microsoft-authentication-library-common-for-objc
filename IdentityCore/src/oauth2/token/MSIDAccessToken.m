@@ -108,7 +108,7 @@ static NSUInteger s_expirationBuffer = 300;
     if (self)
     {
         _expiresOn = tokenCacheItem.expiresOn;
-        _extendedExpiresOn = tokenCacheItem.extendedExpiresOn;
+        _extendedExpireTime = tokenCacheItem.extendedExpiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _enrollmentId = tokenCacheItem.enrollmentId;
         _accessToken = tokenCacheItem.secret;
