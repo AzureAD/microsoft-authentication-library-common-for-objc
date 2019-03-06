@@ -247,12 +247,13 @@
         }
 
         NSError *validationError = nil;
+        
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
-
+        
         if (!tokenResult)
         {
             // Special case - need to return homeAccountId in case of Intune policies required.
@@ -274,7 +275,18 @@
             completionBlock(nil, validationError, nil);
             return;
         }
-
+        
+        BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
+                                                               tokenResult:tokenResult
+                                                             correlationID:self.requestParameters.correlationId
+                                                                     error:&validationError];
+        
+        if (!accountChecked)
+        {
+            completionBlock(nil, validationError, nil);
+            return;
+        }
+        
         completionBlock(tokenResult, nil, nil);
     }];
 }

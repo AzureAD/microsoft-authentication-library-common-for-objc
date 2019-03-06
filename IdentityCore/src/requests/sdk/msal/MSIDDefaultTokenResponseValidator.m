@@ -35,7 +35,6 @@
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
                   oidcScope:(NSString *)oidcScope
-             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
 {
@@ -74,6 +73,14 @@
         return NO;
     }
 
+    return YES;
+}
+
+- (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(MSIDTokenResult *)tokenResult
+              correlationID:(NSUUID *)correlationID
+                      error:(NSError **)error
+{
     if (accountIdentifier.uid != nil
         && ![accountIdentifier.uid isEqualToString:tokenResult.accessToken.accountIdentifier.uid])
     {
@@ -82,10 +89,10 @@
             NSDictionary *userInfo = @{MSIDInvalidTokenResultKey : tokenResult};
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo);
         }
-
+        
         return NO;
     }
-
+    
     return YES;
 }
 
