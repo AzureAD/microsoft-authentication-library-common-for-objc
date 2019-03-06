@@ -52,9 +52,10 @@
     
     cacheItem.cachedAt = cachedAt;
     cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
 
-    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+    NSDictionary *additionalInfo = @{@"test": @"test2",
                                      @"spe_info": @"2"};
     
     cacheItem.additionalInfo = additionalInfo;
@@ -73,6 +74,7 @@
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"extended_expires_on": extExpiresOnString,
                                          @"spe_info": @"2",
+                                         @"test": @"test2",
                                          @"home_account_id": @"uid.utid",
                                          @"enrollment_id": @"enrollmentId"
                                          };
@@ -140,11 +142,13 @@
                                      @"target": DEFAULT_TEST_RESOURCE,
                                      @"cached_at": cachedAtString,
                                      @"expires_on": expiresOnString,
+                                     @"extended_expires_on": extExpiresOnString,
                                      @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                      @"realm": @"contoso.com",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"extended_expires_on": extExpiresOnString,
                                      @"spe_info": @"2",
+                                     @"test": @"test2",
                                      @"home_account_id": @"uid.utid",
                                      @"enrollment_id": @"enrollmentId"
                                      };
@@ -158,10 +162,12 @@
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
     XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(cacheItem.extendedExpiresOn, extExpiresOn);
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
     XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ACCESS_TOKEN);
-    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"extended_expires_on": extExpiresOn};
+    // @"test" is an unrecognized string and doesn't get added to the additional fields
+    NSDictionary *additionalInfo = @{@"spe_info": @"2"};
     XCTAssertEqualObjects(cacheItem.additionalInfo, additionalInfo);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.enrollmentId, @"enrollmentId");
