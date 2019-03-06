@@ -716,7 +716,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testAcquireTokenSilent_whenExpiredAccessTokenInCache_andDifferentAccountReturn_shouldReturnError
+- (void)testAcquireTokenSilent_whenExpiredAccessTokenInCache_andDifferentAccountReturn_shouldReturnValidResult
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
@@ -758,9 +758,8 @@
 
     [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
-        XCTAssertNotNil(error);
-        XCTAssertNil(result);
-        XCTAssertEqual(error.code, MSIDErrorMismatchedAccount);
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
         [expectation fulfill];
     }];
 

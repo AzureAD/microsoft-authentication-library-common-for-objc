@@ -51,10 +51,14 @@
                                       correlationID:(nonnull NSUUID *)correlationID
                                               error:(NSError * _Nullable * _Nullable)error;
 
+- (BOOL)validateAccount:(nonnull MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(nonnull MSIDTokenResult *)tokenResult
+          correlationID:(nonnull NSUUID *)correlationID
+                  error:(NSError * _Nullable * _Nullable)error;
+
 - (BOOL)validateTokenResult:(nonnull MSIDTokenResult *)tokenResult
               configuration:(nonnull MSIDConfiguration *)configuration
                   oidcScope:(nullable NSString *)oidcScope
-             requestAccount:(nullable MSIDAccountIdentifier *)accountIdentifier
               correlationID:(nonnull NSUUID *)correlationID
                       error:(NSError * _Nullable * _Nullable)error;
 
