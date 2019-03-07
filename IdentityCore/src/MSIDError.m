@@ -105,7 +105,6 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       
                       // Authority Validation Errors
                       @(MSIDErrorAuthorityValidation),
-                      @(MSIDErrorAuthorityValidationWebFinger),
                       
                       // Interactive flow errors
                       @(MSIDErrorUserCancel),
@@ -113,7 +112,6 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorInteractiveSessionStartFailure),
                       @(MSIDErrorInteractiveSessionAlreadyRunning),
                       @(MSIDErrorNoMainViewController),
-                      @(MSIDErrorServerInvalidResponse),
                       @(MSIDErrorAttemptToOpenURLFromExtension),
                       @(MSIDErrorUINotSupportedInExtension),
 

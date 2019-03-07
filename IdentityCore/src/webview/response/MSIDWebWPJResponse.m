@@ -25,9 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
+#import "MSIDClientInfo.h"
 
-@implementation MSIDWebMSAuthResponse
+@implementation MSIDWebWPJResponse
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -54,6 +55,16 @@
     {
         _appInstallLink = self.parameters[@"app_link"];
         _upn = self.parameters[@"username"];
+        
+        NSError *localError;
+        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.parameters[@"client_info"]
+                                                              error:&localError];
+        
+        if (localError)
+        {
+            MSID_LOG_ERROR(context, @"Failed to parse client_info, code %ld, domain %@", (long)localError.code, localError.domain);
+            MSID_LOG_ERROR_PII(context, @"Failed to parse client_info, error: %@", localError);
+        }
     }
     
     return self;

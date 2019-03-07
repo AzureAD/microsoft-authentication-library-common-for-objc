@@ -31,9 +31,15 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDAadAuthorityCache.h"
+#import "MSIDAadAuthorityCacheRecord.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthorityFactory.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDOpenIdProviderMetadata.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -63,7 +69,6 @@
     config.loginHint = @"fakeuser@contoso.com";
     config.claims = @"claims";
     config.promptBehavior = @"login";
-    config.sliceParameters = DEFAULT_TEST_SLICE_PARAMS_DICT;
     
     NSString *requestState = @"state";
     
@@ -82,19 +87,51 @@
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
                                           @"prompt" : @"login",
-                                          @"slice": @"myslice",
                                           @"haschrome" : @"1",
                                           @"scope" : @"scope1"
                                           
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    [expectedQPs addEntriesFromDictionary:DEFAULT_TEST_SLICE_PARAMS_DICT];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
 
+- (void)testWebViewConfiguration_whenNonPreferredNetworkAuthorityProvided_shouldSetPreferredAuthorityToConfiguration
+{
+    MSIDAadAuthorityCache *cache = [MSIDAadAuthorityCache sharedInstance];
+    __auto_type record = [MSIDAadAuthorityCacheRecord new];
+    record.validated = YES;
+    record.networkHost = @"login.microsoftonline.com";
+    [cache setObject:record forKey:@"login.windows.net"];
 
-- (void)testResponseWithURL_whenURLSchemeMsauth_shouldReturnWPJResponse
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+
+    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
+    MSIDOpenIdProviderMetadata *metadata = [MSIDOpenIdProviderMetadata new];
+    metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
+    authority.metadata = metadata;
+
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"scope", nil];
+
+    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+                                                                                                   redirectUri:@"redirect"
+                                                                                                      clientId:@"client"
+                                                                                                        scopes:scopes
+                                                                                                    oidcScopes:nil
+                                                                                          extraScopesToConsent:nil
+                                                                                                 correlationId:nil
+                                                                                                telemetryApiId:nil
+                                                                                       supportedBrokerProtocol:nil
+                                                                                                   requestType:MSIDInteractiveRequestLocalType
+                                                                                                         error:nil];
+
+    MSIDWebviewConfiguration *configuration = [factory webViewConfigurationWithRequestParameters:parameters];
+    XCTAssertNotNil(configuration);
+    NSURL *expectedAuthorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/mypath/oauth/authorize"];
+    XCTAssertEqualObjects(configuration.authorizationEndpoint, expectedAuthorizationEndpoint);
+}
+
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostWPJ_shouldReturnWPJResponse
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
@@ -105,7 +142,7 @@
                                             context:nil
                                               error:&error];
     
-    XCTAssertTrue([response isKindOfClass:MSIDWebMSAuthResponse.class]);
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
 }
 

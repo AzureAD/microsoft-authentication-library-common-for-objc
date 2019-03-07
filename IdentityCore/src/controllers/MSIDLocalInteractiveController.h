@@ -27,7 +27,7 @@
 #import "MSIDRequestControlling.h"
 
 @class MSIDInteractiveRequestParameters;
-@class MSIDWebMSAuthResponse;
+@class MSIDWebWPJResponse;
 
 @interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 

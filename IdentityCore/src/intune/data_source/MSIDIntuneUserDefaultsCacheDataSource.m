@@ -56,6 +56,7 @@
 - (NSDictionary *)jsonDictionaryForKey:(NSString *)key
 {
     NSString *jsonString = [self.userDefaults objectForKey:key];
+    if ([NSString msidIsStringNilOrBlank:jsonString]) return nil;
     
     return (NSDictionary *)[self.jsonSerializer fromJsonString:jsonString
                                                         ofType:NSDictionary.self
@@ -72,7 +73,7 @@
     [self.userDefaults setObject:jsonString forKey:key];
 }
 
-- (void)removeObjectForKey:(NSString *)key;
+- (void)removeObjectForKey:(NSString *)key
 {
     [self.userDefaults removeObjectForKey:key];
 }

@@ -32,13 +32,13 @@
                         encryptionKey:(NSData *)encryptionKey
 {
     NSDictionary *message = [self createLegacyBrokerResponseDictionary:parameters encryptionKey:encryptionKey];
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidWWWFormURLEncode]]];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [message msidURLEncode]]];
 }
 
 + (NSURL *)createLegacyBrokerErrorResponse:(NSDictionary *)parameters
                                redirectUri:(NSString *)redirectUri
 {
-    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [parameters msidWWWFormURLEncode]]];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"%@?%@", redirectUri, [parameters msidURLEncode]]];
 }
 
 + (NSDictionary *)createLegacyBrokerResponseDictionary:(NSDictionary *)parameters

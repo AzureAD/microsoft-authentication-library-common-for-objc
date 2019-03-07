@@ -93,7 +93,7 @@
 
     [contents addEntriesFromDictionary:protocolContents];
 
-    NSString* query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
+    NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", self.requestParameters.supportedBrokerProtocolScheme, query]];
 
@@ -133,8 +133,6 @@
     if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
-    MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication");
-
     NSString *enrollmentIds = [self intuneEnrollmentIdsParameterWithError:error];
     if (!enrollmentIds) return nil;
 
@@ -146,7 +144,7 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-    NSString *extraQueryParameters = [self.requestParameters.extraQueryParameters count] ? [self.requestParameters.extraQueryParameters msidWWWFormURLEncode] : @"";
+    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -265,7 +263,7 @@
 #pragma mark - Abstract
 
 // Thos parameters will be different depending on the broker protocol version
-- (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
+- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError **)error
 {
     return @{};
 }

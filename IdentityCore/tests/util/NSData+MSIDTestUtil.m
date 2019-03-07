@@ -21,40 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADResponseSerializer.h"
-#import "MSIDTelemetryEventStrings.h"
-#import "NSString+MSIDTelemetryExtensions.h"
+#import "NSData+MSIDTestUtil.h"
 
-@implementation MSIDAADResponseSerializer
+@implementation NSData (MSIDTestUtil)
 
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
++ (NSData *)hexStringToData:(NSString *)dataHexString
 {
-    NSError *jsonError;
-    NSMutableDictionary *jsonObject = [[super responseObjectForResponse:httpResponse data:data context:context error:&jsonError] mutableCopy];
-    
-    if (jsonError)
+    dataHexString = [dataHexString stringByReplacingOccurrencesOfString:@" " withString:@""];
+    NSMutableData *result = [NSMutableData new];
+    unsigned char wholeByte;
+    char byteChars[3] = {'\0','\0','\0'};
+    int i;
+    for (i = 0; i < [dataHexString length] / 2; i++)
     {
-        if (error) *error = jsonError;
-        return nil;
+        byteChars[0] = [dataHexString characterAtIndex:i * 2];
+        byteChars[1] = [dataHexString characterAtIndex:i * 2 + 1];
+        wholeByte = strtol(byteChars, NULL, 16);
+        [result appendBytes:&wholeByte length:1];
     }
     
-    jsonObject[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = httpResponse.allHeaderFields[MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE];
-    
-    NSString *clientTelemetry = httpResponse.allHeaderFields[MSID_OAUTH2_CLIENT_TELEMETRY];
-    if (![NSString msidIsStringNilOrBlank:clientTelemetry])
-    {
-        NSString *speInfo = [clientTelemetry msidParsedClientTelemetry][MSID_TELEMETRY_KEY_SPE_INFO];
-        
-        if (![NSString msidIsStringNilOrBlank:speInfo])
-        {
-            jsonObject[MSID_TELEMETRY_KEY_SPE_INFO] = speInfo;
-        }
-    }
-
-    return jsonObject;
+    return result;
 }
 
 @end

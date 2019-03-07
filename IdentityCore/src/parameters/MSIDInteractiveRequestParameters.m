@@ -52,6 +52,7 @@
         _extraScopesToConsent = [extraScopesToConsent msidToString];
         _supportedBrokerProtocolScheme = brokerProtocolScheme;
         _requestType = requestType;
+        _enablePkce = YES;
     }
 
     return self;
@@ -69,6 +70,19 @@
     return requestScopes;
 }
 
+- (NSDictionary *)allAuthorizeRequestExtraParameters
+{
+    if (!self.extraAuthorizeURLQueryParameters && !self.extraURLQueryParameters)
+    {
+        return nil;
+    }
+    
+    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.extraAuthorizeURLQueryParameters];
+    [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
+    [authorizeParams addEntriesFromDictionary:self.appRequestMetadata];
+    return authorizeParams;
+}
+
 - (BOOL)validateParametersWithError:(NSError **)error
 {
     BOOL result = [super validateParametersWithError:error];
@@ -78,7 +92,7 @@
         return NO;
     }
 
-    if ([self.claims count] && self.extraQueryParameters[MSID_OAUTH2_CLAIMS])
+    if ([self.claims count] && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
         return NO;

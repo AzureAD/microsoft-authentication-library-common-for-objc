@@ -44,6 +44,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -71,6 +72,8 @@
     return self;
 }
 
+#pragma mark - Saving
+
 - (BOOL)saveTokensWithConfiguration:(MSIDConfiguration *)configuration
                            response:(MSIDTokenResponse *)response
                             factory:(MSIDOauth2Factory *)factory
@@ -93,40 +96,6 @@
     return [self saveSSOStateWithConfiguration:configuration response:response factory:factory context:context error:error];
 }
 
-- (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
-                    saveSSOStateOnly:(BOOL)saveSSOStateOnly
-                             factory:(MSIDOauth2Factory *)factory
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError *__autoreleasing *)error
-{
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Saving broker response, only save SSO state %d", saveSSOStateOnly);
-    
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:response.authority]
-                                                           context:context error:error];
-    
-    if (!authority) return NO;
-    
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
-                                                                        redirectUri:nil
-                                                                           clientId:response.clientId
-                                                                             target:response.target];
-    
-    if (saveSSOStateOnly)
-    {
-        return [self saveSSOStateWithConfiguration:configuration
-                                          response:response.tokenResponse
-                                           factory:factory
-                                           context:context
-                                             error:error];
-    }
-    
-    return [self saveTokensWithConfiguration:configuration
-                                    response:response.tokenResponse
-                                     factory:factory
-                                     context:context
-                                       error:error];
-}
-
 - (BOOL)saveSSOStateWithConfiguration:(MSIDConfiguration *)configuration
                              response:(MSIDTokenResponse *)response
                               factory:(MSIDOauth2Factory *)factory
@@ -135,7 +104,7 @@
 {
     if (!response)
     {
-        [self fillInternalErrorWithMessage:@"No token response provided" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"No token response provided", context.correlationId);
         return NO;
     }
 
@@ -153,23 +122,94 @@
     return [self saveAccountWithConfiguration:configuration response:response factory:factory context:context error:error];
 }
 
-- (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)account
+#pragma mark - Refresh token read
+
+- (MSIDRefreshToken *)getRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
                                         familyId:(NSString *)familyId
                                    configuration:(MSIDConfiguration *)configuration
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError *__autoreleasing *)error
 {
-    if (![NSString msidIsStringNilOrBlank:account.homeAccountId])
+    MSIDRefreshToken *refreshToken =  [self getRefreshableTokenWithAccount:accountIdentifier
+                                                                  familyId:familyId
+                                                            credentialType:MSIDRefreshTokenType
+                                                             configuration:configuration
+                                                                   context:context
+                                                                     error:error];
+    
+    if (refreshToken) return refreshToken;
+    
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:accountIdentifier
+                                                                     familyId:familyId
+                                                                configuration:configuration
+                                                                      context:context
+                                                                        error:error];
+        
+        if (refreshToken)
+        {
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found refresh token in a different accessor %@", [accessor class]);
+            return refreshToken;
+        }
+    }
+    
+    return nil;
+}
+
+- (MSIDPrimaryRefreshToken *)getPrimaryRefreshTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
+                                                      familyId:(NSString *)familyId
+                                                 configuration:(MSIDConfiguration *)configuration
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError *__autoreleasing *)error
+{
+    MSIDPrimaryRefreshToken *prt = (MSIDPrimaryRefreshToken *)[self getRefreshableTokenWithAccount:accountIdentifier
+                                                                                          familyId:familyId
+                                                                                    credentialType:MSIDPrimaryRefreshTokenType
+                                                                                     configuration:configuration
+                                                                                           context:context
+                                                                                             error:error];
+    
+    if (prt) return prt;
+    
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        MSIDPrimaryRefreshToken *prt = [accessor getPrimaryRefreshTokenWithAccount:accountIdentifier
+                                                                          familyId:familyId
+                                                                     configuration:configuration
+                                                                           context:context
+                                                                             error:error];
+        
+        if (prt)
+        {
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found primary refresh token in a different accessor %@", [accessor class]);
+            return prt;
+        }
+    }
+    
+    return nil;
+}
+
+- (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
+                                            familyId:(NSString *)familyId
+                                      credentialType:(MSIDCredentialType)credentialType
+                                       configuration:(MSIDConfiguration *)configuration
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError *__autoreleasing *)error
+{
+    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return nil;
+    
+    if (![NSString msidIsStringNilOrBlank:accountIdentifier.homeAccountId])
     {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding token with user ID, clientId %@, familyID %@, authority %@", configuration.clientId, familyId, configuration.authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding token with user ID %@, clientId %@, familyID %@, authority %@", account.homeAccountId, configuration.clientId, familyId, configuration.authority);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding token with user ID %@, clientId %@, familyID %@, authority %@", accountIdentifier.homeAccountId, configuration.clientId, familyId, configuration.authority);
 
         MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-        query.homeAccountId = account.homeAccountId;
+        query.homeAccountId = accountIdentifier.homeAccountId;
         query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
         query.clientId = familyId ? nil : configuration.clientId;
         query.familyId = familyId;
-        query.credentialType = MSIDRefreshTokenType;
+        query.credentialType = credentialType;
 
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getTokenWithAuthority:configuration.authority
                                                                                cacheQuery:query
@@ -178,41 +218,27 @@
 
         if (refreshToken)
         {
-            MSID_LOG_VERBOSE(context, @"(Default accessor) Found refresh token by home account id");
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found %@refresh token by home account id", credentialType == MSIDPrimaryRefreshTokenType ? @"primary " : @"");
             return refreshToken;
         }
     }
 
-    if (![NSString msidIsStringNilOrBlank:account.legacyAccountId])
+    if (![NSString msidIsStringNilOrBlank:accountIdentifier.displayableId])
     {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Finding refresh token with legacy user ID, clientId %@, authority %@", configuration.clientId, configuration.authority);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", account.legacyAccountId, configuration.clientId, configuration.authority);
-
-        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshTokenByLegacyUserId:account.legacyAccountId
-                                                                                        authority:configuration.authority
-                                                                                         clientId:configuration.clientId
-                                                                                         familyId:familyId
-                                                                                          context:context
-                                                                                            error:error];
-
-        if (refreshToken)
-        {
-            MSID_LOG_VERBOSE(context, @"(Default accessor) Found refresh token by legacy account id");
-            return refreshToken;
-        }
-    }
-
-    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
-    {
-        MSIDRefreshToken *refreshToken = [accessor getRefreshTokenWithAccount:account
-                                                                     familyId:familyId
-                                                                configuration:configuration
-                                                                      context:context
-                                                                        error:error];
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Finding refresh token with legacy user ID %@, clientId %@, authority %@", accountIdentifier.displayableId, configuration.clientId, configuration.authority);
+        
+        MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getRefreshableTokenByDisplayableId:accountIdentifier.displayableId
+                                                                                             authority:configuration.authority
+                                                                                              clientId:configuration.clientId
+                                                                                              familyId:familyId
+                                                                                        credentialType:credentialType
+                                                                                               context:context
+                                                                                                 error:error];
 
         if (refreshToken)
         {
-            MSID_LOG_VERBOSE(context, @"(Legacy accessor) Found refresh token in a different accessor %@", [accessor class]);
+            MSID_LOG_VERBOSE(context, @"(Default accessor) Found %@refresh token by legacy account id", credentialType == MSIDPrimaryRefreshTokenType ? @"primary " : @"");
             return refreshToken;
         }
     }
@@ -220,11 +246,16 @@
     return nil;
 }
 
+#pragma mark - Clear cache
+
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
+    MSID_LOG_WARN(context, @"(Default accessor) Clearing everything in cache. This method should only be called in tests!");
     return [_accountCredentialCache clearWithContext:context error:error];
 }
+
+#pragma mark - Read all tokens
 
 - (NSArray<MSIDBaseToken *> *)allTokensWithContext:(id<MSIDRequestContext>)context
                                              error:(NSError **)error
@@ -240,112 +271,226 @@
 
 #pragma mark - Public
 
-- (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
+- (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
                                 configuration:(MSIDConfiguration *)configuration
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error
 {
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.homeAccountId = account.homeAccountId;
+    query.homeAccountId = accountIdentifier.homeAccountId;
     query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
     query.credentialType = MSIDAccessTokenType;
+    query.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accountIdentifier.homeAccountId
+                                                                                     legacyUserId:accountIdentifier.displayableId
+                                                                                          context:context
+                                                                                            error:nil];
 
-    return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority
-                                                cacheQuery:query
-                                                   context:context
-                                                     error:error];
+    __auto_type accessToken = (MSIDAccessToken *)[self getTokenWithAuthority:configuration.authority
+                                                                  cacheQuery:query
+                                                                     context:context
+                                                                       error:error];
+    
+    if (accessToken)
+    {
+        NSTimeInterval expiresIn = [accessToken.expiresOn timeIntervalSinceNow];
+        MSID_LOG_INFO(context, @"Found access token for account %@ which expires in %f", _PII_NULLIFY(accountIdentifier), expiresIn);
+        MSID_LOG_INFO_PII(context, @"Found access token for account %@ which expires in %f", accountIdentifier, expiresIn);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"Access token wasn't found.");
+    }
+    
+    return accessToken;
 }
 
-- (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)account
+- (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
                         configuration:(MSIDConfiguration *)configuration
+                          idTokenType:(MSIDCredentialType)idTokenType
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
+    if (idTokenType!=MSIDIDTokenType && idTokenType!=MSIDLegacyIDTokenType)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        MSID_LOG_ERROR(context, @"Wrong id token type passed: %@.", [MSIDCredentialTypeHelpers credentialTypeAsString:idTokenType]);
+        return nil;
+    }
+    
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.homeAccountId = account.homeAccountId;
+    query.homeAccountId = accountIdentifier.homeAccountId;
     query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
     query.realm = configuration.authority.url.msidTenant;
     query.clientId = configuration.clientId;
-    query.credentialType = MSIDIDTokenType;
+    query.credentialType = idTokenType;
 
-    return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority
-                                            cacheQuery:query
-                                               context:context
-                                                 error:error];
+    __auto_type idToken = (MSIDIdToken *)[self getTokenWithAuthority:configuration.authority
+                                                          cacheQuery:query
+                                                             context:context
+                                                               error:error];
+    
+    if (idToken)
+    {
+        MSID_LOG_INFO(context, @"Found id token for account %@.", _PII_NULLIFY(accountIdentifier));
+        MSID_LOG_INFO_PII(context, @"Found id token %@ for account %@.", [idToken.rawIdToken msidSecretLoggingHash], accountIdentifier);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"Id token wasn't found.");
+    }
+    
+    return idToken;
 }
 
-- (NSArray<MSIDAccount *> *)allAccountsForAuthority:(MSIDAuthority *)authority
-                                           clientId:(NSString *)clientId
-                                           familyId:(NSString *)familyId
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+- (BOOL)removeAccessToken:(MSIDAccessToken *)token
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error
 {
+    return [self removeToken:token
+                     context:context
+                       error:error];
+}
+
+#pragma mark - Read all accounts
+
+- (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
+                                         clientId:(NSString *)clientId
+                                         familyId:(NSString *)familyId
+                                accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
+{
+    MSID_LOG_INFO(context, @"(Default accessor) Get accounts.");
     MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", authority.environment, clientId, familyId);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId, accountIdentifier.displayableId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     NSArray<NSString *> *environmentAliases = [authority defaultCacheEnvironmentAliases];
 
-    NSMutableSet *filteredAccountsSet = [self getAccountsForEnvironment:authority.environment
-                                                     environmentAliases:environmentAliases
-                                                                context:context
-                                                                  error:error];
+    // First read accounts by specified parameters
+    MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
+    accountsQuery.accountType = MSIDAccountTypeMSSTS;
+    accountsQuery.environmentAliases = environmentAliases;
+    accountsQuery.homeAccountId = accountIdentifier.homeAccountId;
+    accountsQuery.username = accountIdentifier.displayableId;
 
-    if (!filteredAccountsSet)
+    NSArray<MSIDAccountCacheItem *> *allAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
+
+    if (!allAccounts)
     {
         MSID_LOG_ERROR(context, @"(Default accessor) Failed accounts lookup");
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-        return @[];
+        return nil;
+    }
+    
+    NSSet<NSString *> *filterAccountIds = nil;
+
+    NSError *localError;
+    // we only return accounts for which we have refresh tokens in cache
+    filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                       clientId:clientId
+                                                       familyId:familyId
+                                         accountCredentialCache:_accountCredentialCache
+                                                        context:context
+                                                          error:&localError];
+    
+    if (localError)
+    {
+        if (error)
+        {
+            *error = localError;
+        }
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+        return nil;
+    }
+
+    NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
+
+    for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
+    {
+        // If we have accountIds to filter by, only return account if it has an associated refresh token
+        if ([filterAccountIds containsObject:accountCacheItem.homeAccountId])
+        {
+            if (authority.environment)
+            {
+                accountCacheItem.environment = authority.environment;
+            }
+
+            MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
+            if (account) [filteredAccountsSet addObject:account];
+        }
     }
 
     if ([filteredAccountsSet count])
     {
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor.", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO_PII(context, @"(Default accessor) Found the following accounts in default accessor: %@", [filteredAccountsSet allObjects]);
+        
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
     {
-        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor");
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor.");
         [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
     }
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        NSArray *accounts = [accessor allAccountsForAuthority:authority
-                                                     clientId:clientId
-                                                     familyId:familyId
-                                                      context:context
-                                                        error:error];
-
+        NSArray *accounts = [accessor accountsWithAuthority:authority
+                                                   clientId:clientId
+                                                   familyId:familyId
+                                          accountIdentifier:accountIdentifier
+                                                    context:context
+                                                      error:error];
         [filteredAccountsSet addObjectsFromArray:accounts];
+    }
+    
+    if ([filteredAccountsSet count])
+    {
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in other accessors.", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO_PII(context, @"(Default accessor) Found the following accounts in other accessors: %@", [filteredAccountsSet allObjects]);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in other accessors.");
     }
 
     return [filteredAccountsSet allObjects];
 }
 
-- (MSIDAccount *)accountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                             familyId:(NSString *)familyId
-                        configuration:(MSIDConfiguration *)configuration
-                              context:(id<MSIDRequestContext>)context
-                                error:(NSError **)error
+- (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                               authority:(MSIDAuthority *)authority
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
-    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for account with client ID %@, family ID %@, authority %@, legacy user ID %@, home account ID %@", configuration.clientId, familyId, configuration.authority, accountIdentifier.legacyAccountId, accountIdentifier.homeAccountId);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for account with authority %@", authority.url);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for account with authority %@, legacy user ID %@, home account ID %@", authority.url, accountIdentifier.displayableId, accountIdentifier.homeAccountId);
+
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSIDDefaultAccountCacheQuery *cacheQuery = [MSIDDefaultAccountCacheQuery new];
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
-    cacheQuery.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
+    cacheQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    cacheQuery.realm = [authority.url msidTenant];
+    cacheQuery.username = accountIdentifier.displayableId;
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
 
     if (!accountCacheItems)
     {
-        MSID_LOG_WARN(context, @"(Default accessor) Failed to retrieve account with client ID %@, family ID %@, authority %@", configuration.clientId, familyId, configuration.authority);
+        MSID_LOG_WARN(context, @"(Default accessor) Failed to retrieve account with authority %@", authority.url);
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
         return nil;
     }
 
@@ -355,85 +500,66 @@
         if (account) return account;
     }
 
-    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
-    {
-        MSIDAccount *account = [accessor accountForIdentifier:accountIdentifier
-                                                     familyId:familyId
-                                                configuration:configuration
-                                                      context:context
-                                                        error:error];
-
-        if (account)
-        {
-            MSID_LOG_VERBOSE(context, @"(Default accessor) Found account in a different accessor %@", [accessor class]);
-            return account;
-        }
-    }
-
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     return nil;
 }
 
-- (BOOL)removeAccount:(MSIDAccount *)account
-              context:(id<MSIDRequestContext>)context
-                error:(NSError **)error
-{
-    if (!account)
-    {
-        [self fillInternalErrorWithMessage:@"Account not provided, cannot remove" context:context error:error];
-        return NO;
-    }
+#pragma mark - Clear cache
 
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
-    BOOL result = [_accountCredentialCache removeAccount:account.accountCacheItem context:context error:error];
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
-    return result;
-}
-
-- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)accountIdentifier
                    authority:(MSIDAuthority *)authority
                     clientId:(NSString *)clientId
+                    familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
 {
-    if (!account)
+    if (!accountIdentifier)
     {
-        [self fillInternalErrorWithMessage:@"Missing parameter, please provide account" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Cannot clear cache without account provided", context.correlationId);
         return NO;
     }
 
-    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@", authority.environment, clientId);
-    MSID_LOG_VERBOSE(context, @"Clearing cache for environment: %@, client ID %@, account %@", authority.environment, clientId, account.homeAccountId);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@", authority.environment, clientId, familyId);
+    MSID_LOG_VERBOSE(context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@, account %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
-    NSArray *aliases = [authority defaultCacheEnvironmentAliases];
+    NSString *homeAccountId = accountIdentifier.homeAccountId;
 
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.clientId = clientId;
-    query.homeAccountId = account.homeAccountId;
-    query.environmentAliases = aliases;
-    query.matchAnyCredentialType = YES;
-
-    BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
-
-    if (!result)
+    if ([NSString msidIsStringNilOrBlank:homeAccountId]
+        && ![NSString msidIsStringNilOrBlank:accountIdentifier.displayableId])
     {
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-        return NO;
+        homeAccountId = [self homeAccountIdForLegacyId:accountIdentifier.displayableId authority:authority context:context error:error];
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Resolving home account ID from legacy account ID");
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Resolving home account ID from legacy account ID, legacy account %@, resolved account %@", accountIdentifier.displayableId, homeAccountId);
     }
 
-    MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
-    accountsQuery.homeAccountId = account.homeAccountId;
-    accountsQuery.environmentAliases = aliases;
+    if (homeAccountId)
+    {
+        NSArray *aliases = [authority defaultCacheEnvironmentAliases];
 
-    result = [_accountCredentialCache removeAccountsWithQuery:accountsQuery context:context error:error];
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+        MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+        query.clientId = clientId;
+        query.familyId = familyId;
+        query.homeAccountId = homeAccountId;
+        query.environmentAliases = aliases;
+        query.matchAnyCredentialType = YES;
+
+        BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
+    }
+    else
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+    }
 
     // Clear cache from other accessors
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
     {
-        if (![accessor clearCacheForAccount:account
+        if (![accessor clearCacheForAccount:accountIdentifier
+                                  authority:authority
                                    clientId:clientId
+                                   familyId:familyId
                                     context:context
                                       error:error])
         {
@@ -442,17 +568,39 @@
         }
     }
 
-    return result;
+    return YES;
 }
 
 - (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error
 {
+    return [self validateAndRemoveRefreshableToken:token
+                                    credentialType:MSIDRefreshTokenType
+                                           context:context
+                                             error:error];
+}
+
+- (BOOL)validateAndRemovePrimaryRefreshToken:(MSIDRefreshToken *)token
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error
+{
+    return [self validateAndRemoveRefreshableToken:token
+                                    credentialType:MSIDPrimaryRefreshTokenType
+                                           context:context
+                                             error:error];
+}
+
+- (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
+                           credentialType:(MSIDCredentialType)credentialType
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return NO;
+    
     if (!token || [NSString msidIsStringNilOrBlank:token.refreshToken])
     {
-        [self fillInternalErrorWithMessage:@"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided." context:context error:error];
-
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Removing tokens can be done only as a result of a token request. Valid refresh token should be provided.", context.correlationId);
         return NO;
     }
 
@@ -466,7 +614,7 @@
     query.environment = authority.msidHostWithPortIfNecessary;
     query.clientId = token.clientId;
     query.familyId = token.familyId;
-    query.credentialType = MSIDRefreshTokenType;
+    query.credentialType = credentialType;
 
     MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *) [self getTokenWithAuthority:token.authority
                                                                            cacheQuery:query
@@ -481,73 +629,6 @@
         return [self removeToken:tokenInCache context:context error:error];
     }
 
-    return YES;
-}
-
-- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)account
-                    clientId:(NSString *)clientId
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error
-{
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
-    
-    BOOL result = YES;
-
-    // If home account id is available, remove tokens by home account id
-    if (account.homeAccountId)
-    {
-        result = [self clearCacheForAccount:account
-                                  authority:nil
-                                   clientId:clientId
-                                    context:context
-                                      error:error];
-    }
-    // If legacy account id is available, lookup home account id by legacy account id and remove tokens
-    else if (account.legacyAccountId)
-    {
-        MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
-        accountsQuery.accountType = MSIDAccountTypeMSSTS;
-
-        NSArray<MSIDAccountCacheItem *> *resultAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
-
-        for (MSIDAccountCacheItem *cacheItem in resultAccounts)
-        {
-            if ([cacheItem.username isEqualToString:account.legacyAccountId]
-                && cacheItem.homeAccountId)
-            {
-                account.homeAccountId = cacheItem.homeAccountId;
-
-                result &= [self clearCacheForAccount:account
-                                           authority:nil
-                                            clientId:clientId
-                                             context:context
-                                               error:error];
-
-                break;
-            }
-        }
-    }
-
-    if (!result)
-    {
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
-        return NO;
-    }
-
-    // Clear cache from other accessors
-    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
-    {
-        if (![accessor clearCacheForAccount:account
-                                   clientId:clientId
-                                    context:context
-                                      error:error])
-        {
-            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor: %@", accessor.class);
-            MSID_LOG_WARN(context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, *error);
-        }
-    }
-
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return YES;
 }
 
@@ -572,16 +653,6 @@
     return YES;
 }
 
-- (BOOL)fillInternalErrorWithMessage:(NSString *)message
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
-{
-    MSID_LOG_ERROR(context, @"%@", message);
-    
-    if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, message, nil, nil, nil, context.correlationId, nil);
-    return YES;
-}
-
 #pragma mark - Internal
 
 - (BOOL)saveAccessTokenWithConfiguration:(MSIDConfiguration *)configuration
@@ -593,7 +664,7 @@
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     if (!accessToken)
     {
-        [self fillInternalErrorWithMessage:@"Response does not contain an access token" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Response does not contain an access token", context.correlationId);
         return NO;
     }
 
@@ -602,7 +673,27 @@
         return NO;
     }
 
-    return [self saveAccessToken:accessToken context:context error:error];
+    // Delete access tokens with intersecting scopes
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
+    query.environment = accessToken.authority.environment;
+    query.realm = accessToken.authority.url.msidTenant;
+    query.clientId = accessToken.clientId;
+    query.target = [accessToken.scopes msidToString];
+    query.targetMatchingOptions = MSIDIntersect;
+    query.credentialType = MSIDAccessTokenType;
+    query.enrollmentId = accessToken.enrollmentId;
+
+    BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
+
+    if (!result)
+    {
+        return NO;
+    }
+
+    return [self saveToken:accessToken
+                   context:context
+                     error:error];
 }
 
 - (BOOL)saveIDTokenWithConfiguration:(MSIDConfiguration *)configuration
@@ -631,13 +722,14 @@
 
     if (!refreshToken)
     {
+        MSID_LOG_WARN(context, @"(Default accessor) No refresh token was returned. Skipping caching for refresh token");
         return YES;
     }
 
     if (![NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
-        MSID_LOG_VERBOSE(context, @"Saving family refresh token %@", _PII_NULLIFY(refreshToken.refreshToken));
-        MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token %@", refreshToken.refreshToken);
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Saving family refresh token %@", _PII_NULLIFY(refreshToken.refreshToken));
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving family refresh token %@", refreshToken.refreshToken);
 
         if (![self saveToken:refreshToken context:context error:error])
         {
@@ -645,8 +737,8 @@
         }
     }
 
+    // Save a separate entry for MRRT
     refreshToken.familyId = nil;
-
     return [self saveToken:refreshToken context:context error:error];
 }
 
@@ -663,43 +755,17 @@
         return [self saveAccount:account context:context error:error];
     }
 
+    MSID_LOG_WARN(context, @"(Default accessor) No account was returned. Skipping caching for account");
     return YES;
 }
 
-- (BOOL)saveAccessToken:(MSIDAccessToken *)accessToken
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
-{
-    // Delete access tokens with intersecting scopes
-    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
-    query.environment = accessToken.authority.environment;
-    query.realm = accessToken.authority.url.msidTenant;
-    query.clientId = accessToken.clientId;
-    query.target = [accessToken.scopes msidToString];
-    query.targetMatchingOptions = MSIDIntersect;
-    query.credentialType = MSIDAccessTokenType;
-
-    BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
-
-    if (!result)
-    {
-        return NO;
-    }
-
-    return [self saveToken:accessToken
-                   context:context
-                     error:error];
-}
-
-// Removal
 - (BOOL)removeToken:(MSIDBaseToken *)token
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
     if (!token)
     {
-        [self fillInternalErrorWithMessage:@"Cannot remove token" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Cannot remove token", context.correlationId);
         return NO;
     }
 
@@ -715,35 +781,34 @@
     return result;
 }
 
-- (NSMutableSet *)getAccountsForEnvironment:(NSString *)inputEnvironment
-                         environmentAliases:(NSArray<NSString *> *)environmentAliases
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error
-{
-    MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
-    accountsQuery.accountType = MSIDAccountTypeMSSTS;
-    accountsQuery.environmentAliases = environmentAliases;
-
-    NSArray<MSIDAccountCacheItem *> *resultAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
-
-    if (!resultAccounts)
-    {
-        return nil;
-    }
-
-    NSMutableSet *resultAccountSet = [NSMutableSet set];
-
-    for (MSIDAccountCacheItem *accountCacheItem in resultAccounts)
-    {
-        if (inputEnvironment) accountCacheItem.environment = inputEnvironment;
-
-        [resultAccountSet addObject:[[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem]];
-    }
-
-    return resultAccountSet;
-}
-
 #pragma mark - Private
+
+- (NSString *)homeAccountIdForLegacyId:(NSString *)legacyAccountId
+                             authority:(MSIDAuthority *)authority
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error
+{
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+
+    MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
+    accountsQuery.username = legacyAccountId;
+    accountsQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    accountsQuery.accountType = MSIDAccountTypeMSSTS;
+
+    NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:accountsQuery
+                                                                                               context:context
+                                                                                                 error:error];
+
+    if ([accountCacheItems count])
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
+        MSIDAccountCacheItem *accountCacheItem = accountCacheItems[0];
+        return accountCacheItem.homeAccountId;
+    }
+
+    [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+    return nil;
+}
 
 - (MSIDBaseToken *)getTokenWithAuthority:(MSIDAuthority *)authority
                               cacheQuery:(MSIDDefaultCredentialCacheQuery *)cacheQuery
@@ -790,62 +855,42 @@
     return nil;
 }
 
-- (MSIDBaseToken *)getRefreshTokenByLegacyUserId:(NSString *)legacyUserId
-                                       authority:(MSIDAuthority *)authority
-                                        clientId:(NSString *)clientId
-                                        familyId:(NSString *)familyId
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+- (MSIDBaseToken *)getRefreshableTokenByDisplayableId:(NSString *)legacyUserId
+                                            authority:(MSIDAuthority *)authority
+                                             clientId:(NSString *)clientId
+                                             familyId:(NSString *)familyId
+                                       credentialType:(MSIDCredentialType)credentialType
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     MSID_LOG_VERBOSE(context, @"(Default accessor) Looking for token with authority %@, clientId %@", authority, clientId);
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Looking for token with authority %@, clientId %@, legacy userId %@", authority, clientId, legacyUserId);
 
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    NSString *homeAccountId = [self homeAccountIdForLegacyId:legacyUserId
+                                                   authority:authority
+                                                     context:context
+                                                       error:error];
 
-    NSArray<NSString *> *aliases = [authority defaultCacheEnvironmentAliases];
-
-    MSIDDefaultAccountCacheQuery *accountsQuery = [MSIDDefaultAccountCacheQuery new];
-    accountsQuery.username = legacyUserId;
-    accountsQuery.environmentAliases = aliases;
-    accountsQuery.accountType = MSIDAccountTypeMSSTS;
-
-    NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:accountsQuery
-                                                                                               context:context
-                                                                                                 error:error];
-
-    if ([accountCacheItems count])
+    if ([NSString msidIsStringNilOrBlank:homeAccountId])
     {
-        MSIDAccountCacheItem *accountCacheItem = accountCacheItems[0];
-        NSString *homeAccountId = accountCacheItem.homeAccountId;
-
-        MSID_LOG_VERBOSE(context, @"(Default accessor] Found Match with environment %@, realm %@", accountCacheItem.environment, accountCacheItem.realm);
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor] Found Match with environment %@, realm %@, home account ID %@", accountCacheItem.environment, accountCacheItem.realm, accountCacheItem.homeAccountId);
-
-        MSIDDefaultCredentialCacheQuery *rtQuery = [MSIDDefaultCredentialCacheQuery new];
-        rtQuery.homeAccountId = homeAccountId;
-        rtQuery.environmentAliases = aliases;
-        rtQuery.clientId = familyId ? nil : clientId;
-        rtQuery.familyId = familyId;
-        rtQuery.credentialType = MSIDRefreshTokenType;
-
-        NSArray<MSIDCredentialCacheItem *> *rtCacheItems = [_accountCredentialCache getCredentialsWithQuery:rtQuery
-                                                                                                    context:context
-                                                                                                      error:error];
-
-        if ([rtCacheItems count])
-        {
-            MSID_LOG_VERBOSE(context, @"(Default accessor) Found %lu refresh tokens", (unsigned long)[rtCacheItems count]);
-            MSIDCredentialCacheItem *resultItem = rtCacheItems[0];
-            MSIDBaseToken *resultToken = [resultItem tokenWithType:MSIDRefreshTokenType];
-            resultToken.storageAuthority = resultToken.authority;
-            resultToken.authority = authority;
-            [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
-            return resultToken;
-        }
+        MSID_LOG_VERBOSE(context, @"(Default accessor) Didn't find a matching home account id for username");
+        return nil;
     }
 
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-    return nil;
+    MSID_LOG_VERBOSE(context, @"(Default accessor] Found Match with environment %@", authority.environment);
+    MSID_LOG_VERBOSE_PII(context, @"(Default accessor] Found Match with environment %@, home account ID %@", authority.environment, homeAccountId);
+
+    MSIDDefaultCredentialCacheQuery *rtQuery = [MSIDDefaultCredentialCacheQuery new];
+    rtQuery.homeAccountId = homeAccountId;
+    rtQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    rtQuery.clientId = familyId ? nil : clientId;
+    rtQuery.familyId = familyId;
+    rtQuery.credentialType = credentialType;
+
+    return [self getTokenWithAuthority:authority
+                            cacheQuery:rtQuery
+                               context:context
+                                 error:error];
 }
 
 - (BOOL)saveToken:(MSIDBaseToken *)token
@@ -891,11 +936,43 @@
     for (MSIDCredentialCacheItem *item in cacheItems)
     {
         MSIDBaseToken *token = [item tokenWithType:item.credentialType];
-        if (token) { [tokens addObject:token];}
+        if (token)
+        {
+            token.storageAuthority = token.authority;
+            [tokens addObject:token];
+        }
     }
 
     return tokens;
 }
+
+- (NSSet<NSString *> *)homeAccountIdsFromRTsWithAuthority:(MSIDAuthority *)authority
+                                                 clientId:(NSString *)clientId
+                                                 familyId:(NSString *)familyId
+                                   accountCredentialCache:(MSIDAccountCredentialCache *)accountCredentialCache
+                                                  context:(id<MSIDRequestContext>)context
+                                                    error:(NSError **)error
+{
+    // Retrieve refresh tokens in cache, and return account ids for those refresh tokens
+    MSIDDefaultCredentialCacheQuery *refreshTokenQuery = [MSIDDefaultCredentialCacheQuery new];
+    refreshTokenQuery.credentialType = MSIDRefreshTokenType;
+    refreshTokenQuery.clientId = clientId;
+    refreshTokenQuery.familyId = familyId;
+    refreshTokenQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    refreshTokenQuery.clientIdMatchingOptions = MSIDSuperSet;
+    
+    NSArray<MSIDCredentialCacheItem *> *refreshTokens = [accountCredentialCache getCredentialsWithQuery:refreshTokenQuery context:context error:error];
+    
+    if (!refreshTokens)
+    {
+        MSID_LOG_ERROR(context, @"(Default accessor) Failed refresh token lookup");
+        return nil;
+    }
+    
+    return [NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]];
+}
+
+#pragma mark - App metadata
 
 - (BOOL)saveAppMetadataWithConfiguration:(MSIDConfiguration *)configuration
                                 response:(MSIDTokenResponse *)response
@@ -906,7 +983,7 @@
     MSIDAppMetadataCacheItem *metadata = [factory appMetadataFromResponse:response configuration:configuration];
     if (!metadata)
     {
-        [self fillInternalErrorWithMessage:@"Failed to create app metadata from response" context:context error:error];
+        MSIDFillAndLogError(error, MSIDErrorInternal, @"Failed to create app metadata from response", context.correlationId);
         return NO;
     }
     
@@ -931,15 +1008,50 @@
     return [_accountCredentialCache getAppMetadataEntriesWithQuery:metadataQuery context:context error:error];
 }
 
-- (BOOL)updateAppMetadata:(MSIDAppMetadataCacheItem *)appMetadata
-                  context:(id<MSIDRequestContext>)context
-                    error:(NSError **)error
+- (BOOL)updateAppMetadataWithFamilyId:(NSString *)familyId
+                             clientId:(NSString *)clientId
+                            authority:(MSIDAuthority *)authority
+                              context:(id<MSIDRequestContext>)context
+                                error:(NSError **)error
 {
-    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE
-                                                                    context:context];
-    BOOL result = [_accountCredentialCache saveAppMetadata:appMetadata context:context error:error];
-    [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
-    return result;
+    MSIDAppMetadataCacheQuery *metadataQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    metadataQuery.clientId = clientId;
+    metadataQuery.generalType = MSIDAppMetadataType;
+    metadataQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    NSArray<MSIDAppMetadataCacheItem *> *appmetadataItems = [_accountCredentialCache getAppMetadataEntriesWithQuery:metadataQuery context:context error:error];
+
+    if (!appmetadataItems)
+    {
+        MSID_LOG_ERROR(context, @"(Default accessor) Couldn't read app metadata cache items");
+        return NO;
+    }
+
+    if (![appmetadataItems count])
+    {
+        // Create new app metadata if there's no app metadata present at all
+        MSIDAppMetadataCacheItem *appmetadata = [MSIDAppMetadataCacheItem new];
+        appmetadata.clientId = clientId;
+        appmetadata.environment = [[authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
+        appmetadata.familyId = familyId;
+        return [_accountCredentialCache saveAppMetadata:appmetadata context:context error:error];
+    }
+    else
+    {
+        // If existing app metadata is present, update app metadata entries
+        for (MSIDAppMetadataCacheItem *appmetadata in appmetadataItems)
+        {
+            appmetadata.familyId = familyId;
+            BOOL updateResult = [_accountCredentialCache saveAppMetadata:appmetadata context:context error:error];
+
+            if (!updateResult)
+            {
+                MSID_LOG_ERROR(context, @"(Default accessor) Failed to save updated app metadata");
+                return NO;
+            }
+        }
+
+        return YES;
+    }
 }
 
 @end

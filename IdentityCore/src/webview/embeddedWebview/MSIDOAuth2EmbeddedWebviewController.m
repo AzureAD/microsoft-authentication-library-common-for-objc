@@ -95,7 +95,11 @@
 
 -(void)dealloc
 {
-    [self.webView setNavigationDelegate:nil];
+    if ([self.webView.navigationDelegate isEqual:self])
+    {
+        [self.webView setNavigationDelegate:nil];
+    }
+    
     self.webView = nil;
 }
 
@@ -130,7 +134,7 @@
 
 - (void)cancel
 {
-    MSID_LOG_INFO(self.context, @"Cancel Web Auth...");
+    MSID_LOG_INFO(self.context, @"Canceled web view contoller.");
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
@@ -141,7 +145,7 @@
 
 - (void)userCancel
 {
-    MSID_LOG_INFO(self.context, @"Cancel Web Auth...");
+    MSID_LOG_INFO(self.context, @"Canceled web view contoller.");
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil);
@@ -177,6 +181,7 @@
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        MSID_LOG_INFO(self.context, @"Dismissed web view contoller.");
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     });
     
@@ -208,6 +213,8 @@
 
 - (void)startRequest:(NSURLRequest *)request
 {
+    MSID_LOG_INFO(self.context, @"Presenting web view contoller.");
+    
     _telemetryRequestId = [_context telemetryRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
@@ -237,7 +244,7 @@
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
 
-- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation
+- (void)webView:(__unused WKWebView *)webView didStartProvisionalNavigation:(null_unspecified __unused WKNavigation *)navigation
 {
     if (!self.loading)
     {
@@ -255,7 +262,7 @@
     }
 }
 
-- (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation
+- (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified __unused WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
     __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:url.host];
@@ -267,12 +274,12 @@
     [self stopSpinner];
 }
 
-- (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
+- (void)webView:(__unused WKWebView *)webView didFailNavigation:(null_unspecified __unused WKNavigation *)navigation withError:(NSError *)error
 {
     [self webAuthFailWithError:error];
 }
 
-- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error
+- (void)webView:(__unused WKWebView *)webView didFailProvisionalNavigation:(__unused WKNavigation *)navigation withError:(NSError *)error
 {
     [self webAuthFailWithError:error];
 }
@@ -295,8 +302,8 @@
 - (void)completeWebAuthWithURL:(NSURL *)endURL
 {
     __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:endURL.host];
-    MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", isKnown ? endURL.host : @"unknown host");
-    MSID_LOG_INFO_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
+    MSID_LOG_VERBOSE(self.context, @"-completeWebAuthWithURL: %@", isKnown ? endURL.host : @"unknown host");
+    MSID_LOG_VERBOSE_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
     
     [self endWebAuthWithURL:endURL error:nil];
 }
@@ -332,7 +339,7 @@
 }
 
 - (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
+                                webview:(__unused WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     NSURL *requestURL = navigationAction.request.URL;

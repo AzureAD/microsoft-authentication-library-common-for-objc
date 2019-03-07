@@ -52,7 +52,7 @@
 - (void)setUp
 {
     [super setUp];
-    [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:@"com.microsoft.adBrokerKey"];
+    [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
 
     id<MSIDTokenCacheDataSource> dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
     [dataSource clearWithContext:nil error:nil];
@@ -112,7 +112,7 @@
     XCTAssertEqualObjects(result.tokenResponse.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
-    XCTAssertEqualObjects(result.account.accountIdentifier.legacyAccountId, @"user@contoso.com");
+    XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
     XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);
@@ -372,7 +372,7 @@
     XCTAssertEqualObjects(result.tokenResponse.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
-    XCTAssertEqualObjects(result.account.accountIdentifier.legacyAccountId, @"user@contoso.com");
+    XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
     XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);

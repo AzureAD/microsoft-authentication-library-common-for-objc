@@ -21,9 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpResponseSerializer.h"
+#import "MSIDAccountCacheItem.h"
 
-@interface MSIDJsonResponseSerializer : MSIDHttpResponseSerializer
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDAccountCacheItem (MSIDAccountMatchers)
+
+- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
+                     environment:(nullable NSString *)environment
+              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases;
 
 @end
+
+NS_ASSUME_NONNULL_END

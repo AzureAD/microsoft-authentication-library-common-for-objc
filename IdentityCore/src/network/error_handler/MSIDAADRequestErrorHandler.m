@@ -23,15 +23,19 @@
 
 
 #import "MSIDAADRequestErrorHandler.h"
-#import "MSIDJsonResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDAADTokenResponse.h"
+#import "MSIDWorkPlaceJoinConstants.h"
+#import "MSIDPKeyAuthHandler.h"
 
 @implementation MSIDAADRequestErrorHandler
 
-- (void)handleError:(NSError * )error
+- (void)handleError:(NSError *)error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
         httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+ responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
@@ -52,40 +56,51 @@
         
         MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [httpRequest sendWithBlock:completionBlock];
         });
         
         return;
     }
-
-    id responseSerializer = [MSIDJsonResponseSerializer new];
-    id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:nil];
-
-    if (responseObject)
+    
+    // pkeyauth challenge
+    if (httpResponse.statusCode == 400 || httpResponse.statusCode == 401)
     {
-        MSIDAADTokenResponse *tokenResponse = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:responseObject error:nil];
-
-        if (![NSString msidIsStringNilOrBlank:tokenResponse.error])
+        NSString *wwwAuthValue = [httpResponse.allHeaderFields valueForKey:kMSIDWwwAuthenticateHeader];
+        
+        if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kMSIDPKeyAuthName])
         {
-            NSError *oauthError = MSIDCreateError(MSIDOAuthErrorDomain,
-                                                  tokenResponse.oauthErrorCode,
-                                                  tokenResponse.errorDescription,
-                                                  tokenResponse.error,
-                                                  tokenResponse.suberror,
-                                                  nil,
-                                                  context.correlationId,
-                                                  nil);
-
-            NSString *message = [NSString stringWithFormat:@"Oauth error raised: %@, sub error: %@, correlation ID: %@", tokenResponse.error, tokenResponse.suberror, tokenResponse.correlationId];
-            NSString *messagePII = [NSString stringWithFormat:@"Oauth error raised: %@, sub error: %@, correlation ID: %@, description: %@", tokenResponse.error, tokenResponse.suberror, tokenResponse.correlationId, tokenResponse.errorDescription];
-
-            MSID_LOG_WARN(context, @"%@", message);
-            MSID_LOG_WARN_PII(context, @"%@", messagePII);
-
-            if (completionBlock) completionBlock(nil, oauthError);
+            [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:wwwAuthValue
+                                                  requestUrl:httpRequest.urlRequest.URL
+                                                     context:context
+                                           completionHandler:^void (NSString *authHeader, NSError *error){
+                                               if (![NSString msidIsStringNilOrBlank:authHeader])
+                                               {
+                                                   // append auth header
+                                                   NSMutableURLRequest *newRequest = [httpRequest.urlRequest mutableCopy];
+                                                   [newRequest setValue:authHeader forHTTPHeaderField:@"Authorization"];
+                                                   httpRequest.urlRequest = newRequest;
+                                                   
+                                                   // resend the request
+                                                   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                                                       [httpRequest sendWithBlock:completionBlock];
+                                                   });
+                                                   return;
+                                               }
+                                               
+                                               if (completionBlock) { completionBlock(nil, error); }
+                                           }];
             return;
         }
+        
+        NSError *responseError = nil;
+        id responseObject = [responseSerializer responseObjectForResponse:httpResponse data:data context:context error:&responseError];
+        
+        if (completionBlock)
+        {
+            completionBlock(responseObject, responseError);
+        }
+        return;
     }
 
     id errorDescription = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];

@@ -27,20 +27,20 @@
 
 @implementation NSDictionary (MSIDExtensions)
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
++ (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:NO];
+    return [self msidDictionaryFromURLEncodedString:string isFormEncoded:NO];
 }
 
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
 + (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:YES];
+    return [self msidDictionaryFromURLEncodedString:string isFormEncoded:YES];
 }
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
-                                WWWURLFormDecode:(BOOL)decode
++ (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string
+                                       isFormEncoded:(BOOL)isFormEncoded
 {
     if ([NSString msidIsStringNilOrBlank:string])
     {
@@ -59,7 +59,7 @@
             continue;
         }
         
-        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString];
+        NSString *key = isFormEncoded ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString].msidURLDecode;
         if ([NSString msidIsStringNilOrBlank:key])
         {
             MSID_LOG_WARN(nil, @"Query parameter must have a key");
@@ -69,7 +69,7 @@
         NSString *value = @"";
         if (queryElements.count == 2)
         {
-            value = decode ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString];
+            value = isFormEncoded ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString].msidURLDecode;
         }
         
         [queryDict setValue:value forKey:key];
@@ -87,6 +87,10 @@
     return json;
 }
 
+- (NSString *)msidURLEncode
+{
+    return [NSString msidURLEncodedStringFromDictionary:self];
+}
 
 - (NSString *)msidWWWFormURLEncode
 {

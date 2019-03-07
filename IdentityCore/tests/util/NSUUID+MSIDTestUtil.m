@@ -1,3 +1,4 @@
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -20,11 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAADResponseSerializer.h"
+#import "NSUUID+MSIDTestUtil.h"
+#import <objc/runtime.h>
 
-@interface MSIDOpenIdConfigurationInfoResponseSerializer : MSIDAADResponseSerializer
+static NSUUID *s_mockUUID;
+static BOOL s_swizzleState = NO;
 
-@property (nonatomic) NSURL *endpoint;
+@implementation NSUUID (MSIDTestUtil)
+
++ (void)mockUUID:(NSUUID *)uuid
+{
+    s_mockUUID = uuid;
+    
+    if (!s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = YES;
+    }
+}
+
++ (void)reset
+{
+    if (s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = NO;
+    }
+}
+
++ (instancetype)mockedUUID
+{
+    return s_mockUUID;
+}
+
+#pragma mark - Private
+
++ (void)swapMethods
+{
+    Method origMethod = class_getClassMethod(NSUUID.class, @selector(UUID));
+    Method mockMethod = class_getClassMethod(NSUUID.class, @selector(mockedUUID));
+    method_exchangeImplementations(origMethod, mockMethod);
+}
 
 @end

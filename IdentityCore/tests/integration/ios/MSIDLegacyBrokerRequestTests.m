@@ -62,7 +62,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -80,7 +80,7 @@
 - (void)testInitBrokerRequest_whenUsernameAndTypePassed_shouldSendUsernameAndType
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"username@upn.com" homeAccountId:nil];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"username@upn.com" homeAccountId:nil];
     parameters.accountIdentifier.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     NSError *error = nil;
@@ -106,7 +106,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -149,7 +149,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -190,7 +190,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 

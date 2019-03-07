@@ -36,16 +36,20 @@
 @property (nonatomic) NSString *loginHint;
 @property (nonatomic) MSIDWebviewType webviewType;
 @property (nonatomic) WKWebView *customWebview;
+@property (readwrite) NSMutableDictionary<NSString *, NSString *> *customWebviewHeaders;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentViewController;
 #endif
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic) NSDictionary *extraQueryParameters;
+// Additional request parameters that will only be appended to authorize requests in addition to extraURLQueryParameters from parent class
+@property (nonatomic) NSDictionary *extraAuthorizeURLQueryParameters;
 @property (nonatomic) NSString *telemetryWebviewType;
 @property (nonatomic) NSString *supportedBrokerProtocolScheme;
+@property (nonatomic) BOOL enablePkce;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
+- (NSDictionary *)allAuthorizeRequestExtraParameters;
 
 // Initialize parameters with extra scopes, and interactive request type
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority

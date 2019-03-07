@@ -58,8 +58,14 @@
 // Unique user ID
 @property (readwrite, nonnull) NSString *homeAccountId;
 
+// Enrollment ID (access tokens only)
+@property (readwrite, nullable) NSString *enrollmentId;
+
 // Additional fields
 @property (readwrite, nullable) NSDictionary *additionalInfo;
+
+// Storing for latter token deletion purpose, not serialized
+@property (readwrite, nullable) NSString *appKey;
 
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 

@@ -111,12 +111,7 @@
 {
     // Check for auth response
     // Try both the URL and the fragment parameters:
-    NSDictionary *parameters = [url msidFragmentParameters];
-    if (parameters.count == 0)
-    {
-        parameters = [url msidQueryParameters];
-    }
-    
+    NSDictionary *parameters = [self msidWebResponseParametersFromURL:url];
     NSString *stateReceived = parameters[MSID_OAUTH2_STATE];
     
     if (!requestState && !stateReceived)

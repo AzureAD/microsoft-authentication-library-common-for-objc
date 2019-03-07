@@ -33,9 +33,8 @@
 @implementation MSIDDefaultTokenResponseValidator
 
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
-               oauthFactory:(MSIDOauth2Factory *)factory
               configuration:(MSIDConfiguration *)configuration
-             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+                  oidcScope:(NSString *)oidcScope
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
 {
@@ -44,13 +43,22 @@
      we'd like to throw an error and specify which scopes were granted and which ones not
      */
 
-    NSOrderedSet *grantedScopes = [tokenResult.tokenResponse.scope msidScopeSet];
+    NSMutableOrderedSet *grantedScopes = [tokenResult.accessToken.scopes mutableCopy];
+    NSOrderedSet *oidcScopes = [oidcScope msidScopeSet];
 
     if (![configuration.scopes isSubsetOfOrderedSet:grantedScopes])
     {
         if (error)
         {
             NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
+            
+            MSID_LOG_ERROR_CORR(correlationID, @"Server returned less scopes than requested, granted scopes: %@", grantedScopes);
+            // Remove oidc scopes.
+            [grantedScopes minusOrderedSet:oidcScopes];
+            
+            MSID_LOG_INFO_CORR(correlationID, @"Removing reserved scopes from granted scopes: %@", oidcScopes);
+            MSID_LOG_INFO_CORR(correlationID, @"Final granted scopes: %@", grantedScopes);
+            
             additionalUserInfo[MSIDGrantedScopesKey] = [grantedScopes array];
 
             NSMutableOrderedSet *declinedScopeSet = [[NSOrderedSet msidOrderedSetFromString:configuration.target] mutableCopy];
@@ -65,18 +73,26 @@
         return NO;
     }
 
-    if (accountIdentifier.homeAccountId != nil
-        && ![accountIdentifier.homeAccountId isEqualToString:tokenResult.accessToken.accountIdentifier.homeAccountId])
+    return YES;
+}
+
+- (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(MSIDTokenResult *)tokenResult
+              correlationID:(NSUUID *)correlationID
+                      error:(NSError **)error
+{
+    if (accountIdentifier.uid != nil
+        && ![accountIdentifier.uid isEqualToString:tokenResult.accessToken.accountIdentifier.uid])
     {
         if (error)
         {
             NSDictionary *userInfo = @{MSIDInvalidTokenResultKey : tokenResult};
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo);
         }
-
+        
         return NO;
     }
-
+    
     return YES;
 }
 

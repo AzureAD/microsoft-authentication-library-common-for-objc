@@ -30,10 +30,10 @@
 @implementation MSIDDefaultBrokerTokenRequest
 
 // Those parameters will be different depending on the broker protocol version
-- (NSDictionary *)protocolPayloadContentsWithError:(NSError **)error
+- (NSDictionary *)protocolPayloadContentsWithError:(__unused NSError **)error
 {
     NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
-    NSString *username = self.requestParameters.accountIdentifier.legacyAccountId;
+    NSString *username = self.requestParameters.accountIdentifier.displayableId;
     
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *contents = [NSMutableDictionary new];
@@ -52,7 +52,8 @@
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    return @{@"scope": self.requestParameters.target ?: @""};
+    return @{@"scope": self.requestParameters.target ?: @"",
+             @"oidc_scope": self.requestParameters.oidcScope ?: @""};
 }
 
 @end

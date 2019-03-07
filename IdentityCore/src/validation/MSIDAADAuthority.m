@@ -33,7 +33,6 @@
 @interface MSIDAADAuthority()
 
 @property (nonatomic) MSIDAadAuthorityCache *authorityCache;
-@property (nonatomic) MSIDAuthorityFactory *authorityFactory;
 
 @end
 
@@ -50,7 +49,6 @@
         if (!_url) return nil;
         _tenant = [self.class tenantFromAuthorityUrl:self.url context:context error:error];
         _authorityCache = [MSIDAadAuthorityCache sharedInstance];
-        _authorityFactory = [MSIDAuthorityFactory new];
     }
     
     return self;
@@ -186,7 +184,7 @@
                                      context:(id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
-    __auto_type authorityUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", environment, rawTenant]];
+    __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:rawTenant];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
@@ -195,7 +193,7 @@
 - (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
                               legacyUserId:(NSString *)legacyUserId
                                    context:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error;
+                                     error:(NSError **)error
 {
     return [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId
                                                                        legacyUserId:legacyUserId

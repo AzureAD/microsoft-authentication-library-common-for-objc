@@ -85,12 +85,14 @@ extern NSString *const MSID_OAUTH2_ADDITIONAL_SERVER_INFO;
 extern NSString *const MSID_OAUTH2_ENVIRONMENT;
 
 extern NSString *const MSID_PROTECTION_POLICY_REQUIRED;
+extern NSString *const MSID_USER_DISPLAYABLE_IDENTIFIER;
 
 extern NSString *const MSID_CREDENTIAL_TYPE_CACHE_KEY;
 extern NSString *const MSID_ENVIRONMENT_CACHE_KEY;
 extern NSString *const MSID_REALM_CACHE_KEY;
 extern NSString *const MSID_AUTHORITY_CACHE_KEY;
 extern NSString *const MSID_HOME_ACCOUNT_ID_CACHE_KEY;
+extern NSString *const MSID_ENROLLMENT_ID_CACHE_KEY;
 extern NSString *const MSID_CLIENT_ID_CACHE_KEY;
 extern NSString *const MSID_FAMILY_ID_CACHE_KEY;
 extern NSString *const MSID_TOKEN_CACHE_KEY;
@@ -112,11 +114,14 @@ extern NSString *const MSID_MIDDLE_NAME_CACHE_KEY;
 extern NSString *const MSID_FAMILY_NAME_CACHE_KEY;
 extern NSString *const MSID_NAME_CACHE_KEY;
 extern NSString *const MSID_ALTERNATIVE_ACCOUNT_ID_KEY;
+extern NSString *const MSID_SESSION_KEY_CACHE_KEY;
 
 extern NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_ID_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_LEGACY_ID_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_PRT_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_GENERAL_CACHE_ITEM_TYPE;
 extern NSString *const MSID_APP_METADATA_CACHE_TYPE;
@@ -125,3 +130,4 @@ extern NSString *const MSID_OPENID_CONFIGURATION_SUFFIX;
 extern NSString *const MSID_PREFERRED_USERNAME_MISSING;
 
 extern NSString *const MSIDServerErrorClientMismatch;
+extern NSString *const MSIDServerErrorBadToken;

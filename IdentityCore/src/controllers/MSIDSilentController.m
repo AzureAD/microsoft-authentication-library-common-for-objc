@@ -78,6 +78,8 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+    MSID_LOG_INFO(self.requestParameters, @"Beginning silent flow.");
+    
     if (!completionBlock)
     {
         MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
@@ -91,18 +93,23 @@
 
     [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
-
+        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+        {
+            MSID_LOG_INFO(self.requestParameters, @"Silent flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            completionBlock(result, error);
+        };
+        
         if (result || !self.interactiveController)
         {
             MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
             [telemetryEvent setUserInformation:result.account];
             [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
             [self stopTelemetryEvent:telemetryEvent error:error];
-            completionBlock(result, error);
+            completionBlockWrapper(result, error);
             return;
         }
 
-        [self.interactiveController acquireToken:completionBlock];
+        [self.interactiveController acquireToken:completionBlockWrapper];
     }];
 }
 

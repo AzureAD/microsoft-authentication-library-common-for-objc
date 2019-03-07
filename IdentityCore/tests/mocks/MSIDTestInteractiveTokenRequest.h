@@ -24,7 +24,7 @@
 #import "MSIDInteractiveTokenRequest.h"
 
 @class MSIDTokenResult;
-@class MSIDWebMSAuthResponse;
+@class MSIDWebWPJResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebMSAuthResponse *)brokerResponse;
+               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse;
 
 @end
 

@@ -24,6 +24,7 @@
 #import "MSIDLegacySilentTokenRequest.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDAccessToken.h"
+#import "NSError+MSIDExtensions.h"
 
 @interface MSIDLegacySilentTokenRequest()
 
@@ -56,37 +57,44 @@
 
 #pragma mark - Abstract impl
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
-                                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDTokenResult *)resultWithAccessToken:(__unused MSIDAccessToken *)accessToken
+                                       refreshToken:(__unused id<MSIDRefreshableToken>)refreshToken
+                                              error:(__unused NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (nullable id<MSIDRefreshableToken>)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     // TODO: ADAL pieces
     return nil;
 }
 
-- (BOOL)updateFamilyIdCacheWithServerError:(NSError *)serverError
-                                cacheError:(NSError **)cacheError
+- (BOOL)updateFamilyIdCacheWithServerError:(__unused NSError *)serverError
+                                cacheError:(__unused NSError **)cacheError
 {
     // TODO: ADAL pieces
     return NO;
+}
+
+- (BOOL)shouldRemoveRefreshToken:(NSError *)serverError
+{
+    // ADAL removes RTs on invalid_grant
+    MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(serverError.msidOauthError, MSIDErrorInternal);
+    return oauthError == MSIDErrorServerInvalidGrant;
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

@@ -40,7 +40,7 @@
     if (self.authority
         && self.clientId)
     {
-        return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+        return [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId appKey:self.appKey];
     }
 
     return nil;

@@ -29,8 +29,9 @@
 #import "MSIDWebviewResponse.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebAADAuthResponse.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #endif
@@ -49,6 +50,7 @@
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
+@property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 
 @end
 
@@ -74,12 +76,13 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
-    NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId ?: self.requestParameters.loginHint;
+    NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.requestParameters.loginHint;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
                                                  context:self.requestParameters
-                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
+                                         __unused BOOL validated, NSError *error)
      {
          if (error)
          {
@@ -88,7 +91,7 @@
          }
 
          [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                         completionBlock:^(MSIDOpenIdProviderMetadata *metadata, NSError *error)
+                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *error)
           {
               if (error)
               {
@@ -123,11 +126,18 @@
 
             if (oauthResponse.authorizationCode)
             {
+                if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
+                {
+                    MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
+                    self.requestParameters.redirectUri = cbaResponse.redirectUri;
+                }
                 // handle instance aware flow (cloud host)
+                
                 if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
                 {
                     MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
                     [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
+                    self.authCodeClientInfo = aadResponse.clientInfo;
                 }
 
                 [self acquireTokenWithCode:oauthResponse.authorizationCode completion:completionBlock];
@@ -137,9 +147,9 @@
             completionBlock(nil, oauthResponse.oauthError, nil);
             return;
         }
-        else if ([response isKindOfClass:MSIDWebMSAuthResponse.class])
+        else if ([response isKindOfClass:MSIDWebWPJResponse.class])
         {
-            completionBlock(nil, nil, (MSIDWebMSAuthResponse *)response);
+            completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
@@ -173,7 +183,7 @@
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
     BOOL useSession = YES;
     BOOL allowSafariViewController = YES;
@@ -225,10 +235,11 @@
 {
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.oauthFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
                                                                                                            codeVerifier:self.webViewConfiguration.pkce.codeVerifier
-                                                                                                               authCode:authCode];
+                                                                                                               authCode:authCode
+                                                                                                          homeAccountId:self.authCodeClientInfo.accountIdentifier];
 
-    [tokenRequest sendWithBlock:^(id response, NSError *error) {
-
+    [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
+    {
         if (error)
         {
             completionBlock(nil, error, nil);
@@ -236,19 +247,46 @@
         }
 
         NSError *validationError = nil;
-
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:response
+        
+        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
-
+        
         if (!tokenResult)
+        {
+            // Special case - need to return homeAccountId in case of Intune policies required.
+            if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
+            {
+                NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
+                updatedUserInfo[MSIDHomeAccountIdkey] = self.authCodeClientInfo.accountIdentifier;
+                
+                validationError = MSIDCreateError(validationError.domain,
+                                                  validationError.code,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  updatedUserInfo);
+            }
+            
+            completionBlock(nil, validationError, nil);
+            return;
+        }
+        
+        BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
+                                                               tokenResult:tokenResult
+                                                             correlationID:self.requestParameters.correlationId
+                                                                     error:&validationError];
+        
+        if (!accountChecked)
         {
             completionBlock(nil, validationError, nil);
             return;
         }
-
+        
         completionBlock(tokenResult, nil, nil);
     }];
 }

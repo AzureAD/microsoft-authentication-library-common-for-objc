@@ -32,6 +32,11 @@
 
 @implementation MSIDAccountCacheItem
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"MSIDAccountCacheItem: accountType: %@, homeAccountId: %@, environment: %@, localAccountId: %@, username: %@, name: %@, realm: %@, alternativeAccountId: %@", [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.homeAccountId, self.environment, self.localAccountId, self.username, self.name, self.realm, self.alternativeAccountId];
+}
+
 #pragma mark - Equal
 
 - (BOOL)isEqual:(id)object
@@ -185,30 +190,6 @@
     [allAdditionalFields addEntriesFromDictionary:account.additionalAccountFields];
     [allAdditionalFields addEntriesFromDictionary:_additionalAccountFields];
     _additionalAccountFields = allAdditionalFields;
-}
-
-#pragma mark - Query
-
-- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
-                     environment:(nullable NSString *)environment
-              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
-{
-    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
-    {
-        return NO;
-    }
-
-    if (environment && ![self.environment isEqualToString:environment])
-    {
-        return NO;
-    }
-
-    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
-    {
-        return NO;
-    }
-
-    return YES;
 }
 
 @end

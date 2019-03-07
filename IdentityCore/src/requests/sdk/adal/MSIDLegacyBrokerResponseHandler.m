@@ -38,7 +38,7 @@
 
 @implementation MSIDLegacyBrokerResponseHandler
 
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
+- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
                                                   error:(NSError **)error
 {
 #if TARGET_OS_IPHONE
@@ -57,6 +57,7 @@
 }
 
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
+                                                     oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
                                                          error:(NSError **)error
 {
@@ -96,6 +97,7 @@
         NSError *intuneError = nil;
         MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:&intuneError];
         MSIDTokenResult *intuneResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                                                         oidcScope:oidcScope
                                                                                       oauthFactory:self.oauthFactory
                                                                                         tokenCache:self.tokenCache
                                                                                      correlationID:correlationID

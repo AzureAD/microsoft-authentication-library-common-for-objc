@@ -74,12 +74,13 @@
         return;
     }
 
-    NSString *upn = self.requestParameters.accountIdentifier.legacyAccountId;
+    NSString *upn = self.requestParameters.accountIdentifier.displayableId;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
                                                  context:self.requestParameters
-                                         completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
+                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, 
+                                         __unused BOOL validated, NSError *error)
      {
          if (error)
          {
@@ -96,7 +97,8 @@
     if (!self.forceRefresh && ![self.requestParameters.claims count])
     {
         NSError *accessTokenError = nil;
-
+        
+        MSID_LOG_INFO(self.requestParameters, @"Looking for access token...");
         MSIDAccessToken *accessToken = [self accessTokenWithError:&accessTokenError];
 
         if (accessTokenError)
@@ -107,6 +109,7 @@
 
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer])
         {
+            MSID_LOG_INFO(self.requestParameters, @"Found valid access token, looking for refresh token...");
             NSError *rtError = nil;
             id<MSIDRefreshableToken> refreshableToken = [self appRefreshTokenWithError:&rtError];
 
@@ -114,6 +117,10 @@
             {
                 MSID_LOG_WARN(self.requestParameters, @"Didn't find app refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
                 MSID_LOG_WARN_PII(self.requestParameters, @"Didn't find app refresh token with error: %@", rtError);
+            }
+            else
+            {
+                MSID_LOG_INFO(self.requestParameters, @"Found refresh token.");
             }
 
             NSError *resultError = nil;
@@ -133,12 +140,27 @@
 
         if (accessToken && accessToken.isExtendedLifetimeValid)
         {
+            MSID_LOG_INFO(self.requestParameters, @"Access token has expired, but it is long-lived token.");
+            
             self.extendedLifetimeAccessToken = accessToken;
+        }
+        else if (accessToken)
+        {
+            MSID_LOG_INFO(self.requestParameters, @"Access token has expired, removing it...");
+            NSError *removalError = nil;
+            BOOL removalResult = [self.tokenCache removeAccessToken:accessToken
+                                                            context:self.requestParameters
+                                                              error:&removalError];
+            if (!removalResult)
+            {
+                MSID_LOG_WARN(self.requestParameters, @"Failed to remove access token with error %ld, %@", (long)removalError.code, removalError.domain);
+                MSID_LOG_WARN(self.requestParameters, @"Failed to remove access token with error %@", removalError);
+            }
         }
     }
 
     NSError *frtCacheError = nil;
-
+    MSID_LOG_INFO(self.requestParameters, @"Looking for Family Refresh token...");
     MSIDRefreshToken *familyRefreshToken = [self familyRefreshTokenWithError:&frtCacheError];
 
     if (frtCacheError)
@@ -151,12 +173,14 @@
 
     if (familyRefreshToken)
     {
+        MSID_LOG_INFO(self.requestParameters, @"Found Family Refresh token, using it...");
         [self tryFRT:familyRefreshToken completionBlock:completionBlock];
     }
     else
     {
+        MSID_LOG_INFO(self.requestParameters, @"Family Refresh token wasn't found, looking for Refresh token...");
         NSError *appRTCacheError = nil;
-        id<MSIDRefreshableToken> appRefreshToken = [self appRefreshTokenWithError:&appRTCacheError];
+        MSIDBaseToken<MSIDRefreshableToken> *appRefreshToken = [self appRefreshTokenWithError:&appRTCacheError];
 
         if (appRTCacheError)
         {
@@ -193,7 +217,7 @@
                              MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to update familyID cache status with error %@", error);
                          }
 
-                         id<MSIDRefreshableToken> appRefreshToken = [self appRefreshTokenWithError:&msidError];
+                         MSIDBaseToken<MSIDRefreshableToken> *appRefreshToken = [self appRefreshTokenWithError:&msidError];
 
                          if (msidError)
                          {
@@ -224,15 +248,19 @@
              }];
 }
 
-- (void)tryAppRefreshToken:(id<MSIDRefreshableToken>)multiResourceRefreshToken completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)tryAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)multiResourceRefreshToken
+           completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     if (!multiResourceRefreshToken)
     {
+        MSID_LOG_INFO(self.requestParameters, @"Refresh token wasn't found, user interaction is required.");
+        
         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", nil, nil, nil, self.requestParameters.correlationId, nil);
         completionBlock(nil, interactionError);
         return;
     }
-
+    
+    MSID_LOG_INFO(self.requestParameters, @"Found Refresh token, using it...");
     [self refreshAccessToken:multiResourceRefreshToken
              completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
                  if (error)
@@ -278,7 +306,8 @@
     return ![NSString msidIsStringNilOrBlank:msidError.msidOauthError];
 }
 
-- (void)refreshAccessToken:(id<MSIDRefreshableToken>)refreshToken completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (void)refreshAccessToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+           completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
     if (!refreshToken)
     {
@@ -290,7 +319,7 @@
     MSID_LOG_INFO(self.requestParameters, @"Refreshing access token");
 
     [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                    completionBlock:^(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
+                                                    completionBlock:^(__unused MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
 
                                                         if (error)
                                                         {
@@ -304,20 +333,24 @@
                                                     }];
 }
 
-- (void)acquireTokenWithRefreshTokenImpl:(id<MSIDRefreshableToken>)refreshToken
+- (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                          completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
+    MSID_LOG_INFO(self.requestParameters, @"Acquiring Access token via Refresh token...");
+    
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
 
-    [tokenRequest sendWithBlock:^(id response, NSError *error) {
-
+    [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
+    {
         if (error)
         {
             BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
 
             if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
+                NSTimeInterval expiresIn = [self.extendedLifetimeAccessToken.extendedExpireTime timeIntervalSinceNow];
+                MSID_LOG_INFO(self.requestParameters, @"Server unavailable, using long-lived access token, which expires in %f", expiresIn);
                 NSError *cacheError = nil;
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken
                                                               refreshToken:refreshToken
@@ -327,59 +360,101 @@
                 completionBlock(tokenResult, cacheError);
                 return;
             }
+            
+            MSID_LOG_INFO(self.requestParameters, @"Failed to acquire Access token via Refresh token.");
 
             completionBlock(nil, error);
             return;
         }
 
+        MSID_LOG_INFO(self.requestParameters, @"Validate and save token response...");
         NSError *validationError = nil;
-
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:response
+        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
 
+        if (!tokenResult && [self shouldRemoveRefreshToken:validationError])
+        {
+            MSID_LOG_INFO(self.requestParameters, @"Refresh token invalid, removing it...");
+            NSError *removalError = nil;
+            BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
+                                                                 context:self.requestParameters
+                                                                   error:&removalError];
+
+            if (!result)
+            {
+                MSID_LOG_WARN(self.requestParameters, @"Failed to remove invalid refresh token with error %ld, %@", (long)removalError.code, removalError.domain);
+                MSID_LOG_WARN_PII(self.requestParameters, @"Failed to remove invalid refresh token with error %@", removalError);
+            }
+        }
+
         if (!tokenResult)
         {
+            // Special case - need to return homeAccountId in case of Intune policies required.
+            if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
+            {
+                MSID_LOG_INFO(self.requestParameters, @"Received Protection Policy Required error.");
+                
+                NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
+                updatedUserInfo[MSIDHomeAccountIdkey] = self.requestParameters.accountIdentifier.homeAccountId;
+                
+                validationError = MSIDCreateError(validationError.domain,
+                                                  validationError.code,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  nil,
+                                                  updatedUserInfo);
+            }
+            
             completionBlock(nil, validationError);
             return;
         }
 
+        MSID_LOG_INFO(self.requestParameters, @"Returning token result.");
         completionBlock(tokenResult, nil);
     }];
 }
 
 #pragma mark - Abstract
 
-- (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
+- (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDTokenResult *)resultWithAccessToken:(MSIDAccessToken *)accessToken
-                                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
-                                              error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDTokenResult *)resultWithAccessToken:(__unused MSIDAccessToken *)accessToken
+                                       refreshToken:(__unused id<MSIDRefreshableToken>)refreshToken
+                                              error:(__unused NSError * _Nullable * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (nullable id<MSIDRefreshableToken>)appRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDBaseToken<MSIDRefreshableToken> *)appRefreshTokenWithError:(__unused NSError * _Nullable * _Nullable)error
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;
 }
 
-- (BOOL)updateFamilyIdCacheWithServerError:(NSError *)serverError
-                                cacheError:(NSError **)cacheError
+- (BOOL)updateFamilyIdCacheWithServerError:(__unused NSError *)serverError
+                                cacheError:(__unused NSError **)cacheError
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return NO;
+}
+
+- (BOOL)shouldRemoveRefreshToken:(__unused NSError *)serverError
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return NO;

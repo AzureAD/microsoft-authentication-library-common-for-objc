@@ -30,13 +30,14 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBasicContext.h"
 
 @implementation MSIDTokenResponseValidator
 
 - (MSIDTokenResult *)validateTokenResponse:(MSIDTokenResponse *)tokenResponse
                               oauthFactory:(MSIDOauth2Factory *)factory
                              configuration:(MSIDConfiguration *)configuration
-                            requestAccount:(MSIDAccountIdentifier *)accountIdentifier
+                            requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
                              correlationID:(NSUUID *)correlationID
                                      error:(NSError **)error
 {
@@ -46,9 +47,10 @@
         return nil;
     }
 
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.correlationId = correlationID;
     NSError *verificationError = nil;
-
-    if (![factory verifyResponse:tokenResponse context:nil error:&verificationError])
+    if (![factory verifyResponse:tokenResponse context:context error:&verificationError])
     {
         if (error)
         {
@@ -77,23 +79,33 @@
     return result;
 }
 
-- (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
-               oauthFactory:(MSIDOauth2Factory *)factory
-              configuration:(MSIDConfiguration *)configuration
-             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
-              correlationID:(NSUUID *)correlationID
-                      error:(NSError **)error
+- (BOOL)validateTokenResult:(__unused MSIDTokenResult *)tokenResult
+              configuration:(__unused MSIDConfiguration *)configuration
+                  oidcScope:(__unused NSString *)oidcScope
+              correlationID:(__unused NSUUID *)correlationID
+                      error:(__unused NSError **)error
 {
     // Post saving validation
     return YES;
 }
 
+- (BOOL)validateAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(__unused MSIDTokenResult *)tokenResult
+          correlationID:(__unused NSUUID *)correlationID
+                  error:(__unused NSError *__autoreleasing  _Nullable *)error
+{
+    return YES;
+}
+
 - (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
+                                         oidcScope:(NSString *)oidcScope
                                       oauthFactory:(MSIDOauth2Factory *)factory
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
                                      correlationID:(NSUUID *)correlationID
                                              error:(NSError **)error
 {
+    MSID_LOG_INFO_CORR(correlationID, @"Validating broker response.");
+    
     if (!brokerResponse)
     {
         MSIDFillAndLogError(error, MSIDErrorInternal, @"Broker response is nil", correlationID);
@@ -111,7 +123,8 @@
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
 
-    MSIDTokenResult *tokenResult = [self validateTokenResponse:brokerResponse.tokenResponse
+    MSIDTokenResponse *tokenResponse = brokerResponse.tokenResponse;
+    MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
                                                   oauthFactory:factory
                                                  configuration:configuration
                                                 requestAccount:nil
@@ -120,67 +133,69 @@
 
     if (!tokenResult)
     {
+        MSID_LOG_INFO_CORR(correlationID, @"Broker response is not valid.");
         return nil;
     }
+    MSID_LOG_INFO_CORR(correlationID, @"Broker response is valid.");
+
+    BOOL shouldSaveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse;
+    MSID_LOG_INFO_CORR(correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
 
     NSError *savingError = nil;
-    BOOL isSaved = [tokenCache saveTokensWithBrokerResponse:brokerResponse
-                                           saveSSOStateOnly:brokerResponse.accessTokenInvalidForResponse
+    BOOL isSaved = NO;
+
+    if (shouldSaveSSOStateOnly)
+    {
+        isSaved = [tokenCache saveSSOStateWithConfiguration:configuration
+                                                   response:tokenResponse
                                                     factory:factory
                                                     context:nil
-                                                      error:error];
+                                                      error:&savingError];
+    }
+    else
+    {
+        isSaved = [tokenCache saveTokensWithConfiguration:configuration
+                                                 response:tokenResponse
+                                                  factory:factory
+                                                  context:nil
+                                                    error:&savingError];
+    }
 
     if (!isSaved)
     {
         MSID_LOG_ERROR_CORR(correlationID, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_CORR_PII(correlationID, @"Failed to save tokens in cache. Error %@", savingError);
     }
+    else
+    {
+        MSID_LOG_INFO_CORR(correlationID, @"Saved broker response.");
+    }
 
+    MSID_LOG_INFO_CORR(correlationID, @"Validating token result.");
     BOOL resultValid = [self validateTokenResult:tokenResult
-                                    oauthFactory:factory
                                    configuration:configuration
-                                  requestAccount:nil
+                                       oidcScope:oidcScope
                                    correlationID:correlationID
                                            error:error];
 
     if (!resultValid)
     {
+        MSID_LOG_INFO_CORR(correlationID, @"Token result is invalid.");
         return nil;
     }
+    MSID_LOG_INFO_CORR(correlationID, @"Token result is valid.");
 
     tokenResult.brokerAppVersion = brokerResponse.brokerAppVer;
     return tokenResult;
 }
 
 
-- (MSIDTokenResult *)validateAndSaveTokenResponse:(id)response
+- (MSIDTokenResult *)validateAndSaveTokenResponse:(MSIDTokenResponse *)tokenResponse
                                      oauthFactory:(MSIDOauth2Factory *)factory
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
                                 requestParameters:(MSIDRequestParameters *)parameters
                                             error:(NSError **)error
 {
-    if (response && ![response isKindOfClass:[NSDictionary class]])
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Token response is not of the expected type: NSDictionary.", nil, nil, nil, parameters.correlationId, nil);
-        }
-
-        MSID_LOG_ERROR(parameters, @"Unexpected response from STS, not of NSDictionary type");
-
-        return nil;
-    }
-
-    NSDictionary *jsonDictionary = (NSDictionary *)response;
-    MSIDTokenResponse *tokenResponse = [factory tokenResponseFromJSON:jsonDictionary
-                                                              context:parameters
-                                                                error:error];
-    if (!tokenResponse)
-    {
-        MSID_LOG_ERROR(parameters, @"Failed to create token response");
-        return nil;
-    }
-
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
                                                   oauthFactory:factory
                                                  configuration:parameters.msidConfiguration
@@ -205,11 +220,12 @@
         MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
+    
+    
 
     BOOL resultValid = [self validateTokenResult:tokenResult
-                                    oauthFactory:factory
                                    configuration:parameters.msidConfiguration
-                                  requestAccount:parameters.accountIdentifier
+                                       oidcScope:parameters.oidcScope
                                    correlationID:parameters.correlationId
                                            error:error];
 

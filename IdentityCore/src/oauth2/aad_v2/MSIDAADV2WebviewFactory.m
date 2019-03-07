@@ -24,7 +24,7 @@
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDInteractiveRequestParameters.h"
@@ -36,6 +36,7 @@
 {
     NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
                                                                                                  requestState:state];
+    parameters[MSID_OAUTH2_CLIENT_INFO] = @"1";
     parameters[MSID_OAUTH2_LOGIN_REQ] = configuration.uid;
     parameters[MSID_OAUTH2_DOMAIN_REQ] = configuration.utid;
     
@@ -47,10 +48,6 @@
 {
     MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
 
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
-                                                                       developerClaims:parameters.claims];
-
-    configuration.claims = claims;
     configuration.uid = parameters.accountIdentifier.uid;
     configuration.utid = parameters.accountIdentifier.utid;
 

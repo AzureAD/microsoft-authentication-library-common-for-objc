@@ -161,8 +161,8 @@ openIdConfigEndpoint:(NSURL *)openIdConfigEndpoint
         {
             [self setObject:record forKey:alias];
         }
-
-        MSID_LOG_INFO_PII(context, @"(%@, %@) : %@", record.networkHost, record.cacheHost, aliases);
+        
+        MSID_LOG_INFO_PII(context, @"networkHost: %@, cacheHost: %@, aliases: %@", record.networkHost, record.cacheHost, [aliases componentsJoinedByString:@", "]);
     }
     
     // In case the authority we were looking for wasn't in the metadata

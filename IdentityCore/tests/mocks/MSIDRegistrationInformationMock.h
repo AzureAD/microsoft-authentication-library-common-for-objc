@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,19 +15,23 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "MSIDWebviewResponse.h"
+#import "MSIDRegistrationInformation.h"
 
-@interface MSIDWebMSAuthResponse : MSIDWebviewResponse
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readonly) NSString *upn;
-@property (readonly) NSString *appInstallLink;
+@interface MSIDRegistrationInformationMock : MSIDRegistrationInformation
+
+@property (nonatomic) BOOL isWorkPlaceJoinedFlag;
+
+- (void)setPrivateKey:(SecKeyRef)privateKey;
+- (void)setCertificateIssuer:(NSString *)certificateIssuer;
 
 @end
+
+NS_ASSUME_NONNULL_END

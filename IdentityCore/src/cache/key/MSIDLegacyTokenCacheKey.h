@@ -25,6 +25,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString *const MSID_LEGACY_CACHE_NIL_KEY;
+
 @interface MSIDLegacyTokenCacheKey : MSIDCacheKey <NSCopying, NSSecureCoding>
 
 @property (nullable, nonatomic) NSURL *authority;
@@ -39,7 +41,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)serviceWithAuthority:(NSURL *)authority
                           resource:(nullable NSString *)resource
-                          clientId:(NSString *)clientId;
+                          clientId:(NSString *)clientId
+                            appKey:(nullable NSString *)appKey;
 
 - (NSString *)adalAccountWithUserId:(NSString *)userId;
 

@@ -65,6 +65,8 @@
 
 - (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response error:(NSError **)error
 {
+    MSID_LOG_INFO(nil, @"Handling broker response.");
+    
     // Verify resume dictionary
     NSDictionary *resumeState = [self verifyResumeStateDicrionary:response error:error];
 
@@ -75,6 +77,7 @@
 
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
     NSString *keychainGroup = resumeState[@"keychain_group"];
+    NSString *oidcScope = resumeState[@"oidc_scope"];
 
     // Initialize broker key and cache datasource
     MSIDBrokerKeyProvider *brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:keychainGroup];
@@ -108,6 +111,7 @@
 
     NSError *brokerError = nil;
     MSIDBrokerResponse *brokerResponse = [self brokerResponseFromEncryptedQueryParams:queryParamsMap
+                                                                            oidcScope:oidcScope
                                                                         correlationId:correlationId
                                                                                 error:&brokerError];
 
@@ -118,6 +122,7 @@
     }
 
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
+                                                            oidcScope:oidcScope
                                                          oauthFactory:self.oauthFactory
                                                            tokenCache:self.tokenCache
                                                         correlationID:correlationId
@@ -171,16 +176,17 @@
 
 #pragma mark - Abstract
 
-- (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
-                                                 correlationId:(NSUUID *)correlationID
-                                                         error:(NSError **)error
+- (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(__unused NSDictionary *)encryptedParams
+                                                     oidcScope:(__unused NSString *)oidcScope
+                                                 correlationId:(__unused NSUUID *)correlationID
+                                                         error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
 }
 
-- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(NSString *)keychainGroup
-                                                  error:(NSError **)error
+- (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                  error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;

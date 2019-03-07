@@ -21,22 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponseSerializer.h"
+#import <Foundation/Foundation.h>
+#import "MSIDRequestContext.h"
 
-@implementation MSIDJsonResponseSerializer
+NS_ASSUME_NONNULL_BEGIN
 
-- (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
-                           data:(NSData *)data
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    id jsonObject;
-    if (data)
-    {
-        jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
-    }
-    
-    return jsonObject;
-}
+@interface MSIDBasicContext : NSObject <MSIDRequestContext>
+
+@property (nonatomic, nullable) NSUUID *correlationId;
+@property (nonatomic, nullable) NSString *logComponent;
+@property (nonatomic, nullable) NSString *telemetryRequestId;
+@property (nonatomic, nullable) NSDictionary *appRequestMetadata;
 
 @end
+
+NS_ASSUME_NONNULL_END

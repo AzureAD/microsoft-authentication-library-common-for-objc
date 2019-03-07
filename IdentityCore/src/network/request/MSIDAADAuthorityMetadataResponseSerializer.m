@@ -23,8 +23,19 @@
 
 #import "MSIDAADAuthorityMetadataResponseSerializer.h"
 #import "MSIDAADAuthorityMetadataResponse.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
 
 @implementation MSIDAADAuthorityMetadataResponseSerializer
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        self.preprocessor = [MSIDAADJsonResponsePreprocessor new];
+    }
+    return self;
+}
 
 - (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
                            data:(NSData *)data
@@ -37,6 +48,24 @@
     if (!jsonObject)
     {
         if (error) *error = jsonError;
+        return nil;
+    }
+    
+    if ([jsonObject msidAssertContainsField:@"error" context:context error:nil]
+        && [jsonObject msidAssertType:NSString.class ofField:@"error" context:context errorCode:MSIDErrorServerInvalidResponse error:nil])
+    {
+        NSError *oauthError = MSIDCreateError(MSIDErrorDomain,
+                                              MSIDErrorAuthorityValidation,
+                                              jsonObject[MSID_OAUTH2_ERROR_DESCRIPTION],
+                                              jsonObject[MSID_OAUTH2_ERROR],
+                                              nil,
+                                              nil,
+                                              context.correlationId,
+                                              nil);
+        if (error)
+        {
+            *error = oauthError;
+        }
         return nil;
     }
     

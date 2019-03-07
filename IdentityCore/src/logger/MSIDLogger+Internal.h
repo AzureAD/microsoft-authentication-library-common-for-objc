@@ -29,7 +29,7 @@
 #import "MSIDRequestContext.h"
 
 // Convenience macro for obscuring PII in log macros that don't allow PII.
-#define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-nil)" : @"(nil)"
+#define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-null)" : @"(null)"
 
 #define MSID_LOG(_LVL, _CORRELATION, _CTX, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logLevel:_LVL context:_CTX correlationId:_CORRELATION isPII:_PII format:_FMT, ##__VA_ARGS__]
 

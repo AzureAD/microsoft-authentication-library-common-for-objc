@@ -38,4 +38,6 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 
++ (NSDictionary *)msidWebResponseParametersFromURL:(NSURL *)url;
+
 @end

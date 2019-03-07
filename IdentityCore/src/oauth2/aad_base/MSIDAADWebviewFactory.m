@@ -24,12 +24,16 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDWebviewConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewSession.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthority.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -50,11 +54,6 @@
            MSID_OAUTH2_CORRELATION_ID_REQUEST : @"true",
            MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [configuration.correlationId UUIDString]
            }];
-    }
-    
-    if (configuration.sliceParameters)
-    {
-        [parameters addEntriesFromDictionary:configuration.sliceParameters];
     }
     
     parameters[@"haschrome"] = @"1";
@@ -98,8 +97,14 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
+    // Try to create CBA response
+#if AD_BROKER
+    MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
+    if (cbaResponse) return cbaResponse;
+#endif
+    
     // Try to create a WPJ response
-    MSIDWebMSAuthResponse *wpjResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:url context:context error:nil];
+    MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
     if (wpjResponse) return wpjResponse;
     
     // Try to create a browser reponse
@@ -118,7 +123,29 @@
     return response;
 }
 
+- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
 
+    if (!configuration)
+    {
+        return nil;
+    }
+
+    NSURL *authorizationEndpoint = configuration.authorizationEndpoint;
+    NSURL *networkURL = [parameters.authority networkUrlWithContext:parameters];
+
+    NSURLComponents *authorizationComponents = [NSURLComponents componentsWithURL:authorizationEndpoint resolvingAgainstBaseURL:NO];
+    authorizationComponents.host = networkURL.host;
+    configuration.authorizationEndpoint = authorizationComponents.URL;
+
+    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
+                                                                       developerClaims:parameters.claims];
+
+    configuration.claims = claims;
+
+    return configuration;
+}
 
 
 @end

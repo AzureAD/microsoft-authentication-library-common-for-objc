@@ -163,7 +163,8 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
 
     MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
-                                                                                                @"suberror":MSID_PROTECTION_POLICY_REQUIRED
+                                                                                                @"suberror":MSID_PROTECTION_POLICY_REQUIRED,
+                                                                                                @"adi":@"cooldude@somewhere.com"
                                                                                                 }
                                                                                         error:nil];
     NSError *error = nil;
@@ -172,7 +173,9 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
+    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"cooldude@somewhere.com");
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
+    XCTAssert([@"cooldude@somewhere.com" isEqualToString:error.userInfo[MSIDUserDisplayableIdkey]]);
 }
 
 - (void)testVerifyResponse_whenOAuthErrorViaAuthCode_shouldReturnError
@@ -336,7 +339,7 @@
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(token.familyId, @"1");
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_USERNAME);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_USERNAME);
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
     
     XCTAssertEqualObjects(token.idToken, idToken);
@@ -364,7 +367,7 @@
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_USERNAME);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_USERNAME);
 
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
 
@@ -391,7 +394,7 @@
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(token.familyId, @"1");
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_USERNAME);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_USERNAME);
 
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.idToken, idToken);

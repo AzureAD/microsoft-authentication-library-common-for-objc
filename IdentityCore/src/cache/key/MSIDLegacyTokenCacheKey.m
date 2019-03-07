@@ -25,7 +25,7 @@
 #import "MSIDHelpers.h"
 
 //A special attribute to write, instead of nil/empty one.
-static NSString *const s_nilKey = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
+NSString *const MSID_LEGACY_CACHE_NIL_KEY = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
 static NSString *const s_adalLibraryString = @"MSOpenTech.ADAL.1";
 static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
@@ -40,12 +40,13 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 //We should not put nil keys in the keychain. The method substitutes nil with a special GUID:
 - (NSString *)getAttributeName:(NSString *)attribute
 {
-    return ([NSString msidIsStringNilOrBlank:attribute]) ? s_nilKey : [attribute msidBase64UrlEncode];
+    return ([NSString msidIsStringNilOrBlank:attribute]) ? MSID_LEGACY_CACHE_NIL_KEY : [attribute msidBase64UrlEncode];
 }
 
 - (NSString *)serviceWithAuthority:(NSURL *)authority
                           resource:(NSString *)resource
                           clientId:(NSString *)clientId
+                            appKey:(NSString *)appKey
 {
     // Trim first for faster nil or empty checks. Also lowercase and trimming is
     // needed to ensure that the cache handles correctly same items with different
@@ -54,11 +55,18 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     resource = resource.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
 
-    return [NSString stringWithFormat:s_adalServiceFormat,
-            s_adalLibraryString,
-            authorityString.msidBase64UrlEncode,
-            [self getAttributeName:resource],
-            clientId.msidBase64UrlEncode];
+    NSString *service = [NSString stringWithFormat:s_adalServiceFormat,
+                         s_adalLibraryString,
+                         authorityString.msidBase64UrlEncode,
+                         [self getAttributeName:resource],
+                         clientId.msidBase64UrlEncode];
+    
+    if (![NSString msidIsStringNilOrBlank:appKey])
+    {
+        service  = [NSString stringWithFormat:@"%@|%@", service, appKey];
+    }
+    
+    return service;
 }
 
 - (instancetype)initWithAccount:(NSString *)account
@@ -101,7 +109,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
 
 - (NSString *)service
 {
-    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId];
+    return _service ? _service : [self serviceWithAuthority:self.authority resource:self.resource clientId:self.clientId appKey:self.appKey];
 }
 
 - (NSData *)generic
@@ -248,7 +256,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
             NSString *authority = [items[1] msidBase64UrlDecode];
             self.authority = [NSURL URLWithString:authority];
 
-            NSString *resource = [items[2] isEqualToString:s_nilKey] ? nil : [items[2] msidBase64UrlDecode];
+            NSString *resource = [items[2] isEqualToString:MSID_LEGACY_CACHE_NIL_KEY] ? nil : [items[2] msidBase64UrlDecode];
             self.resource = resource;
 
             NSString *clientId = [items[3] msidBase64UrlDecode];
