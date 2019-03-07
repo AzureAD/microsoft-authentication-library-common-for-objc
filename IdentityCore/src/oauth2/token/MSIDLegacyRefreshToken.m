@@ -137,7 +137,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", _PII_NULLIFY(_idToken), _accountIdentifier.displayableId];
+    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", [_idToken msidSecretLoggingHash], _accountIdentifier.displayableId];
 }
 
 @end
