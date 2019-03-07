@@ -72,6 +72,8 @@
     NSString *scheme = url.scheme;
     NSString *host = url.host;
     
+    // For embedded webview, this link will start with msauth scheme and will contain wpj host
+    // e.g. msauth://wpj?param=param
     if ([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"])
     {
         return YES;
@@ -84,6 +86,8 @@
         return NO;
     }
     
+    // For system webview, this link will start with the redirect uri and will have msauth and wpj as path parameters
+    // e.g. myscheme://auth/msauth/wpj?param=param
     NSUInteger pathComponentCount = pathComponents.count;
     
     if ([pathComponents[pathComponentCount - 1] isEqualToString:@"wpj"]
