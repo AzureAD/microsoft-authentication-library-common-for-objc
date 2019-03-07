@@ -34,6 +34,7 @@ NSString *const MSID_APP_VER_KEY                = @"x-app-ver";
 NSString *const MSID_BROKER_RESUME_DICTIONARY_KEY  = @"adal-broker-resume-dictionary";
 NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG      = @"com.microsoft.adBrokerKey\0";
 NSString *const MSID_BROKER_SCHEME                 = @"msauth";
+NSString *const MSID_BROKER_V2_SCHEME              = @"msauthv2";
 NSString *const MSID_FLAG_SCHEME_FOR_MSAL_BROKER   = @"msauthv2f6aaf03b";
 NSString *const MSID_BROKER_APP_BUNDLE_ID          = @"com.microsoft.azureauthenticator";
 NSString *const MSID_BROKER_APP_BUNDLE_ID_DF       = @"com.microsoft.azureauthenticator-df";

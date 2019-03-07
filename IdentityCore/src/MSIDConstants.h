@@ -80,6 +80,7 @@ extern NSString * _Nonnull const MSID_APP_VER_KEY;
 extern NSString * _Nonnull const MSID_BROKER_RESUME_DICTIONARY_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SYMMETRIC_KEY_TAG;
 extern NSString * _Nonnull const MSID_BROKER_SCHEME;
+extern NSString * _Nonnull const MSID_BROKER_V2_SCHEME;
 extern NSString * _Nonnull const MSID_FLAG_SCHEME_FOR_MSAL_BROKER;//an extra scheme for identifying broker using MSAL
 extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID;
 extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID_DF;
