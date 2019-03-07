@@ -188,8 +188,8 @@
 
 - (NSString *)allTokenRequestScopes
 {
-    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.target normalize:NO] mutableCopy];
-    NSOrderedSet *oidcScopes = [NSOrderedSet msidOrderedSetFromString:self.oidcScope];
+    NSMutableOrderedSet *requestScopes = [[self.target msidScopeSet] mutableCopy];
+    NSOrderedSet *oidcScopes = [self.oidcScope msidScopeSet];
 
     if (oidcScopes)
     {

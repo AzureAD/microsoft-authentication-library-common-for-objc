@@ -37,7 +37,7 @@
 
 + (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string
 {
-    return [self msidOrderedSetFromString:string normalize:YES];
+    return [self msidOrderedSetFromString:string normalize:NO];
 }
 
 + (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string normalize:(BOOL)normalize
@@ -59,6 +59,37 @@
         }
     }
     return scope;
+}
+
+- (NSOrderedSet *)normalizedScopeSet
+{
+    NSMutableOrderedSet<NSString *> *scopeSet = [NSMutableOrderedSet<NSString *> new];
+    
+    for (NSString *scope in [self array])
+    {
+        [scopeSet addObject:scope.msidTrimmedString.lowercaseString];
+    }
+    
+    return scopeSet;
+}
+
+- (NSOrderedSet *)msidMinusOrderedSet:(NSOrderedSet *)orderedSet normalize:(BOOL)normalize
+{
+    NSMutableOrderedSet *resultSet = [NSMutableOrderedSet new];
+    
+    NSOrderedSet *minusSet = normalize ? [orderedSet normalizedScopeSet] : orderedSet;
+    
+    for (NSString *item in self)
+    {
+        NSString *compareItem = normalize ? item.msidTrimmedString.lowercaseString : item;
+        
+        if (![minusSet containsObject:compareItem])
+        {
+            [resultSet addObject:item];
+        }
+    }
+    
+    return resultSet;
 }
 
 @end

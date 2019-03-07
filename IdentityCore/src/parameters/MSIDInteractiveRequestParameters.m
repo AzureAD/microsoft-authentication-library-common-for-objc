@@ -60,8 +60,8 @@
 
 - (NSOrderedSet *)allAuthorizeRequestScopes
 {
-    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.allTokenRequestScopes normalize:NO] mutableCopy];
-    NSOrderedSet *extraScopes = [NSOrderedSet msidOrderedSetFromString:self.extraScopesToConsent];
+    NSMutableOrderedSet *requestScopes = [[self.allTokenRequestScopes msidScopeSet] mutableCopy];
+    NSOrderedSet *extraScopes = [self.extraScopesToConsent msidScopeSet];
 
     if (extraScopes)
     {
