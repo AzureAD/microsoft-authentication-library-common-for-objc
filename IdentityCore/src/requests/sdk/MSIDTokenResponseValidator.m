@@ -82,11 +82,18 @@
 - (BOOL)validateTokenResult:(__unused MSIDTokenResult *)tokenResult
               configuration:(__unused MSIDConfiguration *)configuration
                   oidcScope:(__unused NSString *)oidcScope
-             requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
               correlationID:(__unused NSUUID *)correlationID
                       error:(__unused NSError **)error
 {
     // Post saving validation
+    return YES;
+}
+
+- (BOOL)validateAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(__unused MSIDTokenResult *)tokenResult
+          correlationID:(__unused NSUUID *)correlationID
+                  error:(__unused NSError *__autoreleasing  _Nullable *)error
+{
     return YES;
 }
 
@@ -168,7 +175,6 @@
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:configuration
                                        oidcScope:oidcScope
-                                  requestAccount:nil
                                    correlationID:correlationID
                                            error:error];
 
@@ -220,7 +226,6 @@
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
                                        oidcScope:parameters.oidcScope
-                                  requestAccount:parameters.accountIdentifier
                                    correlationID:parameters.correlationId
                                            error:error];
 

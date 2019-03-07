@@ -5475,6 +5475,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
@@ -5485,6 +5486,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = "";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
