@@ -111,7 +111,12 @@
         {
             MSID_LOG_INFO(self.requestParameters, @"Found valid access token, looking for refresh token...");
             NSError *rtError = nil;
-            id<MSIDRefreshableToken> refreshableToken = [self appRefreshTokenWithError:&rtError];
+            
+            // Trying to find FRT first.
+            id<MSIDRefreshableToken> refreshableToken = [self familyRefreshTokenWithError:&rtError];
+            
+            // If no FRT, get refresh token instead.
+            if (!refreshableToken) refreshableToken = [self appRefreshTokenWithError:&rtError];
 
             if (!refreshableToken)
             {
