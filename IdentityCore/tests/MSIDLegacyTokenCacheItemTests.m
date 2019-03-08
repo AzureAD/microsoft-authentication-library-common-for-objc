@@ -52,12 +52,12 @@
     NSDate *extExpiresOn = [NSDate date];
 
     cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = @"family";
     cacheItem.homeAccountId = @"uid.utid";
 
-    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
-                                     @"spe_info": @"2", @"test": @"test"};
+    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"test": @"test"};
 
     cacheItem.additionalInfo = additionalInfo;
 
@@ -81,6 +81,7 @@
     XCTAssertEqualObjects(newItem.realm, @"contoso.com");
     XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(newItem.extendedExpiresOn, extExpiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
@@ -106,11 +107,11 @@
     NSDate *extExpiresOn = [NSDate date];
 
     cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.homeAccountId = @"uid.utid";
 
-    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
-                                     @"spe_info": @"2", @"test": @"test"};
+    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"test": @"test"};
 
     cacheItem.additionalInfo = additionalInfo;
 
@@ -133,6 +134,7 @@
     XCTAssertEqualObjects(newItem.realm, @"contoso.com");
     XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(newItem.extendedExpiresOn, extExpiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
@@ -157,12 +159,12 @@
     NSDate *extExpiresOn = [NSDate date];
 
     cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = @"family";
     cacheItem.homeAccountId = @"uid.utid";
 
-    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
-                                     @"spe_info": @"2", @"test": @"test"};
+    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"test": @"test"};
 
     cacheItem.additionalInfo = additionalInfo;
 
@@ -184,6 +186,7 @@
     XCTAssertEqualObjects(newItem.target, @"resource");
     XCTAssertEqualObjects(newItem.realm, @"contoso.com");
     XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(newItem.extendedExpiresOn, extExpiresOn);
     XCTAssertEqualObjects(newItem.expiresOn, expiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
