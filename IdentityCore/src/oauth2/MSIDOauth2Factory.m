@@ -224,7 +224,7 @@
     }
 
     // We want to keep case as it comes from the server side
-    token.scopes = [NSOrderedSet msidOrderedSetFromString:response.target normalize:NO];
+    token.scopes = [response.target msidScopeSet];
     token.accessToken = response.accessToken;
     
     if (!token.accessToken)

@@ -128,7 +128,7 @@
     }
 
     // We want to keep case as it comes from the server side, because scopes are case sensitive by OIDC spec
-    NSOrderedSet *responseScopes = [NSOrderedSet msidOrderedSetFromString:response.scope normalize:NO];
+    NSOrderedSet *responseScopes = [response.scope msidScopeSet];
 
     if (!response.scope)
     {
