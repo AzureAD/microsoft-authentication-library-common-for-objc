@@ -367,6 +367,28 @@
 
     XCTAssertEqualObjects(resultURL, expectedResultURL);
 }
-    
+
+- (void)testMsidPIINullifiedURL_whenNoQueryParameters_shouldReturnURL
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://login.microsoftonline.com/path/path2/path3"];
+    NSURL *resultURL = [inputURL msidPIINullifiedURL];
+    XCTAssertEqualObjects(inputURL, resultURL);
+}
+
+- (void)testMsidPIINullifiedURL_whenQueryParametersWithValue_shouldReturnURLWithNullifiedQueryParams
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://login.microsoftonline.com/path/path2/path3?query1=value1&query2=value2"];
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://login.microsoftonline.com/path/path2/path3?query1=(not-null)&query2=(not-null)"];
+    NSURL *resultURL = [inputURL msidPIINullifiedURL];
+    XCTAssertEqualObjects(expectedResultURL, resultURL);
+}
+
+- (void)testMsidPIINullifiedURL_whenQueryParametersWithoutValue_shouldReturnURLWithNillifiedQueryParams
+{
+    NSURL *inputURL = [NSURL URLWithString:@"https://login.microsoftonline.com/path/path2/path3?query1=&query2="];
+    NSURL *expectedResultURL = [NSURL URLWithString:@"https://login.microsoftonline.com/path/path2/path3?query1=(null)&query2=(null)"];
+    NSURL *resultURL = [inputURL msidPIINullifiedURL];
+    XCTAssertEqualObjects(expectedResultURL, resultURL);
+}
 
 @end

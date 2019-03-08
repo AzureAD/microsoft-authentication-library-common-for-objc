@@ -298,4 +298,25 @@ const unichar queryStringSeparator = '?';
     return [components URL];
 }
 
+- (NSURL *)msidPIINullifiedURL
+{
+    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:self resolvingAgainstBaseURL:NO];
+    
+    NSMutableArray *piiQueryItems = [NSMutableArray new];
+    
+    for (NSURLQueryItem *queryItem in components.queryItems)
+    {
+        NSString *piiValue = [NSString msidIsStringNilOrBlank:queryItem.value] ? @"(null)" : @"(not-null)";
+        NSURLQueryItem *piiQueryItem = [[NSURLQueryItem alloc] initWithName:queryItem.name value:piiValue];
+        [piiQueryItems addObject:piiQueryItem];
+    }
+    
+    if ([piiQueryItems count])
+    {
+        components.queryItems = piiQueryItems;
+    }
+    
+    return components.URL;
+}
+
 @end

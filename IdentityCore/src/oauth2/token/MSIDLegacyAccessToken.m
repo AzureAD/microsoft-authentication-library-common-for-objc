@@ -141,7 +141,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(id token=%@, access token=%@)", _PII_NULLIFY(_idToken), _PII_NULLIFY(_accessToken)];
+    return [baseDescription stringByAppendingFormat:@"(id token=%@, access token=%@)", [_idToken msidSecretLoggingHash], [_accessToken msidSecretLoggingHash]];
 }
 
 @end
