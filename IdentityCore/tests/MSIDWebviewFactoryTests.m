@@ -261,6 +261,22 @@
     XCTAssertEqualObjects(((MSIDWebOAuth2Response *)response).authorizationCode, @"authcode");
 }
 
+- (void)testResponseWithURL_whenURLStartsWithURNRedirectUri_shouldReturnAADAuthResponse
+{
+    MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?code=authcode"]
+                                       requestState:nil
+                                 ignoreInvalidState:NO
+                                            context:nil
+                                              error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(((MSIDWebOAuth2Response *)response).authorizationCode, @"authcode");
+}
 
 - (void)testResponseWithURL_whenStateVerificationFails_shouldReturnNilWithError
 {

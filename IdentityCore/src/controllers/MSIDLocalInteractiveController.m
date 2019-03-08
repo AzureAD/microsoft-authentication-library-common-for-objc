@@ -34,7 +34,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
 #endif
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -66,9 +66,11 @@
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
+    MSID_LOG_INFO(self.requestParameters, @"Beginning interactive flow.");
+    
     if (!completionBlock)
     {
-        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
+        MSID_LOG_ERROR(self.requestParameters, @"Passed nil completionBlock. Interactive flow finished.");
         return;
     }
 
@@ -76,31 +78,42 @@
 
     MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
 
-    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable msauthResponse) {
-
+    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable msauthResponse)
+    {
+        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+        {
+            MSID_LOG_INFO(self.requestParameters, @"Interactive flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            completionBlock(result, error);
+        };
+        
         if (msauthResponse)
         {
-            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
+            [self handleWebMSAuthResponse:msauthResponse completion:completionBlockWrapper];
             return;
         }
 
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:result.account];
         [self stopTelemetryEvent:telemetryEvent error:error];
-        completionBlock(result, error);
+        completionBlockWrapper(result, error);
     }];
 }
 
-- (void)handleWebMSAuthResponse:(MSIDWebMSAuthResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
+- (void)handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
 {
+    MSID_LOG_INFO(self.requestParameters, @"Handling msauth response.");
+    
     if (![NSString msidIsStringNilOrBlank:response.appInstallLink])
     {
+        MSID_LOG_INFO(self.requestParameters, @"Prompt broker install.");
         [self promptBrokerInstallWithResponse:response completionBlock:completionBlock];
         return;
     }
 
     if (![NSString msidIsStringNilOrBlank:response.upn])
     {
+        MSID_LOG_INFO(self.requestParameters, @"Workplace join is required.");
+        
         NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
         additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
         additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
@@ -118,7 +131,7 @@
     completionBlock(nil, appInstallError);
 }
 
-- (void)promptBrokerInstallWithResponse:(__unused MSIDWebMSAuthResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
+- (void)promptBrokerInstallWithResponse:(__unused MSIDWebWPJResponse *)response completionBlock:(MSIDRequestCompletionBlock)completion
 {
 #if TARGET_OS_IPHONE
     if ([NSString msidIsStringNilOrBlank:response.appInstallLink])

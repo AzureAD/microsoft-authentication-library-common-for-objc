@@ -30,7 +30,7 @@
 
 @property (nonatomic) MSIDTokenResult *testTokenResult;
 @property (nonatomic) NSError *testError;
-@property (nonatomic) MSIDWebMSAuthResponse *testBrokerResponse;
+@property (nonatomic) MSIDWebWPJResponse *testBrokerResponse;
 @property (nonatomic) NSURL *testBrokerRequestURL;
 @property (nonatomic) NSDictionary *testResumeDictionary;
 
@@ -42,7 +42,7 @@
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebMSAuthResponse *)brokerResponse
+               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
 {
     self = [super init];
 
@@ -58,7 +58,7 @@
 
 - (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
                            testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebMSAuthResponse *)brokerResponse
+               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
                     brokerRequestURL:(NSURL *)brokerRequestURL
                     resumeDictionary:(NSDictionary *)brokerResumeDictionary
 {

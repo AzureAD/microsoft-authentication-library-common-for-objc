@@ -25,20 +25,17 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDClientInfo.h"
 
-@implementation MSIDWebMSAuthResponse
+@implementation MSIDWebWPJResponse
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    NSString *scheme = url.scheme;
-    NSString *host = url.host;
-    
     // Check for WPJ or broker response
-    if (!([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"]))
+    if (![self isBrokerInstallResponse:url])
     {
         if (error)
         {
@@ -70,6 +67,37 @@
     return self;
 }
 
+- (BOOL)isBrokerInstallResponse:(NSURL *)url
+{
+    NSString *scheme = url.scheme;
+    NSString *host = url.host;
+    
+    // For embedded webview, this link will start with msauth scheme and will contain wpj host
+    // e.g. msauth://wpj?param=param
+    if ([scheme isEqualToString:@"msauth"] && [host isEqualToString:@"wpj"])
+    {
+        return YES;
+    }
+    
+    NSArray *pathComponents = url.pathComponents;
+    
+    if ([pathComponents count] < 2)
+    {
+        return NO;
+    }
+    
+    // For system webview, this link will start with the redirect uri and will have msauth and wpj as path parameters
+    // e.g. myscheme://auth/msauth/wpj?param=param
+    NSUInteger pathComponentCount = pathComponents.count;
+    
+    if ([pathComponents[pathComponentCount - 1] isEqualToString:@"wpj"]
+        && [pathComponents[pathComponentCount - 2] isEqualToString:@"msauth"])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
 
 
 @end

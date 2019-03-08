@@ -31,11 +31,10 @@
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(__unused MSIDConfiguration *)configuration
                   oidcScope:(__unused NSString *)oidcScope
-             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
 {
-    if (!tokenResult.account && accountIdentifier)
+    if (!tokenResult.account)
     {
         MSID_LOG_ERROR_CORR(correlationID, @"No account returned from server.");
         
@@ -46,31 +45,14 @@
         
         return NO;
     }
-    
-    // Validate correct account returned
-    BOOL accountValid = [self checkAccount:tokenResult
-                         accountIdentifier:accountIdentifier
-                             correlationID:correlationID];
-
-    if (!accountValid)
-    {
-        MSID_LOG_ERROR_CORR(correlationID, @"Different account returned");
-        MSID_LOG_ERROR_CORR_PII(correlationID, @"Different account returned, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
-
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
-        }
-
-        return NO;
-    }
 
     return YES;
 }
 
-- (BOOL)checkAccount:(MSIDTokenResult *)tokenResult
-   accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-       correlationID:(NSUUID *)correlationID
+- (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(MSIDTokenResult *)tokenResult
+          correlationID:(NSUUID *)correlationID
+                  error:(NSError **)error
 {
     MSID_LOG_VERBOSE_CORR(correlationID, @"Checking returned account");
     MSID_LOG_VERBOSE_CORR_PII(correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
@@ -79,22 +61,22 @@
     {
         case MSIDLegacyIdentifierTypeRequiredDisplayableId:
         {
-            if (!accountIdentifier.displayableId)
+            if (!accountIdentifier.displayableId
+                || [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString])
             {
                 return YES;
             }
-            
-            return [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString];
+            break;
         }
             
         case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
         {
-            if (!accountIdentifier.localAccountId)
+            if (!accountIdentifier.localAccountId
+                || [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString])
             {
                 return YES;
             }
-            
-            return [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
+            break;
         }
         case MSIDLegacyIdentifierTypeOptionalDisplayableId:
         {
@@ -102,8 +84,16 @@
         }
             
         default:
-            return NO;
+            break;
+        
     }
+    
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
+    }
+    
+    return NO;
 }
 
 @end

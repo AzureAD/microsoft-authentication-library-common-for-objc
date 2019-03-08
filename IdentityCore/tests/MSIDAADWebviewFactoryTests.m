@@ -31,7 +31,7 @@
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
@@ -131,7 +131,7 @@
     XCTAssertEqualObjects(configuration.authorizationEndpoint, expectedAuthorizationEndpoint);
 }
 
-- (void)testResponseWithURL_whenURLSchemeMsauth_shouldReturnWPJResponse
+- (void)testResponseWithURL_whenURLSchemeMsauthAndHostWPJ_shouldReturnWPJResponse
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
@@ -142,11 +142,60 @@
                                             context:nil
                                               error:&error];
     
-    XCTAssertTrue([response isKindOfClass:MSIDWebMSAuthResponse.class]);
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
 }
 
+- (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_shouldReturnWPJResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
+    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
+    XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+}
 
+- (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_andLocalhostRedirectUri_shouldReturnWPJResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
+    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
+    XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+}
+
+- (void)testResponseWithURL_whenBrokerInstallResponseInSystemBrowser_andRedirectUriEndingInSlash_shouldReturnWPJResponse
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    
+    NSURL *url = [NSURL URLWithString:@"https://localhost//msauth/wpj?app_link=app.link&username=XXX@upn.com"];
+    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    
+    XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
+    XCTAssertNil(error);
+    
+    MSIDWebWPJResponse *wpjResponse = (MSIDWebWPJResponse *)response;
+    XCTAssertEqualObjects(wpjResponse.appInstallLink, @"app.link");
+    XCTAssertEqualObjects(wpjResponse.upn, @"XXX@upn.com");
+}
 
 - (void)testResponseWithURL_whenURLSchemeNotMsauth_shouldReturnAADAuthResponse
 {

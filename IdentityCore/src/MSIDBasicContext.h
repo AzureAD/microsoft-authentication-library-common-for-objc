@@ -21,41 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestInteractiveTokenRequest.h"
+#import <Foundation/Foundation.h>
+#import "MSIDRequestContext.h"
 
-@interface MSIDTestInteractiveTokenRequest()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) MSIDTokenResult *testTokenResult;
-@property (nonatomic) NSError *testError;
-@property (nonatomic) MSIDWebWPJResponse *testBrokerResponse;
+@interface MSIDBasicContext : NSObject <MSIDRequestContext>
 
-@end
-
-@implementation MSIDTestInteractiveTokenRequest
-
-#pragma mark - Init
-
-- (instancetype)initWithTestResponse:(MSIDTokenResult *)tokenResult
-                           testError:(NSError *)error
-               testWebMSAuthResponse:(MSIDWebWPJResponse *)brokerResponse
-{
-    self = [super init];
-
-    if (self)
-    {
-        _testTokenResult = tokenResult;
-        _testError = error;
-        _testBrokerResponse = brokerResponse;
-    }
-
-    return self;
-}
-
-#pragma mark - MSIDInteractiveTokenRequest
-
-- (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
-{
-    completionBlock(self.testTokenResult, self.testError, self.testBrokerResponse);
-}
+@property (nonatomic, nullable) NSUUID *correlationId;
+@property (nonatomic, nullable) NSString *logComponent;
+@property (nonatomic, nullable) NSString *telemetryRequestId;
+@property (nonatomic, nullable) NSDictionary *appRequestMetadata;
 
 @end
+
+NS_ASSUME_NONNULL_END

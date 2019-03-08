@@ -54,7 +54,7 @@
     if ([jsonObject msidAssertContainsField:@"error" context:context error:nil]
         && [jsonObject msidAssertType:NSString.class ofField:@"error" context:context errorCode:MSIDErrorServerInvalidResponse error:nil])
     {
-        NSError *oauthError = MSIDCreateError(MSIDOAuthErrorDomain,
+        NSError *oauthError = MSIDCreateError(MSIDErrorDomain,
                                               MSIDErrorAuthorityValidation,
                                               jsonObject[MSID_OAUTH2_ERROR_DESCRIPTION],
                                               jsonObject[MSID_OAUTH2_ERROR],

@@ -197,7 +197,7 @@
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError *__autoreleasing *)error
 {
-    if (credentialType!=MSIDRefreshTokenType && credentialType!=MSIDPrimaryRefreshTokenType) return nil;
+    if (credentialType != MSIDRefreshTokenType && credentialType != MSIDPrimaryRefreshTokenType) return nil;
     
     if (![NSString msidIsStringNilOrBlank:accountIdentifier.homeAccountId])
     {
@@ -290,10 +290,23 @@
                                                                                           context:context
                                                                                             error:nil];
 
-    return (MSIDAccessToken *) [self getTokenWithAuthority:configuration.authority
-                                                cacheQuery:query
-                                                   context:context
-                                                     error:error];
+    __auto_type accessToken = (MSIDAccessToken *)[self getTokenWithAuthority:configuration.authority
+                                                                  cacheQuery:query
+                                                                     context:context
+                                                                       error:error];
+    
+    if (accessToken)
+    {
+        NSTimeInterval expiresIn = [accessToken.expiresOn timeIntervalSinceNow];
+        MSID_LOG_INFO(context, @"Found access token for account %@ which expires in %f", _PII_NULLIFY(accountIdentifier), expiresIn);
+        MSID_LOG_INFO_PII(context, @"Found access token for account %@ which expires in %f", accountIdentifier, expiresIn);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"Access token wasn't found.");
+    }
+    
+    return accessToken;
 }
 
 - (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)accountIdentifier
@@ -320,10 +333,22 @@
     query.clientId = configuration.clientId;
     query.credentialType = idTokenType;
 
-    return (MSIDIdToken *) [self getTokenWithAuthority:configuration.authority
-                                            cacheQuery:query
-                                               context:context
-                                                 error:error];
+    __auto_type idToken = (MSIDIdToken *)[self getTokenWithAuthority:configuration.authority
+                                                          cacheQuery:query
+                                                             context:context
+                                                               error:error];
+    
+    if (idToken)
+    {
+        MSID_LOG_INFO(context, @"Found id token for account %@.", _PII_NULLIFY(accountIdentifier));
+        MSID_LOG_INFO_PII(context, @"Found id token %@ for account %@.", [idToken.rawIdToken msidSecretLoggingHash], accountIdentifier);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"Id token wasn't found.");
+    }
+    
+    return idToken;
 }
 
 - (BOOL)removeAccessToken:(MSIDAccessToken *)token
@@ -344,6 +369,7 @@
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
+    MSID_LOG_INFO(context, @"(Default accessor) Get accounts.");
     MSID_LOG_VERBOSE(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@", authority.environment, clientId, familyId);
     MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId, accountIdentifier.displayableId);
 
@@ -407,12 +433,14 @@
 
     if ([filteredAccountsSet count])
     {
-        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in default accessor.", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO_PII(context, @"(Default accessor) Found the following accounts in default accessor: %@", [filteredAccountsSet allObjects]);
+        
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
     else
     {
-        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor");
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in default accessor.");
         [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
     }
 
@@ -425,6 +453,16 @@
                                                     context:context
                                                       error:error];
         [filteredAccountsSet addObjectsFromArray:accounts];
+    }
+    
+    if ([filteredAccountsSet count])
+    {
+        MSID_LOG_INFO(context, @"(Default accessor) Found %lu accounts in other accessors.", (unsigned long)[filteredAccountsSet count]);
+        MSID_LOG_INFO_PII(context, @"(Default accessor) Found the following accounts in other accessors: %@", [filteredAccountsSet allObjects]);
+    }
+    else
+    {
+        MSID_LOG_INFO(context, @"(Default accessor) No accounts found in other accessors.");
     }
 
     return [filteredAccountsSet allObjects];
@@ -691,7 +729,7 @@
     if (![NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
         MSID_LOG_VERBOSE(context, @"(Default accessor) Saving family refresh token %@", _PII_NULLIFY(refreshToken.refreshToken));
-        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving family refresh token %@", refreshToken.refreshToken);
+        MSID_LOG_VERBOSE_PII(context, @"(Default accessor) Saving family refresh token %@", refreshToken);
 
         if (![self saveToken:refreshToken context:context error:error])
         {

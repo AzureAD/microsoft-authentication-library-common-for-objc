@@ -118,7 +118,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(refresh token=%@, family ID=%@)", _PII_NULLIFY(_refreshToken), _familyId];
+    return [baseDescription stringByAppendingFormat:@"(refresh token=%@, family ID=%@)", [_refreshToken msidSecretLoggingHash], _familyId];
 }
 
 @end

@@ -29,7 +29,7 @@
 
 @class MSIDClientInfo;
 
-@interface MSIDWebMSAuthResponse : MSIDWebviewResponse
+@interface MSIDWebWPJResponse : MSIDWebviewResponse
 
 @property (readonly) NSString *upn;
 @property (readonly) NSString *appInstallLink;

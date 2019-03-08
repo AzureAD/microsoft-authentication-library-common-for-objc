@@ -56,4 +56,6 @@
 - (NSURL *)msidURLForPreferredHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error;
 - (NSURL *)msidURLWithQueryParameters:(NSDictionary *)queryParameters;
 
+- (NSURL *)msidPIINullifiedURL;
+
 @end
