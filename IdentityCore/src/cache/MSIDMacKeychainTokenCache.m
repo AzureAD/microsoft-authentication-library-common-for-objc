@@ -339,6 +339,16 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     MSID_LOG_INFO( context, @"Remove keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
     MSID_LOG_INFO_PII(context, @"Remove keychain items, key info (account: %@ service: %@)", key.account, key.service);
 
+    if (!key)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil);
+        }
+
+        return FALSE;
+    }
+
     NSMutableDictionary *query = [self defaultAccountQuery:key];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnAttributes] = @YES;
@@ -465,7 +475,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
     // for now, this just deletes all accounts
-    return [self removeItemsWithAccountKey:nil context:context error:error];
+    return [self removeItemsWithAccountKey:[MSIDCacheKey new] context:context error:error];
 }
 
 #pragma mark - Utilities
