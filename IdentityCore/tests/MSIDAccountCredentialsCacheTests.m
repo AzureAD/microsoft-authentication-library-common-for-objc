@@ -860,7 +860,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.target = @"user.write";
+    query.target = @"user.Write";
     query.targetMatchingOptions = MSIDSubSet;
 
     XCTAssertFalse(query.exactMatch);
@@ -885,7 +885,7 @@
     // Now query
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
-    query.target = @"user.write user.sing";
+    query.target = @"user.wRite USER.sing";
     query.targetMatchingOptions = MSIDIntersect;
 
     XCTAssertFalse(query.exactMatch);
@@ -911,7 +911,7 @@
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = MSIDAccessTokenType;
     query.clientId = @"client";
-    query.target = @"user.read user.write";
+    query.target = @"User.read user.Write";
     query.realm = @"contoso.com";
     query.environment = @"login.microsoftonline.com";
 

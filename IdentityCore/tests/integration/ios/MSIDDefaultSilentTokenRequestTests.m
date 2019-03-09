@@ -132,7 +132,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testAcquireTokenSilent_whenAccessTokenInCache_shouldReturnToken
+- (void)testAcquireTokenSilent_whenAccessAndRefreshTokensInCache_shouldReturnATAndRT
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
@@ -163,9 +163,58 @@
         XCTAssertFalse(result.extendedLifeTimeToken);
         XCTAssertEqualObjects(result.authority, silentParameters.authority);
         XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+        XCTAssertNil(result.refreshToken.familyId);
         [expectation fulfill];
     }];
 
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireTokenSilent_whenAccessAndFociRefreshTokensInCache_shouldReturnATAndFociRT
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+    
+    [self saveTokensInCache:tokenCache
+              configuration:silentParameters.msidConfiguration
+                      scope:nil
+                       foci:@"1"
+                accessToken:nil
+               refreshToken:nil
+                    idToken:nil
+                 clientInfo:nil
+                  expiresIn:nil
+               extExpiresIn:nil];
+    
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+    
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+    
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read user.write tasks.read"]);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+        XCTAssertEqualObjects(@"1", result.refreshToken.familyId);
+        [expectation fulfill];
+    }];
+    
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
@@ -1504,7 +1553,7 @@
 
     [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
-    silentParameters.target = @"new.scope1 new.scope2";
+    silentParameters.target = @"new.SCOPE1 new.sCope2";
 
     NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
@@ -1515,11 +1564,11 @@
 
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:DEFAULT_TEST_REFRESH_TOKEN
                                                                                 requestClaims:nil
-                                                                                requestScopes:@"new.scope1 new.scope2 openid profile offline_access"
+                                                                                requestScopes:@"new.SCOPE1 new.sCope2 openid profile offline_access"
                                                                                    responseAT:@"new at"
                                                                                    responseRT:@"new rt"
                                                                                    responseID:nil
-                                                                                responseScope:@"new.scope"
+                                                                                responseScope:@"new.scope New.Scope1"
                                                                            responseClientInfo:nil
                                                                                           url:@"https://login.microsoftonline.com/1234-5678-90abcdefg/oauth2/v2.0/token"
                                                                                  responseCode:200
@@ -1540,14 +1589,14 @@
         XCTAssertNotNil(error);
         XCTAssertNil(result);
         XCTAssertEqual(error.code, MSIDErrorServerDeclinedScopes);
-        NSArray *declinedScopes = @[@"new.scope1", @"new.scope2"];
+        NSArray *declinedScopes = @[@"new.sCope2"];
         XCTAssertEqualObjects(error.userInfo[MSIDDeclinedScopesKey], declinedScopes);
-        NSArray *grantedScopes = @[@"new.scope"];
+        NSArray *grantedScopes = @[@"new.scope",@"New.Scope1"];
         XCTAssertEqualObjects(error.userInfo[MSIDGrantedScopesKey], grantedScopes);
         MSIDTokenResult *invalidTokenResult = error.userInfo[MSIDInvalidTokenResultKey];
         XCTAssertNotNil(invalidTokenResult);
         XCTAssertEqualObjects(invalidTokenResult.accessToken.accessToken, @"new at");
-        XCTAssertEqualObjects(invalidTokenResult.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope"]);
+        XCTAssertEqualObjects(invalidTokenResult.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope New.Scope1"]);
         XCTAssertEqualObjects(invalidTokenResult.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
         XCTAssertEqualObjects(invalidTokenResult.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(invalidTokenResult.extendedLifeTimeToken);
@@ -1572,7 +1621,7 @@
         XCTAssertNil(error);
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken.accessToken, @"new at");
-        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope"]);
+        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"new.scope New.Scope1"]);
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);

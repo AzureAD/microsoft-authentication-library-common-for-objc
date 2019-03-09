@@ -303,7 +303,7 @@
 {
     __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:endURL.host];
     MSID_LOG_VERBOSE(self.context, @"-completeWebAuthWithURL: %@", isKnown ? endURL.host : @"unknown host");
-    MSID_LOG_VERBOSE_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
+    MSID_LOG_VERBOSE_PII(self.context, @"-completeWebAuthWithURL: %@", [endURL msidPIINullifiedURL]);
     
     [self endWebAuthWithURL:endURL error:nil];
 }
