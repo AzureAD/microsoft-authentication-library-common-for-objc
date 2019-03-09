@@ -150,7 +150,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(primary refresh token=%@)", _PII_NULLIFY(_refreshToken)];
+    return [baseDescription stringByAppendingFormat:@"(primary refresh token=%@)", [_refreshToken msidSecretLoggingHash]];
 }
 
 @end

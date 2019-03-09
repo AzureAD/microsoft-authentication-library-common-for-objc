@@ -109,18 +109,38 @@
 
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer])
         {
-            MSID_LOG_INFO(self.requestParameters, @"Found valid access token, looking for refresh token...");
+            MSID_LOG_INFO(self.requestParameters, @"Found valid access token.");
             NSError *rtError = nil;
-            id<MSIDRefreshableToken> refreshableToken = [self appRefreshTokenWithError:&rtError];
-
+            
+            // Trying to find FRT first.
+            MSID_LOG_INFO(self.requestParameters, @"Looking for family refresh token...");
+            id<MSIDRefreshableToken> refreshableToken = [self familyRefreshTokenWithError:&rtError];
+            
             if (!refreshableToken)
             {
-                MSID_LOG_WARN(self.requestParameters, @"Didn't find app refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
-                MSID_LOG_WARN_PII(self.requestParameters, @"Didn't find app refresh token with error: %@", rtError);
+                MSID_LOG_WARN(self.requestParameters, @"Didn't find family refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
+                MSID_LOG_WARN_PII(self.requestParameters, @"Didn't find family refresh token with error: %@", rtError);
             }
             else
             {
-                MSID_LOG_INFO(self.requestParameters, @"Found refresh token.");
+                MSID_LOG_INFO(self.requestParameters, @"Found family refresh token.");
+            }
+            
+            // If no FRT, get refresh token instead.
+            if (!refreshableToken)
+            {
+                MSID_LOG_INFO(self.requestParameters, @"Looking for app refresh token...");
+                refreshableToken = [self appRefreshTokenWithError:&rtError];
+                
+                if (!refreshableToken)
+                {
+                    MSID_LOG_WARN(self.requestParameters, @"Didn't find app refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
+                    MSID_LOG_WARN_PII(self.requestParameters, @"Didn't find app refresh token with error: %@", rtError);
+                }
+                else
+                {
+                    MSID_LOG_INFO(self.requestParameters, @"Found app refresh token.");
+                }
             }
 
             NSError *resultError = nil;

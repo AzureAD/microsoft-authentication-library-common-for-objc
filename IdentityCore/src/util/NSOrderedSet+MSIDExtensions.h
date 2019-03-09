@@ -40,5 +40,8 @@
  */
 + (NSOrderedSet *)msidOrderedSetFromString:(NSString *)string normalize:(BOOL)normalize;
 
+- (NSOrderedSet *)normalizedScopeSet;
+- (NSOrderedSet *)msidMinusOrderedSet:(NSOrderedSet *)orderedSet normalize:(BOOL)normalize;
+
 @end
 

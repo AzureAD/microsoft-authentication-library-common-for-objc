@@ -209,7 +209,7 @@ static NSUInteger s_expirationBuffer = 300;
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, target=%@)", _PII_NULLIFY(_accessToken), _expiresOn, _target];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, target=%@)", [_accessToken msidSecretLoggingHash], _expiresOn, _target];
 }
 
 @end

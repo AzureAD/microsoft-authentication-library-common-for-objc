@@ -37,6 +37,7 @@
 #import "MSIDClientInfo.h"
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
 
@@ -216,14 +217,17 @@
     {
         return YES;
     }
+    
+    NSOrderedSet *inputSet = [NSOrderedSet msidOrderedSetFromString:target normalize:YES];
+    NSOrderedSet *tokenSet = [NSOrderedSet msidOrderedSetFromString:self.target normalize:YES];
 
     switch (comparisonOptions) {
         case MSIDExactStringMatch:
-            return [self.target isEqualToString:target];
+            return [self.target.lowercaseString isEqualToString:target.lowercaseString];
         case MSIDSubSet:
-            return [[target msidScopeSet] isSubsetOfOrderedSet:[self.target msidScopeSet]];
+            return [inputSet isSubsetOfOrderedSet:tokenSet];
         case MSIDIntersect:
-            return [[target msidScopeSet] intersectsOrderedSet:[self.target msidScopeSet]];
+            return [inputSet intersectsOrderedSet:tokenSet];
         default:
             return NO;
     }
