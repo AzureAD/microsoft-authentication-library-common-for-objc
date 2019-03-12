@@ -25,7 +25,7 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDCacheKey.h"
 #import "MSIDClientInfo.h"
-#import "MSIDDefaultAccountCacheKey.h"
+#import "MSIDMacKeychainAccountCacheKey.h"
 #import "MSIDMacKeychainTokenCache.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
@@ -37,7 +37,7 @@
     MSIDMacKeychainTokenCache *_cache;
     MSIDCacheItemJsonSerializer *_serializer;
     MSIDAccountCacheItem *_testAccount;
-    MSIDCacheKey *_testAccountKey;
+    MSIDMacKeychainAccountCacheKey *_testAccountKey;
 }
 @end
 
@@ -61,10 +61,12 @@
     _testAccount.alternativeAccountId = @"alt";
     _testAccount.name = @"test user";
 
-    _testAccountKey = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:_testAccount.homeAccountId
-                                                                    environment:_testAccount.environment
-                                                                          realm:_testAccount.realm
-                                                                           type:_testAccount.accountType];
+    _testAccountKey = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:_testAccount.homeAccountId
+                                                                        environment:_testAccount.environment
+                                                                              realm:_testAccount.realm
+                                                                               type:@(_testAccount.accountType)];
+    _testAccountKey.username = _testAccount.username;
+
 }
 
 - (void)tearDown
@@ -122,14 +124,16 @@
     accountB.additionalAccountFields = @{@"key1": @"VALUE1", @"key3": @"VALUE3"};
     [accountB updateFieldsFromAccount:accountA]; // merge the additionalAccountFields dictionaries
 
-    MSIDCacheKey *keyA = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:accountA.homeAccountId
-                                                                       environment:accountA.environment
-                                                                             realm:accountA.realm
-                                                                              type:accountA.accountType];
-    MSIDCacheKey *keyB = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:accountB.homeAccountId
-                                                                       environment:accountB.environment
-                                                                             realm:accountB.realm
-                                                                              type:accountB.accountType];
+    MSIDMacKeychainAccountCacheKey *keyA = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountA.homeAccountId
+                                                                                             environment:accountA.environment
+                                                                                                   realm:accountA.realm
+                                                                                                    type:@(accountA.accountType)];
+    MSIDMacKeychainAccountCacheKey *keyB = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountB.homeAccountId
+                                                                                             environment:accountB.environment
+                                                                                                   realm:accountB.realm
+                                                                                                    type:@(accountB.accountType)];
+    keyA.username = accountA.username;
+    keyB.username = accountB.username;
 
     BOOL result = [_cache saveAccount:accountA key:keyA serializer:_serializer context:nil error:&error];
     XCTAssertTrue(result);
