@@ -36,13 +36,18 @@
     [super setUp];
     [[MSIDTestLogger sharedLogger] reset];
     [MSIDTestLogger sharedLogger].callbackInvoked = NO;
+    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
 }
 
 #pragma mark - Basic logging
 
 - (void)testLog_whenLogLevelNothingMessageValid_shouldNotThrow
 {
+    [self keyValueObservingExpectationForObject:[MSIDTestLogger sharedLogger] keyPath:@"callbackInvoked" expectedValue:@1];
     XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelNothing context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"Message"]);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertNotNil([MSIDTestLogger sharedLogger].lastMessage);
 }
 
 - (void)testLog_whenLogLevelErrorMessageNil_shouldNotThrow
