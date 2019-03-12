@@ -94,7 +94,7 @@ kSecValueData     JSON data (UTF8 encoded) – account object
  {
    "home_account_id": "uid.utid",
    "environment": "login.microsoftonline.com",
-   "realm": "Contoso.COM",
+   "realm": "contoso.com",
    "authority_type": "MSSTS",
    "username": "username",
    "given_name": "First name",
