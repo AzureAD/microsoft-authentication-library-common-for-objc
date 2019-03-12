@@ -35,6 +35,7 @@
 #import "MSIDMacKeychainTokenCache.h"
 #import "MSIDUserInformation.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDKeychainUtil.h"
 
 /**
 This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -138,16 +139,113 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 
 */
 
+static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstorage";
+static NSString *s_defaultKeychainLabel = @"Microsoft Identity Universal Storage";
+static MSIDMacKeychainTokenCache *s_defaultCache = nil;
+
 @interface MSIDMacKeychainTokenCache ()
+
+@property (readwrite, nonnull) NSString *keychainGroup;
+
 @end
 
 @implementation MSIDMacKeychainTokenCache
 
+#pragma mark - Public
+
++ (NSString *)defaultKeychainGroup
+{
+    return s_defaultKeychainGroup;
+}
+
+// Set the default keychain group
+//
+// Errors:
+// * @throw - attempt to change the default keychain group after being initialized
+//
++ (void)setDefaultKeychainGroup:(NSString *)defaultKeychainGroup
+{
+    MSID_TRACE;
+
+    if (s_defaultCache)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
+
+        @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
+    }
+
+    MSID_LOG_INFO(nil, @"Setting default keychain group.");
+    MSID_LOG_INFO_PII(nil, @"Setting default keychain group to %@", defaultKeychainGroup);
+
+    if ([defaultKeychainGroup isEqualToString:s_defaultKeychainGroup])
+    {
+        return;
+    }
+
+    if (!defaultKeychainGroup)
+    {
+        defaultKeychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+    }
+
+    s_defaultKeychainGroup = [defaultKeychainGroup copy];
+}
+
++ (MSIDMacKeychainTokenCache *)defaultKeychainCache
+{
+    static dispatch_once_t s_once;
+
+    dispatch_once(&s_once, ^{
+        s_defaultCache = [MSIDMacKeychainTokenCache new];
+    });
+
+    return s_defaultCache;
+}
+
 #pragma mark - init
 
-- (id)init
+// Initialize with defaultKeychainGroup
+- (nonnull instancetype)init
 {
+    return [self initWithGroup:s_defaultKeychainGroup];
+}
+
+// Initialize with a keychain group
+//
+// @param keychainGroup Optional. If the application needs to share the cached tokens
+// with other applications from the same vendor, the app will need to specify the
+// shared group here. If set to 'nil' the main bundle's identifier will be used instead.
+//
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
+{
+    MSID_TRACE;
+
     self = [super init];
+    if (self)
+    {
+        if (!keychainGroup)
+        {
+            keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
+        }
+
+        if (MSIDKeychainUtil.teamId)
+        {
+            // Add team prefix to keychain group if it is missed.
+            if (![keychainGroup hasPrefix:MSIDKeychainUtil.teamId])
+            {
+                keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
+            }
+        }
+
+        _keychainGroup = keychainGroup;
+        if (!_keychainGroup)
+        {
+            return nil;
+        }
+
+        MSID_LOG_INFO(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
+        MSID_LOG_INFO_PII(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", _keychainGroup);
+    }
+
     return self;
 }
 
@@ -166,8 +264,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
               error:(NSError **)error
 {
     MSID_TRACE;
-    MSID_LOG_INFO(context, @"Set keychain item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Set keychain item, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_VERBOSE(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
+    MSID_LOG_VERBOSE_PII(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
 
     if (!key.service)
     {
@@ -263,6 +361,9 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                                                error:(NSError **)error
 {
     MSID_TRACE;
+    MSID_LOG_VERBOSE(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type, [self keychainGroupLoggingName]);
+    MSID_LOG_VERBOSE_PII(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", key.account, key.service, key.generic, key.type, self.keychainGroup);
+
     NSMutableDictionary *query = [self defaultAccountQuery:key];
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
@@ -336,8 +437,8 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
                             error:(NSError **)error
 {
     MSID_TRACE;
-    MSID_LOG_INFO( context, @"Remove keychain items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Remove keychain items, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_VERBOSE(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
+    MSID_LOG_VERBOSE_PII(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
 
     if (!key)
     {
@@ -489,19 +590,21 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 
     if (key.account.length > 0)
     {
-        query[(id)kSecAttrAccount] = key.account; // <homeAccountId>-<environment>
+        // Add the access group to the account attribute so it's part of the keychain item's primary key.
+        // <keychainGroup>-<homeAccountId>-<environment>
+        query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup, key.account];
     }
     if (key.service.length > 0)
     {
         query[(id)kSecAttrService] = key.service; // <realm>
     }
 
-    // Add a marker for our cache items in the keychain.
-    // It avoids keychain errors, in particular with clearWithContext.
-    // This property is a FourCC integer, not a string:
-    query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:'MSAL'];
-    // Note: Would something like this be better?
-    // query[(id)kSecAttrSecurityDomain] = @"com.microsoft.msalcache";
+    // Add the access group as it's own field for query filtering.
+    // Since the attribute is an NSNumber, hash the string.
+    query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:(uint32_t)self.keychainGroup.hash];
+
+    // Add a marker for all cache items in the keychain for additional query filtering.
+    query[(id)kSecAttrLabel] = s_defaultKeychainLabel;
 
     return query;
 }
@@ -534,6 +637,16 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
     {
         *error = MSIDCreateError(MSIDErrorDomain, (NSInteger)MSIDErrorUnsupportedFunctionality, @"Not Implemented", nil, nil, nil, context.correlationId, nil);
     }
+}
+
+- (NSString *)keychainGroupLoggingName
+{
+    if ([self.keychainGroup containsString:s_defaultKeychainGroup])
+    {
+        return s_defaultKeychainLabel;
+    }
+
+    return _PII_NULLIFY(_keychainGroup);
 }
 
 @end
