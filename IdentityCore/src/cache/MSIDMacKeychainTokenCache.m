@@ -49,14 +49,17 @@ In addition to the basic account & credential properties, the following definiti
 <credential_id> : “<credential_type>-<client_id>-<realm>”
 <access_group>  : e.g. "com.microsoft.officecache"
 
+ Below, attributes marked with "*" are primary keys for the keychain.
+ For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
+ Other secondary attributes do not make items unique, only the primary attributes.
 
 Type 1 (Secret shareable artifacts) Keychain Item Attributes
 ============================================================
 ATTRIBUTE         VALUE
 ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-kSecClass         kSecClassGenericPassword
-kSecAttrAccount   <access_group>
-kSecAttrService   “Microsoft Credentials”
+*kSecClass        kSecClassGenericPassword
+*kSecAttrAccount  <access_group>
+*kSecAttrService  “Microsoft Credentials”
 kSecValueData     JSON data (UTF8 encoded) – shared credentials (multiple credentials saved in one keychain item)
 
 Type 1 JSON Data Example:
@@ -79,10 +82,11 @@ Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
 ================================================================
 ATTRIBUTE         VALUE
 ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-kSecClass         kSecClassGenericPassword
-kSecAttrAccount   <account_id>
-kSecAttrService   <realm>
-kSecAttrCreator   'MSAL' (A flag marking our items, see defaultAccountQuery:)
+*kSecClass        kSecClassGenericPassword
+*kSecAttrAccount  <access_group>-<account_id>
+*kSecAttrService  <realm>
+kSecAttrCreator   A hash of <access_group>
+kSecAttrLabel     "Microsoft Identity Universal Storage"
 kSecValueData     JSON data (UTF8 encoded) – account object
 
  Type 2 JSON Data Example:
@@ -105,9 +109,9 @@ Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
 ===============================================================
 ATTRIBUTE         VALUE
 ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-kSecClass         kSecClassGenericPassword
-kSecAttrAccount   <access_group>-<app_bundle_id>-<account_id>
-kSecAttrService   <credential_id>-<target>
+*kSecClass        kSecClassGenericPassword
+*kSecAttrAccount  <access_group>-<app_bundle_id>-<account_id>
+*kSecAttrService  <credential_id>-<target>
 kSetAttrGeneric   <credential_id>
 kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
 kSecValueData     JSON data (UTF8 encoded) – credential object
