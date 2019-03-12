@@ -38,8 +38,8 @@
         NSString *bundleSeedID = [components firstObject];
         keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
         
-        MSID_LOG_INFO(nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
-        MSID_LOG_INFO_PII(nil, @"Using \"%@\" Team ID.", keychainTeamId);
+        MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
+        MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
     });
     
     return keychainTeamId;
@@ -86,8 +86,9 @@
         if (status == errSecSuccess)
         {
             appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
-            MSID_LOG_INFO(nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
-            MSID_LOG_INFO_PII(nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
+            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
+            
             CFRelease(result);
         }
         else

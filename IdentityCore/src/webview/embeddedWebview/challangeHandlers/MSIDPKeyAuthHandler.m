@@ -91,8 +91,8 @@
     
     if (!authHeaderParams)
     {
-        MSID_LOG_ERROR(context, @"Unparseable wwwAuthHeader received");
-        MSID_LOG_ERROR_PII(context, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Unparseable wwwAuthHeader received");
+        MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
     }
     
     NSError *error = nil;

@@ -207,8 +207,8 @@
 
     if (error)
     {
-        MSID_LOG_WARN(nil, @"Invalid ID token");
-        MSID_LOG_WARN_PII(nil, @"Invalid ID token, error %@", error.localizedDescription);
+        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Invalid ID token");
+        MSID_LOG_PII(MSIDLogLevelWarning, nil, nil,  @"Invalid ID token, error %@", error.localizedDescription);
     }
 
     return _idTokenClaims;

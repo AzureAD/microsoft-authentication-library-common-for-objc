@@ -158,8 +158,8 @@
 #if TARGET_OS_IPHONE
             if (![MSIDAppExtensionUtil isExecutingInAppExtension])
             {
-                MSID_LOG_INFO(nil, @"Opening a browser");
-                MSID_LOG_INFO_PII(nil, @"Opening a browser - %@", browserURL);
+                MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Opening a browser");
+                MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Opening a browser - %@", browserURL);
                 [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
             }
             else

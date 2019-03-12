@@ -59,8 +59,8 @@
         
         if (localError)
         {
-            MSID_LOG_ERROR(context, @"Failed to parse client_info, code %ld, domain %@", (long)localError.code, localError.domain);
-            MSID_LOG_ERROR_PII(context, @"Failed to parse client_info, error: %@", localError);
+            MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Failed to parse client_info, code %ld, domain %@", (long)localError.code, localError.domain);
+            MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Failed to parse client_info, error: %@", localError);
         }
     }
     

@@ -134,8 +134,8 @@ static NSString *s_redirectScheme = nil;
         return NO;
     }
     
-    MSID_LOG_INFO(context, @"Received CertAuthChallenge");
-    MSID_LOG_INFO_PII(context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Received CertAuthChallenge");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
     
     NSURL *requestURL = [currentSession.webviewController startURL];
     
