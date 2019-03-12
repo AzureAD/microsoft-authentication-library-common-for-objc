@@ -89,6 +89,9 @@ static NSString *s_redirectScheme = nil;
 
 + (BOOL)completeCertAuthChallenge:(NSURL *)endUrl
 {
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Complete cert auth challenge with end URL: %@", endUrl.host);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Complete cert auth challenge with end URL: %@", [endUrl msidPIINullifiedURL]);
+    
     if (s_certAuthInProgress)
     {
         s_certAuthInProgress = NO;
