@@ -85,6 +85,7 @@ ATTRIBUTE         VALUE
 *kSecClass        kSecClassGenericPassword
 *kSecAttrAccount  <access_group>-<account_id>
 *kSecAttrService  <realm>
+kSecAttrGeneric   <authority_account_id>
 kSecAttrCreator   A hash of <access_group>
 kSecAttrLabel     "Microsoft Identity Universal Storage"
 kSecValueData     JSON data (UTF8 encoded) – account object
