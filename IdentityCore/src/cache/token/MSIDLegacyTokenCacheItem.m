@@ -165,16 +165,15 @@
     [coder encodeObject:self.clientId forKey:@"clientId"];
     [coder encodeObject:self.target forKey:@"resource"];
     [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
-    [coder encodeObject:self.extendedExpiresOn forKey:@"extendedExpiresOn"];
     [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
     [coder encodeObject:self.familyId forKey:@"familyId"];
 
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
-    
+
     NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
     additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
     [coder encodeObject:additionalServer forKey:@"additionalServer"];
-    
+
     [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
 }
 

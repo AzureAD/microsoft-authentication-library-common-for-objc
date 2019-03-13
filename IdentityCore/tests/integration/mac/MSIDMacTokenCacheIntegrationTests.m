@@ -104,7 +104,7 @@
     
     id rawCache1 = [cache1 valueForKey:@"cache"];
     id rawCache2 = [cache2 valueForKey:@"cache"];
-    XCTAssertNil(error);
+    XCTAssertNil(error);
     XCTAssertTrue(result);
     XCTAssertEqualObjects(rawCache1, rawCache2);
 }
