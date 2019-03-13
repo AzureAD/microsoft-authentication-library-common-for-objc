@@ -46,14 +46,14 @@ There are three types of items stored:
   3) Secret non-shareable artifacts (access tokens, ID tokens)
 
 In addition to the basic account & credential properties, the following definitions are used below:
-<account_id>    : “<home_account_id>-<environment>”
-<credential_id> : “<credential_type>-<client_id>-<realm>”
-<access_group>  : e.g. "com.microsoft.officecache"
- <authority_account_id> : e.g. "joe@contoso.com"
+  <account_id>           :  “<home_account_id>-<environment>”
+  <credential_id>        : “<credential_type>-<client_id>-<realm>”
+  <access_group>         : e.g. "com.microsoft.officecache"
+  <authority_account_id> : e.g. "joe@contoso.com"
 
- Below, attributes marked with "*" are primary keys for the keychain.
- For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
- Other secondary attributes do not make items unique, only the primary attributes.
+Below, attributes marked with "*" are primary keys for the keychain.
+For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
+Other secondary attributes do not make items unique, only the primary attributes.
 
 Type 1 (Secret shareable artifacts) Keychain Item Attributes
 ============================================================
@@ -92,21 +92,21 @@ kSecAttrCreator   A hash of <access_group>
 kSecAttrLabel     "Microsoft Identity Universal Storage"
 kSecValueData     JSON data (UTF8 encoded) – account object
 
- Type 2 JSON Data Example:
- {
-   "home_account_id": "uid.utid",
-   "environment": "login.microsoftonline.com",
-   "realm": "contoso.com",
-   "authority_type": "MSSTS",
-   "username": "username",
-   "given_name": "First name",
-   "family_name": "Last name",
-   "name": "test user",
-   "local_account_id": "0000004-0000004-000004",
-   "alternative_account_id": "alt",
-   "test": "test2",
-   "test3": "test4"
- }
+Type 2 JSON Data Example:
+{
+  "home_account_id": "uid.utid",
+  "environment": "login.microsoftonline.com",
+  "realm": "contoso.com",
+  "authority_type": "MSSTS",
+  "username": "username",
+  "given_name": "First name",
+  "family_name": "Last name",
+  "name": "test user",
+  "local_account_id": "0000004-0000004-000004",
+  "alternative_account_id": "alt",
+  "test": "test2",
+  "test3": "test4"
+}
 
 Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
 ===============================================================
@@ -117,6 +117,8 @@ ATTRIBUTE         VALUE
 *kSecAttrService  <credential_id>-<target>
 kSetAttrGeneric   <credential_id>
 kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
+kSecAttrCreator   A hash of <access_group>
+kSecAttrLabel     "Microsoft Identity Universal Storage"
 kSecValueData     JSON data (UTF8 encoded) – credential object
 
 Error handling:
@@ -139,9 +141,9 @@ Additional Notes:
   an application has access to the keychain item it can generally
   access and update credentials without further keychain prompts.
 
-* Reference(s):
-  - Apple Keychain Services: https://developer.apple.com/documentation/security/keychain_services?language=objc
-  - Schema:
+Reference(s):
+* Apple Keychain Services: https://developer.apple.com/documentation/security/keychain_services?language=objc
+* Schema:
 https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FUnifiedSchema%2FSchema.md&version=GBdev
 
 */
