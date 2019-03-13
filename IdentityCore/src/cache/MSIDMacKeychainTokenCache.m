@@ -49,6 +49,7 @@ In addition to the basic account & credential properties, the following definiti
 <account_id>    : “<home_account_id>-<environment>”
 <credential_id> : “<credential_type>-<client_id>-<realm>”
 <access_group>  : e.g. "com.microsoft.officecache"
+ <authority_account_id> : e.g. "joe@contoso.com"
 
  Below, attributes marked with "*" are primary keys for the keychain.
  For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
