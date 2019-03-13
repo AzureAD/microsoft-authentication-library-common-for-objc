@@ -124,7 +124,7 @@
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
 
     self.additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
-    if(self.additionalInfo)
+    if(self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY])
     {
         self.extendedExpiresOn = self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
         NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
