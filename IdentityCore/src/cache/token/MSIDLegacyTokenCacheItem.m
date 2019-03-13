@@ -173,11 +173,15 @@
 
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
 
-    if(self.additionalInfo)
+    if(self.extendedExpiresOn)
     {
         NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
         additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
         [coder encodeObject:additionalServer forKey:@"additionalServer"];
+    }
+    else
+    {
+        [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
     }
 
     [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
