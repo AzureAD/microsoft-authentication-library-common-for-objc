@@ -70,8 +70,8 @@ goto _error; \
     NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
 #endif
     
-    MSID_LOG_VERBOSE(nil, @"Attempting to get registration information - shared access Group");
-    MSID_LOG_VERBOSE_PII(nil, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, nil, @"Attempting to get registration information - shared access Group");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, nil, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
     
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;

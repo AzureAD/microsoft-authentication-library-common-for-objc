@@ -165,8 +165,9 @@
 
     if (!serializedData)
     {
-        MSID_LOG_WARN(context, @"Failed to serialize data with error %ld, %@", (long)serializationError.code, serializationError.domain);
-        MSID_LOG_WARN_PII(context, @"Failed to serialize data with error %@", serializationError);
+        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %ld, %@", (long)serializationError.code, serializationError.domain);
+        MSID_LOG_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %@", serializationError);
+        
         return nil;
     }
 

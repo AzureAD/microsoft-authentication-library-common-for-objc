@@ -143,4 +143,9 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
     return [_json dictionaryByRemovingFields:knownFields];
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"Token response: access token %@, refresh token %@, scope %@, state %@, id token %@, error %@, error description %@", _PII_NULLIFY(self.accessToken), _PII_NULLIFY(self.refreshToken), self.scope, self.state, _PII_NULLIFY(self.idToken), self.error, self.errorDescription];
+}
+
 @end

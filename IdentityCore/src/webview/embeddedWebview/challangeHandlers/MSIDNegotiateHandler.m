@@ -89,8 +89,8 @@
                            // Get the lifetime of this credential
                            uint32_t lifeTime = GSSCredentialGetLifetime(credential);
                            
-                           MSID_LOG_INFO(context, @"Found credential for GSS_KRB5_MECHANISM with lifetime %d", lifeTime);
-                           MSID_LOG_INFO_PII(context, @"Found credential for GSS_KRB5_MECHANISM with lifetime %d, displayable name %@", lifeTime, displayableName);
+                           MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Found credential for GSS_KRB5_MECHANISM with lifetime %d", lifeTime);
+                           MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Found credential for GSS_KRB5_MECHANISM with lifetime %d, displayable name %@", lifeTime, displayableName);
                            
                            if (displayableName)
                            {
