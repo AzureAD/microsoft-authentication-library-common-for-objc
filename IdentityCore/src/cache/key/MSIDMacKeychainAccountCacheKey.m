@@ -65,8 +65,15 @@ static NSInteger kAccountTypePrefix = 1000;
 
 - (NSString *)account
 {
-    return [NSString stringWithFormat:@"%@%@%@", self.homeAccountId.msidTrimmedString.lowercaseString,
-            keyDelimiter, self.environment.msidTrimmedString.lowercaseString];
+    if (self.homeAccountId.length && self.environment.length)
+    {
+        return [NSString stringWithFormat:@"%@%@%@", self.homeAccountId.msidTrimmedString.lowercaseString,
+                keyDelimiter, self.environment.msidTrimmedString.lowercaseString];
+    }
+    else
+    {
+        return nil;
+    }
 }
 
 - (NSString *)service

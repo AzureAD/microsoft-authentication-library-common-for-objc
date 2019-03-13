@@ -36,6 +36,7 @@
 #import "MSIDUserInformation.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDMacKeychainAccountCacheKey.h"
 
 /**
 This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -151,6 +152,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 @interface MSIDMacKeychainTokenCache ()
 
 @property (readwrite, nonnull) NSString *keychainGroup;
+@property (readwrite, nonnull) NSDictionary *defaultAccountQuery;
 
 @end
 
@@ -241,14 +243,27 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             }
         }
 
-        _keychainGroup = keychainGroup;
-        if (!_keychainGroup)
+        self.keychainGroup = keychainGroup;
+        if (!self.keychainGroup)
         {
             return nil;
         }
 
+        self.defaultAccountQuery = @{
+                                      // All account items are saved as generic passwords.
+                                      (id)kSecClass: (id)kSecClassGenericPassword,
+
+                                      // Add the access group as it's own field for query filtering.
+                                      // Since the attribute is an NSNumber, hash the string.
+                                      (id)kSecAttrCreator: [NSNumber numberWithUnsignedInt:(uint32_t)self.keychainGroup.hash],
+
+                                      // Add a marker for all cache items in the keychain for additional query filtering.
+                                      (id)kSecAttrLabel: s_defaultKeychainLabel
+
+                                      };
+
         MSID_LOG_INFO(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
-        MSID_LOG_INFO_PII(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", _keychainGroup);
+        MSID_LOG_INFO_PII(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", self.keychainGroup);
     }
 
     return self;
@@ -272,31 +287,27 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_VERBOSE(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
     MSID_LOG_VERBOSE_PII(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
 
-    if (!key.service)
+    if (!key.service.length)
     {
-        NSString *errorMessage = @"Set keychain item with invalid key (service is nil).";
-        MSID_LOG_WARN(context, @"%@", errorMessage);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-        return FALSE;
+        return [self setError:@"Set keychain item with invalid key (service is nil)."
+                       domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInternal error:error context:context];
+    }
+
+    if (!key.account.length)
+    {
+        return [self setError:@"Set keychain item with invalid key (account is nil)."
+                       domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInternal error:error context:context];
     }
 
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
     if (!jsonData)
     {
-        NSString *errorMessage = @"Failed to serialize account to json data.";
-        MSID_LOG_WARN(context, @"%@", errorMessage);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, (NSInteger)MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-        return FALSE;
+        return [self setError:@"Failed to serialize account to json data."
+                       domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInternal error:error context:context];
     }
 
-    NSMutableDictionary *query = [self defaultAccountQuery:key];
-    NSMutableDictionary *update = [self defaultAccountUpdate:key];
+    NSMutableDictionary *query = [self accountQueryForKey:key];
+    NSMutableDictionary *update = [self accountUpdateForKey:key];
     update[(id)kSecValueData] = jsonData;
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
@@ -310,13 +321,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     if (status != errSecSuccess)
     {
-        NSString *errorMessage = @"Failed to write account to keychain";
-        MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-        return FALSE;
+        return [self setError:@"Failed to write account to keychain"
+                       domain:MSIDKeychainErrorDomain errorCode:(NSInteger)status error:error context:context];
     }
 
     return TRUE;
@@ -341,13 +347,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     if (items.count > 1)
     {
-        if (error)
-        {
-            NSString *errorMessage = @"The token cache store for this resource contains more than one user";
-            MSID_LOG_WARN(context, @"%@", errorMessage);
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-
+        [self setError:@"The token cache store for this resource contains more than one user"
+                domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorCacheMultipleUsers error:error context:context];
         return nil;
     }
 
@@ -369,7 +370,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_VERBOSE(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type, [self keychainGroupLoggingName]);
     MSID_LOG_VERBOSE_PII(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", key.account, key.service, key.generic, key.type, self.keychainGroup);
 
-    NSMutableDictionary *query = [self defaultAccountQuery:key];
+    NSMutableDictionary *query = [self accountQueryForKey:key];
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
     // For this reason, we retrieve references to the items, then (below) use a second SecItemCopyMatching()
@@ -388,18 +389,14 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     }
     else if (status != errSecSuccess)
     {
-        NSString *errorMessage = @"Failed to read account from keychain";
-        MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
+        [self setError:@"Failed to read account from keychain"
+                domain:MSIDKeychainErrorDomain errorCode:(NSInteger)status error:error context:context];
         return nil;
     }
 
     NSArray *items = CFBridgingRelease(cfItems);
 
-    query = [self defaultAccountQuery:key];
+    query = [self accountQueryForKey:key];
     // Note: For efficiency, use kSecUseItemList to query the items returned above rather actually querying
     // the keychain again. With this second query we can set a specific kSecMatchLimit which lets us get the data
     // objects.
@@ -447,15 +444,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     if (!key)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil);
-        }
-
+        return [self setError:@"Key is nil."
+                       domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInvalidDeveloperParameter error:error context:context];
         return FALSE;
     }
 
-    NSMutableDictionary *query = [self defaultAccountQuery:key];
+    NSMutableDictionary *query = [self accountQueryForKey:key];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnAttributes] = @YES;
 
@@ -465,13 +459,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
-        NSString *errorMessage = @"Failed to remove multiple accounts from keychain";
-        MSID_LOG_WARN(context, @"%@ (%d)", errorMessage, status);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, (NSInteger)status, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-        return FALSE;
+        return [self setError:@"Failed to remove multiple accounts from keychain"
+                       domain:MSIDKeychainErrorDomain errorCode:(NSInteger)status error:error context:context];
     }
 
     return TRUE;
@@ -580,36 +569,31 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_TRACE;
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
-    // for now, this just deletes all accounts
-    return [self removeItemsWithAccountKey:[MSIDCacheKey new] context:context error:error];
+    // For now, this just deletes all accounts (an empty key matches all account items):
+    MSIDMacKeychainAccountCacheKey* key = [MSIDMacKeychainAccountCacheKey new];
+    return [self removeItemsWithAccountKey:key context:context error:error];
 }
 
 #pragma mark - Utilities
 
 // Get the basic/default keychain query dictionary for account items.
-- (NSMutableDictionary *)defaultAccountQuery:(MSIDCacheKey *)key
+// To support searching, the key properties may be partially or fully empty.
+- (NSMutableDictionary *)accountQueryForKey:(MSIDCacheKey *)key
 {
     MSID_TRACE;
-    NSMutableDictionary *query = [NSMutableDictionary new];
-    query[(id)kSecClass] = (id)kSecClassGenericPassword;
+    NSMutableDictionary *query = [self.defaultAccountQuery mutableCopy];
 
     if (key.account.length > 0)
     {
-        // Add the access group to the account attribute so it's part of the keychain item's primary key.
-        // <keychainGroup>-<homeAccountId>-<environment>
+        // Account attribute: keychainGroup>-<homeAccountId>-<environment>
+        // The access group is added to the account attribute so it's part of the keychain item's primary key.
         query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup, key.account];
     }
     if (key.service.length > 0)
     {
-        query[(id)kSecAttrService] = key.service; // <realm>
+        // Service attribute: <realm>
+        query[(id)kSecAttrService] = key.service;
     }
-
-    // Add the access group as it's own field for query filtering.
-    // Since the attribute is an NSNumber, hash the string.
-    query[(id)kSecAttrCreator] = [NSNumber numberWithUnsignedInt:(uint32_t)self.keychainGroup.hash];
-
-    // Add a marker for all cache items in the keychain for additional query filtering.
-    query[(id)kSecAttrLabel] = s_defaultKeychainLabel;
 
     return query;
 }
@@ -617,7 +601,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 // Get the basic/default keychain update dictionary for account items.
 // These are not _primary_ keys, but if they're present in the key object we
 // want to set them when adding/updating.
-- (NSMutableDictionary *)defaultAccountUpdate:(MSIDCacheKey *)key
+- (NSMutableDictionary *)accountUpdateForKey:(MSIDCacheKey *)key
 {
     MSID_TRACE;
     NSMutableDictionary *update = [NSMutableDictionary new];
@@ -638,10 +622,22 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 - (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error
                          context:(id<MSIDRequestContext>)context
 {
+    [self setError:@"Not Implemented" domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorUnsupportedFunctionality error:error context:context];
+}
+
+// Allocate an NEError, logging a warning.
+- (BOOL) setError:(NSString*)message
+           domain:(NSErrorDomain)domain
+        errorCode:(NSInteger)code
+            error:(NSError *_Nullable *_Nullable)error
+          context:(id<MSIDRequestContext>)context
+{
+    MSID_LOG_WARN(context, @"%@", message);
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, (NSInteger)MSIDErrorUnsupportedFunctionality, @"Not Implemented", nil, nil, nil, context.correlationId, nil);
+        *error = MSIDCreateError(domain, code, message, nil, nil, nil, context.correlationId, nil);
     }
+    return FALSE;
 }
 
 - (NSString *)keychainGroupLoggingName
@@ -651,7 +647,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         return s_defaultKeychainLabel;
     }
 
-    return _PII_NULLIFY(_keychainGroup);
+    return _PII_NULLIFY(self.keychainGroup);
 }
 
 @end
