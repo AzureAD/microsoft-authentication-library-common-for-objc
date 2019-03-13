@@ -33,6 +33,7 @@ NSString *const MSID_AUTO_ACQUIRE_TOKEN_SILENT_ACTION_IDENTIFIER     =   @"Acqui
 NSString *const MSID_AUTO_EXPIRE_AT_ACTION_IDENTIFIER                =   @"Expire access token";
 NSString *const MSID_AUTO_INVALIDATE_RT_ACTION_IDENTIFIER            =   @"Invalidate refresh token";
 NSString *const MSID_AUTO_REMOVE_ACCOUNT_ACTION_IDENTIFIER           =   @"Remove account";
+NSString *const MSID_AUTO_REMOVE_ACCOUNT_FROM_DEVICE_ACTION_IDENTIFIER =   @"Remove account from device";
 NSString *const MSID_AUTO_READ_ACCOUNTS_ACTION_IDENTIFIER            =   @"Read accounts";
 NSString *const MSID_AUTO_ACQUIRE_TOKEN_WITH_RT_IDENTIFIER           =   @"Acquire Token with RT";
 NSString *const MSID_AUTO_EMPTY_STRESS_TEST_ACTION_IDENTIFIER        =   @"Empty stress test";
