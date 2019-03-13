@@ -124,10 +124,13 @@
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
 
     self.additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
-    self.extendedExpiresOn = self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-    NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
-    [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-    self.additionalInfo = additionalServer;
+    if(self.additionalInfo)
+    {
+        self.extendedExpiresOn = self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+        NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
+        [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+        self.additionalInfo = additionalServer;
+    }
 
     self.accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     self.refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
@@ -170,9 +173,12 @@
 
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
 
-    NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
-    additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
-    [coder encodeObject:additionalServer forKey:@"additionalServer"];
+    if(self.additionalInfo)
+    {
+        NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
+        additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
+        [coder encodeObject:additionalServer forKey:@"additionalServer"];
+    }
 
     [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
 }
