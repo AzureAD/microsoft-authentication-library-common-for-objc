@@ -72,4 +72,62 @@
     XCTAssertTrue([set containsObject:@"SCOPE3"]);
 }
 
+- (void)testNormalizeOrderedSet_whenNotNormalizedInput_shouldReturnLowerCaseSet
+{
+    NSOrderedSet *inputSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @" LLL  ", @"xXx", nil];
+    NSOrderedSet *expectedResultSet = [NSOrderedSet orderedSetWithObjects:@"hhh", @"lll", @"xxx", nil];
+    NSOrderedSet *actualResultSet = [inputSet normalizedScopeSet];
+    XCTAssertEqualObjects(expectedResultSet, actualResultSet);
+}
+
+- (void)testMinusSet_whenNormalizeNO_andSecondSetEmpty_shouldReturnOriginalSet
+{
+    NSOrderedSet *inputSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @" LLL  ", @"xXx", nil];
+    NSOrderedSet *minusSet = [NSOrderedSet new];
+    NSOrderedSet *resultSet = [inputSet msidMinusOrderedSet:minusSet normalize:NO];
+    XCTAssertEqualObjects(inputSet, resultSet);
+}
+
+- (void)testMinusSet_whenNormalizeNO_andSecondSetContainsItems_shouldReturnModifiedSet
+{
+    NSOrderedSet *inputSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @" LLL  ", @"xXx", nil];
+    NSOrderedSet *minusSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @"xXx", nil];
+    NSOrderedSet *resultSet = [inputSet msidMinusOrderedSet:minusSet normalize:NO];
+    NSOrderedSet *expectedResultSet = [NSOrderedSet orderedSetWithObjects:@" LLL  ", nil];
+    XCTAssertEqualObjects(expectedResultSet, resultSet);
+}
+
+- (void)testMinusSet_whenNormalizeNO_andSecondSetContainsOtherItems_shouldReturnOriginalSet
+{
+    NSOrderedSet *inputSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @" LLL  ", @"xXx", nil];
+    NSOrderedSet *minusSet = [NSOrderedSet orderedSetWithObjects:@"llll", @"mmmm", nil];
+    NSOrderedSet *resultSet = [inputSet msidMinusOrderedSet:minusSet normalize:NO];
+    XCTAssertEqualObjects(inputSet, resultSet);
+}
+
+- (void)testMinusSet_whenNormalizeNO_andSecondSetContainsItemsWithDifferentCase_shouldReturnOriginalSet
+{
+    NSOrderedSet *inputSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @" LLL  ", @"xXx", nil];
+    NSOrderedSet *minusSet = [NSOrderedSet orderedSetWithObjects:@"hhh", @"xxx", nil];
+    NSOrderedSet *resultSet = [inputSet msidMinusOrderedSet:minusSet normalize:NO];
+    XCTAssertEqualObjects(inputSet, resultSet);
+}
+
+- (void)testMinusSet_whenNormalizeYES_andSecondSetContainsItems_shouldReturnModifiedSetWithOriginalCase
+{
+    NSOrderedSet *inputSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @" LLL  ", @"xXx", nil];
+    NSOrderedSet *minusSet = [NSOrderedSet orderedSetWithObjects:@"hhh", @" xXX ", nil];
+    NSOrderedSet *resultSet = [inputSet msidMinusOrderedSet:minusSet normalize:YES];
+    NSOrderedSet *expectedResultSet = [NSOrderedSet orderedSetWithObjects:@" LLL  ", nil];
+    XCTAssertEqualObjects(expectedResultSet, resultSet);
+}
+
+- (void)testMinusSet_whenNormalizeYES_andSecondSetContainsOtherItems_shouldReturnOriginalSet
+{
+    NSOrderedSet *inputSet = [NSOrderedSet orderedSetWithObjects:@"HHH", @" LLL  ", @"xXx", nil];
+    NSOrderedSet *minusSet = [NSOrderedSet orderedSetWithObjects:@" xYx ", nil];
+    NSOrderedSet *resultSet = [inputSet msidMinusOrderedSet:minusSet normalize:YES];
+    XCTAssertEqualObjects(inputSet, resultSet);
+}
+
 @end

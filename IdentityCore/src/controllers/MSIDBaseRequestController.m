@@ -52,8 +52,8 @@
 
         if (![_requestParameters validateParametersWithError:&parametersError])
         {
-            MSID_LOG_ERROR(self.requestParameters, @"Request parameters error %ld, %@", (long)parametersError.code, parametersError.domain);
-            MSID_LOG_ERROR_PII(self.requestParameters, @"Request parameters error %@", parametersError);
+            MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Request parameters error %ld, %@", (long)parametersError.code, parametersError.domain);
+            MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters,  @"Request parameters error %@", parametersError);
 
             if (error)
             {

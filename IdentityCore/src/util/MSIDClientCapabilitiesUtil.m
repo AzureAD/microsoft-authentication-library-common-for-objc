@@ -85,8 +85,9 @@ static NSString *kValuesClaim = @"values";
 
     if (!jsonData)
     {
-        MSID_LOG_ERROR(nil, @"Failed to convert capabilities into JSON");
-        MSID_LOG_ERROR_PII(nil, @"Failed to convert capabilities into JSON with error %@", error.description);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, nil, @"Failed to convert capabilities into JSON");
+        MSID_LOG_PII(MSIDLogLevelError, nil, nil, @"Failed to convert capabilities into JSON with error %@", error.description);
+        
         return nil;
     }
 

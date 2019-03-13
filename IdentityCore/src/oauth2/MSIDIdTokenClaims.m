@@ -91,9 +91,9 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
             NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:decoded options:0 error:&jsonError];
 
             if (jsonError)
-            {
-                MSID_LOG_WARN(nil, @"Failed to deserialize part of the id_token");
-                MSID_LOG_WARN_PII(nil, @"Failed to deserialize part of the id_token %@", jsonError);
+            { 
+                MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Failed to deserialize part of the id_token");
+                MSID_LOG_PII(MSIDLogLevelWarning, nil, nil, @"Failed to deserialize part of the id_token %@", jsonError);
 
                 if (error) *error = jsonError;
                 return nil;

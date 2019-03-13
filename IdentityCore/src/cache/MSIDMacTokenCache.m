@@ -466,8 +466,9 @@ return NO; \
     assert(key);
     
     MSID_LOG_INFO(context, @"Set item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Set item, key info (account: %@ service: %@)", key.account, key.service);
-    MSID_LOG_INFO_PII(context, @"Item info %@", item);
+    
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Set item, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Item info %@", item);
     
     if (!key)
     {
@@ -529,8 +530,8 @@ return NO; \
                                             context:(id<MSIDRequestContext>)context
                                               error:(__unused NSError **)error
 {
-    MSID_LOG_INFO(context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
 
     if (!self.cache)
     {

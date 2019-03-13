@@ -108,8 +108,8 @@
     NSString *message = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n", (long)httpResponse.statusCode];
     NSString *messagePII = [NSString stringWithFormat:@"Http error raised: Http Code: %ld \n%@", (long)httpResponse.statusCode, errorDescription];
     
-    MSID_LOG_WARN(context, @"%@", message);
-    MSID_LOG_VERBOSE_PII(context, @"%@", messagePII);
+    MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, context, @"%@", message);
+    MSID_LOG_PII(MSIDLogLevelWarning, nil, context, @"%@", messagePII);
     
     NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
     [additionalInfo setValue:httpResponse.allHeaderFields

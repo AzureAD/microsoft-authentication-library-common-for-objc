@@ -65,8 +65,8 @@
     MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:nil];
     if (!info || ![info isWorkPlaceJoined])
     {
-        MSID_LOG_INFO(context, @"Device is not workplace joined");
-        MSID_LOG_INFO_PII(context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
+        MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Device is not workplace joined");
+        MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
         
         // In other cert auth cases we send Cancel to ensure that we continue to get
         // auth challenges, however when we do that with WPJ we don't get the subsequent
@@ -80,8 +80,8 @@
         return YES;
     }
     
-    MSID_LOG_INFO(context, @"Responding to WPJ cert challenge");
-    MSID_LOG_INFO_PII(context, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Responding to WPJ cert challenge");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
     
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
                                                         certificates:@[(__bridge id)info.certificate]

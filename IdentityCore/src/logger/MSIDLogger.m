@@ -97,16 +97,20 @@ static NSDateFormatter *s_dateFormatter = nil;
     [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
 }
 
-- (void)logLevel:(MSIDLogLevel)level
-         context:(id<MSIDRequestContext>)context
-   correlationId:(NSUUID *)correlationId
-           isPII:(BOOL)isPii
-          format:(NSString *)format, ...
+- (void)logWithLevel:(MSIDLogLevel)level
+             context:(id<MSIDRequestContext>)context
+       correlationId:(NSUUID *)correlationId
+               isPII:(BOOL)isPii
+  ignoreIfPIIEnabled:(BOOL)ignoreIfPIIEnabled
+              format:(NSString *)format, ...
 {
     if (!format) return;
     if (isPii && !self.PiiLoggingEnabled) return;
     if (level > self.level) return;
     if (!self.callback && !self.NSLoggingEnabled) return;
+    // If this is not PII and PII is enabled
+    // we want to avoid logging double lines, so we pass an extra flag to tell logger to ignore this line
+    if (ignoreIfPIIEnabled && self.PiiLoggingEnabled && !isPii) return;
     
     va_list args;
     va_start(args, format);

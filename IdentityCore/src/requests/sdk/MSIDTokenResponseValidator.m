@@ -57,8 +57,8 @@
             *error = verificationError;
         }
 
-        MSID_LOG_WARN(nil, @"Unsuccessful token response, error %ld, %@", (long)verificationError.code, verificationError.domain);
-        MSID_LOG_WARN_CORR_PII(correlationID, @"Unsuccessful token response, error %@", verificationError);
+        MSID_LOG_NO_PII(MSIDLogLevelWarning, correlationID, nil, @"Unsuccessful token response, error %ld, %@", (long)verificationError.code, verificationError.domain);
+        MSID_LOG_PII(MSIDLogLevelWarning, correlationID, nil, @"Unsuccessful token response, error %@", verificationError);
 
         return nil;
     }
@@ -163,8 +163,8 @@
 
     if (!isSaved)
     {
-        MSID_LOG_ERROR_CORR(correlationID, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
-        MSID_LOG_ERROR_CORR_PII(correlationID, @"Failed to save tokens in cache. Error %@", savingError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, correlationID, nil, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, correlationID, nil, @"Failed to save tokens in cache. Error %@", savingError);
     }
     else
     {
@@ -217,7 +217,7 @@
 
     if (!isSaved)
     {
-        MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
     
