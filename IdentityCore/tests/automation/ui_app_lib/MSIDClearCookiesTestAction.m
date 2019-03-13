@@ -61,8 +61,6 @@
         [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
                                                    modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
                                                completionHandler:^{}];
-    } else {
-        // Fallback on earlier versions
     }
 
     MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
