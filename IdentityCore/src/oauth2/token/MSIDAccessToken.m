@@ -62,12 +62,12 @@ static NSUInteger s_expirationBuffer = 300;
     {
         return YES;
     }
-    
+
     if (![object isKindOfClass:MSIDAccessToken.class])
     {
         return NO;
     }
-    
+
     return [self isEqualToItem:(MSIDAccessToken *)object];
 }
 
@@ -88,7 +88,7 @@ static NSUInteger s_expirationBuffer = 300;
     {
         return NO;
     }
-    
+
     BOOL result = [super isEqualToItem:token];
     result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
@@ -104,11 +104,11 @@ static NSUInteger s_expirationBuffer = 300;
 - (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
 {
     self = [super initWithTokenCacheItem:tokenCacheItem];
-    
+
     if (self)
     {
         _expiresOn = tokenCacheItem.expiresOn;
-        _extendedExpireTime = tokenCacheItem.extendedExpiresOn;
+        _extendedExpiresOn = tokenCacheItem.extendedExpiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _enrollmentId = tokenCacheItem.enrollmentId;
         _accessToken = tokenCacheItem.secret;
@@ -118,16 +118,16 @@ static NSUInteger s_expirationBuffer = 300;
             MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
             return nil;
         }
-        
+
         _target = tokenCacheItem.target;
-        
+
         if (!_target)
         {
             MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing target field");
             return nil;
         }
     }
-    
+
     return self;
 }
 
@@ -135,7 +135,7 @@ static NSUInteger s_expirationBuffer = 300;
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.expiresOn = self.expiresOn;
-    cacheItem.extendedExpiresOn = self.extendedExpireTime;
+    cacheItem.extendedExpiresOn = self.extendedExpiresOn;
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
@@ -171,14 +171,14 @@ static NSUInteger s_expirationBuffer = 300;
 
 - (BOOL)isExtendedLifetimeValid
 {
-    NSDate *extendedExpiresOn = self.extendedExpireTime;
-    
+    NSDate *extendedExpiresOn = self.extendedExpiresOn;
+
     //extended lifetime is only valid if it contains an access token
     if (extendedExpiresOn && ![NSString msidIsStringNilOrBlank:self.accessToken])
     {
         return [extendedExpiresOn compare:[NSDate date]] == NSOrderedDescending;
     }
-    
+
     return NO;
 }
 

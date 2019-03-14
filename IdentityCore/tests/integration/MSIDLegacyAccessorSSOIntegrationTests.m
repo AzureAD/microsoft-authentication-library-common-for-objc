@@ -151,7 +151,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.displayableId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(accessToken.extendedExpireTime);
+    XCTAssertNil(accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.resource, @"graph resource");
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
@@ -210,7 +210,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.displayableId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(accessToken.extendedExpireTime);
+    XCTAssertNil(accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.resource, @"graph resource");
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
@@ -397,7 +397,7 @@
     XCTAssertEqualObjects(token.accountIdentifier.displayableId, @"upn@test.com");
     XCTAssertEqualObjects(token.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([token.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(token.extendedExpireTime);
+    XCTAssertNil(token.extendedExpiresOn);
     XCTAssertEqualObjects(token.resource, @"graph");
     XCTAssertEqual(token.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.windows.net/contoso.com");
@@ -465,7 +465,7 @@
     XCTAssertNil(token.accountIdentifier.displayableId);
     XCTAssertEqualObjects(token.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([token.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(token.extendedExpireTime);
+    XCTAssertNil(token.extendedExpiresOn);
     XCTAssertEqualObjects(token.resource, @"graph");
     XCTAssertEqual(token.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.windows.net/contoso.com");
@@ -1995,7 +1995,7 @@
          XCTAssertNil(error);
          [expectation fulfill];
      }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 
     // Save first token
@@ -2047,9 +2047,9 @@
 #pragma mark - Get App Metadata
 - (void)testSaveTokensWithFactory_whenMultiResourceFOCIResponse_savesAppMetadata
 {
-    
+
     MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponseWithAdditionalFields:@{@"foci": @"familyId"}];
-    
+
     NSError *error = nil;
     MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:configuration
@@ -2057,14 +2057,14 @@
                                                        factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
-    
+
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    
+
     NSArray<MSIDAppMetadataCacheItem *> *appMetadataEntries = [_otherAccessor getAppMetadataEntries:configuration
                                                                                             context:nil
                                                                                               error:nil];
-    
+
     XCTAssertEqual([appMetadataEntries count], 1);
     XCTAssertEqualObjects(appMetadataEntries[0].clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(appMetadataEntries[0].environment, configuration.authority.environment);

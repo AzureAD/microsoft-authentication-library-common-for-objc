@@ -102,7 +102,7 @@
         {
             MSIDErrorCode errorCode = response.oauthErrorCode;
             NSDictionary *additionalUserInfo = nil;
-            
+
             /* This is a special error case for True MAM,
              where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
             MSIDErrorCode oauthErrorCode = MSIDErrorCodeForOAuthError(response.error, MSIDErrorServerOauth);
@@ -112,7 +112,7 @@
                 errorCode = MSIDErrorServerProtectionPoliciesRequired;
                 additionalUserInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
             }
-            
+
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      errorCode,
                                      response.errorDescription,
@@ -122,7 +122,7 @@
                                      context.correlationId,
                                      additionalUserInfo);
         }
-        
+
         return result;
     }
 
@@ -164,12 +164,12 @@
     {
         return NO;
     }
-    
+
     accessToken.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accessToken.accountIdentifier.homeAccountId
                                                                                            legacyUserId:accessToken.accountIdentifier.displayableId
                                                                                                 context:nil
                                                                                                   error:nil];
-    accessToken.extendedExpireTime = response.extendedExpiresOnDate;
+    accessToken.extendedExpiresOn = response.extendedExpiresOnDate;
 
     return YES;
 }
@@ -212,14 +212,14 @@
     {
         return NO;
     }
-    
+
     BOOL result = [super fillAppMetadata:metadata fromResponse:response configuration:configuration];
-    
+
     if (!result)
     {
         return NO;
     }
-    
+
     metadata.familyId = response.familyId ? response.familyId : @"";
     return YES;
 }
