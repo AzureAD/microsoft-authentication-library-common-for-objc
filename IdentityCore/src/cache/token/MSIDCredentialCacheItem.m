@@ -173,6 +173,7 @@
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
     NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
     additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
+
     if ([additionalInfo count])
     {
         _additionalInfo = additionalInfo;
@@ -184,11 +185,16 @@
 - (NSDictionary *)jsonDictionary
 {
     MSID_TRACE;
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithDictionary:_additionalInfo];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 
     if (_json)
     {
         [dictionary addEntriesFromDictionary:_json];
+    }
+
+    if (_additionalAccountFields)
+    {
+        [dictionary addEntriesFromDictionary:_additionalAccountFields];
     }
 
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = _clientId;
@@ -215,7 +221,7 @@
     {
         return YES;
     }
-    
+
     NSOrderedSet *inputSet = [NSOrderedSet msidOrderedSetFromString:target normalize:YES];
     NSOrderedSet *tokenSet = [NSOrderedSet msidOrderedSetFromString:self.target normalize:YES];
 

@@ -120,7 +120,6 @@
     self.clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
     self.target = [coder decodeObjectOfClass:[NSString class] forKey:@"resource"];
     self.expiresOn = [coder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
-    self.extendedExpiresOn = [coder decodeObjectOfClass:[NSDate class] forKey:@"extendedExpiresOn"];
     self.cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
 
@@ -169,7 +168,6 @@
     [coder encodeObject:self.clientId forKey:@"clientId"];
     [coder encodeObject:self.target forKey:@"resource"];
     [coder encodeObject:self.expiresOn forKey:@"expiresOn"];
-    [coder encodeObject:self.extendedExpiresOn forKey:@"extendedExpiresOn"];
     [coder encodeObject:self.cachedAt forKey:@"cachedAt"];
     [coder encodeObject:self.familyId forKey:@"familyId"];
 
