@@ -231,8 +231,8 @@
 
     if (cacheError)
     {
-        MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %@", cacheError);
         if (error) *error = cacheError;
         return nil;
     }
@@ -250,8 +250,8 @@
 
     if (cacheError)
     {
-        MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %@", cacheError);
         if (error) *error = cacheError;
         return nil;
     }

@@ -169,16 +169,15 @@
     _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
 
     // Additional Info
-    
+
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
     NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
     additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
-    
     if ([additionalInfo count])
     {
         _additionalInfo = additionalInfo;
     }
-    
+
     return self;
 }
 

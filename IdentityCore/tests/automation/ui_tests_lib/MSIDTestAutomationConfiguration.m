@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDTestAutomationConfiguration.h"
+#import "MSIDAutomationTestRequest.h"
 
 @implementation MSIDTestAccount
 
@@ -149,6 +150,12 @@
 
 @end
 
+@interface MSIDTestAutomationConfiguration()
+
+@property (nonatomic) NSArray *registeredRedirectURIs;
+
+@end
+
 @implementation MSIDTestAutomationConfiguration
 
 - (BOOL)isEqualToConfiguration:(MSIDTestAutomationConfiguration *)configuration
@@ -203,13 +210,16 @@
     if (self)
     {
         _clientId = responseDict[@"AppID"];
-        _redirectUri = [self redirectURIFromArray:responseDict[@"RedirectURI"]];
+        _registeredRedirectURIs = responseDict[@"RedirectURI"];
+        _redirectUri = [self redirectUriWithPrefix:self.class.defaultRegisteredScheme];
 
         // TODO: why are there multiple resources?
         _resource = responseDict[@"Resource_ids"][0];
 
-        // TODO: fix this hack on server side, only one authority should be returned
-        _authorityHost = responseDict[@"Authority"][0];
+        _authority = responseDict[@"Authority"][0];
+        
+        NSURL *authorityURL = [NSURL URLWithString:_authority];
+        _authorityHost = [authorityURL msidHostWithPortIfNecessary];
 
         NSMutableArray *accounts = [NSMutableArray array];
 
@@ -236,6 +246,7 @@
         }
 
         _accounts = accounts;
+        _policies = responseDict[@"Policy"];
     }
 
     return self;
@@ -266,71 +277,17 @@
     return [self initWithJSONDictionary:responseDict];
 }
 
-- (NSString *)redirectURIFromArray:(NSArray *)redirectUris
+- (NSString *)redirectUriWithPrefix:(NSString *)redirectPrefix
 {
-    for (NSString *uri in redirectUris)
+    for (NSString *uri in _registeredRedirectURIs)
     {
-        if ([uri hasPrefix:@"x-msauth"])
+        if ([uri hasPrefix:redirectPrefix])
         {
             return uri;
         }
     }
-
-    return redirectUris[0];
-}
-
-- (NSDictionary *)config
-{
-    return [self configForAccount:nil];
-}
-
-- (NSDictionary *)configForAccount:(MSIDTestAccount *)account
-{
-    return @{@"authority" : [self authorityWithAccount:account],
-             @"client_id" : self.clientId,
-             @"redirect_uri" : self.redirectUri,
-             @"resource" : self.resource,
-             @"scopes": [self.resource stringByAppendingString:@"/.default"]
-             };
-}
-
-- (NSString *)authority
-{
-    return [self authorityWithAccount:nil];
-}
-
-- (NSString *)authorityWithAccount:(MSIDTestAccount *)account
-{
-    NSString *authorityHost = _authorityHost;
-
-    // TODO: lab is fixing this hack on the server side and should be returning the full authority or just always the host
-    if (account.homeTenantId)
-    {
-        return [authorityHost stringByAppendingString:account.targetTenantId];
-    }
-    else if (![authorityHost containsString:@"common"]
-             && ![authorityHost containsString:@"adfs"]
-             && (!account.targetTenantId || ![authorityHost containsString:account.targetTenantId]))
-    {
-        return [authorityHost stringByAppendingString:@"common"];
-    }
-
-    return _authorityHost;
-}
-
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
-{
-    NSMutableDictionary *configParams = [[self config] mutableCopy];
-    [configParams addEntriesFromDictionary:additionalConfiguration];
-    return configParams;
-}
-
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
-                                               account:(MSIDTestAccount *)account
-{
-    NSMutableDictionary *configParams = [[self configForAccount:account] mutableCopy];
-    [configParams addEntriesFromDictionary:additionalConfiguration];
-    return configParams;
+    
+    return _registeredRedirectURIs[0];
 }
 
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount
@@ -338,6 +295,25 @@
     NSMutableArray *accounts = [self.accounts mutableCopy];
     [accounts addObject:additionalAccount];
     self.accounts = accounts;
+}
+
+- (NSString *)authorityWithTenantId:(NSString *)tenantId
+{
+    return [NSString stringWithFormat:@"https://%@/%@", _authorityHost, tenantId];
+}
+
+#pragma mark - Class properties
+
+static NSString *s_defaultAppScheme = nil;
+
++ (void)setDefaultRegisteredScheme:(NSString *)defaultRegisteredScheme
+{
+    s_defaultAppScheme = defaultRegisteredScheme;
+}
+
++ (NSString *)defaultRegisteredScheme
+{
+    return s_defaultAppScheme;
 }
 
 @end

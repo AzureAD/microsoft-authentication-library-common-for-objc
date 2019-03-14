@@ -108,8 +108,8 @@
         
         if (!tokenResult)
         {
-            MSID_LOG_CORR_WARN(correlationID, @"Unable to save additional tokens with error %ld, %@", (long)additionalTokensError.code, additionalTokensError.domain);
-            MSID_LOG_WARN_CORR_PII(correlationID, @"Unable to save additional token with error %@", additionalTokensError);
+            MSID_LOG_NO_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save additional tokens with error %ld, %@", (long)additionalTokensError.code, additionalTokensError.domain);
+            MSID_LOG_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save additional token with error %@", additionalTokensError);
         }
     }
     

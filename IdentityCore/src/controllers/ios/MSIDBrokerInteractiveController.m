@@ -120,8 +120,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if (!brokerKey)
     {
-        MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve broker key with error %ld, %@", (long)brokerError.code, brokerError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve broker key with error %@", brokerError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve broker key with error %ld, %@", (long)brokerError.code, brokerError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve broker key with error %@", brokerError);
 
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
         completionBlockWrapper(nil, brokerError);

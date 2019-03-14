@@ -27,6 +27,10 @@
 MSIDTestAccountProvider MSIDTestAccountProviderWW = @"AzureCloud";
 /*! Black Forest is an AMSID account hosted in the Black Forest sovereign cloud (.de) */
 MSIDTestAccountProvider MSIDTestAccountProviderBlackForest = @"AzureGermanyCloud";
+/*! Us gov is an MSID account hosted in the US government sovereign cloud (.us) */
+MSIDTestAccountProvider MSIDTestAccountProviderAzureUSGov = @"AzureUSGovernment";
+/*! Mooncake is an MSID account hosted in the China sovereign cloud (.cn) */
+MSIDTestAccountProvider MSIDTestAccountProviderChinaCloud = @"AzureChinaCloud";
 /*! MSA is a Microsoft consumer account */
 MSIDTestAccountProvider MSIDTestAccountProviderMSA = @"MSA";
 /*! B2C is a Microsoft B2C account */
@@ -48,6 +52,7 @@ MSIDTestAccountProvider MSIDTestAccountProviderNTLM = @"NTLM";
 
 MSIDTestAccountFeature MSIDTestAccountFeatureMDMEnabled = @"mam";
 MSIDTestAccountFeature MSIDTestAccountFeatureMAMEnabled = @"mdm";
+MSIDTestAccountFeature MSIDTestAccountFeatureTrueMAMEnabled = @"truemam";
 MSIDTestAccountFeature MSIDTestAccountFeatureDeviceAuth = @"device";
 MSIDTestAccountFeature MSIDTestAccountFeatureMFAEnabled = @"mfa";
 MSIDTestAccountFeature MSIDTestAccountFeatureGuestUser = @"Guest";
@@ -64,7 +69,9 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
 - (BOOL)federated
 {
     if ([self.accountProvider isEqualToString:MSIDTestAccountProviderWW]
-        || [self.accountProvider isEqualToString:MSIDTestAccountProviderBlackForest])
+        || [self.accountProvider isEqualToString:MSIDTestAccountProviderBlackForest]
+        || [self.accountProvider isEqualToString:MSIDTestAccountProviderAzureUSGov]
+        || [self.accountProvider isEqualToString:MSIDTestAccountProviderChinaCloud])
     {
         return NO;
     }
@@ -92,9 +99,13 @@ MSIDAppVersion MSIDAppVersionOnPrem = @"OnPrem";
     {
         return @"mdmca";
     }
-    else if([self.accountFeatures containsObject:MSIDTestAccountFeatureMFAEnabled])
+    else if ([self.accountFeatures containsObject:MSIDTestAccountFeatureMFAEnabled])
     {
         return @"mfa";
+    }
+    else if ([self.accountFeatures containsObject:MSIDTestAccountFeatureTrueMAMEnabled])
+    {
+        return @"truemam";
     }
 
     return nil;
