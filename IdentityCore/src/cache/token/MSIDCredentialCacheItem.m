@@ -192,9 +192,9 @@
         [dictionary addEntriesFromDictionary:_json];
     }
 
-    if (_additionalAccountFields)
+    if (_additionalInfo)
     {
-        [dictionary addEntriesFromDictionary:_additionalAccountFields];
+        [dictionary addEntriesFromDictionary:_additionalInfo];
     }
 
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = _clientId;
