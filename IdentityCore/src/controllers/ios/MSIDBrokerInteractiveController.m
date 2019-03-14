@@ -38,6 +38,8 @@
 #import "MSIDAccount.h"
 #import "MSIDNotifications.h"
 #import "MSIDConstants.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDAuthority.h"
 
 @interface MSIDBrokerInteractiveController()
 
@@ -87,7 +89,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 #pragma mark - MSIDRequestControlling
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_INFO(self.requestParameters, @"Beginning broker flow.");
     
@@ -97,6 +99,26 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
     
+    NSString *upn = self.interactiveParameters.accountIdentifier.displayableId ?: self.interactiveParameters.loginHint;
+    
+    [self.interactiveParameters.authority resolveAndValidate:self.interactiveParameters.validateAuthority
+                                           userPrincipalName:upn
+                                                     context:self.interactiveParameters
+                                             completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
+                                                               __unused BOOL validated, NSError *error)
+     {
+         if (error)
+         {
+             completionBlock(nil, error);
+             return;
+         }
+         
+         [self acquireTokenImpl:completionBlock];
+     }];
+}
+
+- (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
+{
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_INFO(self.requestParameters, @"Broker flow finished.");
