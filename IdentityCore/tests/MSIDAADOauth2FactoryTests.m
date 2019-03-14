@@ -234,7 +234,7 @@
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
-    XCTAssertNotNil(token.extendedExpireTime);
+    XCTAssertNotNil(token.extendedExpiresOn);
     XCTAssertNil(token.enrollmentId);
 }
 
@@ -259,7 +259,7 @@
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
-    XCTAssertNotNil(token.extendedExpireTime);
+    XCTAssertNotNil(token.extendedExpiresOn);
     XCTAssertEqualObjects(token.enrollmentId, @"enrollmentId");
     
     [self setUpEnrollmentIdsCache:YES];
