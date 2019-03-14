@@ -127,7 +127,7 @@
     if(self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY])
     {
         self.extendedExpiresOn = self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-        NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
+        NSMutableDictionary *additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
         [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
         self.additionalInfo = additionalServer;
     }
@@ -173,7 +173,7 @@
 
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
 
-    if(self.extendedExpiresOn)
+    if (self.extendedExpiresOn)
     {
         NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
         additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
