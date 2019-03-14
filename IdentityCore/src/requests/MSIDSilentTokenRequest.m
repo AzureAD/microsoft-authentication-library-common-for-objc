@@ -79,7 +79,7 @@
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
                                                  context:self.requestParameters
-                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
+                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, 
                                          __unused BOOL validated, NSError *error)
      {
          if (error)
@@ -97,7 +97,7 @@
     if (!self.forceRefresh && ![self.requestParameters.claims count])
     {
         NSError *accessTokenError = nil;
-
+        
         MSID_LOG_INFO(self.requestParameters, @"Looking for access token...");
         MSIDAccessToken *accessToken = [self accessTokenWithError:&accessTokenError];
 
@@ -111,11 +111,11 @@
         {
             MSID_LOG_INFO(self.requestParameters, @"Found valid access token.");
             NSError *rtError = nil;
-
+            
             // Trying to find FRT first.
             MSID_LOG_INFO(self.requestParameters, @"Looking for family refresh token...");
             id<MSIDRefreshableToken> refreshableToken = [self familyRefreshTokenWithError:&rtError];
-
+            
             if (!refreshableToken)
             {
                 MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Didn't find family refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
@@ -125,13 +125,13 @@
             {
                 MSID_LOG_INFO(self.requestParameters, @"Found family refresh token.");
             }
-
+            
             // If no FRT, get refresh token instead.
             if (!refreshableToken)
             {
                 MSID_LOG_INFO(self.requestParameters, @"Looking for app refresh token...");
                 refreshableToken = [self appRefreshTokenWithError:&rtError];
-
+                
                 if (!refreshableToken)
                 {
                     MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Didn't find app refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
@@ -161,7 +161,7 @@
         if (accessToken && accessToken.isExtendedLifetimeValid)
         {
             MSID_LOG_INFO(self.requestParameters, @"Access token has expired, but it is long-lived token.");
-
+            
             self.extendedLifetimeAccessToken = accessToken;
         }
         else if (accessToken)
@@ -274,12 +274,12 @@
     if (!multiResourceRefreshToken)
     {
         MSID_LOG_INFO(self.requestParameters, @"Refresh token wasn't found, user interaction is required.");
-
+        
         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", nil, nil, nil, self.requestParameters.correlationId, nil);
         completionBlock(nil, interactionError);
         return;
     }
-
+    
     MSID_LOG_INFO(self.requestParameters, @"Found Refresh token, using it...");
     [self refreshAccessToken:multiResourceRefreshToken
              completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
@@ -357,7 +357,7 @@
                          completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_INFO(self.requestParameters, @"Acquiring Access token via Refresh token...");
-
+    
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
 
@@ -369,7 +369,7 @@
 
             if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
-                NSTimeInterval expiresIn = [self.extendedLifetimeAccessToken.extendedExpiresOn timeIntervalSinceNow];
+                NSTimeInterval expiresIn = [self.extendedLifetimeAccessToken.extendedExpireTime timeIntervalSinceNow];
                 MSID_LOG_INFO(self.requestParameters, @"Server unavailable, using long-lived access token, which expires in %f", expiresIn);
                 NSError *cacheError = nil;
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken
@@ -380,7 +380,7 @@
                 completionBlock(tokenResult, cacheError);
                 return;
             }
-
+            
             MSID_LOG_INFO(self.requestParameters, @"Failed to acquire Access token via Refresh token.");
 
             completionBlock(nil, error);
@@ -416,10 +416,10 @@
             if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
             {
                 MSID_LOG_INFO(self.requestParameters, @"Received Protection Policy Required error.");
-
+                
                 NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
                 updatedUserInfo[MSIDHomeAccountIdkey] = self.requestParameters.accountIdentifier.homeAccountId;
-
+                
                 validationError = MSIDCreateError(validationError.domain,
                                                   validationError.code,
                                                   nil,
@@ -429,7 +429,7 @@
                                                   nil,
                                                   updatedUserInfo);
             }
-
+            
             completionBlock(nil, validationError);
             return;
         }

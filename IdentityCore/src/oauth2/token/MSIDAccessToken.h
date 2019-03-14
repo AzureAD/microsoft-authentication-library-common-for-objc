@@ -29,7 +29,7 @@
 }
 
 @property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
+@property (readwrite) NSDate *extendedExpireTime;
 @property (readwrite) NSDate *cachedAt;
 @property (readwrite) NSString *accessToken;
 @property (readwrite) NSString *enrollmentId;
