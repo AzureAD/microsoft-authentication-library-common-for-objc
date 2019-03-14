@@ -64,7 +64,7 @@
     _testAccountKey = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:_testAccount.homeAccountId
                                                                         environment:_testAccount.environment
                                                                               realm:_testAccount.realm
-                                                                               type:@(_testAccount.accountType)];
+                                                                               type:_testAccount.accountType];
     _testAccountKey.username = _testAccount.username;
 
 }
@@ -127,11 +127,11 @@
     MSIDMacKeychainAccountCacheKey *keyA = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountA.homeAccountId
                                                                                              environment:accountA.environment
                                                                                                    realm:accountA.realm
-                                                                                                    type:@(accountA.accountType)];
+                                                                                                    type:accountA.accountType];
     MSIDMacKeychainAccountCacheKey *keyB = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountB.homeAccountId
                                                                                              environment:accountB.environment
                                                                                                    realm:accountB.realm
-                                                                                                    type:@(accountB.accountType)];
+                                                                                                    type:accountB.accountType];
     keyA.username = accountA.username;
     keyB.username = accountB.username;
 

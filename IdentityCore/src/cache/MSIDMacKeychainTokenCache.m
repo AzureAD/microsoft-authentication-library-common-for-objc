@@ -46,10 +46,10 @@ There are three types of items stored:
   3) Secret non-shareable artifacts (access tokens, ID tokens)
 
 In addition to the basic account & credential properties, the following definitions are used below:
-  <account_id>           :  “<home_account_id>-<environment>”
-  <credential_id>        : “<credential_type>-<client_id>-<realm>”
-  <access_group>         : e.g. "com.microsoft.officecache"
-  <authority_account_id> : e.g. "joe@contoso.com"
+  <account_id>    :  “<home_account_id>-<environment>”
+  <credential_id> : “<credential_type>-<client_id>-<realm>”
+  <access_group>  : e.g. "com.microsoft.officecache"
+  <username>      : e.g. "joe@contoso.com"
 
 Below, attributes marked with "*" are primary keys for the keychain.
 For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
@@ -87,22 +87,22 @@ ATTRIBUTE         VALUE
 *kSecClass        kSecClassGenericPassword
 *kSecAttrAccount  <access_group>-<account_id>
 *kSecAttrService  <realm>
-kSecAttrGeneric   <authority_account_id>
+kSecAttrGeneric   <username>
 kSecAttrCreator   A hash of <access_group>
-kSecAttrLabel     "Microsoft Identity Universal Storage"
+kSecAttrLabel     "Microsoft Credentials"
 kSecValueData     JSON data (UTF8 encoded) – account object
 
 Type 2 JSON Data Example:
 {
-  "home_account_id": "uid.utid",
+  "home_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
   "environment": "login.microsoftonline.com",
-  "realm": "contoso.com",
+  "realm": "f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
   "authority_type": "MSSTS",
-  "username": "username",
-  "given_name": "First name",
-  "family_name": "Last name",
-  "name": "test user",
-  "local_account_id": "0000004-0000004-000004",
+  "username": "testuser@contoso.com",
+  "given_name": "First Name",
+  "family_name": "Last Name",
+  "name": "Test Username",
+  "local_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084",
   "alternative_account_id": "alt",
   "test": "test2",
   "test3": "test4"
@@ -293,23 +293,23 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (!key.service.length)
     {
         [self createError:@"Set keychain item with invalid key (service is nil)."
-                domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInternal error:error context:context];
-        return FALSE;
+                domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
+        return NO;
     }
 
     if (!key.account.length)
     {
         [self createError:@"Set keychain item with invalid key (account is nil)."
-                   domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInternal error:error context:context];
-        return FALSE;
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
+        return NO;
     }
 
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
     if (!jsonData)
     {
         [self createError:@"Failed to serialize account to json data."
-                   domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInternal error:error context:context];
-        return FALSE;
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
+        return NO;
     }
 
     NSMutableDictionary *query = [self accountQueryForKey:key];
@@ -328,11 +328,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (status != errSecSuccess)
     {
         [self createError:@"Failed to write account to keychain"
-                   domain:MSIDKeychainErrorDomain errorCode:(NSInteger)status error:error context:context];
-        return FALSE;
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return NO;
     }
 
-    return TRUE;
+    return YES;
 }
 
 // Read a single account from the macOS keychain cache.
@@ -355,7 +355,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (items.count > 1)
     {
         [self createError:@"The token cache store for this resource contains more than one user"
-                   domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorCacheMultipleUsers error:error context:context];
+                   domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
         return nil;
     }
 
@@ -397,7 +397,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     else if (status != errSecSuccess)
     {
         [self createError:@"Failed to read account from keychain"
-                   domain:MSIDKeychainErrorDomain errorCode:(NSInteger)status error:error context:context];
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return nil;
     }
 
@@ -452,13 +452,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (!key)
     {
         [self createError:@"Key is nil."
-                   domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorInvalidDeveloperParameter error:error context:context];
-        return FALSE;
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInvalidDeveloperParameter error:error context:context];
+        return NO;
     }
 
     NSMutableDictionary *query = [self accountQueryForKey:key];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
-    query[(id)kSecReturnAttributes] = @YES;
 
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
@@ -467,11 +466,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
         [self createError:@"Failed to remove multiple accounts from keychain"
-                   domain:MSIDKeychainErrorDomain errorCode:(NSInteger)status error:error context:context];
-        return FALSE;
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return NO;
     }
 
-    return TRUE;
+    return YES;
 }
 
 #pragma mark - Credentials
@@ -484,7 +483,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             error:(__unused NSError **)error
 {
     [self createUnimplementedError:error context:context];
-    return FALSE;
+    return NO;
 }
 
 // Read a single credential from the macOS keychain cache.
@@ -515,7 +514,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                           error:(__unused NSError **)error
 {
     [self createUnimplementedError:error context:context];
-    return FALSE;
+    return NO;
 }
 
 #pragma mark - App Metadata
@@ -528,7 +527,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                   error:(__unused NSError **)error
 {
     [self createUnimplementedError:error context:context];
-    return FALSE;
+    return NO;
 }
 
 // Read MSIDAppMetadataCacheItem (clientId/environment/familyId) items from the macOS keychain cache.
@@ -547,7 +546,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                              error:(NSError **)error
 {
     [self createUnimplementedError:error context:context];
-    return FALSE;
+    return NO;
 }
 
 #pragma mark - Wipe Info
@@ -557,7 +556,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                           error:(NSError **)error
 {
     [self createUnimplementedError:error context:context];
-    return FALSE;
+    return NO;
 }
 
 // Read information about the app which most-recently removed a token.
@@ -630,7 +629,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 - (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error
                          context:(id<MSIDRequestContext>)context
 {
-    [self createError:@"Not Implemented"domain:MSIDErrorDomain errorCode:(NSInteger)MSIDErrorUnsupportedFunctionality error:error context:context];
+    [self createError:@"Not Implemented"domain:MSIDErrorDomain errorCode:MSIDErrorUnsupportedFunctionality error:error context:context];
 }
 
 // Allocate an NEError, logging a warning.

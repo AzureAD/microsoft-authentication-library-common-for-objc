@@ -31,16 +31,16 @@ static NSInteger kAccountTypePrefix = 1000;
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
                           environment:(NSString *)environment
                                 realm:(NSString *)realm
-                                 type:(nullable NSNumber *)type
+                                 type:(MSIDAccountType)type
 {
     self = [super init];
     
     if (self)
     {
-        _homeAccountId = homeAccountId;
-        _environment = environment;
-        _realm = realm;
-        _accountType = type;
+        self.homeAccountId = homeAccountId;
+        self.environment = environment;
+        self.realm = realm;
+        self.accountType = type;
     }
     
     return self;
@@ -53,9 +53,9 @@ static NSInteger kAccountTypePrefix = 1000;
 
 - (NSNumber *)type
 {
-    if (_accountType)
+    if (self.accountType)
     {
-        return @([_accountType integerValue] + kAccountTypePrefix);
+        return @(self.accountType + kAccountTypePrefix);
     }
     else
     {

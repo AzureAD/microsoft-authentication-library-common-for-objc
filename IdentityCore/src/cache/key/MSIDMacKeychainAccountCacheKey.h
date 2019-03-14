@@ -22,23 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDCacheKey.h"
+#import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDAccountType.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDMacKeychainAccountCacheKey : MSIDCacheKey
-
-@property (nullable, nonatomic) NSString *homeAccountId;
-@property (nullable, nonatomic) NSString *environment;
-@property (nullable, nonatomic) NSString *username;
-@property (nullable, nonatomic) NSString *realm;
-@property (nullable, nonatomic) NSNumber *accountType;
-
-- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
-                          environment:(NSString *)environment
-                                realm:(NSString *)realm
-                                 type:(nullable NSNumber *)type;
+@interface MSIDMacKeychainAccountCacheKey : MSIDDefaultAccountCacheKey
 
 @end
-
-NS_ASSUME_NONNULL_END
