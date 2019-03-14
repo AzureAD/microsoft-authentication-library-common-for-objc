@@ -28,29 +28,6 @@ static NSInteger kAccountTypePrefix = 1000;
 
 @implementation MSIDMacKeychainAccountCacheKey
 
-- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
-                          environment:(NSString *)environment
-                                realm:(NSString *)realm
-                                 type:(MSIDAccountType)type
-{
-    self = [super init];
-    
-    if (self)
-    {
-        self.homeAccountId = homeAccountId;
-        self.environment = environment;
-        self.realm = realm;
-        self.accountType = type;
-    }
-    
-    return self;
-}
-
-- (NSData *)generic
-{
-    return [self.username.msidTrimmedString.lowercaseString dataUsingEncoding:NSUTF8StringEncoding];
-}
-
 - (NSNumber *)type
 {
     if (self.accountType)
@@ -74,11 +51,6 @@ static NSInteger kAccountTypePrefix = 1000;
     {
         return nil;
     }
-}
-
-- (NSString *)service
-{
-    return self.realm.msidTrimmedString.lowercaseString;
 }
 
 @end
