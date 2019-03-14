@@ -31,7 +31,9 @@
 // Convenience macro for obscuring PII in log macros that don't allow PII.
 #define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-null)" : @"(null)"
 
-#define MSID_LOG(_LVL, _CORRELATION, _CTX, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logLevel:_LVL context:_CTX correlationId:_CORRELATION isPII:_PII format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG(_LVL, _CORRELATION, _CTX, _PII, _IGNORE_IF_PIIENABLED, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CTX correlationId:_CORRELATION isPII:_PII ignoreIfPIIEnabled:_IGNORE_IF_PIIENABLED format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG_PII(_LVL, _CORRELATION, _CTX, _FMT, ...) MSID_LOG(_LVL, _CORRELATION, _CTX, YES, NO, _FMT, ##__VA_ARGS__)
+#define MSID_LOG_NO_PII(_LVL, _CORRELATION, _CTX, _FMT, ...) MSID_LOG(_LVL, _CORRELATION, _CTX, NO, YES, _FMT, ##__VA_ARGS__)
 
 /*
  Macros that take context should be prefered as context provides both log component and correlationId.
@@ -41,52 +43,38 @@
  */
 
 #define MSID_LOG_ERROR(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelError, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
+
 
 #define MSID_LOG_ERROR_CORR(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelError, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_ERROR_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_ERROR_CORR_PII(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelError, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_WARN(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_CORR_WARN(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelWarning, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_WARN_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_WARN_CORR_PII(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelWarning, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_INFO(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelInfo, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_INFO_CORR(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_INFO_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_INFO_CORR_PII(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelInfo, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_VERBOSE(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, NO, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_VERBOSE_CORR(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, NO, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_LOG_VERBOSE_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_VERBOSE_CORR_PII(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
+MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
 
 #define MSID_TRACE // Unused
 
@@ -101,11 +89,12 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, YES, _fmt, ##__VA_ARGS__)
 
  */
 
-- (void)logLevel:(MSIDLogLevel)level
-         context:(id<MSIDRequestContext>)context
-   correlationId:(NSUUID *)correlationId
-           isPII:(BOOL)isPii
-          format:(NSString *)format, ... NS_FORMAT_FUNCTION(5, 6);
+- (void)logWithLevel:(MSIDLogLevel)level
+             context:(id<MSIDRequestContext>)context
+       correlationId:(NSUUID *)correlationId
+               isPII:(BOOL)isPii
+  ignoreIfPIIEnabled:(BOOL)ignoreIfPIIEnabled
+              format:(NSString *)format, ... NS_FORMAT_FUNCTION(6, 7);
 
 - (void)logToken:(NSString *)token
        tokenType:(NSString *)tokenType

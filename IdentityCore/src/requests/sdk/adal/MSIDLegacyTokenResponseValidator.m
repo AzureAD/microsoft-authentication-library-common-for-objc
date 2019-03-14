@@ -54,8 +54,8 @@
           correlationID:(NSUUID *)correlationID
                   error:(NSError **)error
 {
-    MSID_LOG_VERBOSE_CORR(correlationID, @"Checking returned account");
-    MSID_LOG_VERBOSE_CORR_PII(correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account");
+    MSID_LOG_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
     
     switch (accountIdentifier.legacyAccountIdentifierType)
     {

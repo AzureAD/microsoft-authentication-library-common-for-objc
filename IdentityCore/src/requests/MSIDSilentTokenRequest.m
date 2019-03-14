@@ -109,18 +109,38 @@
 
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer])
         {
-            MSID_LOG_INFO(self.requestParameters, @"Found valid access token, looking for refresh token...");
+            MSID_LOG_INFO(self.requestParameters, @"Found valid access token.");
             NSError *rtError = nil;
-            id<MSIDRefreshableToken> refreshableToken = [self appRefreshTokenWithError:&rtError];
-
+            
+            // Trying to find FRT first.
+            MSID_LOG_INFO(self.requestParameters, @"Looking for family refresh token...");
+            id<MSIDRefreshableToken> refreshableToken = [self familyRefreshTokenWithError:&rtError];
+            
             if (!refreshableToken)
             {
-                MSID_LOG_WARN(self.requestParameters, @"Didn't find app refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
-                MSID_LOG_WARN_PII(self.requestParameters, @"Didn't find app refresh token with error: %@", rtError);
+                MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Didn't find family refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
+                MSID_LOG_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Didn't find family refresh token with error: %@", rtError);
             }
             else
             {
-                MSID_LOG_INFO(self.requestParameters, @"Found refresh token.");
+                MSID_LOG_INFO(self.requestParameters, @"Found family refresh token.");
+            }
+            
+            // If no FRT, get refresh token instead.
+            if (!refreshableToken)
+            {
+                MSID_LOG_INFO(self.requestParameters, @"Looking for app refresh token...");
+                refreshableToken = [self appRefreshTokenWithError:&rtError];
+                
+                if (!refreshableToken)
+                {
+                    MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Didn't find app refresh token with error: %ld, %@", (long)rtError.code, rtError.domain);
+                    MSID_LOG_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Didn't find app refresh token with error: %@", rtError);
+                }
+                else
+                {
+                    MSID_LOG_INFO(self.requestParameters, @"Found app refresh token.");
+                }
             }
 
             NSError *resultError = nil;
@@ -165,8 +185,8 @@
 
     if (frtCacheError)
     {
-        MSID_LOG_ERROR(self.requestParameters, @"Failed to read family refresh token with error %ld, %@", (long)frtCacheError.code, frtCacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to read family refresh token with error %@", frtCacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to read family refresh token with error %ld, %@", (long)frtCacheError.code, frtCacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to read family refresh token with error %@", frtCacheError);
         completionBlock(nil, frtCacheError);
         return;
     }
@@ -184,8 +204,8 @@
 
         if (appRTCacheError)
         {
-            MSID_LOG_ERROR(self.requestParameters, @"Failed to read app spefici refresh token with error %ld, %@", (long)appRTCacheError.code, appRTCacheError.domain);
-            MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to read app specific refresh token with error %@", appRTCacheError);
+            MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to read app spefici refresh token with error %ld, %@", (long)appRTCacheError.code, appRTCacheError.domain);
+            MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to read app specific refresh token with error %@", appRTCacheError);
             completionBlock(nil, appRTCacheError);
             return;
         }
@@ -213,16 +233,16 @@
 
                          if (msidError)
                          {
-                             MSID_LOG_ERROR(self.requestParameters, @"Failed to update familyID cache status with error %ld, %@", (long)error.code, error.domain);
-                             MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to update familyID cache status with error %@", error);
+                             MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to update familyID cache status with error %ld, %@", (long)error.code, error.domain);
+                             MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to update familyID cache status with error %@", error);
                          }
 
                          MSIDBaseToken<MSIDRefreshableToken> *appRefreshToken = [self appRefreshTokenWithError:&msidError];
 
                          if (msidError)
                          {
-                             MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve multi resource refresh token with error %ld, %@", (long)error.code, error.domain);
-                             MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve multi resource refresh token with error %@", error);
+                             MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve multi resource refresh token with error %ld, %@", (long)error.code, error.domain);
+                             MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve multi resource refresh token with error %@", error);
                              completionBlock(nil, msidError);
                              return;
                          }
@@ -385,8 +405,8 @@
 
             if (!result)
             {
-                MSID_LOG_WARN(self.requestParameters, @"Failed to remove invalid refresh token with error %ld, %@", (long)removalError.code, removalError.domain);
-                MSID_LOG_WARN_PII(self.requestParameters, @"Failed to remove invalid refresh token with error %@", removalError);
+                MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Failed to remove invalid refresh token with error %ld, %@", (long)removalError.code, removalError.domain);
+                MSID_LOG_PII(MSIDLogLevelWarning, nil, self.requestParameters, @"Failed to remove invalid refresh token with error %@", removalError);
             }
         }
 

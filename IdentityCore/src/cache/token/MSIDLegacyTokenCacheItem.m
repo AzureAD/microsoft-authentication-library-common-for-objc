@@ -122,7 +122,16 @@
     self.expiresOn = [coder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
     self.cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
+
     self.additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
+    if(self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY])
+    {
+        self.extendedExpiresOn = self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+        NSMutableDictionary *additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
+        [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+        self.additionalInfo = additionalServer;
+    }
+
     self.accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     self.refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     self.secret = self.accessToken ? self.accessToken : self.refreshToken;
@@ -163,7 +172,18 @@
     [coder encodeObject:self.familyId forKey:@"familyId"];
 
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
-    [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
+
+    if (self.extendedExpiresOn)
+    {
+        NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
+        additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
+        [coder encodeObject:additionalServer forKey:@"additionalServer"];
+    }
+    else
+    {
+        [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
+    }
+
     [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
 }
 
@@ -207,8 +227,8 @@
 
     if (error)
     {
-        MSID_LOG_WARN(nil, @"Invalid ID token");
-        MSID_LOG_WARN_PII(nil, @"Invalid ID token, error %@", error.localizedDescription);
+        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Invalid ID token");
+        MSID_LOG_PII(MSIDLogLevelWarning, nil, nil,  @"Invalid ID token, error %@", error.localizedDescription);
     }
 
     return _idTokenClaims;

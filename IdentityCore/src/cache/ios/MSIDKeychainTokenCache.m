@@ -61,8 +61,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
     
-    MSID_LOG_INFO(nil, @"Setting default keychain group.");
-    MSID_LOG_INFO_PII(nil, @"Setting default keychain group to %@", defaultKeychainGroup);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Setting default keychain group.");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Setting default keychain group to %@", defaultKeychainGroup);
     
     if ([defaultKeychainGroup isEqualToString:s_defaultKeychainGroup])
     {
@@ -128,8 +128,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                               (id)kSecAttrAccessGroup : self.keychainGroup,
                               (id)kSecAttrAccount : @"TokenWipe"};
     
-    MSID_LOG_INFO(nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
-    MSID_LOG_INFO_PII(nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", _keychainGroup);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", _keychainGroup);
     
     return self;
 }
@@ -410,8 +410,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
-    MSID_LOG_VERBOSE_PII(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
     
     if (!key)
     {
@@ -471,8 +471,10 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     MSID_LOG_INFO_PII(context, @"Full wipe info: %@", wipeInfo);
     
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
-    MSID_LOG_VERBOSE(context, @"Trying to update wipe info...");
-    MSID_LOG_VERBOSE_PII(context, @"Wipe query: %@", self.defaultWipeQuery);
+    
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Trying to update wipe info...");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context,@"Wipe query: %@", self.defaultWipeQuery);
+    
     OSStatus status = SecItemUpdate((CFDictionaryRef)self.defaultWipeQuery, (CFDictionaryRef)@{ (id)kSecValueData:wipeData});
     MSID_LOG_VERBOSE(context, @"Update wipe info status: %d", (int)status);
     if (status == errSecItemNotFound)
@@ -507,8 +509,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     [query removeObjectForKey:(id)kSecAttrService];
     
     CFTypeRef data = nil;
-    MSID_LOG_VERBOSE(context, @"Trying to get wipe info...");
-    MSID_LOG_VERBOSE_PII(context, @"Wipe query: %@", self.defaultWipeQuery);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Trying to get wipe info...");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Wipe query: %@", self.defaultWipeQuery);
+    
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
     MSID_LOG_VERBOSE(context, @"Get wipe info status: %d", (int)status);
     
@@ -612,8 +615,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type, [self keychainGroupLoggingName]);
-    MSID_LOG_VERBOSE_PII(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", key.account, key.service, key.generic, key.type, self.keychainGroup);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type, [self keychainGroupLoggingName]);
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", key.account, key.service, key.generic, key.type, self.keychainGroup);
     
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     if (key.service)
@@ -667,8 +670,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 {
     assert(key);
     
-    MSID_LOG_VERBOSE(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
-    MSID_LOG_VERBOSE_PII(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
     
     if (!key.service)
     {
