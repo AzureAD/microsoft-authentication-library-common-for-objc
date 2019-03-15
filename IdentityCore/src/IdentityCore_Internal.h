@@ -25,8 +25,8 @@
 //
 //------------------------------------------------------------------------------
 
-#import "NSOrderSet+MSIDExtensions.h"
-#import "NSString+TelemetryExtensions.h"
+#import "NSOrderedSet+MSIDExtensions.h"
+#import "NSString+MSIDTelemetryExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
@@ -60,5 +60,5 @@
  * https://medium.com/ios-os-x-development/categories-in-static-libraries-78e41f8ddb96#.aedfl1kl0
  */
 __attribute__((used)) static void importCategories() {
-  [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@ %@ %@ %@ %@", NSOrderSetMSIDExtensionsCategory, NSStringMSIDTelemetryExtensionsCategory, NSDictionaryMSIDExtensionsCategory, NSMutableDictionaryMSIDExtensionsCategory, NSStringMSIDExtensionsCategory, NSURLMSIDExtensionsCategory, NSDateMSIDExtensionsCategory, NSDataMSIDExtensionsCategory, NSDataJWTCategory, NSErrorMSIDExtensionsCategory];
+  [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@ %@ %@ %@ %@", NSOrderedSetMSIDExtensionsCategory, NSStringMSIDTelemetryExtensionsCategory, NSDictionaryMSIDExtensionsCategory, NSMutableDictionaryMSIDExtensionsCategory, NSStringMSIDExtensionsCategory, NSURLMSIDExtensionsCategory, NSDateMSIDExtensionsCategory, NSDataMSIDExtensionsCategory, NSDataJWTCategory, NSErrorMSIDExtensionsCategory];
 }

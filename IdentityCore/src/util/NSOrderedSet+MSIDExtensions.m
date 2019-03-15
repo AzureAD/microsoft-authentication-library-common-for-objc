@@ -28,7 +28,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 
-NSString *NSOrderSetMSIDExtensionsCategory;
+NSString *NSOrderedSetMSIDExtensionsCategory;
 
 @implementation NSOrderedSet (MSIDExtensions)
 

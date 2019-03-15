@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *NSErrorMSIDExtensionsCategory;
+extern NSString *_Nullable NSErrorMSIDExtensionsCategory;
 
 typedef NS_OPTIONS(NSUInteger, MSIDErrorFilteringOptions)
 {
