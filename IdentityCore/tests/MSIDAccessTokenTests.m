@@ -251,7 +251,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"test3": @"test4"};
     XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
-    XCTAssertEqualObjects(token.extendedExpireTime, extExpireTime);
+    XCTAssertEqualObjects(token.extendedExpiresOn, extExpireTime);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
@@ -293,7 +293,7 @@
     XCTAssertEqualObjects(token.clientId, @"client id");
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"test3": @"test4"};
     XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
-    XCTAssertEqualObjects(token.extendedExpireTime, extExpireTime);
+    XCTAssertEqualObjects(token.extendedExpiresOn, extExpireTime);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
@@ -314,7 +314,7 @@
 {
     MSIDAccessToken *token = [MSIDAccessToken new];
     NSDate *extExpireTime = [[NSDate date] dateByAddingTimeInterval:3600];
-    token.extendedExpireTime = extExpireTime;
+    token.extendedExpiresOn = extExpireTime;
     token.accessToken = @"at";
 
     XCTAssertTrue(token.isExtendedLifetimeValid);
