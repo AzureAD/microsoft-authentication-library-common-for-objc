@@ -25,16 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-#import "NSOrderedSet+MSIDExtensions.h"
-#import "NSString+MSIDTelemetryExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
-#import "NSMutableDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSURL+MSIDExtensions.h"
-#import "NSDate+MSIDExtensions.h"
-#import "NSData+MSIDExtensions.h"
-#import "NSData+JWT.h"
-#import "NSError+MSIDExtensions.h"
 #import "MSIDLogger+Internal.h"
 #import "MSIDError.h"
 #import "MSIDOAuth2Constants.h"
@@ -54,11 +47,3 @@
 - (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
 
 #define STRING_CASE(_CASE) case _CASE: return @#_CASE
-
-/**
- * @discussion Workaround for exporting symbols from category object files. See article
- * https://medium.com/ios-os-x-development/categories-in-static-libraries-78e41f8ddb96#.aedfl1kl0
- */
-__attribute__((used)) static void importCategories() {
-  [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@ %@ %@ %@ %@", NSOrderedSetMSIDExtensionsCategory, NSStringMSIDTelemetryExtensionsCategory, NSDictionaryMSIDExtensionsCategory, NSMutableDictionaryMSIDExtensionsCategory, NSStringMSIDExtensionsCategory, NSURLMSIDExtensionsCategory, NSDateMSIDExtensionsCategory, NSDataMSIDExtensionsCategory, NSDataJWTCategory, NSErrorMSIDExtensionsCategory];
-}
