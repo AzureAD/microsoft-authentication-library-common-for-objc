@@ -23,6 +23,8 @@
 
 #import "NSDate+MSIDExtensions.h"
 
+NSString *NSDateMSIDExtensionsCategory;
+
 @implementation NSDate (MSIDExtensions)
 
 - (NSString *)msidToString

@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *NSDataJWTCategory;
+
 @interface NSData (JWT)
 
 - (NSData *)signHashWithPrivateKey:(SecKeyRef)privateKey;

@@ -23,6 +23,8 @@
 
 #import "NSError+MSIDExtensions.h"
 
+NSString *NSErrorMSIDExtensionsCategory;
+
 @implementation NSError (MSIDExtensions)
 
 - (NSError *)msidErrorWithFilteringOptions:(MSIDErrorFilteringOptions)option

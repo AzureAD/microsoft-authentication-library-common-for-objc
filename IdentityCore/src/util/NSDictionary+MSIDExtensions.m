@@ -25,6 +25,8 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 
+NSString *NSDictionaryMSIDExtensionsCategory;
+
 @implementation NSDictionary (MSIDExtensions)
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string

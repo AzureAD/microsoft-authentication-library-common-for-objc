@@ -25,6 +25,8 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 
+NSString *NSURLMSIDExtensionsCategory;
+
 const unichar fragmentSeparator = '#';
 const unichar queryStringSeparator = '?';
 

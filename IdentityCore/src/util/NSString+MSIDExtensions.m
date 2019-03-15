@@ -27,6 +27,8 @@
 #import "NSData+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 
+NSString *NSStringMSIDExtensionsCategory;
+
 typedef unsigned char byte;
 
 #define RANDOM_STRING_MAX_SIZE 1024

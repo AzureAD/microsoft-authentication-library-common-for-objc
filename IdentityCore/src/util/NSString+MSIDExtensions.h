@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *NSStringMSIDExtensionsCategory;
+
 @interface NSString (MSIDExtensions)
 /*!
  =============================================================================

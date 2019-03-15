@@ -23,6 +23,8 @@
 
 #import "NSMutableDictionary+MSIDExtensions.h"
 
+NSString *NSMutableDictionaryMSIDExtensionsCategory;
+
 @implementation NSMutableDictionary (MSIDExtensions)
 
 - (void)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey

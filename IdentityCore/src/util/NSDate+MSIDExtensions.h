@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *NSDateMSIDExtensionsCategory;
+
 @interface NSDate (MSIDExtensions)
 
 - (NSString *)msidToString;
