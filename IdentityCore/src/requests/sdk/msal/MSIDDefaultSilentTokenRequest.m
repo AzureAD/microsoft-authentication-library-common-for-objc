@@ -83,8 +83,8 @@
             *error = cacheError;
         }
 
-        MSID_LOG_ERROR(self.requestParameters, @"Access token lookup error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Access token lookup error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Access token lookup error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Access token lookup error %@", cacheError);
         return nil;
     }
 
@@ -226,8 +226,8 @@
             *error = cacheError;
         }
 
-        MSID_LOG_ERROR(self.requestParameters, @"Failed reading app metadata with error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed reading app metadata with error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed reading app metadata with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed reading app metadata with error %@", cacheError);
         return nil;
     }
 

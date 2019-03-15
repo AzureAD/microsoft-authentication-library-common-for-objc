@@ -85,8 +85,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
     [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
-    MSID_LOG_INFO(context, @"Resolving authority: %@, upn: %@", [self isKnown] ? self.url : _PII_NULLIFY(self.url), _PII_NULLIFY(upn));
-    MSID_LOG_INFO_PII(context, @"Resolving authority: %@, upn: %@", self.url, upn);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Resolving authority: %@, upn: %@", [self isKnown] ? self.url : _PII_NULLIFY(self.url), _PII_NULLIFY(upn));
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Resolving authority: %@, upn: %@", self.url, upn);
     
     [resolver resolveAuthority:self
              userPrincipalName:upn

@@ -164,4 +164,10 @@ MSID_JSON_ACCESSOR(@"adi", additionalUserId)
     return [additionalInfo dictionaryByRemovingFields:knownFields];
 }
 
+- (NSString *)description
+{
+    NSString *descr = [super description];
+    return [NSString stringWithFormat:@"%@, familyID %@, suberror %@, additional user ID %@, clientInfo %@", descr, self.familyId, self.suberror, self.additionalUserId, self.clientInfo.rawClientInfo];
+}
+
 @end

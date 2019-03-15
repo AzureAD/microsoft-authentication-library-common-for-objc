@@ -21,15 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAutomationActionManager.h"
 
-@interface MSIDClientCredentialHelper : NSObject
+@interface MSIDAutomationActionManager()
 
-+ (void)getAccessTokenForAuthority:(NSString *)authority
-                          resource:(NSString *)resource
-                          clientId:(NSString *)clientId
-                       certificate:(NSData *)certificateData
-               certificatePassword:(NSString *)password
-                 completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler;
+@property (nonatomic, strong) NSMutableDictionary<NSString *,id<MSIDAutomationTestAction>> *testActions;
+
+@end
+
+@implementation MSIDAutomationActionManager
+
++ (MSIDAutomationActionManager *)sharedInstance
+{
+    static MSIDAutomationActionManager *singleton = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        singleton = [[MSIDAutomationActionManager alloc] init];
+        singleton.testActions = [NSMutableDictionary new];
+    });
+
+    return singleton;
+}
+
+- (void)registerAction:(id<MSIDAutomationTestAction>)action
+{
+    if (!action)
+    {
+        return;
+    }
+
+    @synchronized (self) {
+        self.testActions[action.actionIdentifier] = action;
+    }
+}
+
+- (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier
+{
+    return self.testActions[actionIdentifier];
+}
+
+- (NSArray<NSString *> *)actionIdentifiers
+{
+    return [self.testActions allKeys];
+}
 
 @end

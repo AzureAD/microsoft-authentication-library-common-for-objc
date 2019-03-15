@@ -38,6 +38,8 @@
 #import "MSIDAccount.h"
 #import "MSIDNotifications.h"
 #import "MSIDConstants.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDAuthority.h"
 
 @interface MSIDBrokerInteractiveController()
 
@@ -87,7 +89,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 #pragma mark - MSIDRequestControlling
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_INFO(self.requestParameters, @"Beginning broker flow.");
     
@@ -97,6 +99,26 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
     
+    NSString *upn = self.interactiveParameters.accountIdentifier.displayableId ?: self.interactiveParameters.loginHint;
+    
+    [self.interactiveParameters.authority resolveAndValidate:self.interactiveParameters.validateAuthority
+                                           userPrincipalName:upn
+                                                     context:self.interactiveParameters
+                                             completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
+                                                               __unused BOOL validated, NSError *error)
+     {
+         if (error)
+         {
+             completionBlock(nil, error);
+             return;
+         }
+         
+         [self acquireTokenImpl:completionBlock];
+     }];
+}
+
+- (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
+{
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_INFO(self.requestParameters, @"Broker flow finished.");
@@ -120,8 +142,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if (!brokerKey)
     {
-        MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve broker key with error %ld, %@", (long)brokerError.code, brokerError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve broker key with error %@", brokerError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve broker key with error %ld, %@", (long)brokerError.code, brokerError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve broker key with error %@", brokerError);
 
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
         completionBlockWrapper(nil, brokerError);

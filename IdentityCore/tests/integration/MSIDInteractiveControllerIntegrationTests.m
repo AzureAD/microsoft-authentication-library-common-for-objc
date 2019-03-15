@@ -42,12 +42,31 @@
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDTestBrokerResponseHandler.h"
 #endif
+#import "MSIDTestURLSession.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDInteractiveControllerIntegrationTests : XCTestCase
 
 @end
 
 @implementation MSIDInteractiveControllerIntegrationTests
+
+- (void)setUp
+{
+    [super setUp];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+}
+
+- (void)tearDown
+{
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [super tearDown];
+}
+
 
 #pragma mark - Helpers
 
@@ -226,7 +245,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !AD_BROKER
 - (void)testAcquireToken_whenBrokerInstallPrompt_andSuccessfulResponse_shouldReturnResult
 {
     // setup telemetry callback
@@ -283,6 +302,9 @@
     }];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -295,8 +317,8 @@
         XCTAssertNil(error);
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 2);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
@@ -312,7 +334,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
-        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
         XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
         XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
