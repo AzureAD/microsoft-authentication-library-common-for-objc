@@ -89,6 +89,24 @@
     return account;
 }
 
+- (instancetype)initWithTemporaryUserResponse:(NSDictionary *)response
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _username = response[@"UPN"];
+        _keyvaultName = response[@"KeyVaultName"];
+        _labName = [_keyvaultName lastPathComponent];
+        _account = _username;
+        _homeObjectId = response[@"UserObjectID"];
+        _homeTenantId = response[@"TenantID"];
+        _targetTenantId = _homeTenantId;
+    }
+    
+    return self;
+}
+
 - (instancetype)initWithJSONResponse:(NSDictionary *)response
 {
     self = [super init];

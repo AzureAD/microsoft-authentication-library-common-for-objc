@@ -37,6 +37,8 @@
 @property (nonatomic) NSString *targetTenantId;
 @property (nonatomic) NSString *tenantName;
 
+// Initialize test account from a Temp user lab API response
+- (instancetype)initWithTemporaryUserResponse:(NSDictionary *)response;
 - (instancetype)initWithJSONResponse:(NSDictionary *)response;
 - (NSString *)passwordFromData:(NSData *)responseData;
 - (NSString *)homeAccountId;

@@ -80,7 +80,7 @@ extern MSIDAppVersion MSIDAppVersionV1;
 extern MSIDAppVersion MSIDAppVersionV2;
 extern MSIDAppVersion MSIDAppVersionOnPrem;
 
-@interface MSIDTestAutomationConfigurationRequest : NSObject <NSCopying>
+@interface MSIDAutomationConfigurationRequest : NSObject <NSCopying>
 
 @property (nonatomic) MSIDTestAccountProvider accountProvider;
 @property (nonatomic) NSArray<MSIDTestAccountFeature> *accountFeatures;
@@ -90,6 +90,6 @@ extern MSIDAppVersion MSIDAppVersionOnPrem;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
 
 - (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;
-+ (MSIDTestAutomationConfigurationRequest *)requestWithDictionary:(NSDictionary *)dictionary;
++ (MSIDAutomationConfigurationRequest *)requestWithDictionary:(NSDictionary *)dictionary;
 
 @end
