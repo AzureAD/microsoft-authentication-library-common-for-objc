@@ -5,3 +5,4 @@ LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path
 TARGETED_DEVICE_FAMILY = 1,2
 ENABLE_BITCODE = YES
 SKIP_INSTALL = YES
+ARCHS = $(ARCHS_STANDARD) armv7s arm64e
