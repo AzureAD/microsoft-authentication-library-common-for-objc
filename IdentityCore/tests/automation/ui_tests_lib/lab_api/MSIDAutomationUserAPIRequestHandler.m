@@ -81,7 +81,7 @@
           }
           
           MSIDTestAutomationConfiguration *configuration = [[MSIDTestAutomationConfiguration alloc] initWithJSONResponseData:data];
-          self->_cachedConfigurations[request] = configuration;
+          self.cachedConfigurations[request] = configuration;
           
           if (completionHandler)
           {
