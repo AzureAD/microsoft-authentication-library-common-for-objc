@@ -42,7 +42,8 @@
         return nil;
     }
     
-    MSIDTestAccount *testAccount = [[MSIDTestAccount alloc] initWithTemporaryUserResponse:accountsArray[0]];
+    MSIDTestAccount *testAccount = [[MSIDTestAccount alloc] initWithJSONResponse:accountsArray[0]];
+    testAccount.password = nil;
     return testAccount;
 }
 
