@@ -357,7 +357,12 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     else
     {
         [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
-        [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
+    
+        if (tokenResult.brokerAppVersion)
+        {
+            [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
+        }
+        
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:tokenResult.account];
         [self stopTelemetryEvent:telemetryEvent error:nil];
