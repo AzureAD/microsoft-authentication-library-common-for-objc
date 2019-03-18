@@ -239,6 +239,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
+        // TODO: Mac-specific MSIDKeychainUtil to support teamId: https://identitydivision.visualstudio.com/DevEx/_workitems/edit/660959
         if (MSIDKeychainUtil.teamId)
         {
             // Add team prefix to keychain group if it is missed.

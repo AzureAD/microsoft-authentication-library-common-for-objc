@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
 
+// TODO: Use a subclass or protocol: https://identitydivision.visualstudio.com/DevEx/_workitems/edit/660964
 @interface MSIDMacKeychainTokenCache : NSObject <MSIDTokenCacheDataSource>
 
 /*!
