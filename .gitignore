@@ -67,3 +67,6 @@ fastlane/screenshots
 fastlane/test_output
 *.pyc
 .DS_Store
+
+#VSCode
+.vscode
