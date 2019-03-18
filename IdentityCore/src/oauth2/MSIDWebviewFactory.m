@@ -87,6 +87,7 @@
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                  callbackURLScheme:redirectURL.scheme
                                                                                   parentController:configuration.parentController
+                                                                                  presentationType:configuration.presentationType
                                                                           useAuthenticationSession:useAuthenticationSession
                                                                          allowSafariViewController:allowSafariViewController
                                                                                            context:context];
