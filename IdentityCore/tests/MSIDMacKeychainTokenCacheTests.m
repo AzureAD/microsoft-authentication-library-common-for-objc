@@ -168,4 +168,187 @@
     XCTAssertNil(deletedAccountA);
 }
 
+- (void)testRemoveItemsWithAccountKey_whenKeyIsValid_shouldRemoveItem
+{
+    NSError *error;
+    BOOL result = [_cache saveAccount:_testAccount key:_testAccountKey serializer:_serializer context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    MSIDAccountCacheItem *account2 = [_cache accountWithKey:_testAccountKey
+                                                 serializer:_serializer
+                                                    context:nil
+                                                      error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(_testAccount, account2);
+
+    result = [_cache removeItemsWithAccountKey:_testAccountKey context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    account2 = [_cache accountWithKey:_testAccountKey serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNil(account2);
+}
+
+- (void)testAccountsWithKey_whenAccountMissing_shouldReturnError
+{
+    NSError *error;
+    NSString* accountId = @"AnotherTestAccountId";
+    MSIDMacKeychainAccountCacheKey *key = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountId
+                                                                                            environment:_testAccount.environment
+                                                                                                  realm:_testAccount.realm
+                                                                                                   type:_testAccount.accountType];
+    _testAccountKey.username = _testAccount.username;
+
+    // make sure it's not there
+    BOOL result = [_cache removeItemsWithAccountKey:key context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    // verify we can't retrieve it
+    MSIDAccountCacheItem *account2 = [_cache accountWithKey:key serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error); // "not found" isn't an error
+    XCTAssertNil(account2);
+}
+
+- (void)testAccountsWithKey_whenMultipleAccountsPresent_shouldReturnExpectedAccounts
+{
+    NSError *error;
+    BOOL result;
+    MSIDAccountCacheItem* accountA = [MSIDAccountCacheItem new];
+    MSIDAccountCacheItem* accountB = [MSIDAccountCacheItem new];
+    MSIDAccountCacheItem* accountC = [MSIDAccountCacheItem new];
+
+    accountA.environment = DEFAULT_TEST_ENVIRONMENT;
+    accountA.realm = @"contoso.com";
+    accountA.homeAccountId = @"uidA.utidA";
+    accountA.localAccountId = @"localAccountIdA";
+    accountA.accountType = MSIDAccountTypeMSSTS;
+    accountA.username = @"UsernameA";
+    accountA.givenName = @"GivenNameA";
+    accountA.familyName = @"FamilyNameA";
+    accountA.middleName = @"MiddleNameA";
+    accountA.name = @"NameA";
+    accountA.alternativeAccountId = @"AltIdA";
+
+    accountB.environment = accountA.environment;
+    accountB.realm = accountA.realm;
+    accountB.homeAccountId = @"uidB.utidB";
+    accountB.localAccountId = @"localAccountIdB";
+    accountB.accountType = accountA.accountType;
+    accountB.username = @"UsernameB";
+    accountB.givenName = @"GivenNameB";
+    accountB.familyName = @"FamilyNameB";
+    accountB.middleName = @"MiddleNameB";
+    accountB.name = @"NameB";
+    accountB.alternativeAccountId = @"AltIdB";
+
+    accountC.environment = accountA.environment;
+    accountC.realm = accountA.realm;
+    accountC.homeAccountId = @"uidC.utidC";
+    accountC.localAccountId = @"localAccountIdC";
+    accountC.accountType = accountA.accountType;
+    accountC.username = @"UsernameC";
+    accountC.givenName = @"GivenNameC";
+    accountC.familyName = @"FamilyNameC";
+    accountC.middleName = @"MiddleNameC";
+    accountC.name = @"NameC";
+    accountC.alternativeAccountId = @"AltIdC";
+
+    MSIDMacKeychainAccountCacheKey *keyA = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountA.homeAccountId
+                                                                                             environment:accountA.environment
+                                                                                                   realm:accountA.realm
+                                                                                                    type:accountA.accountType];
+    MSIDMacKeychainAccountCacheKey *keyB = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountB.homeAccountId
+                                                                                             environment:accountB.environment
+                                                                                                   realm:accountB.realm
+                                                                                                    type:accountB.accountType];
+    MSIDMacKeychainAccountCacheKey *keyC = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:accountC.homeAccountId
+                                                                                             environment:accountC.environment
+                                                                                                   realm:accountC.realm
+                                                                                                    type:accountC.accountType];
+    keyA.username = accountA.username;
+    keyB.username = accountB.username;
+    keyC.username = accountC.username;
+
+    // Ensure these test accounts don't already exist:
+    result = [_cache removeItemsWithAccountKey:keyA context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    result = [_cache removeItemsWithAccountKey:keyB context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    result = [_cache removeItemsWithAccountKey:keyC context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    MSIDMacKeychainAccountCacheKey *keyMultiple = [[MSIDMacKeychainAccountCacheKey alloc] initWithHomeAccountId:@""
+                                                                                                    environment:@""
+                                                                                                          realm:accountA.realm
+                                                                                                           type:0];
+    // Ensure accounts don't already match the search key:
+    NSArray<MSIDAccountCacheItem *> *accountList = [_cache accountsWithKey:keyMultiple serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(accountList.count == 0);
+    accountList = nil;
+
+    // Write multiple accounts:
+    result = [_cache saveAccount:accountA key:keyA serializer:_serializer context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    result = [_cache saveAccount:accountB key:keyB serializer:_serializer context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    result = [_cache saveAccount:accountC key:keyC serializer:_serializer context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    // Verify reading multiple accounts returns the expected accounts:
+    accountList = [_cache accountsWithKey:keyMultiple serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(accountList.count == 3);
+    for (MSIDAccountCacheItem *account in accountList)
+    {
+        if ([account.homeAccountId isEqualToString:accountA.homeAccountId])
+        {
+            XCTAssertTrue([account isEqual:accountA]);
+        }
+        else if ([account.homeAccountId isEqualToString:accountB.homeAccountId])
+        {
+            XCTAssertTrue([account isEqual:accountB]);
+        }
+        else if ([account.homeAccountId isEqualToString:accountC.homeAccountId])
+        {
+            XCTAssertTrue([account isEqual:accountC]);
+        }
+        else
+        {
+            XCTAssertNil(@"unexpected account");
+        }
+    }
+    accountList = nil;
+
+    // Verify reading accounts with one key returns only the one expected account:
+    MSIDAccountCacheItem *expectedAccount = accountB;
+    accountList = [_cache accountsWithKey:keyB serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(accountList.count == 1);
+    MSIDAccountCacheItem *actualAccount = accountList.firstObject;
+    XCTAssertNotNil(actualAccount);
+    XCTAssertTrue([expectedAccount isEqual:actualAccount]);
+
+    // Post-test cleanup:
+    result = [_cache removeItemsWithAccountKey:keyA context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    result = [_cache removeItemsWithAccountKey:keyB context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    result = [_cache removeItemsWithAccountKey:keyC context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    accountList = [_cache accountsWithKey:keyMultiple serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(accountList.count == 0);
+}
 @end
