@@ -23,6 +23,8 @@
 
 #import "MSIDTelemetry.h"
 
+extern NSString *MSIDTelemetryCacheCategory;
+
 @class MSIDTelemetryCacheEvent;
 @class MSIDBaseToken;
 
