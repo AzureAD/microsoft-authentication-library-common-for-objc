@@ -32,6 +32,7 @@
 #import "NSData+JWT.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
+#import "UIApplication+MSIDExtensions.h"
 
 NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
 NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
@@ -57,3 +58,9 @@ NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
 __attribute__((used)) static void importCategories() {
   [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@ %@ %@ %@ %@", NSOrderedSetMSIDExtensionsCategory, NSStringMSIDTelemetryExtensionsCategory, NSDictionaryMSIDExtensionsCategory, NSMutableDictionaryMSIDExtensionsCategory, NSStringMSIDExtensionsCategory, NSURLMSIDExtensionsCategory, NSDateMSIDExtensionsCategory, NSDataMSIDExtensionsCategory, NSDataJWTCategory, NSErrorMSIDExtensionsCategory];
 }
+
+#if TARGET_OS_IOS
+__attribute__((used)) static void importCategoriesIOS() {
+  [NSString stringWithFormat:@"%@", UIApplicationMSIDExtensionsCategory];
+}
+#endif

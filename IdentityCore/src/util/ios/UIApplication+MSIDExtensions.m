@@ -25,6 +25,8 @@
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
 
+NSString *UIApplicationMSIDExtensionsCategory;
+
 @implementation UIApplication ( internal )
 
 + (UIViewController*)msidCurrentViewController
