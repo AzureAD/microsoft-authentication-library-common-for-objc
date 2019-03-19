@@ -32,7 +32,10 @@
 #import "NSData+JWT.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
+
+#if TARGET_OS_IOS
 #import "UIApplication+MSIDExtensions.h"
+#endif
 
 NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
 NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
