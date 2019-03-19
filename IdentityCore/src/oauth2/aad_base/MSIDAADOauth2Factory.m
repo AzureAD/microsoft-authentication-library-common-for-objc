@@ -169,7 +169,7 @@
                                                                                            legacyUserId:accessToken.accountIdentifier.displayableId
                                                                                                 context:nil
                                                                                                   error:nil];
-    accessToken.extendedExpireTime = response.extendedExpiresOnDate;
+    accessToken.extendedExpiresOn = response.extendedExpiresOnDate;
 
     return YES;
 }

@@ -38,12 +38,30 @@
 #import "MSIDTestBrokerResponseHandler.h"
 #import "MSIDTestTokenRequestProvider.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDTestURLSession.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
 @end
 
 @implementation MSIDBrokerInteractiveControllerIntegrationTests
+
+- (void)setUp
+{
+    [super setUp];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+}
+
+- (void)tearDown
+{
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [super tearDown];
+}
 
 #pragma mark - Helpers
 
@@ -145,6 +163,9 @@
     }];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -157,8 +178,8 @@
         XCTAssertNil(error);
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 2);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
@@ -174,7 +195,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
-        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
         XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
         XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
@@ -241,6 +262,9 @@
     }];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -253,8 +277,8 @@
         XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], @"broker_sub_error");
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 2);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_failure");
@@ -270,7 +294,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
-        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
         XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
         XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
@@ -350,6 +374,9 @@
 
         return YES;
     }];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -362,8 +389,8 @@
         XCTAssertNil(error);
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 2);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 5);
+        NSDictionary *telemetryEvent = [receivedEvents[3] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
@@ -379,7 +406,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
-        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        NSDictionary *brokerEvent = [receivedEvents[4] propertyMap];
         XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
         XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
@@ -426,6 +453,9 @@
     XCTAssertNil(error);
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -436,8 +466,8 @@
         XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Failed to create broker request");
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 1);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 3);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_failure");
@@ -459,6 +489,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+#if !AD_BROKER
 - (void)testAcquireToken_whenBrokerResponseNotReceived_shouldReturnError
 {
     // setup telemetry callback
@@ -510,6 +541,9 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
     __block BOOL calledCompletion = NO;
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -523,8 +557,8 @@
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 2);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_response_not_received");
@@ -540,7 +574,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
-        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
         XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
         XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
@@ -554,7 +588,9 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
+#endif
 
+#if !AD_BROKER
 - (void)testAcquireToken_whenBrokerResponseReceivedAfterReturningToApp_shouldReturnErrorAndCallCompletionBlockOnce
 {
     // setup telemetry callback
@@ -614,6 +650,9 @@
     }];
 
     __block BOOL calledCompletion = NO;
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -627,8 +666,8 @@
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 2);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_response_not_received");
@@ -644,7 +683,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"error_domain"], MSIDErrorDomain);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
-        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
         XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
         XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
@@ -658,7 +697,9 @@
 
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
+#endif
 
+#if !AD_BROKER
 - (void)testCompleteAcquireToken_whenNonBrokerResponse_shouldReturnNOAndNotHandleRequest
 {
     MSIDTokenResult *testResult = [self resultWithParameters:[self requestParameters]];
@@ -670,5 +711,6 @@
 
     XCTAssertFalse(result);
 }
+#endif
 
 @end
