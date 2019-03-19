@@ -26,6 +26,8 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
 
+NSString *MSIDTelemetryCacheCategory;
+
 @implementation MSIDTelemetry (Cache)
 
 #pragma mark - Telemetry helpers

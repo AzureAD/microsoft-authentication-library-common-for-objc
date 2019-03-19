@@ -26,6 +26,8 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import <CommonCrypto/CommonDigest.h>
 
+NSString *NSDataMSIDExtensionsCategory;
+
 @implementation NSData (MSIDExtensions)
 
 - (NSData *)msidSHA1

@@ -26,6 +26,8 @@
 #import <Security/Security.h>
 #import <Security/SecKey.h>
 
+NSString *NSDataJWTCategory;
+
 @implementation NSData (JWT)
 
 #if TARGET_OS_IPHONE

@@ -25,6 +25,8 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDVersion.h"
 
+NSString *NSStringMSIDTelemetryExtensionsCategory;
+
 #define MSID_CLIENT_TELEMETRY_VERSION_NUMBER @"1"
 
 #define CHECK_AND_SET_OBJ(_DICT, _OBJECT, _KEY) \

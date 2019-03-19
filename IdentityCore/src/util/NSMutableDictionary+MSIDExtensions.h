@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *NSMutableDictionaryMSIDExtensionsCategory;
+
 @interface NSMutableDictionary (MSIDExtensions)
 
 - (void)msidSetObjectIfNotNil:(id)dictObject forKey:(id<NSCopying>)dictKey;

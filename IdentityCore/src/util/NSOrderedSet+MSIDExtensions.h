@@ -27,6 +27,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *NSOrderedSetMSIDExtensionsCategory;
+
 @interface NSOrderedSet (MSIDExtensions)
 
 - (NSString *)msidToString;

@@ -28,6 +28,8 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 
+NSString *NSOrderedSetMSIDExtensionsCategory;
+
 @implementation NSOrderedSet (MSIDExtensions)
 
 - (NSString *)msidToString

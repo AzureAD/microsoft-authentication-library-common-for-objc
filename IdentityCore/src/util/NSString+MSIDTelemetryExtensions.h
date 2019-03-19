@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+extern NSString *NSStringMSIDTelemetryExtensionsCategory;
+
 @interface NSString (MSIDTelemetryExtensions)
 
 - (NSDictionary *)msidParsedClientTelemetry;
