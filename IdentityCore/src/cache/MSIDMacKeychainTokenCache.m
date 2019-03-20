@@ -120,7 +120,7 @@ ATTRIBUTE         VALUE
 kSetAttrGeneric   <credential_id>
 kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
 kSecAttrCreator   A hash of <access_group>
-kSecAttrLabel     "Microsoft Identity Universal Storage"
+kSecAttrLabel     "Microsoft Credentials"
 kSecValueData     JSON data (UTF8 encoded) – credential object
 
 Error handling:
@@ -151,7 +151,7 @@ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path
 */
 
 static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstorage";
-static NSString *s_defaultKeychainLabel = @"Microsoft Identity Universal Storage";
+static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
 @interface MSIDMacKeychainTokenCache ()
