@@ -26,17 +26,8 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDRegistrationInformation.h"
 
-// Convenience macro for checking keychain status codes while looking up the WPJ information.
-#define CHECK_KEYCHAIN_STATUS(OPERATION) \
-{ \
-if (status != noErr) \
-{ \
-NSError *localError = \
-MSIDCreateError(MSIDKeychainErrorDomain, status, OPERATION, nil, nil, nil, context.correlationId, nil); \
-if (error) { *error = localError; } \
-goto _error; \
-} \
-}
+// Convenience macro to release CF objects
+#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
 
 @implementation MSIDWorkPlaceJoinUtil
 
@@ -61,13 +52,13 @@ goto _error; \
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
         MSID_LOG_VERBOSE(context, @"Failed to retrieve WPJ identity.");
-        goto _error;
+        CFReleaseNull(identity);
+        return nil;
     }
     
     // Get the wpj certificate
     MSID_LOG_VERBOSE(context, @"Retrieving WPJ certificate reference.");
     status = SecIdentityCopyCertificate(identity, &certificate);
-    CHECK_KEYCHAIN_STATUS(@"Failed to read WPJ certificate.");
     
     certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
@@ -75,47 +66,30 @@ goto _error; \
     // Get the private key
     MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
-    CHECK_KEYCHAIN_STATUS(@"Failed to read WPJ private key for identifier.");
     
     if (!certificate || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
     {
         if (error)
         {
             // The code above will catch missing security items, but not missing item attributes. These are caught here.
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing some piece of WPJ data", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing some pieces of WPJ data", nil, nil, nil, context.correlationId, nil);
         }
-        
-        goto _error;
     }
     
-    // We found all the required WPJ information.
-    info = [[MSIDRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                       certificateIssuer:certificateIssuer
-                                                             certificate:certificate
-                                                      certificateSubject:certificateSubject
-                                                         certificateData:certificateData
-                                                              privateKey:privateKey];
-    
-    // Fall through to clean up resources.
-    
-_error:
-    
-    if (identity)
+    else
     {
-        CFRelease(identity);
-        identity = NULL;
-    }
-    if (certificate)
-    {
-        CFRelease(certificate);
-        certificate = NULL;
-    }
-    if (privateKey)
-    {
-        CFRelease(privateKey);
-        privateKey = NULL;
+        // We found all the required WPJ information.
+        info = [[MSIDRegistrationInformation alloc] initWithSecurityIdentity:identity
+                                                           certificateIssuer:certificateIssuer
+                                                                 certificate:certificate
+                                                          certificateSubject:certificateSubject
+                                                             certificateData:certificateData
+                                                                  privateKey:privateKey];
     }
     
+    CFReleaseNull(identity);
+    CFReleaseNull(certificate);
+    CFReleaseNull(privateKey);
     return info;
 }
 
@@ -178,12 +152,7 @@ _error:
         }
     }
     
-    if (identityList)
-    {
-        CFRelease(identityList);
-        identityList = NULL;
-    }
-    
+    CFReleaseNull(identityList);
     return identityRef; //Caller must call CFRelease
 }
 
