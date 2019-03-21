@@ -73,8 +73,7 @@
 {
     NSError *localError = nil;
     MSIDRegistrationInformation *info =
-    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context
-                                                error:&localError];
+    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil error:&localError];
     
     if (!info && localError)
     {

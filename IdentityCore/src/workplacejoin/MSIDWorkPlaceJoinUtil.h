@@ -28,6 +28,7 @@
 @interface MSIDWorkPlaceJoinUtil : NSObject
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
+                                               urlChallenge:(NSURLAuthenticationChallenge *)challenge
                                                       error:(NSError **)error;
 
 @end

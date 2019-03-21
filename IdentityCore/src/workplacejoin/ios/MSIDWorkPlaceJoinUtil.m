@@ -49,6 +49,7 @@ goto _error; \
 
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
+                                               urlChallenge:(NSURLAuthenticationChallenge *)challenge
                                                       error:(NSError **)error
 {
     NSString *teamId = [MSIDKeychainUtil teamId];
