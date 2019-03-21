@@ -40,40 +40,40 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;
 
-- (NSString *)enrollmentIdForUserId:(NSString *)userId
-                            context:(nullable id<MSIDRequestContext>)context
-                              error:(NSError *__autoreleasing *)error;
+- (nullable NSString *)enrollmentIdForUserId:(NSString *)userId
+                                     context:(nullable id<MSIDRequestContext>)context
+                                       error:(NSError *__autoreleasing *)error;
 
-- (NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
-                                 tenantId:(NSString *)tenantId
-                                  context:(nullable id<MSIDRequestContext>)context
-                                    error:(NSError *__autoreleasing *)error;
+- (nullable NSString *)enrollmentIdForUserObjectId:(NSString *)userObjectId
+                                          tenantId:(NSString *)tenantId
+                                           context:(nullable id<MSIDRequestContext>)context
+                                             error:(NSError *__autoreleasing *)error;
 
-- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
-                                   context:(nullable id<MSIDRequestContext>)context
-                                     error:(NSError *__autoreleasing *)error;
+- (nullable NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                                            context:(nullable id<MSIDRequestContext>)context
+                                              error:(NSError *__autoreleasing *)error;
 
 /*!
  Tries to find an enrollmentID for a homeAccountId first,
  then checks legacyUserId, then returns any enrollmentId available.
  */
-- (NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
-                              legacyUserId:(nullable NSString *)legacyUserId
-                                   context:(nullable id<MSIDRequestContext>)context
-                                     error:(NSError *__autoreleasing *)error;
+- (nullable NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
+                                       legacyUserId:(nullable NSString *)legacyUserId
+                                            context:(nullable id<MSIDRequestContext>)context
+                                              error:(NSError *__autoreleasing *)error;
 
 /*!
  Returns the first available enrollmentID if one is available.
  */
-- (NSString *)enrollmentIdIfAvailableWithContext:(nullable id<MSIDRequestContext>)context
-                                           error:(NSError *__autoreleasing *)error;
+- (nullable NSString *)enrollmentIdIfAvailableWithContext:(nullable id<MSIDRequestContext>)context
+                                                    error:(NSError *__autoreleasing *)error;
 
-- (void)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
+- (BOOL)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
                                context:(nullable id<MSIDRequestContext>)context
                                  error:(NSError *__autoreleasing *)error;
 
-- (NSDictionary *)enrollmentIdsJsonDictionaryWithContext:(nullable id<MSIDRequestContext>)context
-                                                   error:(NSError *__autoreleasing *)error;
+- (nullable NSDictionary *)enrollmentIdsJsonDictionaryWithContext:(nullable id<MSIDRequestContext>)context
+                                                            error:(NSError *__autoreleasing *)error;
 
 /*!
  Clears the cache, removing all stored enrollment ids from data source.

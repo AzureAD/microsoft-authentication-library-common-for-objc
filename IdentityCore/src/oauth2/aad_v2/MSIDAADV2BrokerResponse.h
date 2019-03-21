@@ -23,8 +23,6 @@
 
 #import "MSIDBrokerResponse.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
 @interface MSIDAADV2BrokerResponse : MSIDBrokerResponse
 
 @property (readonly) NSString *scope;
@@ -37,5 +35,3 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly) NSString *username;
 
 @end
-
-NS_ASSUME_NONNULL_END
