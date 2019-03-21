@@ -54,17 +54,14 @@
 @property (readonly, nonnull) NSString *keychainGroup;
 
 /*!
- Initializes with defaultKeychainGroup.
- */
-- (nonnull instancetype)init;
-
-/*!
  Initialize with keychainGroup.
  @param keychainGroup Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the
  shared group here.
 
  If set to 'nil' the main bundle's identifier will be used instead.
+
+ NOTE: init: initializes with defaultKeychainGroup.
 
  See Apple's keychain services documentation for details.
  */

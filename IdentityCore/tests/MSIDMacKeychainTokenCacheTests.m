@@ -191,7 +191,7 @@
     XCTAssertNil(account2);
 }
 
-- (void)testAccountsWithKey_whenAccountMissing_shouldReturnError
+- (void)testAccountsWithKey_whenAccountMissing_shouldNotReturnError
 {
     NSError *error;
     NSString* accountId = @"AnotherTestAccountId";
@@ -221,7 +221,7 @@
     MSIDAccountCacheItem* accountC = [MSIDAccountCacheItem new];
 
     accountA.environment = DEFAULT_TEST_ENVIRONMENT;
-    accountA.realm = @"contoso.com";
+    accountA.realm = @"realmA";
     accountA.homeAccountId = @"uidA.utidA";
     accountA.localAccountId = @"localAccountIdA";
     accountA.accountType = MSIDAccountTypeMSSTS;

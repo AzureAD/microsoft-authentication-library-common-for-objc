@@ -380,12 +380,14 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_VERBOSE(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type, [self keychainGroupLoggingName]);
     MSID_LOG_VERBOSE_PII(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", key.account, key.service, key.generic, key.type, self.keychainGroup);
 
-    NSMutableDictionary *query = [self primaryAttributesForKey:key];
-    [query addEntriesFromDictionary:[self secondaryAttributesForKey:key]];
+    NSMutableDictionary *accountQuery = [self primaryAttributesForKey:key];
+    [accountQuery addEntriesFromDictionary:[self secondaryAttributesForKey:key]];
+
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
     // For this reason, we retrieve references to the items, then (below) use a second SecItemCopyMatching()
     // to retrieve the data for each, deserializing each into an account object.
+    NSMutableDictionary *query = [accountQuery mutableCopy];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnRef] = @YES;
 
@@ -407,11 +409,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     NSArray *items = CFBridgingRelease(cfItems);
 
-    query = [self primaryAttributesForKey:key];
-    [query addEntriesFromDictionary:[self secondaryAttributesForKey:key]];
     // Note: For efficiency, use kSecUseItemList to query the items returned above rather actually querying
     // the keychain again. With this second query we can set a specific kSecMatchLimit which lets us get the data
     // objects.
+    query = [accountQuery mutableCopy];
     query[(id)kSecUseItemList] = items;
     query[(id)kSecMatchLimit] = @(items.count + 1); // always set a limit > 1 so we consistently get an NSArray result
     query[(id)kSecReturnAttributes] = @YES;
