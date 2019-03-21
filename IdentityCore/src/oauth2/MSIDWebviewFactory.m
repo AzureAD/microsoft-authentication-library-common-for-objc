@@ -191,6 +191,7 @@
     configuration.customHeaders = parameters.customWebviewHeaders;
 #if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
+    configuration.presentationType = parameters.presentationType;
 #endif
 
     NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
