@@ -36,7 +36,7 @@
 #import "MSIDUserInformation.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
-#import "MSIDMacKeychainAccountCacheKey.h"
+#import "MSIDDefaultAccountCacheKey.h"
 
 /**
 This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -584,7 +584,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
     // For now, this just deletes all accounts (an empty key matches all account items):
-    MSIDMacKeychainAccountCacheKey* key = [MSIDMacKeychainAccountCacheKey new];
+    MSIDDefaultAccountCacheKey* key = [MSIDDefaultAccountCacheKey new];
     return [self removeItemsWithAccountKey:key context:context error:error];
 }
 
