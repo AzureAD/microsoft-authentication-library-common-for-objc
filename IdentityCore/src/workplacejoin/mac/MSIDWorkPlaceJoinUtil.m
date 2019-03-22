@@ -60,12 +60,12 @@
     MSID_LOG_VERBOSE(context, @"Retrieving WPJ certificate reference.");
     status = SecIdentityCopyCertificate(identity, &certificate);
     
-    certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
-    certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
-    
     // Get the private key
     MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
+    
+    certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
+    certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
     if (!certificate || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
     {
