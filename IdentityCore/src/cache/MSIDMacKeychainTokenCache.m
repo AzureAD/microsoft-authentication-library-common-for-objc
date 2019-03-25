@@ -579,13 +579,29 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 // A test-only method that deletes all items from the cache for the given context.
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
+
 {
-    MSID_TRACE;
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
-    // For now, this just deletes all accounts (an empty key matches all account items):
-    MSIDDefaultAccountCacheKey* key = [MSIDDefaultAccountCacheKey new];
-    return [self removeItemsWithAccountKey:key context:context error:error];
+    // Delete all accounts for the keychainGroup
+    NSMutableDictionary *query = [self.defaultAccountQuery mutableCopy];
+    query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
+    MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
+    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
+
+    if (status != errSecSuccess && status != errSecItemNotFound)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
+
+        return NO;
+    }
+
+    return YES;
 }
 
 #pragma mark - Utilities
@@ -625,7 +641,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         // Generic attribute: <username>
         query[(id)kSecAttrGeneric] = key.generic;
     }
-    if (key.type != nil)
+    if (key.type != nil && [key.type isNotEqualTo:@(1000)])
     {
         query[(id)kSecAttrType] = key.type;
     }
