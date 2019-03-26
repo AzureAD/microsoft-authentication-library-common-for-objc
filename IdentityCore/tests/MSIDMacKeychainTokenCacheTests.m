@@ -369,7 +369,7 @@
 {
     [self multiAccountTestSetup];
 
-    // Verity a smaller subset is retrieved with a different query
+    // Verify a smaller subset is retrieved with a different query
     NSError *error;
     NSArray<MSIDAccountCacheItem *> *accountList;
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
