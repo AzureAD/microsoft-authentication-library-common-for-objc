@@ -398,6 +398,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     if (status == errSecItemNotFound)
     {
+        MSID_LOG_INFO(context, @"Account not found");
         return @[];
     }
     else if (status != errSecSuccess)
