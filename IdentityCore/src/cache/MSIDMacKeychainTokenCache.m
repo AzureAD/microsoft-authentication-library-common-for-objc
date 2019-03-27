@@ -315,8 +315,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         return NO;
     }
 
-    NSMutableDictionary *query = [self primaryAttributesForKey:key];
-    NSMutableDictionary *update = [self secondaryAttributesForKey:key];
+    NSMutableDictionary *query = [self primaryAccountAttributesForKey:key];
+    NSMutableDictionary *update = [self secondaryAccountAttributesForKey:key];
     update[(id)kSecValueData] = jsonData;
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
@@ -380,8 +380,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_VERBOSE(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type, [self keychainGroupLoggingName]);
     MSID_LOG_VERBOSE_PII(context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", key.account, key.service, key.generic, key.type, self.keychainGroup);
 
-    NSMutableDictionary *accountQuery = [self primaryAttributesForKey:key];
-    [accountQuery addEntriesFromDictionary:[self secondaryAttributesForKey:key]];
+    NSMutableDictionary *accountQuery = [self primaryAccountAttributesForKey:key];
+    [accountQuery addEntriesFromDictionary:[self secondaryAccountAttributesForKey:key]];
 
     // Per Apple's docs, kSecReturnData can't be combined with kSecMatchLimitAll:
     // https://developer.apple.com/documentation/security/1398306-secitemcopymatching?language=objc
@@ -462,8 +462,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         return NO;
     }
 
-    NSMutableDictionary *query = [self primaryAttributesForKey:key];
-    [query addEntriesFromDictionary:[self secondaryAttributesForKey:key]];
+    NSMutableDictionary *query = [self primaryAccountAttributesForKey:key];
+    [query addEntriesFromDictionary:[self secondaryAccountAttributesForKey:key]];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
 
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
@@ -608,7 +608,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
 // Get the basic/default keychain query dictionary for account items.
 // To support searching, the key properties may be partially or fully empty.
-- (NSMutableDictionary *)primaryAttributesForKey:(MSIDCacheKey *)key
+- (NSMutableDictionary *)primaryAccountAttributesForKey:(MSIDCacheKey *)key
 {
     MSID_TRACE;
     NSMutableDictionary *query = [self.defaultAccountQuery mutableCopy];
@@ -631,7 +631,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 // Get the basic/default keychain update dictionary for account items.
 // These are not _primary_ keys, but if they're present in the key object we
 // want to set them when adding/updating.
-- (NSMutableDictionary *)secondaryAttributesForKey:(MSIDCacheKey *)key
+- (NSMutableDictionary *)secondaryAccountAttributesForKey:(MSIDCacheKey *)key
 {
     MSID_TRACE;
     NSMutableDictionary *query = [NSMutableDictionary new];
@@ -641,7 +641,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         // Generic attribute: <username>
         query[(id)kSecAttrGeneric] = key.generic;
     }
-    if (key.type != nil && [key.type isNotEqualTo:@(1000)])
+    if (key.type != nil)
     {
         query[(id)kSecAttrType] = key.type;
     }
