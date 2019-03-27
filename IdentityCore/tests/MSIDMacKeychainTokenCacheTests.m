@@ -157,7 +157,7 @@
 }
 
 // Several tests utilize multiple accounts
-- (void) multiAccountTestSetup
+- (void)multiAccountTestSetup
 {
     // Write multiple accounts:
     NSError *error;
@@ -172,7 +172,7 @@
     XCTAssertNil(error);
 }
 
-- (void) multiAccountTestCleanup
+- (void)multiAccountTestCleanup
 {
     // Post-test cleanup:
     NSError *error;
@@ -341,26 +341,9 @@
     NSArray<MSIDAccountCacheItem *> *accountList;
     accountList = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
     XCTAssertNil(error);
-    XCTAssertTrue(accountList.count == 3);
-    for (MSIDAccountCacheItem *account in accountList)
-    {
-        if ([account.homeAccountId isEqualToString:_accountA.homeAccountId])
-        {
-            XCTAssertTrue([account isEqual:_accountA]);
-        }
-        else if ([account.homeAccountId isEqualToString:_accountB.homeAccountId])
-        {
-            XCTAssertTrue([account isEqual:_accountB]);
-        }
-        else if ([account.homeAccountId isEqualToString:_accountC.homeAccountId])
-        {
-            XCTAssertTrue([account isEqual:_accountC]);
-        }
-        else
-        {
-            XCTAssertNil(@"unexpected account");
-        }
-    }
+    NSOrderedSet *foundAccounts = [[NSOrderedSet alloc] initWithArray:accountList];
+    NSOrderedSet *expectedAccounts = [[NSOrderedSet alloc] initWithArray:@[ _accountA, _accountB, _accountC ]];
+    XCTAssertEqualObjects(foundAccounts, expectedAccounts);
 
     [self multiAccountTestCleanup];
 }
@@ -377,22 +360,9 @@
     query.accountType = _accountA.accountType;
     accountList = [_cache getAccountsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
-    XCTAssertTrue(accountList.count == 2);
-    for (MSIDAccountCacheItem *account in accountList)
-    {
-        if ([account.homeAccountId isEqualToString:_accountA.homeAccountId])
-        {
-            XCTAssertTrue([account isEqual:_accountA]);
-        }
-        else if ([account.homeAccountId isEqualToString:_accountB.homeAccountId])
-        {
-            XCTAssertTrue([account isEqual:_accountB]);
-        }
-        else
-        {
-            XCTAssertNil(@"unexpected account");
-        }
-    }
+    NSOrderedSet *foundAccounts = [[NSOrderedSet alloc] initWithArray:accountList];
+    NSOrderedSet *expectedAccounts = [[NSOrderedSet alloc] initWithArray:@[ _accountA, _accountB ]];
+    XCTAssertEqualObjects(foundAccounts, expectedAccounts);
 
     [self multiAccountTestCleanup];
 }
