@@ -298,7 +298,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_ERROR(context, @"Failed to deserialize account item.");
+            MSID_LOG_INFO(context, @"Failed to deserialize account item.");
         }
     }
     
@@ -372,7 +372,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_ERROR(context, @"Failed to deserialize app metadata item.");
+            MSID_LOG_INFO(context, @"Failed to deserialize app metadata item.");
         }
     }
     
@@ -572,7 +572,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_ERROR(context, @"Failed to deserialize token item.");
+            MSID_LOG_INFO(context, @"Failed to deserialize token item.");
         }
     }
     
