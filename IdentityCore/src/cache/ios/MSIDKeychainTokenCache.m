@@ -443,7 +443,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
+    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
     
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
@@ -643,7 +643,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     CFTypeRef cfItems = nil;
     MSID_LOG_VERBOSE(context, @"Trying to find keychain items...");
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
-    MSID_LOG_VERBOSE(context, @"Keychain find status: %d", (int)status);
+    MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
     
     if (status == errSecItemNotFound)
     {
