@@ -60,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)logDescription;
 - (NSString *)piiLogDescription;
+- (NSNumber *)appKeyHash;
 
 NS_ASSUME_NONNULL_END
 

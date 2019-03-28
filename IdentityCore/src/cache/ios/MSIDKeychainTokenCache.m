@@ -441,6 +441,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         [query setObject:key.type forKey:(id)kSecAttrType];
     }
     
+    if (key.appKeyHash)
+    {
+        [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
+    }
+    
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
@@ -635,6 +640,10 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         [query setObject:key.type forKey:(id)kSecAttrType];
     }
+    if (key.appKeyHash)
+    {
+        [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
+    }
     
     [query setObject:@YES forKey:(id)kSecReturnData];
     [query setObject:@YES forKey:(id)kSecReturnAttributes];
@@ -720,6 +729,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         if (key.generic)
         {
             [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+        }
+        
+        if (key.appKeyHash)
+        {
+            [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
         }
 
         [query setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
