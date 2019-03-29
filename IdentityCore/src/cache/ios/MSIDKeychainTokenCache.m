@@ -441,7 +441,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         [query setObject:key.type forKey:(id)kSecAttrType];
     }
     
-    if (key.appKeyHash)
+    if (key.appKeyHash != nil)
     {
         [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
     }
@@ -640,7 +640,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         [query setObject:key.type forKey:(id)kSecAttrType];
     }
-    if (key.appKeyHash)
+    if (key.appKeyHash != nil)
     {
         [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
     }
@@ -731,7 +731,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
             [query setObject:key.generic forKey:(id)kSecAttrGeneric];
         }
         
-        if (key.appKeyHash)
+        if (key.appKeyHash != nil)
         {
             [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
         }
