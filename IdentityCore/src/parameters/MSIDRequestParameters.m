@@ -30,6 +30,7 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDConfiguration.h"
 #import "MSIDTelemetry+Internal.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDRequestParameters
 
@@ -166,13 +167,11 @@
     [self updateMSIDConfiguration];
 }
 
-- (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error
+- (BOOL)setClaimsRequest:(MSIDClaimsRequest *)claimsRequest error:(NSError **)error
 {
-    NSString *trimmedClaims = claims.msidTrimmedString;
+    if (claimsRequest == nil) return YES;
 
-    if ([NSString msidIsStringNilOrBlank:trimmedClaims]) return YES;
-
-    NSDictionary *decodedDictionary = trimmedClaims.msidJson;
+    NSDictionary *decodedDictionary = [claimsRequest jsonDictionary];
     if (!decodedDictionary)
     {
         if (error)

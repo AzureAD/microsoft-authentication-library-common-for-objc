@@ -26,6 +26,12 @@
 
 @implementation MSIDIndividualClaimRequest
 
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(name=%@, additional info=%@)", self.name, self.additionalInfo];
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error

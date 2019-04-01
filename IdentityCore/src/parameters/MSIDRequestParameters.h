@@ -30,6 +30,7 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 @class MSIDConfiguration;
+@class MSIDClaimsRequest;
 
 @interface MSIDRequestParameters : NSObject <MSIDRequestContext>
 
@@ -72,7 +73,7 @@
 
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
-- (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error;
+- (BOOL)setClaimsRequest:(MSIDClaimsRequest *)claimsRequest error:(NSError **)error;
 - (NSString *)allTokenRequestScopes;
 
 - (BOOL)validateParametersWithError:(NSError **)error;

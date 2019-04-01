@@ -33,6 +33,12 @@
 
 @implementation MSIDClaimsRequest
 
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(%@)", [self.claimsRequestsDict description]];
+}
+
 - (NSMutableDictionary *)claimsRequestsDict
 {
     if (!_claimsRequestsDict) _claimsRequestsDict = [NSMutableDictionary new];
@@ -160,8 +166,8 @@
 
 - (MSIDClaimsRequestTarget)targetFromString:(NSString *)string error:(NSError **)error
 {
-    if ([string isEqualToString:@"id_token"]) return MSIDClaimsRequestTargetIdToken;
-    if ([string isEqualToString:@"access_token"]) return MSIDClaimsRequestTargetAccessToken;
+    if ([string isEqualToString:MSID_OAUTH2_ID_TOKEN]) return MSIDClaimsRequestTargetIdToken;
+    if ([string isEqualToString:MSID_OAUTH2_ACCESS_TOKEN]) return MSIDClaimsRequestTargetAccessToken;
     
     if (error)
     {
@@ -177,8 +183,8 @@
 
 - (NSString *)stringFromTarget:(MSIDClaimsRequestTarget)target
 {
-    if (target == MSIDClaimsRequestTargetIdToken) return @"id_token";
-    if (target == MSIDClaimsRequestTargetAccessToken) return @"access_token";
+    if (target == MSIDClaimsRequestTargetIdToken) return MSID_OAUTH2_ID_TOKEN;
+    if (target == MSIDClaimsRequestTargetAccessToken) return MSID_OAUTH2_ACCESS_TOKEN;
     
     MSID_LOG_ERROR(nil, @"There is no string representation for provided target.");
     return nil;

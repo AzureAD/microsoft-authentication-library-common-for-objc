@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, nullable) id value;
 
-@property (nonatomic, nullable) NSArray *values;
+@property (nonatomic, nullable) NSSet *values;
 
 @end
 

@@ -23,7 +23,17 @@
 
 #import "MSIDIndividualClaimRequestAdditionalInfo.h"
 
+static NSString *const kEssentialJsonParam = @"essential";
+static NSString *const kValueJsonParam = @"value";
+static NSString *const kValuesJsonParam = @"values";
+
 @implementation MSIDIndividualClaimRequestAdditionalInfo
+
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(essential=%@, value=%@, values=%@)", self.essential, self.value, self.values];
+}
 
 #pragma mark - MSIDJsonSerializable
 
@@ -32,32 +42,45 @@
     self = [super init];
     if (self)
     {
-        if (json[@"essential"])
+        if (json[kEssentialJsonParam])
         {
             if (![json msidAssertType:NSNumber.class
-                              ofField:@"essential"
+                              ofField:kEssentialJsonParam
                               context:nil
                             errorCode:MSIDErrorInvalidDeveloperParameter
                                 error:error])
             {
                 return nil;
             }
-            _essential = json[@"essential"];
+            _essential = json[kEssentialJsonParam];
         }
 
-        _value = json[@"value"];
-        NSArray *values = json[@"values"];
+        _value = json[kValueJsonParam];
+        NSArray *values = json[kValuesJsonParam];
         
-        if (values && ![values isKindOfClass:NSArray.class])
+        if (values)
         {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain,
-                                                MSIDErrorInvalidDeveloperParameter,
-                                                @"values is not an NSArray.",
-                                                nil, nil, nil, nil, nil);
-            return nil;
+            if (![values isKindOfClass:NSArray.class])
+            {
+                if (error) *error = MSIDCreateError(MSIDErrorDomain,
+                                                    MSIDErrorInvalidDeveloperParameter,
+                                                    @"values is not an NSArray.",
+                                                    nil, nil, nil, nil, nil);
+                return nil;
+            }
+            
+            _values = [[NSSet alloc] initWithArray:values];
+            
+            // TODO: test
+            if (_values.count != values.count)
+            {
+                if (error) *error = MSIDCreateError(MSIDErrorDomain,
+                                                    MSIDErrorInvalidDeveloperParameter,
+                                                    @"values are not unique.",
+                                                    nil, nil, nil, nil, nil);
+                return nil;
+            }
         }
-        
-        _values = values;
 
         BOOL isJsonValid = _essential != nil || _value != nil || _values != nil;
         
@@ -77,9 +100,9 @@
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary new];
     
-    dictionary[@"essential"] = self.essential;
-    dictionary[@"value"] = self.value;
-    dictionary[@"values"] = self.values;
+    dictionary[kEssentialJsonParam] = self.essential;
+    dictionary[kValueJsonParam] = self.value;
+    dictionary[kValuesJsonParam] = [self.values allObjects];
     
     return dictionary;
 }
