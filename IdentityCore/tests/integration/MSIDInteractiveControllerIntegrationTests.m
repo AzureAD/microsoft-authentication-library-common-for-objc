@@ -38,16 +38,35 @@
 #import "MSIDRefreshToken.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDTestBrokerResponseHandler.h"
 #endif
+#import "MSIDTestURLSession.h"
+#import "MSIDAADNetworkConfiguration.h"
+#import "MSIDAadAuthorityCache.h"
 
 @interface MSIDInteractiveControllerIntegrationTests : XCTestCase
 
 @end
 
 @implementation MSIDInteractiveControllerIntegrationTests
+
+- (void)setUp
+{
+    [super setUp];
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+}
+
+- (void)tearDown
+{
+    [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
+    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [super tearDown];
+}
+
 
 #pragma mark - Helpers
 
@@ -226,7 +245,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE && !AD_BROKER
 - (void)testAcquireToken_whenBrokerInstallPrompt_andSuccessfulResponse_shouldReturnResult
 {
     // setup telemetry callback
@@ -249,7 +268,7 @@
     parameters.telemetryApiId = @"api_broker_success";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2&username=my@test.com"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
                                            @"test-resume-key2": @"test-resume-value2"};
@@ -283,6 +302,9 @@
     }];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
 
     [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
@@ -295,8 +317,8 @@
         XCTAssertNil(error);
 
         // Check Telemetry event
-        XCTAssertEqual([receivedEvents count], 2);
-        NSDictionary *telemetryEvent = [receivedEvents[0] propertyMap];
+        XCTAssertEqual([receivedEvents count], 4);
+        NSDictionary *telemetryEvent = [receivedEvents[2] propertyMap];
         XCTAssertNotNil(telemetryEvent[@"start_time"]);
         XCTAssertNotNil(telemetryEvent[@"stop_time"]);
         XCTAssertEqualObjects(telemetryEvent[@"api_id"], @"api_broker_success");
@@ -312,7 +334,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
-        NSDictionary *brokerEvent = [receivedEvents[1] propertyMap];
+        NSDictionary *brokerEvent = [receivedEvents[3] propertyMap];
         XCTAssertEqualObjects(brokerEvent[@"broker_app"], @"Microsoft Authenticator");
         XCTAssertEqualObjects(brokerEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertEqualObjects(brokerEvent[@"event_name"], @"broker_event");
@@ -349,7 +371,7 @@
     parameters.telemetryApiId = @"api_broker_wpj";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?username=my@test.com&client_info=eyJ1aWQiOiIwZWE5OWM1OC02NGIzLTRhZmEtYmU1MC00NGU2NDA4ZWRjZDUiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:nil resumeDictionary:nil];
 
     NSError *error = nil;
@@ -412,7 +434,7 @@
     parameters.telemetryApiId = @"api_broker_link_failure";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link_wrong=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];
-    MSIDWebMSAuthResponse *msAuthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
+    MSIDWebWPJResponse *msAuthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:brokerURL] context:nil error:nil];
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:msAuthResponse brokerRequestURL:[NSURL URLWithString:@"https://contoso.com"] resumeDictionary:@{}];
 

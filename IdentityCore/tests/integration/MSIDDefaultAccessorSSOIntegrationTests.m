@@ -54,6 +54,16 @@
 #import "MSIDAADV2BrokerResponse.h"
 #import "MSIDTestCacheAccessorHelper.h"
 #import "MSIDAuthorityFactory.h"
+#import "MSIDV1IdToken.h"
+#import "NSString+MSIDTestUtil.h"
+
+@interface MSIDDefaultTokenCacheAccessor (TestUtil)
+
+- (BOOL)saveToken:(MSIDBaseToken *)token
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error;
+
+@end
 
 @interface MSIDDefaultAccessorSSOIntegrationTests : XCTestCase
 {
@@ -158,13 +168,13 @@
     MSIDAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNotNil(accessToken.extendedExpireTime);
+    XCTAssertNotNil(accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.scopes, scopes);
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
+    XCTAssertNotNil(accessToken.extendedExpiresOn);
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -239,13 +249,13 @@
     MSIDAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNotNil(accessToken.extendedExpireTime);
+    XCTAssertNotNil(accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.scopes, scopes);
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertNotNil(accessToken.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
+    XCTAssertNotNil(accessToken.extendedExpiresOn);
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -1490,6 +1500,89 @@
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
 }
 
+- (void)testAccountsWithAuthority_whenNilAuthority_NilClientId_nonNilFamilyId_andHomeAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
+{
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:nil
+                         utid:nil
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+    
+    [self saveResponseWithUPN:@"upn2@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid2"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_nonSSOAccessor];
+    
+    NSError *error = nil;
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:@"uid.utid2"];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:@"3" accountIdentifier:identifier context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid2");
+}
+
+- (void)testAccountsWithAuthority_whenNilAuthority_NonNilClientId_andNonNilFamilyId_andNilAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
+{
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+    
+    [self saveResponseWithUPN:@"upn2@test.com"
+                     clientId:@"test_client_id2"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid2"
+                         utid:@"utid2"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:nil
+                     accessor:_otherAccessor];
+    
+    [self saveResponseWithUPN:@"upn3@test.com"
+                     clientId:@"test_client_id3"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid3"
+                         utid:@"utid3"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token 2"
+                     familyId:@"4"
+                     accessor:_otherAccessor];
+    
+    NSError *error = nil;
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id2" familyId:@"3" accountIdentifier:nil context:nil error:&error];
+    XCTAssertEqual([accounts count], 2);
+    NSArray *accountUPNs = @[[accounts[0] username], [accounts[1] username]];
+    XCTAssertTrue([accountUPNs containsObject:@"upn@test.com"]);
+    XCTAssertTrue([accountUPNs containsObject:@"upn2@test.com"]);
+    XCTAssertFalse([accountUPNs containsObject:@"upn3@test.com"]);
+}
+
 #pragma mark - Get single account
 
 - (void)testGetAccount_whenNoAccountsInCache_shouldReturnNilAndNilError
@@ -1955,7 +2048,7 @@
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:@"uid.utid2"];
     NSError *error = nil;
-    MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account configuration:configuration context:nil error:&error];
+    MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account configuration:configuration idTokenType:MSIDIDTokenType context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(idToken);
@@ -1968,6 +2061,78 @@
     XCTAssertEqualObjects(claims.username, @"upn@test.com");
     XCTAssertEqualObjects(idToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(idToken.authority.url.absoluteString, @"https://login.windows.net/utid2");
+}
+
+- (void)testGetIDTokenForAccount_whenWrongIDTokenType_shouldReturnError
+{
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.windows.net/utid2"
+                                                                                clientId:@"test_client_id"
+                                                                             redirectUri:nil
+                                                                                  target:@"user.write"];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:@"uid.utid2"];
+    
+    NSError *error = nil;
+    MSIDIdToken *idToken = [_defaultAccessor getIDTokenForAccount:account configuration:configuration idTokenType:MSIDAccessTokenType context:nil error:&error];
+    
+    XCTAssertNil(idToken);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Wrong id token type passed.");
+}
+
+- (void)testGetIDTokenForAccount_whenV1AndV2IDTokenInCache_shouldBeAbleToRetrieveThem
+{
+    // save v1 id token
+    MSIDV1IdToken *v1IdToken = [MSIDV1IdToken new];
+    v1IdToken.authority = [@"https://contoso.com/common" authority];
+    v1IdToken.clientId = @"test_client_id";
+    v1IdToken.additionalServerInfo = @{@"spe_info" : @"value2"};
+    v1IdToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];
+    v1IdToken.rawIdToken = @"v1idToken";
+    v1IdToken.storageAuthority = v1IdToken.authority;
+    
+    NSError *error;
+    [_defaultAccessor saveToken:v1IdToken context:nil error:&error];
+    XCTAssertNil(error);
+    
+    // save v2 id token
+    MSIDIdToken *v2IdToken = [MSIDIdToken new];
+    v2IdToken.authority = [@"https://contoso.com/common" authority];
+    v2IdToken.clientId = @"test_client_id";
+    v2IdToken.additionalServerInfo = @{@"spe_info" : @"value2"};
+    v2IdToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];
+    v2IdToken.rawIdToken = @"v2idToken";
+    v2IdToken.storageAuthority = v2IdToken.authority;
+    
+    error = nil;
+    [_defaultAccessor saveToken:v2IdToken context:nil error:&error];
+    XCTAssertNil(error);
+    
+    // get v1 id token
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://contoso.com/common"
+                                                                                clientId:@"test_client_id"
+                                                                             redirectUri:nil
+                                                                                  target:@"user.write"];
+    
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:@"uid.utid"];
+    error = nil;
+    MSIDIdToken *v1IdTokenInCache = [_defaultAccessor getIDTokenForAccount:account configuration:configuration idTokenType:MSIDLegacyIDTokenType context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue([v1IdTokenInCache isMemberOfClass:MSIDV1IdToken.class]);
+    XCTAssertEqualObjects(v1IdTokenInCache.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(v1IdTokenInCache.rawIdToken, @"v1idToken");
+    
+    // get v2 id token
+    error = nil;
+    MSIDIdToken *v2IdTokenInCache = [_defaultAccessor getIDTokenForAccount:account configuration:configuration idTokenType:MSIDIDTokenType context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue([v2IdTokenInCache isMemberOfClass:MSIDIdToken.class]);
+    XCTAssertEqualObjects(v2IdTokenInCache.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(v2IdTokenInCache.rawIdToken, @"v2idToken");
+                           
 }
 
 #pragma mark - clearCacheForAccount

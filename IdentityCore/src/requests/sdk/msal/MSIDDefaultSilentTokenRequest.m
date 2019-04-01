@@ -83,8 +83,8 @@
             *error = cacheError;
         }
 
-        MSID_LOG_ERROR(self.requestParameters, @"Access token lookup error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Access token lookup error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Access token lookup error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Access token lookup error %@", cacheError);
         return nil;
     }
 
@@ -102,10 +102,7 @@
 
     NSError *cacheError = nil;
 
-    MSIDIdToken *idToken = [self.defaultAccessor getIDTokenForAccount:self.requestParameters.accountIdentifier
-                                                        configuration:self.requestParameters.msidConfiguration
-                                                              context:self.requestParameters
-                                                                error:&cacheError];
+    MSIDIdToken *idToken = [self getIDToken:&cacheError];
 
     if (!idToken)
     {
@@ -131,6 +128,21 @@
                                                              tokenResponse:nil];
 
     return result;
+}
+
+-(MSIDIdToken *)getIDToken:(NSError **)error
+{
+    return [self getIDTokenForTokenType:MSIDIDTokenType error:error];
+}
+
+-(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
+                                 error:(NSError **)error
+{
+    return [self.defaultAccessor getIDTokenForAccount:self.requestParameters.accountIdentifier
+                                        configuration:self.requestParameters.msidConfiguration
+                                          idTokenType:idTokenType
+                                              context:self.requestParameters
+                                                error:error];
 }
 
 - (nullable MSIDRefreshToken *)familyRefreshTokenWithError:(NSError * _Nullable * _Nullable)error
@@ -214,8 +226,8 @@
             *error = cacheError;
         }
 
-        MSID_LOG_ERROR(self.requestParameters, @"Failed reading app metadata with error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed reading app metadata with error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed reading app metadata with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed reading app metadata with error %@", cacheError);
         return nil;
     }
 

@@ -44,7 +44,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebviewConfiguration.h"
 #import "MSIDPkce.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDAuthority.h"
 #import "NSString+MSIDTestUtil.h"
@@ -227,7 +227,7 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertNotNil(token.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
+    XCTAssertNotNil(token.extendedExpiresOn);
 
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
@@ -293,7 +293,7 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertNotNil(token.additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]);
+    XCTAssertNotNil(token.extendedExpiresOn);
     
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);

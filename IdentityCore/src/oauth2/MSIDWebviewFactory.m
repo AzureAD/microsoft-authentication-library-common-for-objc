@@ -141,7 +141,7 @@
     NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:configuration.authorizationEndpoint resolvingAgainstBaseURL:NO];
     NSDictionary *parameters = [self authorizationParametersFromConfiguration:configuration requestState:state];
     
-    urlComponents.percentEncodedQuery = [parameters msidWWWFormURLEncode];
+    urlComponents.percentEncodedQuery = [parameters msidURLEncode];
     
     return urlComponents.URL;
 }
@@ -186,8 +186,7 @@
     NSString *promptParam = MSIDPromptParamFromType(parameters.promptType);
     configuration.promptBehavior = promptParam;
     configuration.loginHint = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
-    configuration.extraQueryParameters = parameters.extraQueryParameters;
-    configuration.sliceParameters = parameters.sliceParameters;
+    configuration.extraQueryParameters = parameters.allAuthorizeRequestExtraParameters;
     configuration.customHeaders = parameters.customWebviewHeaders;
 #if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;

@@ -92,7 +92,6 @@
 - (void)initDefaultSettings
 {
     _tokenExpirationBuffer = 300;
-    _oidcScope = MSID_OAUTH2_SCOPE_OPENID_VALUE;
     _extendedLifetimeEnabled = NO;
     _logComponent = [MSIDVersion sdkName];
     _telemetryRequestId = [[MSIDTelemetry sharedInstance] generateRequestId];
@@ -124,19 +123,19 @@
         tokenEndpoint.host = self.cloudAuthority.environment;
     }
 
-    NSMutableDictionary *endpointQPs = [[NSDictionary msidDictionaryFromWWWFormURLEncodedString:tokenEndpoint.percentEncodedQuery] mutableCopy];
+    NSMutableDictionary *endpointQPs = [[NSDictionary msidDictionaryFromURLEncodedString:tokenEndpoint.percentEncodedQuery] mutableCopy];
 
     if (!endpointQPs)
     {
         endpointQPs = [NSMutableDictionary dictionary];
     }
 
-    if (self.sliceParameters)
+    if (self.extraURLQueryParameters)
     {
-        [endpointQPs addEntriesFromDictionary:self.sliceParameters];
+        [endpointQPs addEntriesFromDictionary:self.extraURLQueryParameters];
     }
 
-    tokenEndpoint.query = [endpointQPs msidWWWFormURLEncode];
+    tokenEndpoint.query = [endpointQPs msidURLEncode];
     return tokenEndpoint.URL;
 }
 
@@ -189,14 +188,13 @@
 
 - (NSString *)allTokenRequestScopes
 {
-    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.target] mutableCopy];
-    NSOrderedSet *oidcScopes = [NSOrderedSet msidOrderedSetFromString:self.oidcScope];
+    NSMutableOrderedSet *requestScopes = [[self.target msidScopeSet] mutableCopy];
+    NSOrderedSet *oidcScopes = [self.oidcScope msidScopeSet];
 
     if (oidcScopes)
     {
         [requestScopes unionOrderedSet:oidcScopes];
     }
-    [requestScopes removeObject:self.clientId];
     return [requestScopes msidToString];
 }
 

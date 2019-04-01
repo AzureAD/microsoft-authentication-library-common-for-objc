@@ -53,4 +53,9 @@
     return self;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"MSIDTokenResult: access token %@, refresh token %@, raw ID token %@, authority %@, correlationID %@, token response %@, account %@", _PII_NULLIFY(_accessToken), _PII_NULLIFY(_refreshToken), _PII_NULLIFY(_rawIdToken), _authority, _correlationId, _PII_NULLIFY(_tokenResponse), _account];
+}
+
 @end

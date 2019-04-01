@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDAutomationTestRequest;
+
 @interface MSIDTestAccount : NSObject <NSCopying>
 
 @property (nonatomic) NSString *account;
@@ -49,14 +51,13 @@
 @property (nonatomic) NSString *redirectUri;
 @property (nonatomic) NSString *resource;
 @property (nonatomic) NSArray<MSIDTestAccount *> *accounts;
+@property (nonatomic) NSDictionary *policies;
+@property (nonatomic, class) NSString *defaultRegisteredScheme;
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)response;
 - (instancetype)initWithJSONResponseData:(NSData *)response;
-- (NSDictionary *)config;
-- (NSDictionary *)configForAccount:(MSIDTestAccount *)account;
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration;
-- (NSDictionary *)configWithAdditionalConfiguration:(NSDictionary *)additionalConfiguration
-                                               account:(MSIDTestAccount *)account;
 - (void)addAdditionalAccount:(MSIDTestAccount *)additionalAccount;
+- (NSString *)authorityWithTenantId:(NSString *)tenantId;
+- (NSString *)redirectUriWithPrefix:(NSString *)redirectPrefix;
 
 @end

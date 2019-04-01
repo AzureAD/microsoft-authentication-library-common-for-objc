@@ -50,6 +50,7 @@
 
 // Dates
 @property (readwrite, nullable) NSDate *expiresOn;
+@property (readwrite, nullable) NSDate *extendedExpiresOn;
 @property (readwrite, nullable) NSDate *cachedAt;
 
 // Family ID
@@ -63,6 +64,9 @@
 
 // Additional fields
 @property (readwrite, nullable) NSDictionary *additionalInfo;
+
+// Storing for latter token deletion purpose, not serialized
+@property (readwrite, nullable) NSString *appKey;
 
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 

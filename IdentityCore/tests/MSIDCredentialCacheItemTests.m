@@ -49,20 +49,21 @@
     NSDate *expiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
     NSDate *extExpiresOn = [NSDate date];
-    
+
     cacheItem.cachedAt = cachedAt;
     cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
 
-    NSDictionary *additionalInfo = @{@"extended_expires_on": extExpiresOn,
+    NSDictionary *additionalInfo = @{@"test": @"test2",
                                      @"spe_info": @"2"};
-    
+
     cacheItem.additionalInfo = additionalInfo;
-    
+
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
-    
+
     NSDictionary *expectedDictionary = @{@"credential_type": @"AccessToken",
                                          @"client_id": DEFAULT_TEST_CLIENT_ID,
                                          @"target": DEFAULT_TEST_RESOURCE,
@@ -76,9 +77,9 @@
                                          @"home_account_id": @"uid.utid",
                                          @"enrollment_id": @"enrollmentId"
                                          };
-    
+
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
-    
+
 }
 
 - (void)testJSONDictionary_whenRefreshToken_andAllFieldsSet_shouldReturnJSONDictionary
@@ -98,7 +99,7 @@
                                          @"family_id": DEFAULT_TEST_FAMILY_ID,
                                          @"home_account_id": @"uid.utid"
                                          };
-    
+
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
@@ -119,7 +120,7 @@
                                          @"realm": @"contoso.com",
                                          @"home_account_id": @"uid.utid"
                                          };
-    
+
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
@@ -130,7 +131,7 @@
     NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     NSDate *extExpiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
-    
+
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
@@ -140,28 +141,32 @@
                                      @"target": DEFAULT_TEST_RESOURCE,
                                      @"cached_at": cachedAtString,
                                      @"expires_on": expiresOnString,
+                                     @"extended_expires_on": extExpiresOnString,
                                      @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                      @"realm": @"contoso.com",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"extended_expires_on": extExpiresOnString,
                                      @"spe_info": @"2",
+                                     @"test": @"test2",
                                      @"home_account_id": @"uid.utid",
                                      @"enrollment_id": @"enrollmentId"
                                      };
-    
+
     NSError *error = nil;
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
-    
+
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqual(cacheItem.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
     XCTAssertEqualObjects(cacheItem.target, DEFAULT_TEST_RESOURCE);
     XCTAssertEqualObjects(cacheItem.expiresOn, expiresOn);
+    XCTAssertEqualObjects(cacheItem.extendedExpiresOn, extExpiresOn);
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
     XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ACCESS_TOKEN);
-    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"extended_expires_on": extExpiresOn};
+    // @"test" is an unrecognized string and doesn't get added to the additional fields
+    NSDictionary *additionalInfo = @{@"spe_info": @"2"};
     XCTAssertEqualObjects(cacheItem.additionalInfo, additionalInfo);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.enrollmentId, @"enrollmentId");
@@ -176,10 +181,10 @@
                                      @"family_id": DEFAULT_TEST_FAMILY_ID,
                                      @"home_account_id": @"uid.utid"
                                      };
-    
+
     NSError *error = nil;
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
-    
+
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertNil(cacheItem.realm);
@@ -200,10 +205,10 @@
                                      @"realm": @"contoso.com",
                                      @"home_account_id": @"uid.utid"
                                      };
-    
+
     NSError *error = nil;
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
-    
+
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
     XCTAssertEqual(cacheItem.credentialType, MSIDIDTokenType);
@@ -233,11 +238,12 @@
     NSDictionary *additionalInfo = @{@"ext_expires_on": extExpiresOn,
                                      @"spe_info": @"2"};
     cacheItem1.additionalInfo = additionalInfo;
-    
+
     MSIDCredentialCacheItem *cacheItem2 = [MSIDCredentialCacheItem new];
     cacheItem2.credentialType = MSIDIDTokenType;
     cacheItem2.secret = DEFAULT_TEST_ID_TOKEN;
     cacheItem2.clientId = DEFAULT_TEST_CLIENT_ID;
     XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
 }
+
 @end

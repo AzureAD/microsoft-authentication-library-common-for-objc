@@ -95,7 +95,11 @@
 
 -(void)dealloc
 {
-    [self.webView setNavigationDelegate:nil];
+    if ([self.webView.navigationDelegate isEqual:self])
+    {
+        [self.webView setNavigationDelegate:nil];
+    }
+    
     self.webView = nil;
 }
 
@@ -130,7 +134,7 @@
 
 - (void)cancel
 {
-    MSID_LOG_INFO(self.context, @"Cancel Web Auth...");
+    MSID_LOG_INFO(self.context, @"Canceled web view contoller.");
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
@@ -141,7 +145,7 @@
 
 - (void)userCancel
 {
-    MSID_LOG_INFO(self.context, @"Cancel Web Auth...");
+    MSID_LOG_INFO(self.context, @"Canceled web view contoller.");
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil);
@@ -177,6 +181,7 @@
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        MSID_LOG_INFO(self.context, @"Dismissed web view contoller.");
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     });
     
@@ -208,6 +213,8 @@
 
 - (void)startRequest:(NSURLRequest *)request
 {
+    MSID_LOG_INFO(self.context, @"Presenting web view contoller.");
+    
     _telemetryRequestId = [_context telemetryRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
     _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
@@ -229,8 +236,8 @@
     NSURL *requestURL = navigationAction.request.URL;
     __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:requestURL.host];
     
-    MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", isKnown ? requestURL.host : @"unknown host");
-    MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, self.context, @"-decidePolicyForNavigationAction host: %@", isKnown ? requestURL.host : @"unknown host");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
     [MSIDNotifications notifyWebAuthDidStartLoad:requestURL];
     
@@ -259,8 +266,9 @@
 {
     NSURL *url = webView.URL;
     __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:url.host];
-    MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", isKnown ? url.host : @"unknown host");
-    MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
+    
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, self.context, @"-didFinishNavigation host: %@", isKnown ? url.host : @"unknown host");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, self.context, @"-didFinishNavigation host: %@", url.host);
     
     [MSIDNotifications notifyWebAuthDidFinishLoad:url];
     
@@ -295,8 +303,9 @@
 - (void)completeWebAuthWithURL:(NSURL *)endURL
 {
     __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:endURL.host];
-    MSID_LOG_INFO(self.context, @"-completeWebAuthWithURL: %@", isKnown ? endURL.host : @"unknown host");
-    MSID_LOG_INFO_PII(self.context, @"-completeWebAuthWithURL: %@", endURL);
+    
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, self.context, @"-completeWebAuthWithURL: %@", isKnown ? endURL.host : @"unknown host");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, self.context, @"-completeWebAuthWithURL: %@", [endURL msidPIINullifiedURL]);
     
     [self endWebAuthWithURL:endURL error:nil];
 }
@@ -325,8 +334,8 @@
         return;
     }
     
-    MSID_LOG_ERROR(self.context, @"-webAuthFailWithError error code %ld", (long)error.code);
-    MSID_LOG_ERROR_PII(self.context, @"-webAuthFailWithError: %@", error);
+    MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.context, @"-webAuthFailWithError error code %ld", (long)error.code);
+    MSID_LOG_PII(MSIDLogLevelError, nil, self.context, @"-webAuthFailWithError: %@", error);
     
     [self endWebAuthWithURL:nil error:error];
 }

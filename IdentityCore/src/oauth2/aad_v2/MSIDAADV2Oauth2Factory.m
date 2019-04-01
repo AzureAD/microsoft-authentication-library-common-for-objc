@@ -102,8 +102,9 @@
 
     if (!response.clientInfo)
     {
-        MSID_LOG_ERROR(context, @"Client info was not returned in the server response");
-        MSID_LOG_ERROR_PII(context, @"Client info was not returned in the server response");
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Client info was not returned in the server response");
+        MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Client info was not returned in the server response");
+        
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
@@ -128,7 +129,7 @@
     }
 
     // We want to keep case as it comes from the server side, because scopes are case sensitive by OIDC spec
-    NSOrderedSet *responseScopes = [NSOrderedSet msidOrderedSetFromString:response.scope normalize:NO];
+    NSOrderedSet *responseScopes = [response.scope msidScopeSet];
 
     if (!response.scope)
     {
@@ -234,6 +235,7 @@
                                                                                                                    code:authCode
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
+                                                                                                        extraParameters:parameters.extraTokenRequestParameters
                                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 
@@ -258,6 +260,7 @@
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
+                                                                                              extraParameters:parameters.extraTokenRequestParameters
                                                                                                       context:parameters];
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 

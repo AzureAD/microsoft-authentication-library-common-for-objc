@@ -27,14 +27,7 @@
 #import "MSIDDefaultSilentTokenRequest.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
-
-@interface MSIDDefaultTokenRequestProvider()
-
-@property (nonatomic) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
-@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
-
-@end
+#import "MSIDDefaultTokenRequestProvider+Internal.h"
 
 @implementation MSIDDefaultTokenRequestProvider
 

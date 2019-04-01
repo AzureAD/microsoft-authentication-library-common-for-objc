@@ -33,15 +33,15 @@ const unichar queryStringSeparator = '?';
 // Decodes configuration contained in a URL fragment
 - (NSDictionary *)msidFragmentParameters
 {
-    return [NSDictionary msidDictionaryFromWWWFormURLEncodedString:self.fragment];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
+    return [NSDictionary msidDictionaryFromURLEncodedString:components.percentEncodedFragment];
 }
 
 // Decodes configuration contains in a URL query
 - (NSDictionary *)msidQueryParameters
 {
-    NSURLComponents* components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
-    
-    return [NSDictionary msidDictionaryFromWWWFormURLEncodedString:[components percentEncodedQuery]];
+    NSURLComponents *components = [NSURLComponents componentsWithURL:self resolvingAgainstBaseURL:YES];
+    return [NSDictionary msidDictionaryFromURLEncodedString:components.percentEncodedQuery];
 }
 
 - (BOOL)msidIsEquivalentAuthority:(NSURL *)aURL
@@ -278,7 +278,7 @@ const unichar queryStringSeparator = '?';
             continue;
         }
 
-        NSString *queryEntry = [NSString stringWithFormat:@"%@=%@", key.msidWWWFormURLEncode, [queryParameters[key] msidWWWFormURLEncode]];
+        NSString *queryEntry = [NSString stringWithFormat:@"%@=%@", key.msidURLEncode, [queryParameters[key] msidURLEncode]];
 
         if (query)
         {
@@ -292,10 +292,31 @@ const unichar queryStringSeparator = '?';
 
     if (query)
     {
-        [components setPercentEncodedQuery:query];
+        components.percentEncodedQuery = query;
     }
 
     return [components URL];
+}
+
+- (NSURL *)msidPIINullifiedURL
+{
+    NSURLComponents *components = [[NSURLComponents alloc] initWithURL:self resolvingAgainstBaseURL:NO];
+    
+    NSMutableArray *piiQueryItems = [NSMutableArray new];
+    
+    for (NSURLQueryItem *queryItem in components.queryItems)
+    {
+        NSString *piiValue = [NSString msidIsStringNilOrBlank:queryItem.value] ? @"(null)" : @"(not-null)";
+        NSURLQueryItem *piiQueryItem = [[NSURLQueryItem alloc] initWithName:queryItem.name value:piiValue];
+        [piiQueryItems addObject:piiQueryItem];
+    }
+    
+    if ([piiQueryItems count])
+    {
+        components.queryItems = piiQueryItems;
+    }
+    
+    return components.URL;
 }
 
 @end

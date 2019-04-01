@@ -31,6 +31,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDPrimaryRefreshToken.h"
+#import "MSIDV1IdToken.h"
 
 @implementation MSIDCredentialCacheItem (MSIDBaseToken)
 
@@ -53,6 +54,10 @@
         case MSIDIDTokenType:
         {
             return [[MSIDIdToken alloc] initWithTokenCacheItem:self];
+        }
+        case MSIDLegacyIDTokenType:
+        {
+            return [[MSIDV1IdToken alloc] initWithTokenCacheItem:self];
         }
         case MSIDPrimaryRefreshTokenType:
         {

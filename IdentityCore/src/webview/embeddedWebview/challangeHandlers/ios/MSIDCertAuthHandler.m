@@ -89,6 +89,9 @@ static NSString *s_redirectScheme = nil;
 
 + (BOOL)completeCertAuthChallenge:(NSURL *)endUrl
 {
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Complete cert auth challenge with end URL: %@", endUrl.host);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Complete cert auth challenge with end URL: %@", [endUrl msidPIINullifiedURL]);
+    
     if (s_certAuthInProgress)
     {
         s_certAuthInProgress = NO;
@@ -134,8 +137,8 @@ static NSString *s_redirectScheme = nil;
         return NO;
     }
     
-    MSID_LOG_INFO(context, @"Received CertAuthChallenge");
-    MSID_LOG_INFO_PII(context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Received CertAuthChallenge");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Received CertAuthChallengehost from : %@", challenge.protectionSpace.host);
     
     NSURL *requestURL = [currentSession.webviewController startURL];
     
@@ -150,14 +153,14 @@ static NSString *s_redirectScheme = nil;
             if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
                 && ![item.value.lowercaseString hasPrefix:s_redirectScheme.lowercaseString])
             {
-                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidWWWFormURLEncode];
+                newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidURLEncode];
             }
             else
             {
                 newQueryItems[item.name] = item.value;
             }
         }
-        requestURLComponents.percentEncodedQuery = [newQueryItems msidWWWFormURLEncode];
+        requestURLComponents.percentEncodedQuery = [newQueryItems msidURLEncode];
         requestURL = requestURLComponents.URL;
     }
     

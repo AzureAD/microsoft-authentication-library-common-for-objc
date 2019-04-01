@@ -301,4 +301,11 @@
     XCTAssertEqualObjects([NSString msidScopeFromResource:@"https://contoso.com/"], @"https://contoso.com//.default");
 }
 
+- (void)testMsidSecretLoggingHash_shouldReturnFirst8LettersOfPasswordHash
+{
+    __auto_type hash = [@"some password" msidSecretLoggingHash];
+    
+    XCTAssertEqualObjects(@"e62e1269", hash);
+}
+
 @end

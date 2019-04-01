@@ -41,7 +41,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAccessToken.h"
 #import "MSIDAuthority+Internal.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAADNetworkConfiguration.h"
@@ -90,7 +90,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -157,7 +157,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -188,7 +188,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"instance_aware" : @"true" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"instance_aware" : @"true" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -256,7 +256,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNotNil(result);
         XCTAssertNil(error);
@@ -287,7 +287,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -355,7 +355,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -378,7 +378,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -443,7 +443,7 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
     
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
         
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -470,7 +470,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -533,7 +533,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -559,7 +559,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -596,7 +596,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
@@ -622,7 +622,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -645,7 +645,7 @@
 
          NSString *responseString = @"msauth://wpj?app_link=https://login.microsoftonline.appinstall.test";
 
-         MSIDWebMSAuthResponse *msauthResponse = [[MSIDWebMSAuthResponse alloc] initWithURL:[NSURL URLWithString:responseString] context:nil error:nil];
+         MSIDWebWPJResponse *msauthResponse = [[MSIDWebWPJResponse alloc] initWithURL:[NSURL URLWithString:responseString] context:nil error:nil];
          completionHandler(msauthResponse, nil);
      }];
 
@@ -658,7 +658,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNil(error);
@@ -681,7 +681,7 @@
     parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
-    parameters.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.loginHint = @"fakeuser@contoso.com";
     parameters.correlationId = correlationId;
     parameters.webviewType = MSIDWebviewTypeWKWebView;
@@ -717,7 +717,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
-    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebMSAuthResponse * _Nullable installBrokerResponse) {
+    [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);

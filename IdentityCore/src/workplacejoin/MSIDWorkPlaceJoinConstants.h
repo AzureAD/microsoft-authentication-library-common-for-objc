@@ -30,3 +30,5 @@ extern NSString *const kMSIDProtectionSpaceDistinguishedName;
 extern NSString *const kMSIDPKeyAuthUrn;
 extern NSString *const kMSIDPKeyAuthHeader;
 extern NSString *const kMSIDPKeyAuthHeaderVersion;
+extern NSString *const kMSIDWwwAuthenticateHeader;
+extern NSString *const kMSIDPKeyAuthName;

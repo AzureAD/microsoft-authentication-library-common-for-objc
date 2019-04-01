@@ -60,14 +60,27 @@
 
 - (NSOrderedSet *)allAuthorizeRequestScopes
 {
-    NSMutableOrderedSet *requestScopes = [[NSOrderedSet msidOrderedSetFromString:self.allTokenRequestScopes] mutableCopy];
-    NSOrderedSet *extraScopes = [NSOrderedSet msidOrderedSetFromString:self.extraScopesToConsent];
+    NSMutableOrderedSet *requestScopes = [[self.allTokenRequestScopes msidScopeSet] mutableCopy];
+    NSOrderedSet *extraScopes = [self.extraScopesToConsent msidScopeSet];
 
     if (extraScopes)
     {
         [requestScopes unionOrderedSet:extraScopes];
     }
     return requestScopes;
+}
+
+- (NSDictionary *)allAuthorizeRequestExtraParameters
+{
+    if (!self.extraAuthorizeURLQueryParameters && !self.extraURLQueryParameters)
+    {
+        return nil;
+    }
+    
+    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.extraAuthorizeURLQueryParameters];
+    [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
+    [authorizeParams addEntriesFromDictionary:self.appRequestMetadata];
+    return authorizeParams;
 }
 
 - (BOOL)validateParametersWithError:(NSError **)error
@@ -79,7 +92,7 @@
         return NO;
     }
 
-    if ([self.claims count] && self.extraQueryParameters[MSID_OAUTH2_CLAIMS])
+    if ([self.claims count] && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
         return NO;

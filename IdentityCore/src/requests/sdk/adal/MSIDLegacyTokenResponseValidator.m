@@ -31,67 +31,69 @@
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(__unused MSIDConfiguration *)configuration
                   oidcScope:(__unused NSString *)oidcScope
-             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
 {
-    // Validate correct account returned
-    BOOL accountValid = [self checkAccount:tokenResult
-                         accountIdentifier:accountIdentifier
-                             correlationID:correlationID];
-
-    if (!accountValid)
+    if (!tokenResult.account)
     {
-        MSID_LOG_ERROR_CORR(correlationID, @"Different account returned");
-        MSID_LOG_ERROR_CORR_PII(correlationID, @"Different account returned, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
-
+        MSID_LOG_ERROR_CORR(correlationID, @"No account returned from server.");
+        
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account identifier returned from server.", nil, nil, nil, correlationID, nil);
         }
-
+        
         return NO;
     }
 
     return YES;
 }
 
-- (BOOL)checkAccount:(MSIDTokenResult *)tokenResult
-   accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-       correlationID:(NSUUID *)correlationID
+- (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(MSIDTokenResult *)tokenResult
+          correlationID:(NSUUID *)correlationID
+                  error:(NSError **)error
 {
-    MSID_LOG_VERBOSE_CORR(correlationID, @"Checking returned account");
-    MSID_LOG_VERBOSE_CORR_PII(correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
-
-    if (!accountIdentifier.displayableId)
-    {
-        return YES;
-    }
-
-    if (!tokenResult.account)
-    {
-        return NO;
-    }
-
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account");
+    MSID_LOG_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
+    
     switch (accountIdentifier.legacyAccountIdentifierType)
     {
         case MSIDLegacyIdentifierTypeRequiredDisplayableId:
         {
-            return [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString];
+            if (!accountIdentifier.displayableId
+                || [accountIdentifier.displayableId.lowercaseString isEqualToString:tokenResult.account.accountIdentifier.displayableId.lowercaseString])
+            {
+                return YES;
+            }
+            break;
         }
-
+            
         case MSIDLegacyIdentifierTypeUniqueNonDisplayableId:
         {
-            return [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString];
+            if (!accountIdentifier.localAccountId
+                || [accountIdentifier.localAccountId.lowercaseString isEqualToString:tokenResult.account.localAccountId.lowercaseString])
+            {
+                return YES;
+            }
+            break;
         }
         case MSIDLegacyIdentifierTypeOptionalDisplayableId:
         {
             return YES;
         }
-
+            
         default:
-            return NO;
+            break;
+        
     }
+    
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
+    }
+    
+    return NO;
 }
 
 @end

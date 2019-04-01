@@ -43,6 +43,7 @@
 
 - (MSIDIdToken *)getIDTokenForAccount:(MSIDAccountIdentifier *)account
                         configuration:(MSIDConfiguration *)configuration
+                          idTokenType:(MSIDCredentialType)idTokenType
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 

@@ -29,8 +29,9 @@
 #import "MSIDWebviewResponse.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebAADAuthResponse.h"
-#import "MSIDWebMSAuthResponse.h"
+#import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDCBAWebAADAuthResponse.h"
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #endif
@@ -125,7 +126,13 @@
 
             if (oauthResponse.authorizationCode)
             {
+                if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
+                {
+                    MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
+                    self.requestParameters.redirectUri = cbaResponse.redirectUri;
+                }
                 // handle instance aware flow (cloud host)
+                
                 if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
                 {
                     MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
@@ -140,9 +147,9 @@
             completionBlock(nil, oauthResponse.oauthError, nil);
             return;
         }
-        else if ([response isKindOfClass:MSIDWebMSAuthResponse.class])
+        else if ([response isKindOfClass:MSIDWebWPJResponse.class])
         {
-            completionBlock(nil, nil, (MSIDWebMSAuthResponse *)response);
+            completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
@@ -151,8 +158,8 @@
 #if TARGET_OS_IPHONE
             if (![MSIDAppExtensionUtil isExecutingInAppExtension])
             {
-                MSID_LOG_INFO(nil, @"Opening a browser");
-                MSID_LOG_INFO_PII(nil, @"Opening a browser - %@", browserURL);
+                MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Opening a browser");
+                MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Opening a browser - %@", browserURL);
                 [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
             }
             else
@@ -240,12 +247,13 @@
         }
 
         NSError *validationError = nil;
+        
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
-
+        
         if (!tokenResult)
         {
             // Special case - need to return homeAccountId in case of Intune policies required.
@@ -267,7 +275,18 @@
             completionBlock(nil, validationError, nil);
             return;
         }
-
+        
+        BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
+                                                               tokenResult:tokenResult
+                                                             correlationID:self.requestParameters.correlationId
+                                                                     error:&validationError];
+        
+        if (!accountChecked)
+        {
+            completionBlock(nil, validationError, nil);
+            return;
+        }
+        
         completionBlock(tokenResult, nil, nil);
     }];
 }

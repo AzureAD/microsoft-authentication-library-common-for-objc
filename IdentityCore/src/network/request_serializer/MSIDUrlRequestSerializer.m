@@ -41,7 +41,7 @@
         NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
         NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
         [urlParameters addEntriesFromDictionary:parameters];
-        urlComponents.percentEncodedQuery = [urlParameters msidWWWFormURLEncode];
+        urlComponents.percentEncodedQuery = [urlParameters msidURLEncode];
         mutableRequest.URL = urlComponents.URL;
     }
     else

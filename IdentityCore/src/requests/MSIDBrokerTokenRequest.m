@@ -93,7 +93,7 @@
 
     [contents addEntriesFromDictionary:protocolContents];
 
-    NSString* query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
+    NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
     NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", self.requestParameters.supportedBrokerProtocolScheme, query]];
 
@@ -133,8 +133,6 @@
     if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
-    MSID_LOG_INFO(self.requestParameters, @"Invoking broker for authentication");
-
     NSString *enrollmentIds = [self intuneEnrollmentIdsParameterWithError:error];
     if (!enrollmentIds) return nil;
 
@@ -146,7 +144,7 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-    NSString *extraQueryParameters = [self.requestParameters.extraQueryParameters count] ? [self.requestParameters.extraQueryParameters msidWWWFormURLEncode] : @"";
+    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -233,8 +231,8 @@
 
     if (cacheError)
     {
-        MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %@", cacheError);
         if (error) *error = cacheError;
         return nil;
     }
@@ -252,8 +250,8 @@
 
     if (cacheError)
     {
-        MSID_LOG_ERROR(self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %ld, %@", (long)cacheError.code, cacheError.domain);
-        MSID_LOG_ERROR_PII(self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %@", cacheError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %ld, %@", (long)cacheError.code, cacheError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, nil, self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %@", cacheError);
         if (error) *error = cacheError;
         return nil;
     }

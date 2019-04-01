@@ -81,6 +81,9 @@
     [response setResponseJSON:responseJson];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:response];
     
@@ -130,6 +133,9 @@
                                                          respondWithError:[NSError new]];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
     
@@ -241,6 +247,9 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
@@ -279,6 +288,9 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://example.com/common/.well-known/openid-configuration",
@@ -318,6 +330,9 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
@@ -369,6 +384,9 @@
                                                          respondWithError:error];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
 
@@ -426,6 +444,9 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"error" : @"invalid_instance"};
     [response setResponseJSON:responseJson];
@@ -455,6 +476,9 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"error" : @"invalid_instance"};
     [response setResponseJSON:responseJson];
@@ -499,6 +523,9 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
@@ -562,13 +589,16 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
@@ -603,13 +633,16 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     __auto_type error = [[NSError alloc] initWithDomain:@"Test domain" code:-1 userInfo:nil];
     MSIDTestURLResponse *responseWithError = [MSIDTestURLResponse request:webFingerRequestUrl
                                                          respondWithError:error];
@@ -643,6 +676,9 @@
                                                          respondWithError:error];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
 
@@ -657,7 +693,7 @@
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
@@ -691,6 +727,9 @@
                                                          respondWithError:error];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
 
@@ -747,13 +786,16 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
@@ -802,13 +844,16 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
     [MSIDTestURLSession addResponse:response];
 
     // Web finger response.
-    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https://login.windows.com/adfs" msidUrl];
+    __auto_type webFingerRequestUrl = [@"https://example.com/.well-known/webfinger?resource=https%3A%2F%2Flogin.windows.com%2Fadfs" msidUrl];
     response = [MSIDTestURLResponse request:webFingerRequestUrl
                                     reponse:httpResponse];
     responseJson = @{@"links" : @[@{@"rel": @"http://schemas.microsoft.com/rel/trusted-realm",
@@ -876,6 +921,9 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
+#if TARGET_OS_IPHONE
+    headers[@"x-ms-PkeyAuth"] = @"1.0";
+#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : openIdConfigurationEndpoint.absoluteString,

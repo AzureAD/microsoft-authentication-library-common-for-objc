@@ -21,15 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSUUID+MSIDTestUtil.h"
+#import <objc/runtime.h>
 
-@interface MSIDClientCredentialHelper : NSObject
+static NSUUID *s_mockUUID;
+static BOOL s_swizzleState = NO;
 
-+ (void)getAccessTokenForAuthority:(NSString *)authority
-                          resource:(NSString *)resource
-                          clientId:(NSString *)clientId
-                       certificate:(NSData *)certificateData
-               certificatePassword:(NSString *)password
-                 completionHandler:(void (^)(NSString *accessToken, NSError *error))completionHandler;
+@implementation NSUUID (MSIDTestUtil)
+
++ (void)mockUUID:(NSUUID *)uuid
+{
+    s_mockUUID = uuid;
+    
+    if (!s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = YES;
+    }
+}
+
++ (void)reset
+{
+    if (s_swizzleState)
+    {
+        [self swapMethods];
+        
+        s_swizzleState = NO;
+    }
+}
+
++ (instancetype)mockedUUID
+{
+    return s_mockUUID;
+}
+
+#pragma mark - Private
+
++ (void)swapMethods
+{
+    Method origMethod = class_getClassMethod(NSUUID.class, @selector(UUID));
+    Method mockMethod = class_getClassMethod(NSUUID.class, @selector(mockedUUID));
+    method_exchangeImplementations(origMethod, mockMethod);
+}
 
 @end

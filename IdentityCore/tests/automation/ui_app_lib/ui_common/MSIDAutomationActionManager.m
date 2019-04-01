@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,22 +15,55 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "MSIDWebviewResponse.h"
+#import "MSIDAutomationActionManager.h"
 
-@class MSIDClientInfo;
+@interface MSIDAutomationActionManager()
 
-@interface MSIDWebMSAuthResponse : MSIDWebviewResponse
+@property (nonatomic, strong) NSMutableDictionary<NSString *,id<MSIDAutomationTestAction>> *testActions;
 
-@property (readonly) NSString *upn;
-@property (readonly) NSString *appInstallLink;
-@property (readonly) MSIDClientInfo *clientInfo;
+@end
+
+@implementation MSIDAutomationActionManager
+
++ (MSIDAutomationActionManager *)sharedInstance
+{
+    static MSIDAutomationActionManager *singleton = nil;
+    static dispatch_once_t onceToken;
+
+    dispatch_once(&onceToken, ^{
+        singleton = [[MSIDAutomationActionManager alloc] init];
+        singleton.testActions = [NSMutableDictionary new];
+    });
+
+    return singleton;
+}
+
+- (void)registerAction:(id<MSIDAutomationTestAction>)action
+{
+    if (!action)
+    {
+        return;
+    }
+
+    @synchronized (self) {
+        self.testActions[action.actionIdentifier] = action;
+    }
+}
+
+- (id<MSIDAutomationTestAction>)actionForIdentifier:(NSString *)actionIdentifier
+{
+    return self.testActions[actionIdentifier];
+}
+
+- (NSArray<NSString *> *)actionIdentifiers
+{
+    return [self.testActions allKeys];
+}
 
 @end

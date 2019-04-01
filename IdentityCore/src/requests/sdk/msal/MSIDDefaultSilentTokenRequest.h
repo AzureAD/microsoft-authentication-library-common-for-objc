@@ -24,6 +24,7 @@
 #import "MSIDSilentTokenRequest.h"
 
 @class MSIDDefaultTokenCacheAccessor;
+@class MSIDIdToken;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,6 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache;
+
+-(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
+                                 error:(NSError **)error;
 
 @end
 

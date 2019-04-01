@@ -275,6 +275,32 @@
     XCTAssertNil(error);
 }
 
+#pragma mark - AAD authority
+
+- (void)testAADAuthorityWithEnvironmentAndRawTenant_whenTenantIdProvided_shouldReturnAuthorityWithTenantId
+{
+    NSError *error = nil;
+    MSIDAADAuthority *authority = [MSIDAADAuthority aadAuthorityWithEnvironment:@"login.microsoftonline.com"
+                                                                      rawTenant:@"contoso.com"
+                                                                        context:nil
+                                                                          error:&error];
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(authority.url, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
+}
+
+- (void)testAADAuthorityWithEnvironmentAndRawTenant_whenNoTenantIdProvided_shouldReturnAuthorityWithCommonTenant
+{
+    NSError *error = nil;
+    MSIDAADAuthority *authority = [MSIDAADAuthority aadAuthorityWithEnvironment:@"login.microsoftonline.com"
+                                                                      rawTenant:nil
+                                                                        context:nil
+                                                                          error:&error];
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(authority.url, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenTenantedAADAuhority_shouldReturnOriginalAuthority

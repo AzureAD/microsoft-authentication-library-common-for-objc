@@ -26,6 +26,11 @@
 
 @implementation MSIDAccountIdentifier
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"MSIDAccountIdentifier displayableId: %@, homeAccountId: %@", self.displayableId, self.homeAccountId];
+}
+
 #pragma mark - Init
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
@@ -80,6 +85,15 @@
     if ([typeString isEqualToString:@"OptionalDisplayableId"])  return MSIDLegacyIdentifierTypeOptionalDisplayableId;
         
     return MSIDLegacyIdentifierTypeOptionalDisplayableId; // default for broker.
+}
+
++ (NSString *)homeAccountIdentifierFromUid:(NSString *)uid utid:(NSString *)utid
+{
+    if (uid && utid)
+    {
+        return [NSString stringWithFormat:@"%@.%@", uid, utid];
+    }
+    else return nil;
 }
 
 #pragma mark - Copy

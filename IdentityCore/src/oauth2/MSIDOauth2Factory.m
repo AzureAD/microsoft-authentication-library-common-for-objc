@@ -45,6 +45,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDTokenResponseSerializer.h"
+#import "MSIDV1IdToken.h"
 
 @implementation MSIDOauth2Factory
 
@@ -223,7 +224,7 @@
     }
 
     // We want to keep case as it comes from the server side
-    token.scopes = [NSOrderedSet msidOrderedSetFromString:response.target normalize:NO];
+    token.scopes = [response.target msidScopeSet];
     token.accessToken = response.accessToken;
     
     if (!token.accessToken)
@@ -405,6 +406,7 @@
                                                                                                              code:authCode
                                                                                                            claims:claims
                                                                                                      codeVerifier:pkceCodeVerifier
+                                                                                                  extraParameters:parameters.extraTokenRequestParameters
                                                                                                           context:parameters];
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
     
@@ -420,6 +422,7 @@
                                                                                                clientId:parameters.clientId
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken
+                                                                                        extraParameters:parameters.extraTokenRequestParameters
                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
     

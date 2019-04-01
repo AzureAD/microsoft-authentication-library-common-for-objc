@@ -35,7 +35,6 @@
 - (BOOL)validateTokenResult:(MSIDTokenResult *)tokenResult
               configuration:(MSIDConfiguration *)configuration
                   oidcScope:(NSString *)oidcScope
-             requestAccount:(MSIDAccountIdentifier *)accountIdentifier
               correlationID:(NSUUID *)correlationID
                       error:(NSError **)error
 {
@@ -43,11 +42,11 @@
      If server returns less scopes than developer requested,
      we'd like to throw an error and specify which scopes were granted and which ones not
      */
+    
+    NSOrderedSet *grantedScopes = tokenResult.accessToken.scopes;
+    NSOrderedSet *normalizedGrantedScopes = grantedScopes.normalizedScopeSet;
 
-    NSMutableOrderedSet *grantedScopes = [[tokenResult.tokenResponse.scope msidScopeSet] mutableCopy];
-    NSOrderedSet *oidcScopes = [oidcScope msidScopeSet];
-
-    if (![configuration.scopes isSubsetOfOrderedSet:grantedScopes])
+    if (![configuration.scopes.normalizedScopeSet isSubsetOfOrderedSet:normalizedGrantedScopes])
     {
         if (error)
         {
@@ -55,15 +54,15 @@
             
             MSID_LOG_ERROR_CORR(correlationID, @"Server returned less scopes than requested, granted scopes: %@", grantedScopes);
             // Remove oidc scopes.
-            [grantedScopes minusOrderedSet:oidcScopes];
+            NSOrderedSet *oidcScopes = oidcScope.msidScopeSet;
+            NSOrderedSet *filteredGrantedScopes = [grantedScopes msidMinusOrderedSet:oidcScopes normalize:YES];
             
             MSID_LOG_INFO_CORR(correlationID, @"Removing reserved scopes from granted scopes: %@", oidcScopes);
             MSID_LOG_INFO_CORR(correlationID, @"Final granted scopes: %@", grantedScopes);
             
-            additionalUserInfo[MSIDGrantedScopesKey] = [grantedScopes array];
+            additionalUserInfo[MSIDGrantedScopesKey] = [filteredGrantedScopes array];
 
-            NSMutableOrderedSet *declinedScopeSet = [[NSOrderedSet msidOrderedSetFromString:configuration.target] mutableCopy];
-            [declinedScopeSet minusOrderedSet:grantedScopes];
+            NSOrderedSet *declinedScopeSet = [configuration.scopes msidMinusOrderedSet:filteredGrantedScopes normalize:YES];
 
             additionalUserInfo[MSIDDeclinedScopesKey] = [declinedScopeSet array];
             additionalUserInfo[MSIDInvalidTokenResultKey] = tokenResult;
@@ -74,18 +73,26 @@
         return NO;
     }
 
-    if (accountIdentifier.homeAccountId != nil
-        && ![accountIdentifier.homeAccountId isEqualToString:tokenResult.accessToken.accountIdentifier.homeAccountId])
+    return YES;
+}
+
+- (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(MSIDTokenResult *)tokenResult
+              correlationID:(NSUUID *)correlationID
+                      error:(NSError **)error
+{
+    if (accountIdentifier.uid != nil
+        && ![accountIdentifier.uid isEqualToString:tokenResult.accessToken.accountIdentifier.uid])
     {
         if (error)
         {
             NSDictionary *userInfo = @{MSIDInvalidTokenResultKey : tokenResult};
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo);
         }
-
+        
         return NO;
     }
-
+    
     return YES;
 }
 

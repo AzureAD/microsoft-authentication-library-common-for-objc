@@ -30,6 +30,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDBasicContext.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -46,17 +47,18 @@
         return nil;
     }
 
+    MSIDBasicContext *context = [MSIDBasicContext new];
+    context.correlationId = correlationID;
     NSError *verificationError = nil;
-
-    if (![factory verifyResponse:tokenResponse context:nil error:&verificationError])
+    if (![factory verifyResponse:tokenResponse context:context error:&verificationError])
     {
         if (error)
         {
             *error = verificationError;
         }
 
-        MSID_LOG_WARN(nil, @"Unsuccessful token response, error %ld, %@", (long)verificationError.code, verificationError.domain);
-        MSID_LOG_WARN_CORR_PII(correlationID, @"Unsuccessful token response, error %@", verificationError);
+        MSID_LOG_NO_PII(MSIDLogLevelWarning, correlationID, nil, @"Unsuccessful token response, error %ld, %@", (long)verificationError.code, verificationError.domain);
+        MSID_LOG_PII(MSIDLogLevelWarning, correlationID, nil, @"Unsuccessful token response, error %@", verificationError);
 
         return nil;
     }
@@ -80,11 +82,18 @@
 - (BOOL)validateTokenResult:(__unused MSIDTokenResult *)tokenResult
               configuration:(__unused MSIDConfiguration *)configuration
                   oidcScope:(__unused NSString *)oidcScope
-             requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
               correlationID:(__unused NSUUID *)correlationID
                       error:(__unused NSError **)error
 {
     // Post saving validation
+    return YES;
+}
+
+- (BOOL)validateAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
+            tokenResult:(__unused MSIDTokenResult *)tokenResult
+          correlationID:(__unused NSUUID *)correlationID
+                  error:(__unused NSError *__autoreleasing  _Nullable *)error
+{
     return YES;
 }
 
@@ -95,6 +104,8 @@
                                      correlationID:(NSUUID *)correlationID
                                              error:(NSError **)error
 {
+    MSID_LOG_INFO_CORR(correlationID, @"Validating broker response.");
+    
     if (!brokerResponse)
     {
         MSIDFillAndLogError(error, MSIDErrorInternal, @"Broker response is nil", correlationID);
@@ -122,11 +133,13 @@
 
     if (!tokenResult)
     {
+        MSID_LOG_INFO_CORR(correlationID, @"Broker response is not valid.");
         return nil;
     }
+    MSID_LOG_INFO_CORR(correlationID, @"Broker response is valid.");
 
     BOOL shouldSaveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse;
-    MSID_LOG_VERBOSE_CORR(correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
+    MSID_LOG_INFO_CORR(correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
 
     NSError *savingError = nil;
     BOOL isSaved = NO;
@@ -150,21 +163,27 @@
 
     if (!isSaved)
     {
-        MSID_LOG_ERROR_CORR(correlationID, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
-        MSID_LOG_ERROR_CORR_PII(correlationID, @"Failed to save tokens in cache. Error %@", savingError);
+        MSID_LOG_NO_PII(MSIDLogLevelError, correlationID, nil, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
+        MSID_LOG_PII(MSIDLogLevelError, correlationID, nil, @"Failed to save tokens in cache. Error %@", savingError);
+    }
+    else
+    {
+        MSID_LOG_INFO_CORR(correlationID, @"Saved broker response.");
     }
 
+    MSID_LOG_INFO_CORR(correlationID, @"Validating token result.");
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:configuration
                                        oidcScope:oidcScope
-                                  requestAccount:nil
                                    correlationID:correlationID
                                            error:error];
 
     if (!resultValid)
     {
+        MSID_LOG_INFO_CORR(correlationID, @"Token result is invalid.");
         return nil;
     }
+    MSID_LOG_INFO_CORR(correlationID, @"Token result is valid.");
 
     tokenResult.brokerAppVersion = brokerResponse.brokerAppVer;
     return tokenResult;
@@ -198,7 +217,7 @@
 
     if (!isSaved)
     {
-        MSID_LOG_ERROR(parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, parameters, @"Failed to save tokens in cache. Error %ld, %@", (long)savingError.code, savingError.domain);
         MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", savingError);
     }
     
@@ -207,7 +226,6 @@
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
                                        oidcScope:parameters.oidcScope
-                                  requestAccount:parameters.accountIdentifier
                                    correlationID:parameters.correlationId
                                            error:error];
 
