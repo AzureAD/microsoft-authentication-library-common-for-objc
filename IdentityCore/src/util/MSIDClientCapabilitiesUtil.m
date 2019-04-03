@@ -47,26 +47,4 @@ static NSString *kCapabilitiesClaims = @"xms_cc";
     return result;
 }
 
-+ (NSString *)jsonFromClaimsRequest:(MSIDClaimsRequest *)claimsRequest
-{
-    NSDictionary *claims = [claimsRequest jsonDictionary];
-    if (!claims)
-    {
-        return nil;
-    }
-
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:claims options:0 error:&error];
-
-    if (!jsonData)
-    {
-        MSID_LOG_NO_PII(MSIDLogLevelError, nil, nil, @"Failed to convert capabilities into JSON");
-        MSID_LOG_PII(MSIDLogLevelError, nil, nil, @"Failed to convert capabilities into JSON with error %@", error.description);
-        
-        return nil;
-    }
-
-    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-}
-
 @end

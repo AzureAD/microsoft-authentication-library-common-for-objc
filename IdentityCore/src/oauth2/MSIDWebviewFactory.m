@@ -193,7 +193,7 @@
     configuration.parentController = parameters.parentViewController;
 #endif
 
-    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaimsRequest:parameters.claimsRequest];
+    NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
 
     if (![NSString msidIsStringNilOrBlank:claims])
     {

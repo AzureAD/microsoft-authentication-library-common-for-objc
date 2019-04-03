@@ -35,7 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (MSIDClaimsRequest *)msidClaimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
                                            claimsRequest:(MSIDClaimsRequest *)claimsRequest;
 
-+ (NSString *)jsonFromClaimsRequest:(MSIDClaimsRequest *)claimsRequest;
 
 @end
 

@@ -397,7 +397,7 @@
                                                                              authCode:(NSString *)authCode
                                                                         homeAccountId:(__unused NSString *)homeAccountId
 {
-    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaimsRequest:parameters.claimsRequest];
+    NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
