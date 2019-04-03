@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDClaimsRequest.h"
 
 @interface MSIDClientCapabilitiesTests : XCTestCase
 
@@ -30,54 +31,15 @@
 
 @implementation MSIDClientCapabilitiesTests
 
-#pragma mark - claimsParameterFromCapabilities
-
-- (void)testclaimsParameterFromCapabilities_whenNilCapabilities_shouldReturnNil
-{
-    NSArray *inputCapabilities = nil;
-
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities];
-
-    XCTAssertNil(result);
-}
-
-- (void)testclaimsParameterFromCapabilities_whenEmptyCapabilities_shouldReturnNil
-{
-    NSArray *inputCapabilities = @[];
-
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities];
-
-    XCTAssertNil(result);
-}
-
-- (void)testclaimsParameterFromCapabilities_whenKnownCapabilities_shouldReturnClaimsJSON
-{
-    NSArray *inputCapabilities = @[@"llt"];
-
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities];
-
-    XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}");
-}
-
-- (void)testclaimsParameterFromCapabilities_whenMultipleCapabilities_shouldReturnClaimsJSONWithAllCapabilities
-{
-    NSArray *inputCapabilities = @[@"unknown1", @"llt", @"unknown2"];
-
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities];
-
-    XCTAssertNotNil(result);
-    XCTAssertEqualObjects(result, @"{\"access_token\":{\"xms_cc\":{\"values\":[\"unknown1\",\"llt\",\"unknown2\"]}}}");
-}
-
 #pragma mark - claimsParameterFromCapabilities:developerClaims:
 
 - (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNilCapabilities_andNilDeveloperClaims_shouldReturnNil
 {
     NSArray *inputCapabilities = nil;
-    NSDictionary *inputClaims = nil;
-
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    MSIDClaimsRequest *claimsRequest = nil;
+    
+    MSIDClaimsRequest *result = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:inputCapabilities
+                                                                                claimsRequest:claimsRequest];
 
     XCTAssertNil(result);
 }
@@ -85,53 +47,61 @@
 - (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNilCapabilities_andNonNilDeveloperClaims_shouldReturnDeveloperClaims
 {
     NSArray *inputCapabilities = nil;
-    NSDictionary *inputClaims = @{@"access_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}};
+    MSIDClaimsRequest *claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"access_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}} error:nil];
 
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    MSIDClaimsRequest *result = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:inputCapabilities
+                                                                                claimsRequest:claimsRequest];
 
     XCTAssertNotNil(result);
 
     NSString *expectedResult = @"{\"access_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
-    XCTAssertEqualObjects(result, expectedResult);
+    NSString *jsonString = [[result jsonDictionary] msidJSONSerializeWithContext:nil];
+    XCTAssertEqualObjects(jsonString, expectedResult);
 }
 
 - (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNilDeveloperClaims_shouldReturnCapabilitiesClaims
 {
     NSArray *inputCapabilities = @[@"llt"];
-    NSDictionary *inputClaims = nil;
+    MSIDClaimsRequest *claimsRequest = nil;
 
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    MSIDClaimsRequest *result = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:inputCapabilities
+                                                                                claimsRequest:claimsRequest];
 
     XCTAssertNotNil(result);
 
     NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}}}";
-    XCTAssertEqualObjects(result, expectedResult);
+    NSString *jsonString = [[result jsonDictionary] msidJSONSerializeWithContext:nil];
+    XCTAssertEqualObjects(jsonString, expectedResult);
 }
 
 - (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNonNilDeveloperClaims_shouldReturnBoth
 {
     NSArray *inputCapabilities = @[@"llt"];
-    NSDictionary *inputClaims = @{@"id_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}};;
+    MSIDClaimsRequest *claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}} error:nil];
 
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    MSIDClaimsRequest *result = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:inputCapabilities
+                                                                                claimsRequest:claimsRequest];
 
     XCTAssertNotNil(result);
 
     NSString *expectedResult = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
-    XCTAssertEqualObjects(result, expectedResult);
+    NSString *jsonString = [[result jsonDictionary] msidJSONSerializeWithContext:nil];
+    XCTAssertEqualObjects(jsonString, expectedResult);
 }
 
 - (void)testclaimsParameterFromCapabilitiesAndDeveloperClaims_whenNonNilCapabilities_andNonNilDeveloperClaims_andAccessTokenClaimsInBoth_shouldMergeClaims
 {
     NSArray *inputCapabilities = @[@"cp1", @"llt"];
-    NSDictionary *inputClaims = @{@"access_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}};
-
-    NSString *result = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:inputCapabilities developerClaims:inputClaims];
+    MSIDClaimsRequest *claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"access_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}} error:nil];
+    
+    MSIDClaimsRequest *result = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:inputCapabilities
+                                                                                claimsRequest:claimsRequest];
 
     XCTAssertNotNil(result);
 
     NSString *expectedResult = @"{\"access_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true},\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}}}";
-    XCTAssertEqualObjects(result, expectedResult);
+    NSString *jsonString = [[result jsonDictionary] msidJSONSerializeWithContext:nil];
+    XCTAssertEqualObjects(jsonString, expectedResult);
 }
 
 @end

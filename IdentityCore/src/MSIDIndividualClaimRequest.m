@@ -32,6 +32,16 @@
     return [baseDescription stringByAppendingFormat:@"(name=%@, additional info=%@)", self.name, self.additionalInfo];
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDIndividualClaimRequest *item = [[self.class allocWithZone:zone] init];
+    item->_name = [_name copyWithZone:zone];
+    item->_additionalInfo = [_additionalInfo copyWithZone:zone];
+    return item;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error

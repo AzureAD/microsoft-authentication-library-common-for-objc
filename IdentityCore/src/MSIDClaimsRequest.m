@@ -46,8 +46,13 @@
     return _claimsRequestsDict;
 }
 
+- (NSUInteger)count
+{
+    return self.claimsRequestsDict.count;
+}
+
 - (void)requestClaim:(MSIDIndividualClaimRequest *)request
-                 forTarget:(MSIDClaimsRequestTarget)target;
+           forTarget:(MSIDClaimsRequestTarget)target
 {
     if (!request) return;
     
@@ -88,6 +93,15 @@
     [requests removeObject:tmpRequest];
     
     self.claimsRequestsDict[key] = requests;
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDClaimsRequest *item = [MSIDClaimsRequest new];
+    item->_claimsRequestsDict = [_claimsRequestsDict mutableCopy];
+    return item;
 }
 
 #pragma mark - MSIDJsonSerializable

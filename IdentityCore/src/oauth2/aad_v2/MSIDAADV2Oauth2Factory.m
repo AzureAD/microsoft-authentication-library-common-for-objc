@@ -43,6 +43,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADTokenResponseSerializer.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -205,8 +206,9 @@
                                                                              authCode:(NSString *)authCode
                                                                         homeAccountId:(NSString *)homeAccountId
 {
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
-                                                                       developerClaims:parameters.claims];
+    __auto_type claimsRequest = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                                claimsRequest:parameters.claimsRequest];
+    NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = nil;
@@ -245,8 +247,9 @@
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken
 {
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
-                                                                       developerClaims:parameters.claims];
+    __auto_type claimsRequest = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                                claimsRequest:parameters.claimsRequest];
+    NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId

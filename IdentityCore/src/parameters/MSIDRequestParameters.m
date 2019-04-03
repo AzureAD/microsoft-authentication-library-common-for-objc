@@ -167,24 +167,6 @@
     [self updateMSIDConfiguration];
 }
 
-- (BOOL)setClaimsRequest:(MSIDClaimsRequest *)claimsRequest error:(NSError **)error
-{
-    if (claimsRequest == nil) return YES;
-
-    NSDictionary *decodedDictionary = [claimsRequest jsonDictionary];
-    if (!decodedDictionary)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Claims is not proper JSON. Please make sure it is correct JSON claims parameter.", nil, nil, nil, self.correlationId, nil);
-        }
-        return NO;
-    }
-
-    self.claims = decodedDictionary;
-    return YES;
-}
-
 - (NSString *)allTokenRequestScopes
 {
     NSMutableOrderedSet *requestScopes = [[self.target msidScopeSet] mutableCopy];

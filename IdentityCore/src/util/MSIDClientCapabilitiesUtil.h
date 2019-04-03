@@ -23,25 +23,19 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDClaimsRequest;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDClientCapabilitiesUtil : NSObject
 
-/*
- Takes a list of capabilities and returns the JSON claims.
- The result JSON is not URL encoded and caller needs to encode it if necessary
+/*!
+ Takes a list of capabilities and combines them with claims request.
  */
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
++ (MSIDClaimsRequest *)msidClaimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
+                                           claimsRequest:(MSIDClaimsRequest *)claimsRequest;
 
-/*
- Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
- The result JSON is not URL encoded and caller needs to encode it if necessary
- */
-
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
-                                  developerClaims:(NSDictionary *)developerClaims;
-
-+ (NSString *)jsonFromClaims:(NSDictionary *)claims;
++ (NSString *)jsonFromClaimsRequest:(MSIDClaimsRequest *)claimsRequest;
 
 @end
 

@@ -35,7 +35,9 @@ typedef NS_ENUM(NSUInteger, MSIDClaimsRequestTarget)
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDClaimsRequest : NSObject <MSIDJsonSerializable>
+@interface MSIDClaimsRequest : NSObject <NSCopying, MSIDJsonSerializable>
+
+@property (readonly) NSUInteger count;
 
 - (void)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target;
 

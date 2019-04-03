@@ -38,6 +38,7 @@
 #import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDPromptType_Internal.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDWebviewFactory
 
@@ -192,7 +193,7 @@
     configuration.parentController = parameters.parentViewController;
 #endif
 
-    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
+    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaimsRequest:parameters.claimsRequest];
 
     if (![NSString msidIsStringNilOrBlank:claims])
     {

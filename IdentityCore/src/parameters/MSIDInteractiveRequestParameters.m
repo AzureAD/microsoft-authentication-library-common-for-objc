@@ -23,6 +23,7 @@
 
 #import "MSIDInteractiveRequestParameters.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDInteractiveRequestParameters
 
@@ -92,7 +93,8 @@
         return NO;
     }
 
-    if ([self.claims count] && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
+    
+    if (self.claimsRequest.count && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
         return NO;

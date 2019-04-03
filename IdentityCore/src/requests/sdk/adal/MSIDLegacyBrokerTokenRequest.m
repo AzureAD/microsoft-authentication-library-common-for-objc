@@ -25,6 +25,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDLegacyBrokerTokenRequest
 
@@ -35,7 +36,7 @@
 {
     NSString *skipCacheValue = @"NO";
 
-    if ([self.requestParameters.claims count])
+    if (self.requestParameters.claimsRequest.count)
     {
         skipCacheValue = @"YES";
     }

@@ -23,58 +23,33 @@
 
 #import "MSIDClientCapabilitiesUtil.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDIndividualClaimRequest.h"
+#import "MSIDIndividualClaimRequestAdditionalInfo.h"
 
-static NSString *kAccessTokenClaims = @"access_token";
 static NSString *kCapabilitiesClaims = @"xms_cc";
-static NSString *kValuesClaim = @"values";
 
 @implementation MSIDClientCapabilitiesUtil
 
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
++ (MSIDClaimsRequest *)msidClaimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
+                                           claimsRequest:(MSIDClaimsRequest *)claimsRequest
 {
-    if (![capabilities count])
-    {
-        return nil;
-    }
-
-    NSDictionary *claims = @{kAccessTokenClaims:@{kCapabilitiesClaims: @{kValuesClaim : capabilities}}};
-    return [self jsonFromClaims:claims];
+    if (![capabilities count]) return [claimsRequest copy];
+    
+    MSIDClaimsRequest *result = claimsRequest ? [claimsRequest copy] : [MSIDClaimsRequest new];
+    MSIDIndividualClaimRequest *claimRequest = [MSIDIndividualClaimRequest new];
+    claimRequest.name = kCapabilitiesClaims;
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.values = [[NSSet alloc] initWithArray:capabilities];
+    
+    [result requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken];
+    
+    return result;
 }
 
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
-                                  developerClaims:(NSDictionary *)developerClaims
++ (NSString *)jsonFromClaimsRequest:(MSIDClaimsRequest *)claimsRequest
 {
-    if (![capabilities count])
-    {
-        return [self jsonFromClaims:developerClaims];
-    }
-
-    NSMutableDictionary *claims = [NSMutableDictionary new];
-
-    if (developerClaims)
-    {
-        [claims addEntriesFromDictionary:developerClaims];
-    }
-
-    NSDictionary *additionalClaims = @{kCapabilitiesClaims: @{kValuesClaim : capabilities}};
-    NSDictionary *accessTokenClaims = claims[kAccessTokenClaims];
-
-    if ([accessTokenClaims count])
-    {
-        NSMutableDictionary *mutableAccessTokenClaims = [accessTokenClaims mutableCopy];
-        [mutableAccessTokenClaims addEntriesFromDictionary:additionalClaims];
-        claims[kAccessTokenClaims] = mutableAccessTokenClaims;
-    }
-    else
-    {
-        claims[kAccessTokenClaims] = additionalClaims;
-    }
-
-    return [self jsonFromClaims:claims];
-}
-
-+ (NSString *)jsonFromClaims:(NSDictionary *)claims
-{
+    NSDictionary *claims = [claimsRequest jsonDictionary];
     if (!claims)
     {
         return nil;

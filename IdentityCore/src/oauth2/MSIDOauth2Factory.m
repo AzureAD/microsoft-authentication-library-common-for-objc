@@ -46,6 +46,7 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDOauth2Factory
 
@@ -396,7 +397,7 @@
                                                                              authCode:(NSString *)authCode
                                                                         homeAccountId:(__unused NSString *)homeAccountId
 {
-    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
+    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaimsRequest:parameters.claimsRequest];
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
