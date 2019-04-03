@@ -21,21 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "NSOrderedSet+MSIDExtensions.h"
-#import "NSString+MSIDTelemetryExtensions.h"
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSMutableDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "NSDate+MSIDExtensions.h"
-#import "NSData+MSIDExtensions.h"
-#import "NSData+JWT.h"
-#import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
-
-#if TARGET_OS_IOS
-#import "UIApplication+MSIDExtensions.h"
-#endif
 
 NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
 NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
@@ -53,17 +39,3 @@ NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
 NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
 NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
-
-/**
- * @discussion Workaround for exporting symbols from category object files. See article
- * https://medium.com/ios-os-x-development/categories-in-static-libraries-78e41f8ddb96#.aedfl1kl0
- */
-__attribute__((used)) static void importCategories() {
-  [NSString stringWithFormat:@"%@ %@ %@ %@ %@ %@ %@ %@ %@ %@", NSOrderedSetMSIDExtensionsCategory, NSStringMSIDTelemetryExtensionsCategory, NSDictionaryMSIDExtensionsCategory, NSMutableDictionaryMSIDExtensionsCategory, NSStringMSIDExtensionsCategory, NSURLMSIDExtensionsCategory, NSDateMSIDExtensionsCategory, NSDataMSIDExtensionsCategory, NSDataJWTCategory, NSErrorMSIDExtensionsCategory];
-}
-
-#if TARGET_OS_IOS
-__attribute__((used)) static void importCategoriesIOS() {
-  [NSString stringWithFormat:@"%@", UIApplicationMSIDExtensionsCategory];
-}
-#endif
