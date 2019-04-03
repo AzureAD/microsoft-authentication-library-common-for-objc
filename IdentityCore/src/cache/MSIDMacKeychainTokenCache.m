@@ -36,7 +36,9 @@
 #import "MSIDUserInformation.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDDefaultAccountCacheKey.h"
+#import "MSIDCacheItemJsonSerializer.h"
 
 /**
 This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -585,7 +587,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 // A test-only method that deletes all items from the cache for the given context.
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
-
 {
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
@@ -603,9 +604,19 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
-
-        return NO;
+        MSID_LOG_WARN(context, @"Failed to delete keychain items (status: %d), using fallback", (int)status);
+        // If for some reason the single SecItemDelete() fails, delete as many of the individual items from the keychain as possible.
+        MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+        MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
+        NSArray<MSIDAccountCacheItem *> *accountList = [self accountsWithKey:query serializer:serializer context:context error:error];
+        for (MSIDAccountCacheItem *account in accountList)
+        {
+            MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
+                                                                                            environment:account.environment
+                                                                                                  realm:account.realm
+                                                                                                   type:account.accountType];
+            [self removeItemsWithAccountKey:key context:context error:nil];
+        }
     }
 
     return YES;
