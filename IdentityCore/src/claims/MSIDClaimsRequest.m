@@ -92,8 +92,7 @@
     
     NSMutableSet *requests = self.claimsRequestsDict[key];
     
-    MSIDIndividualClaimRequest *tmpRequest = [MSIDIndividualClaimRequest new];
-    tmpRequest.name = name;
+    MSIDIndividualClaimRequest *tmpRequest = [[MSIDIndividualClaimRequest alloc] initWithName:name];
     if (![requests containsObject:tmpRequest]) return;
         
     [requests removeObject:tmpRequest];

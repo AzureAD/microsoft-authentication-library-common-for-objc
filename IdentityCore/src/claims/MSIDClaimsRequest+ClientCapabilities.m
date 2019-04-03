@@ -33,8 +33,7 @@ static NSString *kCapabilitiesClaimName = @"xms_cc";
 {
     if (capabilities.count == 0) return;
     
-    MSIDIndividualClaimRequest *claimRequest = [MSIDIndividualClaimRequest new];
-    claimRequest.name = kCapabilitiesClaimName;
+    MSIDIndividualClaimRequest *claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:kCapabilitiesClaimName];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.values = [[NSSet alloc] initWithArray:capabilities];
     

@@ -2283,10 +2283,10 @@
 				23FB5C24225517AA002BF1EB /* MSIDClaimsRequest.m */,
 				23FB5C2D22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.h */,
 				23FB5C2E22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m */,
-				23FB5C25225517AA002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.h */,
-				23FB5C27225517AA002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.m */,
 				23FB5C26225517AA002BF1EB /* MSIDIndividualClaimRequest.h */,
 				23FB5C29225517AA002BF1EB /* MSIDIndividualClaimRequest.m */,
+				23FB5C25225517AA002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.h */,
+				23FB5C27225517AA002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.m */,
 			);
 			path = claims;
 			sourceTree = "<group>";

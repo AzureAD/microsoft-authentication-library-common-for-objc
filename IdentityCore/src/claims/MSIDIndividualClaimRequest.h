@@ -34,6 +34,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
 
+- (instancetype)initWithName:(NSString *)name;
+
++ (instancetype)new NS_UNAVAILABLE;
+
+- (instancetype)init NS_UNAVAILABLE;
+
 - (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
 
 @end
