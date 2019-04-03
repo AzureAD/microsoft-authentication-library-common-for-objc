@@ -71,7 +71,6 @@ static NSString *const kValuesJsonParam = @"values";
             
             _values = [[NSSet alloc] initWithArray:values];
             
-            // TODO: test
             if (_values.count != values.count)
             {
                 if (error) *error = MSIDCreateError(MSIDErrorDomain,
