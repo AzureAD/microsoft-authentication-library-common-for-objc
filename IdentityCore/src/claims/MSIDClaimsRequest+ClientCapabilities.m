@@ -21,30 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDClaimsRequest+ClientCapabilities.h"
+#import "MSIDIndividualClaimRequest.h"
+#import "MSIDIndividualClaimRequestAdditionalInfo.h"
 
-@class MSIDIndividualClaimRequest;
+static NSString *kCapabilitiesClaimName = @"xms_cc";
 
-typedef NS_ENUM(NSUInteger, MSIDClaimsRequestTarget)
+@implementation MSIDClaimsRequest (ClientCapabilities)
+
+- (void)requestCapabilities:(NSArray<NSString *> *)capabilities
 {
-    MSIDClaimsRequestTargetInvalid,
-    MSIDClaimsRequestTargetIdToken,
-    MSIDClaimsRequestTargetAccessToken
-};
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDClaimsRequest : NSObject <NSCopying, MSIDJsonSerializable>
-
-@property (readonly) NSUInteger count;
-
-- (void)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target;
-
-- (NSArray<MSIDIndividualClaimRequest *> *)claimRequestsForTarget:(MSIDClaimsRequestTarget)target;
-
-- (void)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target;
+    if (capabilities.count == 0) return;
+    
+    MSIDIndividualClaimRequest *claimRequest = [MSIDIndividualClaimRequest new];
+    claimRequest.name = kCapabilitiesClaimName;
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.values = [[NSSet alloc] initWithArray:capabilities];
+    
+    [self requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -35,7 +35,6 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDClaimsRequest.h"

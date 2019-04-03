@@ -21,30 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDClientCapabilitiesUtil.h"
-#import "NSDictionary+MSIDExtensions.h"
-#import "MSIDClaimsRequest.h"
-#import "MSIDIndividualClaimRequest.h"
-#import "MSIDIndividualClaimRequestAdditionalInfo.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
-static NSString *kCapabilitiesClaims = @"xms_cc";
+@class MSIDIndividualClaimRequest;
 
-@implementation MSIDClientCapabilitiesUtil
-
-+ (MSIDClaimsRequest *)msidClaimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
-                                           claimsRequest:(MSIDClaimsRequest *)claimsRequest
+typedef NS_ENUM(NSUInteger, MSIDClaimsRequestTarget)
 {
-    if (![capabilities count]) return [claimsRequest copy];
-    
-    MSIDClaimsRequest *result = claimsRequest ? [claimsRequest copy] : [MSIDClaimsRequest new];
-    MSIDIndividualClaimRequest *claimRequest = [MSIDIndividualClaimRequest new];
-    claimRequest.name = kCapabilitiesClaims;
-    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
-    claimRequest.additionalInfo.values = [[NSSet alloc] initWithArray:capabilities];
-    
-    [result requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken];
-    
-    return result;
-}
+    MSIDClaimsRequestTargetInvalid,
+    MSIDClaimsRequestTargetIdToken,
+    MSIDClaimsRequestTargetAccessToken
+};
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDClaimsRequest : NSObject <NSCopying, MSIDJsonSerializable>
+
+// TODO: rename to empty
+@property (readonly) NSUInteger count;
+
+- (void)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target;
+
+- (NSArray<MSIDIndividualClaimRequest *> *)claimRequestsForTarget:(MSIDClaimsRequestTarget)target;
+
+- (void)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target;
 
 @end
+
+NS_ASSUME_NONNULL_END

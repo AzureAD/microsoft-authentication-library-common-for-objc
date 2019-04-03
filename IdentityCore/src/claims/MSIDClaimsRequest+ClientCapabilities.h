@@ -21,20 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-
-@class MSIDClaimsRequest;
+#import "MSIDClaimsRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDClientCapabilitiesUtil : NSObject
+@interface MSIDClaimsRequest (ClientCapabilities)
 
 /*!
- Takes a list of capabilities and combines them with claims request.
+ Requests a list of capabilities.
  */
-+ (MSIDClaimsRequest *)msidClaimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
-                                           claimsRequest:(MSIDClaimsRequest *)claimsRequest;
-
+- (void)requestCapabilities:(NSArray<NSString *> *)capabilities;
 
 @end
 

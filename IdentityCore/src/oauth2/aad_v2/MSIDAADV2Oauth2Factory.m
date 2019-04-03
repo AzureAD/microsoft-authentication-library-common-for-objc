@@ -35,7 +35,6 @@
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAuthorityFactory.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRefreshTokenGrantRequest.h"
@@ -44,6 +43,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDClaimsRequest+ClientCapabilities.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -206,9 +206,10 @@
                                                                              authCode:(NSString *)authCode
                                                                         homeAccountId:(NSString *)homeAccountId
 {
-    __auto_type claimsRequest = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:parameters.clientCapabilities
-                                                                                claimsRequest:parameters.claimsRequest];
+    MSIDClaimsRequest *claimsRequest = [parameters.claimsRequest copy];
+    [claimsRequest requestCapabilities:parameters.clientCapabilities];
     NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
+    
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = nil;
@@ -247,8 +248,8 @@
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken
 {
-    __auto_type claimsRequest = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:parameters.clientCapabilities
-                                                                                claimsRequest:parameters.claimsRequest];
+    MSIDClaimsRequest *claimsRequest = [parameters.claimsRequest copy];
+    [claimsRequest requestCapabilities:parameters.clientCapabilities];
     NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
     NSString *allScopes = parameters.allTokenRequestScopes;
 

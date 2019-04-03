@@ -32,9 +32,8 @@
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
-#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDCBAWebAADAuthResponse.h"
-#import "MSIDClaimsRequest.h"
+#import "MSIDClaimsRequest+ClientCapabilities.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -140,8 +139,8 @@
     authorizationComponents.host = networkURL.host;
     configuration.authorizationEndpoint = authorizationComponents.URL;
     
-    __auto_type claimsRequest = [MSIDClientCapabilitiesUtil msidClaimsRequestFromCapabilities:parameters.clientCapabilities
-                                                                                claimsRequest:parameters.claimsRequest];
+    MSIDClaimsRequest *claimsRequest = [parameters.claimsRequest copy];
+    [claimsRequest requestCapabilities:parameters.clientCapabilities];
     NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
 
     configuration.claims = claims;

@@ -37,7 +37,6 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDRefreshTokenGrantRequest.h"
