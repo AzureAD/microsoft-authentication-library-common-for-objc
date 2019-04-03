@@ -36,7 +36,7 @@
 {
     NSString *skipCacheValue = @"NO";
 
-    if (self.requestParameters.claimsRequest.count)
+    if (self.requestParameters.claimsRequest.hasClaims)
     {
         skipCacheValue = @"YES";
     }

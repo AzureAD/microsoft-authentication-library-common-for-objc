@@ -37,8 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDClaimsRequest : NSObject <NSCopying, MSIDJsonSerializable>
 
-// TODO: rename to empty
-@property (readonly) NSUInteger count;
+@property (readonly) BOOL hasClaims;
 
 - (void)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target;
 

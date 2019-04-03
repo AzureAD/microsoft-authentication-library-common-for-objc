@@ -266,7 +266,7 @@ static NSMutableArray* s_responses = nil;
             
             // This will cause the tests to immediately stop execution right here if we're in the debugger,
             // hopefully making it a little easier to see why a test is failing. :)
-            __builtin_trap();
+             __builtin_trap();
         }
 
         NSAssert(nil, @"did not find a matching response for %@", requestURL.absoluteString);

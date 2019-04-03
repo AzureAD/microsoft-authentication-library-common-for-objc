@@ -94,7 +94,7 @@
     }
 
     
-    if (self.claimsRequest.count && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
+    if (self.claimsRequest.hasClaims && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
         return NO;

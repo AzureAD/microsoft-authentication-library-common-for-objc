@@ -95,7 +95,7 @@
 
 - (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.forceRefresh && ![self.requestParameters.claimsRequest count])
+    if (!self.forceRefresh && ![self.requestParameters.claimsRequest hasClaims])
     {
         NSError *accessTokenError = nil;
         

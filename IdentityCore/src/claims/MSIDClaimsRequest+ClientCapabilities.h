@@ -32,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)requestCapabilities:(NSArray<NSString *> *)capabilities;
 
++ (nullable MSIDClaimsRequest *)claimsRequestFromCapabilities:(nullable NSArray<NSString *> *)capabilities
+                                                claimsRequest:(nullable MSIDClaimsRequest *)claimsRequest;
+
 @end
 
 NS_ASSUME_NONNULL_END

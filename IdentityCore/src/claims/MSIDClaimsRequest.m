@@ -51,10 +51,16 @@
     return self.claimsRequestsDict.count;
 }
 
+- (BOOL)hasClaims
+{
+    return self.claimsRequestsDict.count != 0;
+}
+
 - (void)requestClaim:(MSIDIndividualClaimRequest *)request
            forTarget:(MSIDClaimsRequestTarget)target
 {
     if (!request) return;
+    if (target == MSIDClaimsRequestTargetInvalid) return;
     
     __auto_type key = [[NSNumber alloc] initWithInt:target];
     

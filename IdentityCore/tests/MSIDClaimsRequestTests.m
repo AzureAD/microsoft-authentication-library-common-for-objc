@@ -49,7 +49,7 @@
     
     [claimsRequest requestCapabilities:inputCapabilities];
     
-    XCTAssertEqual(0, claimsRequest.count);
+    XCTAssertFalse(claimsRequest.hasClaims);
 }
 
 - (void)testRequestCapabilities_whenNonNilCapabilities_shouldRequestCapabilities

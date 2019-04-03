@@ -139,8 +139,9 @@
     authorizationComponents.host = networkURL.host;
     configuration.authorizationEndpoint = authorizationComponents.URL;
     
-    MSIDClaimsRequest *claimsRequest = [parameters.claimsRequest copy];
-    [claimsRequest requestCapabilities:parameters.clientCapabilities];
+    
+    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                          claimsRequest:parameters.claimsRequest];
     NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
 
     configuration.claims = claims;

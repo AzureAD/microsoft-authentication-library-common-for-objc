@@ -206,8 +206,8 @@
                                                                              authCode:(NSString *)authCode
                                                                         homeAccountId:(NSString *)homeAccountId
 {
-    MSIDClaimsRequest *claimsRequest = [parameters.claimsRequest copy];
-    [claimsRequest requestCapabilities:parameters.clientCapabilities];
+    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                          claimsRequest:parameters.claimsRequest];
     NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
     
     NSString *allScopes = parameters.allTokenRequestScopes;
@@ -248,8 +248,8 @@
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken
 {
-    MSIDClaimsRequest *claimsRequest = [parameters.claimsRequest copy];
-    [claimsRequest requestCapabilities:parameters.clientCapabilities];
+    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                          claimsRequest:parameters.claimsRequest];
     NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
