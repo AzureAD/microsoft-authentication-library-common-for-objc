@@ -200,7 +200,7 @@
     XCTAssertEqualObjects(@"claim3", claim.name);
 }
 
-#pragma mark - Init with valid json
+#pragma mark - Init with json dictionary
 
 - (void)testinitWithJSONDictionary_whenClaimRequestedInDefaultMannerInIdTokenTarget_shouldInitClaimRequest
 {
@@ -347,6 +347,142 @@
     XCTAssertEqualObjects(@248289761001, claim.additionalInfo.value);
     __auto_type expectedValues = [[NSSet alloc] initWithArray:@[@"urn:mace:incommon:iap:bronze", @"urn:mace:incommon:iap:silver"]];
     XCTAssertEqualObjects(expectedValues, claim.additionalInfo.values);
+}
+
+#pragma mark - jsonDictionary
+
+- (void)testJSONString_whenClaimsRequestWithoutClaims_shouldReturnValidJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    XCTAssertEqualObjects(@{}, jsonDictionary);
+}
+
+- (void)testJSONString_whenClaimRequestedInDefaultManner_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"nickname"];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    XCTAssertEqualObjects(@{@"id_token":@{@"nickname": [NSNull new]}}, jsonDictionary);
+}
+
+- (void)testJSONString_whenClaimRequestedWithEssentialFlag_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.essential = @YES;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    XCTAssertEqualObjects(@{@"id_token":@{@"given_name":@{@"essential":@YES}}}, jsonDictionary);
+}
+
+- (void)testJSONString_whenClaimRequestedWithValue_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.value = @248289761001;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    XCTAssertEqualObjects(@{@"id_token":@{@"sub":@{@"value":@248289761001}}}, jsonDictionary);
+}
+
+- (void)testJSONString_whenClaimRequestedWithValues_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"acr"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.values = [[NSSet alloc] initWithObjects:@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze", nil];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    __auto_type expectedJsonDictionary = @{@"id_token":@{@"acr":@{@"values":@[@"urn:mace:incommon:iap:bronze",@"urn:mace:incommon:iap:silver"]}}};
+    XCTAssertEqualObjects(expectedJsonDictionary, jsonDictionary);
+}
+
+- (void)testJSONString_whenClaimRequestedWithAllPossibleValues_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"acr"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.essential = @YES;
+    claimRequest.additionalInfo.value = @248289761001;
+    claimRequest.additionalInfo.values = [[NSSet alloc] initWithObjects:@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze", nil];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    __auto_type expectedJsonDictionary = @{@"id_token":@{@"acr":@{@"value":@248289761001,@"values":@[@"urn:mace:incommon:iap:bronze",@"urn:mace:incommon:iap:silver"],@"essential":@YES}}};
+    XCTAssertEqualObjects(expectedJsonDictionary, jsonDictionary);
+}
+
+- (void)testJSONString_whenClaimRequestedWithValueAndRequestedTwice_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.value = @1;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.value = @2;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    __auto_type expectedJsonString = @{@"id_token":@{@"sub":@{@"value":@2}}};
+    XCTAssertEqualObjects(expectedJsonString, jsonDictionary);
+}
+
+#pragma mark - hasClaims
+
+- (void)testHasClaims_whenNoClaims_shoudReturnNo
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    
+    BOOL result = [claimsRequest hasClaims];
+    
+    XCTAssertFalse(result);
+}
+
+- (void)testHasClaims_whenThereIsClaim_shoudReturnYes
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.value = @1;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    BOOL result = [claimsRequest hasClaims];
+    
+    XCTAssertTrue(result);
+}
+
+#pragma mark - Copy
+
+- (void)testCopy_shouldCopyAllFields
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.value = @1;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    MSIDClaimsRequest *claimsRequestCopy = [claimsRequest copy];
+    
+    NSDictionary *jsonDictionary = [claimsRequestCopy jsonDictionary];
+    __auto_type expectedJsonString = @{@"id_token":@{@"sub":@{@"value":@1}}};
+    XCTAssertEqualObjects(expectedJsonString, jsonDictionary);
 }
 
 @end
