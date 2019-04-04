@@ -351,7 +351,7 @@
 
 #pragma mark - jsonDictionary
 
-- (void)testJSONString_whenClaimsRequestWithoutClaims_shouldReturnValidJsonString
+- (void)testJsonDictionary_whenClaimsRequestWithoutClaims_shouldReturnValidJsonString
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     
@@ -360,7 +360,7 @@
     XCTAssertEqualObjects(@{}, jsonDictionary);
 }
 
-- (void)testJSONString_whenClaimRequestedInDefaultManner_shouldReturnProperJsonString
+- (void)testJsonDictionary_whenClaimRequestedInDefaultManner_shouldReturnProperJsonString
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"nickname"];
@@ -371,7 +371,7 @@
     XCTAssertEqualObjects(@{@"id_token":@{@"nickname": [NSNull new]}}, jsonDictionary);
 }
 
-- (void)testJSONString_whenClaimRequestedWithEssentialFlag_shouldReturnProperJsonString
+- (void)testJsonDictionary_whenClaimRequestedWithEssentialFlag_shouldReturnProperJsonString
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
@@ -384,7 +384,46 @@
     XCTAssertEqualObjects(@{@"id_token":@{@"given_name":@{@"essential":@YES}}}, jsonDictionary);
 }
 
-- (void)testJSONString_whenClaimRequestedWithValue_shouldReturnProperJsonString
+- (void)testJsonDictionary_whenClaimRequestedWithEssentialFlagAndItIs10_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.essential = @10;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    XCTAssertEqualObjects(@{@"id_token":@{@"given_name":@{@"essential":@YES}}}, jsonDictionary);
+}
+
+- (void)testJsonDictionary_whenClaimRequestedWithEssentialFlagAndItIs0_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.essential = @0;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    XCTAssertEqualObjects(@{@"id_token":@{@"given_name":@{@"essential":@NO}}}, jsonDictionary);
+}
+
+- (void)testJsonDictionary_whenClaimRequestedWithEssentialFlagAndItIsNegative1_shouldReturnProperJsonString
+{
+    __auto_type claimsRequest = [MSIDClaimsRequest new];
+    __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.essential = @-1;
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    
+    NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
+    
+    XCTAssertEqualObjects(@{@"id_token":@{@"given_name":@{@"essential":@YES}}}, jsonDictionary);
+}
+
+- (void)testJsonDictionary_whenClaimRequestedWithValue_shouldReturnProperJsonString
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
@@ -397,7 +436,7 @@
     XCTAssertEqualObjects(@{@"id_token":@{@"sub":@{@"value":@248289761001}}}, jsonDictionary);
 }
 
-- (void)testJSONString_whenClaimRequestedWithValues_shouldReturnProperJsonString
+- (void)testJsonDictionary_whenClaimRequestedWithValues_shouldReturnProperJsonString
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"acr"];
@@ -410,7 +449,7 @@
     XCTAssertEqualObjects(expectedJsonDictionary, jsonDictionary);
 }
 
-- (void)testJSONString_whenClaimRequestedWithAllPossibleValues_shouldReturnProperJsonString
+- (void)testJsonDictionary_whenClaimRequestedWithAllPossibleValues_shouldReturnProperJsonString
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"acr"];
@@ -426,7 +465,7 @@
     XCTAssertEqualObjects(expectedJsonDictionary, jsonDictionary);
 }
 
-- (void)testJSONString_whenClaimRequestedWithValueAndRequestedTwice_shouldReturnProperJsonString
+- (void)testJsonDictionary_whenClaimRequestedWithValueAndRequestedTwice_shouldReturnProperJsonString
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];

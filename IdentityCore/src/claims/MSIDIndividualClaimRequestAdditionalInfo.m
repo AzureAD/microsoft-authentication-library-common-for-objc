@@ -109,8 +109,9 @@ static NSString *const kValuesJsonParam = @"values";
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary new];
-    
-    dictionary[kEssentialJsonParam] = self.essential;
+    NSNumber *essential = self.essential;
+    if (essential) essential = [[NSNumber alloc] initWithBool:self.essential.boolValue];
+    dictionary[kEssentialJsonParam] = essential;
     dictionary[kValueJsonParam] = self.value;
     dictionary[kValuesJsonParam] = [self.values allObjects];
     
