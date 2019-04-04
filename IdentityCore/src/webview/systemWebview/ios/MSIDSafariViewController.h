@@ -33,6 +33,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
            parentController:(UIViewController *)parentController
+           presentationType:(UIModalPresentationStyle)presentationType
                     context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponse:(NSURL *)url;
