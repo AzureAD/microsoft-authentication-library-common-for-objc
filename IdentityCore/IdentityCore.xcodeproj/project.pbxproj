@@ -278,6 +278,8 @@
 		23FB5C2F22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 23FB5C2D22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.h */; };
 		23FB5C3022551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FB5C2E22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m */; };
 		23FB5C3122551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FB5C2E22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m */; };
+		23FB5C39225588CF002BF1EB /* MSIDClaimsRequestMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FB5C33225585E6002BF1EB /* MSIDClaimsRequestMock.m */; };
+		23FB5C3A225588D0002BF1EB /* MSIDClaimsRequestMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FB5C33225585E6002BF1EB /* MSIDClaimsRequestMock.m */; };
 		600D19972095988C0004CD43 /* MSIDChallengeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19962095988C0004CD43 /* MSIDChallengeHandler.m */; };
 		600D19982095988C0004CD43 /* MSIDChallengeHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D19962095988C0004CD43 /* MSIDChallengeHandler.m */; };
 		600D199E20963B020004CD43 /* MSIDNTLMUIPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 600D199D20963B020004CD43 /* MSIDNTLMUIPrompt.m */; };
@@ -1311,6 +1313,8 @@
 		23FB5C29225517AA002BF1EB /* MSIDIndividualClaimRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIndividualClaimRequest.m; sourceTree = "<group>"; };
 		23FB5C2D22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDClaimsRequest+ClientCapabilities.h"; sourceTree = "<group>"; };
 		23FB5C2E22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDClaimsRequest+ClientCapabilities.m"; sourceTree = "<group>"; };
+		23FB5C32225585E6002BF1EB /* MSIDClaimsRequestMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClaimsRequestMock.h; sourceTree = "<group>"; };
+		23FB5C33225585E6002BF1EB /* MSIDClaimsRequestMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClaimsRequestMock.m; sourceTree = "<group>"; };
 		600D1995209598770004CD43 /* MSIDChallengeHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDChallengeHandler.h; sourceTree = "<group>"; };
 		600D19962095988C0004CD43 /* MSIDChallengeHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDChallengeHandler.m; sourceTree = "<group>"; };
 		600D199C20963AD50004CD43 /* MSIDNTLMUIPrompt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDNTLMUIPrompt.h; sourceTree = "<group>"; };
@@ -2141,6 +2145,8 @@
 		23642AB32187D88C00F97009 /* mocks */ = {
 			isa = PBXGroup;
 			children = (
+				23FB5C32225585E6002BF1EB /* MSIDClaimsRequestMock.h */,
+				23FB5C33225585E6002BF1EB /* MSIDClaimsRequestMock.m */,
 				23642AB52187D88C00F97009 /* MSIDAuthorityMock.h */,
 				23642AB42187D88C00F97009 /* MSIDAuthorityMock.m */,
 				B2BE925121A24B8200F5AB8C /* MSIDTestTokenRequestProvider.h */,
@@ -4590,6 +4596,7 @@
 				963E68E721489A9500D7D0CC /* NSString+MSIDTestUtil.m in Sources */,
 				23185368206D8B1D0024DCA4 /* MSIDTestTokenResponse.m in Sources */,
 				B2BE925421A24B8200F5AB8C /* MSIDTestTokenRequestProvider.m in Sources */,
+				23FB5C3A225588D0002BF1EB /* MSIDClaimsRequestMock.m in Sources */,
 				B2BE926921A25F8300F5AB8C /* MSIDTestBrokerResponseHandler.m in Sources */,
 				231CE9C31FE871FA00E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */,
 				B233F8BD219CE04000DC90E3 /* MSIDTestURLResponse+Util.m in Sources */,
@@ -4617,6 +4624,7 @@
 				D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				96290E5721489BB800FDD5C8 /* NSString+MSIDTestUtil.m in Sources */,
 				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
+				23FB5C39225588CF002BF1EB /* MSIDClaimsRequestMock.m in Sources */,
 				B245C2FB2106ABDC00CD5A52 /* MSIDTestIdTokenUtil.m in Sources */,
 				B233F8BC219CE03F00DC90E3 /* MSIDTestURLResponse+Util.m in Sources */,
 				B2BE923D21A0FD2B00F5AB8C /* MSIDTestSwizzle.m in Sources */,
