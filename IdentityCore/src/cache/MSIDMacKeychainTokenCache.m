@@ -36,9 +36,6 @@
 #import "MSIDUserInformation.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
-#import "MSIDDefaultAccountCacheQuery.h"
-#import "MSIDDefaultAccountCacheKey.h"
-#import "MSIDCacheItemJsonSerializer.h"
 
 /**
 This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
