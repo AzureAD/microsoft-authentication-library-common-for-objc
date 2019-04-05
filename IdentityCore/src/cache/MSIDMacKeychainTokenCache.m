@@ -604,19 +604,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_WARN(context, @"Failed to delete keychain items (status: %d), using fallback", (int)status);
-        // If for some reason the single SecItemDelete() fails, delete as many of the individual items from the keychain as possible.
-        MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
-        MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-        NSArray<MSIDAccountCacheItem *> *accountList = [self accountsWithKey:query serializer:serializer context:context error:error];
-        for (MSIDAccountCacheItem *account in accountList)
-        {
-            MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
-                                                                                            environment:account.environment
-                                                                                                  realm:account.realm
-                                                                                                   type:account.accountType];
-            [self removeItemsWithAccountKey:key context:context error:nil];
-        }
+        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
+
+        return NO;
     }
 
     return YES;
