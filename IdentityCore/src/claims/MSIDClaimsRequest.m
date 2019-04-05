@@ -245,7 +245,7 @@
     if (target == MSIDClaimsRequestTargetIdToken) return MSID_OAUTH2_ID_TOKEN;
     if (target == MSIDClaimsRequestTargetAccessToken) return MSID_OAUTH2_ACCESS_TOKEN;
     
-    MSID_LOG_ERROR(nil, @"There is no string representation for provided target.");
+    NSAssert(NO, @"There is no string representation for provided target.");
     return nil;
 }
 
