@@ -56,11 +56,28 @@
     return self.claimsRequestsDict.count != 0;
 }
 
-- (void)requestClaim:(MSIDIndividualClaimRequest *)request
+- (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request
            forTarget:(MSIDClaimsRequestTarget)target
+               error:(NSError **)error
 {
-    if (!request) return;
-    if (target == MSIDClaimsRequestTargetInvalid) return;
+    if (!request)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorInvalidDeveloperParameter,
+                                     @"Claim request is nil.",
+                                     nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    if (target == MSIDClaimsRequestTargetInvalid)
+    {
+        NSAssert(NO, @"Target is invalid.");
+        return NO;
+    }
     
     __auto_type key = [[NSNumber alloc] initWithInt:target];
     
@@ -71,6 +88,8 @@
     [requests addObject:request];
     
     self.claimsRequestsDict[key] = requests;
+    
+    return YES;
 }
 
 - (NSArray<MSIDIndividualClaimRequest *> *)claimRequestsForTarget:(MSIDClaimsRequestTarget)target
@@ -147,9 +166,9 @@
                     return nil;
                 }
                 
-                [self requestClaim:claimRequest forTarget:target];
+                BOOL result = [self requestClaim:claimRequest forTarget:target error:error];
+                if (!result) return nil;
             }
-            
         }
     }
     return self;

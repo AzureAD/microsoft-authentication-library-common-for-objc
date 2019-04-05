@@ -99,12 +99,12 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @1;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @2;
     
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     __auto_type requests = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertEqual(1, requests.count);
@@ -120,8 +120,9 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @1;
+    NSError *error;
     
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    BOOL result = [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:&error];
     
     __auto_type requests = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertEqual(1, requests.count);
@@ -129,6 +130,8 @@
     XCTAssertEqualObjects(@"sub", request.name);
     XCTAssertNotNil(request.additionalInfo);
     XCTAssertEqualObjects(@1, request.additionalInfo.value);
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
 }
 
 - (void)testRequestClaim_whenTargetIsAccessToken_shouldRequestClaim
@@ -138,7 +141,7 @@
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @1;
     
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken error:nil];
     
     __auto_type requests = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
     XCTAssertEqual(1, requests.count);
@@ -148,18 +151,14 @@
     XCTAssertEqualObjects(@1, request.additionalInfo.value);
 }
 
-- (void)testRequestClaim_whenTargetIsInvalid_shouldIgnoreClaims
+- (void)testRequestClaim_whenTargetIsInvalid_shouldIThrowException
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @1;
     
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetInvalid];
-    
-    __auto_type requests = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
-    XCTAssertNotNil(requests);
-    XCTAssertEqual(0, requests.count);
+    XCTAssertThrows([claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetInvalid error:nil]);
 }
 
 #pragma mark - removeClaimRequestWithName
@@ -370,7 +369,7 @@
 {
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"nickname"];
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -383,7 +382,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.essential = @YES;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -396,7 +395,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.essential = @10;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -409,7 +408,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.essential = @0;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -422,7 +421,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"given_name"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.essential = @-1;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -435,7 +434,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @248289761001;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -448,7 +447,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"acr"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.values = @[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"];
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     __auto_type expectedJsonDictionary = @{@"id_token":@{@"acr":@{@"values":@[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"]}}};
@@ -463,7 +462,7 @@
     claimRequest.additionalInfo.essential = @YES;
     claimRequest.additionalInfo.value = @248289761001;
     claimRequest.additionalInfo.values = @[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"];
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -477,11 +476,11 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @1;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @2;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
@@ -506,7 +505,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @1;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     BOOL result = [claimsRequest hasClaims];
     
@@ -521,7 +520,7 @@
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"sub"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.value = @1;
-    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
+    [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
     MSIDClaimsRequest *claimsRequestCopy = [claimsRequest copy];
     

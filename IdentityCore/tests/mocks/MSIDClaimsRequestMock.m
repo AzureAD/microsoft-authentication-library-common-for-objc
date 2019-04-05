@@ -25,9 +25,11 @@
 
 @implementation MSIDClaimsRequestMock
 
-- (void)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target
+- (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target error:(NSError **)error
 {
     self.requestClaimInvokedCount++;
+    
+    return YES;
 }
 
 - (void)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target

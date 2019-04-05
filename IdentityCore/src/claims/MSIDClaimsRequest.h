@@ -39,7 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (readonly) BOOL hasClaims;
 
-- (void)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target;
+- (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request
+           forTarget:(MSIDClaimsRequestTarget)target
+               error:(NSError * _Nullable * _Nullable)error;
 
 - (NSArray<MSIDIndividualClaimRequest *> *)claimRequestsForTarget:(MSIDClaimsRequestTarget)target;
 

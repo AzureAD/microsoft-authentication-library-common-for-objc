@@ -37,7 +37,7 @@ static NSString *kCapabilitiesClaimName = @"xms_cc";
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.values = capabilities;
     
-    [self requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken];
+    [self requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken error:nil];
 }
 
 + (MSIDClaimsRequest *)claimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
