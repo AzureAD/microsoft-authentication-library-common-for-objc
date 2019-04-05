@@ -35,17 +35,6 @@ static NSString *const kValuesJsonParam = @"values";
     return [baseDescription stringByAppendingFormat:@"(essential=%@, value=%@, values=%@)", self.essential, self.value, self.values];
 }
 
-#pragma mark - MSIDIndividualClaimRequestAdditionalInfo
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    MSIDIndividualClaimRequestAdditionalInfo *item = [[self.class allocWithZone:zone] init];
-    item->_essential = [_essential copyWithZone:zone];
-    item->_value = [_value copyWithZone:zone];
-    item->_values = [_values copyWithZone:zone];
-    return item;
-}
-
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error

@@ -26,7 +26,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDIndividualClaimRequestAdditionalInfo : NSObject <NSCopying, MSIDJsonSerializable>
+@interface MSIDIndividualClaimRequestAdditionalInfo : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic) NSNumber *essential;
 

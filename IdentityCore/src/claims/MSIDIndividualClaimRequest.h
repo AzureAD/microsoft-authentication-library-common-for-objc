@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDIndividualClaimRequest : NSObject <NSCopying, MSIDJsonSerializable>
+@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic) NSString *name;
 
