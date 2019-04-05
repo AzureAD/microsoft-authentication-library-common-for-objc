@@ -167,13 +167,14 @@
 {
     NSDictionary *claimsJsonDictionary = @{@"id_token": @{@"claim1": [NSNull new], @"claim2": [NSNull new], @"claim3": [NSNull new] }};
     NSError *error;
-    __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
+    __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
-    [claimsRequest removeClaimRequestWithName:@"claim2" target:MSIDClaimsRequestTargetIdToken];
+    BOOL result = [claimsRequest removeClaimRequestWithName:@"claim2" target:MSIDClaimsRequestTargetIdToken error:&error];
 
     __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
+    XCTAssertTrue(result);
     XCTAssertEqual(claims.count, 2);
     MSIDIndividualClaimRequest *claim = claims[0];
     XCTAssertEqualObjects(@"claim1", claim.name);
@@ -185,13 +186,14 @@
 {
     NSDictionary *claimsJsonDictionary = @{@"id_token": @{@"claim1": [NSNull new], @"claim3": [NSNull new] }};
     NSError *error;
-    __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
+    __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
-    [claimsRequest removeClaimRequestWithName:@"claim2" target:MSIDClaimsRequestTargetIdToken];
+    BOOL result = [claimsRequest removeClaimRequestWithName:@"claim2" target:MSIDClaimsRequestTargetIdToken error:&error];
 
     __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
+    XCTAssertFalse(result);
     XCTAssertEqual(claims.count, 2);
     MSIDIndividualClaimRequest *claim = claims[0];
     XCTAssertEqualObjects(@"claim1", claim.name);

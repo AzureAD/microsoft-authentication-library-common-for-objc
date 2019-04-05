@@ -32,6 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSInteger removeClaimRequestWithNameInvokedCount;
 
+@property (nonatomic) BOOL resultToReturn;
+
+@property (nonatomic) NSError *errorToReturn;
+
 @end
 
 NS_ASSUME_NONNULL_END

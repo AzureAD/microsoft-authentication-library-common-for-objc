@@ -45,7 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<MSIDIndividualClaimRequest *> *)claimRequestsForTarget:(MSIDClaimsRequestTarget)target;
 
-- (void)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target;
+- (BOOL)removeClaimRequestWithName:(NSString *)name
+                            target:(MSIDClaimsRequestTarget)target
+                             error:(NSError * _Nullable * _Nullable)error;
 
 @end
 

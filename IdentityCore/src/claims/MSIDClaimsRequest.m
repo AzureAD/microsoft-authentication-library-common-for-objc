@@ -102,21 +102,36 @@
     return requests;
 }
 
-- (void)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target
+- (BOOL)removeClaimRequestWithName:(NSString *)name
+                            target:(MSIDClaimsRequestTarget)target
+                             error:(NSError **)error
 {
-    if (!name) return;
+    if (!name)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorInvalidDeveloperParameter,
+                                     @"Name is nil.",
+                                     nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
     
     __auto_type key = [[NSNumber alloc] initWithInt:target];
-    if (!self.claimsRequestsDict[key]) return;
+    if (!self.claimsRequestsDict[key]) return NO;
     
     NSMutableSet *requests = self.claimsRequestsDict[key];
     
     MSIDIndividualClaimRequest *tmpRequest = [[MSIDIndividualClaimRequest alloc] initWithName:name];
-    if (![requests containsObject:tmpRequest]) return;
+    if (![requests containsObject:tmpRequest]) return NO;
         
     [requests removeObject:tmpRequest];
     
     self.claimsRequestsDict[key] = requests;
+    
+    return YES;
 }
 
 #pragma mark - NSCopying

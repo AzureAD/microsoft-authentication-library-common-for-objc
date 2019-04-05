@@ -29,12 +29,18 @@
 {
     self.requestClaimInvokedCount++;
     
-    return YES;
+    if (error) *error = self.errorToReturn;
+    
+    return self.resultToReturn;
 }
 
-- (void)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target
+- (BOOL)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target error:(NSError **)error
 {
     self.removeClaimRequestWithNameInvokedCount++;
+    
+    if (error) *error = self.errorToReturn;
+    
+    return self.resultToReturn;
 }
 
 @end
