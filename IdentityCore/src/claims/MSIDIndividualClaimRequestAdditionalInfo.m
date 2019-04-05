@@ -80,16 +80,7 @@ static NSString *const kValuesJsonParam = @"values";
                 return nil;
             }
             
-            _values = [[NSSet alloc] initWithArray:values];
-            
-            if (_values.count != values.count)
-            {
-                if (error) *error = MSIDCreateError(MSIDErrorDomain,
-                                                    MSIDErrorInvalidDeveloperParameter,
-                                                    @"values are not unique.",
-                                                    nil, nil, nil, nil, nil);
-                return nil;
-            }
+            _values = values;
         }
 
         BOOL isJsonValid = _essential != nil || _value != nil || _values != nil;
@@ -113,7 +104,7 @@ static NSString *const kValuesJsonParam = @"values";
     if (essential) essential = [[NSNumber alloc] initWithBool:self.essential.boolValue];
     dictionary[kEssentialJsonParam] = essential;
     dictionary[kValueJsonParam] = self.value;
-    dictionary[kValuesJsonParam] = [self.values allObjects];
+    dictionary[kValuesJsonParam] = self.values;
     
     return dictionary;
 }

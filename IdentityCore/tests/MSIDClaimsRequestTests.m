@@ -311,22 +311,28 @@
     XCTAssertNotNil(claim.additionalInfo);
     XCTAssertNil(claim.additionalInfo.essential);
     XCTAssertNil(claim.additionalInfo.value);
-    __auto_type expectedValues = [[NSSet alloc] initWithArray:@[@"urn:mace:incommon:iap:bronze", @"urn:mace:incommon:iap:silver"]];
+    __auto_type expectedValues = @[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"];
     XCTAssertEqualObjects(expectedValues, claim.additionalInfo.values);
 }
 
-- (void)testinitWithJSONDictionary_whenClaimRequestedWithDuplicateValues_shouldFailWithError
+- (void)testinitWithJSONDictionary_whenClaimRequestedWithDuplicateValues_shouldInitClaimRequest
 {
     NSDictionary *claimsJsonDictionary = @{@"id_token": @{@"acr": @{@"values": @[@"v1", @"v1"]}}};
     NSError *error;
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
-    
-    XCTAssertNil(claimsRequest);
-    XCTAssertNotNil(error);
-    XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"values are not unique.");
+
+    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    XCTAssertNotNil(claimsRequest);
+    XCTAssertNil(error);
+    XCTAssertEqual(claims.count, 1);
+    MSIDIndividualClaimRequest *claim = claims.firstObject;
+    XCTAssertEqualObjects(@"acr", claim.name);
+    XCTAssertNotNil(claim.additionalInfo);
+    XCTAssertNil(claim.additionalInfo.essential);
+    XCTAssertNil(claim.additionalInfo.value);
+    __auto_type expectedValues = @[@"v1", @"v1"];
+    XCTAssertEqualObjects(expectedValues, claim.additionalInfo.values);
 }
 
 - (void)testinitWithJSONDictionary_whenClaimRequestedWithAllPossibleValues_shouldInitClaimRequest
@@ -345,7 +351,7 @@
     XCTAssertNotNil(claim.additionalInfo);
     XCTAssertTrue(claim.additionalInfo.essential);
     XCTAssertEqualObjects(@248289761001, claim.additionalInfo.value);
-    __auto_type expectedValues = [[NSSet alloc] initWithArray:@[@"urn:mace:incommon:iap:bronze", @"urn:mace:incommon:iap:silver"]];
+    __auto_type expectedValues = @[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"];
     XCTAssertEqualObjects(expectedValues, claim.additionalInfo.values);
 }
 
@@ -441,11 +447,11 @@
     __auto_type claimsRequest = [MSIDClaimsRequest new];
     __auto_type claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:@"acr"];
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
-    claimRequest.additionalInfo.values = [[NSSet alloc] initWithObjects:@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze", nil];
+    claimRequest.additionalInfo.values = @[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"];
     [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
-    __auto_type expectedJsonDictionary = @{@"id_token":@{@"acr":@{@"values":@[@"urn:mace:incommon:iap:bronze",@"urn:mace:incommon:iap:silver"]}}};
+    __auto_type expectedJsonDictionary = @{@"id_token":@{@"acr":@{@"values":@[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"]}}};
     XCTAssertEqualObjects(expectedJsonDictionary, jsonDictionary);
 }
 
@@ -456,12 +462,12 @@
     claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
     claimRequest.additionalInfo.essential = @YES;
     claimRequest.additionalInfo.value = @248289761001;
-    claimRequest.additionalInfo.values = [[NSSet alloc] initWithObjects:@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze", nil];
+    claimRequest.additionalInfo.values = @[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"];
     [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken];
     
     NSDictionary *jsonDictionary = [claimsRequest jsonDictionary];
     
-    __auto_type expectedJsonDictionary = @{@"id_token":@{@"acr":@{@"value":@248289761001,@"values":@[@"urn:mace:incommon:iap:bronze",@"urn:mace:incommon:iap:silver"],@"essential":@YES}}};
+    __auto_type expectedJsonDictionary = @{@"id_token":@{@"acr":@{@"value":@248289761001,@"values":@[@"urn:mace:incommon:iap:silver", @"urn:mace:incommon:iap:bronze"],@"essential":@YES}}};
     XCTAssertEqualObjects(expectedJsonDictionary, jsonDictionary);
 }
 
