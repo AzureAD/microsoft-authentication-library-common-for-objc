@@ -77,6 +77,8 @@ static NSString *const kValuesJsonParam = @"values";
                                                     MSIDErrorInvalidDeveloperParameter,
                                                     @"values is not an NSArray.",
                                                     nil, nil, nil, nil, nil);
+                
+                MSID_LOG_ERROR(nil, @"Failed to init MSIDIndividualClaimRequestAdditionalInfo with json: values is not an NSArray.");
                 return nil;
             }
             
@@ -91,6 +93,8 @@ static NSString *const kValuesJsonParam = @"values";
                                                 MSIDErrorInvalidDeveloperParameter,
                                                 @"Failed to init claim additional info from json string.",
                                                 nil, nil, nil, nil, nil);
+            
+            MSID_LOG_ERROR(nil, @"Failed to init MSIDIndividualClaimRequestAdditionalInfo with json: json is invalid.");
             return nil;
         }
     }

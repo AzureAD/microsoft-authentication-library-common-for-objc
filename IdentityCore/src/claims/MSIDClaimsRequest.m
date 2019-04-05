@@ -70,6 +70,8 @@
                                      nil, nil, nil, nil, nil);
         }
         
+        MSID_LOG_ERROR(nil, @"Failed to request claim: claim request is nil.");
+        
         return NO;
     }
     
@@ -115,6 +117,8 @@
                                      @"Name is nil.",
                                      nil, nil, nil, nil, nil);
         }
+        
+        MSID_LOG_ERROR(nil, @"Failed to remove claim: name is nil.");
         
         return NO;
     }
@@ -230,6 +234,8 @@
                                  message,
                                  nil, nil, nil, nil, nil);
     }
+    
+    MSID_LOG_ERROR(nil, @"Invalid claims target: %@", string);
     
     return MSIDClaimsRequestTargetInvalid;
 }

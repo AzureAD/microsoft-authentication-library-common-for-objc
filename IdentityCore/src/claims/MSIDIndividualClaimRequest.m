@@ -65,6 +65,8 @@
                                                 MSIDErrorInvalidDeveloperParameter,
                                                 @"Invalid json.",
                                                 nil, nil, nil, nil, nil);
+            
+            MSID_LOG_ERROR(nil, @"Failed to init MSIDIndividualClaimRequest with json: json is invalid.");
             return nil;
         }
         
@@ -76,6 +78,8 @@
                                                 MSIDErrorInvalidDeveloperParameter,
                                                 @"Claim name is not a string.",
                                                 nil, nil, nil, nil, nil);
+            
+            MSID_LOG_ERROR(nil, @"Failed to init MSIDIndividualClaimRequest with json: claim name is not a string.");
             return nil;
         }
         
