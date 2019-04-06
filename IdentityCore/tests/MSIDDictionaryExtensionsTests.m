@@ -162,4 +162,39 @@
     XCTAssertEqual(error.code, 1);
 }
 
+- (void)testMsidStringForKey_whenNilKey_shouldReturnNil
+{
+    NSDictionary *dictionary = [NSDictionary new];
+    NSString *result = [dictionary msidStringForKey:nil];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidStringForKey_whenValueMissing_shouldReturnNil
+{
+    NSDictionary *dictionary = @{@"key1": @"value2"};
+    NSString *result = [dictionary msidStringForKey:@"missing"];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidStringForKey_whenValuePresent_andIsBlank_shouldReturnNil
+{
+    NSDictionary *dictionary = @{@"key1": @""};
+    NSString *result = [dictionary msidStringForKey:@"key1"];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidStringForKey_whenValuePresent_andIsString_shouldReturnValue
+{
+    NSDictionary *dictionary = @{@"key1": @"value1"};
+    NSString *result = [dictionary msidStringForKey:@"key1"];
+    XCTAssertEqualObjects(result, @"value1");
+}
+
+- (void)testMsidStringForKey_whenValuePresent_andNotString_shouldReturnNil
+{
+    NSDictionary *dictionary = @{@"key1": [NSNull null]};
+    NSString *result = [dictionary msidStringForKey:@"key1"];
+    XCTAssertNil(result);
+}
+
 @end
