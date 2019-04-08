@@ -213,7 +213,7 @@
     
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertNotNil(token.expiresOn);
-    XCTAssertNil(token.extendedExpireTime);
+    XCTAssertNil(token.extendedExpiresOn);
 }
 
 - (void)testAccessTokenFromResponse_whenOIDCTokenResponse_andNoAccessToken_shouldReturnNil
