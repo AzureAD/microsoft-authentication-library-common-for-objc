@@ -43,6 +43,7 @@
     cacheItem.additionalAccountFields = @{@"test": @"test2",
                                           @"test3": @"test4"};
     cacheItem.localAccountId = @"0000004-0000004-000004";
+    cacheItem.tenantId = @"utid";
     cacheItem.givenName = @"First name";
     cacheItem.familyName = @"Last name";
     cacheItem.accountType = MSIDAccountTypeAADV1;
@@ -55,6 +56,7 @@
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"contoso.com",
                                          @"local_account_id": @"0000004-0000004-000004",
+                                         @"tenant_id": @"utid",
                                          @"given_name": @"First name",
                                          @"family_name": @"Last name",
                                          @"test": @"test2",
@@ -76,6 +78,7 @@
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
                                      @"realm": @"contoso.com",
                                      @"local_account_id": @"0000004-0000004-000004",
+                                     @"tenant_id": @"utid",
                                      @"given_name": @"First name",
                                      @"family_name": @"Last name",
                                      @"test": @"test2",
@@ -94,6 +97,7 @@
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
     XCTAssertEqual(cacheItem.accountType, MSIDAccountTypeAADV1);
     XCTAssertEqualObjects(cacheItem.localAccountId, @"0000004-0000004-000004");
+    XCTAssertEqualObjects(cacheItem.tenantId, @"utid");
     XCTAssertEqualObjects(cacheItem.givenName, @"First name");
     XCTAssertEqualObjects(cacheItem.familyName, @"Last name");
     XCTAssertEqualObjects(cacheItem.name, @"test user");

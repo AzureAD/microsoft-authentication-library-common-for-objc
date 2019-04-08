@@ -103,6 +103,7 @@
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
     cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
     cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.tenantId = @"utid";
     cacheItem.familyName = @"Smith";
     cacheItem.givenName = @"Test";
     cacheItem.localAccountId = @"00004-00004-00004";

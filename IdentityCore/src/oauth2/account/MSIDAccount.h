@@ -35,6 +35,7 @@
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite) NSString *localAccountId;
+@property (readwrite) NSString *tenantId;
 @property (readwrite) MSIDAuthority *authority;
 /*
  'storageAuthority' is used only for latter token deletion.

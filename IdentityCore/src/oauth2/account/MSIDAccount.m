@@ -42,6 +42,7 @@
     MSIDAccount *item = [[self.class allocWithZone:zone] init];
     item->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
     item->_localAccountId = [_localAccountId copyWithZone:zone];
+    item->_tenantId = [_tenantId copyWithZone:zone];
     item->_accountType = _accountType;
     item->_authority = [_authority copyWithZone:zone];
     item->_username = [_username copyWithZone:zone];
@@ -133,6 +134,7 @@
         _clientInfo = cacheItem.clientInfo;
         _alternativeAccountId = cacheItem.alternativeAccountId;
         _localAccountId = cacheItem.localAccountId;
+        _tenantId = cacheItem.tenantId;
 
         NSString *environment = cacheItem.environment;
         NSString *tenant = cacheItem.realm;
@@ -161,6 +163,7 @@
     cacheItem.username = self.username;
     cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     cacheItem.localAccountId = self.localAccountId;
+    cacheItem.tenantId = self.tenantId;
     cacheItem.accountType = self.accountType;
     cacheItem.givenName = self.givenName;
     cacheItem.middleName = self.middleName;
@@ -175,7 +178,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDAccount authority: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@",self.authority, self.username, self.accountIdentifier.homeAccountId, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId];
+    return [NSString stringWithFormat:@"MSIDAccount authority: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@ tenantId:%@",self.authority, self.username, self.accountIdentifier.homeAccountId, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId, self.tenantId];
 }
 
 @end

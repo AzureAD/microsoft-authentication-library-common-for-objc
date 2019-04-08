@@ -271,6 +271,7 @@
     XCTAssertNil(account.familyName);
     XCTAssertEqualObjects(account.name, DEFAULT_TEST_ID_TOKEN_NAME);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"tid");
     XCTAssertNil(account.alternativeAccountId);
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tid");
 }
@@ -1211,6 +1212,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"tid");
 }
 
 - (void)testAllAccountsWithEnvironment_whenFamilyIdProvided_andTokensInPrimaryCache_shouldReturnAccounts
@@ -1238,6 +1240,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"tid");
 }
 
 - (void)testAllAccountsWithEnvironment_whenNoFamilyId_andTokensInBothCaches_shouldReturnAccounts
@@ -1277,6 +1280,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"tid");
 }
 
 - (void)testAllAccountsWithEnvironment_whenFamilyIdProvided_andTokensInBothCaches_shouldReturnAccounts
@@ -1315,6 +1319,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"tid");
 }
 
 #pragma mark - Get access tokens
