@@ -50,6 +50,7 @@
 
 // Dates
 @property (readwrite, nullable) NSDate *expiresOn;
+@property (readwrite, nullable) NSDate *extendedExpiresOn;
 @property (readwrite, nullable) NSDate *cachedAt;
 
 // Family ID

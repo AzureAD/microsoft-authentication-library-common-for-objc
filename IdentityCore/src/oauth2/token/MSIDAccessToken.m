@@ -108,6 +108,7 @@ static NSUInteger s_expirationBuffer = 300;
     if (self)
     {
         _expiresOn = tokenCacheItem.expiresOn;
+        _extendedExpiresOn = tokenCacheItem.extendedExpiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _enrollmentId = tokenCacheItem.enrollmentId;
         _accessToken = tokenCacheItem.secret;
@@ -134,6 +135,7 @@ static NSUInteger s_expirationBuffer = 300;
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.expiresOn = self.expiresOn;
+    cacheItem.extendedExpiresOn = self.extendedExpiresOn;
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
@@ -167,14 +169,9 @@ static NSUInteger s_expirationBuffer = 300;
     return [self isExpiredWithExpiryBuffer:s_expirationBuffer];
 }
 
-- (NSDate *)extendedExpireTime
-{
-    return _additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-}
-
 - (BOOL)isExtendedLifetimeValid
 {
-    NSDate *extendedExpiresOn = self.extendedExpireTime;
+    NSDate *extendedExpiresOn = self.extendedExpiresOn;
     
     //extended lifetime is only valid if it contains an access token
     if (extendedExpiresOn && ![NSString msidIsStringNilOrBlank:self.accessToken])
