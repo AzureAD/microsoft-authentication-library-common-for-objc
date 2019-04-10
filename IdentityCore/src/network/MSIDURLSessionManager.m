@@ -23,6 +23,7 @@
 
 #import "MSIDURLSessionManager.h"
 #import "MSIDURLSessionDelegate.h"
+#import "MSIDNetworkConfiguration.h"
 
 static MSIDURLSessionManager *s_defaultManager = nil;
 
@@ -33,6 +34,8 @@ static MSIDURLSessionManager *s_defaultManager = nil;
     if (self == [MSIDURLSessionManager self])
     {
         __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
+        configuration.timeoutIntervalForResource = MSID_DEFAULT_TIMEOUT_FOR_RESOURCE;
+        configuration.timeoutIntervalForRequest = MSID_DEFAULT_TIMEOUT_FOR_REQUEST;
         
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.networking.delegateQueue-%@", [NSUUID UUID].UUIDString];
         __auto_type delegateQueue = [NSOperationQueue new];

@@ -22,29 +22,46 @@
 // THE SOFTWARE.
 
 #import "MSIDNetworkConfiguration.h"
+#import "MSIDURLSessionManager.h"
 
-static NSTimeInterval s_timeout = 30;
+NSTimeInterval MSID_DEFAULT_TIMEOUT_FOR_RESOURCE;
+NSTimeInterval MSID_DEFAULT_TIMEOUT_FOR_REQUEST;
+
 static NSInteger s_retryCount = 2;
+static NSTimeInterval s_retryInterval = 0.5;
 
 @implementation MSIDNetworkConfiguration
 
-+ (void)setTimeout:(NSTimeInterval)timeout
++ (void)load
 {
-    s_timeout = timeout;
-}
-+ (NSTimeInterval)timeout
-{
-    return s_timeout;
+    __auto_type defaultConfig = [NSURLSessionConfiguration defaultSessionConfiguration];
+    MSID_DEFAULT_TIMEOUT_FOR_RESOURCE = defaultConfig.timeoutIntervalForResource;
+    MSID_DEFAULT_TIMEOUT_FOR_REQUEST = defaultConfig.timeoutIntervalForRequest;
 }
 
-+(void)setRetryCount:(NSInteger)retryCount
++ (void)setTimeoutIntervalForRequest:(NSTimeInterval)timeoutIntervalForRequest
 {
-    s_retryCount = retryCount;
+    MSIDURLSessionManager.defaultManager.configuration.timeoutIntervalForRequest = timeoutIntervalForRequest;
 }
 
-+ (NSInteger)retryCount
++ (void)setTimeoutIntervalForResource:(NSTimeInterval)timeoutIntervalForResource
 {
-    return s_retryCount;
+    MSIDURLSessionManager.defaultManager.configuration.timeoutIntervalForResource = timeoutIntervalForResource;
 }
 
++ (NSTimeInterval)timeoutIntervalForResource
+{
+    return MSIDURLSessionManager.defaultManager.configuration.timeoutIntervalForResource;
+}
+
++ (NSTimeInterval)timeoutIntervalForRequest
+{
+    return MSIDURLSessionManager.defaultManager.configuration.timeoutIntervalForRequest;
+}
+
++ (void)setRetryCount:(NSInteger)retryCount { s_retryCount = retryCount; }
++ (NSInteger)retryCount { return s_retryCount; }
+
++ (void)setRetryInterval:(NSTimeInterval)retryInterval { s_retryInterval = retryInterval; }
++ (NSTimeInterval)retryInterval { return s_retryInterval; }
 @end

@@ -30,9 +30,7 @@
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDURLSessionManager.h"
 #import "MSIDJsonResponsePreprocessor.h"
-
-static NSInteger const s_defaultRetryCounter = 1;
-static NSTimeInterval const s_defaultRetryInterval = 0.5;
+#import "MSIDNetworkConfiguration.h"
 
 @implementation MSIDHttpRequest
 
@@ -48,8 +46,8 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         _responseSerializer = responseSerializer;
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
-        _retryCounter = s_defaultRetryCounter;
-        _retryInterval = s_defaultRetryInterval;
+        _retryCounter = MSIDNetworkConfiguration.retryCount;
+        _retryInterval = MSIDNetworkConfiguration.retryInterval;
     }
     
     return self;
