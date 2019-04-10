@@ -27,7 +27,7 @@
 NSTimeInterval MSID_DEFAULT_TIMEOUT_FOR_RESOURCE;
 NSTimeInterval MSID_DEFAULT_TIMEOUT_FOR_REQUEST;
 
-static NSInteger s_retryCount = 2;
+static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
 
 @implementation MSIDNetworkConfiguration
