@@ -34,13 +34,16 @@
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                                urlChallenge:(NSURLAuthenticationChallenge *)challenge
-                                                      error:(NSError **)error
 {
     NSString *teamId = [MSIDKeychainUtil teamId];
     
-    if (!teamId) return nil;
+    if (!teamId)
+    {
+        MSID_LOG_ERROR(context, @"Encountered an error when reading teamID from keychain.");
+        return nil;
+    }
     
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.", teamId];
 
     MSIDRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;
@@ -51,8 +54,8 @@
     NSString *certificateIssuer = nil;
     OSStatus status = noErr;
     
-    MSID_LOG_VERBOSE(nil, @"Attempting to get registration information - shared access Group");
-    MSID_LOG_VERBOSE_PII(nil, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
+    MSID_LOG_VERBOSE(nil, @"Attempting to get registration information - shared access Group.");
+    MSID_LOG_VERBOSE_PII(nil, @"Attempting to get registration information - %@ shared access Group.", sharedAccessGroup);
     
     identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
@@ -75,13 +78,7 @@
     
     if(!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
-        // We never should hit this error anyways, as any of this stuff being missing will cause failures farther up.
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing some pieces of WPJ data", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return nil;
+        MSID_LOG_ERROR(context, @"WPJ identity retrieved from keychain is invalid.");
     }
     else
     {
@@ -122,11 +119,11 @@
     }
     
     NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
-    NSData *certIsuuer = [resultDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
+    NSData *certIssuer = [resultDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
     
-    if (issuer)
+    if (issuer && certIssuer)
     {
-        *issuer = [[NSString alloc] initWithData:certIsuuer encoding:NSASCIIStringEncoding];
+        *issuer = [[NSString alloc] initWithData:certIssuer encoding:NSASCIIStringEncoding];
     }
     
     SecIdentityRef identityRef = (__bridge_retained SecIdentityRef)[resultDict objectForKey:(__bridge NSString*)kSecValueRef];

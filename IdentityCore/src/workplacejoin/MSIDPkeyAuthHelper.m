@@ -69,37 +69,12 @@
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
                                   challengeData:(nullable NSDictionary*)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError **)error
 {
-    NSError *localError = nil;
     MSIDRegistrationInformation *info =
-    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil error:&localError];
+    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil];
+    NSString *pKeyAuthHeader = @"";
     
-    if (!info && localError)
-    {
-        // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
-        // the rest of the code, but if there was no error, we still create a response header, even if we
-        // don't have registration info
-        MSID_LOG_ERROR(context, @"Failed to create PKeyAuth request");
-        
-        if (error)
-        {
-            *error = localError;
-        }
-        return nil;
-    }
-    
-    
-    if (!challengeData)
-    {
-        // Error should have been logged before this where there is more information on why the challenge data was bad
-        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
-    }
-    else if (![info isWorkPlaceJoined])
-    {
-        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
-    }
-    else
+    if (info && challengeData)
     {
         NSString *certAuths = [challengeData valueForKey:@"CertAuthorities"];
         NSString *expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
@@ -110,8 +85,6 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
-                
-                info = nil;
             }
         }
         else if (expectedThumbprint)
@@ -119,23 +92,25 @@
             if (![expectedThumbprint isEqualToString:[MSIDPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
-                
-                info = nil;
             }
         }
-    }
-    
-    NSString *pKeyAuthHeader = @"";
-    if (info)
-    {
+        
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
-        info = nil;
     }
     
+    else
+    {
+        if (!challengeData)
+        {
+            // Error should have been logged before this where there is more information on why the challenge data was bad
+            MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
+        }
+        
+        pKeyAuthHeader = [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
+    }
     
-    
-    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
+    return pKeyAuthHeader;
 }
 
 

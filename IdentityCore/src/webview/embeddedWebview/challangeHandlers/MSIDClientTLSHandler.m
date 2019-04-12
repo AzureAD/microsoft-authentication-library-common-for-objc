@@ -81,9 +81,8 @@
                    context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    NSError *error = nil;
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:challenge error:&error];
-    if (!info || error)
+    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:challenge];
+    if (!info)
     {
         MSID_LOG_INFO(context, @"Device is not workplace joined");
         MSID_LOG_INFO_PII(context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);

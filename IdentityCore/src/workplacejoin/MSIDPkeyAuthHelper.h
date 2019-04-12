@@ -28,8 +28,7 @@
 
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSString *)authorizationServer
                                   challengeData:(nullable NSDictionary *)challengeData
-                                        context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError * _Nullable * _Nullable)error;
+                                        context:(nullable id<MSIDRequestContext>)context;
 
 + (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
                                  isSha2:(BOOL)isSha2;

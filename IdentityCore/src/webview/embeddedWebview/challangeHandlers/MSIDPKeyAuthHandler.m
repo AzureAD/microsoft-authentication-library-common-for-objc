@@ -57,16 +57,9 @@
     NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
-    error = nil;
     NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
                                                           challengeData:queryParamsMap
-                                                                context:context
-                                                                  error:&error];
-    if (!authHeader)
-    {
-        completionHandler(nil, error);
-        return YES;
-    }
+                                                                context:context];
     
     // Attach client version to response url
     NSURLComponents *responseUrlComp = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:submitUrl] resolvingAgainstBaseURL:NO];

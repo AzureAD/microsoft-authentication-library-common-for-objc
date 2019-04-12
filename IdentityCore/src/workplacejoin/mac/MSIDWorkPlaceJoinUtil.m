@@ -33,7 +33,6 @@
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                                urlChallenge:(NSURLAuthenticationChallenge *)challenge
-                                                      error:(NSError **)error
 {
     MSIDRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;
@@ -44,7 +43,7 @@
     NSString *certificateIssuer  = nil;
     OSStatus status = noErr;
     
-    MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information");
+    MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information.");
     identity = [self copyWPJIdentity:context issuer:&certificateIssuer certificateAuthorities:challenge.protectionSpace.distinguishedNames];
     
     // If there's no identity in the keychain, return nil. adError won't be set if the
@@ -67,13 +66,9 @@
     certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
-    if (!certificate || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
+    if(!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
-        if (error)
-        {
-            // The code above will catch missing security items, but not missing item attributes. These are caught here.
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing some pieces of WPJ data", nil, nil, nil, context.correlationId, nil);
-        }
+        MSID_LOG_ERROR(context, @"WPJ identity retrieved from keychain is invalid.");
     }
     
     else
@@ -133,21 +128,25 @@
         if ([identityDict isKindOfClass:[NSDictionary class]])
         {
             currentIssuer = [identityDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
-            currentIssuerName = [[NSString alloc] initWithData:currentIssuer encoding:NSASCIIStringEncoding];
             
-            /* The issuer name returned from the certificate in keychain is capitalized but the issuer name returned from the TLS challenge is not.
-             Hence we need to do a caseInsenstitive compare to match the issuer.
-             */
-            if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
+            if (currentIssuer)
             {
-                identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
+                currentIssuerName = [[NSString alloc] initWithData:currentIssuer encoding:NSASCIIStringEncoding];
                 
-                if (issuer)
+                /* The issuer name returned from the certificate in keychain is capitalized but the issuer name returned from the TLS challenge is not.
+                 Hence we need to do a caseInsenstitive compare to match the issuer.
+                 */
+                if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
                 {
-                    *issuer = currentIssuerName;
+                    identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
+                    
+                    if (issuer)
+                    {
+                        *issuer = currentIssuerName;
+                    }
+                    
+                    break;
                 }
-                
-                break;
             }
         }
     }
