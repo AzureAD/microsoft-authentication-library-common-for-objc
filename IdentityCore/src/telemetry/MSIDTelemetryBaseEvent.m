@@ -134,6 +134,14 @@
     [_propertyMap addEntriesFromDictionary:[[self class] defaultParameters]];
 }
 
+- (NSArray<NSString *> *)propertiesToAggregate
+{
+    return @[
+             MSID_TELEMETRY_KEY_REQUEST_ID,
+             MSID_TELEMETRY_KEY_CORRELATION_ID
+             ];
+}
+
 + (NSDictionary *)defaultParameters
 {
     NSMutableDictionary *defaultParameters = [NSMutableDictionary new];

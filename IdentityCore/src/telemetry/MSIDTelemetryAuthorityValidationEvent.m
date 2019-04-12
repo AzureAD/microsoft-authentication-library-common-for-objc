@@ -40,4 +40,19 @@
     [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY value:authority.url.absoluteString];
 }
 
+#pragma mark - MSIDTelemetryBaseEvent
+
+- (NSArray<NSString *> *)propertiesToAggregate
+{
+    NSMutableArray *names = [[super propertiesToAggregate] mutableCopy];
+    
+    [names addObjectsFromArray:@[
+                                 MSID_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS,
+                                 MSID_TELEMETRY_KEY_AUTHORITY_TYPE,
+                                 MSID_TELEMETRY_KEY_AUTHORITY
+                                 ]];
+    
+    return names;
+}
+
 @end
