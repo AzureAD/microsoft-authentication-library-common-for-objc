@@ -153,14 +153,12 @@
     account.familyName = @"Cartman";
     account.accountType = MSIDAccountTypeMSA;
     account.localAccountId = @"local account id";
-    account.tenantId = @"tid";
     account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"some id"];
 
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.localAccountId, @"local account id");
-    XCTAssertEqualObjects(cacheItem.tenantId, @"tid");
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"some id");
     XCTAssertEqualObjects(cacheItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(cacheItem.username, @"eric999");
@@ -173,7 +171,6 @@
 {
     MSIDAccountCacheItem *cacheItem = [MSIDAccountCacheItem new];
     cacheItem.localAccountId = @"local account id";
-    cacheItem.tenantId = @"utid";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
@@ -191,7 +188,6 @@
     
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.localAccountId, @"local account id");
-    XCTAssertEqualObjects(account.tenantId, @"utid");
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSA);
     XCTAssertEqualObjects(account.username, @"eric999");
@@ -201,6 +197,8 @@
     XCTAssertEqualObjects(account.alternativeAccountId, @"AltID");
     XCTAssertEqualObjects(account.name, @"Eric Middle Cartman");
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com");
+    //TODO: fix the realm bug and test tenantId here
+    XCTAssertEqualObjects(account.tenantId, @"contoso.com");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
 }
 

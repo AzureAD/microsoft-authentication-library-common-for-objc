@@ -225,7 +225,6 @@
     // 1. Verify payload compliance
     NSDictionary *expectedJSON = @{
                                    @"local_account_id": @"9f4880d8-80ba-4c40-97bc-f7a23c703084",
-                                   @"tenant_id": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
                                    @"home_account_id": @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
                                    @"username": @"idlab@msidlab4.onmicrosoft.com",
                                    @"environment": @"login.microsoftonline.com",
@@ -423,7 +422,6 @@
     // 1. Verify payload compliance
     NSDictionary *expectedJSON = @{
         @"local_account_id": @"00000000-0000-0000-40c0-3bac188d01d1",
-        @"tenant_id": @"9188040d-6c67-4c5b-b112-36a304b66dad",
         @"home_account_id": @"00000000-0000-0000-40c0-3bac188d01d1.9188040d-6c67-4c5b-b112-36a304b66dad",
         @"username": @"msalsdktest@outlook.com",
         @"environment": @"login.microsoftonline.com",
@@ -833,7 +831,6 @@
     NSDictionary *expectedJSON = @{
                                    @"family_name": @"SDK Test",
                                    @"local_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5",
-                                   @"tenant_id": @"ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
                                    @"home_account_id": @"ad020f8e-b1ba-44b2-bd69-c22be86737f5-b2c_1_signin.ba6c0d94-a8da-45b2-83ae-33871f9c2dd8",
                                    @"username": @"msalsdktest@outlook.com",
                                    @"authority_type": @"MSSTS",
@@ -1079,7 +1076,6 @@
     // 1. Verify payload compliance
     NSDictionary *expectedJSON = @{
                                    @"local_account_id": @"9f4880d8-80ba-4c40-97bc-f7a23c703084",
-                                   @"tenant_id": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
                                    @"home_account_id": @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
                                    @"username": @"idlab@msidlab4.onmicrosoft.com",
                                    @"environment": @"login.microsoftonline.com",

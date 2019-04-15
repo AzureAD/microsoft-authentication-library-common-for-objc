@@ -32,7 +32,6 @@
 @property (readwrite, nonnull) NSString *homeAccountId;
 @property (readwrite, nonnull) NSString *environment;
 @property (readwrite, nullable) NSString *localAccountId;
-@property (readwrite, nullable) NSString *tenantId;
 @property (readwrite, nullable) NSString *username;
 @property (readwrite, nullable) NSString *givenName;
 @property (readwrite, nullable) NSString *middleName;

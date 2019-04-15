@@ -335,7 +335,6 @@
         {
             account.name = idTokenClaims.name;
             account.localAccountId = idTokenClaims.uniqueId;
-            account.tenantId = idTokenClaims.realm;
             account.idTokenClaims = idTokenClaims;
         }
         

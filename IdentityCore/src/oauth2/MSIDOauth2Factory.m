@@ -367,7 +367,6 @@
     account.authority = configuration.authority;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
-    account.tenantId = response.idTokenObj.realm;
     return YES;
 }
 

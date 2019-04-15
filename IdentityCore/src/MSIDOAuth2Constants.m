@@ -110,7 +110,6 @@ NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
 NSString *const MSID_RESOURCE_RT_CACHE_KEY               = @"resource_refresh_token";
 NSString *const MSID_LOCAL_ACCOUNT_ID_CACHE_KEY          = @"local_account_id";
-NSString *const MSID_TENANT_ID_CACHE_KEY                 = @"tenant_id";
 NSString *const MSID_AUTHORITY_TYPE_CACHE_KEY            = @"authority_type";
 NSString *const MSID_GIVEN_NAME_CACHE_KEY                = @"given_name";
 NSString *const MSID_MIDDLE_NAME_CACHE_KEY               = @"middle_name";

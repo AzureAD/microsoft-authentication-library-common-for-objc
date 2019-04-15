@@ -36,8 +36,9 @@
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite) NSString *localAccountId;
-@property (readwrite) NSString *tenantId;
 @property (readwrite) MSIDAuthority *authority;
+@property (readonly) NSString *tenantId;
+
 /*
  'storageAuthority' is used only for latter token deletion.
  We can not use 'authority' because cache item could be saved with
