@@ -174,6 +174,11 @@
     return cacheItem;
 }
 
+- (BOOL)isHomeTenantAccount
+{
+    return [[self.authority.url msidTenant] isEqualToString:self.accountIdentifier.utid];
+}
+
 #pragma mark - Description
 
 - (NSString *)description

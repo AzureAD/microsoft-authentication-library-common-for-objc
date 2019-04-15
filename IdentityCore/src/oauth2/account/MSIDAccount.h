@@ -30,6 +30,7 @@
 @class MSIDClientInfo;
 @class MSIDAccountIdentifier;
 @class MSIDAuthority;
+@class MSIDIdTokenClaims;
 
 @interface MSIDAccount : NSObject <NSCopying>
 
@@ -43,6 +44,10 @@
  'preferred authority' and it might not be equal to provided 'authority'.
  */
 @property (readwrite) MSIDAuthority *storageAuthority;
+/*
+ 'idTokenClaims' is used to convey corresponding the id token claims for the account.
+ */
+@property (readwrite) MSIDIdTokenClaims *idTokenClaims;
 
 @property (readwrite) NSString *username;
 @property (readwrite) NSString *givenName;
@@ -55,5 +60,6 @@
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
 - (MSIDAccountCacheItem *)accountCacheItem;
+- (BOOL)isHomeTenantAccount;
 
 @end
