@@ -154,4 +154,21 @@
     return YES;
 }
 
+- (NSString *)msidStringForKey:(NSString *)dictKey
+{
+    if (!dictKey)
+    {
+        return nil;
+    }
+
+    NSString *value = self[dictKey];
+
+    if (![NSString msidIsStringNilOrBlank:value])
+    {
+        return value;
+    }
+
+    return nil;
+}
+
 @end
