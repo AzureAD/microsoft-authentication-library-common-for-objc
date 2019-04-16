@@ -163,19 +163,24 @@
 
 #pragma mark - MSIDTelemetryBaseEvent
 
-- (NSArray<NSString *> *)propertiesToAggregate
++ (NSArray<NSString *> *)propertiesToAggregate
 {
-    NSMutableArray *names = [[super propertiesToAggregate] mutableCopy];
+    static dispatch_once_t once;
+    static NSMutableArray *names = nil;
     
-    [names addObjectsFromArray:@[
-                                 MSID_TELEMETRY_KEY_RT_STATUS,
-                                 MSID_TELEMETRY_KEY_FRT_STATUS,
-                                 MSID_TELEMETRY_KEY_MRRT_STATUS,
-                                 MSID_TELEMETRY_KEY_CACHE_EVENT_COUNT,
-                                 MSID_TELEMETRY_KEY_SPE_INFO,
-                                 MSID_TELEMETRY_KEY_WIPE_APP,
-                                 MSID_TELEMETRY_KEY_WIPE_TIME
-                                 ]];
+    dispatch_once(&once, ^{
+        names = [[super propertiesToAggregate] mutableCopy];
+        
+        [names addObjectsFromArray:@[
+                                     MSID_TELEMETRY_KEY_RT_STATUS,
+                                     MSID_TELEMETRY_KEY_FRT_STATUS,
+                                     MSID_TELEMETRY_KEY_MRRT_STATUS,
+                                     MSID_TELEMETRY_KEY_CACHE_EVENT_COUNT,
+                                     MSID_TELEMETRY_KEY_SPE_INFO,
+                                     MSID_TELEMETRY_KEY_WIPE_APP,
+                                     MSID_TELEMETRY_KEY_WIPE_TIME
+                                     ]];
+    });
     
     return names;
 }

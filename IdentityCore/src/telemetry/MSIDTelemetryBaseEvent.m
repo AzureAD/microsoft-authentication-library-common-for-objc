@@ -134,12 +134,19 @@
     [_propertyMap addEntriesFromDictionary:[[self class] defaultParameters]];
 }
 
-- (NSArray<NSString *> *)propertiesToAggregate
++ (NSArray<NSString *> *)propertiesToAggregate
 {
-    return @[
-             MSID_TELEMETRY_KEY_REQUEST_ID,
-             MSID_TELEMETRY_KEY_CORRELATION_ID
-             ];
+    static dispatch_once_t once;
+    static NSArray *names = nil;
+    
+    dispatch_once(&once, ^{
+        names = @[
+                  MSID_TELEMETRY_KEY_REQUEST_ID,
+                  MSID_TELEMETRY_KEY_CORRELATION_ID
+                  ];
+    });
+    
+    return names;
 }
 
 + (NSDictionary *)defaultParameters

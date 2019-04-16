@@ -38,6 +38,6 @@
 - (void)setResponseTime:(NSTimeInterval)responseTime;
 - (void)deleteProperty:(NSString *)name;
 
-- (NSArray<NSString *> *)propertiesToAggregate;
++ (NSArray<NSString *> *)propertiesToAggregate;
 
 @end

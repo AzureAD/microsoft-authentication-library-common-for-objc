@@ -59,16 +59,21 @@
 
 #pragma mark - MSIDTelemetryBaseEvent
 
-- (NSArray<NSString *> *)propertiesToAggregate
++ (NSArray<NSString *> *)propertiesToAggregate
 {
-    NSMutableArray *names = [[super propertiesToAggregate] mutableCopy];
+    static dispatch_once_t once;
+    static NSMutableArray *names = nil;
     
-    [names addObjectsFromArray:@[
-                                 MSID_TELEMETRY_KEY_USER_CANCEL,
-                                 MSID_TELEMETRY_KEY_LOGIN_HINT,
-                                 MSID_TELEMETRY_KEY_NTLM_HANDLED,
-                                 MSID_TELEMETRY_KEY_UI_EVENT_COUNT
-                                 ]];
+    dispatch_once(&once, ^{
+        names = [[super propertiesToAggregate] mutableCopy];
+        
+        [names addObjectsFromArray:@[
+                                     MSID_TELEMETRY_KEY_USER_CANCEL,
+                                     MSID_TELEMETRY_KEY_LOGIN_HINT,
+                                     MSID_TELEMETRY_KEY_NTLM_HANDLED,
+                                     MSID_TELEMETRY_KEY_UI_EVENT_COUNT
+                                     ]];
+    });
     
     return names;
 }

@@ -128,19 +128,24 @@
 
 #pragma mark - MSIDTelemetryBaseEvent
 
-- (NSArray<NSString *> *)propertiesToAggregate
++ (NSArray<NSString *> *)propertiesToAggregate
 {
-    NSMutableArray *names = [[super propertiesToAggregate] mutableCopy];
+    static dispatch_once_t once;
+    static NSMutableArray *names = nil;
     
-    [names addObjectsFromArray:@[
-                                 MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE,
-                                 MSID_TELEMETRY_KEY_HTTP_RESPONSE_CODE,
-                                 MSID_TELEMETRY_KEY_HTTP_EVENT_COUNT,
-                                 MSID_TELEMETRY_KEY_SERVER_ERROR_CODE,
-                                 MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE,
-                                 MSID_TELEMETRY_KEY_RT_AGE,
-                                 MSID_TELEMETRY_KEY_SPE_INFO
-                                 ]];
+    dispatch_once(&once, ^{
+        names = [[super propertiesToAggregate] mutableCopy];
+        
+        [names addObjectsFromArray:@[
+                                     MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE,
+                                     MSID_TELEMETRY_KEY_HTTP_RESPONSE_CODE,
+                                     MSID_TELEMETRY_KEY_HTTP_EVENT_COUNT,
+                                     MSID_TELEMETRY_KEY_SERVER_ERROR_CODE,
+                                     MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE,
+                                     MSID_TELEMETRY_KEY_RT_AGE,
+                                     MSID_TELEMETRY_KEY_SPE_INFO
+                                     ]];
+    });
     
     return names;
 }

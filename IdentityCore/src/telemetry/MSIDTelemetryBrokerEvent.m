@@ -62,14 +62,19 @@
 
 #pragma mark - MSIDTelemetryBaseEvent
 
-- (NSArray<NSString *> *)propertiesToAggregate
++ (NSArray<NSString *> *)propertiesToAggregate
 {
-    NSMutableArray *names = [[super propertiesToAggregate] mutableCopy];
+    static dispatch_once_t once;
+    static NSMutableArray *names = nil;
     
-    [names addObjectsFromArray:@[
-                                 MSID_TELEMETRY_KEY_BROKER_APP,
-                                 MSID_TELEMETRY_KEY_BROKER_VERSION
-                                 ]];
+    dispatch_once(&once, ^{
+        names = [[super propertiesToAggregate] mutableCopy];
+        
+        [names addObjectsFromArray:@[
+                                     MSID_TELEMETRY_KEY_BROKER_APP,
+                                     MSID_TELEMETRY_KEY_BROKER_VERSION
+                                     ]];
+    });
     
     return names;
 }

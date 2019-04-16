@@ -74,7 +74,7 @@ static NSDictionary *s_telemetryCollectionRules;
 
 - (void)addProperties:(NSMutableDictionary *)aggregatedEvent fromEvent:(id<MSIDTelemetryEventInterface>)event
 {
-    __auto_type propertyNames = [event propertiesToAggregate];
+    __auto_type propertyNames = [event.class propertiesToAggregate];
     for (NSString *propertyName in propertyNames)
     {
         MSIDTelemetryCollectionBehavior collectionBehavior = [s_telemetryCollectionRules[propertyName] integerValue];

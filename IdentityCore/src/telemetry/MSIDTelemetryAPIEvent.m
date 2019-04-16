@@ -112,24 +112,29 @@
 
 #pragma mark - MSIDTelemetryBaseEvent
 
-- (NSArray<NSString *> *)propertiesToAggregate
++ (NSArray<NSString *> *)propertiesToAggregate
 {
-    NSMutableArray *names = [[super propertiesToAggregate] mutableCopy];
+    static dispatch_once_t once;
+    static NSMutableArray *names = nil;
     
-    [names addObjectsFromArray:@[
-                                 MSID_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING,
-                                 MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR,
-                                 MSID_TELEMETRY_KEY_RESULT_STATUS,
-                                 MSID_TELEMETRY_KEY_TENANT_ID,
-                                 MSID_TELEMETRY_KEY_USER_ID,
-                                 MSID_TELEMETRY_KEY_RESPONSE_TIME,
-                                 MSID_TELEMETRY_KEY_CLIENT_ID,
-                                 MSID_TELEMETRY_KEY_API_ID,
-                                 MSID_TELEMETRY_KEY_API_ERROR_CODE,
-                                 MSID_TELEMETRY_KEY_ERROR_DOMAIN,
-                                 MSID_TELEMETRY_KEY_PROTOCOL_CODE,
-                                 MSID_TELEMETRY_KEY_IS_SUCCESSFUL
-                                 ]];
+    dispatch_once(&once, ^{
+        names = [[super propertiesToAggregate] mutableCopy];
+        
+        [names addObjectsFromArray:@[
+                                     MSID_TELEMETRY_KEY_EXTENDED_EXPIRES_ON_SETTING,
+                                     MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR,
+                                     MSID_TELEMETRY_KEY_RESULT_STATUS,
+                                     MSID_TELEMETRY_KEY_TENANT_ID,
+                                     MSID_TELEMETRY_KEY_USER_ID,
+                                     MSID_TELEMETRY_KEY_RESPONSE_TIME,
+                                     MSID_TELEMETRY_KEY_CLIENT_ID,
+                                     MSID_TELEMETRY_KEY_API_ID,
+                                     MSID_TELEMETRY_KEY_API_ERROR_CODE,
+                                     MSID_TELEMETRY_KEY_ERROR_DOMAIN,
+                                     MSID_TELEMETRY_KEY_PROTOCOL_CODE,
+                                     MSID_TELEMETRY_KEY_IS_SUCCESSFUL
+                                     ]];
+    });
     
     return names;
 }
