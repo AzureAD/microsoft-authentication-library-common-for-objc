@@ -25,9 +25,6 @@
 
 @interface MSIDNetworkConfiguration : NSObject
 
-extern NSTimeInterval MSID_DEFAULT_TIMEOUT_FOR_RESOURCE;
-extern NSTimeInterval MSID_DEFAULT_TIMEOUT_FOR_REQUEST;
-
 @property (class, nonatomic, readwrite) NSTimeInterval timeoutIntervalForRequest;
 @property (class, nonatomic, readwrite) NSTimeInterval timeoutIntervalForResource;
 
