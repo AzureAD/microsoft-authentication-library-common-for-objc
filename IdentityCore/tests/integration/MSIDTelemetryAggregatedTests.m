@@ -581,4 +581,39 @@
     XCTAssertEqual(self.receivedEvents.count, 0);
 }
 
+- (void)testFlush_whenThereIsOneHttpEventWithClientTelemetry_shouldSendAggregatedEvent
+{
+    // HTTP event
+    MSIDTelemetryHttpEvent *httpEvent = [[MSIDTelemetryHttpEvent alloc] initWithName:@"httpEvent" context:self.context];
+    [httpEvent setClientTelemetry:@"1,123,1234,255.0643,I,qwe"];
+    [[MSIDTelemetry sharedInstance] startEvent:self.requestId eventName:@"httpEvent"];
+    [[MSIDTelemetry sharedInstance] stopEvent:self.requestId event:httpEvent];
+    
+    [[MSIDTelemetry sharedInstance] flush:self.requestId];
+    
+    XCTAssertNotNil(self.receivedEvents);
+    XCTAssertEqual(self.receivedEvents.count, 1);
+    NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
+    XCTAssertEqual(eventInfo.count, 15);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 14);
+#endif
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.http_event_count"], @1);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.oauth_error_code"], @"");
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.rt_age"], @"255.0643");
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.server_error_code"], @"123");
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.server_sub_error_code"], @"1234");
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.spe_info"], @"I");
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.x-ms-clitelem"], @"1,123,1234,255.0643,I,qwe");
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.response_code"], @"");
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
+}
+
 @end

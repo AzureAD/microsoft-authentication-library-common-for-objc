@@ -104,6 +104,7 @@ NSString *const MSID_TELEMETRY_KEY_IS_SUCCESSFUL                = @"is_successfu
 NSString *const MSID_TELEMETRY_KEY_WIPE_APP                     = @"wipe_app";
 NSString *const MSID_TELEMETRY_KEY_WIPE_TIME                    = @"wipe_time";
 NSString *const MSID_TELEMETRY_KEY_WEBVIEW_TYPE                 = @"webview_type";
+NSString *const MSID_TELEMETRY_KEY_CLIENT_TELEMETRY_RAW         = @"x-ms-clitelem";
 
 // Telemetry property value
 NSString *const MSID_TELEMETRY_VALUE_YES                             = @"yes";
