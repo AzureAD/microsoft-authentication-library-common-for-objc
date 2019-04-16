@@ -50,6 +50,7 @@
                                       @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                       @"broker_key" : @"brokerKey",
                                       @"client_version" : [MSIDVersion sdkVersion],
+                                      @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
                                       //V2 broker protocol specific
@@ -95,6 +96,7 @@
                                       @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                       @"broker_key" : @"brokerKey",
                                       @"client_version" : [MSIDVersion sdkVersion],
+                                      @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
                                       @"request_scopes" : @"myscope1 myscope2",
@@ -141,6 +143,7 @@
                                       @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                       @"broker_key" : @"brokerKey",
                                       @"client_version" : [MSIDVersion sdkVersion],
+                                      @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
                                       @"request_scopes" : @"myscope1 myscope2",
@@ -187,6 +190,7 @@
                                       @"redirect_uri" : @"my-redirect://com.microsoft.test",
                                       @"broker_key" : @"brokerKey",
                                       @"client_version" : [MSIDVersion sdkVersion],
+                                      @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
                                       @"request_scopes" : @"myscope1 myscope2",
@@ -230,6 +234,7 @@
     parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
     parameters.promptType = MSIDPromptTypeSelectAccount;
     parameters.oidcScope = @"oidcscope1 oidcscope2";
+    parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
     return parameters;
 }
 

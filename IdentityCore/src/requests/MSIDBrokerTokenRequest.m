@@ -144,7 +144,6 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -156,7 +155,6 @@
 #endif
     
     [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
-    [queryDictionary msidSetNonEmptyString:extraQueryParameters forKey:@"extra_qp"];
     [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];
     [queryDictionary msidSetNonEmptyString:enrollmentIds forKey:@"intune_enrollment_ids"];
     [queryDictionary msidSetNonEmptyString:mamResources forKey:@"intune_mam_resource"];
