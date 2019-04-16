@@ -101,14 +101,18 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 10);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 9);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.http_event_count"], @1);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.oauth_error_code"], @"");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.response_code"], @"");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -136,7 +140,12 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 14);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 13);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.http_event_count"], @2);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.oauth_error_code"], @"invalid_grant");
@@ -147,7 +156,6 @@
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.rt_age"], @"255.0643");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.spe_info"], @"some info");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -166,12 +174,16 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 8);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 7);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.response_time"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -206,12 +218,16 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 16);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 15);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.response_time"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -238,12 +254,16 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 8);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 7);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @1);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -273,7 +293,12 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 14);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 13);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @2);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.token_rt_status"], @"1");
@@ -284,7 +309,6 @@
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.wipe_time"], @"6");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -303,14 +327,18 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 10);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 9);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.ntlm"], @"");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.ui_event_count"], @1);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.user_cancel"], @"");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -338,7 +366,13 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 14);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
+#else
+    XCTAssertEqual(eventInfo.count, 12);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.ntlm"], @"3");
@@ -346,12 +380,10 @@
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.user_cancel"], @"1");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.login_hint"], @"d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_name"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.device_id"]);
 }
 
@@ -368,12 +400,16 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 8);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 7);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.broker_app"], @"Microsoft Authenticator");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -398,13 +434,17 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 9);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 8);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.broker_app"], @"Microsoft Authenticator");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.broker_version"], @"134");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -423,11 +463,15 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 7);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 6);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
@@ -455,19 +499,23 @@
     XCTAssertNotNil(self.receivedEvents);
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 13);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
+#else
+    XCTAssertEqual(eventInfo.count, 11);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.authority_validation_status"], @"1");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.authority_type"], @"2");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.authority"], @"3");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_name"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.device_id"]);
 }
 
@@ -501,14 +549,18 @@
     
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
+#if TARGET_OS_IPHONE
     XCTAssertEqual(eventInfo.count, 10);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
+#else
+    XCTAssertEqual(eventInfo.count, 9);
+#endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.http_event_count"], @1);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.oauth_error_code"], @"");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.response_code"], @"error_code_123");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
-    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
