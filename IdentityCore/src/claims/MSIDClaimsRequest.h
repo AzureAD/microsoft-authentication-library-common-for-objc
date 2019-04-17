@@ -35,16 +35,58 @@ typedef NS_ENUM(NSUInteger, MSIDClaimsRequestTarget)
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*!
+ Represents the claims request parameter as an object. It is not thread safe.
+ See more info here: https://openid.net/specs/openid-connect-core-1_0-final.html#ClaimsParameter
+ 
+ Example of Claims Request serialized to json:
+ 
+ {
+    "access_token":
+    {
+        "capolids": {"essential":true, "values":["00000000-0000-0000-0000-000000000001"]}
+    },
+    "id_token":
+    {
+        "auth_time": {"essential": true},
+        "acr": {"values": ["urn:mace:incommon:iap:silver"]}
+    }
+ }
+ 
+ */
 @interface MSIDClaimsRequest : NSObject <NSCopying, MSIDJsonSerializable>
 
+/*!
+ Returns NO if claims request is empty, YES otherwise.
+ */
 @property (readonly) BOOL hasClaims;
 
+/*!
+ Adds a request for a specific claim to be included in the target via the claims request parameter.
+ If claim request alredy exists, provided claim request takes its place.
+ @param request Individual claim request.
+ @param target Target of individual claim.
+ @param error The error that occurred during requesting the claim.
+ @return YES if operation was successful, NO otherwise.
+ */
 - (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request
            forTarget:(MSIDClaimsRequestTarget)target
                error:(NSError * _Nullable * _Nullable)error;
 
+/*!
+ Return the array of requested claims for the target.
+ @param target Target of requested claims.
+ @return Array of individual claim requests.
+ */
 - (NSArray<MSIDIndividualClaimRequest *> *)claimRequestsForTarget:(MSIDClaimsRequestTarget)target;
 
+/*!
+ Remove requested claims for the target.
+ @param name of requested claim.
+ @param target Target of individual claim.
+ @param error The error that occurred during removing the claim request.
+ @return YES if operation was successful, NO otherwise.
+ */
 - (BOOL)removeClaimRequestWithName:(NSString *)name
                             target:(MSIDClaimsRequestTarget)target
                              error:(NSError * _Nullable * _Nullable)error;
