@@ -80,7 +80,7 @@ static NSString *const kValuesJsonParam = @"values";
         {
             if (error) *error = MSIDCreateError(MSIDErrorDomain,
                                                 MSIDErrorInvalidDeveloperParameter,
-                                                @"Failed to init claim additional info from json string.",
+                                                @"Failed to init claim additional info from json.",
                                                 nil, nil, nil, nil, nil);
             
             MSID_LOG_ERROR(nil, @"Failed to init MSIDIndividualClaimRequestAdditionalInfo with json: json is invalid.");
