@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDNetworkConfiguration.h"
 #import "MSIDAuthority.h"
 
 @interface MSIDConfiguration : NSObject <NSCopying>

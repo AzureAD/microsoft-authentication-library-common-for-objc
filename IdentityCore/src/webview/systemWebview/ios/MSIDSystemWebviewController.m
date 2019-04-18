@@ -31,7 +31,6 @@
 #import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
-#import "MSIDNetworkConfiguration.h"
 #import "MSIDNotifications.h"
 
 @implementation MSIDSystemWebviewController
