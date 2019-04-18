@@ -131,20 +131,23 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
+    if (!url) return nil;
+    
     // remove query and fragments
     if (!formatValidated)
     {
-        NSURL *urlMinusFragment = [NSURL URLWithString:[url.absoluteString componentsSeparatedByString:@"#"][0]];
-        NSURL *urlMinusQuery = [NSURL URLWithString:[urlMinusFragment.absoluteString componentsSeparatedByString:@"?"][0]];
+        NSURLComponents *urlComp = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+        urlComp.query = nil;
+        urlComp.fragment = nil;
         
-        return urlMinusQuery;
+        return urlComp.URL;
     }
     
     // This is just for safety net. If formatValidated, it should satisfy the following condition.
     if (url.pathComponents.count < 4) return nil;
     
     // normalize further for validated formats
-    NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], url.pathComponents[2], url.pathComponents[3]];
+    NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1].msidURLEncode, url.pathComponents[2].msidURLEncode, url.pathComponents[3].msidURLEncode];
     return [NSURL URLWithString:normalizedAuthorityUrl];
 }
 
