@@ -2457,8 +2457,7 @@
 				232153191FDA101900C6960D /* MSIDUserInformation.m */,
 				9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCache.h */,
 				9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCache.m */,
-				05566D0E2204BB8A002DBA40 /* MSIDMacKeychainTokenCache.h */,
-				05566D0F2204BB8A002DBA40 /* MSIDMacKeychainTokenCache.m */,
+				B220AC1D22680D6000423359 /* mac */,
 				B211580B202B84B2005CE586 /* key */,
 				9641B5261FCF3F2600AFA0EC /* serializers */,
 				9641B51D1FCF3EB800AFA0EC /* ios */,
@@ -2730,6 +2729,15 @@
 				B25A39FE21C60A9E00213A62 /* NSString+MSIDAutomationUtils.m */,
 			);
 			path = shared;
+			sourceTree = "<group>";
+		};
+		B220AC1D22680D6000423359 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				05566D0E2204BB8A002DBA40 /* MSIDMacKeychainTokenCache.h */,
+				05566D0F2204BB8A002DBA40 /* MSIDMacKeychainTokenCache.m */,
+			);
+			path = mac;
 			sourceTree = "<group>";
 		};
 		B226D85B1FFB07840012BF8B /* token */ = {
