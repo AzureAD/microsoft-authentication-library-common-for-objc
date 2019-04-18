@@ -86,8 +86,8 @@
         if (status == errSecSuccess)
         {
             appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
-            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Defaul app's acces group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
-            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Defaul app's acces group: \"%@\".", appDefaultAccessGroup);
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Default app's access group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
+            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Default app's access group: \"%@\".", appDefaultAccessGroup);
             
             CFRelease(result);
         }

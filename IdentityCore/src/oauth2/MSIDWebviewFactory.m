@@ -87,6 +87,7 @@
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                  callbackURLScheme:redirectURL.scheme
                                                                                   parentController:configuration.parentController
+                                                                                  presentationType:configuration.presentationType
                                                                           useAuthenticationSession:useAuthenticationSession
                                                                          allowSafariViewController:allowSafariViewController
                                                                                            context:context];
@@ -190,6 +191,7 @@
     configuration.customHeaders = parameters.customWebviewHeaders;
 #if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
+    configuration.presentationType = parameters.presentationType;
 #endif
 
     NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];

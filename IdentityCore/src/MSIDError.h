@@ -96,7 +96,9 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorServerNonHttpsRedirect     = -51116,
 
     // Different account returned
-    MSIDErrorMismatchedAccount  =   -51117,
+    MSIDErrorMismatchedAccount          = -51117,
+    
+    MSIDErrorRedirectSchemeNotRegistered = -51118,
 
     /*!
     =========================================================

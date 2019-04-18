@@ -58,6 +58,7 @@
 
 - (instancetype)initWithURL:(NSURL *)url
            parentController:(UIViewController *)parentController
+           presentationType:(UIModalPresentationStyle)presentationType
                     context:(id<MSIDRequestContext>)context
 {
     self = [super init];
@@ -68,7 +69,8 @@
         
         _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
         _safariViewController.delegate = self;
-        
+        _safariViewController.modalPresentationStyle = presentationType;
+
         _parentController = parentController;
     }
     return self;

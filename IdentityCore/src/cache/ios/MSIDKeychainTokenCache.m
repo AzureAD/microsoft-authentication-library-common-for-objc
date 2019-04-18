@@ -410,8 +410,13 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
+    NSString *account = key.account;
+    NSString *service = key.service;
+    NSData *generic = key.generic;
+    NSNumber *type = key.type;
+    
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(account), _PII_NULLIFY(service), [self keychainGroupLoggingName]);
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", account, service, self.keychainGroup);
     
     if (!key)
     {
@@ -424,21 +429,21 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
     
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
-    if (key.service)
+    if (service)
     {
-        [query setObject:key.service forKey:(id)kSecAttrService];
+        [query setObject:service forKey:(id)kSecAttrService];
     }
-    if (key.account)
+    if (account)
     {
-        [query setObject:key.account forKey:(id)kSecAttrAccount];
+        [query setObject:account forKey:(id)kSecAttrAccount];
     }
-    if (key.generic)
+    if (generic)
     {
-        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+        [query setObject:generic forKey:(id)kSecAttrGeneric];
     }
-    if (key.type != nil)
+    if (type != nil)
     {
-        [query setObject:key.type forKey:(id)kSecAttrType];
+        [query setObject:type forKey:(id)kSecAttrType];
     }
     
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
@@ -615,25 +620,30 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error
 {
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), key.service, _PII_NULLIFY(key.generic), key.type, [self keychainGroupLoggingName]);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", key.account, key.service, key.generic, key.type, self.keychainGroup);
+    NSString *account = key.account;
+    NSString *service = key.service;
+    NSData *generic = key.generic;
+    NSNumber *type = key.type;
+    
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(account), service, _PII_NULLIFY(generic), type, [self keychainGroupLoggingName]);
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", account, service, generic, type, self.keychainGroup);
     
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
-    if (key.service)
+    if (service)
     {
-        [query setObject:key.service forKey:(id)kSecAttrService];
+        [query setObject:service forKey:(id)kSecAttrService];
     }
-    if (key.account)
+    if (account)
     {
-        [query setObject:key.account forKey:(id)kSecAttrAccount];
+        [query setObject:account forKey:(id)kSecAttrAccount];
     }
-    if (key.generic)
+    if (generic)
     {
-        [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+        [query setObject:generic forKey:(id)kSecAttrGeneric];
     }
-    if (key.type != nil)
+    if (type != nil)
     {
-        [query setObject:key.type forKey:(id)kSecAttrType];
+        [query setObject:type forKey:(id)kSecAttrType];
     }
     
     [query setObject:@YES forKey:(id)kSecReturnData];
@@ -670,10 +680,15 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 {
     assert(key);
     
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
+    NSString *account = key.account;
+    NSString *service = key.service;
+    NSData *generic = key.generic;
+    NSNumber *type = key.type;
     
-    if (!key.service)
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(account), _PII_NULLIFY(service), [self keychainGroupLoggingName]);
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", account, service, self.keychainGroup);
+    
+    if (!service)
     {
         if (error)
         {
@@ -694,21 +709,21 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
     
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
-    [query setObject:key.service forKey:(id)kSecAttrService];
-    [query setObject:(key.account ? key.account : @"") forKey:(id)kSecAttrAccount];
+    [query setObject:service forKey:(id)kSecAttrService];
+    [query setObject:(account ? account : @"") forKey:(id)kSecAttrAccount];
     
-    if (key.type != nil)
+    if (type != nil)
     {
-        [query setObject:key.type forKey:(id)kSecAttrType];
+        [query setObject:type forKey:(id)kSecAttrType];
     }
     
     MSID_LOG_VERBOSE(context, @"Trying to update keychain item...");
 
     NSMutableDictionary *updateDictionary = [@{(id)kSecValueData : itemData} mutableCopy];
 
-    if (key.generic)
+    if (generic)
     {
-        updateDictionary[(id)kSecAttrGeneric] = key.generic;
+        updateDictionary[(id)kSecAttrGeneric] = generic;
     }
 
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)updateDictionary);
@@ -717,9 +732,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         [query setObject:itemData forKey:(id)kSecValueData];
 
-        if (key.generic)
+        if (generic)
         {
-            [query setObject:key.generic forKey:(id)kSecAttrGeneric];
+            [query setObject:generic forKey:(id)kSecAttrGeneric];
         }
 
         [query setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
