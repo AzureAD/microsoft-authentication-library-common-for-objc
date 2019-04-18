@@ -94,7 +94,7 @@
     return YES;
 }
 
-- (NSArray<MSIDIndividualClaimRequest *> *)claimRequestsForTarget:(MSIDClaimsRequestTarget)target
+- (NSArray<MSIDIndividualClaimRequest *> *)claimsRequestsForTarget:(MSIDClaimsRequestTarget)target
 {
     if (!self.claimsRequestsDict) return nil;
     
