@@ -22,26 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDClientCapabilitiesUtil : NSObject
+@interface MSIDIndividualClaimRequestAdditionalInfo : NSObject <MSIDJsonSerializable>
 
-/*
- Takes a list of capabilities and returns the JSON claims.
- The result JSON is not URL encoded and caller needs to encode it if necessary
- */
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
+@property (nonatomic) NSNumber *essential;
 
-/*
- Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
- The result JSON is not URL encoded and caller needs to encode it if necessary
- */
+@property (nonatomic, nullable) id value;
 
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
-                                  developerClaims:(NSDictionary *)developerClaims;
-
-+ (NSString *)jsonFromClaims:(NSDictionary *)claims;
+@property (nonatomic, nullable) NSArray *values;
 
 @end
 

@@ -21,21 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTestResult.h"
+#import "MSIDClaimsRequest+ClientCapabilities.h"
+#import "MSIDIndividualClaimRequest.h"
+#import "MSIDIndividualClaimRequestAdditionalInfo.h"
 
-NS_ASSUME_NONNULL_BEGIN
+static NSString *kCapabilitiesClaimName = @"xms_cc";
 
-@interface MSIDAutomationErrorResult : MSIDAutomationTestResult
+@implementation MSIDClaimsRequest (ClientCapabilities)
 
-@property (nonatomic) NSInteger errorCode;
-@property (nonatomic) NSString *errorDomain;
-@property (nonatomic) NSString *errorDescription;
-@property (nonatomic) NSDictionary *errorUserInfo;
+- (void)requestCapabilities:(NSArray<NSString *> *)capabilities
+{
+    if (capabilities.count == 0) return;
+    
+    MSIDIndividualClaimRequest *claimRequest = [[MSIDIndividualClaimRequest alloc] initWithName:kCapabilitiesClaimName];
+    claimRequest.additionalInfo = [MSIDIndividualClaimRequestAdditionalInfo new];
+    claimRequest.additionalInfo.values = capabilities;
+    
+    [self requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken error:nil];
+}
 
-- (instancetype)initWithAction:(NSString *)actionId
-                         error:(NSError *)error
-                additionalInfo:(nullable NSDictionary *)additionalInfo;
++ (MSIDClaimsRequest *)claimsRequestFromCapabilities:(NSArray<NSString *> *)capabilities
+                                       claimsRequest:(MSIDClaimsRequest *)claimsRequest
+{
+    if (!capabilities && !claimsRequest) return nil;
+    
+    MSIDClaimsRequest *result = claimsRequest ? [claimsRequest copy] : [MSIDClaimsRequest new];
+    
+    if (capabilities) [result requestCapabilities:capabilities];
+    
+    return result;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

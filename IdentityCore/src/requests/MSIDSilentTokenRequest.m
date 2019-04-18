@@ -32,6 +32,7 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
 #import "NSError+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -94,7 +95,7 @@
 
 - (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.forceRefresh && ![self.requestParameters.claims count])
+    if (!self.forceRefresh && ![self.requestParameters.claimsRequest hasClaims])
     {
         NSError *accessTokenError = nil;
         

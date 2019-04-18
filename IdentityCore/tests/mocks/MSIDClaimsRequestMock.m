@@ -21,21 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTestResult.h"
+#import "MSIDClaimsRequestMock.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDClaimsRequestMock
 
-@interface MSIDAutomationErrorResult : MSIDAutomationTestResult
+- (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target error:(NSError **)error
+{
+    self.requestClaimInvokedCount++;
+    
+    if (error) *error = self.errorToReturn;
+    
+    return self.resultToReturn;
+}
 
-@property (nonatomic) NSInteger errorCode;
-@property (nonatomic) NSString *errorDomain;
-@property (nonatomic) NSString *errorDescription;
-@property (nonatomic) NSDictionary *errorUserInfo;
-
-- (instancetype)initWithAction:(NSString *)actionId
-                         error:(NSError *)error
-                additionalInfo:(nullable NSDictionary *)additionalInfo;
+- (BOOL)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target error:(NSError **)error
+{
+    self.removeClaimRequestWithNameInvokedCount++;
+    
+    if (error) *error = self.errorToReturn;
+    
+    return self.resultToReturn;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

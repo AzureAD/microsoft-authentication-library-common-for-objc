@@ -21,20 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTestResult.h"
+#import "MSIDClaimsRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationErrorResult : MSIDAutomationTestResult
+@interface MSIDClaimsRequest (ClientCapabilities)
 
-@property (nonatomic) NSInteger errorCode;
-@property (nonatomic) NSString *errorDomain;
-@property (nonatomic) NSString *errorDescription;
-@property (nonatomic) NSDictionary *errorUserInfo;
+/*!
+ Requests a list of capabilities.
+ */
+- (void)requestCapabilities:(NSArray<NSString *> *)capabilities;
 
-- (instancetype)initWithAction:(NSString *)actionId
-                         error:(NSError *)error
-                additionalInfo:(nullable NSDictionary *)additionalInfo;
++ (nullable MSIDClaimsRequest *)claimsRequestFromCapabilities:(nullable NSArray<NSString *> *)capabilities
+                                                claimsRequest:(nullable MSIDClaimsRequest *)claimsRequest;
 
 @end
 

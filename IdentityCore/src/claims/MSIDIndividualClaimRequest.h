@@ -21,20 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTestResult.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
+
+@class MSIDIndividualClaimRequestAdditionalInfo;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationErrorResult : MSIDAutomationTestResult
+@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
 
-@property (nonatomic) NSInteger errorCode;
-@property (nonatomic) NSString *errorDomain;
-@property (nonatomic) NSString *errorDescription;
-@property (nonatomic) NSDictionary *errorUserInfo;
+@property (nonatomic) NSString *name;
 
-- (instancetype)initWithAction:(NSString *)actionId
-                         error:(NSError *)error
-                additionalInfo:(nullable NSDictionary *)additionalInfo;
+@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
+
+- (instancetype)initWithName:(NSString *)name;
+
++ (instancetype)new NS_UNAVAILABLE;
+
+- (instancetype)init NS_UNAVAILABLE;
+
+- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
 
 @end
 
