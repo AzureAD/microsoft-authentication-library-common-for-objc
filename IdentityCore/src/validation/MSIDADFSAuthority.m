@@ -89,6 +89,10 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
+    // Normalization requires url to have at least 1 path and a host.
+    // Return nil otherwise.
+    if (url.pathComponents.count < 2) return nil;
+    
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1]]];
 }
 

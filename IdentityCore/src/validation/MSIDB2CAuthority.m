@@ -140,6 +140,9 @@
         return urlMinusQuery;
     }
     
+    // This is just for safety net. If formatValidated, it should satisfy the following condition.
+    if (url.pathComponents.count < 4) return nil;
+    
     // normalize further for validated formats
     NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], url.pathComponents[2], url.pathComponents[3]];
     return [NSURL URLWithString:normalizedAuthorityUrl];
