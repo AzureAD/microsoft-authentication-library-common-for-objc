@@ -158,7 +158,6 @@
     
     __auto_type tenant = [self tenantFromAuthorityUrl:url context:context error:error];
     
-    
     if ([MSIDADFSAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
