@@ -28,7 +28,7 @@
 
 @implementation MSIDB2CAuthority
 
-- (nullable instancetype)initWithURL:(NSURL *)url
+- (nonnull instancetype)initWithURL:(NSURL *)url
                       validateFormat:(BOOL)validateFormat
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
@@ -50,7 +50,7 @@
     return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
-- (nullable instancetype)initWithURL:(nonnull NSURL *)url
+- (nonnull instancetype)initWithURL:(nonnull NSURL *)url
                            rawTenant:(NSString *)rawTenant
                              context:(nullable id<MSIDRequestContext>)context
                                error:(NSError **)error
