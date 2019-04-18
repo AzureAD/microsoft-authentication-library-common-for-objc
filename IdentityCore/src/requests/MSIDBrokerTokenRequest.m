@@ -31,6 +31,7 @@
 #import "MSIDConstants.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -206,12 +207,13 @@
 
 - (NSString *)claimsParameter
 {
-    if (!self.requestParameters.claims)
+    NSDictionary *claimJsonDictionary = [self.requestParameters.claimsRequest jsonDictionary];
+    if (!claimJsonDictionary)
     {
         return nil;
     }
 
-    NSString *claimsString = [self.requestParameters.claims msidJSONSerializeWithContext:self.requestParameters];
+    NSString *claimsString = [claimJsonDictionary msidJSONSerializeWithContext:self.requestParameters];
 
     if (!claimsString)
     {

@@ -32,6 +32,7 @@
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#import "MSIDClaimsRequest.h"
 
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
@@ -162,7 +163,9 @@
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
-    parameters.claims = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
+    
+    NSDictionary *claimsJsonDictionary = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
+    parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
     parameters.clientCapabilities = @[@"cp1", @"cp2"];
 
     NSError *error = nil;
