@@ -130,11 +130,6 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (![self isAuthorityFormatValid:url context:context error:error])
-    {
-        return nil;
-    }
-    
     NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], url.pathComponents[2], url.pathComponents[3]];
     
     return [NSURL URLWithString:normalizedAuthorityUrl];

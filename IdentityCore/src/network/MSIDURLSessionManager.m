@@ -23,7 +23,6 @@
 
 #import "MSIDURLSessionManager.h"
 #import "MSIDURLSessionDelegate.h"
-#import "MSIDNetworkConfiguration.h"
 
 static MSIDURLSessionManager *s_defaultManager = nil;
 

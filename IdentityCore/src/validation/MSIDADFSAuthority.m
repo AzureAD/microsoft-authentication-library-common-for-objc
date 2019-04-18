@@ -89,14 +89,7 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (![self isAuthorityFormatValid:url context:context error:error])
-    {
-        return nil;
-    }
-   
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1]]];
-    
-    return url;
 }
 
 @end
