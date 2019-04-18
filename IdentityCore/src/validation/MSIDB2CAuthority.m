@@ -28,11 +28,12 @@
 
 @implementation MSIDB2CAuthority
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (nullable instancetype)initWithURL:(NSURL *)url
+                      validateFormat:(BOOL)validateFormat
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
-    self = [super initWithURL:url context:context error:error];
+    self = [super initWithURL:url validateFormat:validateFormat context:context error:error];
     if (self)
     {
         _url = [self.class normalizedAuthorityUrl:url context:context error:error];
@@ -40,6 +41,13 @@
     }
     
     return self;
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
 - (nullable instancetype)initWithURL:(nonnull NSURL *)url
@@ -122,11 +130,6 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (![self isAuthorityFormatValid:url context:context error:error])
-    {
-        return nil;
-    }
-    
     NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], url.pathComponents[2], url.pathComponents[3]];
     
     return [NSURL URLWithString:normalizedAuthorityUrl];

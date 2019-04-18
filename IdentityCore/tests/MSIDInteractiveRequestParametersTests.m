@@ -123,12 +123,12 @@
     XCTAssertEqualObjects([@"scope scope2 openid openid2 extra1 extra5" msidScopeSet], allScopes);
 }
 
-- (void)testAllAuthorizeRequestParameters_whenNoExtraParameters_shouldReturnNilResult
+- (void)testAllAuthorizeRequestParameters_whenNoExtraParameters_shouldReturnAppMetaDataParams
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     
     NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
-    XCTAssertNil(eqp);
+     XCTAssertEqualObjects(eqp, parameters.appRequestMetadata);
 }
 
 - (void)testAllAuthorizeRequestParameters_whenOnlyAuthorizeParameters_shouldReturnAuthorizeParameters

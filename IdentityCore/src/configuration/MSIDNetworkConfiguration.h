@@ -23,10 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
-
 @interface MSIDNetworkConfiguration : NSObject
 
-@property (class, nonatomic, readwrite) NSTimeInterval timeout;
+@property (class, nonatomic, readwrite) NSTimeInterval timeoutIntervalForRequest;
+@property (class, nonatomic, readwrite) NSTimeInterval timeoutIntervalForResource;
+
 @property (class, nonatomic, readwrite) NSInteger retryCount;
+@property (class, nonatomic, readwrite) NSTimeInterval retryInterval;
 
 @end
