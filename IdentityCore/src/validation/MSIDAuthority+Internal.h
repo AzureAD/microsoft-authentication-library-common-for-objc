@@ -40,5 +40,10 @@ NS_ASSUME_NONNULL_BEGIN
                     context:(nullable id<MSIDRequestContext>)context
                       error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+- (instancetype)initWithURL:(NSURL *)url
+             validateFormat:(BOOL)validateFormat
+                    context:(nullable id<MSIDRequestContext>)context
+                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 NS_ASSUME_NONNULL_END
 @end
