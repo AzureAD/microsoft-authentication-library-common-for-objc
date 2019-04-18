@@ -106,7 +106,7 @@
     
     [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:nil];
     
-    __auto_type requests = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type requests = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertEqual(1, requests.count);
     MSIDIndividualClaimRequest *request = requests.firstObject;
     XCTAssertEqualObjects(@"sub", request.name);
@@ -124,7 +124,7 @@
     
     BOOL result = [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetIdToken error:&error];
     
-    __auto_type requests = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type requests = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertEqual(1, requests.count);
     MSIDIndividualClaimRequest *request = requests.firstObject;
     XCTAssertEqualObjects(@"sub", request.name);
@@ -143,7 +143,7 @@
     
     [claimsRequest requestClaim:claimRequest forTarget:MSIDClaimsRequestTargetAccessToken error:nil];
     
-    __auto_type requests = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
+    __auto_type requests = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
     XCTAssertEqual(1, requests.count);
     MSIDIndividualClaimRequest *request = requests.firstObject;
     XCTAssertEqualObjects(@"sub", request.name);
@@ -171,7 +171,7 @@
 
     BOOL result = [claimsRequest removeClaimRequestWithName:@"claim2" target:MSIDClaimsRequestTargetIdToken error:&error];
 
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertTrue(result);
@@ -190,7 +190,7 @@
 
     BOOL result = [claimsRequest removeClaimRequestWithName:@"claim2" target:MSIDClaimsRequestTargetIdToken error:&error];
 
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertFalse(result);
@@ -210,7 +210,7 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
     
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
@@ -226,7 +226,7 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
     
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
@@ -242,14 +242,14 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
     
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
     MSIDIndividualClaimRequest *claim = claims.firstObject;
     XCTAssertEqualObjects(@"nickname", claim.name);
     XCTAssertNil(claim.additionalInfo);
-    claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
+    claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetAccessToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
@@ -265,7 +265,7 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
     
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
@@ -284,7 +284,7 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
     
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
@@ -303,7 +303,7 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
     
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
@@ -323,7 +323,7 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
 
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
@@ -343,7 +343,7 @@
     
     __auto_type claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:&error];
     
-    __auto_type claims = [claimsRequest claimRequestsForTarget:MSIDClaimsRequestTargetIdToken];
+    __auto_type claims = [claimsRequest claimsRequestsForTarget:MSIDClaimsRequestTargetIdToken];
     XCTAssertNotNil(claimsRequest);
     XCTAssertNil(error);
     XCTAssertEqual(claims.count, 1);
