@@ -130,6 +130,17 @@
     XCTAssertNil(error);
 }
 
+- (void)testInitB2CAuthority_validateFormatOff_shouldReturnSameURLWithoutQueryAndFragments
+{
+    __auto_type authorityUrl = [@"scheme://www.somehost.com:8080/nontfpstring/shortpath?k=a#k=b" msidUrl];
+    NSError *error = nil;
+    
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.url, [@"scheme://www.somehost.com:8080/nontfpstring/shortpath" msidUrl]);
+    XCTAssertNil(error);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenB2CAuhority_shouldReturnOriginalAuthority

@@ -36,7 +36,7 @@
     self = [super initWithURL:url validateFormat:validateFormat context:context error:error];
     if (self)
     {
-        _url = [self.class normalizedAuthorityUrl:url context:context error:error];
+        _url = [self.class normalizedAuthorityUrl:url formatValidated:validateFormat context:context error:error];
         if (!_url) return nil;
     }
     
@@ -127,11 +127,21 @@
 #pragma mark - Private
 
 + (NSURL *)normalizedAuthorityUrl:(NSURL *)url
+                  formatValidated:(BOOL)formatValidated
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], url.pathComponents[2], url.pathComponents[3]];
+    // remove query and fragments
+    if (!formatValidated)
+    {
+        NSURL *urlMinusFragment = [NSURL URLWithString:[url.absoluteString componentsSeparatedByString:@"#"][0]];
+        NSURL *urlMinusQuery = [NSURL URLWithString:[urlMinusFragment.absoluteString componentsSeparatedByString:@"?"][0]];
+        
+        return urlMinusQuery;
+    }
     
+    // normalize further for validated formats
+    NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], url.pathComponents[2], url.pathComponents[3]];
     return [NSURL URLWithString:normalizedAuthorityUrl];
 }
 
