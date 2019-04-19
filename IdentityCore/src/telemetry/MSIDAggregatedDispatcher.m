@@ -57,9 +57,9 @@ static NSDictionary *s_telemetryCollectionRules;
 
 - (void)flush:(NSString *)requestId
 {
-    NSArray<id<MSIDTelemetryEventInterface>> *events = [self popEventsForReuquestId:requestId];
+    NSArray<id<MSIDTelemetryEventInterface>> *events = [self popEventsForRequestId:requestId];
     
-    if (events.count == 0) return;;
+    if (events.count == 0) return;
     
     NSMutableDictionary *aggregatedEvent = [[MSIDTelemetryBaseEvent defaultParameters] mutableCopy];
     for (id<MSIDTelemetryEventInterface> event in events)

@@ -53,7 +53,7 @@
 
 - (void)flush:(NSString *)requestId
 {
-    NSArray<id<MSIDTelemetryEventInterface>> *events = [self popEventsForReuquestId:requestId];
+    NSArray<id<MSIDTelemetryEventInterface>> *events = [self popEventsForRequestId:requestId];
     
     if ([events count])
     {
@@ -101,7 +101,7 @@
 
 #pragma mark - Protected
 
-- (NSArray *)popEventsForReuquestId:(NSString *)requestId
+- (NSArray *)popEventsForRequestId:(NSString *)requestId
 {
     __block NSArray *events;
     dispatch_sync(self.synchronizationQueue, ^{

@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSMutableSet *errorEvents;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
 
-- (NSArray *)popEventsForReuquestId:(NSString *)requestId;
+- (NSArray *)popEventsForRequestId:(NSString *)requestId;
 
 @end
 
