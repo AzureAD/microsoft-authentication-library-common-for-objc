@@ -33,7 +33,7 @@ static MSIDURLSessionManager *s_defaultManager = nil;
     if (self == [MSIDURLSessionManager self])
     {
         __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        
+
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.networking.delegateQueue-%@", [NSUUID UUID].UUIDString];
         __auto_type delegateQueue = [NSOperationQueue new];
         delegateQueue.name = queueName;
@@ -80,6 +80,26 @@ static MSIDURLSessionManager *s_defaultManager = nil;
 + (void)setDefaultManager:(MSIDURLSessionManager *)defaultManager
 {
     s_defaultManager = defaultManager;
+}
+
+- (void)setTimeoutIntervalForRequest:(NSTimeInterval)timeoutIntervalForRequest
+{
+    s_defaultManager.configuration.timeoutIntervalForRequest = timeoutIntervalForRequest;
+}
+
+- (void)setTimeoutIntervalForResource:(NSTimeInterval)timeoutIntervalForResource
+{
+    s_defaultManager.configuration.timeoutIntervalForResource = timeoutIntervalForResource;
+}
+
+- (NSTimeInterval)timeoutIntervalForResource
+{
+    return s_defaultManager.configuration.timeoutIntervalForResource;
+}
+
+- (NSTimeInterval)timeoutIntervalForRequest
+{
+    return s_defaultManager.configuration.timeoutIntervalForRequest;
 }
 
 @end

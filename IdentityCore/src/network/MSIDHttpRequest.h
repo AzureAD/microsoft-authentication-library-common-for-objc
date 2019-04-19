@@ -62,7 +62,9 @@
 @property (nonatomic, nullable) id<MSIDRequestContext> context;
 
 @property (nonatomic) NSInteger retryCounter;
-
 @property (nonatomic) NSTimeInterval retryInterval;
+
+@property (class, nonatomic, readwrite) NSInteger retryCountSetting;
+@property (class, nonatomic, readwrite) NSTimeInterval retryIntervalSetting;
 
 @end

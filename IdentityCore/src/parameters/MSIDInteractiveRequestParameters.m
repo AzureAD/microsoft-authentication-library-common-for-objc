@@ -73,14 +73,18 @@
 
 - (NSDictionary *)allAuthorizeRequestExtraParameters
 {
-    if (!self.extraAuthorizeURLQueryParameters && !self.extraURLQueryParameters)
+    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.appRequestMetadata];
+    
+    if (self.extraAuthorizeURLQueryParameters && self.extraAuthorizeURLQueryParameters.count > 0)
     {
-        return nil;
+        [authorizeParams addEntriesFromDictionary:self.extraAuthorizeURLQueryParameters];
     }
     
-    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.extraAuthorizeURLQueryParameters];
-    [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
-    [authorizeParams addEntriesFromDictionary:self.appRequestMetadata];
+    if (self.extraURLQueryParameters && self.extraURLQueryParameters.count > 0)
+    {
+        [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
+    }
+    
     return authorizeParams;
 }
 
