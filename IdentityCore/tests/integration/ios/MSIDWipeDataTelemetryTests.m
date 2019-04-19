@@ -184,7 +184,7 @@
                                                           context:reqContext
                                                             error:&error];
 
-    NSArray *returnedAccounts = [_legacyCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:reqContext error:&error];
+    NSArray *returnedAccounts = [_legacyCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:NO context:reqContext error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
@@ -311,7 +311,7 @@
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
-    NSArray *returnedTokens = [_defaultCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:reqContext error:&error];
+    NSArray *returnedTokens = [_defaultCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:NO context:reqContext error:&error];
 
     // expect no token because it has been deleted
     XCTAssertNil(error);

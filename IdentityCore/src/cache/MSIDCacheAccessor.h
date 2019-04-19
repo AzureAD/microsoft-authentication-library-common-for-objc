@@ -80,6 +80,7 @@
                                          clientId:(NSString *)clientId
                                          familyId:(NSString *)familyId
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                loadIdTokenClaims:(BOOL)loadIdTokenClaims
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error;
 

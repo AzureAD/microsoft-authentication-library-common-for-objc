@@ -247,6 +247,7 @@
                                          clientId:(NSString *)clientId
                                          familyId:(NSString *)familyId
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                loadIdTokenClaims:(BOOL)loadIdTokenClaims
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
@@ -335,7 +336,11 @@
         {
             account.name = idTokenClaims.name;
             account.localAccountId = idTokenClaims.uniqueId;
-            account.idTokenClaims = idTokenClaims;
+            BOOL clientIdMatch = !clientId ||[clientId isEqualToString:refreshToken.clientId];
+            if (loadIdTokenClaims && clientIdMatch)
+            {
+                account.idTokenClaims = idTokenClaims;
+            }
         }
         
         [resultAccounts addObject:account];
