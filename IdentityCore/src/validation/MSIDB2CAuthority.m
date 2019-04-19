@@ -131,7 +131,14 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (!url) return nil;
+    if (!url)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is nil.", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
     
     // remove query and fragments
     if (!formatValidated)
@@ -144,7 +151,14 @@
     }
     
     // This is just for safety net. If formatValidated, it should satisfy the following condition.
-    if (url.pathComponents.count < 4) return nil;
+    if (url.pathComponents.count < 4)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is not a valid format to be normalized.", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
     
     // normalize further for validated formats
     NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1].msidURLEncode, url.pathComponents[2].msidURLEncode, url.pathComponents[3].msidURLEncode];
