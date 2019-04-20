@@ -288,9 +288,9 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAuthority *authority = [[self.class allocWithZone:zone] initWithURL:_url context:nil error:nil];
-    authority->_openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
-    authority->_metadata = _metadata;
-    authority->_url = [_url copyWithZone:zone];
+    authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority.metadata = _metadata;
+    authority.url = [_url copyWithZone:zone];
     
     return authority;
 }

@@ -30,9 +30,11 @@
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDURLSessionManager.h"
 #import "MSIDJsonResponsePreprocessor.h"
+#import "MSIDOAuthRequestConfigurator.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
+static NSTimeInterval s_requestTimeoutInterval = 300;
 
 @implementation MSIDHttpRequest
 
@@ -50,6 +52,7 @@ static NSTimeInterval s_retryInterval = 0.5;
         _telemetry = [MSIDHttpRequestTelemetry new];
         _retryCounter = s_retryCount;
         _retryInterval = s_retryInterval;
+        _requestTimeoutInterval = s_requestTimeoutInterval;
     }
     
     return self;
@@ -58,6 +61,10 @@ static NSTimeInterval s_retryInterval = 0.5;
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
+    
+    __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
+    requestConfigurator.timeoutInterval = _requestTimeoutInterval;
+    [requestConfigurator configure:self];
     
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
     
@@ -119,5 +126,7 @@ static NSTimeInterval s_retryInterval = 0.5;
 
 + (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
 + (void)setRetryIntervalSetting:(NSTimeInterval)retryIntervalSetting { s_retryInterval = retryIntervalSetting; }
++ (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
++ (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
 
 @end

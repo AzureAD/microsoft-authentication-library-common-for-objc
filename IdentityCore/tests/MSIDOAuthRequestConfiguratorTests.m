@@ -21,9 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequestConfiguratorProtocol.h"
+#import <XCTest/XCTest.h>
+#import "MSIDOAuthRequestConfigurator.h"
+#import "MSIDHttpRequest.h"
+#import "MSIDTestContext.h"
 
-@interface MSIDAADRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
+@interface MSIDOAuthRequestConfiguratorTests : XCTestCase
+
+@end
+
+@implementation MSIDOAuthRequestConfiguratorTests
+
+- (void)testConfigure_shouldConfigureBaseOAuthRequest
+{
+    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type httpRequest = [MSIDHttpRequest new];
+    __auto_type context = [MSIDTestContext new];
+    context.correlationId = [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"];
+    httpRequest.context = context;
+    httpRequest.urlRequest = [[NSURLRequest alloc] initWithURL:baseUrl];
+    
+    MSIDOAuthRequestConfigurator *requestConfigurator = [MSIDOAuthRequestConfigurator new];
+    requestConfigurator.timeoutInterval = 3333;
+    
+    [requestConfigurator configure:httpRequest];
+    XCTAssertEqual(httpRequest.urlRequest.timeoutInterval, 3333);
+    XCTAssertEqual(httpRequest.urlRequest.cachePolicy, NSURLRequestReloadIgnoringCacheData);
+    XCTAssertEqualObjects(httpRequest.urlRequest.URL.absoluteString, @"https://fake.url");
+}
 
 @end

@@ -21,9 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequestConfiguratorProtocol.h"
+#import "MSIDOAuthRequestConfigurator.h"
+#import "MSIDHttpRequest.h"
 
-@interface MSIDAADRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
+@implementation MSIDOAuthRequestConfigurator
+
+- (void)configure:(MSIDHttpRequest *)request
+{
+    NSParameterAssert(request.urlRequest);
+    NSParameterAssert(request.urlRequest.URL);
+    
+    NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
+    mutableUrlRequest.timeoutInterval = self.timeoutInterval;
+    mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+    request.urlRequest = mutableUrlRequest;
+}
 
 @end
