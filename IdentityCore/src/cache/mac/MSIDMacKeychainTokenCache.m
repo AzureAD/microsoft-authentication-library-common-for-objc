@@ -490,8 +490,53 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
           context:(__unused id<MSIDRequestContext>)context
             error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error context:context];
-    return NO;
+    MSID_TRACE;
+    MSID_LOG_VERBOSE(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service), [self keychainGroupLoggingName]);
+    MSID_LOG_VERBOSE_PII(context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", key.account, key.service, self.keychainGroup);
+    
+    if (!key.service.length)
+    {
+        [self createError:@"Set keychain item with invalid key (service is nil)."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
+        return NO;
+    }
+    
+    if (!key.account.length)
+    {
+        [self createError:@"Set keychain item with invalid key (account is nil)."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
+        return NO;
+    }
+    
+    NSData *jsonData = [serializer serializeCredentialCacheItem:item];
+    if (!jsonData)
+    {
+        [self createError:@"Failed to serialize account to json data."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
+        return NO;
+    }
+    
+    NSMutableDictionary *query = [self secretTokenPrimaryAttributesForKey:key];
+    NSMutableDictionary *update = [self secretTokenSecondaryAttributesForKey:key];
+    update[(id)kSecValueData] = jsonData;
+    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
+    
+    if (status == errSecItemNotFound)
+    {
+        [query addEntriesFromDictionary:update];
+        status = SecItemAdd((CFDictionaryRef)query, NULL);
+        MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
+    }
+    
+    if (status != errSecSuccess)
+    {
+        [self createError:@"Failed to write account to keychain"
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return NO;
+    }
+    
+    return YES;
 }
 
 // Read a single credential from the macOS keychain cache.
@@ -534,8 +579,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                 context:(__unused id<MSIDRequestContext>)context
                   error:(__unused NSError **)error
 {
-    [self createUnimplementedError:error context:context];
-    return NO;
+//    [self createUnimplementedError:error context:context];
+//    return NO;
+    return YES;
 }
 
 // Read MSIDAppMetadataCacheItem (clientId/environment/familyId) items from the macOS keychain cache.
@@ -606,6 +652,49 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 }
 
 #pragma mark - Utilities
+
+// Get the basic/default keychain query dictionary for secret non-shareable token items (Access Token and ID Token).
+// To support searching, the key properties may be partially or fully empty.
+- (NSMutableDictionary *)secretTokenPrimaryAttributesForKey:(MSIDCacheKey *)key
+{
+    MSID_TRACE;
+    NSMutableDictionary *query = [self.defaultAccountQuery mutableCopy];
+    
+    if (key.account.length > 0)
+    {
+        // Token attribute: <keychainGroup>-<bundleID>-<homeAccountId>-<environment>
+        // The access group is added to the account attribute so it's part of the keychain item's primary key.
+        query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@-%@", self.keychainGroup,[[NSBundle mainBundle] bundleIdentifier], key.account];
+    }
+    if (key.service.length > 0)
+    {
+        // Service attribute: <credential_id-target>
+        query[(id)kSecAttrService] = key.service;
+    }
+    
+    return query;
+}
+
+// Get the basic/default keychain query dictionary for secret non-shareable token items (Access Token and ID Token).
+// These are not _primary_ keys, but if they're present in the key object we
+// want to set them when adding/updating.
+- (NSMutableDictionary *)secretTokenSecondaryAttributesForKey:(MSIDCacheKey *)key
+{
+    MSID_TRACE;
+    NSMutableDictionary *query = [NSMutableDictionary new];
+    
+    if (key.generic.length > 0)
+    {
+        // Generic attribute: <username>
+        query[(id)kSecAttrGeneric] = key.generic;
+    }
+    if (key.type != nil)
+    {
+        query[(id)kSecAttrType] = key.type;
+    }
+    
+    return query;
+}
 
 // Get the basic/default keychain query dictionary for account items.
 // To support searching, the key properties may be partially or fully empty.

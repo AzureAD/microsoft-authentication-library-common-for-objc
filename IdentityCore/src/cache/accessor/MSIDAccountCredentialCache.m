@@ -21,6 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#define NDEBUG
+#include <assert.h>
+
 #import "MSIDAccountCredentialCache.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
