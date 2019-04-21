@@ -121,7 +121,7 @@
 
 - (void)testSaveTokensWithFactory_whenMultiResourceResponse_andNoOtherAccessors_savesTokensToPrimaryAccessor
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" oid:nil tenantId:@"tid"];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"access token"
                                                                             rt:@"refresh token"
@@ -180,7 +180,7 @@
 
 - (void)testSaveTokensWithFactory_whenMultiResourceResponse_savesTokensToBothAccessors
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" oid:nil tenantId:@"tid"];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"access token"
                                                                             rt:@"refresh token"
@@ -278,7 +278,7 @@
 
 - (void)testSaveTokensWithFactory_whenMultiResourceFOCIResponse_savesTokensToBothAccessors
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" oid:nil tenantId:@"tid"];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"access token"
                                                                             rt:@"refresh token"
@@ -359,7 +359,7 @@
 
 - (void)testSaveTokensWithFactory_whenNotMultiresourceResponse_savesTokensOnlyToPrimaryAccessor
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" oid:nil tenantId:@"tid"];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"access token"
                                                                             rt:@"refresh token"
@@ -497,7 +497,7 @@
 
 - (void)testSaveTokens_withNoHomeAccountIdForSecondaryFormat_shouldSaveToLegacyFormatOnly
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" oid:nil tenantId:@"tid"];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"access token"
                                                                             rt:@"refresh token"
@@ -538,7 +538,7 @@
 
 - (void)testSaveTokensWithRequestParams_whenNoRefreshTokenReturnedInResponse_shouldOnlySaveAccessTokensToPrimaryCache
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:@"upn@test.com" oid:nil tenantId:@"tid"];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"access token"
                                                                             rt:nil
@@ -2092,7 +2092,7 @@
            additionalFields:(NSDictionary *)additionalFields
                    accessor:(id<MSIDCacheAccessor>)accessor
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn oid:nil tenantId:@"tid"];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:accessToken
                                                                             rt:refreshToken

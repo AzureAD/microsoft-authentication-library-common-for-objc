@@ -908,7 +908,10 @@
         if (resultToken)
         {
             resultToken.storageAuthority = resultToken.authority;
-            resultToken.authority = authority;
+            if (authority)
+            {
+                resultToken.authority = authority;
+            }
             [resultTokens addObject:resultToken];
         }
     }
