@@ -173,7 +173,6 @@
     
     authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
     authority.metadata = self.metadata;
-    authority.url = [_url copyWithZone:zone];
     
     return authority;
 }
