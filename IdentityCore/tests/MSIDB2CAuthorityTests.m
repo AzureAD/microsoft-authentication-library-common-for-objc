@@ -31,6 +31,7 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDB2CAuthority.h"
 
 @interface MSIDB2CAuthorityTests : XCTestCase
 
@@ -283,6 +284,19 @@
     rhs.metadata = [MSIDOpenIdProviderMetadata new];
     
     XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testCopyWithZone_whenFormatNotValidated_shouldCopy
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoft.com/nonstandard/b2c"];
+    MSIDB2CAuthority *authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:nil];
+    
+    MSIDB2CAuthority *copiedAuthority = [authority copy];
+    
+    XCTAssertNotNil(copiedAuthority);
+    XCTAssertEqualObjects(copiedAuthority.url, authorityUrl);
+    XCTAssertEqualObjects(copiedAuthority.metadata, authority.metadata);
+    XCTAssertEqualObjects(copiedAuthority.openIdConfigurationEndpoint, authority.openIdConfigurationEndpoint);
 }
 
 @end

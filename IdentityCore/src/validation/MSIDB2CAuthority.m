@@ -165,4 +165,16 @@
     return [NSURL URLWithString:normalizedAuthorityUrl];
 }
 
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDB2CAuthority *authority = [[self.class allocWithZone:zone] initWithURL:[_url copyWithZone:zone]
+                                                                validateFormat:NO context:nil error:nil];
+    authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority.metadata = self.metadata;
+    
+    return authority;
+}
+
 @end
