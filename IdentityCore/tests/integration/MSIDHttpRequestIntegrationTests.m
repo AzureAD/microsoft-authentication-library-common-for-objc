@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDHttpRequest.h"
-#import "MSIDJsonResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 #import "MSIDUrlRequestSerializer.h"
 #import "MSIDTestURLSession.h"
 #import "MSIDTestURLResponse.h"
@@ -31,6 +31,9 @@
 #import "MSIDHttpRequestErrorHandling.h"
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 #import "MSIDHttpRequestTelemetry.h"
+#import "MSIDJsonResponsePreprocessor.h"
+#import "MSIDAADTokenResponseSerializer.h"
+#import "MSIDAADV2Oauth2Factory.h"
 
 @interface MSIDTestRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
 
@@ -58,6 +61,7 @@
 @property (nonatomic) id<MSIDHttpRequestProtocol> passedHttpRequest;
 @property (nonatomic) id<MSIDRequestContext> passedContext;
 @property (nonatomic, copy) MSIDHttpRequestDidCompleteBlock passedBlock;
+@property (nonatomic) id<MSIDResponseSerialization> responseSerializer;
 
 @end
 
@@ -67,16 +71,18 @@
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
         httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+ responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
-    self.handleErrorInvokedCounts++;
     self.passedError = error;
     self.passedHttpResponse = httpResponse;
     self.passedData = data;
     self.passedHttpRequest = httpRequest;
     self.passedContext = context;
     self.passedBlock = completionBlock;
+    self.responseSerializer = responseSerializer;
+    self.handleErrorInvokedCounts++;
 }
 
 @end
@@ -108,9 +114,11 @@
     XCTAssertNil(self.request.urlRequest);
 }
 
-- (void)testRequest_byDefaultUseMSIDJsonResponseSerializer
+- (void)testRequest_byDefaultUseMSIDHttpResponseSerializerWithMSIDJsonResponsePreprocessor
 {
-    XCTAssertTrue([self.request.responseSerializer isKindOfClass:MSIDJsonResponseSerializer.class]);
+    XCTAssertTrue([self.request.responseSerializer isKindOfClass:MSIDHttpResponseSerializer.class]);
+    __auto_type responseSerializer = (MSIDHttpResponseSerializer *)self.request.responseSerializer;
+    XCTAssertTrue([responseSerializer.preprocessor isKindOfClass:MSIDJsonResponsePreprocessor.class]);
 }
 
 - (void)testRequest_byDefaultUseMSIDUrlRequestSerializer
@@ -240,6 +248,7 @@
     self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
     self.request.context = passedContext;
     self.request.errorHandler = testErrorHandler;
+    self.request.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
                                                          reponse:httpResponse];
     [MSIDTestURLSession addResponses:@[response]];
@@ -252,6 +261,40 @@
     XCTAssertEqualObjects(testErrorHandler.passedHttpResponse, response->_response);
     XCTAssertEqualObjects(testErrorHandler.passedHttpRequest, self.request);
     XCTAssertEqualObjects(testErrorHandler.passedContext, passedContext);
+    XCTAssertEqualObjects(testErrorHandler.responseSerializer, self.request.responseSerializer);
+    XCTAssertNotNil(testErrorHandler.passedBlock);
+}
+
+- (void)testSendWithContext_whenGetRequestWithServerErrorAndErrorHandlerIsNotNil_andDifferentErorResponseSerializer_shouldInvokeErrorHandlerWithErrorSerializer
+{
+    __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
+    __auto_type urlWithParameters = [[NSURL alloc] initWithString:@"https://fake.url?p1=v1&p2=v2"];
+    __auto_type passedContext = [MSIDTestContext new];
+    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:baseUrl statusCode:500 HTTPVersion:nil headerFields:nil];
+    __auto_type testErrorHandler = [MSIDTestErrorHandler new];
+    NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
+    urlRequest.HTTPMethod = @"GET";
+    self.request.urlRequest = urlRequest;
+    self.request.parameters = @{@"p1" : @"v1", @"p2" : @"v2"};
+    self.request.context = passedContext;
+    self.request.errorHandler = testErrorHandler;
+    self.request.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
+    self.request.errorResponseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:[MSIDAADV2Oauth2Factory new]];
+    
+    MSIDTestURLResponse *response = [MSIDTestURLResponse request:urlWithParameters
+                                                         reponse:httpResponse];
+    [MSIDTestURLSession addResponses:@[response]];
+    [self keyValueObservingExpectationForObject:testErrorHandler keyPath:@"handleErrorInvokedCounts" expectedValue:@1];
+    
+    [self.request sendWithBlock:^(id response, NSError *error) {}];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    XCTAssertEqualObjects(testErrorHandler.passedError, response->_error);
+    XCTAssertEqualObjects(testErrorHandler.passedHttpResponse, response->_response);
+    XCTAssertEqualObjects(testErrorHandler.passedHttpRequest, self.request);
+    XCTAssertEqualObjects(testErrorHandler.passedContext, passedContext);
+    XCTAssertEqualObjects(testErrorHandler.responseSerializer, self.request.errorResponseSerializer);
+    XCTAssertNotEqualObjects(testErrorHandler.responseSerializer, self.request.responseSerializer);
     XCTAssertNotNil(testErrorHandler.passedBlock);
 }
 

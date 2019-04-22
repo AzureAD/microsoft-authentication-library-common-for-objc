@@ -72,8 +72,8 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         newRequest:(NSURLRequest *)request
  completionHandler:(void (^)(NSURLRequest *))completionHandler
 {
-    MSID_LOG_INFO(nil, @"Redirecting to %@", _PII_NULLIFY(request.URL.absoluteString));
-    MSID_LOG_INFO_PII(nil, @"Redirecting to %@", request.URL.absoluteString);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Redirecting to %@", _PII_NULLIFY(request.URL.absoluteString));
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Redirecting to %@", request.URL.absoluteString);
     
     if (self.taskWillPerformHTTPRedirectionBlock)
     {

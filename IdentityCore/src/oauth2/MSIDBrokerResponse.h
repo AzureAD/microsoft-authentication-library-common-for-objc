@@ -34,12 +34,11 @@
 
 @property (readonly) NSString *correlationId;
 @property (readonly) NSString *errorCode;
-@property (readonly) NSString *oauthErrorCode;
-@property (readonly) NSString *errorDescription;
-@property (readonly) NSString *resource;
-@property (readonly) NSString *clientInfo;
+@property (readonly) NSString *errorDomain;
+@property (readonly) NSString *target;
 
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;
+@property (readonly) BOOL accessTokenInvalidForResponse;
 
 @end

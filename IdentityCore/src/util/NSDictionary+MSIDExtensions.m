@@ -27,20 +27,20 @@
 
 @implementation NSDictionary (MSIDExtensions)
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
++ (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:NO];
+    return [self msidDictionaryFromURLEncodedString:string isFormEncoded:NO];
 }
 
 // Decodes a www-form-urlencoded string into a dictionary of key/value pairs.
 // Always returns a dictionary, even if the string is nil, empty or contains no pairs
 + (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string
 {
-    return [self msidDictionaryFromQueryString:string WWWURLFormDecode:YES];
+    return [self msidDictionaryFromURLEncodedString:string isFormEncoded:YES];
 }
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string
-                                WWWURLFormDecode:(BOOL)decode
++ (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string
+                                       isFormEncoded:(BOOL)isFormEncoded
 {
     if ([NSString msidIsStringNilOrBlank:string])
     {
@@ -59,7 +59,7 @@
             continue;
         }
         
-        NSString *key = decode ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString];
+        NSString *key = isFormEncoded ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString].msidURLDecode;
         if ([NSString msidIsStringNilOrBlank:key])
         {
             MSID_LOG_WARN(nil, @"Query parameter must have a key");
@@ -69,7 +69,7 @@
         NSString *value = @"";
         if (queryElements.count == 2)
         {
-            value = decode ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString];
+            value = isFormEncoded ? [queryElements[1] msidTrimmedString].msidWWWFormURLDecode : [queryElements[1] msidTrimmedString].msidURLDecode;
         }
         
         [queryDict setValue:value forKey:key];
@@ -87,6 +87,10 @@
     return json;
 }
 
+- (NSString *)msidURLEncode
+{
+    return [NSString msidURLEncodedStringFromDictionary:self];
+}
 
 - (NSString *)msidWWWFormURLEncode
 {
@@ -152,6 +156,41 @@
     }
     
     return YES;
+}
+
+- (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context
+{
+    NSError *serializationError = nil;
+    NSData *serializedData = [NSJSONSerialization dataWithJSONObject:self options:0 error:&serializationError];
+
+    if (!serializedData)
+    {
+        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %ld, %@", (long)serializationError.code, serializationError.domain);
+        MSID_LOG_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %@", serializationError);
+        
+        return nil;
+    }
+
+    return [[NSString alloc] initWithData:serializedData encoding:NSUTF8StringEncoding];
+}
+
+// TODO: verify this is still necessary as it was done in ADAL
+- (NSDictionary *)msidDictionaryWithoutNulls
+{
+    NSMutableDictionary *cleanedDictionary = [NSMutableDictionary new];
+
+    for (NSString *key in self.allKeys)
+    {
+        NSString *val = [self valueForKey:key];
+
+        if ([val isKindOfClass:[NSString class]]
+            && ![val isEqualToString:@"(null)"])
+        {
+            cleanedDictionary[key] = val;
+        }
+    }
+
+    return cleanedDictionary;
 }
 
 @end

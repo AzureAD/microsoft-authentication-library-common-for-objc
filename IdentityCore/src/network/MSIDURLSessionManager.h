@@ -28,7 +28,8 @@
 @interface MSIDURLSessionManager : NSObject
 
 - (instancetype _Nullable)initWithConfiguration:(nonnull NSURLSessionConfiguration *)configuration
-                                        delegate:(nullable MSIDURLSessionDelegate *)delegate NS_DESIGNATED_INITIALIZER;
+                                       delegate:(nullable MSIDURLSessionDelegate *)delegate
+                                  delegateQueue:(nullable NSOperationQueue *)delegateQueue NS_DESIGNATED_INITIALIZER;
 
 @property (class, nonnull) MSIDURLSessionManager *defaultManager;
 @property (nonatomic, readonly, nonnull) NSURLSessionConfiguration *configuration;

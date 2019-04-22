@@ -74,7 +74,7 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = 0;
-    hash = hash * 31 + self.accountIdentifier.legacyAccountId.hash;
+    hash = hash * 31 + self.accountIdentifier.displayableId.hash;
     hash = hash * 31 + self.accountType;
     hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.alternativeAccountId.hash;
@@ -100,7 +100,7 @@
     }
     else
     {
-        result &= [self.accountIdentifier.legacyAccountId isEqual:account.accountIdentifier.legacyAccountId];
+        result &= [self.accountIdentifier.displayableId isEqual:account.accountIdentifier.displayableId];
     }
 
     result &= self.accountType == account.accountType;
@@ -129,7 +129,7 @@
         _middleName = cacheItem.middleName;
         _name = cacheItem.name;
         _username = cacheItem.username;
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:cacheItem.username homeAccountId:cacheItem.homeAccountId];
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:cacheItem.username homeAccountId:cacheItem.homeAccountId];
         _clientInfo = cacheItem.clientInfo;
         _alternativeAccountId = cacheItem.alternativeAccountId;
         _localAccountId = cacheItem.localAccountId;
@@ -138,8 +138,7 @@
         NSString *tenant = cacheItem.realm;
         
         __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:tenant];
-        __auto_type authorityFactory = [MSIDAuthorityFactory new];
-        _authority = [authorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+        _authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
     }
     
     return self;
@@ -176,8 +175,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"(authority=%@ username=%@ homeAccountId=%@ clientInfo=%@ accountType=%@ localAccountId=%@)",
-            _authority, _username, _accountIdentifier.homeAccountId, _clientInfo, [MSIDAccountTypeHelpers accountTypeAsString:_accountType], _localAccountId];
+    return [NSString stringWithFormat:@"MSIDAccount authority: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@",self.authority, self.username, self.accountIdentifier.homeAccountId, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId];
 }
 
 @end

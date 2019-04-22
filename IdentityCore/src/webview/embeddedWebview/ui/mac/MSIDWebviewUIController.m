@@ -58,7 +58,7 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
-- (BOOL)loadView:(NSError **)error
+- (BOOL)loadView:(__unused NSError **)error
 {
     if (_webView)
     {
@@ -128,7 +128,7 @@ static WKWebViewConfiguration *s_webConfig;
     NSRect centerRect = [self getCenterRect:windowRect rect2:NSMakeRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)];
     
     NSWindow *window = [[NSWindow alloc] initWithContentRect:centerRect
-                                                   styleMask:NSTitledWindowMask | NSClosableWindowMask
+                                                   styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES];
     [window setDelegate:self];

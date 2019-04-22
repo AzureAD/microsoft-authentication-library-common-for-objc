@@ -52,10 +52,6 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;
 
-- (nullable instancetype)initWithURL:(nonnull NSURL *)url
-                             context:(nullable id<MSIDRequestContext>)context
-                               error:(NSError * _Nullable __autoreleasing * _Nullable)error NS_DESIGNATED_INITIALIZER;
-
 - (void)resolveAndValidate:(BOOL)validate
          userPrincipalName:(nullable NSString *)upn
                    context:(nullable id<MSIDRequestContext>)context
@@ -73,7 +69,17 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 - (nonnull NSArray<NSString *> *)defaultCacheEnvironmentAliases;
 
+- (nullable NSString *)enrollmentIdForHomeAccountId:(nullable NSString *)homeAccountId
+                                       legacyUserId:(nullable NSString *)legacyUserId
+                                            context:(nullable id<MSIDRequestContext>)context
+                                              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 - (BOOL)isKnown;
+
+- (BOOL)supportsBrokeredAuthentication;
+
+// Only certain authorities support passing clientID as an allowed scope
+- (BOOL)supportsClientIDAsScope;
 
 /* It is used in telemetry */
 - (nonnull NSString *)telemetryAuthorityType;

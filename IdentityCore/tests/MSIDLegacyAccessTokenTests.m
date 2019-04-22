@@ -199,6 +199,7 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"common";
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
@@ -210,7 +211,6 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.target = @"target";
-    cacheItem.familyId = @"1";
     
     MSIDLegacyAccessToken *token = [[MSIDLegacyAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
@@ -251,7 +251,6 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.target = @"target";
-    cacheItem.familyId = @"1";
 
     MSIDLegacyAccessToken *token = [[MSIDLegacyAccessToken alloc] initWithLegacyTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
@@ -264,7 +263,7 @@
     XCTAssertEqualObjects(token.resource, @"target");
     XCTAssertEqualObjects(token.accessToken, @"at");
     XCTAssertEqualObjects(token.idToken, idToken);
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, @"testuser@upn.com");
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, @"testuser@upn.com");
     XCTAssertEqualObjects(token.accessTokenType, @"token type");
 
     MSIDCredentialCacheItem *newCacheItem = [token legacyTokenCacheItem];
@@ -280,7 +279,7 @@
     token.authority = [@"https://contoso.com/common" authority];
     token.clientId = @"some clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@"legacy.id" homeAccountId:@"uid.utid"];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.accessToken = @"token";

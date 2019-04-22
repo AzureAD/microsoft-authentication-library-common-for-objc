@@ -58,7 +58,7 @@
 #pragma mark - Response
 
 - (MSIDB2CTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
-                                        context:(id<MSIDRequestContext>)context
+                                        context:(__unused id<MSIDRequestContext>)context
                                           error:(NSError **)error
 {
     return [[MSIDB2CTokenResponse alloc] initWithJSONDictionary:json error:error];
@@ -66,7 +66,7 @@
 
 - (MSIDB2CTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                    refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                        context:(id<MSIDRequestContext>)context
+                                        context:(__unused id<MSIDRequestContext>)context
                                           error:(NSError * __autoreleasing *)error
 {
     return [[MSIDB2CTokenResponse alloc] initWithJSONDictionary:json refreshToken:token error:error];
@@ -127,7 +127,7 @@
         tenantId = response.clientInfo.utid;
     }
 
-    return [self.authorityFactory authorityFromUrl:url rawTenant:tenantId context:nil error:nil];
+    return [MSIDAuthorityFactory authorityFromUrl:url rawTenant:tenantId context:nil error:nil];
 }
 
 @end

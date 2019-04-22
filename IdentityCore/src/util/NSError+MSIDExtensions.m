@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "NSError+MSIDExtensions.h"
+#import "MSIDErrorConverter.h"
 
 @implementation NSError (MSIDExtensions)
 
@@ -51,6 +52,28 @@
     __auto_type error = [[NSError alloc] initWithDomain:self.domain code:self.code userInfo:errorUserInfo];
     
     return error;
+}
+
+- (id<MSIDErrorConverting>)msidErrorConverter
+{
+    id<MSIDErrorConverting> errorConverter = MSIDErrorConverter.errorConverter;
+
+    if (!errorConverter)
+    {
+        errorConverter = MSIDErrorConverter.defaultErrorConverter;
+    }
+
+    return errorConverter;
+}
+
+- (nullable NSString *)msidOauthError
+{
+    return self.userInfo[self.msidErrorConverter.oauthErrorKey];
+}
+
+- (nullable NSString *)msidSubError
+{
+    return self.userInfo[self.msidErrorConverter.subErrorKey];
 }
 
 @end

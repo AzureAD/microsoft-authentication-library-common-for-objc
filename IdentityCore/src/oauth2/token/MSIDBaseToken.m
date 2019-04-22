@@ -127,8 +127,7 @@
         NSString *tenant = tokenCacheItem.realm;
 
         __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:tenant];
-        __auto_type authorityFactory = [MSIDAuthorityFactory new];
-        _authority = [authorityFactory authorityFromUrl:authorityUrl rawTenant:tenant context:nil error:nil];
+        _authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl rawTenant:tenant context:nil error:nil];
         
         if (!_authority)
         {
@@ -148,7 +147,7 @@
 
         if (tokenCacheItem.homeAccountId)
         {
-            _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil homeAccountId:tokenCacheItem.homeAccountId];
+            _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:tokenCacheItem.homeAccountId];
         }
     }
     

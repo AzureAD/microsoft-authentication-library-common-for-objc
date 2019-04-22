@@ -266,4 +266,46 @@
     XCTAssertEqualObjects(result, @"key");
 }
 
+- (void)testmsidJson_whenNotJson_shouldReturnNil
+{
+    NSString *jsonString = @"{\"-not\":a json&*";
+    XCTAssertNil(jsonString.msidJson);
+}
+
+- (void)testmsidJson_whenEmpty_shouldReturnNil
+{
+    NSString *jsonString = @"";
+    XCTAssertNil(jsonString.msidJson);
+}
+
+- (void)testmsidJson_whenProperJson_shouldReturnDictionary
+{
+    NSString *jsonString = @"{\"json_key\":\"value\"}";
+    NSDictionary *json = jsonString.msidJson;
+    XCTAssertNotNil(json);
+    XCTAssertEqualObjects(json[@"json_key"], @"value");
+}
+
+- (void)testMsidScopeFromResource_whenResourceIsNil_shouldReturnNil
+{
+    XCTAssertNil([NSString msidScopeFromResource:nil]);
+}
+
+- (void)testMsidScopeFromResource_whenResourceIsNotNil_shouldAppendScopeSuffixWithSlash
+{
+    XCTAssertEqualObjects([NSString msidScopeFromResource:@"https://contoso.com"], @"https://contoso.com/.default");
+}
+
+- (void)testMsidScopeFromResource_whenResourceContainsSlashAtEnd_shouldAppendScopeSuffixWithSlash
+{
+    XCTAssertEqualObjects([NSString msidScopeFromResource:@"https://contoso.com/"], @"https://contoso.com//.default");
+}
+
+- (void)testMsidSecretLoggingHash_shouldReturnFirst8LettersOfPasswordHash
+{
+    __auto_type hash = [@"some password" msidSecretLoggingHash];
+    
+    XCTAssertEqualObjects(@"e62e1269", hash);
+}
+
 @end

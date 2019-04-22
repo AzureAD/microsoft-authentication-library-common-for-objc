@@ -42,6 +42,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDTestRequestContext : NSObject <MSIDRequestContext>
 
@@ -71,9 +72,8 @@
 {
     [MSIDKeychainTokenCache reset];
     _dataSource = [[MSIDKeychainTokenCache alloc] init];
-    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
-    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
+    _legacyCacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
+    _defaultCacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
     
     [super setUp];
 }
@@ -97,7 +97,7 @@
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                         homeAccountId:nil];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
@@ -105,6 +105,7 @@
 
     BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              factory:[MSIDAADV1Oauth2Factory new]
                                                               context:reqContext
                                                                 error:nil];
     XCTAssertNil(error);
@@ -167,6 +168,7 @@
     
     BOOL result = [_legacyCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                              response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                              factory:[MSIDAADV1Oauth2Factory new]
                                                               context:reqContext
                                                                 error:nil];
     XCTAssertNil(error);
@@ -182,11 +184,7 @@
                                                           context:reqContext
                                                             error:&error];
 
-    NSArray *returnedAccounts = [_legacyCacheAccessor allAccountsForAuthority:authority
-                                                                     clientId:@"test_client_id"
-                                                                     familyId:nil
-                                                                      context:reqContext
-                                                                        error:&error];
+    NSArray *returnedAccounts = [_legacyCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:reqContext error:&error];
     
     // expect no token because it has been deleted
     XCTAssertNil(error);
@@ -226,7 +224,7 @@
     // save a refresh token to keychain token cache
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some_uid.some_utid"];
     MSIDTestRequestContext *reqContext = [MSIDTestRequestContext new];
     [reqContext setTelemetryRequestId:[[MSIDTelemetry sharedInstance] generateRequestId]];
@@ -234,6 +232,7 @@
 
     BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                               response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                               factory:factory
                                                                context:reqContext
                                                                  error:nil];
     XCTAssertNil(error);
@@ -296,31 +295,24 @@
     
     BOOL result = [_defaultCacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                               response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                               factory:[MSIDAADV1Oauth2Factory new]
                                                                context:reqContext
                                                                  error:nil];
     XCTAssertNil(error);
     
     // remove the account to trigger wipe data being written
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:homeAccountId];
 
     MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    result = [_defaultCacheAccessor clearCacheForAccount:account
-                                               authority:authority
-                                                    clientId:@"test_client_id"
-                                                    context:nil
-                                                    error:&error];
+    result = [_defaultCacheAccessor clearCacheForAccount:account authority:authority clientId:@"test_client_id" familyId:nil context:nil error:&error];
     XCTAssertNil(error);
     
     // read the refresh token in order to log wipe data in telemetry
+    NSArray *returnedTokens = [_defaultCacheAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:reqContext error:&error];
 
-    NSArray *returnedTokens = [_defaultCacheAccessor allAccountsForAuthority:authority
-                                                                    clientId:@"test_client_id"
-                                                                    familyId:nil
-                                                                     context:reqContext
-                                                                       error:&error];
     // expect no token because it has been deleted
     XCTAssertNil(error);
     XCTAssertEqual(returnedTokens.count, 0);

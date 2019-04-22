@@ -22,8 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 
-@interface MSIDAADAuthorityMetadataResponseSerializer : MSIDAADResponseSerializer
+@interface MSIDAADAuthorityMetadataResponseSerializer : MSIDHttpResponseSerializer
 
 @end

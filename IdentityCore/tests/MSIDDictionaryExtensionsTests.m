@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
 
 @interface MSIDDictionaryExtensionsTests : XCTestCase
 
@@ -41,10 +42,10 @@
     [super tearDown];
 }
 
-- (void)testMsidDictionaryFromQueryString_whenStringContainsQuery_shouldReturnDictWithoutDecoding
+- (void)testmsidDictionaryFromURLEncodedString_whenStringContainsQuery_shouldReturnDictWithoutDecoding
 {
     NSString *string = @"key=val+val";
-    NSDictionary *dict = [NSDictionary msidDictionaryFromQueryString:string];
+    NSDictionary *dict = [NSDictionary msidDictionaryFromURLEncodedString:string];
     
     XCTAssertTrue([[dict allKeys] containsObject:@"key"]);
     XCTAssertEqualObjects(dict[@"key"], @"val+val");
@@ -59,10 +60,10 @@
     XCTAssertEqualObjects(dict[@"key"], @"Some interesting test/+-)(*&^%$#@!~|");
 }
 
-- (void)testMsidDictionaryFromQueryString_whenMalformedQuery_shouldReturnDictWithoutBadQuery
+- (void)testmsidDictionaryFromURLEncodedString_whenMalformedQuery_shouldReturnDictWithoutBadQuery
 {
     NSString *string = @"key=val+val&malformed=v1=v2&=noval";
-    NSDictionary *dict = [NSDictionary msidDictionaryFromQueryString:string];
+    NSDictionary *dict = [NSDictionary msidDictionaryFromURLEncodedString:string];
     
     XCTAssertTrue(dict.count == 1);
     XCTAssertTrue([dict.allKeys containsObject:@"key"]);
@@ -160,6 +161,55 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is not a NSString.");
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertEqual(error.code, 1);
+}
+
+- (void)testMsidSetObjectIfNotNil_whenNilKey_shouldDoNothingAndReturnFalse
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertFalse([dic msidSetObjectIfNotNil:@"value" forKey:nil]);
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetObjectIfNotNil_whenNilValue_shouldDoNothingAndReturnFalse
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertFalse([dic msidSetObjectIfNotNil:nil forKey:@"key"]);
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetObjectIfNotNil_whenNonEmptyValue_shouldSetItAndReturnYes
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertTrue([dic msidSetObjectIfNotNil:@"value" forKey:@"key"]);
+    XCTAssertTrue(dic.count==1);
+}
+
+- (void)testMsidSetNonEmptyString_whenNilKey_shouldDoNothingAndReturnFalse
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertFalse([dic msidSetNonEmptyString:@"value" forKey:nil]);
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenNilValue_shouldDoNothingAndReturnFalse
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertFalse([dic msidSetNonEmptyString:nil forKey:@"key"]);
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenEmptyValue_shouldDoNothingAndReturnFalse
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertFalse([dic msidSetNonEmptyString:@"" forKey:@"key"]);
+    XCTAssertTrue(dic.count==0);
+}
+
+- (void)testMsidSetNonEmptyString_whenNonEmptyValue_shouldSetItAndReturnYes
+{
+    NSMutableDictionary *dic = [NSMutableDictionary new];
+    XCTAssertTrue([dic msidSetNonEmptyString:@"value" forKey:@"key"]);
+    XCTAssertTrue(dic.count==1);
 }
 
 @end

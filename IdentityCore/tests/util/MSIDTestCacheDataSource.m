@@ -24,14 +24,14 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDJsonSerializer.h"
 #import "MSIDAccount.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -115,6 +115,27 @@
 
     MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:itemData];
     return token;
+}
+
+- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
 }
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
@@ -487,6 +508,68 @@
     return YES;
 }
 
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    if (!item
+        || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    
+    NSData *serializedItem = [serializer serializeAppMetadataCacheItem:item];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_accountKeys
+                 cacheContent:_accountContents
+                      context:context
+                        error:error];
+}
+
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error;
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSMutableArray *resultItems = [NSMutableArray array];
+    
+    NSArray<NSData *> *items = [self itemsWithKey:key
+                                   keysDictionary:_accountKeys
+                                contentDictionary:_accountContents
+                                          context:context
+                                            error:error];
+    
+    for (NSData *itemData in items)
+    {
+        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+        
+        if (appMetadata)
+        {
+            [resultItems addObject:appMetadata];
+        }
+    }
+    
+    return resultItems;
+}
+
 #pragma mark - Test methods
 
 - (void)reset
@@ -518,19 +601,19 @@
 - (NSArray *)allDefaultAccessTokens
 {
     return [self allTokensWithType:MSIDAccessTokenType
-                        serializer:[[MSIDJsonSerializer alloc] init]];
+                        serializer:[[MSIDCacheItemJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultRefreshTokens
 {
     return [self allTokensWithType:MSIDRefreshTokenType
-                        serializer:[[MSIDJsonSerializer alloc] init]];
+                        serializer:[[MSIDCacheItemJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allDefaultIDTokens
 {
     return [self allTokensWithType:MSIDIDTokenType
-                        serializer:[[MSIDJsonSerializer alloc] init]];
+                        serializer:[[MSIDCacheItemJsonSerializer alloc] init]];
 }
 
 - (NSArray *)allTokensWithType:(MSIDCredentialType)type
@@ -563,7 +646,7 @@
 {
     NSMutableArray *results = [NSMutableArray array];
     
-    MSIDJsonSerializer *serializer = [[MSIDJsonSerializer alloc] init];
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
     @synchronized (self) {
         

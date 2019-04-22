@@ -25,13 +25,17 @@
 
 @interface NSDictionary (MSIDExtensions)
 
-+ (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string;
++ (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error;
 
+- (NSString *)msidURLEncode;
 - (NSString *)msidWWWFormURLEncode;
-- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 
+- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
+- (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context;
+
+- (NSDictionary *)msidDictionaryWithoutNulls;
 
 - (BOOL)msidAssertType:(Class)type
                ofField:(NSString *)field

@@ -26,6 +26,7 @@
 #import "MSIDRefreshableToken.h"
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDTokenResponse+Internal.h"
 
 @implementation MSIDTokenResponse
 
@@ -36,7 +37,7 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_ERROR_DESCRIPTION, errorDescription)
 // Default properties for a successful response
 MSID_JSON_ACCESSOR(MSID_OAUTH2_ACCESS_TOKEN, accessToken)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_TOKEN_TYPE, tokenType)
-MSID_JSON_ACCESSOR(MSID_OAUTH2_REFRESH_TOKEN, refreshToken)
+MSID_JSON_RW(MSID_OAUTH2_REFRESH_TOKEN, refreshToken, setRefreshToken)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_SCOPE, scope)
 MSID_JSON_ACCESSOR(MSID_OAUTH2_STATE, state)
 MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
@@ -45,7 +46,37 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError **)error
 {
-    return [super initWithJSONDictionary:json error:error];
+    self = [self initWithJSONDictionary:json error:error];
+    if (self)
+    {
+        if (token && [NSString msidIsStringNilOrBlank:self.refreshToken])
+        {
+            self.refreshToken = token.refreshToken;
+        }
+    }
+    
+    return self;
+}
+
+- (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+{
+    if (!(self = [super initWithJSONDictionary:json error:error]))
+    {
+        return nil;
+    }
+    
+    [self initIdToken:error];
+    return self;
+}
+
+- (BOOL)initIdToken:(NSError *__autoreleasing *)error
+{
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+        return self.idTokenObj != nil;
+    }
+    return YES;
 }
 
 - (NSInteger)expiresIn
@@ -84,11 +115,6 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
     return YES;
 }
 
-- (MSIDIdTokenClaims *)idTokenObj
-{
-    return [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
-}
-
 - (NSString *)target
 {
     return self.scope;
@@ -117,6 +143,11 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
                              MSID_OAUTH2_EXPIRES_IN];
     
     return [_json dictionaryByRemovingFields:knownFields];
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"Token response: access token %@, refresh token %@, scope %@, state %@, id token %@, error %@, error description %@", _PII_NULLIFY(self.accessToken), _PII_NULLIFY(self.refreshToken), self.scope, self.state, _PII_NULLIFY(self.idToken), self.error, self.errorDescription];
 }
 
 @end

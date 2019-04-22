@@ -26,6 +26,7 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDCredentialType.h"
 #import "NSURL+MSIDExtensions.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 static NSString *keyDelimiter = @"-";
 static NSInteger kCredentialTypePrefix = 2000;
@@ -34,38 +35,51 @@ static NSInteger kCredentialTypePrefix = 2000;
 
 #pragma mark - Helpers
 
-// kSecAttrService - (<credential_type>-<client_id>-<realm>-<target>)
+// kSecAttrService - (<credential_type>-<client_id>-<realm>-<enrollment_id>-<target>)
 - (NSString *)serviceWithType:(MSIDCredentialType)type
                      clientID:(NSString *)clientId
                         realm:(NSString *)realm
+                 enrollmentId:(NSString *)enrollmentId
                        target:(NSString *)target
+                       appKey:(NSString *)appKey
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
     target = target.msidTrimmedString.lowercaseString;
+    enrollmentId = enrollmentId.msidTrimmedString.lowercaseString;
 
-    NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm];
+    NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm enrollmentId:enrollmentId];
     NSString *service = [NSString stringWithFormat:@"%@%@%@",
                          credentialId,
                          keyDelimiter,
                          (target ? target : @"")];
+    
+    if (![NSString msidIsStringNilOrBlank:appKey])
+    {
+        service  = [NSString stringWithFormat:@"%@|%@", service, appKey];
+    }
+    
     return service;
 }
 
-// credential_id - (<credential_type>-<client_id>-<realm>)
+// credential_id - (<credential_type>-<client_id>-<realm>-<enrollment_id>)
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
+                      enrollmentId:(NSString *)enrollmentId
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
+    enrollmentId = enrollmentId.msidTrimmedString.lowercaseString;
 
     NSString *credentialType = [MSIDCredentialTypeHelpers credentialTypeAsString:type].lowercaseString;
     
-    return [NSString stringWithFormat:@"%@%@%@%@%@",
+    return [NSString stringWithFormat:@"%@%@%@%@%@%@%@",
             credentialType, keyDelimiter, clientId,
             keyDelimiter,
-            (realm ? realm : @"")];
+            (realm ? realm : @""),
+            (enrollmentId ? keyDelimiter : @""),
+            (enrollmentId ? enrollmentId : @"")];
 }
 
 // kSecAttrAccount - account_id (<unique_id>-<environment>)
@@ -87,9 +101,9 @@ static NSInteger kCredentialTypePrefix = 2000;
 #pragma mark - Public
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
-                         environment:(NSString *)environment
-                            clientId:(NSString *)clientId
-                      credentialType:(MSIDCredentialType)type
+                          environment:(NSString *)environment
+                             clientId:(NSString *)clientId
+                       credentialType:(MSIDCredentialType)type
 {
     self = [super init];
 
@@ -107,7 +121,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSData *)generic
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [[self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm] dataUsingEncoding:NSUTF8StringEncoding];
+    return [[self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm enrollmentId:self.enrollmentId] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSNumber *)type
@@ -123,7 +137,19 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)service
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm target:self.target];
+    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
+}
+
+#pragma mark - Broker
+
+- (NSNumber *)appKeyHash
+{
+    if (self.appKey)
+    {
+        return @(self.appKey.hash);
+    }
+    
+    return nil;
 }
 
 @end

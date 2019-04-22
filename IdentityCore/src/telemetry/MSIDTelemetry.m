@@ -118,8 +118,13 @@ static NSString* const s_delimiter = @"|";
     
     @synchronized (self)
     {
-        [_eventTracking setObject:currentTime
-                           forKey:[self getEventTrackingKey:requestId eventName:eventName]];
+        NSString *key = [self getEventTrackingKey:requestId eventName:eventName];
+
+        if (!_eventTracking[key])
+        {
+            [_eventTracking setObject:currentTime
+                               forKey:key];
+        }
     }
 }
 

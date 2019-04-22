@@ -35,14 +35,24 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAppMetadataCacheItem.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDClientCapabilitiesUtil.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
+#import "MSIDRefreshTokenGrantRequest.h"
+#import "MSIDWebviewConfiguration.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDTokenResponseSerializer.h"
+#import "MSIDV1IdToken.h"
 
 @implementation MSIDOauth2Factory
 
 #pragma mark - Response
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
-                                     context:(id<MSIDRequestContext>)context
+                                     context:(__unused id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
     return [[MSIDTokenResponse alloc] initWithJSONDictionary:json error:error];
@@ -172,6 +182,16 @@
     return account;
 }
 
+- (MSIDAppMetadataCacheItem *)appMetadataFromResponse:(MSIDTokenResponse *)response
+                                        configuration:(MSIDConfiguration *)configuration
+{
+    MSIDAppMetadataCacheItem *metadata = [[MSIDAppMetadataCacheItem alloc] init];
+    BOOL result = [self fillAppMetadata:metadata fromResponse:response configuration:configuration];
+    
+    if (!result) return nil;
+    return metadata;
+}
+
 #pragma mark - Token helpers
 
 - (BOOL)fillBaseToken:(MSIDBaseToken *)token
@@ -187,7 +207,7 @@
     token.authority = configuration.authority;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
                                                                        homeAccountId:response.idTokenObj.userId];
     return YES;
 }
@@ -204,7 +224,7 @@
     }
 
     // We want to keep case as it comes from the server side
-    token.scopes = [NSOrderedSet msidOrderedSetFromString:response.target normalize:NO];
+    token.scopes = [response.target msidScopeSet];
     token.accessToken = response.accessToken;
     
     if (!token.accessToken)
@@ -288,7 +308,7 @@
     
     token.refreshToken = response.refreshToken;
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -305,7 +325,7 @@
     }
 
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -322,7 +342,7 @@
     }
 
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId homeAccountId:token.accountIdentifier.homeAccountId];
     token.realm = response.idTokenObj.realm;
     return YES;
 }
@@ -338,7 +358,7 @@
         return NO;
     }
 
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:response.idTokenObj.username homeAccountId:homeAccountId];
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.username homeAccountId:homeAccountId];
     account.username = response.idTokenObj.username;
     account.givenName = response.idTokenObj.givenName;
     account.familyName = response.idTokenObj.familyName;
@@ -350,7 +370,15 @@
     return YES;
 }
 
-#pragma mark - Webview
+- (BOOL)fillAppMetadata:(MSIDAppMetadataCacheItem *)metadata
+           fromResponse:(__unused MSIDTokenResponse *)response
+          configuration:(MSIDConfiguration *)configuration
+{
+    metadata.clientId = configuration.clientId;
+    metadata.environment = configuration.authority.environment;
+    return YES;
+}
+
 #pragma mark - Webview
 - (MSIDWebviewFactory *)webviewFactory
 {
@@ -359,6 +387,46 @@
         _webviewFactory = [MSIDWebviewFactory new];
     }
     return _webviewFactory;
+}
+
+#pragma mark - Network requests
+
+- (MSIDAuthorizationCodeGrantRequest *)authorizationGrantRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                                         codeVerifier:(NSString *)pkceCodeVerifier
+                                                                             authCode:(NSString *)authCode
+                                                                        homeAccountId:(__unused NSString *)homeAccountId
+{
+    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
+    NSString *allScopes = [parameters allTokenRequestScopes];
+
+    MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                         clientId:parameters.clientId
+                                                                                                            scope:allScopes
+                                                                                                      redirectUri:parameters.redirectUri
+                                                                                                             code:authCode
+                                                                                                           claims:claims
+                                                                                                     codeVerifier:pkceCodeVerifier
+                                                                                                  extraParameters:parameters.extraTokenRequestParameters
+                                                                                                          context:parameters];
+    tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    return tokenRequest;
+}
+
+- (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              refreshToken:(NSString *)refreshToken
+{
+    NSString *allScopes = [parameters allTokenRequestScopes];
+
+    MSIDRefreshTokenGrantRequest *tokenRequest = [[MSIDRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                               clientId:parameters.clientId
+                                                                                                  scope:allScopes
+                                                                                           refreshToken:refreshToken
+                                                                                        extraParameters:parameters.extraTokenRequestParameters
+                                                                                                context:parameters];
+    tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    return tokenRequest;
 }
 
 @end

@@ -191,4 +191,22 @@
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 
+- (void)testEqualityForLegacyTokenCacheItems_WhenEitherOfTheComparedPropertiesInTheObject_IsNil
+{
+    MSIDLegacyTokenCacheItem *cacheItem1 = [MSIDLegacyTokenCacheItem new];
+    cacheItem1.accessToken = @"at";
+    cacheItem1.refreshToken = @"rt";
+    cacheItem1.idToken = @"id";
+    cacheItem1.oauthTokenType = @"token type";
+    cacheItem1.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    
+    MSIDLegacyTokenCacheItem *cacheItem2 = [MSIDLegacyTokenCacheItem new];
+    cacheItem2.accessToken = @"at";
+    cacheItem2.refreshToken = @"rt";
+    cacheItem2.idToken = @"id";
+    cacheItem2.oauthTokenType = nil;
+    cacheItem1.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
+}
+
 @end

@@ -28,13 +28,24 @@
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
                         clientId:(NSString *)clientId
+                    enrollmentId:(NSString *)enrollmentId
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri
                             code:(NSString *)code
+                          claims:(NSString *)claims
                     codeVerifier:(NSString *)codeVerifier
+                 extraParameters:(NSDictionary *)extraParameters
                          context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope redirectUri:redirectUri code:code codeVerifier:codeVerifier context:context];
+    self = [super initWithEndpoint:endpoint
+                          clientId:clientId
+                             scope:scope
+                       redirectUri:redirectUri
+                              code:code
+                            claims:claims
+                      codeVerifier:codeVerifier
+                   extraParameters:extraParameters
+                           context:context];
     if (self)
     {
         __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
@@ -42,6 +53,9 @@
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
+        parameters[MSID_OAUTH2_CLAIMS] = claims;
+        parameters[MSID_ENROLLMENT_ID] = enrollmentId;
+        
         _parameters = parameters;
     }
     

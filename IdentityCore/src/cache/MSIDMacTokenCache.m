@@ -215,7 +215,7 @@ return NO; \
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
                                       serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
+                                         context:(__unused id<MSIDRequestContext>)context
                                            error:(NSError * __autoreleasing *)error
 {
     [self.delegate willAccessCache:self];
@@ -228,35 +228,76 @@ return NO; \
 
 #pragma mark - Accounts
 
-- (BOOL)saveAccount:(MSIDAccountCacheItem *)item
-                key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAccountItemSerializer>)serializer
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
+- (BOOL)saveAccount:(__unused MSIDAccountCacheItem *)item
+                key:(__unused MSIDCacheKey *)key
+         serializer:(__unused id<MSIDAccountItemSerializer>)serializer
+            context:(__unused id<MSIDRequestContext>)context
+              error:(__unused NSError **)error
 {
     // TODO: implement me
     return NO;
 }
 
-- (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
-                              serializer:(id<MSIDAccountItemSerializer>)serializer
-                                 context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+- (MSIDAccountCacheItem *)accountWithKey:(__unused MSIDCacheKey *)key
+                              serializer:(__unused id<MSIDAccountItemSerializer>)serializer
+                                 context:(__unused id<MSIDRequestContext>)context
+                                   error:(__unused NSError **)error
 {
     // TODO: implement me
     return nil;
 }
 
-- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
-                                          serializer:(id<MSIDAccountItemSerializer>)serializer
-                                             context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error
+- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(__unused MSIDCacheKey *)key
+                                          serializer:(__unused id<MSIDAccountItemSerializer>)serializer
+                                             context:(__unused id<MSIDRequestContext>)context
+                                               error:(__unused NSError **)error
 {
     // TODO: implement me
+    return nil;
+}
+
+#pragma mark - AppMetadata
+
+- (BOOL)saveAppMetadata:(__unused MSIDAppMetadataCacheItem *)item
+                    key:(__unused MSIDCacheKey *)key
+             serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
+                context:(__unused id<MSIDRequestContext>)context
+                  error:(__unused NSError **)error
+{
+    // TODO: implement me
+    return NO;
+}
+
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
+                                                        serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(__unused id<MSIDRequestContext>)context
+                                                             error:(__unused NSError **)error
+{
     return nil;
 }
 
 #pragma mark - Removal
+
+- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
@@ -274,14 +315,14 @@ return NO; \
 
 #pragma mark - Wipe
 
-- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
+                          error:(__unused NSError **)error
 {
     return NO;
 }
 
-- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
+                     error:(__unused NSError **)error
 {
     return nil;
 }
@@ -418,15 +459,16 @@ return NO; \
 
 - (BOOL)setItemImpl:(MSIDCredentialCacheItem *)item
                 key:(MSIDCacheKey *)key
-         serializer:(id<MSIDCredentialItemSerializer>)serializer
+         serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
     assert(key);
     
     MSID_LOG_INFO(context, @"Set item, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Set item, key info (account: %@ service: %@)", key.account, key.service);
-    MSID_LOG_INFO_PII(context, @"Item info %@", item);
+    
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Set item, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Item info %@", item);
     
     if (!key)
     {
@@ -484,12 +526,12 @@ return NO; \
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)itemsWithKeyImpl:(MSIDCacheKey *)key
-                                         serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                         serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
                                             context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error
+                                              error:(__unused NSError **)error
 {
-    MSID_LOG_INFO(context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
-    MSID_LOG_INFO_PII(context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Get items, key info (account: %@ service: %@)", _PII_NULLIFY(key.account), _PII_NULLIFY(key.service));
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Get items, key info (account: %@ service: %@)", key.account, key.service);
 
     if (!self.cache)
     {
@@ -538,7 +580,7 @@ return NO; \
 }
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
+                   error:(__unused NSError **)error
 {
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
     [self clear];

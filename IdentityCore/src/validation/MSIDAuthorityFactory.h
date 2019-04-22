@@ -24,14 +24,15 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDAuthority;
+@protocol MSIDRequestContext;
 
 @interface MSIDAuthorityFactory : NSObject
 
-- (nullable MSIDAuthority *)authorityFromUrl:(nonnull NSURL *)url
-                                        context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;
++ (nullable MSIDAuthority *)authorityFromUrl:(nonnull NSURL *)url
+                                     context:(nullable id<MSIDRequestContext>)context
+                                       error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
-- (nullable MSIDAuthority *)authorityFromUrl:(nonnull NSURL *)url
++ (nullable MSIDAuthority *)authorityFromUrl:(nonnull NSURL *)url
                                    rawTenant:(nullable NSString *)rawTenant
                                      context:(nullable id<MSIDRequestContext>)context
                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;

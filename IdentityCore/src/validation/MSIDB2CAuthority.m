@@ -24,6 +24,7 @@
 #import "MSIDB2CAuthority.h"
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation MSIDB2CAuthority
 
@@ -96,6 +97,16 @@
 - (nonnull NSString *)telemetryAuthorityType
 {
     return MSID_TELEMETRY_VALUE_AUTHORITY_B2C;
+}
+
+- (BOOL)supportsBrokeredAuthentication
+{
+    return NO;
+}
+
+- (BOOL)supportsClientIDAsScope
+{
+    return YES;
 }
 
 #pragma mark - Protected

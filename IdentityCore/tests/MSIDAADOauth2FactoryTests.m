@@ -47,6 +47,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDCache.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDAADOauth2FactoryTest : XCTestCase
 
@@ -141,6 +145,42 @@
     XCTAssertNil(error);
 }
 
+- (void)testVerifyResponse_whenProtectionPolicyRequiredError_shouldReturnErrorWithSuberror
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
+                                                                                                @"suberror":MSID_PROTECTION_POLICY_REQUIRED,
+                                                                                            @"adi":@"cooldude@somewhere.com"
+                                                                                                }
+                                                                                        error:nil];
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
+    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"cooldude@somewhere.com");
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
+}
+
+- (void)testVerifyResponse_whenProtectionPolicyRequiredErrorAndNoAdiInResponse_shouldReturnErrorWithSuberrorAndEmptyDisplayableId
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:@{@"error":@"unauthorized_client",
+                                                                                            @"suberror":MSID_PROTECTION_POLICY_REQUIRED                                                                                            }
+                                                                                    error:nil];
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
+    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"");
+    XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
+}
+
 #pragma mark - Tokens
 
 - (void)testBaseTokenFromResponse_whenAADTokenResponse_shouldReturnToken
@@ -195,6 +235,34 @@
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
     XCTAssertNotNil(token.extendedExpireTime);
+    XCTAssertNil(token.enrollmentId);
+}
+
+- (void)testAccessTokenFromResponse_whenAADTokenResponse_andIntuneEnrolled_shouldReturnToken
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    
+    MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponseWithAdditionalFields:@{@"ext_expires_in": @"60"}];
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
+    
+    MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
+    
+    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.clientId, configuration.clientId);
+    NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
+    
+    XCTAssertNotNil(token.cachedAt);
+    XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+    XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
+    XCTAssertNotNil(token.expiresOn);
+    XCTAssertNotNil(token.extendedExpireTime);
+    XCTAssertEqualObjects(token.enrollmentId, @"enrollmentId");
+    
+    [self setUpEnrollmentIdsCache:YES];
 }
 
 - (void)testRefreshTokenFromResponse_whenAADTokenResponse_shouldReturnToken
@@ -283,6 +351,64 @@
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     XCTAssertNotNil(token.expiresOn);
 }
+
+- (void)testAppMetadataFromResponse_whenAADTokenResponseWithFamilyId_shouldReturnAppMetadataWithFamilyId
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponseWithFamilyId:@"familyId"];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    
+    MSIDAppMetadataCacheItem *metadata = [factory appMetadataFromResponse:(MSIDAADTokenResponse *)response
+                                                            configuration:configuration];
+    
+    XCTAssertEqualObjects(metadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(metadata.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(metadata.familyId, @"familyId");
+}
+
+- (void)testAppMetadataFromResponse_whenAADTokenResponseWithoutFamilyId_shouldReturnAppMetadataWithFamilyId_Nil
+{
+    MSIDAADOauth2Factory *factory = [MSIDAADOauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    
+    MSIDAppMetadataCacheItem *metadata = [factory appMetadataFromResponse:(MSIDAADTokenResponse *)response
+                                                            configuration:configuration];
+    
+    XCTAssertNotNil(metadata);
+    XCTAssertEqualObjects(metadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(metadata.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(metadata.familyId, @"");
+}
+
+#pragma mark - Helpers
+
+- (void)setUpEnrollmentIdsCache:(BOOL)isEmpty
+{
+    NSDictionary *emptyDict = @{};
+    
+    NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
+                                                                                     @"home_account_id" : @"1.1234-5678-90abcdefg",
+                                                                                     @"user_id" : @"mike@contoso.com",
+                                                                                     @"enrollment_id" : @"enrollmentId"
+                                                                                     },
+                                                                                 @{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"6eec576f-dave-416a-9c4a-536b178a194a",
+                                                                                     @"home_account_id" : @"1e4dd613-dave-4527-b50a-97aca38b57ba",
+                                                                                     @"user_id" : @"dave@contoso.com",
+                                                                                     @"enrollment_id" : @"64d0557f-dave-4193-b630-8491ffd3b180"
+                                                                                     }
+                                                                                 ]}};
+    
+    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:isEmpty ? emptyDict : dict];
+    MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
+    MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
+    [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
+}
+
 
 @end
 

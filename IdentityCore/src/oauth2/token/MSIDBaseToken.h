@@ -25,6 +25,7 @@
 #import "MSIDCredentialType.h"
 #import "MSIDClientInfo.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 
 @class MSIDTokenResponse;
 @class MSIDConfiguration;

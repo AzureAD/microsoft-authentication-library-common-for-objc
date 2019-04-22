@@ -24,12 +24,21 @@
 #import "MSIDConstants.h"
 
 NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
+NSString *const MSID_SOURCE_PLATFORM_KEY        = @"x-client-src-SKU";
 NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
 NSString *const MSID_CPU_KEY                    = @"x-client-CPU";
 NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";
 NSString *const MSID_DEVICE_MODEL_KEY           = @"x-client-DM";
 NSString *const MSID_APP_NAME_KEY               = @"x-app-name";
 NSString *const MSID_APP_VER_KEY                = @"x-app-ver";
+NSString *const MSID_BROKER_RESUME_DICTIONARY_KEY   =   @"adal-broker-resume-dictionary";
+NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG   = @"com.microsoft.adBrokerKey\0";
+NSString *const MSID_BROKER_ADAL_SCHEME         = @"msauth";
+NSString *const MSID_BROKER_MSAL_SCHEME         = @"msauthv2";
+NSString *const MSID_BROKER_APP_BUNDLE_ID        = @"com.microsoft.azureauthenticator";
+NSString *const MSID_BROKER_APP_BUNDLE_ID_DF     = @"com.microsoft.azureauthenticator-df";
+NSString *const MSID_AUTHENTICATOR_REDIRECT_URI  = @"urn:ietf:wg:oauth:2.0:oob";
+NSString *const MSID_DEFAULT_FAMILY_ID           = @"1";
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";

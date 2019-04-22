@@ -33,8 +33,6 @@
 
 @interface MSIDAADOauth2Factory : MSIDOauth2Factory
 
-@property (nonatomic, readonly) MSIDAuthorityFactory *authorityFactory;
-
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
                                 refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                      context:(id<MSIDRequestContext>)context

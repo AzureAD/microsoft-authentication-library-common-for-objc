@@ -95,8 +95,7 @@
 
     if (self)
     {
-        __auto_type authorityFactory = [MSIDAuthorityFactory new];
-        __auto_type authority = [authorityFactory authorityFromUrl:tokenCacheItem.authority context:nil error:nil];
+        __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:tokenCacheItem.authority context:nil error:nil];
         
         _accessToken = tokenCacheItem.accessToken;
         _idToken = tokenCacheItem.idToken;
@@ -104,7 +103,7 @@
         _authority = authority;
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
     }
 
     return self;
@@ -142,7 +141,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(id token=%@, access token=%@)", _PII_NULLIFY(_idToken), _PII_NULLIFY(_accessToken)];
+    return [baseDescription stringByAppendingFormat:@"(id token=%@, access token=%@)", [_idToken msidSecretLoggingHash], [_accessToken msidSecretLoggingHash]];
 }
 
 @end

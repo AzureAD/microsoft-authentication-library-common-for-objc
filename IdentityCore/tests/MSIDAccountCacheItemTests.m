@@ -25,6 +25,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDAccountCacheItemTests : XCTestCase
 
@@ -125,6 +126,36 @@
                                          };
     
     XCTAssertEqualObjects(jsonDictionary, expectedDictionary);
+}
+
+- (void)testEqualityForAccountCacheItems_WhenEitherOfTheComparedPropertiesInTheObject_IsNil
+{
+    MSIDAccountCacheItem *firstAccount = [MSIDAccountCacheItem new];
+    firstAccount.environment = DEFAULT_TEST_ENVIRONMENT;
+    firstAccount.homeAccountId = @"uid.utid";
+    firstAccount.localAccountId = @"0000004-0000004-000004";
+    firstAccount.username = @"username";
+    firstAccount.givenName = @"First name";
+    firstAccount.middleName = @"Middle name";
+    firstAccount.familyName = @"Last name";
+    firstAccount.accountType = MSIDAccountTypeAADV1;
+    firstAccount.homeAccountId = @"uid.utid";
+    firstAccount.alternativeAccountId = @"alt";
+    firstAccount.name = @"test user";
+    firstAccount.realm = @"contoso.com";
+    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    NSError *error = nil;
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:&error];
+    firstAccount.clientInfo = clientInfo;
+    firstAccount.alternativeAccountId = @"alternative_clientID";
+    firstAccount.additionalAccountFields = @{@"test": @"test2",
+                                             @"test3": @"test4"};
+    
+    MSIDAccountCacheItem *secondAccount = [MSIDAccountCacheItem new];
+    secondAccount.accountType = MSIDAccountTypeAADV1;
+    secondAccount.environment = DEFAULT_TEST_ENVIRONMENT;
+    secondAccount.homeAccountId = @"uid.utid";
+    XCTAssertNotEqualObjects(firstAccount, secondAccount);
 }
 
 @end

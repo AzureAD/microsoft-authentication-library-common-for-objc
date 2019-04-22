@@ -45,6 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
 /* Corresponds to kSecAttrGeneric */
 @property (nullable, readonly) NSData *generic;
 
+/* Application key for keychain isolation */
+@property (nullable, readwrite) NSString *appKey;
+
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service
                        generic:(nullable NSData *)generic
@@ -57,6 +60,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSString *)logDescription;
 - (NSString *)piiLogDescription;
+- (nullable NSNumber *)appKeyHash;
 
 NS_ASSUME_NONNULL_END
 

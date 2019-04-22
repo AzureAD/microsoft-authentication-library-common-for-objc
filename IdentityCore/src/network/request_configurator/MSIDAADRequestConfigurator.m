@@ -24,7 +24,7 @@
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDHttpRequest.h"
 #import "MSIDAADRequestErrorHandler.h"
-#import "MSIDAADResponseSerializer.h"
+#import "MSIDHttpResponseSerializer.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDVersion.h"
@@ -32,6 +32,8 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDConstants.h"
+#import "MSIDAADJsonResponsePreprocessor.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 static NSTimeInterval const s_defaultTimeoutInterval = 300;
 
@@ -55,13 +57,14 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     NSParameterAssert(request.urlRequest);
     NSParameterAssert(request.urlRequest.URL);
     
-    request.responseSerializer = [MSIDAADResponseSerializer new];
+    __auto_type serializer = [MSIDHttpResponseSerializer new];
+    serializer.preprocessor = [MSIDAADJsonResponsePreprocessor new];
+    request.responseSerializer = serializer;
     request.errorHandler = [MSIDAADRequestErrorHandler new];
     
     __auto_type requestUrl = request.urlRequest.URL;
     
-    __auto_type authorityFactory = [MSIDAuthorityFactory new];
-    __auto_type authority = [authorityFactory authorityFromUrl:request.urlRequest.URL context:request.context error:nil];
+    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:request.urlRequest.URL context:request.context error:nil];
     // If url is authority, then we are trying to get network url of it. Otherwise we use provided url.
     __auto_type authorityUrl = [authority networkUrlWithContext:request.context];
     
@@ -74,6 +77,9 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     mutableUrlRequest.URL = requestUrl;
     mutableUrlRequest.timeoutInterval = self.timeoutInterval;
     mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+#if TARGET_OS_IPHONE
+    [mutableUrlRequest setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
+#endif
     [mutableUrlRequest setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
     NSMutableDictionary *headers = [mutableUrlRequest.allHTTPHeaderFields mutableCopy];

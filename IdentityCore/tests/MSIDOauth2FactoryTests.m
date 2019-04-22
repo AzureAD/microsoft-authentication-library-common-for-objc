@@ -43,6 +43,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAuthority.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 @interface MSIDOauth2FactoryTest : XCTestCase
 
@@ -301,7 +302,7 @@
     XCTAssertNotNil(token.expiresOn);
     XCTAssertNil(token.familyId);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testLegacyAccessTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -334,7 +335,7 @@
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertNotNil(token.expiresOn);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testLegacyRefreshTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -362,7 +363,7 @@
     XCTAssertEqualObjects(token.idToken, idToken);
 
     XCTAssertNil(token.familyId);
-    XCTAssertEqualObjects(token.accountIdentifier.legacyAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
 }
 
 - (void)testIDTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -448,6 +449,20 @@
     XCTAssertEqualObjects(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
     XCTAssertEqualObjects(account.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY);
+}
+
+- (void)testAppMetadataFromResponse_whenOIDCTokenResponse_shouldReturnMetadataWithCorrectFields
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+    MSIDAADV2TokenResponse *response = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration defaultParams];
+    
+    MSIDAppMetadataCacheItem *metadata = [factory appMetadataFromResponse:(MSIDTokenResponse *)response
+                                                            configuration:configuration];
+    XCTAssertNotNil(metadata);
+    XCTAssertEqualObjects(metadata.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(metadata.environment, configuration.authority.environment);
+    XCTAssertNil(metadata.familyId);
 }
 
 @end

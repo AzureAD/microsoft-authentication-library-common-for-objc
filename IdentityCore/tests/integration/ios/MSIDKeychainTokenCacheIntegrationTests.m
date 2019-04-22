@@ -27,10 +27,13 @@
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDCacheKey.h"
 #import "MSIDKeyedArchiverSerializer.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheQuery.h"
 
 @interface MSIDKeychainTokenCacheIntegrationTests : XCTestCase
 
@@ -54,7 +57,7 @@
     [super tearDown];
     
     [MSIDKeychainTokenCache reset];
-    
+
     MSIDKeychainTokenCache.defaultKeychainGroup = @"com.microsoft.adalcache";
 }
 
@@ -106,7 +109,7 @@
     token.secret = @"some token";
     token.credentialType = MSIDAccessTokenType;
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     XCTAssertTrue(result);
@@ -124,7 +127,7 @@
     token.secret = @"oauth type";
     
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:nil service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     NSError *error;
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:&error];
@@ -141,7 +144,7 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:nil generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     NSError *error;
     
     BOOL result = [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:&error];
@@ -160,7 +163,7 @@
     token2.secret = @"some token";
     token2.credentialType = MSIDAccessTokenType;
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     [keychainTokenCache saveToken:token2 key:key serializer:serializer context:nil error:nil];
@@ -172,7 +175,7 @@
 - (void)testItemsWithKey_whenKeyIsQuery_shouldReturnProperItems
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"secret1";
@@ -214,7 +217,7 @@
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     
     NSArray<MSIDCredentialCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
@@ -222,7 +225,7 @@
     
     NSError *error;
     
-    [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
+    [keychainTokenCache removeItemsWithTokenKey:key context:nil error:&error];
     
     items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -235,7 +238,7 @@
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"some token";
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
     
     NSArray<MSIDCredentialCacheItem *> *items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
@@ -243,7 +246,7 @@
     
     NSError *error;
     
-    [keychainTokenCache removeItemsWithKey:key context:nil error:&error];
+    [keychainTokenCache removeItemsWithTokenKey:key context:nil error:&error];
     
     items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -253,7 +256,7 @@
 - (void)testRemoveItemWithKey_whenKeyIsNil_shouldReturnError
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"secret1";
@@ -281,7 +284,7 @@
     
     NSError *error;
     
-    BOOL result = [keychainTokenCache removeItemsWithKey:nil context:nil error:&error];
+    BOOL result = [keychainTokenCache removeItemsWithTokenKey:nil context:nil error:&error];
     items = [keychainTokenCache tokensWithKey:nil serializer:serializer context:nil error:nil];
     
     XCTAssertFalse(result);
@@ -317,7 +320,7 @@
 - (void)testItemsWithKey_whenFindsTombstoneItems_shouldSkipThem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"<tombstone>";
@@ -345,7 +348,7 @@
 - (void)testItemsWithKey_whenFindsTombstoneItems_shouldDeleteThemFromKeychain
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.secret = @"<tombstone>";
     token1.credentialType = MSIDRefreshTokenType;
@@ -371,7 +374,7 @@
 - (void)testTokensWithKey_whenQueryingByGeneric_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -399,7 +402,7 @@
 - (void)testTokensWithKey_whenQueryingByType_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -427,7 +430,7 @@
 - (void)testTokensWithKey_whenQueryingByAccount_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -454,7 +457,7 @@
 - (void)testTokensWithKey_whenQueryingByService_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -481,7 +484,7 @@
 - (void)testTokensWithKey_whenLegacyCacheKey_differentCaseUserIDs_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
 
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -498,10 +501,47 @@
     XCTAssertEqual(items.count, 1);
 }
 
+- (void)testTokensWithKey_whenDefaultKey_andDifferentAppKeys_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
+    token1.credentialType = MSIDAccessTokenType;
+    token1.secret = @"at";
+    
+    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"environment" clientId:@"client" credentialType:MSIDRefreshTokenType];
+    key1.appKey = @"appkey";
+    [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
+    
+    MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    token2.credentialType = MSIDAccessTokenType;
+    token2.secret = @"at2";
+    
+    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"environment" clientId:@"client" credentialType:MSIDRefreshTokenType];
+    key2.appKey = @"appkey2";
+    [keychainTokenCache saveToken:token2 key:key2 serializer:serializer context:nil error:nil];
+    
+    NSArray *allItems = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
+    XCTAssertEqual([allItems count], 2);
+    
+    NSArray *items = [keychainTokenCache tokensWithKey:key1 serializer:serializer context:nil error:nil];
+    XCTAssertEqual([items count], 1);
+    XCTAssertEqualObjects(items[0], token1);
+    
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDRefreshTokenType;
+    query.appKey = @"appkey";
+    items = [keychainTokenCache tokensWithKey:query serializer:serializer context:nil error:nil];
+    
+    XCTAssertEqual(items.count, 1);
+    XCTAssertEqualObjects(items[0], token1);
+}
+
 - (void)testTokensWithKey_whenLegacyCacheKey_differentCaseClientIDsAndResource_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
-    MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
 
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.credentialType = MSIDAccessTokenType;
@@ -515,6 +555,69 @@
     NSArray<MSIDCredentialCacheItem *> *items = [keychainTokenCache tokensWithKey:key2 serializer:serializer context:nil error:nil];
 
     XCTAssertEqual(items.count, 1);
+}
+
+- (void)testSaveAppMetadataWithKey_whenItemAlreadyExistInKeychain_shouldUpdateIt
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDAppMetadataCacheItem *appMetadata1 = [MSIDAppMetadataCacheItem new];
+    appMetadata1.clientId = @"clientId";
+    appMetadata1.environment = @"login.microsoftonline.com";
+    appMetadata1.familyId = @"1";
+    MSIDAppMetadataCacheItem *appMetadata2 = [MSIDAppMetadataCacheItem new];
+    appMetadata2.clientId = @"clientId";
+    appMetadata2.environment = @"login.microsoftonline.com";
+    appMetadata2.familyId = nil;
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"clientId"
+                                                                         environment:@"login.microsoftonline.com"
+                                                                            familyId:nil
+                                                                         generalType:MSIDAppMetadataType];
+    
+    [keychainTokenCache saveAppMetadata:appMetadata1 key:key serializer:serializer context:nil error:nil];
+    [keychainTokenCache saveAppMetadata:appMetadata2 key:key serializer:serializer context:nil error:nil];
+    
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataItems = [keychainTokenCache appMetadataEntriesWithKey:key serializer:serializer context:nil error:nil];
+    XCTAssertTrue([appMetadataItems count] == 1);
+    XCTAssertEqualObjects(appMetadataItems[0], appMetadata2);
+}
+
+- (void)testAppMetadataEntriesWithKey_ShouldReturnCorrentEntries
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDAppMetadataCacheItem *appMetadata = [MSIDAppMetadataCacheItem new];
+    appMetadata.clientId = @"clientId1";
+    appMetadata.environment = @"environment1";
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:@"clientId1"
+                                                                         environment:@"environment1"
+                                                                            familyId:nil
+                                                                         generalType:MSIDAppMetadataType];
+    
+    [keychainTokenCache saveAppMetadata:appMetadata key:key serializer:serializer context:nil error:nil];
+    appMetadata.environment = @"environment2";
+    key.environment = @"environment2";
+    [keychainTokenCache saveAppMetadata:appMetadata key:key serializer:serializer context:nil error:nil];
+    
+    MSIDAppMetadataCacheQuery *cacheQuery = [[MSIDAppMetadataCacheQuery alloc] init];
+    cacheQuery.clientId = @"clientId1";
+    
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataItems = [keychainTokenCache appMetadataEntriesWithKey:cacheQuery
+                                                                                               serializer:serializer
+                                                                                                  context:nil
+                                                                                                    error:nil];
+    XCTAssertTrue([appMetadataItems count] == 2);
+    
+    cacheQuery.environment = @"environment1";
+    appMetadataItems = [keychainTokenCache appMetadataEntriesWithKey:cacheQuery
+                                                          serializer:serializer
+                                                             context:nil
+                                                               error:nil];
+    XCTAssertTrue([appMetadataItems count] == 1);
+    XCTAssertEqualObjects(appMetadataItems[0].clientId, @"clientId1");
+    XCTAssertEqualObjects(appMetadataItems[0].environment, @"environment1");
 }
 
 @end

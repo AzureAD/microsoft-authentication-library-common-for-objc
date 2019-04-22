@@ -26,10 +26,12 @@
 @class MSIDCredentialCacheItem;
 @class MSIDAccountCacheItem;
 @class MSIDCacheKey;
+@class MSIDAppMetadataCacheItem;
 
 @protocol MSIDRequestContext;
 @protocol MSIDAccountItemSerializer;
 @protocol MSIDCredentialItemSerializer;
+@protocol MSIDAppMetadataItemSerializer;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
@@ -60,9 +62,17 @@
 
 // Removal
 
-- (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error;
+
+- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
+
+- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error;
 
 // Accounts
 
@@ -84,5 +94,16 @@
 
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
+
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error;
+
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error;
 
 @end

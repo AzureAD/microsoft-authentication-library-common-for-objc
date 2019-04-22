@@ -23,6 +23,7 @@
 
 #import "MSIDTokenFilteringHelper.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 
 
 @implementation MSIDTokenFilteringHelper

@@ -32,6 +32,11 @@
 
 @implementation MSIDAccountCacheItem
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"MSIDAccountCacheItem: accountType: %@, homeAccountId: %@, environment: %@, localAccountId: %@, username: %@, name: %@, realm: %@, alternativeAccountId: %@", [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.homeAccountId, self.environment, self.localAccountId, self.username, self.name, self.realm, self.alternativeAccountId];
+}
+
 #pragma mark - Equal
 
 - (BOOL)isEqual:(id)object
@@ -53,17 +58,17 @@
 {
     BOOL result = YES;
     result &= self.accountType == item.accountType;
-    result &= (!self.homeAccountId || !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= (!self.localAccountId || !item.localAccountId) || [self.localAccountId isEqualToString:item.localAccountId];
-    result &= (!self.username || !item.username) || [self.username isEqualToString:item.username];
-    result &= (!self.givenName || !item.givenName) || [self.givenName isEqualToString:item.givenName];
-    result &= (!self.middleName || !item.middleName) || [self.middleName isEqualToString:item.middleName];
-    result &= (!self.familyName || !item.familyName) || [self.familyName isEqualToString:item.familyName];
-    result &= (!self.name || !item.name) || [self.name isEqualToString:item.name];
-    result &= (!self.realm || !item.realm) || [self.realm isEqualToString:item.realm];
-    result &= (!self.clientInfo || !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
-    result &= (!self.environment || !item.environment) || [self.environment isEqualToString:item.environment];
-    result &= (!self.alternativeAccountId || !item.alternativeAccountId) || [self.alternativeAccountId isEqualToString:item.alternativeAccountId];
+    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
+    result &= (!self.localAccountId && !item.localAccountId) || [self.localAccountId isEqualToString:item.localAccountId];
+    result &= (!self.username && !item.username) || [self.username isEqualToString:item.username];
+    result &= (!self.givenName && !item.givenName) || [self.givenName isEqualToString:item.givenName];
+    result &= (!self.middleName && !item.middleName) || [self.middleName isEqualToString:item.middleName];
+    result &= (!self.familyName && !item.familyName) || [self.familyName isEqualToString:item.familyName];
+    result &= (!self.name && !item.name) || [self.name isEqualToString:item.name];
+    result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
+    result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
+    result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
+    result &= (!self.alternativeAccountId && !item.alternativeAccountId) || [self.alternativeAccountId isEqualToString:item.alternativeAccountId];
     return result;
 }
 
@@ -109,8 +114,9 @@
 
 #pragma mark - JSON
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
 {
+    MSID_TRACE;
     if (!(self = [super init]))
     {
         return nil;
@@ -148,6 +154,7 @@
 
 - (NSDictionary *)jsonDictionary
 {    
+    MSID_TRACE;
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
 
     if (_json)
@@ -183,30 +190,6 @@
     [allAdditionalFields addEntriesFromDictionary:account.additionalAccountFields];
     [allAdditionalFields addEntriesFromDictionary:_additionalAccountFields];
     _additionalAccountFields = allAdditionalFields;
-}
-
-#pragma mark - Query
-
-- (BOOL)matchesWithHomeAccountId:(nullable NSString *)homeAccountId
-                     environment:(nullable NSString *)environment
-              environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
-{
-    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
-    {
-        return NO;
-    }
-
-    if (environment && ![self.environment isEqualToString:environment])
-    {
-        return NO;
-    }
-
-    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
-    {
-        return NO;
-    }
-
-    return YES;
 }
 
 @end

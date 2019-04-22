@@ -41,6 +41,7 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDTestCacheAccessorHelper.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase
 {
@@ -65,10 +66,9 @@
     // TODO: this should be replaced with a real macOS datasource instead
     _dataSource = [[MSIDTestCacheDataSource alloc] init];
 #endif
-    MSIDOauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
-    _otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
-    _legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:@[_otherAccessor] factory:factory];
-    _nonSSOAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil factory:factory];
+    _otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
+    _legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:@[_otherAccessor]];
+    _nonSSOAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:_dataSource otherCacheAccessors:nil];
     [super setUp];
 }
 
@@ -76,7 +76,7 @@
 {
     [super tearDown];
 
-    [_dataSource removeItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
+    [_dataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
 }
 
 #pragma mark - Saving
@@ -89,12 +89,13 @@
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:tokenResponse
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *accessTokensInCache = [self getAllLegacyAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
     XCTAssertEqualObjects([accessTokensInCache[0] accessToken], tokenResponse.accessToken);
 }
@@ -113,6 +114,7 @@
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:tokenResponse
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -120,7 +122,7 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.code, MSIDErrorInternal);
     
-    NSArray *accessTokensInCache = [self getAllLegacyAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 0);
 }
 
@@ -129,13 +131,14 @@
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *accessTokensInCache = [self getAllLegacyAccessTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 1);
 }
 
@@ -144,13 +147,14 @@
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *legacyTokensInCache = [self getAllLegacyTokens];
+    NSArray *legacyTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_legacyAccessor];
     XCTAssertEqual([legacyTokensInCache count], 1);
     
     MSIDLegacySingleResourceToken *legacyToken = legacyTokensInCache[0];
@@ -174,6 +178,7 @@
 
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:tokenResponse
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -181,7 +186,7 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.code, MSIDErrorInternal);
     
-    NSArray *accessTokensInCache = [self getAllLegacyTokens];
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyTokens:_legacyAccessor];
     XCTAssertEqual([accessTokensInCache count], 0);
 }
 
@@ -194,14 +199,19 @@
 
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *refreshTokensInCache = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
+    // storageAuthority is a property set by cache accessor used for latter token deletion,
+    // while token directly from network response doesn't have storageAuthority
+    // So here set it manually for easy comparison
+    token.storageAuthority = token.authority;
     XCTAssertEqualObjects(refreshTokensInCache[0], token);
 }
 
@@ -214,6 +224,7 @@
 
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -239,15 +250,20 @@
 
     result = [_legacyAccessor saveTokensWithConfiguration:secondConfiguration
                                                  response:secondResponse
+                                                  factory:[MSIDAADV1Oauth2Factory new]
                                                   context:nil
                                                     error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *refreshTokensInCache = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
     // Check that the token got overriden
+    // storageAuthority is a property set by cache accessor used for latter token deletion,
+    // while token directly from network response doesn't have storageAuthority
+    // So here set it manually for easy comparison
+    secondToken.storageAuthority = secondToken.authority;
     XCTAssertEqualObjects(refreshTokensInCache[0], secondToken);
 }
 
@@ -257,13 +273,14 @@
 
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *refreshTokensInCache = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokensInCache = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokensInCache count], 1);
 }
 
@@ -271,7 +288,7 @@
 
 - (void)testTokenWithType_withAccessTokenType_whenNoItemsInCache_shouldReturnNil
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     NSError *error = nil;
@@ -286,7 +303,7 @@
 
 - (void)testGetAccessToken_withAccountWithoutUPN_whenOnlyOneTokenInCache_shouldReturnToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     // Save token
@@ -294,11 +311,12 @@
 
     [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                         factory:[MSIDAADV1Oauth2Factory new]
                                          context:nil
                                            error:&error];
     XCTAssertNil(error);
     
-    account.legacyAccountId = nil;
+    account.displayableId = nil;
 
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
@@ -314,7 +332,7 @@
 
 - (void)testGetAccessTokenAfterSaving_withCorrectAccountAndParameters_shouldReturnToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     // Save token
@@ -322,6 +340,7 @@
 
     [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                         factory:[MSIDAADV1Oauth2Factory new]
                                          context:nil
                                            error:&error];
 
@@ -339,7 +358,7 @@
 
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentResources_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     // Save first token
@@ -347,6 +366,7 @@
     
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -365,6 +385,7 @@
     
     result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                  response:secondResponse
+                                                  factory:[MSIDAADV1Oauth2Factory new]
                                                   context:nil
                                                     error:&error];
     
@@ -382,19 +403,20 @@
     
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);
     
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentAuthorities_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     // Save first token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -409,6 +431,7 @@
     
     result = [_legacyAccessor saveTokensWithConfiguration:secondConfiguration
                                                  response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                  factory:[MSIDAADV1Oauth2Factory new]
                                                   context:nil
                                                     error:&error];
     
@@ -421,19 +444,20 @@
     XCTAssertNil(error);
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority.url, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentClientIds_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     // Save first token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -448,6 +472,7 @@
     
     result = [_legacyAccessor saveTokensWithConfiguration:secondConfiguration
                                                  response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                  factory:[MSIDAADV1Oauth2Factory new]
                                                   context:nil
                                                     error:&error];
     
@@ -464,19 +489,20 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.clientId, DEFAULT_TEST_CLIENT_ID);
     
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
 - (void)testGetAccessToken_withMultipleTokensInCacheWithDifferentUsers_andCorrectAccountAndParameters_shouldReturnCorrectToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     // Save first token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -495,6 +521,7 @@
 
     result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                  response:secondResponse
+                                                  factory:[MSIDAADV1Oauth2Factory new]
                                                   context:nil
                                                     error:&error];
     
@@ -511,19 +538,20 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
-    NSArray *allAccessTokens = [self getAllLegacyAccessTokens];
+    NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
 
 - (void)testGetLegacyToken_withCorrectAccountAndParameters_shouldReturnToken
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:@""
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@""
                                                                               homeAccountId:nil];
     
     // Save legacy token response
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                       response:[MSIDTestTokenResponse v1SingleResourceTokenResponse]
+                                                       factory:[MSIDAADV1Oauth2Factory new]
                                                        context:nil
                                                          error:&error];
     
@@ -545,7 +573,7 @@
 
 - (void)testGetSharedRTForAccount_whenNoItemsInCache_shouldReturnNil
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"some id"];
     
     NSError *error = nil;
@@ -566,13 +594,14 @@
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     token.storageAuthority = token.authority;
     
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:nil];
     
     // Save token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
     
@@ -597,13 +626,14 @@
     MSIDRefreshToken *firstToken = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     firstToken.storageAuthority = firstToken.authority;
     
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:nil];
     
     // Save token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
     
@@ -618,6 +648,7 @@
 
     result = [_legacyAccessor saveSSOStateWithConfiguration:secondConfiguration
                                                    response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                    factory:[MSIDAADV1Oauth2Factory new]
                                                     context:nil
                                                       error:&error];
     
@@ -635,7 +666,7 @@
     XCTAssertNotNil(returnedToken);
     XCTAssertEqualObjects(firstToken, returnedToken);
     
-    NSArray *allRTs = [self getAllLegacyRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([allRTs count], 2);
 }
 
@@ -645,20 +676,21 @@
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
     token.storageAuthority = token.authority;
     
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Save token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+    account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
@@ -684,13 +716,14 @@
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:organizationConfiguration];
     token.storageAuthority = token.authority;
     
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Save token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
 
@@ -698,7 +731,7 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+    account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
@@ -717,13 +750,14 @@
 
 - (void)testGetSharedRTForAccountAfterSaving_whenConsumerAuthority_shouldReturnNil
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Save token
     NSError *error = nil;
     BOOL result = [_nonSSOAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
 
@@ -749,20 +783,21 @@
 
 - (void)testGetSharedRTForAccountAfterSaving_whenMultipleLegacyItemsInCache_andAccountWithUidUtidProvided_shouldNotReturnNil
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:DEFAULT_TEST_ID_TOKEN_USERNAME
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:nil];
     
     // Save first token
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account.legacyAccountId = @"user Id 2";
+    account.displayableId = @"user Id 2";
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"at"
                                                                             rt:@"rt 2"
@@ -775,13 +810,14 @@
     
     result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                    response:response
+                                                    factory:[MSIDAADV1Oauth2Factory new]
                                                     context:nil
                                                       error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account = [[MSIDAccountIdentifier alloc] initWithLegacyAccountId:nil
+    account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
                                                        homeAccountId:@"1.1234-5678-90abcdefg"];
     
     // Check that correct token is returned
@@ -842,6 +878,7 @@
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponseWithoutClientInfo]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
     
@@ -853,8 +890,12 @@
     XCTAssertNotNil(error);
     XCTAssertFalse(result);
     
-    NSArray *allRTs = [self getAllLegacyRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([allRTs count], 1);
+    // storageAuthority is a property set by cache accessor used for latter token deletion,
+    // while token directly from network response doesn't have storageAuthority
+    // So here set it manually for easy comparison
+    token.storageAuthority = token.authority;
     XCTAssertEqualObjects(allRTs[0], token);
 }
 
@@ -863,13 +904,14 @@
     NSError *error = nil;
     BOOL result = [_legacyAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                         response:[MSIDTestTokenResponse v1DefaultTokenResponse]
+                                                         factory:[MSIDAADV1Oauth2Factory new]
                                                          context:nil
                                                            error:&error];
     
     XCTAssertNil(error);
     XCTAssertTrue(result);
 
-    NSArray *refreshTokens = [self getAllLegacyRefreshTokens];
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([refreshTokens count], 1);
     
     result = [_legacyAccessor validateAndRemoveRefreshToken:refreshTokens[0] context:nil error:&error];
@@ -877,46 +919,8 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    NSArray *allRTs = [self getAllLegacyRefreshTokens];
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_legacyAccessor];
     XCTAssertEqual([allRTs count], 0);
-}
-
-#pragma mark - Helpers
-
-- (NSArray *)getAllLegacyAccessTokens
-{
-    return [self getAllTokensWithType:MSIDAccessTokenType class:MSIDLegacyAccessToken.class];
-}
-
-- (NSArray *)getAllLegacyRefreshTokens
-{
-    return [self getAllTokensWithType:MSIDRefreshTokenType class:MSIDLegacyRefreshToken.class];
-}
-
-- (NSArray *)getAllLegacyTokens
-{
-    return [self getAllTokensWithType:MSIDLegacySingleResourceTokenType class:MSIDLegacySingleResourceToken.class];
-}
-
-- (NSArray *)getAllTokensWithType:(MSIDCredentialType)type class:(Class)typeClass
-{
-    NSError *error = nil;
-
-    NSArray *allTokens = [_legacyAccessor allTokensWithContext:nil error:&error];
-    XCTAssertNil(error);
-
-    NSMutableArray *results = [NSMutableArray array];
-
-    for (MSIDBaseToken *token in allTokens)
-    {
-        if (token.credentialType == type
-            && [token isKindOfClass:typeClass])
-        {
-            [results addObject:token];
-        }
-    }
-
-    return results;
 }
 
 @end

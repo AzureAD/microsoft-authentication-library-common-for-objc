@@ -34,6 +34,8 @@
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDAADAuthorityCacheMock : MSIDAadAuthorityCache
 
@@ -89,6 +91,7 @@
     [super tearDown];
     
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
+    [self setUpEnrollmentIdsCache:YES];
 }
 
 #pragma mark - init
@@ -272,6 +275,32 @@
     XCTAssertNil(error);
 }
 
+#pragma mark - AAD authority
+
+- (void)testAADAuthorityWithEnvironmentAndRawTenant_whenTenantIdProvided_shouldReturnAuthorityWithTenantId
+{
+    NSError *error = nil;
+    MSIDAADAuthority *authority = [MSIDAADAuthority aadAuthorityWithEnvironment:@"login.microsoftonline.com"
+                                                                      rawTenant:@"contoso.com"
+                                                                        context:nil
+                                                                          error:&error];
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(authority.url, [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"]);
+}
+
+- (void)testAADAuthorityWithEnvironmentAndRawTenant_whenNoTenantIdProvided_shouldReturnAuthorityWithCommonTenant
+{
+    NSError *error = nil;
+    MSIDAADAuthority *authority = [MSIDAADAuthority aadAuthorityWithEnvironment:@"login.microsoftonline.com"
+                                                                      rawTenant:nil
+                                                                        context:nil
+                                                                          error:&error];
+    XCTAssertNotNil(authority);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(authority.url, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
+}
+
 #pragma mark - universalAuthorityURL
 
 - (void)testUniversalAuthorityURL_whenTenantedAADAuhority_shouldReturnOriginalAuthority
@@ -407,6 +436,56 @@
 
     XCTAssertEqual(cacheMock.cacheAliasesForEnvironmentInvokedCount, 1);
     XCTAssertEqualObjects(@[@"login.microsoftonline.com:8080"], aliases);
+}
+
+#pragma mark - enrollmentIdForHomeAccountId
+
+- (void)testEnrollmentIdForHomeAccountId_whenValidHomeAccountId_shouldReturnEnrollmentId
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
+    MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSError *error = nil;
+    
+    XCTAssertEqual([authority enrollmentIdForHomeAccountId:@"1e4dd613-dave-4527-b50a-97aca38b57ba" legacyUserId:nil context:nil error:&error], @"64d0557f-dave-4193-b630-8491ffd3b180");
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForHomeAccountId_whenNilHomeAccountIdAndValidUserId_shouldReturnEnrollmentId
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
+    MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSError *error = nil;
+    
+    XCTAssertEqual([authority enrollmentIdForHomeAccountId:nil legacyUserId:@"dave@contoso.com" context:nil error:&error], @"64d0557f-dave-4193-b630-8491ffd3b180");
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForHomeAccountId_whenUnenrolledHomeAccountIdAndUserId_shouldReturnFirstEnrollmentId
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
+    MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSError *error = nil;
+    
+    XCTAssertEqual([authority enrollmentIdForHomeAccountId:@"homeAccountId" legacyUserId:@"user@contoso.com" context:nil error:&error], @"adf79e3f-mike-454d-9f0f-2299e76dbfd5");
+    XCTAssertNil(error);
+}
+
+- (void)testEnrollmentIdForHomeAccountId_whenNilHomeAccountIdAndUserId_shouldReturnFirstEnrollmentId
+{
+    [self setUpEnrollmentIdsCache:NO];
+    
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com:8080/common"];
+    MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    NSError* error = nil;
+    
+    XCTAssertEqual([authority enrollmentIdForHomeAccountId:nil legacyUserId:nil context:nil error:&error], @"adf79e3f-mike-454d-9f0f-2299e76dbfd5");
+    XCTAssertNil(error);
 }
 
 #pragma mark - isKnownHost
@@ -625,6 +704,32 @@
     record.cacheHost = @"login.windows.net";
     record.aliases = @[@"login.microsoft.com"];
     [cache setObject:record forKey:@"login.microsoftonline.com"];
+}
+
+- (void)setUpEnrollmentIdsCache:(BOOL)isEmpty
+{
+    NSDictionary *emptyDict = @{};
+    
+    NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
+                                                                                     @"home_account_id" : @"60406d5d-mike-41e1-aa70-e97501076a22",
+                                                                                     @"user_id" : @"mike@contoso.com",
+                                                                                     @"enrollment_id" : @"adf79e3f-mike-454d-9f0f-2299e76dbfd5"
+                                                                                     },
+                                                                                 @{
+                                                                                     @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
+                                                                                     @"oid" : @"6eec576f-dave-416a-9c4a-536b178a194a",
+                                                                                     @"home_account_id" : @"1e4dd613-dave-4527-b50a-97aca38b57ba",
+                                                                                     @"user_id" : @"dave@contoso.com",
+                                                                                     @"enrollment_id" : @"64d0557f-dave-4193-b630-8491ffd3b180"
+                                                                                     }
+                                                                                 ]}};
+    
+    MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:isEmpty ? emptyDict : dict];
+    MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
+    MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
+    [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
 }
 
 @end

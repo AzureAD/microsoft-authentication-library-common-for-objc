@@ -21,33 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-//------------------------------------------------------------------------------
-//
-// Copyright (c) Microsoft Corporation.
-// All rights reserved.
-//
-// This code is licensed under the MIT License.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files(the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions :
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-
 #import "MSIDAuthority.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAuthorityResolving.h"
@@ -62,6 +35,9 @@
 #import "MSIDOpenIdConfigurationInfoRequest.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDTelemetryAuthorityValidationEvent.h"
 
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
 
@@ -106,6 +82,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     
     id <MSIDAuthorityResolving> resolver = [self resolver];
     NSParameterAssert(resolver);
+
+    [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
+    
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Resolving authority: %@, upn: %@", [self isKnown] ? self.url : _PII_NULLIFY(self.url), _PII_NULLIFY(upn));
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Resolving authority: %@, upn: %@", self.url, upn);
     
     [resolver resolveAuthority:self
              userPrincipalName:upn
@@ -114,17 +95,24 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
                completionBlock:^(NSURL *openIdConfigurationEndpoint, BOOL validated, NSError *error)
      {
          self.openIdConfigurationEndpoint = openIdConfigurationEndpoint;
+
+         MSIDTelemetryAuthorityValidationEvent *validationEvent = [[MSIDTelemetryAuthorityValidationEvent alloc] initWithName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION context:context];
+         [validationEvent setAuthorityValidationStatus:validated ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+         [validationEvent setAuthority:self];
+         [[MSIDTelemetry sharedInstance] stopEvent:context.telemetryRequestId event:validationEvent];
+         
+         MSID_LOG_INFO(context, @"Resolved authority, validated: %@, error: %ld", validated ? @"YES" : @"NO", (long)error.code);
          
          if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
      }];
 }
 
-- (NSURL *)networkUrlWithContext:(id<MSIDRequestContext>)context
+- (NSURL *)networkUrlWithContext:(__unused id<MSIDRequestContext>)context
 {
     return self.url;
 }
 
-- (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
+- (NSURL *)cacheUrlWithContext:(__unused id<MSIDRequestContext>)context
 {
     return self.url;
 }
@@ -149,10 +137,28 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return @[self.environment];
 }
 
+- (NSString *)enrollmentIdForHomeAccountId:(__unused NSString *)homeAccountId
+                              legacyUserId:(__unused NSString *)legacyUserId
+                                   context:(__unused id<MSIDRequestContext>)context
+                                     error:(__unused NSError **)error
+{
+    return nil;
+}
+
 - (BOOL)isKnown
 {
     // TODO: Can we move it out from here? What about ADFS & B2C?
     return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString];
+}
+
+- (BOOL)supportsBrokeredAuthentication
+{
+    return NO;
+}
+
+- (BOOL)supportsClientIDAsScope
+{
+    return NO;
 }
 
 - (nonnull NSString *)telemetryAuthorityType
@@ -284,6 +290,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (id<MSIDAuthorityResolving>)resolver
 {
+    NSAssert(NO, @"Abstract method");
     return nil;
 }
 

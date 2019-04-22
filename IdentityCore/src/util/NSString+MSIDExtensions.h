@@ -39,10 +39,18 @@
 
 /*! Returns the same string, but without the leading and trailing whitespace */
 - (NSString *)msidTrimmedString;
- 
+
 /*! Decodes a application/x-www-form-urlencoded string.
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details. */
 - (NSString *)msidWWWFormURLDecode;
+
+/*! URL decode (Percentage decode), in accordance to
+ https://tools.ietf.org/html/rfc3986 */
+- (NSString *)msidURLDecode;
+
+/*! URL encode (Percentage encode), in accordance to
+ https://tools.ietf.org/html/rfc3986 */
+- (NSString *)msidURLEncode;
 
 /*! Encodes the string to be application/x-www-form-urlencoded.
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.  */
@@ -69,6 +77,11 @@
 /*! Generate a base64 url-encoded string from data */
 + (NSString *)msidBase64UrlEncodedStringFromData:(NSData *)data;
 
+/*! Generate a percentage encoded string from dictionary
+ Key and value are separated by '=' and key-value tuples are separated by &.
+ */
++ (NSString *)msidURLEncodedStringFromDictionary:(NSDictionary *)dict;
+
 /*! Generate a www-form-urlencoded string from dictionary
  Key and value are separated by '=' and key-value tuples are separated by &.
  Non-alphanumeric characters are percent encoded for both keys and values.
@@ -86,5 +99,15 @@
 
 /*! Convenience method to convert string to scope set */
 - (NSOrderedSet<NSString *> *)msidScopeSet;
+
+/*! Convenience method to convert json string to a dictionary.
+ Returns nil if it is not a json string. */
+- (NSDictionary *)msidJson;
+
+/*! Convert resource to scope */
++ (NSString *)msidScopeFromResource:(NSString *)resource;
+
+/* Use this method to log sensitive information like password, access token etc. */
+- (NSString *)msidSecretLoggingHash;
 
 @end

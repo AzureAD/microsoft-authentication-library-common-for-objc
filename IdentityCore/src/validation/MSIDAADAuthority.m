@@ -27,11 +27,12 @@
 #import "MSIDAADTenant.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @interface MSIDAADAuthority()
 
 @property (nonatomic) MSIDAadAuthorityCache *authorityCache;
-@property (nonatomic) MSIDAuthorityFactory *authorityFactory;
 
 @end
 
@@ -48,7 +49,6 @@
         if (!_url) return nil;
         _tenant = [self.class tenantFromAuthorityUrl:self.url context:context error:error];
         _authorityCache = [MSIDAadAuthorityCache sharedInstance];
-        _authorityFactory = [MSIDAuthorityFactory new];
     }
     
     return self;
@@ -83,7 +83,7 @@
 - (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
+    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
@@ -92,7 +92,7 @@
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[self.authorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheAliasesForAuthority:authority];
@@ -184,15 +184,31 @@
                                      context:(id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
-    __auto_type authorityUrl = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", environment, rawTenant]];
+    __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:rawTenant];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
 }
 
+- (NSString *)enrollmentIdForHomeAccountId:(NSString *)homeAccountId
+                              legacyUserId:(NSString *)legacyUserId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
+{
+    return [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:homeAccountId
+                                                                       legacyUserId:legacyUserId
+                                                                            context:context
+                                                                              error:error];
+}
+
 - (nonnull NSString *)telemetryAuthorityType
 {
     return MSID_TELEMETRY_VALUE_AUTHORITY_AAD;
+}
+
+- (BOOL)supportsBrokeredAuthentication
+{
+    return YES;
 }
 
 #pragma mark - NSCopying

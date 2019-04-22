@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDTokenCacheDataSource.h"
 #import "MSIDCacheKey.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
 
@@ -51,7 +51,7 @@
     
 #if TARGET_OS_IPHONE
     self.dataSource = [MSIDKeychainTokenCache new];
-    self.serializer = [MSIDJsonSerializer new];
+    self.serializer = [MSIDCacheItemJsonSerializer new];
     self.generic = [@"some value" dataUsingEncoding:NSUTF8StringEncoding];
     
     [MSIDKeychainTokenCache reset];
@@ -170,7 +170,7 @@
     
     NSError *error;
     
-    [self.dataSource removeItemsWithKey:key context:nil error:&error];
+    [self.dataSource removeItemsWithTokenKey:key context:nil error:&error];
     
     items = [self.dataSource tokensWithKey:[MSIDCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -189,7 +189,7 @@
     
     NSError *error;
     
-    [self.dataSource removeItemsWithKey:key context:nil error:&error];
+    [self.dataSource removeItemsWithTokenKey:key context:nil error:&error];
     
     items = [self.dataSource tokensWithKey:[MSIDCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -225,7 +225,7 @@
     
     NSError *error;
     
-    BOOL result = [self.dataSource removeItemsWithKey:nil context:nil error:&error];
+    BOOL result = [self.dataSource removeItemsWithTokenKey:nil context:nil error:&error];
     items = [self.dataSource tokensWithKey:nil serializer:self.serializer context:nil error:nil];
     
     XCTAssertFalse(result);

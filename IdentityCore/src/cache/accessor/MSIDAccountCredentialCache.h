@@ -32,6 +32,8 @@
 @class MSIDDefaultCredentialCacheQuery;
 @class MSIDDefaultAccountCacheQuery;
 @class MSIDDefaultAccountCacheKey;
+@class MSIDAppMetadataCacheItem;
+@class MSIDAppMetadataCacheQuery;
 
 @interface MSIDAccountCredentialCache : NSObject
 
@@ -159,5 +161,25 @@
  */
 - (BOOL)saveWipeInfoWithContext:(nullable id<MSIDRequestContext>)context
                           error:(NSError * _Nullable * _Nullable)error;
+
+/*
+ Saves app metadata
+ */
+- (BOOL)saveAppMetadata:(nonnull MSIDAppMetadataCacheItem *)metadata
+                context:(nullable id<MSIDRequestContext>)context
+                  error:(NSError * _Nullable * _Nullable)error;
+
+/*
+ Remove app metadata
+ */
+- (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata
+                  context:(nullable id<MSIDRequestContext>)context
+                    error:(NSError * _Nullable * _Nullable)error;
+
+
+//Get app metadata entries for a query
+- (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)query
+                                                                         context:(nullable id<MSIDRequestContext>)context
+                                                                           error:(NSError * _Nullable * _Nullable)error;
 
 @end

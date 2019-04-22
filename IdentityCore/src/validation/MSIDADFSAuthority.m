@@ -24,6 +24,7 @@
 #import "MSIDADFSAuthority.h"
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation MSIDADFSAuthority
 
@@ -68,6 +69,11 @@
 - (nonnull NSString *)telemetryAuthorityType
 {
     return MSID_TELEMETRY_VALUE_AUTHORITY_ADFS;
+}
+
+- (BOOL)supportsBrokeredAuthentication
+{
+    return NO;
 }
 
 #pragma mark - Protected

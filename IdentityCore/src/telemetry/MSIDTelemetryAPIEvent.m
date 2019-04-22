@@ -24,6 +24,11 @@
 #import "MSIDTelemetry.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDAccount.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDAuthority.h"
+#import "NSURL+MSIDExtensions.h"
+#import "MSIDPromptType_Internal.h"
 
 @implementation MSIDTelemetryAPIEvent
 
@@ -52,39 +57,9 @@
     [self setProperty:MSID_TELEMETRY_KEY_IS_EXTENED_LIFE_TIME_TOKEN value:isExtendedLifeToken];
 }
 
-- (void)setErrorDescription:(NSString *)errorDescription
-{
-    [self setProperty:MSID_TELEMETRY_KEY_ERROR_DESCRIPTION value:errorDescription];
-}
-
 - (void)setErrorDomain:(NSString *)errorDomain
 {
     [self setProperty:MSID_TELEMETRY_KEY_ERROR_DOMAIN value:errorDomain];
-}
-
-- (void)setAuthorityValidationStatus:(NSString *)status
-{
-    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_VALIDATION_STATUS value:status];
-}
-
-- (void)setAuthority:(NSString *)authority
-{
-    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY value:authority];
-}
-
-- (void)setAuthorityType:(NSString *)authorityType
-{
-    [self setProperty:MSID_TELEMETRY_KEY_AUTHORITY_TYPE value:authorityType];
-}
-
-- (void)setGrantType:(NSString *)grantType
-{
-    [self setProperty:MSID_TELEMETRY_KEY_GRANT_TYPE value:grantType];
-}
-
-- (void)setAPIStatus:(NSString *)status
-{
-    [self setProperty:MSID_TELEMETRY_KEY_API_STATUS value:status];
 }
 
 - (void)setApiId:(NSString *)apiId
@@ -95,6 +70,44 @@
 - (void)setWebviewType:(NSString *)webviewType
 {
     [self setProperty:MSID_TELEMETRY_KEY_WEBVIEW_TYPE value:webviewType];
+}
+
+- (void)setLoginHint:(NSString *)loginHint
+{
+    [self setProperty:MSID_TELEMETRY_KEY_LOGIN_HINT value:loginHint];
+}
+
+- (void)setErrorCode:(NSUInteger)errorCode
+{
+    self.errorInEvent = YES;
+    [self setProperty:MSID_TELEMETRY_KEY_API_ERROR_CODE value:[NSString stringWithFormat:@"%ld", (long)errorCode]];
+}
+
+- (void)setPromptType:(MSIDPromptType)promptType
+{
+    NSString *promptParam = MSIDPromptParamFromType(promptType);
+    [self setProperty:MSID_TELEMETRY_KEY_PROMPT_BEHAVIOR value:promptParam];
+}
+
+- (void)setIsSuccessfulStatus:(NSString *)successStatus
+{
+    [self setProperty:MSID_TELEMETRY_KEY_IS_SUCCESSFUL value:successStatus];
+}
+
+- (void)setResultStatus:(NSString *)resultStatus
+{
+    [self setProperty:MSID_TELEMETRY_KEY_RESULT_STATUS value:resultStatus];
+}
+
+- (void)setUserInformation:(MSIDAccount *)account
+{
+    [self setProperty:MSID_TELEMETRY_KEY_USER_ID value:account.accountIdentifier.displayableId];
+    [self setProperty:MSID_TELEMETRY_KEY_TENANT_ID value:[account.authority.url msidTenant]];
+}
+
+- (void)setOauthErrorCode:(NSString *)oauthErrorCode
+{
+    [self setProperty:MSID_TELEMETRY_KEY_PROTOCOL_CODE value:oauthErrorCode];
 }
 
 @end

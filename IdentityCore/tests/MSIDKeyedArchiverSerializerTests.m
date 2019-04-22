@@ -49,6 +49,9 @@
     cacheItem.clientId = @"some clientId";
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.oauthTokenType = @"access token type";
+    cacheItem.secret = cacheItem.refreshToken;
+    cacheItem.realm = cacheItem.authority.msidTenant;
+    cacheItem.environment = cacheItem.authority.msidHostWithPortIfNecessary;
     
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
     MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];
@@ -110,31 +113,6 @@
     XCTAssertNil(token);
 }
 
-#pragma mark - Account
-
-- (void)test_whenSerializeAccountCacheItem_shouldReturnNil
-{
-    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    
-    MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] init];
-    cacheItem.clientInfo = [self createClientInfo:@{@"key" : @"value"}];
-    cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.homeAccountId = @"test";
-    cacheItem.localAccountId = @"00004-00004-0004";
-    
-    NSData *data = [serializer serializeAccountCacheItem:cacheItem];
-    XCTAssertNil(data);
-}
-
-- (void)testSerializeAccountCacheItem_whenAccountNil_shouldReturnNil
-{
-    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    
-    NSData *data = [serializer serializeAccountCacheItem:nil];
-    
-    XCTAssertNil(data);
-}
-
 #pragma mark - Wipe data
 
 - (void)testDeserializeCredentialCacheItem_whenWipeData_shouldReturnNil
@@ -149,20 +127,6 @@
     MSIDCredentialCacheItem *token = [serializer deserializeCredentialCacheItem:wipeData];
     
     XCTAssertNil(token);
-}
-
-- (void)testDeserializeAccountCacheItem_whenWipeData_shouldReturnNil
-{
-    NSDictionary *wipeInfo = @{ @"bundleId" : @"bundleId",
-                                @"wipeTime" : [NSDate date]
-                                };
-    
-    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
-    
-    MSIDKeyedArchiverSerializer *serializer = [[MSIDKeyedArchiverSerializer alloc] init];
-    MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:wipeData];
-    
-    XCTAssertNil(account);
 }
 
 #pragma mark - Private

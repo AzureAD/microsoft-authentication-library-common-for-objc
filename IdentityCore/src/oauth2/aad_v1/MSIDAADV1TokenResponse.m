@@ -23,21 +23,28 @@
 
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV1IdTokenClaims.h"
+#import "MSIDTokenResponse+Internal.h"
 
 @implementation MSIDAADV1TokenResponse
 
 MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
+
+- (BOOL)initIdToken:(NSError *__autoreleasing *)error
+{
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+        return self.idTokenObj != nil;
+    }
+    
+    return YES;
+}
 
 - (BOOL)isMultiResource
 {
     // TODO: this was brought over from ADAL, find and add a link to documentation describing this behavior
     return ![NSString msidIsStringNilOrBlank:self.resource]
             && ![NSString msidIsStringNilOrBlank:self.refreshToken];
-}
-
-- (MSIDIdTokenClaims *)idTokenObj
-{
-    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:nil];
 }
 
 - (NSString *)target

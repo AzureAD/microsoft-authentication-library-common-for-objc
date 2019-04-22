@@ -28,46 +28,12 @@
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDError.h"
 #import "MSIDJWTHelper.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDPkeyAuthHelper
 
-+ (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
-{
-    return [MSIDPkeyAuthHelper computeThumbprint:data isSha2:NO];
-}
-
-
-+ (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
-                                 isSha2:(BOOL)isSha2
-{
-    //compute SHA-1 thumbprint
-    int length = CC_SHA1_DIGEST_LENGTH;
-    if(isSha2){
-        length = CC_SHA256_DIGEST_LENGTH;
-    }
-    
-    unsigned char dataBuffer[length];
-    if(!isSha2){
-        CC_SHA1(data.bytes, (CC_LONG)data.length, dataBuffer);
-    }
-    else{
-        CC_SHA256(data.bytes, (CC_LONG)data.length, dataBuffer);
-    }
-    
-    NSMutableString *fingerprint = [NSMutableString stringWithCapacity:length * 3];
-    for (int i = 0; i < length; ++i)
-    {
-        [fingerprint appendFormat:@"%02x ",dataBuffer[i]];
-    }
-    
-    NSString *thumbprint = [fingerprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
-    thumbprint = [thumbprint uppercaseString];
-    return [thumbprint stringByReplacingOccurrencesOfString:@" " withString:@""];
-}
-
-
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
-                                  challengeData:(nullable NSDictionary*)challengeData
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
+                                  challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
                                           error:(NSError **)error
 {
@@ -117,7 +83,10 @@
         }
         else if (expectedThumbprint)
         {
-            if (![expectedThumbprint isEqualToString:[MSIDPkeyAuthHelper computeThumbprint:[info certificateData]]])
+            NSString *thumbprint = [[[info certificateData] msidSHA1] msidHexString];
+            thumbprint = [[thumbprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] uppercaseString];
+
+            if (![expectedThumbprint isEqualToString:thumbprint])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
                 
@@ -129,12 +98,14 @@
     NSString *pKeyAuthHeader = @"";
     if (info)
     {
-        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+        NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
+        urlComponents.query = nil; // Strip out query parameters.
+        __auto_type audience = urlComponents.string;
+        
+        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:audience nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
         info = nil;
     }
-    
-    
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }

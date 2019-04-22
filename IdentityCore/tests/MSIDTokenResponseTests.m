@@ -133,7 +133,9 @@
     MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
     
     XCTAssertNotNil(response);
-    XCTAssertNil(error);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     
     MSIDIdTokenClaims *idTokenObj = response.idTokenObj;
     XCTAssertNil(idTokenObj);
@@ -194,7 +196,9 @@
                                                                               error:&error];
     
     XCTAssertNotNil(response);
-    XCTAssertNil(error);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
     
     XCTAssertEqualObjects(response.idToken, @"id token 2");
 }
