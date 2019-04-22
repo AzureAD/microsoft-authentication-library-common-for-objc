@@ -1,9 +1,6 @@
 #include "identitycore__lib__common__ios.xcconfig"
 #include "identitycore__idlib__common.xcconfig"
 
-// Force the linker to resolve symbols.
-GENERATE_MASTER_OBJECT_FILE = YES
-
 // Add armv7s and arm64e to standard ARCHs.
 ARCHS = $(ARCHS_STANDARD) armv7s arm64e
 
