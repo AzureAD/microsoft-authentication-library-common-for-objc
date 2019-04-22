@@ -31,11 +31,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthority()
 
-@property (atomic) MSIDOpenIdProviderMetadata *metadata;
-@property (atomic) NSURL *openIdConfigurationEndpoint;
-@property (atomic) NSURL *url;
+@property (atomic, nullable) MSIDOpenIdProviderMetadata *metadata;
+@property (atomic, nullable) NSURL *openIdConfigurationEndpoint;
+@property (atomic, nullable) NSURL *url;
 
-- (id<MSIDAuthorityResolving>)resolver;
+- (nullable id<MSIDAuthorityResolving>)resolver;
 
 - (nullable instancetype)initWithURL:(NSURL *)url
                              context:(nullable id<MSIDRequestContext>)context

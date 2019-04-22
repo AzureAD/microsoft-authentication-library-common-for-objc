@@ -299,6 +299,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (id<MSIDAuthorityResolving>)resolver
 {
+    NSAssert(NO, @"Abstract method");
     return nil;
 }
 

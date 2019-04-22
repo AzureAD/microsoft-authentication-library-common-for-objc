@@ -22,24 +22,21 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationBaseApiRequest.h"
 
-@class MSIDIndividualClaimRequestAdditionalInfo;
+typedef enum {  MSIDGlobalMFAPolicy,
+    MSIDMFAOnSPOPolicy,
+    MSIDMFAOnEXOPolicy,
+    MSIDMamCaPolicy,
+    MSIDMdmCaPolicy
+} MSIDAutomationPolicyType;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
+@interface MSIDAutomationPolicyToggleAPIRequest : MSIDAutomationBaseApiRequest
 
-@property (nonatomic) NSString *name;
-
-@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
-
-- (instancetype)initWithName:(NSString *)name;
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
+@property (nonatomic) MSIDAutomationPolicyType automationPolicy;
+@property (nonatomic) BOOL policyEnabled;
 
 @end
 

@@ -21,26 +21,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationPolicyToggleAPIRequest.h"
 
-@class MSIDIndividualClaimRequestAdditionalInfo;
+@implementation MSIDAutomationPolicyToggleAPIRequest
 
-NS_ASSUME_NONNULL_BEGIN
+#pragma - Lab Request
 
-@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
+- (NSString *)requestOperationPath
+{
+    return self.policyEnabled ? @"EnablePolicy" : @"DisablePolicy";
+}
 
-@property (nonatomic) NSString *name;
+- (NSString *)keyvaultNameKey
+{
+    return self.policyEnabled ? @"enable_policy_api_keyvault" : @"disable_policy_api_keyvault";
+}
 
-@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
+- (NSArray<NSURLQueryItem *> *)queryItems
+{
+    NSString *policyType = self.policyTypeAsString;
+    
+    if (!policyType)
+    {
+        return nil;
+    }
+    
+    return @[[[NSURLQueryItem alloc] initWithName:@"Policy" value:policyType]];
+}
 
-- (instancetype)initWithName:(NSString *)name;
+#pragma mark - Helpers
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
+- (NSString *)policyTypeAsString
+{
+    switch (self.automationPolicy)
+    {
+        case MSIDGlobalMFAPolicy:
+            return @"GLOBALMFA";
+            
+        case MSIDMFAOnSPOPolicy:
+            return @"MFAONSPO";
+            
+        case MSIDMFAOnEXOPolicy:
+            return @"MFAONEXO";
+            
+        case MSIDMamCaPolicy:
+            return @"MAMCA";
+            
+        case MSIDMdmCaPolicy:
+            return @"MDMCA";
+            
+        default:
+            return nil;
+    }
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

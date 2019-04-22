@@ -21,26 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationTemporaryAccountResponseHandler.h"
+#import "MSIDTestAutomationConfiguration.h"
 
-@class MSIDIndividualClaimRequestAdditionalInfo;
+@implementation MSIDAutomationTemporaryAccountResponseHandler
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic) NSString *name;
-
-@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
-
-- (instancetype)initWithName:(NSString *)name;
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
+- (id)responseFromData:(NSData *)response
+                 error:(NSError **)error
+{
+    NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
+    if (!jsonDictionary)
+    {
+        return nil;
+    }
+    
+    NSArray *accountsArray = jsonDictionary[@"success"];
+    
+    if (!accountsArray || ![accountsArray count])
+    {
+        return nil;
+    }
+    
+    MSIDTestAccount *testAccount = [[MSIDTestAccount alloc] initWithJSONResponse:accountsArray[0]];
+    testAccount.password = nil;
+    return testAccount;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

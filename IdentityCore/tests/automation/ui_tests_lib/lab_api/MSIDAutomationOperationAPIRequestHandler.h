@@ -22,25 +22,22 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationBaseApiRequest.h"
 
-@class MSIDIndividualClaimRequestAdditionalInfo;
+@protocol MSIDAutomationOperationAPIResponseHandler <NSObject>
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic) NSString *name;
-
-@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
-
-- (instancetype)initWithName:(NSString *)name;
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
+- (id)responseFromData:(NSData *)response
+                 error:(NSError **)error;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@interface MSIDAutomationOperationAPIRequestHandler : NSObject
+
+- (instancetype)initWithAPIPath:(NSString *)apiPath
+      operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration;
+
+- (void)executeAPIRequest:(MSIDAutomationBaseApiRequest *)apiRequest
+          responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
+        completionHandler:(void (^)(id result, NSError *error))completionHandler;
+
+@end

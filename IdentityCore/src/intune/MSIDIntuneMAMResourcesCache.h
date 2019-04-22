@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
                                     context:(nullable id<MSIDRequestContext>)context
                                       error:(NSError *__autoreleasing *)error;
 
-- (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
+- (BOOL)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
                            context:(nullable id<MSIDRequestContext>)context
                              error:(NSError *__autoreleasing *)error;
 

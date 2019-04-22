@@ -298,7 +298,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_ERROR(context, @"Failed to deserialize account item.");
+            MSID_LOG_INFO(context, @"Failed to deserialize account item.");
         }
     }
     
@@ -372,7 +372,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_ERROR(context, @"Failed to deserialize app metadata item.");
+            MSID_LOG_INFO(context, @"Failed to deserialize app metadata item.");
         }
     }
     
@@ -446,9 +446,14 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         [query setObject:type forKey:(id)kSecAttrType];
     }
     
+    if (key.appKeyHash != nil)
+    {
+        [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
+    }
+    
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
+    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
     
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
@@ -577,7 +582,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_ERROR(context, @"Failed to deserialize token item.");
+            MSID_LOG_INFO(context, @"Failed to deserialize token item.");
         }
     }
     
@@ -645,6 +650,10 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         [query setObject:type forKey:(id)kSecAttrType];
     }
+    if (key.appKeyHash != nil)
+    {
+        [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
+    }
     
     [query setObject:@YES forKey:(id)kSecReturnData];
     [query setObject:@YES forKey:(id)kSecReturnAttributes];
@@ -653,7 +662,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     CFTypeRef cfItems = nil;
     MSID_LOG_VERBOSE(context, @"Trying to find keychain items...");
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
-    MSID_LOG_VERBOSE(context, @"Keychain find status: %d", (int)status);
+    MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
     
     if (status == errSecItemNotFound)
     {
@@ -735,6 +744,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         if (generic)
         {
             [query setObject:generic forKey:(id)kSecAttrGeneric];
+        }
+        
+        if (key.appKeyHash != nil)
+        {
+            [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
         }
 
         [query setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
