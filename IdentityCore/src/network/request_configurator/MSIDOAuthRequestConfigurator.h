@@ -24,6 +24,12 @@
 #import <Foundation/Foundation.h>
 #import "MSIDHttpRequestConfiguratorProtocol.h"
 
-@interface MSIDAADRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDOAuthRequestConfigurator : NSObject <MSIDHttpRequestConfiguratorProtocol>
+
+@property (nonatomic) NSTimeInterval timeoutInterval;
 
 @end
+
+NS_ASSUME_NONNULL_END

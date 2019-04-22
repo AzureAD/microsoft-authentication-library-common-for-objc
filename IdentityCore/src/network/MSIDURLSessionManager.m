@@ -82,24 +82,4 @@ static MSIDURLSessionManager *s_defaultManager = nil;
     s_defaultManager = defaultManager;
 }
 
-- (void)setTimeoutIntervalForRequest:(NSTimeInterval)timeoutIntervalForRequest
-{
-    s_defaultManager.configuration.timeoutIntervalForRequest = timeoutIntervalForRequest;
-}
-
-- (void)setTimeoutIntervalForResource:(NSTimeInterval)timeoutIntervalForResource
-{
-    s_defaultManager.configuration.timeoutIntervalForResource = timeoutIntervalForResource;
-}
-
-- (NSTimeInterval)timeoutIntervalForResource
-{
-    return s_defaultManager.configuration.timeoutIntervalForResource;
-}
-
-- (NSTimeInterval)timeoutIntervalForRequest
-{
-    return s_defaultManager.configuration.timeoutIntervalForRequest;
-}
-
 @end

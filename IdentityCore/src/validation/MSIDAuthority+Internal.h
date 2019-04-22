@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (atomic) MSIDOpenIdProviderMetadata *metadata;
 @property (atomic) NSURL *openIdConfigurationEndpoint;
+@property (atomic) NSURL *url;
 
 - (id<MSIDAuthorityResolving>)resolver;
 
