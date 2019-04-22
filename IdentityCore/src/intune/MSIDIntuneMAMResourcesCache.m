@@ -96,13 +96,14 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
     return nil;
 }
 
-- (void)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
+- (BOOL)setResourcesJsonDictionary:(NSDictionary *)jsonDictionary
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
-    if (![self isValid:jsonDictionary context:context error:error]) return;
+    if (![self isValid:jsonDictionary context:context error:error]) return NO;
     
     [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_RESOURCE_ID_KEY];
+    return YES;
 }
 
 - (NSDictionary *)resourcesJsonDictionaryWithContext:(id<MSIDRequestContext>)context

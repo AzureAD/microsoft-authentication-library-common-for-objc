@@ -22,24 +22,32 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationBaseApiRequest.h"
 
-@class MSIDIndividualClaimRequestAdditionalInfo;
+/*
+ 
+ Basic : Account can be used for all manual testing including password resets, etc
+ GLOBALMFA : User with Global MFA
+ MFAONSPO : User requires MFA on a specific resource and the resource is SharePoint *
+ MFAONEXO : User requires MFA on a specific resource and the resource is Exchange Online *
+ MAMCA : User requires MAM on SharePoint *
+ MDMCA : User requires MDM on SharePoint *
+ 
+ */
+
+typedef enum {  MSIDBasicTemporaryAccount,
+                MSIDGlobalMFATemporaryAccount,
+                MSIDMFAOnSPOTemporaryAccount,
+                MSIDMFAOnEXOTemporaryAccount,
+                MSIDMamCaTemporaryAccount,
+                MSIDMdmCaTemporaryAccount
+} MSIDAutomationTemporaryAccountType;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
+@interface MSIDAutomationTemporaryAccountRequest : MSIDAutomationBaseApiRequest <NSCopying>
 
-@property (nonatomic) NSString *name;
-
-@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
-
-- (instancetype)initWithName:(NSString *)name;
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
+@property (nonatomic) MSIDAutomationTemporaryAccountType accountType;
 
 @end
 

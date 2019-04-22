@@ -54,8 +54,11 @@
         username = self.requestParameters.loginHint;
         usernameType = [MSIDAccountIdentifier legacyAccountIdentifierTypeAsString:MSIDLegacyIdentifierTypeOptionalDisplayableId];
     }
+    
+    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *contents = [NSMutableDictionary new];
+    [contents msidSetNonEmptyString:extraQueryParameters forKey:@"extra_qp"];
     [contents msidSetNonEmptyString:skipCacheValue forKey:@"skip_cache"];
     [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"resource"];
     [contents msidSetNonEmptyString:username forKey:@"username"];

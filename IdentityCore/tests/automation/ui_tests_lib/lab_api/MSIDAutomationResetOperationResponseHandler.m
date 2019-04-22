@@ -21,26 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationResetOperationResponseHandler.h"
 
-@class MSIDIndividualClaimRequestAdditionalInfo;
+@implementation MSIDAutomationResetOperationResponseHandler
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic) NSString *name;
-
-@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
-
-- (instancetype)initWithName:(NSString *)name;
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
+- (id)responseFromData:(NSData *)response
+                 error:(NSError **)error
+{
+    NSString *responseString = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
+    // TODO: ask lab to return operation success in a more reasonable way
+    BOOL operationSuccessful = [responseString containsString:@"successful"];
+    
+    if (!operationSuccessful)
+    {
+        if (error)
+        {
+            *error = [NSError errorWithDomain:@"MSIDAutomation" code:-1 userInfo:nil];
+        }
+        return nil;
+    }
+    
+    return @1;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -21,26 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationPasswordRequestHandler.h"
+#import "MSIDAutomation-Swift.h"
 
-@class MSIDIndividualClaimRequestAdditionalInfo;
+@implementation MSIDAutomationPasswordRequestHandler
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic) NSString *name;
-
-@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
-
-- (instancetype)initWithName:(NSString *)name;
-
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
+- (void)loadPasswordForAccount:(MSIDTestAccount *)account
+             completionHandler:(void (^)(NSString *password, NSError *error))completionHandler
+{
+    if (account.password)
+    {
+        completionHandler(account.password, nil);
+        return;
+    }
+    
+    NSURL *url = [NSURL URLWithString:account.keyvaultName];
+    [Secret getWithUrl:url completion:^(NSError *error, Secret *secret) {
+        
+        if (error)
+        {
+            if (completionHandler)
+            {
+                completionHandler(nil, error);
+            }
+            
+            return;
+        }
+        
+        if (secret)
+        {
+            account.password = secret.value;
+        }
+        
+        if (completionHandler)
+        {
+            completionHandler(secret.value, nil);
+        }
+    }];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
