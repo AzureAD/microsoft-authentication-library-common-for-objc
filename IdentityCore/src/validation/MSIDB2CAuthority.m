@@ -170,6 +170,11 @@
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDB2CAuthority *authority = [[self.class allocWithZone:zone] initWithURL:_url validateFormat:NO context:nil error:nil];
+    
+    authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority.metadata = self.metadata;
+    authority.url = [_url copyWithZone:zone];
+    
     return authority;
 }
 

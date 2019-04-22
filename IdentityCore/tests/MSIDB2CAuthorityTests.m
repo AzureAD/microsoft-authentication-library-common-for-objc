@@ -295,6 +295,8 @@
     
     XCTAssertNotNil(copiedAuthority);
     XCTAssertEqualObjects(copiedAuthority.url, authorityUrl);
+    XCTAssertEqualObjects(copiedAuthority.metadata, authority.metadata);
+    XCTAssertEqualObjects(copiedAuthority.openIdConfigurationEndpoint, authority.openIdConfigurationEndpoint);
 }
 
 @end
