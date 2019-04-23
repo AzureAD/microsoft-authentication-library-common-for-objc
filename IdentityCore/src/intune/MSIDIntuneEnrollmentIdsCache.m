@@ -178,13 +178,14 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     return enrollIdDic[MSID_INTUNE_ENROLL_ID];
 }
 
-- (void)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
+- (BOOL)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error
 {
-    if (![self isValid:jsonDictionary context:context error:error]) return;
+    if (![self isValid:jsonDictionary context:context error:error]) return NO;
     
     [self.dataSource setJsonDictionary:jsonDictionary forKey:MSID_INTUNE_ENROLLMENT_ID_KEY];
+    return YES;
 }
 
 - (NSDictionary *)enrollmentIdsJsonDictionaryWithContext:(id<MSIDRequestContext>)context

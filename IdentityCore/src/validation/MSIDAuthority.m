@@ -57,20 +57,29 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 }
 
 - (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+             validateFormat:(BOOL)validateFormat
+                    context:(nullable id<MSIDRequestContext>)context
+                      error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     self = [super init];
     if (self)
     {
-        BOOL isValid = [self.class isAuthorityFormatValid:url context:context error:error];
-        if (!isValid) return nil;
-        
+        if (validateFormat)
+        {
+            BOOL isValid = [self.class isAuthorityFormatValid:url context:context error:error];
+            if (!isValid) return nil;
+        }
         _url = url;
         _environment = url.msidHostWithPortIfNecessary;
     }
-    
     return self;
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
 - (void)resolveAndValidate:(BOOL)validate
@@ -279,9 +288,9 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAuthority *authority = [[self.class allocWithZone:zone] initWithURL:_url context:nil error:nil];
-    authority->_openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
-    authority->_metadata = _metadata;
-    authority->_url = [_url copyWithZone:zone];
+    authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority.metadata = _metadata;
+    authority.url = [_url copyWithZone:zone];
     
     return authority;
 }
@@ -290,6 +299,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 - (id<MSIDAuthorityResolving>)resolver
 {
+    NSAssert(NO, @"Abstract method");
     return nil;
 }
 

@@ -35,22 +35,10 @@
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 
-static NSTimeInterval const s_defaultTimeoutInterval = 300;
-
 @interface MSIDAADRequestConfigurator()
 @end
 
 @implementation MSIDAADRequestConfigurator
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _timeoutInterval = s_defaultTimeoutInterval;
-    }
-    return self;
-}
 
 - (void)configure:(MSIDHttpRequest *)request
 {
@@ -75,8 +63,6 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     
     NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
     mutableUrlRequest.URL = requestUrl;
-    mutableUrlRequest.timeoutInterval = self.timeoutInterval;
-    mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
 #if TARGET_OS_IPHONE
     [mutableUrlRequest setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
 #endif

@@ -22,11 +22,22 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDAutomationBaseApiRequest.h"
 
+typedef enum {  MSIDGlobalMFAPolicy,
+    MSIDMFAOnSPOPolicy,
+    MSIDMFAOnEXOPolicy,
+    MSIDMamCaPolicy,
+    MSIDMdmCaPolicy
+} MSIDAutomationPolicyType;
 
-@interface MSIDNetworkConfiguration : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-@property (class, nonatomic, readwrite) NSTimeInterval timeout;
-@property (class, nonatomic, readwrite) NSInteger retryCount;
+@interface MSIDAutomationPolicyToggleAPIRequest : MSIDAutomationBaseApiRequest
+
+@property (nonatomic) MSIDAutomationPolicyType automationPolicy;
+@property (nonatomic) BOOL policyEnabled;
 
 @end
+
+NS_ASSUME_NONNULL_END

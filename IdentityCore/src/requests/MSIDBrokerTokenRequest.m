@@ -31,6 +31,7 @@
 #import "MSIDConstants.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -144,7 +145,6 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
@@ -156,7 +156,6 @@
 #endif
     
     [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
-    [queryDictionary msidSetNonEmptyString:extraQueryParameters forKey:@"extra_qp"];
     [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];
     [queryDictionary msidSetNonEmptyString:enrollmentIds forKey:@"intune_enrollment_ids"];
     [queryDictionary msidSetNonEmptyString:mamResources forKey:@"intune_mam_resource"];
@@ -206,12 +205,13 @@
 
 - (NSString *)claimsParameter
 {
-    if (!self.requestParameters.claims)
+    NSDictionary *claimJsonDictionary = [self.requestParameters.claimsRequest jsonDictionary];
+    if (!claimJsonDictionary)
     {
         return nil;
     }
 
-    NSString *claimsString = [self.requestParameters.claims msidJSONSerializeWithContext:self.requestParameters];
+    NSString *claimsString = [claimJsonDictionary msidJSONSerializeWithContext:self.requestParameters];
 
     if (!claimsString)
     {

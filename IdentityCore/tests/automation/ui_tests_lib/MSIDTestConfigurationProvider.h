@@ -22,32 +22,25 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfigurationRequest.h"
+#import "MSIDAutomationConfigurationRequest.h"
 #import "MSIDTestAutomationConfiguration.h"
 #import "MSIDAutomationTestRequest.h"
+#import "MSIDAutomationUserAPIRequestHandler.h"
+#import "MSIDAutomationOperationAPIRequestHandler.h"
+#import "MSIDAutomationPasswordRequestHandler.h"
 
 @interface MSIDTestConfigurationProvider : NSObject
 
 @property (nonatomic, strong) NSString *wwEnvironment;
 @property (nonatomic) int stressTestInterval;
 
+@property (nonatomic, readonly) MSIDAutomationUserAPIRequestHandler *userAPIRequestHandler;
+@property (nonatomic, readonly) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
+@property (nonatomic, readonly) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;
+
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
-
-- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler;
-
-- (void)passwordForAccount:(MSIDTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler;
-
-- (void)passwordForLabAPIWithCompletionHandler:(void (^)(NSString *password, NSError *error))completionHandler;
-- (void)resetPasswordForAccount:(MSIDTestAccount *)account
-              completionHandler:(void (^)(BOOL result, NSError *error))completionHandler;
-
-- (void)removeDeviceForAccount:(MSIDTestAccount *)account
-                      deviceId:(NSString *)deviceId
-             completionHandler:(void (^)(BOOL result, NSError *error))completionHandler;
 
 // Default configuration
 - (MSIDAutomationTestRequest *)defaultFociRequestWithBroker;

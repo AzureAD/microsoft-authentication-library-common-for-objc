@@ -71,8 +71,8 @@
     
     if (internalError)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Failed to deserialize json object.");
-        MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Failed to deserialize json object, error: %@", internalError);
+        MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Failed to deserialize json object.");
+        MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Failed to deserialize json object, error: %@", internalError);
         
         if (error) *error = internalError;
         return nil;
@@ -86,6 +86,8 @@
                      error:(NSError **)error
 {
     NSData *jsonData = [self toJsonData:serializable context:context error:error];
+    if (!jsonData) return nil;
+    
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
