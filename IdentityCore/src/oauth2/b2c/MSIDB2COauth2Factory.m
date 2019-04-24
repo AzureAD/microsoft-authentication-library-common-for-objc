@@ -120,14 +120,7 @@
         return nil;
     }
 
-    NSString *tenantId = response.idTokenObj.realm;
-
-    if ([NSString msidIsStringNilOrBlank:tenantId])
-    {
-        tenantId = response.clientInfo.utid;
-    }
-    
-    return [MSIDAuthorityFactory authorityWithRawTenant:tenantId msidAuthority:requestAuthority context:nil error:error];
+    return [MSIDAuthorityFactory authorityWithRawTenant:response.clientInfo.utid msidAuthority:requestAuthority context:nil error:error];
 }
 
 @end
