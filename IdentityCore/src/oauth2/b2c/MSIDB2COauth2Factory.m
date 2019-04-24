@@ -111,9 +111,9 @@
     return YES;
 }
 
-- (MSIDAuthority *)authorityFromURL:(NSURL *)url
-                      tokenResponse:(MSIDB2CTokenResponse *)response
-                              error:(NSError **)error
+- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
+                                   tokenResponse:(MSIDB2CTokenResponse *)response
+                                           error:(NSError **)error;
 {
     if (![self checkResponseClass:response context:nil error:error])
     {
@@ -126,8 +126,8 @@
     {
         tenantId = response.clientInfo.utid;
     }
-
-    return [MSIDAuthorityFactory authorityFromUrl:url rawTenant:tenantId context:nil error:nil];
+    
+    return [MSIDAuthorityFactory authorityWithRawTenant:tenantId msidAuthority:requestAuthority context:nil error:error];
 }
 
 @end
