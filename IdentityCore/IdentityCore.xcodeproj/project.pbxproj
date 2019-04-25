@@ -1027,6 +1027,13 @@
 		B4A5ACCD21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h in Headers */ = {isa = PBXBuildFile; fileRef = B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */; };
 		B4A5ACCF21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */; };
 		B4A5ACD221F7F25400D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */; };
+		C93C925A2272572000B59FC9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C93C92592272572000B59FC9 /* main.m */; };
+		C93C92602272573300B59FC9 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF4220A396F700A989B7 /* SecurityInterface.framework */; };
+		C93C92612272573B00B59FC9 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF02091260000BCD67D /* WebKit.framework */; };
+		C93C92622272574100B59FC9 /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B55FEF20ADFA1B00DDB46D /* GSS.framework */; };
+		C93C92632272583400B59FC9 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
+		C93C92642272588F00B59FC9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF3A20A3968400A989B7 /* AppKit.framework */; };
+		C93C9265227258AC00B59FC9 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */; };
@@ -1065,6 +1072,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 231CE99C1FE86EA300E95D3E;
 			remoteInfo = MSIDTestsHostApp;
+		};
+		C93C925E2272572800B59FC9 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D626FF5A1FBA6E9500EE4487;
+			remoteInfo = "IdentityCore Mac";
 		};
 		D626FF501FBA6DFD00EE4487 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -1114,6 +1128,15 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C93C92552272571F00B59FC9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 		D626FFD11FBD1F2B00EE4487 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -1898,6 +1921,8 @@
 		B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADV2TokenResponse.h; sourceTree = "<group>"; };
 		B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAccountCacheItem+MSIDAccountMatchers.h"; sourceTree = "<group>"; };
 		B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDAccountCacheItem+MSIDAccountMatchers.m"; sourceTree = "<group>"; };
+		C93C92572272571F00B59FC9 /* MSIDTestKeychainUtil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MSIDTestKeychainUtil; sourceTree = BUILT_PRODUCTS_DIR; };
+		C93C92592272572000B59FC9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
 		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
@@ -1976,6 +2001,18 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C93C92542272571F00B59FC9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C93C92642272588F00B59FC9 /* AppKit.framework in Frameworks */,
+				C93C92632272583400B59FC9 /* libIdentityCore.a in Frameworks */,
+				C93C92622272574100B59FC9 /* GSS.framework in Frameworks */,
+				C93C92612272573B00B59FC9 /* WebKit.framework in Frameworks */,
+				C93C92602272573300B59FC9 /* SecurityInterface.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3185,6 +3222,14 @@
 			path = Matchers;
 			sourceTree = "<group>";
 		};
+		C93C92582272571F00B59FC9 /* MSIDTestKeychainUtil */ = {
+			isa = PBXGroup;
+			children = (
+				C93C92592272572000B59FC9 /* main.m */,
+			);
+			path = MSIDTestKeychainUtil;
+			sourceTree = "<group>";
+		};
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -3324,6 +3369,7 @@
 				D6DA89731FBA6A4E004C56C7 /* tests */,
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				231CE99E1FE86EA300E95D3E /* MSIDTestsHostApp */,
+				C93C92582272571F00B59FC9 /* MSIDTestKeychainUtil */,
 				D68FB4881FBA698A005308BB /* Products */,
 				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
 				B214C39A1FE851F20070C4F2 /* Recovered References */,
@@ -3344,6 +3390,7 @@
 				B27551D520817A1E00AA7A38 /* libIdentityAutomationAppLib Mac.dylib */,
 				B2ED1BA62204D24700A24E82 /* libIdentityAutomationTestLib iOS.a */,
 				B2ED1BB32204D26700A24E82 /* libIdentityAutomationTestLib Mac.a */,
+				C93C92572272571F00B59FC9 /* MSIDTestKeychainUtil */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -3901,6 +3948,24 @@
 			productReference = B2ED1BB32204D26700A24E82 /* libIdentityAutomationTestLib Mac.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		C93C92562272571F00B59FC9 /* MSIDTestKeychainUtil */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C93C925D2272572000B59FC9 /* Build configuration list for PBXNativeTarget "MSIDTestKeychainUtil" */;
+			buildPhases = (
+				C93C92532272571F00B59FC9 /* Sources */,
+				C93C92542272571F00B59FC9 /* Frameworks */,
+				C93C92552272571F00B59FC9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C93C925F2272572800B59FC9 /* PBXTargetDependency */,
+			);
+			name = MSIDTestKeychainUtil;
+			productName = MSIDTestKeychainUtil;
+			productReference = C93C92572272571F00B59FC9 /* MSIDTestKeychainUtil */;
+			productType = "com.apple.product-type.tool";
+		};
 		D626FF491FBA6DFC00EE4487 /* IdentityCoreTests iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = D626FF541FBA6DFD00EE4487 /* Build configuration list for PBXNativeTarget "IdentityCoreTests iOS" */;
@@ -4043,6 +4108,10 @@
 						CreatedOnToolsVersion = 10.1;
 						ProvisioningStyle = Automatic;
 					};
+					C93C92562272571F00B59FC9 = {
+						CreatedOnToolsVersion = 10.2.1;
+						ProvisioningStyle = Automatic;
+					};
 					D626FF491FBA6DFC00EE4487 = {
 						CreatedOnToolsVersion = 9.1;
 						LastSwiftMigration = 0940;
@@ -4096,6 +4165,7 @@
 				B27551D420817A1E00AA7A38 /* IdentityAutomationAppLib Mac */,
 				B2ED1BA52204D24700A24E82 /* IdentityAutomationTestLib iOS */,
 				B2ED1BB22204D26700A24E82 /* IdentityAutomationTestLib Mac */,
+				C93C92562272571F00B59FC9 /* MSIDTestKeychainUtil */,
 			);
 		};
 /* End PBXProject section */
@@ -4250,6 +4320,15 @@
 				B21FA9DE22063CF700806B68 /* MSIDAutomationTestResult.m in Sources */,
 				B21FA9E422063D0400806B68 /* MSIDAutomationUserInformation.m in Sources */,
 				B2ED1BC02204D2B100A24E82 /* Authentication.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C93C92532272571F00B59FC9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C93C9265227258AC00B59FC9 /* MSIDVersion.m in Sources */,
+				C93C925A2272572000B59FC9 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5001,6 +5080,11 @@
 			target = 231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */;
 			targetProxy = 231CE9B51FE86F1E00E95D3E /* PBXContainerItemProxy */;
 		};
+		C93C925F2272572800B59FC9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D626FF5A1FBA6E9500EE4487 /* IdentityCore Mac */;
+			targetProxy = C93C925E2272572800B59FC9 /* PBXContainerItemProxy */;
+		};
 		D626FF511FBA6DFD00EE4487 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D68FB4861FBA698A005308BB /* IdentityCore iOS */;
@@ -5639,6 +5723,123 @@
 			};
 			name = Release;
 		};
+		C93C925B2272572000B59FC9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		C93C925C2272572000B59FC9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
 		D626FF521FBA6DFD00EE4487 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
@@ -5818,6 +6019,15 @@
 			buildConfigurations = (
 				B2ED1BBA2204D26700A24E82 /* Debug */,
 				B2ED1BBB2204D26700A24E82 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C93C925D2272572000B59FC9 /* Build configuration list for PBXNativeTarget "MSIDTestKeychainUtil" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C93C925B2272572000B59FC9 /* Debug */,
+				C93C925C2272572000B59FC9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
