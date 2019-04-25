@@ -21,30 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDNetworkConfiguration.h"
+#import <Foundation/Foundation.h>
+#import "MSIDAutomationOperationAPIRequestHandler.h"
 
-static NSTimeInterval s_timeout = 30;
-static NSInteger s_retryCount = 2;
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation MSIDNetworkConfiguration
-
-+ (void)setTimeout:(NSTimeInterval)timeout
-{
-    s_timeout = timeout;
-}
-+ (NSTimeInterval)timeout
-{
-    return s_timeout;
-}
-
-+(void)setRetryCount:(NSInteger)retryCount
-{
-    s_retryCount = retryCount;
-}
-
-+ (NSInteger)retryCount
-{
-    return s_retryCount;
-}
+@interface MSIDAutomationResetOperationResponseHandler : NSObject <MSIDAutomationOperationAPIResponseHandler>
 
 @end
+
+NS_ASSUME_NONNULL_END

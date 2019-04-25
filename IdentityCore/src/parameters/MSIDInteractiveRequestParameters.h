@@ -39,6 +39,7 @@
 @property (readwrite) NSMutableDictionary<NSString *, NSString *> *customWebviewHeaders;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentViewController;
+@property (nonatomic) UIModalPresentationStyle presentationType;
 #endif
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) MSIDPromptType promptType;

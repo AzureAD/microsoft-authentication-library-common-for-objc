@@ -113,6 +113,7 @@
 {
     MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
     cacheItem.expiresOn = self.expiresOn;
+    cacheItem.extendedExpiresOn = self.extendedExpiresOn;
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.resource;

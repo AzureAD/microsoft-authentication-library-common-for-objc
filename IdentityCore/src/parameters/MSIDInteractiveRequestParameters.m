@@ -23,6 +23,7 @@
 
 #import "MSIDInteractiveRequestParameters.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDInteractiveRequestParameters
 
@@ -72,14 +73,18 @@
 
 - (NSDictionary *)allAuthorizeRequestExtraParameters
 {
-    if (!self.extraAuthorizeURLQueryParameters && !self.extraURLQueryParameters)
+    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.appRequestMetadata];
+    
+    if (self.extraAuthorizeURLQueryParameters && self.extraAuthorizeURLQueryParameters.count > 0)
     {
-        return nil;
+        [authorizeParams addEntriesFromDictionary:self.extraAuthorizeURLQueryParameters];
     }
     
-    NSMutableDictionary *authorizeParams = [[NSMutableDictionary alloc] initWithDictionary:self.extraAuthorizeURLQueryParameters];
-    [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
-    [authorizeParams addEntriesFromDictionary:self.appRequestMetadata];
+    if (self.extraURLQueryParameters && self.extraURLQueryParameters.count > 0)
+    {
+        [authorizeParams addEntriesFromDictionary:self.extraURLQueryParameters];
+    }
+    
     return authorizeParams;
 }
 
@@ -92,7 +97,8 @@
         return NO;
     }
 
-    if ([self.claims count] && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
+    
+    if (self.claimsRequest.hasClaims && self.allAuthorizeRequestExtraParameters[MSID_OAUTH2_CLAIMS])
     {
         MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Duplicate claims parameter is found in extraQueryParameters. Please remove it.", nil);
         return NO;

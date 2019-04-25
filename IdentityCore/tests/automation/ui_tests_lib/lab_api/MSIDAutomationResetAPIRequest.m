@@ -21,16 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestResetAPIRequest.h"
+#import "MSIDAutomationResetAPIRequest.h"
 
-@implementation MSIDTestResetAPIRequest
+@implementation MSIDAutomationResetAPIRequest
 
-- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath labPassword:(NSString *)labPassword
+#pragma - Lab Request
+
+- (NSString *)requestOperationPath
 {
-    NSURLComponents *components = [[NSURLComponents alloc] initWithString:apiPath];
-    
+    return @"LabReset";
+}
+
+- (NSString *)keyvaultNameKey
+{
+    return @"reset_api_keyvault";
+}
+
+- (NSArray<NSURLQueryItem *> *)queryItems
+{
     NSMutableArray *queryItems = [NSMutableArray array];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"code" value:labPassword]];
     
     if (self.apiOperation)
     {
@@ -47,9 +56,7 @@
         [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"DeviceID" value:self.deviceGUID]];
     }
     
-    components.queryItems = queryItems;
-    NSURL *resultURL = [components URL];
-    return resultURL;
+    return queryItems;
 }
 
 @end

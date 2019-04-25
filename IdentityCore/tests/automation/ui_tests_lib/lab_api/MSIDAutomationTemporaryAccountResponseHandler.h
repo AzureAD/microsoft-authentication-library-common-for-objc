@@ -22,16 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDAutomationOperationAPIRequestHandler.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDTestResetAPIRequest : NSObject
-
-@property (nonatomic) NSString *apiOperation;
-@property (nonatomic) NSString *userUPN;
-@property (nonatomic) NSString *deviceGUID;
-
-- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath labPassword:(NSString *)labPassword;
+@interface MSIDAutomationTemporaryAccountResponseHandler : NSObject <MSIDAutomationOperationAPIResponseHandler>
 
 @end
 

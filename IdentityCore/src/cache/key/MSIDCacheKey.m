@@ -64,4 +64,11 @@
     return [NSString stringWithFormat:@"service=%@, type=%@, account=%@", _service, _type, _account];
 }
 
+#pragma mark - Broker
+
+- (NSNumber *)appKeyHash
+{
+    return nil;
+}
+
 @end
