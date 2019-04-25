@@ -404,4 +404,30 @@
 
     [self multiAccountTestCleanup];
 }
+
+- (void)testFoobar
+{
+    //NSLog(@"AppPath: %s\n", [[[NSBundle mainBundle] bundlePath] UTF8String]);
+    NSTask *task = [NSTask new];
+    [task setLaunchPath:@"/bin/sh"];
+    
+    NSArray *arguments = [NSArray arrayWithObjects:
+                          @"-c" ,
+                    @"~/Library/Developer/Xcode/DerivedData/IdentityCore-clsbhwzzccvtklefidhhzoulbmzi/Build/Products/Debug/MSIDTestKeychainTool",
+                          nil];
+    [task setArguments:arguments];
+    
+    NSPipe *pipe = [NSPipe pipe];
+    [task setStandardOutput:pipe];
+    
+    NSFileHandle *file = [pipe fileHandleForReading];
+    
+    [task launch];
+    
+    NSData *data = [file readDataToEndOfFile];
+    
+    NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    printf("%s\n", [output UTF8String]);
+}
+
 @end
