@@ -407,8 +407,10 @@
 
 - (NSDictionary*) executeKeychainUtil:(NSDictionary*)input
 {
+    NSString* buildDirectory = [NSString stringWithCString:BUILD_DIR encoding:NSUTF8StringEncoding];
+    NSString* executablePath = [buildDirectory stringByAppendingPathComponent:@"MSIDTestKeychainUtil"];
     NSTask *task = [NSTask new];
-    [task setLaunchPath:@"~/Library/Developer/Xcode/DerivedData/IdentityCore-clsbhwzzccvtklefidhhzoulbmzi/Build/Products/Debug/MSIDTestKeychainUtil"];
+    [task setLaunchPath:executablePath];
     
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:input options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
