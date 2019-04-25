@@ -149,7 +149,43 @@
     _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_CLIENT_INFO_CACHE_KEY] error:nil];
     _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     _alternativeAccountId = json[MSID_ALTERNATIVE_ACCOUNT_ID_KEY];
+
+    NSMutableDictionary *additionalFields = [NSMutableDictionary new];
+    NSSet *knownKeys = [MSIDAccountCacheItem knownKeys];
+    for (NSString *key in json.allKeys)
+    {
+        if (NO == [knownKeys containsObject:key])
+        {
+            additionalFields[key] = json[key];
+        }
+    }
+    if (additionalFields.count)
+    {
+        _additionalAccountFields = additionalFields;
+    }
+
     return self;
+}
+
++ (NSSet *)knownKeys
+{
+    static NSSet *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [NSSet setWithArray:@[MSID_ALTERNATIVE_ACCOUNT_ID_KEY,
+                                         MSID_AUTHORITY_TYPE_CACHE_KEY,
+                                         MSID_CLIENT_INFO_CACHE_KEY,
+                                         MSID_ENVIRONMENT_CACHE_KEY,
+                                         MSID_FAMILY_NAME_CACHE_KEY,
+                                         MSID_GIVEN_NAME_CACHE_KEY,
+                                         MSID_HOME_ACCOUNT_ID_CACHE_KEY,
+                                         MSID_LOCAL_ACCOUNT_ID_CACHE_KEY,
+                                         MSID_MIDDLE_NAME_CACHE_KEY,
+                                         MSID_NAME_CACHE_KEY,
+                                         MSID_REALM_CACHE_KEY,
+                                         MSID_USERNAME_CACHE_KEY]];
+    });
+    return instance;
 }
 
 - (NSDictionary *)jsonDictionary
