@@ -35,16 +35,69 @@
 #import "NSString+MSIDExtensions.h"
 #import <Foundation/Foundation.h>
 
+@interface MSIDTestKeychainUtilDispatcher : NSObject
+- (id)init;
+- (NSString*) execute:(NSString*)params;
+@property NSDictionary* inputParameters;
+@end
+
+@implementation MSIDTestKeychainUtilDispatcher
+
+- (id)init {
+    return [super init];
+}
+
+- (NSString*) execute:(NSString*)params {
+    NSError *error;
+    _inputParameters = [NSJSONSerialization JSONObjectWithData:[params dataUsingEncoding:NSUTF8StringEncoding]
+                                                                options:0
+                                                                  error:&error];
+    if (error != nil) {
+        return [self setResponse:@{@"getError": [NSString stringWithFormat:@"Couldn't parse input: '%@'", error]}];
+    }
+    NSDictionary* result = [self executeInternal];
+    return [self setResponse:result];
+}
+
+- (NSString*)setResponse:(NSDictionary *)response {
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:response options:0 error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    return jsonString;
+}
+
+- (NSDictionary*) executeInternal {
+    if ([_inputParameters[@"method"] isEqualToString:@"ReadAccount"]) {
+        return [self readAccountTest];
+    } else if ([_inputParameters[@"method"] isEqualToString:@"WriteAccount"]) {
+        return [self writeAccountTest];
+    }
+    return @{@"status":@-1};
+}
+
+- (NSDictionary*) readAccountTest {
+    return @{@"status":@0};
+}
+
+- (NSDictionary*) writeAccountTest {
+    return @{@"status":@0};
+}
+
+@end
+
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        // insert code here...
-        NSLog(@"Hello, World!");
-        
-        MSIDMacKeychainTokenCache* dataSource = [MSIDMacKeychainTokenCache new];
-        MSIDAccountCredentialCache* cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:dataSource];
-        MSIDCacheItemJsonSerializer* serializer = [MSIDCacheItemJsonSerializer new];
-        if (cache && serializer)
-            printf("good\n");
+        /*
+        for (int i = 0; i < argc; i++) {
+            printf("arg[%d] = %s\n", i, argv[i]);
+        }
+        printf("\n");
+         */
+        if (argc >= 2) {
+            NSString* input = [NSString stringWithUTF8String:argv[1]];
+            MSIDTestKeychainUtilDispatcher* dispatcher = [MSIDTestKeychainUtilDispatcher new];
+            NSString* result = [dispatcher execute:input];
+            printf("%s\n", [result UTF8String]);
+        }
     }
     return 0;
 }

@@ -405,15 +405,15 @@
     [self multiAccountTestCleanup];
 }
 
-- (void)testFoobar
+- (NSDictionary*) executeKeychainUtil:(NSDictionary*)input
 {
-    //NSLog(@"AppPath: %s\n", [[[NSBundle mainBundle] bundlePath] UTF8String]);
     NSTask *task = [NSTask new];
-    [task setLaunchPath:@"/bin/sh"];
+    [task setLaunchPath:@"~/Library/Developer/Xcode/DerivedData/IdentityCore-clsbhwzzccvtklefidhhzoulbmzi/Build/Products/Debug/MSIDTestKeychainUtil"];
     
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:input options:0 error:nil];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     NSArray *arguments = [NSArray arrayWithObjects:
-                          @"-c" ,
-                    @"~/Library/Developer/Xcode/DerivedData/IdentityCore-clsbhwzzccvtklefidhhzoulbmzi/Build/Products/Debug/MSIDTestKeychainTool",
+                          jsonString,
                           nil];
     [task setArguments:arguments];
     
@@ -428,6 +428,25 @@
     
     NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     printf("%s\n", [output UTF8String]);
+    NSError* error;
+    NSDictionary* result = [NSJSONSerialization JSONObjectWithData:[output dataUsingEncoding:NSUTF8StringEncoding]
+                                                           options:0
+                                                             error:&error];
+    if (error != nil) {
+        return @{@"getError": [NSString stringWithFormat:@"Couldn't parse input: '%@'", error]};
+    }
+    return result;
+}
+- (void)assertNumericalValue:(NSInteger)expected actual:(id)actual {
+    XCTAssertTrue([actual isKindOfClass:[NSNumber class]]);
+    XCTAssertEqual(expected, [actual integerValue]);
+}
+
+- (void)testFoobar
+{
+    //NSLog(@"AppPath: %s\n", [[[NSBundle mainBundle] bundlePath] UTF8String]);
+    NSDictionary* result = [self executeKeychainUtil:@{@"method":@"ReadAccount"}];
+    [self assertNumericalValue:0 actual:result[@"status"]];
 }
 
 @end
