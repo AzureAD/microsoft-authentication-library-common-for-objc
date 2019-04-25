@@ -261,6 +261,7 @@
                                                                                            type:account.accountType];
 
     key.username = account.username;
+    key.isSharedItem = YES;
 
     // Get previous account, so we don't loose any fields
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];

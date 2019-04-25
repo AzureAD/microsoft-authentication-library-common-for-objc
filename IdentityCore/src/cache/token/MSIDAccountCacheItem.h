@@ -40,6 +40,7 @@
 @property (readwrite, nullable) NSString *realm;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 @property (readwrite, nullable) NSString *alternativeAccountId;
+@property BOOL isSharedItem;
 
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 

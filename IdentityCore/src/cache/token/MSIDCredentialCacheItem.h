@@ -68,6 +68,8 @@
 // Storing for latter token deletion purpose, not serialized
 @property (readwrite, nullable) NSString *appKey;
 
+@property BOOL isSharedItem;
+
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
