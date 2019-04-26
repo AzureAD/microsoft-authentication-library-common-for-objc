@@ -28,18 +28,26 @@
 
 @implementation MSIDB2CAuthority
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (nullable instancetype)initWithURL:(NSURL *)url
+                      validateFormat:(BOOL)validateFormat
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
-    self = [super initWithURL:url context:context error:error];
+    self = [super initWithURL:url validateFormat:validateFormat context:context error:error];
     if (self)
     {
-        _url = [self.class normalizedAuthorityUrl:url context:context error:error];
+        _url = [self.class normalizedAuthorityUrl:url formatValidated:validateFormat context:context error:error];
         if (!_url) return nil;
     }
     
     return self;
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+    return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
 - (nullable instancetype)initWithURL:(nonnull NSURL *)url
@@ -119,17 +127,53 @@
 #pragma mark - Private
 
 + (NSURL *)normalizedAuthorityUrl:(NSURL *)url
+                  formatValidated:(BOOL)formatValidated
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (![self isAuthorityFormatValid:url context:context error:error])
+    if (!url)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is nil.", nil, nil, nil, context.correlationId, nil);
+        }
         return nil;
     }
     
-    NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], url.pathComponents[2], url.pathComponents[3]];
+    // remove query and fragments
+    if (!formatValidated)
+    {
+        NSURLComponents *urlComp = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+        urlComp.query = nil;
+        urlComp.fragment = nil;
+        
+        return urlComp.URL;
+    }
     
+    // This is just for safety net. If formatValidated, it should satisfy the following condition.
+    if (url.pathComponents.count < 4)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority is not a valid format to be normalized.", nil, nil, nil, context.correlationId, nil);
+        }
+        return nil;
+    }
+    
+    // normalize further for validated formats
+    NSString *normalizedAuthorityUrl = [NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1].msidURLEncode, url.pathComponents[2].msidURLEncode, url.pathComponents[3].msidURLEncode];
     return [NSURL URLWithString:normalizedAuthorityUrl];
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDB2CAuthority *authority = [[self.class allocWithZone:zone] initWithURL:[_url copyWithZone:zone]
+                                                                validateFormat:NO context:nil error:nil];
+    authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
+    authority.metadata = self.metadata;
+    return authority;
 }
 
 @end

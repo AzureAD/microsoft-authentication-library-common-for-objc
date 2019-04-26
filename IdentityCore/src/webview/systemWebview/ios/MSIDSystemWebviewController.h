@@ -36,6 +36,7 @@
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                 parentController:(UIViewController *)parentController
+                presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context;
@@ -46,6 +47,7 @@
 @property (readonly) NSString *callbackURLScheme;
 
 @property (weak, nonatomic) UIViewController *parentController;
+@property (nonatomic) UIModalPresentationStyle presentationType;
 
 
 @end

@@ -29,8 +29,7 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
 
 - (instancetype)initWithAction:(NSString *)actionId
                          error:(NSError *)error
-                     errorName:(NSString *)errorName
-                additionalInfo:(nullable NSDictionary *)additionalInfo
+                additionalInfo:(NSDictionary *)additionalInfo
 {
     self = [super initWithAction:actionId success:NO additionalInfo:additionalInfo];
 
@@ -40,14 +39,13 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
         _errorDomain = error.domain;
         _errorDescription = error.description;
         _errorUserInfo = [self userInfoDictionary:error];
-        _errorName = errorName;
     }
 
     return self;
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError *__autoreleasing *)error
+                                 error:(NSError **)error
 {
     self = [super initWithJSONDictionary:json error:error];
 
@@ -57,7 +55,6 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
         _errorDomain = json[@"error_domain"];
         _errorDescription = json[@"error_description"];
         _errorUserInfo = json[@"user_info"];
-        _errorName = json[@"error_name"];
     }
 
     return self;
@@ -70,7 +67,6 @@ NSString * const MSIDAutomationErrorDescriptionKey = @"MSIDAutomationErrorDescri
     json[@"error_domain"] = self.errorDomain;
     json[@"error_description"] = self.errorDescription;
     json[@"user_info"] = self.errorUserInfo;
-    json[@"error_name"] = self.errorName;
     return json;
 }
 

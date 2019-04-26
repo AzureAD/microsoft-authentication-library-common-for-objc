@@ -32,6 +32,7 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDTokenResult.h"
 #import "NSError+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -94,7 +95,7 @@
 
 - (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
 {
-    if (!self.forceRefresh && ![self.requestParameters.claims count])
+    if (!self.forceRefresh && ![self.requestParameters.claimsRequest hasClaims])
     {
         NSError *accessTokenError = nil;
         
@@ -369,7 +370,7 @@
 
             if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
-                NSTimeInterval expiresIn = [self.extendedLifetimeAccessToken.extendedExpireTime timeIntervalSinceNow];
+                NSTimeInterval expiresIn = [self.extendedLifetimeAccessToken.extendedExpiresOn timeIntervalSinceNow];
                 MSID_LOG_INFO(self.requestParameters, @"Server unavailable, using long-lived access token, which expires in %f", expiresIn);
                 NSError *cacheError = nil;
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken

@@ -21,30 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDNetworkConfiguration.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
-static NSTimeInterval s_timeout = 30;
-static NSInteger s_retryCount = 2;
+@class MSIDIndividualClaimRequestAdditionalInfo;
 
-@implementation MSIDNetworkConfiguration
+NS_ASSUME_NONNULL_BEGIN
 
-+ (void)setTimeout:(NSTimeInterval)timeout
-{
-    s_timeout = timeout;
-}
-+ (NSTimeInterval)timeout
-{
-    return s_timeout;
-}
+@interface MSIDIndividualClaimRequest : NSObject <MSIDJsonSerializable>
 
-+(void)setRetryCount:(NSInteger)retryCount
-{
-    s_retryCount = retryCount;
-}
+@property (nonatomic) NSString *name;
 
-+ (NSInteger)retryCount
-{
-    return s_retryCount;
-}
+@property (nonatomic, nullable) MSIDIndividualClaimRequestAdditionalInfo *additionalInfo;
+
+- (instancetype)initWithName:(NSString *)name;
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (BOOL)isEqualToItem:(MSIDIndividualClaimRequest *)request;
 
 @end
+
+NS_ASSUME_NONNULL_END

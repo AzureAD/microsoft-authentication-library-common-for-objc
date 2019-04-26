@@ -48,6 +48,7 @@
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil
                                                                              callbackURLScheme:@"scheme"
                                                                               parentController:nil
+                                                                              presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
                                                                                        context:nil];
@@ -60,6 +61,7 @@
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                              callbackURLScheme:nil
                                                                               parentController:nil
+                                                                              presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
                                                                                        context:nil];
@@ -73,6 +75,7 @@
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                              callbackURLScheme:@"scheme"
                                                                               parentController:nil
+                                                                              presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
                                                                                        context:nil];

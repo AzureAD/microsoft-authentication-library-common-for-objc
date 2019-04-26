@@ -87,7 +87,6 @@ typedef unsigned char byte;
     return [string rangeOfCharacterFromSet:nonWhiteCharSet].location == NSNotFound;
 }
 
-
 - (NSString *)msidTrimmedString
 {
     //The white characters set is cached by the system:

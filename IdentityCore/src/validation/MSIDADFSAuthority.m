@@ -89,14 +89,18 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (![self isAuthorityFormatValid:url context:context error:error])
+    // Normalization requires url to have at least 1 path and a host.
+    // Return nil otherwise.
+    if (!url || url.pathComponents.count < 2)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil);
+        }
         return nil;
     }
-   
-    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1]]];
     
-    return url;
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1]]];
 }
 
 @end

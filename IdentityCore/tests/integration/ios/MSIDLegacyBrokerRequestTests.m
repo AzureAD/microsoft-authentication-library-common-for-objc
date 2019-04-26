@@ -28,6 +28,7 @@
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDClaimsRequest.h"
 
 @interface MSIDLegacyBrokerRequestTests : XCTestCase
 
@@ -38,7 +39,8 @@
 - (void)testInitBrokerRequest_whenClaimsPassed_shouldSetSkipCacheToYES
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.claims = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
+    NSDictionary *claimsJsonDictionary = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
+    parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
     NSError *error = nil;
     MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
