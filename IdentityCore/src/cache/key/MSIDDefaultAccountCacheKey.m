@@ -66,7 +66,7 @@ static NSInteger kAccountTypePrefix = 1000;
     NSString *uniqueId = self.homeAccountId.msidTrimmedString.lowercaseString;
 
     return [NSString stringWithFormat:@"%@%@%@",
-            uniqueId, keyDelimiter, self.environment];
+            uniqueId, keyDelimiter, self.environment.msidTrimmedString.lowercaseString];
 }
 
 - (NSString *)service

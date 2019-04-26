@@ -22,11 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDNetworkConfiguration : NSObject
+@interface MSIDIndividualClaimRequestAdditionalInfo : NSObject <MSIDJsonSerializable>
 
-@property (class, nonatomic, readwrite) NSTimeInterval timeout;
-@property (class, nonatomic, readwrite) NSInteger retryCount;
+@property (nonatomic) NSNumber *essential;
+
+@property (nonatomic, nullable) id value;
+
+@property (nonatomic, nullable) NSArray *values;
 
 @end
+
+NS_ASSUME_NONNULL_END

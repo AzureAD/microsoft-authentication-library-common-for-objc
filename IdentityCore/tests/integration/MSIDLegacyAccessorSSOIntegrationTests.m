@@ -151,7 +151,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.displayableId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(accessToken.extendedExpireTime);
+    XCTAssertNil(accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.resource, @"graph resource");
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
@@ -210,7 +210,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.displayableId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([accessToken.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(accessToken.extendedExpireTime);
+    XCTAssertNil(accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.resource, @"graph resource");
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
@@ -397,7 +397,7 @@
     XCTAssertEqualObjects(token.accountIdentifier.displayableId, @"upn@test.com");
     XCTAssertEqualObjects(token.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([token.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(token.extendedExpireTime);
+    XCTAssertNil(token.extendedExpiresOn);
     XCTAssertEqualObjects(token.resource, @"graph");
     XCTAssertEqual(token.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.windows.net/contoso.com");
@@ -465,7 +465,7 @@
     XCTAssertNil(token.accountIdentifier.displayableId);
     XCTAssertEqualObjects(token.accessToken, @"access token");
     XCTAssertEqualWithAccuracy([token.expiresOn timeIntervalSinceDate:[NSDate date]], 3600, 5);
-    XCTAssertNil(token.extendedExpireTime);
+    XCTAssertNil(token.extendedExpiresOn);
     XCTAssertEqualObjects(token.resource, @"graph");
     XCTAssertEqual(token.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.windows.net/contoso.com");

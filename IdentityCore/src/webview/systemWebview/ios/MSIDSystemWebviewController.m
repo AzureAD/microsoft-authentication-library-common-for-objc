@@ -31,7 +31,6 @@
 #import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
-#import "MSIDNetworkConfiguration.h"
 #import "MSIDNotifications.h"
 
 @implementation MSIDSystemWebviewController
@@ -46,6 +45,7 @@
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                 parentController:(UIViewController *)parentController
+                presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context
@@ -70,6 +70,7 @@
         _context = context;
         _callbackURLScheme = callbackURLScheme;
         _parentController = parentController;
+        _presentationType = presentationType;
         _allowSafariViewController = allowSafariViewController;
         _useAuthenticationSession = useAuthenticationSession;
     }
@@ -104,6 +105,7 @@
     {
         _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
                                                 parentController:_parentController
+                                                presentationType:_presentationType
                                                          context:_context];
     }
     

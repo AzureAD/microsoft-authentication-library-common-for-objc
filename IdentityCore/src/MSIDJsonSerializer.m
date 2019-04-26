@@ -86,6 +86,8 @@
                      error:(NSError **)error
 {
     NSData *jsonData = [self toJsonData:serializable context:context error:error];
+    if (!jsonData) return nil;
+    
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 

@@ -31,6 +31,7 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDB2CAuthority.h"
 
 @interface MSIDB2CAuthorityTests : XCTestCase
 
@@ -127,6 +128,17 @@
     __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl rawTenant:@"new_tenantId" context:nil error:&error];
 
     XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com:8080/tfp/new_tenantId/policy" msidUrl]);
+    XCTAssertNil(error);
+}
+
+- (void)testInitB2CAuthority_validateFormatOff_shouldReturnSameURLWithoutQueryAndFragments
+{
+    __auto_type authorityUrl = [@"scheme://www.somehost.com:8080/nontfpstring/shortpath?k=a#k=b" msidUrl];
+    NSError *error = nil;
+    
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:&error];
+    
+    XCTAssertEqualObjects(authority.url, [@"scheme://www.somehost.com:8080/nontfpstring/shortpath" msidUrl]);
     XCTAssertNil(error);
 }
 
@@ -272,6 +284,19 @@
     rhs.metadata = [MSIDOpenIdProviderMetadata new];
     
     XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testCopyWithZone_whenFormatNotValidated_shouldCopy
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoft.com/nonstandard/b2c"];
+    MSIDB2CAuthority *authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:nil];
+    
+    MSIDB2CAuthority *copiedAuthority = [authority copy];
+    
+    XCTAssertNotNil(copiedAuthority);
+    XCTAssertEqualObjects(copiedAuthority.url, authorityUrl);
+    XCTAssertEqualObjects(copiedAuthority.metadata, authority.metadata);
+    XCTAssertEqualObjects(copiedAuthority.openIdConfigurationEndpoint, authority.openIdConfigurationEndpoint);
 }
 
 @end

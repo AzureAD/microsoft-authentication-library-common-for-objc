@@ -135,7 +135,7 @@
     XCTAssertEqualObjects(result.accessToken.accountIdentifier.displayableId, @"user@contoso.com");
     XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertTrue([expiresOn timeIntervalSinceDate:result.accessToken.expiresOn] < 1);
-    XCTAssertTrue([extExpiresOn timeIntervalSinceDate:result.accessToken.extendedExpireTime] < 1);
+    XCTAssertTrue([extExpiresOn timeIntervalSinceDate:result.accessToken.extendedExpiresOn] < 1);
     
     XCTAssertEqualObjects(result.rawIdToken, idTokenString);
     XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
@@ -167,7 +167,7 @@
     XCTAssertEqualObjects(accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertEqualObjects(accessToken.expiresOn, result.accessToken.expiresOn);
-    XCTAssertEqualObjects(accessToken.extendedExpireTime, result.accessToken.extendedExpireTime);
+    XCTAssertEqualObjects(accessToken.extendedExpiresOn, result.accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
     //Check refresh token in cache
@@ -460,7 +460,7 @@
     XCTAssertEqualObjects(accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertTrue([expiresOn timeIntervalSinceDate:accessToken.expiresOn] < 1);
-    XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpireTime] < 1);
+    XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpiresOn] < 1);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:self.cacheAccessor];
@@ -571,7 +571,7 @@
     XCTAssertEqualObjects(accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertTrue([expiresOn timeIntervalSinceDate:accessToken.expiresOn] < 1);
-    XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpireTime] < 1);
+    XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpiresOn] < 1);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:self.cacheAccessor];

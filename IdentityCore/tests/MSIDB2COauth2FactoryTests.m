@@ -144,6 +144,12 @@
 
 - (MSIDB2CTokenResponse *)testB2CTokenResponseWithTenantId:(NSString *)tenantId
 {
+    return [self testB2CTokenResponseWithTenantId:tenantId utid:nil];
+}
+
+- (MSIDB2CTokenResponse *)testB2CTokenResponseWithTenantId:(NSString *)tenantId
+                                                      utid:(NSString *)utid
+{
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:nil
                                                                   subject:@"sub"
                                                                 givenName:@"name"
@@ -156,7 +162,7 @@
                                          @"refresh_token":DEFAULT_TEST_REFRESH_TOKEN,
                                          @"scope": DEFAULT_TEST_SCOPE,
                                          @"id_token": idToken,
-                                         @"client_info": [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]
+                                         @"client_info": [@{ @"uid" : @"1", @"utid" : utid ? utid : @"1234-5678-90abcdefg"} msidBase64UrlJson]
                                          };
 
     MSIDB2CTokenResponse *response = [[MSIDB2CTokenResponse alloc] initWithJSONDictionary:responseDictionary error:nil];
@@ -167,12 +173,12 @@
 {
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
-    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid"];
+    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/test_tenantid" authority]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -233,12 +239,12 @@
 {
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
-    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid"];
+    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
 
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/test_tenantid" authority]);
+    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -252,7 +258,7 @@
 {
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
-    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid"];
+    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
 
     MSIDConfiguration *configuration =
 
@@ -270,7 +276,7 @@
     XCTAssertEqualObjects(account.givenName, @"name");
     XCTAssertEqualObjects(account.familyName, @"family");
     XCTAssertEqualObjects(account.name, @"name");
-    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/test_tenantid");
+    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
 }
 
 
