@@ -62,12 +62,13 @@
      {
          self.receivedEvents = events;
      }];
-    self.dispatcher = [[MSIDDefaultDispatcher alloc] initWithObserver:observer setTelemetryOnFailure:NO];
+    self.dispatcher = [[MSIDDefaultDispatcher alloc] initWithObserver:observer];
     self.observer = observer;
     
     [[MSIDTelemetry sharedInstance] addDispatcher:self.dispatcher];
     
     [MSIDTelemetry sharedInstance].piiEnabled = NO;
+    MSIDTelemetry.sharedInstance.notifyOnFailureOnly = NO;
     
     self.requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     
@@ -81,7 +82,6 @@
 {
     [super tearDown];
     
-    [MSIDTelemetry sharedInstance].piiEnabled = NO;
     [[MSIDTelemetry sharedInstance] removeAllDispatchers];
     self.receivedEvents = nil;
     self.observer = nil;
@@ -161,9 +161,7 @@
 
 - (void)testFlush_whenThereAre2EventsAndObserverIsSetAndSetTelemetryOnFailureYes_shouldFilterEvents
 {
-    [[MSIDTelemetry sharedInstance] removeAllDispatchers];
-    self.dispatcher = [[MSIDDefaultDispatcher alloc] initWithObserver:self.observer setTelemetryOnFailure:YES];
-    [[MSIDTelemetry sharedInstance] addDispatcher:self.dispatcher];
+    MSIDTelemetry.sharedInstance.notifyOnFailureOnly = YES;
     NSString *requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     NSUUID *correlationId = [NSUUID UUID];
     __auto_type context = [MSIDTestContext new];
@@ -187,9 +185,7 @@
 
 - (void)testFlush_whenThereIs1NonErrorEventsAndObserverIsSetAndSetTelemetryOnFailureYes_shouldNotSendEvents
 {
-    [[MSIDTelemetry sharedInstance] removeAllDispatchers];
-    self.dispatcher = [[MSIDDefaultDispatcher alloc] initWithObserver:self.observer setTelemetryOnFailure:YES];
-    [[MSIDTelemetry sharedInstance] addDispatcher:self.dispatcher];
+    MSIDTelemetry.sharedInstance.notifyOnFailureOnly = YES;
     NSString *requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     NSUUID* correlationId = [NSUUID UUID];
     __auto_type context = [MSIDTestContext new];

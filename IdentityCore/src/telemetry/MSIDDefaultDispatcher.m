@@ -28,10 +28,11 @@
 #import "MSIDTelemetryDefaultEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryEventsObserving.h"
+#import "MSIDTelemetry.h"
 
 @implementation MSIDDefaultDispatcher
 
-- (instancetype)initWithObserver:(id<MSIDTelemetryEventsObserving>)observer setTelemetryOnFailure:(BOOL)setTelemetryOnFailure
+- (instancetype)initWithObserver:(id<MSIDTelemetryEventsObserving>)observer
 {
     self = [super init];
     if (self)
@@ -39,7 +40,6 @@
         _eventsToBeDispatched = [NSMutableDictionary new];
         _errorEvents = [NSMutableSet new];
         _observer = observer;
-        _setTelemetryOnFailure = setTelemetryOnFailure;
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.dispatcher-%@", [NSUUID UUID].UUIDString];
         _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
     }
@@ -110,7 +110,7 @@
         // Remove requestId as we won't need it anymore
         [self.errorEvents removeObject:requestId];
         
-        if (self.setTelemetryOnFailure && !errorInEvent) return;
+        if (MSIDTelemetry.sharedInstance.notifyOnFailureOnly && !errorInEvent) return;
         
         events = [self.eventsToBeDispatched[requestId] copy];
         [self.eventsToBeDispatched removeObjectForKey:requestId];

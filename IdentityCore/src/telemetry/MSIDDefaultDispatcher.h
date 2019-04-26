@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 + (instancetype _Nullable)new NS_UNAVAILABLE;
 
-- (instancetype)initWithObserver:(id<MSIDTelemetryEventsObserving>)observer setTelemetryOnFailure:(BOOL)setTelemetryOnFailure;
+- (instancetype)initWithObserver:(id<MSIDTelemetryEventsObserving>)observer;
 
 - (void)dispatchEvents:(NSArray<NSDictionary<NSString *, NSString *> *> *)rawEvents;
 

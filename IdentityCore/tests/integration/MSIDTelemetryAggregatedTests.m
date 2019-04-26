@@ -61,12 +61,13 @@
      {
          self.receivedEvents = events;
      }];
-    self.dispatcher = [[MSIDAggregatedDispatcher alloc] initWithObserver:observer setTelemetryOnFailure:NO];
+    self.dispatcher = [[MSIDAggregatedDispatcher alloc] initWithObserver:observer];
     self.observer = observer;
     
     [[MSIDTelemetry sharedInstance] addDispatcher:self.dispatcher];
     
     [MSIDTelemetry sharedInstance].piiEnabled = NO;
+    MSIDTelemetry.sharedInstance.notifyOnFailureOnly = NO;
     
     self.requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
     
@@ -80,7 +81,6 @@
 {
     [super tearDown];
     
-    [MSIDTelemetry sharedInstance].piiEnabled = NO;
     [[MSIDTelemetry sharedInstance] removeAllDispatchers];
     self.receivedEvents = nil;
     self.observer = nil;
@@ -536,9 +536,7 @@
 
 - (void)testFlush_whenThereAre2EventsAndObserverIsSetAndSetTelemetryOnFailureYes_shouldFilterEvents
 {
-    [[MSIDTelemetry sharedInstance] removeAllDispatchers];
-    self.dispatcher = [[MSIDAggregatedDispatcher alloc] initWithObserver:self.observer setTelemetryOnFailure:YES];
-    [[MSIDTelemetry sharedInstance] addDispatcher:self.dispatcher];
+    MSIDTelemetry.sharedInstance.notifyOnFailureOnly = YES;
     // HTTP event
     [[MSIDTelemetry sharedInstance] startEvent:self.requestId eventName:@"httpEvent"];
     MSIDTelemetryHttpEvent *httpEvent = [[MSIDTelemetryHttpEvent alloc] initWithName:@"httpEvent" context:self.context];
@@ -568,9 +566,7 @@
 
 - (void)testFlush_whenThereIs1NonErrorEventsAndObserverIsSetAndSetTelemetryOnFailureYes_shouldNotSendEvents
 {
-    [[MSIDTelemetry sharedInstance] removeAllDispatchers];
-    self.dispatcher = [[MSIDAggregatedDispatcher alloc] initWithObserver:self.observer setTelemetryOnFailure:YES];
-    [[MSIDTelemetry sharedInstance] addDispatcher:self.dispatcher];
+    MSIDTelemetry.sharedInstance.notifyOnFailureOnly = YES;
     // HTTP event
     [[MSIDTelemetry sharedInstance] startEvent:self.requestId eventName:@"httpEvent"];
     MSIDTelemetryHttpEvent *httpEvent = [[MSIDTelemetryHttpEvent alloc] initWithName:@"httpEvent" context:self.context];
