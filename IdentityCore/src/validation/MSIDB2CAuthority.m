@@ -173,7 +173,6 @@
                                                                 validateFormat:NO context:nil error:nil];
     authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
     authority.metadata = self.metadata;
-    
     return authority;
 }
 

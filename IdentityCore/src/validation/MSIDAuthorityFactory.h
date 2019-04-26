@@ -37,4 +37,9 @@
                                      context:(nullable id<MSIDRequestContext>)context
                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
++ (nullable MSIDAuthority *)authorityWithRawTenant:(nullable NSString *)rawTenant
+                                     msidAuthority:(nonnull MSIDAuthority *)msidAuthority
+                                           context:(nullable id<MSIDRequestContext>)context
+                                             error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
 @end
