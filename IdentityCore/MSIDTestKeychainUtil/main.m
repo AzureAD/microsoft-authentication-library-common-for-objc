@@ -38,12 +38,22 @@
 @interface MSIDTestKeychainUtilDispatcher : NSObject
 - (id)init;
 - (NSString*) execute:(NSString*)params;
-@property NSDictionary* inputParameters;
+
+
 @end
 
 @implementation MSIDTestKeychainUtilDispatcher
 
+NSDictionary* _inputParameters;
+MSIDMacKeychainTokenCache *_dataSource;
+MSIDAccountCredentialCache *_cache;
+MSIDCacheItemJsonSerializer *_serializer;
+
 - (id)init {
+    self = [super init];
+    if (self) {
+        _serializer = [MSIDCacheItemJsonSerializer new];
+    }
     return [super init];
 }
 
@@ -53,7 +63,7 @@
                                                                 options:0
                                                                   error:&error];
     if (error != nil) {
-        return [self setResponse:@{@"getError": [NSString stringWithFormat:@"Couldn't parse input: '%@'", error]}];
+        return [self setResponse:@{@"getError": [NSString stringWithFormat:@"Couldn't parse input: '%@'", error], @"text":params}];
     }
     NSDictionary* result = [self executeInternal];
     return [self setResponse:result];
@@ -67,19 +77,92 @@
 
 - (NSDictionary*) executeInternal {
     if ([_inputParameters[@"method"] isEqualToString:@"ReadAccount"]) {
-        return [self readAccountTest];
+        [self setUp];
+        return [self readAccount];
     } else if ([_inputParameters[@"method"] isEqualToString:@"WriteAccount"]) {
-        return [self writeAccountTest];
+        [self setUp];
+        return [self writeAccount];
+    } else if ([_inputParameters[@"method"] isEqualToString:@"DeleteAccount"]) {
+        [self setUp];
+        return [self deleteAccount];
     }
     return @{@"status":@-1};
 }
 
-- (NSDictionary*) readAccountTest {
-    return @{@"status":@0};
+- (void) setUp {
+    // TODO: list of trusted application ref here
+    _dataSource = [MSIDMacKeychainTokenCache new];
+    _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
+
 }
 
-- (NSDictionary*) writeAccountTest {
-    return @{@"status":@0};
+- (MSIDDefaultAccountCacheKey*) getKeyFromAccount:(MSIDAccountCacheItem*)account {
+    return [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
+                                                         environment:account.environment
+                                                               realm:account.realm
+                                                                type:account.accountType];
+}
+
+- (NSString*) serializeAccountCacheItem:(MSIDAccountCacheItem*)account {
+    NSData* data = [_serializer serializeAccountCacheItem:account];
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+}
+
+- (MSIDAccountCacheItem*) deserializeAccountCacheItem:(NSString*)accountString {
+    NSData* accountData = [accountString dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDAccountCacheItem* account = [_serializer deserializeAccountCacheItem:accountData];
+    return account;
+}
+
+- (NSDictionary*) readAccount {
+    MSIDAccountCacheItem* account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
+    MSIDDefaultAccountCacheKey* key = [self getKeyFromAccount:account];
+    
+    NSError* error;
+    MSIDAccountCacheItem* accountRead = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
+    if (error != nil) {
+        return @{@"getError": [NSString stringWithFormat:@"Couldn't read account: '%@'", error],
+                 @"status": @-1
+                 };
+    }
+    
+    return @{@"status":@0,
+             @"result" : [self serializeAccountCacheItem:accountRead]
+             };
+}
+
+- (NSDictionary*) writeAccount {
+    MSIDAccountCacheItem* account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
+    MSIDDefaultAccountCacheKey* key = [self getKeyFromAccount:account];
+    
+    NSError* error;
+    BOOL result = [_dataSource saveAccount:account key:key serializer:_serializer context:nil error:&error];
+    if (error != nil) {
+        return @{@"getError": [NSString stringWithFormat:@"Couldn't save account: '%@'", error],
+                 @"status": @-1,
+                 @"result" : @(result)};
+    }
+    
+    return @{@"status":@0,
+             @"result": @(result)
+             };
+}
+
+- (NSDictionary*) deleteAccount {
+    MSIDAccountCacheItem* account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
+    MSIDDefaultAccountCacheKey* key = [self getKeyFromAccount:account];
+    
+    NSError* error;
+    BOOL result = [_dataSource removeItemsWithAccountKey:key context:nil error:&error];
+    if (error != nil) {
+        return @{@"getError": [NSString stringWithFormat:@"Couldn't remove account: '%@'", error],
+                 @"status": @-1,
+                 @"result" : @(result)};
+    }
+    
+    return @{@"status":@0,
+             @"result": @(result)
+             };
 }
 
 @end

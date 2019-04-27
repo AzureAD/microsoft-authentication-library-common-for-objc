@@ -424,6 +424,9 @@
     
     NSFileHandle *file = [pipe fileHandleForReading];
     
+    printf("===============================\n");
+    printf("%s\n", [jsonString UTF8String]);
+    printf("===============================\n");
     [task launch];
     
     NSData *data = [file readDataToEndOfFile];
@@ -439,6 +442,7 @@
     }
     return result;
 }
+
 - (void)assertNumericalValue:(NSInteger)expected actual:(id)actual {
     XCTAssertTrue([actual isKindOfClass:[NSNumber class]]);
     XCTAssertEqual(expected, [actual integerValue]);
@@ -447,7 +451,49 @@
 - (void)testFoobar
 {
     //NSLog(@"AppPath: %s\n", [[[NSBundle mainBundle] bundlePath] UTF8String]);
-    NSDictionary* result = [self executeKeychainUtil:@{@"method":@"ReadAccount"}];
+    
+    MSIDAccountCacheItem* account = [MSIDAccountCacheItem new];
+    
+    account.environment = DEFAULT_TEST_ENVIRONMENT;
+    account.realm = @"Contoso.COM";
+    account.homeAccountId = @"uid.utid";
+    account.localAccountId = @"homeAccountIdA";
+    account.accountType = MSIDAccountTypeAADV1;
+    account.username = @"UsernameA";
+    account.givenName = @"GivenNameA";
+    account.familyName = @"FamilyNameA";
+    account.middleName = @"MiddleNameA";
+    account.name = @"NameA";
+    account.alternativeAccountId = @"AltIdA";
+    account.additionalAccountFields = @{@"key1": @"value1", @"key2": @"value2"};
+    
+    NSString* accountStr = [NSString stringWithUTF8String:[[_serializer serializeAccountCacheItem:account] bytes]];
+    
+    NSDictionary* writeParams =@{
+                            @"method":@"WriteAccount",
+                            @"account":accountStr
+                            };
+    NSDictionary* result = [self executeKeychainUtil:writeParams];
+    XCTAssertNotNil(result[@"status"]);
+    [self assertNumericalValue:0 actual:result[@"status"]];
+    
+    NSDictionary* readParams =@{
+                            @"method":@"ReadAccount",
+                            @"account":accountStr
+                            };
+    
+    result = [self executeKeychainUtil:readParams];
+    [self assertNumericalValue:0 actual:result[@"status"]];
+    MSIDAccountCacheItem* accountRead = [_serializer deserializeAccountCacheItem:[result[@"result"] dataUsingEncoding:NSUTF8StringEncoding]];
+    BOOL bar = [account isEqual:accountRead];
+    XCTAssertTrue(bar);
+    
+    NSDictionary* deleteParams =@{
+                                @"method":@"DeleteAccount",
+                                @"account":accountStr
+                                };
+    
+    result = [self executeKeychainUtil:deleteParams];
     [self assertNumericalValue:0 actual:result[@"status"]];
 }
 
