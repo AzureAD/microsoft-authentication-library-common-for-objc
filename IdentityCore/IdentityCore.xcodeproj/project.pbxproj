@@ -1034,6 +1034,7 @@
 		C93C92632272583400B59FC9 /* libIdentityCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D626FF5B1FBA6E9500EE4487 /* libIdentityCore.a */; };
 		C93C92642272588F00B59FC9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF3A20A3968400A989B7 /* AppKit.framework */; };
 		C93C9265227258AC00B59FC9 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
+		C93C926B2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */; };
 		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */; };
@@ -1930,6 +1931,8 @@
 		B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDAccountCacheItem+MSIDAccountMatchers.m"; sourceTree = "<group>"; };
 		C93C92572272571F00B59FC9 /* MSIDTestKeychainUtil */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MSIDTestKeychainUtil; sourceTree = BUILT_PRODUCTS_DIR; };
 		C93C92592272572000B59FC9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestKeychainUtilDispatcher.m; sourceTree = "<group>"; };
+		C93C926C2273DA0E00B59FC9 /* MSIDTestKeychainUtilDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestKeychainUtilDispatcher.h; sourceTree = "<group>"; };
 		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
 		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
@@ -3233,6 +3236,8 @@
 			isa = PBXGroup;
 			children = (
 				C93C92592272572000B59FC9 /* main.m */,
+				C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */,
+				C93C926C2273DA0E00B59FC9 /* MSIDTestKeychainUtilDispatcher.h */,
 			);
 			path = MSIDTestKeychainUtil;
 			sourceTree = "<group>";
@@ -4336,6 +4341,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C93C9265227258AC00B59FC9 /* MSIDVersion.m in Sources */,
+				C93C926B2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m in Sources */,
 				C93C925A2272572000B59FC9 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

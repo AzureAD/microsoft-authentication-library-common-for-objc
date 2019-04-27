@@ -21,29 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBasicContext.h"
-#import "MSIDAccountCacheItem.h"
-#import "MSIDAccountCredentialCache.h"
-#import "MSIDCacheItemJsonSerializer.h"
-#import "MSIDCacheKey.h"
-#import "MSIDClientInfo.h"
-#import "MSIDDefaultAccountCacheKey.h"
-#import "MSIDDefaultAccountCacheQuery.h"
-#import "MSIDMacKeychainTokenCache.h"
-#import "MSIDTestIdentifiers.h"
-#import "MSIDTestKeychainUtilDispatcher.h"
-#import "NSDictionary+MSIDTestUtil.h"
-#import "NSString+MSIDExtensions.h"
-#import <Foundation/Foundation.h>
+#ifndef MSIDTestKeychainUtilDispatcher_h
+#define MSIDTestKeychainUtilDispatcher_h
 
-int main(int argc, const char * argv[]) {
-    @autoreleasepool {
-        if (argc >= 2) {
-            NSString* input = [NSString stringWithUTF8String:argv[1]];
-            MSIDTestKeychainUtilDispatcher* dispatcher = [MSIDTestKeychainUtilDispatcher new];
-            NSString* result = [dispatcher execute:input];
-            printf("%s\n", [result UTF8String]);
-        }
-    }
-    return 0;
-}
+@interface MSIDTestKeychainUtilDispatcher : NSObject
+- (id)init;
+- (NSString*) execute:(NSString*)params;
+@end
+
+
+#endif /* MSIDTestKeychainUtilDispatcher_h */
