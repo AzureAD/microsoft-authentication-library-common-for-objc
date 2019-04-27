@@ -1035,6 +1035,7 @@
 		C93C92642272588F00B59FC9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF3A20A3968400A989B7 /* AppKit.framework */; };
 		C93C9265227258AC00B59FC9 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		C93C926B2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */; };
+		C93C926E2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C93C926D2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m */; };
 		D62600131FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600141FBD380500EE4487 /* NSString+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */; };
 		D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */; };
@@ -1933,6 +1934,7 @@
 		C93C92592272572000B59FC9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestKeychainUtilDispatcher.m; sourceTree = "<group>"; };
 		C93C926C2273DA0E00B59FC9 /* MSIDTestKeychainUtilDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestKeychainUtilDispatcher.h; sourceTree = "<group>"; };
+		C93C926D2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacKeychainACLTests.m; sourceTree = "<group>"; };
 		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
 		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
@@ -3591,6 +3593,7 @@
 				23CA0C5E220A68D400768729 /* MSIDPkeyAuthHelperTests.m */,
 				23FB5C1F225516FA002BF1EB /* MSIDClaimsRequestTests.m */,
 				05566D142204BCF9002DBA40 /* MSIDMacKeychainTokenCacheTests.m */,
+				C93C926D2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m */,
 				B281B337226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m */,
 				1E51BC85227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.h */,
 				1E51BC86227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.m */,
@@ -4789,6 +4792,7 @@
 				B253BD7A20487C8A00D07F31 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
 				B2544EEC21684B2B00B4C108 /* MSIDCacheSchemaValidationTests.m in Sources */,
 				B2DD5B7820461F510084313F /* MSIDCredentialCacheItemTests.m in Sources */,
+				C93C926E2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m in Sources */,
 				B2DD5B9F204761550084313F /* MSIDAccessTokenTests.m in Sources */,
 				B2DD5BC120479AA80084313F /* MSIDCacheItemJsonSerializerTests.m in Sources */,
 				23B3A4592187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m in Sources */,
