@@ -291,7 +291,6 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
     authority.metadata = _metadata;
     authority.url = [_url copyWithZone:zone];
-    
     return authority;
 }
 
