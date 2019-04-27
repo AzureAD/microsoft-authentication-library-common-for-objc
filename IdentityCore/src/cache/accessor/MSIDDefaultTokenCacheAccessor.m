@@ -677,7 +677,7 @@
     // Delete access tokens with intersecting scopes
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
-    query.environment = accessToken.authority.environment;
+    query.environment = [[accessToken.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
     query.realm = accessToken.authority.url.msidTenant;
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
