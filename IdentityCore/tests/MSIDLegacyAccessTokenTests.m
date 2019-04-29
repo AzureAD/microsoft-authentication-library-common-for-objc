@@ -246,9 +246,11 @@
     cacheItem.oauthTokenType = @"token type";
 
     NSDate *expiresOn = [NSDate date];
+    NSDate *extendedExpiresOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
 
     cacheItem.expiresOn = expiresOn;
+    cacheItem.extendedExpiresOn = extendedExpiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.target = @"target";
 
@@ -259,6 +261,7 @@
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
+    XCTAssertEqualObjects(token.extendedExpiresOn, extendedExpiresOn);
     XCTAssertEqualObjects(token.cachedAt, cachedAt);
     XCTAssertEqualObjects(token.resource, @"target");
     XCTAssertEqualObjects(token.accessToken, @"at");

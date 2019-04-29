@@ -36,7 +36,6 @@
 #import "MSIDUserInformation.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
-#import "MSIDDefaultAccountCacheKey.h"
 
 /**
 This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -318,12 +317,14 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self primaryAccountAttributesForKey:key];
     NSMutableDictionary *update = [self secondaryAccountAttributesForKey:key];
     update[(id)kSecValueData] = jsonData;
+    MSID_LOG_VERBOSE_PII(context, @"SecItemUpdate: query=%@ update=%@", query, update);
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
 
     if (status == errSecItemNotFound)
     {
         [query addEntriesFromDictionary:update];
+        MSID_LOG_VERBOSE_PII(context, @"SecItemAdd: query=%@", query);
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
     }
@@ -393,6 +394,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     CFTypeRef cfItems = nil;
     MSID_LOG_INFO(context, @"Trying to find keychain items...");
+    MSID_LOG_VERBOSE_PII(context, @"SecItemCopyMatching: query=%@", query);
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
     MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
 
@@ -420,6 +422,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecReturnData] = @YES;
 
     CFTypeRef cfItemDicts = nil;
+    MSID_LOG_VERBOSE_PII(context, @"SecItemCopyMatching: query=%@", query);
     status = SecItemCopyMatching((CFDictionaryRef)query, &cfItemDicts);
     NSArray *itemDicts = CFBridgingRelease(cfItemDicts);
 
@@ -468,6 +471,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
 
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
+    MSID_LOG_VERBOSE_PII(context, @"SecItemDelete: query=%@", query);
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
 
@@ -580,7 +584,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 // A test-only method that deletes all items from the cache for the given context.
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
-
 {
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
 
@@ -588,6 +591,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self.defaultAccountQuery mutableCopy];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
+    MSID_LOG_VERBOSE_PII(context, @"SecItemDelete: query=%@", query);
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
     MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
 
@@ -680,5 +684,4 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return _PII_NULLIFY(self.keychainGroup);
 }
-
 @end

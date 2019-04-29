@@ -21,28 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDOAuthRequestConfigurator.h"
+#import "MSIDHttpRequest.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDOAuthRequestConfigurator
 
-@interface MSIDClientCapabilitiesUtil : NSObject
-
-/*
- Takes a list of capabilities and returns the JSON claims.
- The result JSON is not URL encoded and caller needs to encode it if necessary
- */
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
-
-/*
- Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
- The result JSON is not URL encoded and caller needs to encode it if necessary
- */
-
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
-                                  developerClaims:(NSDictionary *)developerClaims;
-
-+ (NSString *)jsonFromClaims:(NSDictionary *)claims;
+- (void)configure:(MSIDHttpRequest *)request
+{
+    NSParameterAssert(request.urlRequest);
+    NSParameterAssert(request.urlRequest.URL);
+    
+    NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
+    mutableUrlRequest.timeoutInterval = self.timeoutInterval;
+    mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+    request.urlRequest = mutableUrlRequest;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

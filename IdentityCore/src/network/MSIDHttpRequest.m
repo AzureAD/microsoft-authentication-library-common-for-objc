@@ -30,9 +30,11 @@
 #import "MSIDHttpRequestTelemetry.h"
 #import "MSIDURLSessionManager.h"
 #import "MSIDJsonResponsePreprocessor.h"
+#import "MSIDOAuthRequestConfigurator.h"
 
-static NSInteger const s_defaultRetryCounter = 1;
-static NSTimeInterval const s_defaultRetryInterval = 0.5;
+static NSInteger s_retryCount = 1;
+static NSTimeInterval s_retryInterval = 0.5;
+static NSTimeInterval s_requestTimeoutInterval = 300;
 
 @implementation MSIDHttpRequest
 
@@ -48,8 +50,9 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
         _responseSerializer = responseSerializer;
         _requestSerializer = [MSIDUrlRequestSerializer new];
         _telemetry = [MSIDHttpRequestTelemetry new];
-        _retryCounter = s_defaultRetryCounter;
-        _retryInterval = s_defaultRetryInterval;
+        _retryCounter = s_retryCount;
+        _retryInterval = s_retryInterval;
+        _requestTimeoutInterval = s_requestTimeoutInterval;
     }
     
     return self;
@@ -58,6 +61,10 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
     NSParameterAssert(self.urlRequest);
+    
+    __auto_type requestConfigurator = [MSIDOAuthRequestConfigurator new];
+    requestConfigurator.timeoutInterval = _requestTimeoutInterval;
+    [requestConfigurator configure:self];
     
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
     
@@ -113,5 +120,13 @@ static NSTimeInterval const s_defaultRetryInterval = 0.5;
 
       }] resume];
 }
+
++ (NSInteger)retryCountSetting { return s_retryCount; }
++ (void)setRetryCountSetting:(NSInteger)retryCountSetting { s_retryCount = retryCountSetting; }
+
++ (NSTimeInterval)retryIntervalSetting { return s_retryInterval; }
++ (void)setRetryIntervalSetting:(NSTimeInterval)retryIntervalSetting { s_retryInterval = retryIntervalSetting; }
++ (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
++ (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
 
 @end

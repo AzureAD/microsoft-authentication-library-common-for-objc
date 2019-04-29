@@ -501,6 +501,43 @@
     XCTAssertEqual(items.count, 1);
 }
 
+- (void)testTokensWithKey_whenDefaultKey_andDifferentAppKeys_shouldReturnCorrectItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
+    token1.credentialType = MSIDAccessTokenType;
+    token1.secret = @"at";
+    
+    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"environment" clientId:@"client" credentialType:MSIDRefreshTokenType];
+    key1.appKey = @"appkey";
+    [keychainTokenCache saveToken:token1 key:key1 serializer:serializer context:nil error:nil];
+    
+    MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    token2.credentialType = MSIDAccessTokenType;
+    token2.secret = @"at2";
+    
+    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"environment" clientId:@"client" credentialType:MSIDRefreshTokenType];
+    key2.appKey = @"appkey2";
+    [keychainTokenCache saveToken:token2 key:key2 serializer:serializer context:nil error:nil];
+    
+    NSArray *allItems = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
+    XCTAssertEqual([allItems count], 2);
+    
+    NSArray *items = [keychainTokenCache tokensWithKey:key1 serializer:serializer context:nil error:nil];
+    XCTAssertEqual([items count], 1);
+    XCTAssertEqualObjects(items[0], token1);
+    
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDRefreshTokenType;
+    query.appKey = @"appkey";
+    items = [keychainTokenCache tokensWithKey:query serializer:serializer context:nil error:nil];
+    
+    XCTAssertEqual(items.count, 1);
+    XCTAssertEqualObjects(items[0], token1);
+}
+
 - (void)testTokensWithKey_whenLegacyCacheKey_differentCaseClientIDsAndResource_shouldReturnCorrectItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];

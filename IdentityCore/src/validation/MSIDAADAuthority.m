@@ -29,6 +29,8 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDB2CAuthority.h"
+#import "MSIDADFSAuthority.h"
 
 @interface MSIDAADAuthority()
 
@@ -156,7 +158,7 @@
     
     __auto_type tenant = [self tenantFromAuthorityUrl:url context:context error:error];
     
-    if ([tenant.rawTenant isEqualToString:@"adfs"])
+    if ([MSIDADFSAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
         {
@@ -166,7 +168,7 @@
         return NO;
     }
     
-    if ([tenant.rawTenant isEqualToString:@"tfp"])
+    if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
         {
@@ -208,6 +210,11 @@
 
 - (BOOL)supportsBrokeredAuthentication
 {
+    if (self.tenant.type == MSIDAADTenantTypeConsumers)
+    {
+        return NO;
+    }
+    
     return YES;
 }
 
@@ -234,11 +241,16 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (![self isAuthorityFormatValid:url context:context error:error])
+    // Normalization requires url to have at least 1 path and a host.
+    // Return nil otherwise.
+    if (!url || url.pathComponents.count < 2)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil);
+        }
         return nil;
     }
-    
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1]]];
 }
 

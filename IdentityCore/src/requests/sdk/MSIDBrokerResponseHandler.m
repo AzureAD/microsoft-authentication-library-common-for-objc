@@ -29,7 +29,9 @@
 #import "MSIDBrokerCryptoProvider.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDCacheAccessor.h"
+#if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
+#endif
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTelemetryBrokerEvent.h"
 #import "MSIDTelemetryEventStrings.h"

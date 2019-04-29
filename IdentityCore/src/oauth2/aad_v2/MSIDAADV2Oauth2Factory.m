@@ -35,7 +35,6 @@
 #import "MSIDAADV2WebviewFactory.h"
 #import "MSIDAuthorityFactory.h"
 #import "NSOrderedSet+MSIDExtensions.h"
-#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRefreshTokenGrantRequest.h"
@@ -43,6 +42,8 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADTokenResponseSerializer.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDClaimsRequest+ClientCapabilities.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -137,7 +138,7 @@
     }
 
     accessToken.scopes = responseScopes;
-    accessToken.authority = [self authorityFromURL:accessToken.authority.url tokenResponse:response error:nil];
+    accessToken.authority = [self authorityFromRequestAuthority:accessToken.authority tokenResponse:response error:nil];
 
     return YES;
 }
@@ -153,7 +154,7 @@
         return NO;
     }
 
-    token.authority = [self authorityFromURL:token.authority.url tokenResponse:response error:nil];
+    token.authority = [self authorityFromRequestAuthority:token.authority tokenResponse:response error:nil];
 
     return YES;
 }
@@ -174,15 +175,15 @@
         return NO;
     }
 
-    account.authority = [self authorityFromURL:account.authority.url tokenResponse:response error:nil];
+    account.authority = [self authorityFromRequestAuthority:account.authority tokenResponse:response error:nil];
     return YES;
 }
 
-- (MSIDAuthority *)authorityFromURL:(NSURL *)url
-                      tokenResponse:(MSIDTokenResponse *)response
-                              error:(NSError **)error
+- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
+                                   tokenResponse:(MSIDTokenResponse *)response
+                                           error:(NSError **)error;
 {
-    return [MSIDAuthorityFactory authorityFromUrl:url
+    return [MSIDAuthorityFactory authorityFromUrl:requestAuthority.url
                                          rawTenant:response.idTokenObj.realm
                                            context:nil
                                              error:error];
@@ -205,8 +206,10 @@
                                                                              authCode:(NSString *)authCode
                                                                         homeAccountId:(NSString *)homeAccountId
 {
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
-                                                                       developerClaims:parameters.claims];
+    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                          claimsRequest:parameters.claimsRequest];
+    NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
+    
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = nil;
@@ -245,8 +248,9 @@
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
                                                               refreshToken:(NSString *)refreshToken
 {
-    NSString *claims = [MSIDClientCapabilitiesUtil msidClaimsParameterFromCapabilities:parameters.clientCapabilities
-                                                                       developerClaims:parameters.claims];
+    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                          claimsRequest:parameters.claimsRequest];
+    NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
     NSString *allScopes = parameters.allTokenRequestScopes;
 
     NSString *enrollmentId = [parameters.authority enrollmentIdForHomeAccountId:parameters.accountIdentifier.homeAccountId

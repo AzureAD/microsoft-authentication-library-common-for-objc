@@ -215,7 +215,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
-    appPasteBoard.persistent = YES;
     url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
     [appPasteBoard setURL:url];
 }
@@ -357,7 +356,12 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     else
     {
         [brokerEvent setResultStatus:MSID_TELEMETRY_VALUE_SUCCEEDED];
-        [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
+    
+        if (tokenResult.brokerAppVersion)
+        {
+            [brokerEvent setBrokerAppVersion:tokenResult.brokerAppVersion];
+        }
+        
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:tokenResult.account];
         [self stopTelemetryEvent:telemetryEvent error:nil];

@@ -25,6 +25,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDLegacyBrokerTokenRequest
 
@@ -35,7 +36,7 @@
 {
     NSString *skipCacheValue = @"NO";
 
-    if ([self.requestParameters.claims count])
+    if (self.requestParameters.claimsRequest.hasClaims)
     {
         skipCacheValue = @"YES";
     }
@@ -53,8 +54,11 @@
         username = self.requestParameters.loginHint;
         usernameType = [MSIDAccountIdentifier legacyAccountIdentifierTypeAsString:MSIDLegacyIdentifierTypeOptionalDisplayableId];
     }
+    
+    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
 
     NSMutableDictionary *contents = [NSMutableDictionary new];
+    [contents msidSetNonEmptyString:extraQueryParameters forKey:@"extra_qp"];
     [contents msidSetNonEmptyString:skipCacheValue forKey:@"skip_cache"];
     [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"resource"];
     [contents msidSetNonEmptyString:username forKey:@"username"];

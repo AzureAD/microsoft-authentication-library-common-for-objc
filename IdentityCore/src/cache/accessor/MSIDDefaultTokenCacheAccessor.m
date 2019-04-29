@@ -80,7 +80,7 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError *__autoreleasing *)error
 {
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Saving multi resource refresh token");
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default accessor) Saving multi resource refresh token");
 
     // Save access token
     BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
@@ -149,7 +149,7 @@
         
         if (refreshToken)
         {
-            MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Found refresh token in a different accessor %@", [accessor class]);
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default accessor) Found refresh token in a different accessor %@", [accessor class]);
             return refreshToken;
         }
     }
@@ -182,7 +182,7 @@
         
         if (prt)
         {
-            MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Found primary refresh token in a different accessor %@", [accessor class]);
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default accessor) Found primary refresh token in a different accessor %@", [accessor class]);
             return prt;
         }
     }
@@ -530,8 +530,8 @@
         return NO;
     }
 
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@", authority.environment, clientId, familyId);
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@, account %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@", authority.environment, clientId, familyId);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default accessor) Clearing cache for environment: %@, client ID %@, family ID %@, account %@", authority.environment, clientId, familyId, accountIdentifier.homeAccountId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
@@ -615,8 +615,8 @@
         return NO;
     }
 
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.accountIdentifier.homeAccountId, _PII_NULLIFY(token.refreshToken));
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Removing refresh token with clientID %@, authority %@", token.clientId, token.authority);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Removing refresh token with clientID %@, authority %@, userId %@, token %@", token.clientId, token.authority, token.accountIdentifier.homeAccountId, _PII_NULLIFY(token.refreshToken));
 
     NSURL *authority = token.storageAuthority.url ? token.storageAuthority.url : token.authority.url;
 
@@ -866,7 +866,7 @@
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
+    MSID_LOG_INFO(context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
 
     NSError *cacheError = nil;
 
@@ -886,6 +886,7 @@
 
         if (resultToken)
         {
+            MSID_LOG_INFO(context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
             resultToken.storageAuthority = resultToken.authority;
             if (authority)
             {

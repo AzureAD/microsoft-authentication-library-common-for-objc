@@ -35,9 +35,9 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDPromptType_Internal.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDWebviewFactory
 
@@ -194,7 +194,7 @@
     configuration.presentationType = parameters.presentationType;
 #endif
 
-    NSString *claims = [MSIDClientCapabilitiesUtil jsonFromClaims:parameters.claims];
+    NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
 
     if (![NSString msidIsStringNilOrBlank:claims])
     {

@@ -26,23 +26,21 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "NSString+MSIDAutomationUtils.h"
 #import "NSURL+MSIDExtensions.h"
-#import "MSIDTestResetAPIRequest.h"
+#import "MSIDAutomationResetAPIRequest.h"
 #import "MSIDClientCredentialHelper.h"
 
 @interface MSIDTestConfigurationProvider()
 
-@property (nonatomic, strong) NSMutableDictionary *cachedConfigurations;
 @property (nonatomic, strong) NSDictionary *appInstallLinks;
-@property (nonatomic, strong) KeyvaultAuthentication *keyvaultAuthentication;
-@property (nonatomic, strong) NSString *userAPIPath;
 @property (nonatomic, strong) NSDictionary *defaultClients;
 @property (nonatomic, strong) NSDictionary *defaultEnvironments;
 @property (nonatomic, strong) NSDictionary *defaultScopes;
 @property (nonatomic, strong) NSDictionary *defaultResources;
-@property (nonatomic, strong) NSString *labAPIPassword;
-@property (nonatomic, strong) NSString *resetAPIPath;
-@property (nonatomic, strong) NSString *resetAPIKeyvaultPath;
-@property (nonatomic, strong) NSDictionary *resetAPIConfiguration;
+
+@property (nonatomic, readwrite) KeyvaultAuthentication *keyvaultAuthentication;
+@property (nonatomic, readwrite) MSIDAutomationUserAPIRequestHandler *userAPIRequestHandler;
+@property (nonatomic, readwrite) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
+@property (nonatomic, readwrite) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;
 
 @end
 
@@ -59,16 +57,13 @@
                                stressTestInterval:(int)stressTestInterval
                                     defaultScopes:(NSDictionary *)defaultScopes
                                  defaultResources:(NSDictionary *)defaultResources
-                                     resetAPIConf:(NSDictionary *)resetAPIConfiguration
+                                 operationAPIConf:(NSDictionary *)operationAPIConfiguration
 {
     self = [super init];
 
     if (self)
     {
-        _cachedConfigurations = [NSMutableDictionary dictionary];
         _keyvaultAuthentication = [[KeyvaultAuthentication alloc] initWithCertContents:certificate certPassword:password];
-        _userAPIPath = userAPIPath;
-        [_cachedConfigurations addEntriesFromDictionary:additionalConfigurations];
         _appInstallLinks = appInstallLinks;
         _defaultClients = defaultClients;
         _defaultEnvironments = defaultEnvironments;
@@ -76,9 +71,14 @@
         _defaultScopes = defaultScopes;
         _defaultResources = defaultResources;
         _stressTestInterval = stressTestInterval;
-        _resetAPIConfiguration = resetAPIConfiguration;
-        _resetAPIPath = resetAPIConfiguration[@"reset_api_path"];
-        _resetAPIKeyvaultPath = resetAPIConfiguration[@"reset_api_keyvault"];
+        
+        _userAPIRequestHandler = [[MSIDAutomationUserAPIRequestHandler alloc] initWithAPIPath:userAPIPath
+                                                                         cachedConfigurations:additionalConfigurations];
+        
+        _operationAPIRequestHandler = [[MSIDAutomationOperationAPIRequestHandler alloc] initWithAPIPath:operationAPIConfiguration[@"operation_api_path"]
+                                                                              operationAPIConfiguration:operationAPIConfiguration];
+        
+        _passwordRequestHandler = [MSIDAutomationPasswordRequestHandler new];
     }
 
     return self;
@@ -114,7 +114,7 @@
         NSDictionary *requestDict = additionalConf[@"request"];
         NSDictionary *configurationDict = additionalConf[@"configuration"];
 
-        MSIDTestAutomationConfigurationRequest *request = [MSIDTestAutomationConfigurationRequest requestWithDictionary:requestDict];
+        MSIDAutomationConfigurationRequest *request = [MSIDAutomationConfigurationRequest requestWithDictionary:requestDict];
         MSIDTestAutomationConfiguration *configuration = [[MSIDTestAutomationConfiguration alloc] initWithJSONDictionary:configurationDict];
         additionalConfsDictionary[request] = configuration;
     }
@@ -130,194 +130,13 @@
                                 stressTestInterval:[configurationDictionary[@"stress_test_interval"] intValue]
                                      defaultScopes:configurationDictionary[@"scopes"]
                                   defaultResources:configurationDictionary[@"resources"]
-                                      resetAPIConf:configurationDictionary[@"reset_api_conf"]];
+                                  operationAPIConf:configurationDictionary[@"operation_api_conf"]];
 
 }
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId
 {
     return _appInstallLinks[appId];
-}
-
-- (void)configurationWithRequest:(MSIDTestAutomationConfigurationRequest *)request
-               completionHandler:(void (^)(MSIDTestAutomationConfiguration *configuration))completionHandler
-{
-    if (_cachedConfigurations[request])
-    {
-        if (completionHandler)
-        {
-            completionHandler(_cachedConfigurations[request]);
-        }
-
-        return;
-    }
-
-    NSURL *resultURL = [request requestURLWithAPIPath:self.userAPIPath];
-
-    [[[NSURLSession sharedSession] dataTaskWithURL:resultURL
-                                 completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
-      {
-          if (error)
-          {
-              if (completionHandler)
-              {
-                  completionHandler(nil);
-              }
-
-              return;
-          }
-
-          MSIDTestAutomationConfiguration *configuration = [[MSIDTestAutomationConfiguration alloc] initWithJSONResponseData:data];
-          self->_cachedConfigurations[request] = configuration;
-
-          if (completionHandler)
-          {
-              completionHandler(configuration);
-          }
-
-      }] resume];
-}
-
-- (void)passwordForAccount:(MSIDTestAccount *)account
-         completionHandler:(void (^)(NSString *password))completionHandler
-{
-    if (account.password)
-    {
-        completionHandler(account.password);
-        return;
-    }
-
-    NSURL *url = [NSURL URLWithString:account.keyvaultName];
-    [Secret getWithUrl:url completion:^(NSError *error, Secret *secret) {
-
-        if (error)
-        {
-            if (completionHandler)
-            {
-                completionHandler(nil);
-            }
-
-            return;
-        }
-
-        if (secret)
-        {
-            account.password = secret.value;
-        }
-
-        if (completionHandler)
-        {
-            completionHandler(secret.value);
-        }
-    }];
-}
-
-- (void)passwordForLabAPIWithCompletionHandler:(void (^)(NSString *password, NSError *error))completionHandler
-{
-    if (self.labAPIPassword)
-    {
-        completionHandler(self.labAPIPassword, nil);
-        return;
-    }
-    
-    NSURL *url = [NSURL URLWithString:self.resetAPIKeyvaultPath];
-    [Secret getWithUrl:url completion:^(NSError *error, Secret *secret) {
-        
-        if (error)
-        {
-            if (completionHandler)
-            {
-                completionHandler(nil, error);
-            }
-            
-            return;
-        }
-        
-        self.labAPIPassword = secret.value;
-        if (completionHandler) completionHandler(secret.value, nil);
-    }];
-}
-
-- (void)resetPasswordForAccount:(MSIDTestAccount *)account
-              completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
-{
-    MSIDTestResetAPIRequest *request = [MSIDTestResetAPIRequest new];
-    request.apiOperation = @"Password";
-    request.userUPN = account.account;
-    [self callLabAPIWithRequest:request completionHandler:completionHandler];
-}
-
-- (void)removeDeviceForAccount:(MSIDTestAccount *)account
-                      deviceId:(NSString *)deviceId
-             completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
-{
-    MSIDTestResetAPIRequest *request = [MSIDTestResetAPIRequest new];
-    request.apiOperation = @"Device";
-    request.userUPN = account.account;
-    request.deviceGUID = deviceId;
-    [self callLabAPIWithRequest:request completionHandler:completionHandler];
-}
-
-- (void)callLabAPIWithRequest:(MSIDTestResetAPIRequest *)request
-            completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
-{
-    [self passwordForLabAPIWithCompletionHandler:^(NSString *password, NSError *error) {
-        
-        if (!password)
-        {
-            if (completionHandler)
-            {
-                completionHandler(NO, error);
-            }
-            
-            return;
-        }
-        
-        [self getAccessTokenAndCallLabAPI:request
-                              apiPassword:password
-                        completionHandler:completionHandler];
-       
-    }];
-}
-
-- (void)getAccessTokenAndCallLabAPI:(MSIDTestResetAPIRequest *)request
-                        apiPassword:(NSString *)apiPassword
-                  completionHandler:(void (^)(BOOL result, NSError *error))completionHandler
-{
-    [MSIDClientCredentialHelper getAccessTokenForAuthority:self.resetAPIConfiguration[@"reset_api_authority"]
-                                                  resource:self.resetAPIConfiguration[@"reset_api_resource"]
-                                                  clientId:self.resetAPIConfiguration[@"reset_api_client_id"]
-                                          clientCredential:self.resetAPIConfiguration[@"reset_api_client_secret"]
-                                         completionHandler:^(NSString *accessToken, NSError *error) {
-                                             
-                                             NSURL *resultURL = [request requestURLWithAPIPath:self.resetAPIPath labPassword:apiPassword];
-                                             
-                                             NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];
-                                             NSString *bearerHeader = [NSString stringWithFormat:@"Bearer %@", accessToken];
-                                             [urlRequest addValue:bearerHeader forHTTPHeaderField:@"Authorization"];
-                                             
-                                             [[[NSURLSession sharedSession] dataTaskWithRequest:urlRequest
-                                                                              completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
-                                               {
-                                                   NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-                                                   
-                                                   if (httpResponse.statusCode == 200)
-                                                   {
-                                                       NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                                                       // TODO: ask lab to return operation success in a more reasonable way
-                                                       BOOL operationSuccessful = [responseString containsString:@"successful"];
-                                                       
-                                                       if (completionHandler)
-                                                       {
-                                                           completionHandler(operationSuccessful, nil);
-                                                       }
-                                                       
-                                                       return;
-                                                   }
-                                                   
-                                                   completionHandler(NO, error);
-                                               }] resume];
-                                         }];
 }
 
 #pragma mark - Default apps
