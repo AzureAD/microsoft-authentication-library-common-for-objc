@@ -220,7 +220,7 @@
     
     if(comparisonOptions == MSIDExactStringMatch)
     {
-        return [self.target.msidTrimmedString.lowercaseString isEqualToString:target.msidTrimmedString.lowercaseString];
+        return [self.target.msidNormalizedString isEqualToString:target.msidNormalizedString];
     }
 
     NSOrderedSet *inputSet = [NSOrderedSet msidOrderedSetFromString:target normalize:YES];
@@ -244,7 +244,7 @@
               environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
     if (homeAccountId && 
-        ![self.homeAccountId.msidTrimmedString.lowercaseString isEqualToString:homeAccountId.msidTrimmedString.lowercaseString])
+        ![self.homeAccountId.msidNormalizedString isEqualToString:homeAccountId.msidNormalizedString])
     {
         return NO;
     }
@@ -256,13 +256,13 @@
         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
     if (environment && 
-        ![self.environment.msidTrimmedString.lowercaseString isEqualToString:environment.msidTrimmedString.lowercaseString])
+        ![self.environment.msidNormalizedString isEqualToString:environment.msidNormalizedString])
     {
         return NO;
     }
 
     if ([environmentAliases count] && 
-        ![self.environment.msidTrimmedString.lowercaseString msidIsEquivalentWithAnyAlias:environmentAliases])
+        ![self.environment.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases])
     {
         return NO;
     }
@@ -277,7 +277,7 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (realm && ![self.realm.msidTrimmedString.lowercaseString isEqualToString:realm.msidTrimmedString.lowercaseString])
+    if (realm && ![self.realm.msidNormalizedString isEqualToString:realm.msidNormalizedString])
     {
         return NO;
     }
@@ -294,10 +294,8 @@
 
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
-        if ((clientId && 
-             [self.clientId.msidTrimmedString.lowercaseString isEqualToString:clientId.msidTrimmedString.lowercaseString])
-            || (familyId && 
-                [self.familyId.msidTrimmedString.lowercaseString isEqualToString:familyId.msidTrimmedString.lowercaseString]))
+        if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
+            || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
             return YES;
         }
@@ -306,14 +304,12 @@
     }
     else
     {
-        if (clientId && 
-            ![self.clientId.msidTrimmedString.lowercaseString isEqualToString:clientId.msidTrimmedString.lowercaseString])
+        if (clientId && ![self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
         {
             return NO;
         }
 
-        if (familyId && 
-            ![self.familyId.msidTrimmedString.lowercaseString isEqualToString:familyId.msidTrimmedString.lowercaseString])
+        if (familyId && ![self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString])
         {
             return NO;
         }
