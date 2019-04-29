@@ -51,10 +51,15 @@
     static NSString *appDefaultAccessGroup = nil;
     
     dispatch_once(&once, ^{
-        NSDictionary *query = @{ (id)kSecClass : (id)kSecClassGenericPassword,
-                                 (id)kSecAttrAccount : @"SDK.ObjC.teamIDHint",
-                                 (id)kSecAttrService : @"",
-                                 (id)kSecReturnAttributes : @YES };
+        NSMutableDictionary *query = [@{ (id)kSecClass : (id)kSecClassGenericPassword,
+                                         (id)kSecAttrAccount : @"SDK.ObjC.teamIDHint",
+                                         (id)kSecAttrService : @"",
+                                         (id)kSecReturnAttributes : @YES,
+                                         } mutableCopy];
+        
+#if !TARGET_OS_IPHONE
+        [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecAttrSynchronizable];
+#endif
         CFDictionaryRef result = nil;
         
         OSStatus readStatus = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);

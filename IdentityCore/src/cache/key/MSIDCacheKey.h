@@ -48,6 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
 /* Application key for keychain isolation */
 @property (nullable, readwrite) NSString *appKey;
 
+/* OSX specific property. Determines if an item is shared across apps.  */
+@property BOOL isShared;
+
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service
                        generic:(nullable NSData *)generic
