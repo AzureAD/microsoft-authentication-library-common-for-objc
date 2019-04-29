@@ -430,33 +430,17 @@
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return nil;
     }
-
-    NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
-
-    for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
-    {
-        // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if ([filterAccountIds containsObject:accountCacheItem.homeAccountId])
-        {
-            if (authority.environment)
-            {
-                accountCacheItem.environment = authority.environment;
-            }
-
-            MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
-            if (account) [filteredAccountsSet addObject:account];
-        }
-    }
     
     NSArray<MSIDIdToken *> *idTokens = [self idTokensWithAuthority:authority
                                                  accountIdentifier:accountIdentifier
                                                           clientId:clientId
                                                            context:context
                                                              error:nil];
-    if (idTokens.count > 0)
-    {
-        [self fillIdTokenClaimsForAccounts:filteredAccountsSet.allObjects withIdTokens:idTokens];
-    }
+    
+    NSMutableSet<MSIDAccount *> *filteredAccountsSet = [self filterAndFillIdTokenClaimsForAccounts:allAccounts
+                                                                                         authority:authority
+                                                                                        accountIds:filterAccountIds
+                                                                                          idTokens:idTokens];
 
     if ([filteredAccountsSet count])
     {
@@ -1031,31 +1015,53 @@
     return [NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]];
 }
 
-- (void)fillIdTokenClaimsForAccounts:(NSArray<MSIDAccount *> *)accounts
-                        withIdTokens:(NSArray<MSIDIdToken *> *)idTokens
+- (NSMutableSet<MSIDAccount *> *)filterAndFillIdTokenClaimsForAccounts:(NSArray<MSIDAccountCacheItem *> *)allAccounts
+                                                             authority:(MSIDAuthority *)authority
+                                                            accountIds:(NSSet<NSString *> *)accountIds
+                                                              idTokens:(NSArray<MSIDIdToken *> *)idTokens
 {
-    NSMutableDictionary *searchMap = [NSMutableDictionary new];
+    NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
+    
+    // Build up a search map for quick id token match up
+    NSMutableDictionary *idTokenSearchMap = [NSMutableDictionary new];
     for (MSIDIdToken *idToken in idTokens)
     {
         NSString *key = [NSString stringWithFormat:@"%@-%@-%@", idToken.accountIdentifier.homeAccountId, idToken.authority.environment, idToken.authority.url.msidTenant];
-        [searchMap setValue:idToken forKey:key];
+        [idTokenSearchMap setValue:idToken forKey:key];
     }
     
-    for (MSIDAccount *account in accounts)
+    for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
     {
-        NSString *searchKey = [NSString stringWithFormat:@"%@-%@-%@", account.accountIdentifier.homeAccountId, account.authority.environment, account.authority.url.msidTenant];
-        MSIDIdToken *idToken = searchMap[searchKey];
-        
-        if (!idToken) continue;
-        
-        NSError *error =  nil;
-        account.idTokenClaims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:idToken.rawIdToken error:&error];
-        
-        if (error)
+        // If we have accountIds to filter by, only return account if it has an associated refresh token
+        if ([accountIds containsObject:accountCacheItem.homeAccountId])
         {
-            MSID_LOG_ERROR(nil, @"Failed to create id token claims when fill id token claims for msidAccount!");
+            if (authority.environment)
+            {
+                accountCacheItem.environment = authority.environment;
+            }
+            
+            MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
+            if (!account) continue;
+            
+            NSString *idTokenSearchKey = [NSString stringWithFormat:@"%@-%@-%@", account.accountIdentifier.homeAccountId, account.authority.environment, account.authority.url.msidTenant];
+            MSIDIdToken *idToken = idTokenSearchMap[idTokenSearchKey];
+            
+            if (idToken)
+            {
+                NSError *error =  nil;
+                account.idTokenClaims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:idToken.rawIdToken error:&error];
+                
+                if (error)
+                {
+                    MSID_LOG_ERROR(nil, @"Failed to create id token claims when fill id token claims for msidAccount!");
+                }
+            }
+            
+            [filteredAccountsSet addObject:account];
         }
     }
+    
+    return filteredAccountsSet;
 }
 
 #pragma mark - App metadata
