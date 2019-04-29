@@ -181,7 +181,7 @@
 
 - (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
                                    tokenResponse:(MSIDTokenResponse *)response
-                                           error:(NSError **)error;
+                                           error:(NSError **)error
 {
     return [MSIDAuthorityFactory authorityFromUrl:requestAuthority.url
                                          rawTenant:response.idTokenObj.realm

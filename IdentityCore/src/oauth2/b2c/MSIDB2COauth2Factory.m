@@ -113,7 +113,7 @@
 
 - (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
                                    tokenResponse:(MSIDB2CTokenResponse *)response
-                                           error:(NSError **)error;
+                                           error:(NSError **)error
 {
     if (![self checkResponseClass:response context:nil error:error])
     {
