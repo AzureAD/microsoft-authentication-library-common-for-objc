@@ -204,7 +204,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 1);
@@ -286,7 +286,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 1);
@@ -363,13 +363,13 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    NSArray *clientAccounts = [_otherAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *clientAccounts = [_otherAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
     XCTAssertEqual([clientAccounts count], 0);
 
-    NSArray *familyAccounts = [_otherAccessor accountsWithAuthority:authority clientId:nil familyId:@"2" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *familyAccounts = [_otherAccessor accountsWithAuthority:authority clientId:nil familyId:@"2" accountIdentifier:nil context:nil error:&error];
     XCTAssertEqual([familyAccounts count], 0);
 
-    NSArray *allAccounts = [_otherAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"2" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *allAccounts = [_otherAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"2" accountIdentifier:nil context:nil error:&error];
     XCTAssertEqual([allAccounts count], 0);
 }
 
@@ -417,7 +417,7 @@
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
     error = nil;
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 0);
@@ -466,7 +466,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    NSArray *allAccounts = [_otherAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *allAccounts = [_otherAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertEqual([allAccounts count], 0);
 }
@@ -986,7 +986,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1014,7 +1014,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:nil familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:nil familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1054,7 +1054,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1098,7 +1098,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id2" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id2" familyId:@"3" accountIdentifier:nil context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 1);
@@ -1143,7 +1143,7 @@
 
     MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1198,7 +1198,7 @@
 
     MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1251,7 +1251,7 @@
     // Test accounts retrieval
     NSError *error = nil;
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1323,7 +1323,7 @@
 
     MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoft.com/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1334,7 +1334,7 @@
     XCTAssertEqualObjects(firstAccount.username, @"upn@test.com");
     XCTAssertEqualObjects(firstAccount.authority.environment, @"login.microsoft.com");
 
-    accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 2);
@@ -1384,7 +1384,7 @@
 
     MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1397,7 +1397,7 @@
     XCTAssertEqualObjects(account.username, @"upn@test.com");
     XCTAssertEqualObjects(account.name, @"Hello World");
 
-    accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:@"3" accountIdentifier:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
@@ -1432,7 +1432,7 @@
 
     NSError *error = nil;
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:@"uid.utid"];
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:identifier loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:identifier context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 1);
@@ -1469,7 +1469,7 @@
 
     NSError *error = nil;
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:nil];
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:nil accountIdentifier:identifier loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id" familyId:nil accountIdentifier:identifier context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 1);
@@ -1506,7 +1506,7 @@
 
     NSError *error = nil;
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:nil];
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:@"3" accountIdentifier:identifier loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:@"3" accountIdentifier:identifier context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 1);
@@ -1543,7 +1543,7 @@
     
     NSError *error = nil;
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:@"uid.utid2"];
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:@"3" accountIdentifier:identifier loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:@"3" accountIdentifier:identifier context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 1);
@@ -1591,7 +1591,7 @@
                      accessor:_otherAccessor];
     
     NSError *error = nil;
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id2" familyId:@"3" accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:@"test_client_id2" familyId:@"3" accountIdentifier:nil context:nil error:&error];
     XCTAssertEqual([accounts count], 2);
     NSArray *accountUPNs = @[[accounts[0] username], [accounts[1] username]];
     XCTAssertTrue([accountUPNs containsObject:@"upn@test.com"]);
@@ -2218,7 +2218,7 @@
 
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
     XCTAssertNotNil(accounts);
     XCTAssertNil(error);
     XCTAssertEqual([accounts count], 2);
@@ -2275,7 +2275,7 @@
     MSIDIdToken *idToken = allIDs[0];
     XCTAssertEqualObjects(idToken.accountIdentifier.homeAccountId, @"uid2.utid2");
 
-    accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
 
     XCTAssertEqual([accounts count], 1);
 
@@ -2344,7 +2344,7 @@
     NSArray *allIDs = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([allIDs count], 0);
 
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:@"test_client_id" familyId:nil accountIdentifier:nil context:nil error:&error];
     XCTAssertEqual([accounts count], 0);
 }
 

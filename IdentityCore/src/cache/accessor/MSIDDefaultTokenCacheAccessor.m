@@ -352,7 +352,7 @@
     return idToken;
 }
 
-- (NSArray<MSIDIdToken *> *)idTokensWithAuthoirty:(MSIDAuthority *)authority
+- (NSArray<MSIDIdToken *> *)idTokensWithAuthority:(MSIDAuthority *)authority
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                          clientId:(NSString *)clientId
                                           context:(id<MSIDRequestContext>)context
@@ -383,7 +383,6 @@
                                          clientId:(NSString *)clientId
                                          familyId:(NSString *)familyId
                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                loadIdTokenClaims:(BOOL)loadIdTokenClaims
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
@@ -449,17 +448,14 @@
         }
     }
     
-    if (loadIdTokenClaims)
+    NSArray<MSIDIdToken *> *idTokens = [self idTokensWithAuthority:authority
+                                                 accountIdentifier:accountIdentifier
+                                                          clientId:clientId
+                                                           context:context
+                                                             error:nil];
+    if (idTokens.count > 0)
     {
-        NSArray<MSIDIdToken *> *idTokens = [self idTokensWithAuthoirty:authority
-                                                     accountIdentifier:accountIdentifier
-                                                              clientId:clientId
-                                                               context:context
-                                                                 error:nil];
-        if (idTokens.count > 0)
-        {
-            [self fillIdTokenClaimsForAccounts:filteredAccountsSet.allObjects withIdTokens:idTokens];
-        }
+        [self fillIdTokenClaimsForAccounts:filteredAccountsSet.allObjects withIdTokens:idTokens];
     }
 
     if ([filteredAccountsSet count])
@@ -481,7 +477,6 @@
                                                    clientId:clientId
                                                    familyId:familyId
                                           accountIdentifier:accountIdentifier
-                                          loadIdTokenClaims:loadIdTokenClaims
                                                     context:context
                                                       error:error];
         [filteredAccountsSet addObjectsFromArray:accounts];

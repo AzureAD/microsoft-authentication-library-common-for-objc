@@ -189,7 +189,7 @@
     XCTAssertEqualObjects(idToken.rawIdToken, idTokenString);
     
     //Check account in cache
-    NSArray *accounts = [self.cacheAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:nil loadIdTokenClaims:YES context:nil error:nil];
+    NSArray *accounts = [self.cacheAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:nil context:nil error:nil];
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
     XCTAssertEqualObjects(account.username, @"user@contoso.com");
