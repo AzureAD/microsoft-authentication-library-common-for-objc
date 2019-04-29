@@ -317,6 +317,13 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self primaryAccountAttributesForKey:key];
     NSMutableDictionary *update = [self secondaryAccountAttributesForKey:key];
     update[(id)kSecValueData] = jsonData;
+
+    if ([self isRecentItem:query])
+    {
+        // This item was just modified a moment ago, report a *potential* collision
+        MSID_LOG_WARN(context, @"Set keychain item for recently-modified account");
+    }
+
     MSID_LOG_VERBOSE_PII(context, @"SecItemUpdate: query=%@ update=%@", query, update);
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
     MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
@@ -684,4 +691,26 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return _PII_NULLIFY(self.keychainGroup);
 }
+
+// Check if the keychain item been modified recently
+- (BOOL)isRecentItem:(NSDictionary *)query
+{
+    NSMutableDictionary *itemQuery = [query mutableCopy];
+    itemQuery[(id)kSecReturnAttributes] = @YES;
+    CFTypeRef cfItemDict = nil;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)itemQuery, &cfItemDict);
+    if (status != errSecSuccess)
+    {
+        return NO;
+    }
+    NSDictionary *itemDict = CFBridgingRelease(cfItemDict);
+    NSDate *lastMod = itemDict[(id)kSecAttrModificationDate];
+    if (lastMod && [lastMod timeIntervalSinceNow] > -1) // time in the past is negative
+    {
+        return YES;
+    }
+    return NO;
+}
+
 @end
+
