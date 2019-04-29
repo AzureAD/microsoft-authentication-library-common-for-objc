@@ -239,7 +239,7 @@
     cacheItem.secret = @"at";
     cacheItem.accessToken = @"at";
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test" upn:@"testuser@upn.com" tenantId:@"contoso.com"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test" upn:@"testuser@upn.com" oid:nil tenantId:@"contoso.com"];
 
     cacheItem.idToken = idToken;
     cacheItem.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];

@@ -283,7 +283,7 @@
     cacheItem.accessToken = @"at";
     cacheItem.refreshToken = @"rt";
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test" upn:@"testuser@upn.com" tenantId:@"contoso.com"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test" upn:@"testuser@upn.com" oid:nil tenantId:@"contoso.com"];
 
     cacheItem.idToken = idToken;
 

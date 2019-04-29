@@ -197,6 +197,8 @@
     XCTAssertEqualObjects(account.alternativeAccountId, @"AltID");
     XCTAssertEqualObjects(account.name, @"Eric Middle Cartman");
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com");
+    //TODO: fix the realm bug and test tenantId here
+    XCTAssertEqualObjects(account.tenantId, @"contoso.com");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
 }
 

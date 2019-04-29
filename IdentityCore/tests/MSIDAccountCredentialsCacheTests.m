@@ -2322,7 +2322,7 @@
     item.clientId = @"client";
     item.realm = @"contoso.com";
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Name" upn:upn tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Name" upn:upn oid:nil tenantId:@"tid"];
     item.secret = idToken;
 
     return item;

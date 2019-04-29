@@ -217,6 +217,7 @@
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"tenantId.onmicrosoft.com");
     XCTAssertNil(account.alternativeAccountId);
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
 }
@@ -298,6 +299,7 @@
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"tenantId.onmicrosoft.com");
     XCTAssertNil(account.alternativeAccountId);
     XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId.onmicrosoft.com");
 
@@ -991,6 +993,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid2.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
 }
 
 - (void)testAllAccountsWithEnvironment_whenFamilyIdProvided_andTokensInPrimaryCache_shouldReturnAccounts
@@ -1018,6 +1021,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
 }
 
 - (void)testAllAccountsWithEnvironment_whenNoFamilyId_andTokensInBothCaches_shouldReturnAccounts
@@ -1057,6 +1061,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
     XCTAssertEqualObjects(account.givenName, @"Hello");
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
@@ -1099,6 +1104,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
     XCTAssertEqualObjects(account.givenName, @"Hello");
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
@@ -1144,6 +1150,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
 }
 
@@ -1198,6 +1205,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
 }
 
@@ -1250,10 +1258,12 @@
     XCTAssertEqual([accounts count], 2);
     MSIDAccount *firstAccount = accounts[0];
     XCTAssertEqualObjects(firstAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(firstAccount.tenantId, @"utid");
     XCTAssertEqualObjects(firstAccount.username, @"upn@test.com");
 
     MSIDAccount *secondAccount = accounts[1];
     XCTAssertEqualObjects(secondAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(secondAccount.tenantId, @"utid");
     XCTAssertEqualObjects(secondAccount.username, @"upn@test.com");
 }
 
@@ -1320,6 +1330,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *firstAccount = accounts[0];
     XCTAssertEqualObjects(firstAccount.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(firstAccount.tenantId, @"utid");
     XCTAssertEqualObjects(firstAccount.username, @"upn@test.com");
     XCTAssertEqualObjects(firstAccount.authority.environment, @"login.microsoft.com");
 
@@ -1380,6 +1391,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
     XCTAssertEqualObjects(account.givenName, @"Hello");
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.username, @"upn@test.com");
@@ -1426,6 +1438,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
 }
 
 - (void)testAccountsWithAuthority_whenNilAuthority_NonNilClientId_nilFamilyId_andLegacyAccountIdentifier_shouldReturnMatch
@@ -1462,6 +1475,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
 }
 
 - (void)testAccountsWithAuthority_whenNilAuthority_NilClientId_nonNilFamilyId_andLegacyAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
@@ -1498,6 +1512,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.tenantId, @"utid");
 }
 
 - (void)testAccountsWithAuthority_whenNilAuthority_NilClientId_nonNilFamilyId_andHomeAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
@@ -1534,6 +1549,7 @@
     XCTAssertEqual([accounts count], 1);
     MSIDAccount *account = accounts[0];
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid2");
+    XCTAssertEqualObjects(account.tenantId, @"utid2");
 }
 
 - (void)testAccountsWithAuthority_whenNilAuthority_NonNilClientId_andNonNilFamilyId_andNilAccountIdentifier_andTokensInLegacyCache_shouldReturnMatch
