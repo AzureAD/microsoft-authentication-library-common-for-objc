@@ -218,16 +218,20 @@
         return YES;
     }
     
+    if(comparisonOptions == MSIDExactStringMatch)
+    {
+        return [self.target.msidTrimmedString.lowercaseString isEqualToString:target.msidTrimmedString.lowercaseString];
+    }
+
     NSOrderedSet *inputSet = [NSOrderedSet msidOrderedSetFromString:target normalize:YES];
     NSOrderedSet *tokenSet = [NSOrderedSet msidOrderedSetFromString:self.target normalize:YES];
 
     switch (comparisonOptions) {
-        case MSIDExactStringMatch:
-            return [self.target.lowercaseString isEqualToString:target.lowercaseString];
         case MSIDSubSet:
             return [inputSet isSubsetOfOrderedSet:tokenSet];
         case MSIDIntersect:
             return [inputSet intersectsOrderedSet:tokenSet];
+        case MSIDExactStringMatch:
         default:
             return NO;
     }
@@ -239,7 +243,8 @@
                      environment:(nullable NSString *)environment
               environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
+    if (homeAccountId && 
+        ![self.homeAccountId.msidTrimmedString.lowercaseString isEqualToString:homeAccountId.msidTrimmedString.lowercaseString])
     {
         return NO;
     }
@@ -250,12 +255,14 @@
 - (BOOL)matchByEnvironment:(nullable NSString *)environment
         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (environment && ![self.environment isEqualToString:environment])
+    if (environment && 
+        ![self.environment.msidTrimmedString.lowercaseString isEqualToString:environment.msidTrimmedString.lowercaseString])
     {
         return NO;
     }
 
-    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    if ([environmentAliases count] && 
+        ![self.environment.msidTrimmedString.lowercaseString msidIsEquivalentWithAnyAlias:environmentAliases])
     {
         return NO;
     }
@@ -270,7 +277,7 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (realm && ![self.realm isEqualToString:realm])
+    if (realm && ![self.realm.msidTrimmedString.lowercaseString isEqualToString:realm.msidTrimmedString.lowercaseString])
     {
         return NO;
     }
@@ -287,8 +294,10 @@
 
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
-        if ((clientId && [self.clientId isEqualToString:clientId])
-            || (familyId && [self.familyId isEqualToString:familyId]))
+        if ((clientId && 
+             [self.clientId.msidTrimmedString.lowercaseString isEqualToString:clientId.msidTrimmedString.lowercaseString])
+            || (familyId && 
+                [self.familyId.msidTrimmedString.lowercaseString isEqualToString:familyId.msidTrimmedString.lowercaseString]))
         {
             return YES;
         }
@@ -297,12 +306,14 @@
     }
     else
     {
-        if (clientId && ![self.clientId isEqualToString:clientId])
+        if (clientId && 
+            ![self.clientId.msidTrimmedString.lowercaseString isEqualToString:clientId.msidTrimmedString.lowercaseString])
         {
             return NO;
         }
 
-        if (familyId && ![self.familyId isEqualToString:familyId])
+        if (familyId && 
+            ![self.familyId.msidTrimmedString.lowercaseString isEqualToString:familyId.msidTrimmedString.lowercaseString])
         {
             return NO;
         }
