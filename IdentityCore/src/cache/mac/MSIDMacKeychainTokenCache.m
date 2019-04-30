@@ -771,18 +771,17 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     {
         if (key.isShared)
         {
-            // Shared item attribute: <keychainGroup>-<app_bundle_id>-<homeAccountId>-<environment>
+            // Shared item attribute: <keychainGroup>-<homeAccountId>-<environment>
             query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup, account];
         }
         else
         {
-            // Secret item attribute: <keychainGroup>-<homeAccountId>-<environment>
+            // Secret item attribute: <keychainGroup>-<app_bundle_id>-<homeAccountId>-<environment>
             query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@-%@", self.keychainGroup,[[NSBundle mainBundle] bundleIdentifier], account];
         }
     }
     if (service.length > 0)
     {
-        // Service attribute: <realm>
         query[(id)kSecAttrService] = service;
     }
     
@@ -799,7 +798,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     if (key.generic.length > 0)
     {
-        // Generic attribute: <username>
         query[(id)kSecAttrGeneric] = key.generic;
     }
     if (key.type != nil)
