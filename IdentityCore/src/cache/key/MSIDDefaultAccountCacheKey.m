@@ -46,6 +46,7 @@ static NSInteger kAccountTypePrefix = 1000;
         _environment = environment;
         _realm = realm ? realm : @"";
         _accountType = type;
+        self.isShared = YES;
     }
 
     return self;

@@ -68,9 +68,6 @@
 // Storing for latter token deletion purpose, not serialized
 @property (readwrite, nullable) NSString *appKey;
 
-/* OSX specific property. Determines if an item is shared across apps.  */
-@property BOOL isShared;
-
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;

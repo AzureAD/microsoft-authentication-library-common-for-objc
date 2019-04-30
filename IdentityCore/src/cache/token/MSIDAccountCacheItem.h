@@ -42,9 +42,6 @@
 @property (readwrite, nullable) NSString *alternativeAccountId;
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
-/* OSX specific property. Determines if an item is shared across apps.  */
-@property BOOL isShared;
-
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
 
 @end

@@ -210,6 +210,7 @@
         query.clientId = familyId ? nil : configuration.clientId;
         query.familyId = familyId;
         query.credentialType = credentialType;
+        query.isShared = YES;
 
         MSIDRefreshToken *refreshToken = (MSIDRefreshToken *) [self getTokenWithAuthority:configuration.authority
                                                                                cacheQuery:query

@@ -113,6 +113,7 @@ static NSInteger kCredentialTypePrefix = 2000;
         _environment = environment;
         _clientId = clientId;
         _credentialType = type;
+        self.isShared = (type == MSIDRefreshTokenType);
     }
 
     return self;

@@ -103,7 +103,6 @@
     cacheItem.secret = self.refreshToken;
     cacheItem.familyId = self.familyId;
     cacheItem.realm = nil;
-    cacheItem.isShared = YES;
     return cacheItem;
 }
 

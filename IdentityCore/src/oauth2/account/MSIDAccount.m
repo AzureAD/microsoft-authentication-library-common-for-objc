@@ -167,7 +167,6 @@
     cacheItem.name = self.name;
     cacheItem.familyName = self.familyName;
     cacheItem.clientInfo = self.clientInfo;
-    cacheItem.isShared = YES;
     return cacheItem;
 }
 
