@@ -372,7 +372,7 @@
 {
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Eric Cartman" preferredUsername:@"eric999" tenantId:@"contoso.com"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Eric Cartman" preferredUsername:@"eric999" oid:nil tenantId:@"contoso.com"];
     
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"user.read", nil];
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"at" RT:@"rt" scopes:scopes idToken:idToken uid:@"1" utid:@"1234-5678-90abcdefg" familyId:@"1"];

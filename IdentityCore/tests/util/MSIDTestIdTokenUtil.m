@@ -58,17 +58,18 @@
 
 + (NSString *)defaultV1IdToken
 {
-    return [self idTokenWithName:[self defaultName] upn:[self defaultUsername] tenantId:nil];
+    return [self idTokenWithName:[self defaultName] upn:[self defaultUsername] oid:nil tenantId:nil];
 }
 
 + (NSString *)idTokenWithName:(NSString *)name
             preferredUsername:(NSString *)preferredUsername
 {
-    return [self idTokenWithName:name preferredUsername:preferredUsername tenantId:nil];
+    return [self idTokenWithName:name preferredUsername:preferredUsername oid:nil tenantId:nil];
 }
 
 + (NSString *)idTokenWithName:(NSString *)name
             preferredUsername:(NSString *)preferredUsername
+                          oid:(NSString *)oid
                      tenantId:(NSString *)tid
 {
     NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
@@ -76,12 +77,13 @@
                               @"name" : name,
                               @"preferred_username" : preferredUsername,
                               @"tid" : tid ? tid : [self defaultTenantId],
-                              @"oid" : [self defaultUniqueId]} msidBase64UrlJson];
+                              @"oid" : oid ? oid : [self defaultUniqueId]} msidBase64UrlJson];
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
 }
 
 + (NSString *)idTokenWithName:(NSString *)name
                           upn:(NSString *)upn
+                          oid:(NSString *)oid
                      tenantId:(NSString *)tid
 {
     NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
@@ -90,7 +92,7 @@
                               @"upn" : upn,
                               @"ver": @"1.0",
                               @"tid" : tid ? tid : [self defaultTenantId],
-                              @"oid" : [self defaultUniqueId]} msidBase64UrlJson];
+                              @"oid" : oid ? oid : [self defaultUniqueId]} msidBase64UrlJson];
     return [NSString stringWithFormat:@"%@.%@.%@", idTokenp1, idTokenp2, idTokenp1];
 }
 
