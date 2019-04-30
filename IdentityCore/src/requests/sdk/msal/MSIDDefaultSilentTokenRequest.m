@@ -27,7 +27,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccessToken.h"
-#import "MSIDIDToken.h"
+#import "MSIDIdToken.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDRefreshToken.h"

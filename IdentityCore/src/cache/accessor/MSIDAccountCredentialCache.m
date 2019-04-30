@@ -32,7 +32,7 @@
 #import "MSIDCacheKey.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDDefaultAccountCacheQuery.h"
-#import "MSIDAppMetaDataCacheItem.h"
+#import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
 
