@@ -140,7 +140,7 @@
 
 #pragma mark - NSCopying
 
-- (id)copyWithZone:(NSZone *)zone
+- (id)copyWithZone:(__unused NSZone *)zone
 {
     MSIDClaimsRequest *item = [MSIDClaimsRequest new];
     item->_claimsRequestsDict = [_claimsRequestsDict mutableCopy];
