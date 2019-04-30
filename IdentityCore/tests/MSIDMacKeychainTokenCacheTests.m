@@ -33,6 +33,7 @@
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDMacKeychainTokenCache+Testing.h"
 #import <XCTest/XCTest.h>
 
 @interface MSIDMacKeychainTokenCacheTests : XCTestCase

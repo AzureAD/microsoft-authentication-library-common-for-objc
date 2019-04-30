@@ -401,6 +401,7 @@
     accountsQuery.environmentAliases = environmentAliases;
     accountsQuery.homeAccountId = accountIdentifier.homeAccountId;
     accountsQuery.username = accountIdentifier.displayableId;
+    accountsQuery.isShared = YES;
 
     NSArray<MSIDAccountCacheItem *> *allAccounts = [_accountCredentialCache getAccountsWithQuery:accountsQuery context:context error:error];
 
@@ -496,6 +497,7 @@
     cacheQuery.realm = [authority.url msidTenant];
     cacheQuery.username = accountIdentifier.displayableId;
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
+    cacheQuery.isShared = YES;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
 
@@ -627,6 +629,7 @@
     query.clientId = token.clientId;
     query.familyId = token.familyId;
     query.credentialType = credentialType;
+    query.isShared = YES;
 
     MSIDRefreshToken *tokenInCache = (MSIDRefreshToken *) [self getTokenWithAuthority:token.authority
                                                                            cacheQuery:query
@@ -1005,6 +1008,7 @@
     refreshTokenQuery.familyId = familyId;
     refreshTokenQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
     refreshTokenQuery.clientIdMatchingOptions = MSIDSuperSet;
+    refreshTokenQuery.isShared = YES;
     
     NSArray<MSIDCredentialCacheItem *> *refreshTokens = [accountCredentialCache getCredentialsWithQuery:refreshTokenQuery context:context error:error];
     

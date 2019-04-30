@@ -240,7 +240,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
-        NSString *teamId = [self teamId];
+        NSString *teamId = [self.class teamId];
         if (!teamId) return nil;
 
         // Add team prefix to keychain group if it is missed.
@@ -839,7 +839,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     return _PII_NULLIFY(self.keychainGroup);
 }
 
-- (NSString *)teamId
++ (NSString *)teamId
 {
     NSString* teamIdentifier = nil;
     SecCodeRef selfCode = NULL;
