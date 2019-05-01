@@ -84,10 +84,19 @@ MSIDCacheItemJsonSerializer *_serializer;
 }
 
 - (void) setUp {
-    // TODO: list of trusted application ref here
-    _dataSource = [MSIDMacKeychainTokenCache new];
+    NSMutableArray<id>* trustedApplications = nil;
+    NSArray<NSString*>* trustedApplicationPaths = _inputParameters[@"trustedAppPaths"];
+    if (trustedApplicationPaths) {
+        trustedApplications = [[NSMutableArray alloc] initWithCapacity:[trustedApplicationPaths count]];
+        for (NSString* appPaths in trustedApplicationPaths) {
+            SecTrustedApplicationRef trustedApp;
+            if (SecTrustedApplicationCreateFromPath([appPaths UTF8String], &trustedApp) == errSecSuccess) {
+                [trustedApplications addObject:(__bridge_transfer id)trustedApp];
+            }
+        }
+    }
+    _dataSource = [[MSIDMacKeychainTokenCache alloc] initWithGroupAndTrustedApplications:[MSIDMacKeychainTokenCache defaultKeychainGroup]                                                                       trustedApplications:trustedApplications];
     _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
-    
 }
 
 - (MSIDDefaultAccountCacheKey*) getKeyFromAccount:(MSIDAccountCacheItem*)account {
