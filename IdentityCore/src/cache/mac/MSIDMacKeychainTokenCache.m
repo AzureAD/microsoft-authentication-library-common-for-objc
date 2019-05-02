@@ -922,6 +922,119 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     return YES;
 }
 
+#pragma mark - Access Control Lists
+
+- (OSStatus) accessCreateWithChanceACL:(NSArray<id>*)trustedApplications
+                                access:(SecAccessRef*)access
+{
+    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, access);
+    if (status != errSecSuccess)
+    {
+        // log error
+        return status;
+    }
+    status = [self accessControlListSetACLTrustedApplications:*access
+                                          aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                                                trustedApplications:(__bridge CFArrayRef)self->_trustedApplications];
+    return status;
+}
+
+- (OSStatus) accessControlListSetACLTrustedApplications:(SecAccessRef)access
+                                    aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
+                                    trustedApplications:(CFArrayRef)trustedApplications
+{
+    OSStatus status;
+    NSArray* acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
+    // TODO: handle case where tag is not found?
+    for (id acl in acls)
+    {
+        CFStringRef description;
+        CFArrayRef oldtrustedAppList;
+        SecKeychainPromptSelector selector;
+        
+        status = SecACLCopyContents((__bridge SecACLRef)acl, &oldtrustedAppList, &description, &selector);
+        if (status != errSecSuccess)
+        {
+            // TODO: log error here
+            return status;
+        }
+        
+        status = SecACLSetContents((__bridge SecACLRef)acl, trustedApplications, description, selector);
+        if (status != errSecSuccess)
+        {
+            // TODO: log error here
+            return status;
+        }
+    }
+    return errSecSuccess;
+}
+
+- (SecAccessRef) credentialsAccessControlList
+{
+    SecAccessRef access;
+    OSStatus status = [self accessCreateWithChanceACL:self->_trustedApplications
+                                               access:&access];
+    if (status != errSecSuccess)
+    {
+        // log error here
+        return nil;
+    }
+    return access;
+}
+
+- (SecAccessRef) accountAccessControlList
+{
+    SecAccessRef access;
+    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, nil, &access);
+    if (status != errSecSuccess)
+    {
+        // log error
+        return nil;;
+    }
+    
+    status = [self accessControlListSetACLTrustedApplications:access
+                                          aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                                          trustedApplications:(__bridge CFArrayRef)self->_trustedApplications];
+    if (status != errSecSuccess)
+    {
+        // log error
+        return nil;
+    }
+    status = [self accessControlListSetACLTrustedApplications:access
+                                          aclAuthorizationTag:kSecACLAuthorizationDecrypt
+                                          trustedApplications:nil];
+    if (status != errSecSuccess)
+    {
+        // log error
+        return nil;
+    }
+    return access;
+}
+
+- (SecAccessRef) appMetadataAccessControlList
+{
+    SecTrustedApplicationRef currentApp;
+    OSStatus status = SecTrustedApplicationCreateFromPath(nil, &currentApp);
+    if (status != errSecSuccess)
+    {
+        // log error
+        return nil;
+    }
+    NSArray* trustedApps = @[(__bridge_transfer id)currentApp];
+    
+    SecAccessRef access;
+    status = [self accessCreateWithChanceACL:trustedApps
+                                               access:&access];
+    if (status != errSecSuccess)
+    {
+        // log error here
+        return nil;
+    }
+    return access;
+}
+
+
+
 #pragma mark - Utilities
 
 // Get the basic/default keychain query dictionary for keychain items.

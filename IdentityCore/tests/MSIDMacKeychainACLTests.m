@@ -76,9 +76,9 @@
     
     NSFileHandle *file = [pipe fileHandleForReading];
     
-    //printf("===============================\n");
-    //printf("%s\n", [jsonString UTF8String]);
-    //printf("===============================\n");
+    printf("===============================\n");
+    printf("%s\n", [jsonString UTF8String]);
+    printf("===============================\n");
     [task launch];
     
     NSData *data = [file readDataToEndOfFile];
