@@ -924,24 +924,35 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
 #pragma mark - Access Control Lists
 
-- (OSStatus) accessCreateWithChanceACL:(NSArray<id>*)trustedApplications
-                                access:(SecAccessRef*)access
+- (id) accessCreateWithChanceACL:(NSArray<id>*)trustedApplications
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError**)error
 {
-    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, access);
+    SecAccessRef access;
+    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, &access);
     if (status != errSecSuccess)
     {
-        // log error
-        return status;
+        [self createError:@"Failed to remove multiple accounts from keychain"
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return nil;
     }
-    status = [self accessControlListSetACLTrustedApplications:*access
-                                          aclAuthorizationTag:kSecACLAuthorizationChangeACL
-                                                trustedApplications:(__bridge CFArrayRef)self->_trustedApplications];
-    return status;
+    if (![self accessSetACLTrustedApplications:access
+                                      aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                                      trustedApplications:self->_trustedApplications
+                                                  context:context
+                                                    error:error])
+    {
+        CFRelease(access);
+        return nil;
+    }
+    return CFBridgingRelease(access);
 }
 
-- (OSStatus) accessControlListSetACLTrustedApplications:(SecAccessRef)access
-                                    aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
-                                    trustedApplications:(CFArrayRef)trustedApplications
+- (BOOL) accessSetACLTrustedApplications:(SecAccessRef)access
+                     aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
+                     trustedApplications:(NSArray<id>*)trustedApplications
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError**)error
 {
     OSStatus status;
     NSArray* acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
@@ -955,82 +966,72 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         status = SecACLCopyContents((__bridge SecACLRef)acl, &oldtrustedAppList, &description, &selector);
         if (status != errSecSuccess)
         {
-            // TODO: log error here
-            return status;
+            [self createError:@"Failed to get contents from ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            return NO;
         }
         
-        status = SecACLSetContents((__bridge SecACLRef)acl, trustedApplications, description, selector);
+        status = SecACLSetContents((__bridge SecACLRef)acl, (__bridge CFArrayRef)trustedApplications, description, selector);
         if (status != errSecSuccess)
         {
-            // TODO: log error here
-            return status;
+            [self createError:@"Failed to set conents for ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            return NO;
         }
     }
-    return errSecSuccess;
+    return YES;
 }
 
-- (SecAccessRef) credentialsAccessControlList
+- (id) accessCreateForCredentials:(id<MSIDRequestContext>)context
+                                      error:(NSError**)error
 {
-    SecAccessRef access;
-    OSStatus status = [self accessCreateWithChanceACL:self->_trustedApplications
-                                               access:&access];
-    if (status != errSecSuccess)
-    {
-        // log error here
-        return nil;
-    }
-    return access;
+    return [self accessCreateWithChanceACL:self->_trustedApplications
+                                              context:context
+                                                error:error];
 }
 
-- (SecAccessRef) accountAccessControlList
+- (id) accessCreateForAccount:(id<MSIDRequestContext>)context
+                                  error:(NSError**)error
 {
-    SecAccessRef access;
+    SecAccessRef access = nil;
     OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, nil, &access);
     if (status != errSecSuccess)
     {
-        // log error
+        [self createError:@"Failed to create default SecAccessRef" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return nil;;
     }
     
-    status = [self accessControlListSetACLTrustedApplications:access
-                                          aclAuthorizationTag:kSecACLAuthorizationChangeACL
-                                          trustedApplications:(__bridge CFArrayRef)self->_trustedApplications];
-    if (status != errSecSuccess)
+    if (![self accessSetACLTrustedApplications:access
+                                     aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                                     trustedApplications:self->_trustedApplications
+                                                  context:context
+                                                    error:error] ||
+        ![self accessSetACLTrustedApplications:access
+                                     aclAuthorizationTag:kSecACLAuthorizationDecrypt
+                                     trustedApplications:nil
+                                                context:context
+                                                  error:error])
     {
-        // log error
+        CFRelease(access);
         return nil;
     }
-    status = [self accessControlListSetACLTrustedApplications:access
-                                          aclAuthorizationTag:kSecACLAuthorizationDecrypt
-                                          trustedApplications:nil];
-    if (status != errSecSuccess)
-    {
-        // log error
-        return nil;
-    }
-    return access;
+    return CFBridgingRelease(access);
 }
 
-- (SecAccessRef) appMetadataAccessControlList
+- (id) accessCreateForAppMetadata:(id<MSIDRequestContext>)context
+                                      error:(NSError**)error
 {
     SecTrustedApplicationRef currentApp;
     OSStatus status = SecTrustedApplicationCreateFromPath(nil, &currentApp);
     if (status != errSecSuccess)
     {
-        // log error
+        [self createError:@"Failed to create trusted application for current application path"
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return nil;
     }
-    NSArray* trustedApps = @[(__bridge_transfer id)currentApp];
     
-    SecAccessRef access;
-    status = [self accessCreateWithChanceACL:trustedApps
-                                               access:&access];
-    if (status != errSecSuccess)
-    {
-        // log error here
-        return nil;
-    }
-    return access;
+    NSArray* trustedApps = @[(__bridge_transfer id)currentApp];
+    return [self accessCreateWithChanceACL:trustedApps
+                                     context:context
+                                       error:error];
 }
 
 
