@@ -49,7 +49,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, [self.secret msidSecretLoggingHash]];
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash]];
 }
 
 #pragma mark - MSIDCacheItem
@@ -84,7 +84,7 @@
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
-    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
+    result &= (!self.speInfo && !item.speInfo) || [self.speInfo isEqual:item.speInfo];
     return result;
 }
 
@@ -105,7 +105,7 @@
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.enrollmentId.hash;
-    hash = hash * 31 + self.additionalInfo.hash;
+    hash = hash * 31 + self.speInfo.hash;
     return hash;
 }
 
@@ -126,7 +126,7 @@
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
-    item.additionalInfo = [self.additionalInfo copyWithZone:zone];
+    item.speInfo = [self.speInfo copyWithZone:zone];
     return item;
 }
 
@@ -167,17 +167,7 @@
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
-
-    // Additional Info
-
-    NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
-    NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
-    additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
-
-    if ([additionalInfo count])
-    {
-        _additionalInfo = additionalInfo;
-    }
+    _speInfo = json[MSID_SPE_INFO_CACHE_KEY];
 
     return self;
 }
@@ -204,7 +194,7 @@
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
-    dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
+    dictionary[MSID_SPE_INFO_CACHE_KEY] = _speInfo;
 
     return dictionary;
 }
