@@ -216,7 +216,7 @@
     cacheItem.credentialType = MSIDCredentialTypeOther;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     
@@ -224,7 +224,7 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.additionalServerInfo, @{MSID_SPE_INFO_CACHE_KEY: @"test"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
 
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
@@ -236,7 +236,7 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDCredentialTypeOther;
     cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
 
@@ -244,7 +244,7 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.additionalServerInfo, @{MSID_SPE_INFO_CACHE_KEY: @"test"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
 
     token.storageAuthority = [@"https://login.windows.net/common" authority];

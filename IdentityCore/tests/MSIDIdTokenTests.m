@@ -98,7 +98,7 @@
     cacheItem.credentialType = MSIDIDTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     
@@ -112,7 +112,7 @@
     cacheItem.credentialType = MSIDIDTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"id token";

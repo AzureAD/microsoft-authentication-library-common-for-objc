@@ -44,7 +44,7 @@
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
     cacheItem.secret = @"refresh token value";
     cacheItem.familyId = @"familyId value";
-    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
+    cacheItem.speInfo = @"test";
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"some clientId";

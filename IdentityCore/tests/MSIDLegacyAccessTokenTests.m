@@ -200,7 +200,7 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"common";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
