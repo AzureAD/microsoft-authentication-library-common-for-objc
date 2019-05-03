@@ -60,6 +60,7 @@
     _dataSource = [MSIDMacKeychainTokenCache new];
     _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
     _serializer = [MSIDCacheItemJsonSerializer new];
+    [_cache clearWithContext:nil error:nil];
 
     _testAccount = [MSIDAccountCacheItem new];
     _testAccount.environment = DEFAULT_TEST_ENVIRONMENT;
@@ -193,6 +194,7 @@
 - (void)tearDown
 {
     [_dataSource removeItemsWithAccountKey:_testAccountKey context:nil error:nil];
+    [_cache clearWithContext:nil error:nil];
     _dataSource = nil;
 }
 

@@ -352,6 +352,22 @@
     return idToken;
 }
 
+- (NSArray<MSIDIdToken *> *)idTokensWithAuthority:(MSIDAuthority *)authority
+                                accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                         clientId:(NSString *)clientId
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.homeAccountId = accountIdentifier.homeAccountId;
+    query.environmentAliases = [authority defaultCacheEnvironmentAliases];
+    query.realm = authority.url.msidTenant;
+    query.clientId = clientId;
+    query.credentialType = MSIDIDTokenType;
+    
+    return (NSArray<MSIDIdToken *> *)[self getTokensWithAuthority:authority cacheQuery:query context:context error:error];
+}
+
 - (BOOL)removeAccessToken:(MSIDAccessToken *)token
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error
@@ -414,23 +430,17 @@
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
         return nil;
     }
-
-    NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
-
-    for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
-    {
-        // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if ([filterAccountIds containsObject:accountCacheItem.homeAccountId])
-        {
-            if (authority.environment)
-            {
-                accountCacheItem.environment = authority.environment;
-            }
-
-            MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
-            if (account) [filteredAccountsSet addObject:account];
-        }
-    }
+    
+    NSArray<MSIDIdToken *> *idTokens = [self idTokensWithAuthority:authority
+                                                 accountIdentifier:accountIdentifier
+                                                          clientId:clientId
+                                                           context:context
+                                                             error:nil];
+    
+    NSMutableSet<MSIDAccount *> *filteredAccountsSet = [self filterAndFillIdTokenClaimsForAccounts:allAccounts
+                                                                                         authority:authority
+                                                                                        accountIds:filterAccountIds
+                                                                                          idTokens:idTokens];
 
     if ([filteredAccountsSet count])
     {
@@ -677,7 +687,7 @@
     // Delete access tokens with intersecting scopes
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
-    query.environment = accessToken.authority.environment;
+    query.environment = [[accessToken.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
     query.realm = accessToken.authority.url.msidTenant;
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
@@ -817,6 +827,44 @@
                                    error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
+    
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
+    
+    NSError *cacheError = nil;
+    NSArray<MSIDBaseToken *> *resultTokens = [self getTokensWithAuthority:authority cacheQuery:cacheQuery context:context error:&cacheError];
+    
+    if (cacheError)
+    {
+        if (error) *error = cacheError;
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+        return nil;
+    }
+    
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Found %lu tokens", (unsigned long)[resultTokens count]);
+    
+    if (resultTokens.count > 0)
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:resultTokens[0] success:YES context:context];
+        return resultTokens[0];
+    }
+    
+    if (cacheQuery.credentialType == MSIDRefreshTokenType)
+    {
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+    }
+    else
+    {
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+    }
+    return nil;
+}
+
+- (NSArray<MSIDBaseToken *> *)getTokensWithAuthority:(MSIDAuthority *)authority
+                                          cacheQuery:(MSIDDefaultCredentialCacheQuery *)cacheQuery
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error
+{
+    MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSID_LOG_INFO(context, @"(Default accessor) Looking for token with aliases %@, tenant %@, clientId %@, scopes %@", cacheQuery.environmentAliases, cacheQuery.realm, cacheQuery.clientId, cacheQuery.target);
 
@@ -831,29 +879,24 @@
         return nil;
     }
 
-    if ([cacheItems count])
+    NSMutableArray<MSIDBaseToken *> *resultTokens = [NSMutableArray new];
+    for (MSIDCredentialCacheItem *cacheItem in cacheItems)
     {
-        MSIDBaseToken *resultToken = [cacheItems[0] tokenWithType:cacheQuery.credentialType];
+        MSIDBaseToken *resultToken = [cacheItem tokenWithType:cacheQuery.credentialType];
 
         if (resultToken)
         {
             MSID_LOG_INFO(context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
             resultToken.storageAuthority = resultToken.authority;
-            resultToken.authority = authority;
-            [MSIDTelemetry stopCacheEvent:event withItem:resultToken success:YES context:context];
-            return resultToken;
+            if (authority)
+            {
+                resultToken.authority = authority;
+            }
+            [resultTokens addObject:resultToken];
         }
     }
-
-    if (cacheQuery.credentialType == MSIDRefreshTokenType)
-    {
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
-    }
-    else
-    {
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-    }
-    return nil;
+    
+    return resultTokens;
 }
 
 - (MSIDBaseToken *)getRefreshableTokenByDisplayableId:(NSString *)legacyUserId
@@ -971,6 +1014,55 @@
     }
     
     return [NSSet setWithArray:[refreshTokens valueForKey:@"homeAccountId"]];
+}
+
+- (NSMutableSet<MSIDAccount *> *)filterAndFillIdTokenClaimsForAccounts:(NSArray<MSIDAccountCacheItem *> *)allAccounts
+                                                             authority:(MSIDAuthority *)authority
+                                                            accountIds:(NSSet<NSString *> *)accountIds
+                                                              idTokens:(NSArray<MSIDIdToken *> *)idTokens
+{
+    NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
+    
+    // Build up a search map for quick id token match up
+    NSMutableDictionary *idTokenSearchMap = [NSMutableDictionary new];
+    for (MSIDIdToken *idToken in idTokens)
+    {
+        NSString *key = [NSString stringWithFormat:@"%@-%@-%@", idToken.accountIdentifier.homeAccountId, idToken.authority.environment, idToken.authority.url.msidTenant];
+        [idTokenSearchMap setValue:idToken forKey:key];
+    }
+    
+    for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
+    {
+        // If we have accountIds to filter by, only return account if it has an associated refresh token
+        if ([accountIds containsObject:accountCacheItem.homeAccountId])
+        {
+            if (authority.environment)
+            {
+                accountCacheItem.environment = authority.environment;
+            }
+            
+            MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:accountCacheItem];
+            if (!account) continue;
+            
+            NSString *idTokenSearchKey = [NSString stringWithFormat:@"%@-%@-%@", account.accountIdentifier.homeAccountId, account.authority.environment, account.authority.url.msidTenant];
+            MSIDIdToken *idToken = idTokenSearchMap[idTokenSearchKey];
+            
+            if (idToken)
+            {
+                NSError *error =  nil;
+                account.idTokenClaims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:idToken.rawIdToken error:&error];
+                
+                if (error)
+                {
+                    MSID_LOG_ERROR(nil, @"Failed to create id token claims when fill id token claims for msidAccount!");
+                }
+            }
+            
+            [filteredAccountsSet addObject:account];
+        }
+    }
+    
+    return filteredAccountsSet;
 }
 
 #pragma mark - App metadata

@@ -111,23 +111,16 @@
     return YES;
 }
 
-- (MSIDAuthority *)authorityFromURL:(NSURL *)url
-                      tokenResponse:(MSIDB2CTokenResponse *)response
-                              error:(NSError **)error
+- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
+                                   tokenResponse:(MSIDB2CTokenResponse *)response
+                                           error:(NSError **)error
 {
     if (![self checkResponseClass:response context:nil error:error])
     {
         return nil;
     }
 
-    NSString *tenantId = response.idTokenObj.realm;
-
-    if ([NSString msidIsStringNilOrBlank:tenantId])
-    {
-        tenantId = response.clientInfo.utid;
-    }
-
-    return [MSIDAuthorityFactory authorityFromUrl:url rawTenant:tenantId context:nil error:nil];
+    return [MSIDAuthorityFactory authorityWithRawTenant:response.clientInfo.utid msidAuthority:requestAuthority context:nil error:error];
 }
 
 @end

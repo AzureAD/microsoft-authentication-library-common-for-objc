@@ -138,7 +138,7 @@
     }
 
     accessToken.scopes = responseScopes;
-    accessToken.authority = [self authorityFromURL:accessToken.authority.url tokenResponse:response error:nil];
+    accessToken.authority = [self authorityFromRequestAuthority:accessToken.authority tokenResponse:response error:nil];
 
     return YES;
 }
@@ -154,7 +154,7 @@
         return NO;
     }
 
-    token.authority = [self authorityFromURL:token.authority.url tokenResponse:response error:nil];
+    token.authority = [self authorityFromRequestAuthority:token.authority tokenResponse:response error:nil];
 
     return YES;
 }
@@ -175,15 +175,15 @@
         return NO;
     }
 
-    account.authority = [self authorityFromURL:account.authority.url tokenResponse:response error:nil];
+    account.authority = [self authorityFromRequestAuthority:account.authority tokenResponse:response error:nil];
     return YES;
 }
 
-- (MSIDAuthority *)authorityFromURL:(NSURL *)url
-                      tokenResponse:(MSIDTokenResponse *)response
-                              error:(NSError **)error
+- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
+                                   tokenResponse:(MSIDTokenResponse *)response
+                                           error:(NSError **)error
 {
-    return [MSIDAuthorityFactory authorityFromUrl:url
+    return [MSIDAuthorityFactory authorityFromUrl:requestAuthority.url
                                          rawTenant:response.idTokenObj.realm
                                            context:nil
                                              error:error];

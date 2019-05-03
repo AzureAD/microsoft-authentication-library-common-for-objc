@@ -41,7 +41,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDWebViewFactory.h"
+#import "MSIDWebviewFactory.h"
 
 @interface MSIDInteractiveTokenRequest()
 
