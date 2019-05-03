@@ -162,11 +162,6 @@
         [dictionary addEntriesFromDictionary:_json];
     }
     
-    if (_additionalAccountFields)
-    {
-        [dictionary addEntriesFromDictionary:_additionalAccountFields];
-    }
-    
     dictionary[MSID_AUTHORITY_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_LOCAL_ACCOUNT_ID_CACHE_KEY] = _localAccountId;
@@ -180,16 +175,6 @@
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
     dictionary[MSID_ALTERNATIVE_ACCOUNT_ID_KEY] = _alternativeAccountId;
     return dictionary;
-}
-
-#pragma mark - Update
-
-- (void)updateFieldsFromAccount:(MSIDAccountCacheItem *)account
-{
-    NSMutableDictionary *allAdditionalFields = [NSMutableDictionary dictionary];
-    [allAdditionalFields addEntriesFromDictionary:account.additionalAccountFields];
-    [allAdditionalFields addEntriesFromDictionary:_additionalAccountFields];
-    _additionalAccountFields = allAdditionalFields;
 }
 
 @end

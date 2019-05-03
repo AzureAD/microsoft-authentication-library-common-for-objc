@@ -263,7 +263,9 @@
     if (previousAccount)
     {
         // Make sure we copy over all the additional fields
-        [account updateFieldsFromAccount:previousAccount];
+        NSMutableDictionary *mergedDictionary = [previousAccount.jsonDictionary mutableCopy];
+        [mergedDictionary addEntriesFromDictionary:account.jsonDictionary];
+        account = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:mergedDictionary error:error];
     }
 
     key.username = account.username;
