@@ -149,7 +149,7 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.additionalServerInfo, @{MSID_SPE_INFO_CACHE_KEY: @"test"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.familyId, @"1");
     

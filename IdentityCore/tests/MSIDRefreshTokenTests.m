@@ -141,7 +141,7 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.authority.url, [NSURL URLWithString:@"https://login.microsoftonline.com/common"]);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.additionalServerInfo, @{MSID_SPE_INFO_CACHE_KEY: @"test"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.refreshToken, @"refresh token");
     

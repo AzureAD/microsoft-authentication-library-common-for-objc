@@ -44,7 +44,7 @@
     MSIDLegacyTokenCacheItem *cacheItem = [[MSIDLegacyTokenCacheItem alloc] init];
     cacheItem.refreshToken = @"refresh token value";
     cacheItem.familyId = @"familyId value";
-    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
+    cacheItem.speInfo = @"test";
     cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.clientId = @"some clientId";
     cacheItem.credentialType = MSIDRefreshTokenType;
