@@ -925,8 +925,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 #pragma mark - Access Control Lists
 
 - (id) accessCreateWithChanceACL:(NSArray<id>*)trustedApplications
-                                   context:(id<MSIDRequestContext>)context
-                                     error:(NSError**)error
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError**)error
 {
     SecAccessRef access;
     OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, &access);
@@ -937,10 +937,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         return nil;
     }
     if (![self accessSetACLTrustedApplications:access
-                                      aclAuthorizationTag:kSecACLAuthorizationChangeACL
-                                      trustedApplications:self->_trustedApplications
-                                                  context:context
-                                                    error:error])
+                           aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                           trustedApplications:self->_trustedApplications
+                                       context:context
+                                         error:error])
     {
         CFRelease(access);
         return nil;
@@ -984,8 +984,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                       error:(NSError**)error
 {
     return [self accessCreateWithChanceACL:self->_trustedApplications
-                                              context:context
-                                                error:error];
+                                   context:context
+                                     error:error];
 }
 
 - (id) accessCreateForAccount:(id<MSIDRequestContext>)context
@@ -996,19 +996,19 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (status != errSecSuccess)
     {
         [self createError:@"Failed to create default SecAccessRef" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-        return nil;;
+        return nil;
     }
     
     if (![self accessSetACLTrustedApplications:access
-                                     aclAuthorizationTag:kSecACLAuthorizationChangeACL
-                                     trustedApplications:self->_trustedApplications
-                                                  context:context
-                                                    error:error] ||
+                           aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                           trustedApplications:self->_trustedApplications
+                                       context:context
+                                         error:error] ||
         ![self accessSetACLTrustedApplications:access
-                                     aclAuthorizationTag:kSecACLAuthorizationDecrypt
-                                     trustedApplications:nil
-                                                context:context
-                                                  error:error])
+                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
+                           trustedApplications:nil
+                                       context:context
+                                         error:error])
     {
         CFRelease(access);
         return nil;
@@ -1017,7 +1017,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 }
 
 - (id) accessCreateForAppMetadata:(id<MSIDRequestContext>)context
-                                      error:(NSError**)error
+                            error:(NSError**)error
 {
     SecTrustedApplicationRef currentApp;
     OSStatus status = SecTrustedApplicationCreateFromPath(nil, &currentApp);
@@ -1030,8 +1030,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     NSArray* trustedApps = @[(__bridge_transfer id)currentApp];
     return [self accessCreateWithChanceACL:trustedApps
-                                     context:context
-                                       error:error];
+                                   context:context
+                                     error:error];
 }
 
 
