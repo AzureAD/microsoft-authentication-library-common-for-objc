@@ -99,6 +99,12 @@
         _idToken = tokenCacheItem.idToken;
         _authority = authority;
         _refreshToken = tokenCacheItem.refreshToken;
+        
+        if (!_refreshToken)
+        {
+            MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field in cache");
+            return nil;
+        }
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
