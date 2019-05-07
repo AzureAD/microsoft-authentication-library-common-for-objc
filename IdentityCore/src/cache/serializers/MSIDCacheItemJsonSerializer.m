@@ -25,6 +25,7 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonSerializable.h"
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDSharedCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
@@ -58,6 +59,25 @@
 {
     NSError *error = nil;
     MSIDCredentialCacheItem *item = (MSIDCredentialCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDCredentialCacheItem.class context:nil error:&error];
+    
+    if (!item)
+    {
+        MSID_LOG_VERBOSE(nil, @"Failed to deserialize credential %@", error);
+        return nil;
+    }
+    
+    return item;
+}
+
+- (NSData *)serializeSharedCredentialCacheItem:(MSIDSharedCredentialCacheItem *)item
+{
+    return [self.jsonSerializer toJsonData:item context:nil error:nil];
+}
+
+- (MSIDSharedCredentialCacheItem *)deserializeSharedCredentialCacheItem:(NSData *)data
+{
+    NSError *error = nil;
+    MSIDSharedCredentialCacheItem *item = (MSIDSharedCredentialCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDSharedCredentialCacheItem.class context:nil error:&error];
     
     if (!item)
     {

@@ -28,6 +28,7 @@
 #import "MSIDAccountItemSerializer.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
+#import "MSIDSharedCredentialItemSerializer.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
@@ -190,6 +191,15 @@ return NO; \
     [self.delegate didWriteCache:self];
     
     return result;
+}
+
+- (BOOL)saveSharedToken:(MSIDCredentialCacheItem *)item
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDCredentialItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError * __autoreleasing *)error
+{
+    return NO;
 }
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
@@ -585,6 +595,14 @@ return NO; \
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
     [self clear];
     return YES;
+}
+
+- (NSArray *)refreshTokensWithKey:(MSIDCacheKey *)key
+                       serializer:(__unused id<MSIDSharedCredentialItemSerializer>)serializer
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    return nil;
 }
 
 @end

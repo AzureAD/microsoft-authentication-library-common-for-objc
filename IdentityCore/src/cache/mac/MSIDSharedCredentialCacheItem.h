@@ -21,15 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
-#import "MSIDSharedCredentialItemSerializer.h"
+#import "MSIDCredentialCacheItem.h"
+#import "MSIDSharedAccount.h"
+#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCacheItemJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer, MSIDSharedCredentialItemSerializer>
+@interface MSIDSharedCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
+
++ (MSIDSharedCredentialCacheItem *)sharedInstance;
+
+@property NSMutableDictionary<NSString *, MSIDSharedAccount *> *credentials;
+
+- (void)setObject:(id<MSIDJsonSerializable>)object forKey:(MSIDDefaultCredentialCacheKey *)key;
+- (NSString *)getCredentialId:(MSIDDefaultCredentialCacheKey *)key;
 
 @end
 

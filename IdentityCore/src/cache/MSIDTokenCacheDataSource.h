@@ -42,6 +42,12 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error;
 
+- (BOOL)saveSharedToken:(MSIDCredentialCacheItem *)item
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDCredentialItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error;
+
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
                           serializer:(id<MSIDCredentialItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
@@ -51,6 +57,11 @@
                                       serializer:(id<MSIDCredentialItemSerializer>)serializer
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
+
+- (NSArray<MSIDCredentialCacheItem *> *)refreshTokensWithKey:(MSIDCacheKey *)key
+                                                  serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                                     context:(id<MSIDRequestContext>)context
+                                                       error:(NSError **)error;
 
 // Wipe info
 

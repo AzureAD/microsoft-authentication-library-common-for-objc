@@ -35,6 +35,12 @@
 		1E4252362187DA1B00C149E9 /* MSIDAppMetadataCacheQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E4252342187DA0D00C149E9 /* MSIDAppMetadataCacheQueryTests.m */; };
 		1E4D74AB216E7AE70091426A /* MSIDGeneralCacheItemType.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E4D74AA216E7AE70091426A /* MSIDGeneralCacheItemType.m */; };
 		1E51BC892279067000856A4E /* MSIDMacKeychainTokenCache+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E51BC86227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.m */; };
+		1E51BC962279480400856A4E /* MSIDSharedCredentialItemSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E51BC952279480400856A4E /* MSIDSharedCredentialItemSerializer.h */; };
+		1E51BC992279486700856A4E /* MSIDSharedCredentialCacheItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E51BC972279486700856A4E /* MSIDSharedCredentialCacheItem.h */; };
+		1E51BC9A2279486700856A4E /* MSIDSharedCredentialCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */; };
+		1E57AEBD227CC56200F4199B /* MSIDSharedAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E57AEBB227CC55800F4199B /* MSIDSharedAccount.m */; };
+		1E5E716A227E8CF8009191C5 /* MSIDSharedCredentialCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */; };
+		1E5E716B227E8D1B009191C5 /* MSIDSharedAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E57AEBB227CC55800F4199B /* MSIDSharedAccount.m */; };
 		1E65C47B2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65C47A2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m */; };
 		1E65C47C2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65C47A2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m */; };
 		2306D29F20AB672400F875A3 /* MSIDAADEndpointProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 2306D29E20AB672400F875A3 /* MSIDAADEndpointProvider.m */; };
@@ -1160,6 +1166,11 @@
 		1E4D74AA216E7AE70091426A /* MSIDGeneralCacheItemType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGeneralCacheItemType.m; sourceTree = "<group>"; };
 		1E51BC85227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDMacKeychainTokenCache+Testing.h"; sourceTree = "<group>"; };
 		1E51BC86227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDMacKeychainTokenCache+Testing.m"; sourceTree = "<group>"; };
+		1E51BC952279480400856A4E /* MSIDSharedCredentialItemSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSharedCredentialItemSerializer.h; sourceTree = "<group>"; };
+		1E51BC972279486700856A4E /* MSIDSharedCredentialCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSharedCredentialCacheItem.h; sourceTree = "<group>"; };
+		1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSharedCredentialCacheItem.m; sourceTree = "<group>"; };
+		1E57AEBA227CC55800F4199B /* MSIDSharedAccount.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSharedAccount.h; sourceTree = "<group>"; };
+		1E57AEBB227CC55800F4199B /* MSIDSharedAccount.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSharedAccount.m; sourceTree = "<group>"; };
 		1E65C47A2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppMetadataCacheKeyTests.m; sourceTree = "<group>"; };
 		2306D29C20AB65DF00F875A3 /* MSIDAADEndpointProviding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADEndpointProviding.h; sourceTree = "<group>"; };
 		2306D29D20AB672400F875A3 /* MSIDAADEndpointProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADEndpointProvider.h; sourceTree = "<group>"; };
@@ -2783,6 +2794,11 @@
 			children = (
 				05566D0E2204BB8A002DBA40 /* MSIDMacKeychainTokenCache.h */,
 				05566D0F2204BB8A002DBA40 /* MSIDMacKeychainTokenCache.m */,
+				1E51BC952279480400856A4E /* MSIDSharedCredentialItemSerializer.h */,
+				1E51BC972279486700856A4E /* MSIDSharedCredentialCacheItem.h */,
+				1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */,
+				1E57AEBA227CC55800F4199B /* MSIDSharedAccount.h */,
+				1E57AEBB227CC55800F4199B /* MSIDSharedAccount.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -3630,6 +3646,7 @@
 				238695F2209D375C00E56ADF /* MSIDAuthorityCacheRecord.h in Headers */,
 				23DADC1020B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.h in Headers */,
 				B2AF1D1C218BCD7C0080C1A0 /* MSIDLocalInteractiveController.h in Headers */,
+				1E51BC962279480400856A4E /* MSIDSharedCredentialItemSerializer.h in Headers */,
 				B2D81BC01FF5C7520093859A /* MSIDTestBrokerResponse.h in Headers */,
 				B251CC47204105A7005E0179 /* MSIDRefreshableToken.h in Headers */,
 				23B37D1A20C9ECFB0018722F /* MSIDCache.h in Headers */,
@@ -3709,6 +3726,7 @@
 				B28D90A0218FBBA200E230D6 /* MSIDTokenResponseValidator.h in Headers */,
 				B2C7B3B3213C681F009FFCC1 /* MSIDErrorConverter.h in Headers */,
 				2338ECD6208A7B3200809B9E /* MSIDTestContext.h in Headers */,
+				1E51BC992279486700856A4E /* MSIDSharedCredentialCacheItem.h in Headers */,
 				B2C7B3B7213C6839009FFCC1 /* MSIDErrorConverting.h in Headers */,
 				23B39A90209A85EB000AA905 /* MSIDWebFingerRequest.h in Headers */,
 				B2C708A5219A593C00D917B8 /* MSIDLegacyTokenRequestProvider.h in Headers */,
@@ -4386,6 +4404,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B251CC3A2041058D005E0179 /* MSIDLegacySingleResourceToken.m in Sources */,
+				1E57AEBD227CC56200F4199B /* MSIDSharedAccount.m in Sources */,
 				B2A3C2812145D04E0082525C /* MSIDAuthorityCacheRecord.m in Sources */,
 				B2C708B2219A620700D917B8 /* MSIDBrokerKeyProvider.m in Sources */,
 				B2AF1D1E218BCD7C0080C1A0 /* MSIDLocalInteractiveController.m in Sources */,
@@ -4489,6 +4508,7 @@
 				235480D620DDF88200246F72 /* MSIDAADAuthority.m in Sources */,
 				96CE53EB20C73E3A002E24C9 /* MSIDWebviewFactory.m in Sources */,
 				235480CF20DDF81000246F72 /* MSIDAADTenant.m in Sources */,
+				1E51BC9A2279486700856A4E /* MSIDSharedCredentialCacheItem.m in Sources */,
 				230847A82082C5830024CE7C /* MSIDHttpRequest.m in Sources */,
 				B2AF1D42218BD10A0080C1A0 /* MSIDRequestParameters.m in Sources */,
 				04D32CB31FD62141000B123E /* MSIDError.m in Sources */,
@@ -4859,6 +4879,7 @@
 				B4A5ACD221F7F25400D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */,
 				232C65892138BDC5002A41FE /* MSIDAADAuthorityMetadataResponse.m in Sources */,
 				238E19C42086FC38004DF483 /* MSIDHttpResponseSerializer.m in Sources */,
+				1E5E716B227E8D1B009191C5 /* MSIDSharedAccount.m in Sources */,
 				232173EC2182B195009852C6 /* MSIDIntuneUserDefaultsCacheDataSource.m in Sources */,
 				2338ECD7208A7B3200809B9E /* MSIDTestContext.m in Sources */,
 				232C657B2137684E002A41FE /* MSIDDRSDiscoveryResponseSerializer.m in Sources */,
@@ -4927,6 +4948,7 @@
 				96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */,
 				23CA0C65220A79DD00768729 /* NSDate+MSIDTestUtil.m in Sources */,
 				B251CC1C2040F6B5005E0179 /* MSIDLegacyTokenCacheKey.m in Sources */,
+				1E5E716A227E8CF8009191C5 /* MSIDSharedCredentialCacheItem.m in Sources */,
 				B2EF143C1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */,
 				B297E1DD20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.m in Sources */,
 				B281B335226BB83C009619AB /* MSIDOAuthRequestConfigurator.m in Sources */,

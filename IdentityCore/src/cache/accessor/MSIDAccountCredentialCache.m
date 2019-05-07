@@ -35,6 +35,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
+#import "MSIDSharedCredentialCacheItem.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -69,11 +70,29 @@
                                                                    error:(NSError * _Nullable * _Nullable)error
 {
     NSError *cacheError = nil;
+    NSArray<MSIDCredentialCacheItem *> *results = nil;
 
-    NSArray<MSIDCredentialCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
+    #if TARGET_OS_IPHONE
+    results = [_dataSource tokensWithKey:cacheQuery
                                                                   serializer:_serializer
                                                                      context:context
                                                                        error:&cacheError];
+    
+#else
+    if (cacheQuery.credentialType != MSIDRefreshTokenType)
+    {
+        results = [_dataSource tokensWithKey:cacheQuery
+                                  serializer:_serializer
+                                     context:context
+                                       error:&cacheError];
+    }
+    else
+    {
+        results = [_dataSource refreshTokensWithKey:cacheQuery serializer:_serializer context:context error:&cacheError];
+    }
+    
+#endif
+    
 
     if (cacheError)
     {
@@ -234,12 +253,30 @@
     key.realm = credential.realm;
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
-
+    
+#if TARGET_OS_IPHONE
     return [_dataSource saveToken:credential
                               key:key
                        serializer:_serializer
                           context:context
                             error:error];
+#else
+    if (credential.credentialType != MSIDRefreshTokenType)
+    {
+        return [_dataSource saveToken:credential
+                                  key:key
+                           serializer:_serializer
+                              context:context
+                                error:error];
+    }
+    else
+    {
+        MSIDSharedCredentialCacheItem *item = [MSIDSharedCredentialCacheItem sharedInstance];
+        [item setObject:credential forKey:key];
+        return [_dataSource saveSharedToken:item key:key serializer:_serializer context:context error:error];
+    }
+#endif
+    
 }
 
 // Writing accounts
