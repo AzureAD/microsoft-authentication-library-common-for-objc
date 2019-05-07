@@ -558,6 +558,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             }
         }
     }
+    
     NSDate *methodFinish = [NSDate date];
     NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:methodStart];
     NSLog(@"ExecutionTime for Refresh Tokens = %f", executionTime);

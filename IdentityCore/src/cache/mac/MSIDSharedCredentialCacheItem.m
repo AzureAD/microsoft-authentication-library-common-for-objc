@@ -26,6 +26,8 @@
 @interface MSIDSharedCredentialCacheItem ()
 
 @property NSDictionary *json;
+@property NSMutableDictionary<NSString *, MSIDSharedAccount *> *cacheObjects;
+@property (nonatomic, readonly) dispatch_queue_t queue;
 
 @end
 
@@ -35,9 +37,11 @@
 {
     if(self = [super init])
     {
-        _credentials = [NSMutableDictionary dictionary];
+        self.credentials = [NSMutableDictionary dictionary];
+        _cacheObjects = [NSMutableDictionary dictionary];
+        _queue = dispatch_queue_create("com.microsoft.universalstorage",
+                                       DISPATCH_QUEUE_CONCURRENT);
     }
-    
     return self;
 }
 
@@ -53,9 +57,10 @@
     return instance;
 }
 
-- (void)setObject:(MSIDCredentialCacheItem *)object forKey:(MSIDDefaultCredentialCacheKey *)key
+- (void)setObject:(MSIDCredentialCacheItem *)object forKey:(id)key
 {
-    NSString *accountKey = key.account;
+    MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
+    NSString *accountKey = cacheKey.account;
     MSIDSharedAccount *sharedAccount = [self.credentials objectForKey:accountKey];
     if (!sharedAccount)
     {
@@ -63,9 +68,19 @@
         sharedAccount.accountIdentifier = accountKey;
     }
     
-    [sharedAccount.refreshTokens setObject:object forKey:[self getCredentialId:key]];
+    [sharedAccount.refreshTokens setObject:object forKey:[self getCredentialId:cacheKey]];
     self.credentials[accountKey] = sharedAccount;
     
+}
+
+-(MSIDSharedAccount *)objectForKey:(id)key {
+    __block id rv = nil;
+    
+    dispatch_sync(self.queue, ^{ 
+        rv = [self.cacheObjects objectForKey:key];
+    });
+    
+    return rv;
 }
 
 - (NSString *)getCredentialId: (MSIDDefaultCredentialCacheKey *)key
