@@ -311,6 +311,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
 @property (readwrite) NSArray *trustedApplications;
+@property (readwrite, nonnull) id accessForCredentials;
+@property (readwrite, nonnull) id accessForAccounts;
+@property (readwrite, nonnull) id accessForAppMetadata;
 
 @end
 
@@ -381,7 +384,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 // with other applications from the same vendor, the app will need to specify the
 // shared group here. If set to 'nil' the main bundle's identifier will be used instead.
 //
-- (nullable instancetype)initWithGroupAndTrustedApplications:(nullable NSString *)keychainGroup trustedApplications:(NSArray*)trustedApplications
+- (nullable instancetype)initWithGroupAndTrustedApplications:(nullable NSString *)keychainGroup
+                                         trustedApplications:(NSArray*)trustedApplications
 {
     MSID_TRACE;
 
@@ -420,6 +424,23 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             }
             NSArray *trustedApplications = @[(__bridge_transfer id)trustedApplication];
             self.trustedApplications = trustedApplications;
+        }
+        
+        self.accessForCredentials = [self accessCreateForCredentials:nil error:nil];
+        if (!self.accessForCredentials)
+        {
+            return nil;
+        }
+        
+        self.accessForAccounts = [self accessCreateForAccounts:nil error:nil];
+        if (!self.accessForAccounts)
+        {
+            return nil;
+        }
+        self.accessForAppMetadata = [self accessCreateForAppMetadata:nil error:nil];
+        if (!self.accessForAppMetadata)
+        {
+            return nil;
         }
 
         self.defaultCacheQuery = @{
@@ -474,6 +495,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return [self saveData:itemData
                       key:key
+                   access:self.accessForAccounts
                   context:context
                     error:error];
 }
@@ -582,6 +604,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return [self saveData:itemData
                       key:key
+                   access:_accessForCredentials
                   context:context
                     error:error];
 }
@@ -679,6 +702,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return [self saveData:itemData
                       key:key
+                   access:_accessForAppMetadata
                   context:context
                     error:error];
 }
@@ -784,6 +808,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
 - (BOOL)saveData:(NSData *)itemData
              key:(MSIDCacheKey *)key
+          access:(id)access
          context:(id<MSIDRequestContext>)context
            error:(NSError **)error
 {
@@ -824,6 +849,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (status == errSecItemNotFound)
     {
         [query addEntriesFromDictionary:update];
+        query[(id)kSecAttrAccess] = access;
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
     }
@@ -988,7 +1014,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                      error:error];
 }
 
-- (id) accessCreateForAccount:(id<MSIDRequestContext>)context
+- (id) accessCreateForAccounts:(id<MSIDRequestContext>)context
                                   error:(NSError**)error
 {
     SecAccessRef access = nil;
@@ -1033,7 +1059,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                    context:context
                                      error:error];
 }
-
 
 
 #pragma mark - Utilities

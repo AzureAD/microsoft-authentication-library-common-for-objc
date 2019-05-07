@@ -99,8 +99,6 @@
 
 @interface MSIDMacKeychainACLTests : XCTestCase
 {
-    MSIDMacKeychainTokenCache *_dataSource;
-    MSIDAccountCredentialCache *_cache;
     MSIDCacheItemJsonSerializer *_serializer;
     
     MSIDMacKeychainTokenCacheRemote *_remote1;
@@ -123,8 +121,6 @@
     _remote1 = [[MSIDMacKeychainTokenCacheRemote alloc] initWithExecutablePathAndTrustedApplicationPaths:executablePath1 trustedApplicationPaths:trustedApplist];
     _remote2 = [[MSIDMacKeychainTokenCacheRemote alloc] initWithExecutablePathAndTrustedApplicationPaths:executablePath2 trustedApplicationPaths:trustedApplist];
     
-    _dataSource = [MSIDMacKeychainTokenCache new];
-    _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
     _serializer = [MSIDCacheItemJsonSerializer new];
     
     _account = [MSIDAccountCacheItem new];
@@ -148,16 +144,26 @@
     _key.username = _account.username;
     
     // Ensure these test accounts don't already exist:
-    NSError* error;
-    BOOL result = [_dataSource removeItemsWithAccountKey:_key context:nil error:&error];
-    XCTAssertTrue(result);
-    XCTAssertNil(error);
+    NSString* accountStr = [NSString stringWithUTF8String:[[_serializer serializeAccountCacheItem:_account] bytes]];
+    NSDictionary* deleteParams =@{
+                                  @"method":@"DeleteAccount",
+                                  @"account":accountStr
+                                  };
+    
+    NSDictionary* result = [self->_remote1 remoteExecute:deleteParams];
+    [self assertNumericalValue:0 actual:result[@"status"]];
 }
 
 - (void)tearDown
 {
-    [_dataSource removeItemsWithAccountKey:_key context:nil error:nil];
-    _dataSource = nil;
+    NSString* accountStr = [NSString stringWithUTF8String:[[_serializer serializeAccountCacheItem:_account] bytes]];
+    NSDictionary* deleteParams =@{
+                                  @"method":@"DeleteAccount",
+                                  @"account":accountStr
+                                  };
+    
+    NSDictionary* result = [self->_remote1 remoteExecute:deleteParams];
+    [self assertNumericalValue:0 actual:result[@"status"]];
 }
 
 - (void)assertNumericalValue:(NSInteger)expected actual:(id)actual {
