@@ -705,7 +705,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     }
     NSDictionary *itemDict = CFBridgingRelease(cfItemDict);
     NSDate *lastMod = itemDict[(id)kSecAttrModificationDate];
-    if (lastMod && [lastMod timeIntervalSinceNow] > -1) // time in the past is negative
+    if (lastMod && fabs([lastMod timeIntervalSinceNow]) < 1) // less than a second ago
     {
         return YES;
     }
