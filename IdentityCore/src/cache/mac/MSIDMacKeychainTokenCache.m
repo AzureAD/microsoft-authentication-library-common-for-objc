@@ -318,22 +318,22 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *update = [self secondaryAccountAttributesForKey:key];
     update[(id)kSecValueData] = jsonData;
 
-    if ([self isRecentItem:query])
-    {
-        // This item was just modified a moment ago, report a *potential* collision
-        MSID_LOG_WARN(context, @"Set keychain item for recently-modified account");
-    }
+    NSMutableDictionary *combined = [query mutableCopy];
+    [combined addEntriesFromDictionary:update];
+    MSID_LOG_VERBOSE_PII(context, @"SecItemAdd: query=%@", combined);
+    OSStatus status = SecItemAdd((CFDictionaryRef)combined, NULL);
+    MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
 
-    MSID_LOG_VERBOSE_PII(context, @"SecItemUpdate: query=%@ update=%@", query, update);
-    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
-
-    if (status == errSecItemNotFound)
+    if (status == errSecDuplicateItem)
     {
-        [query addEntriesFromDictionary:update];
-        MSID_LOG_VERBOSE_PII(context, @"SecItemAdd: query=%@", query);
-        status = SecItemAdd((CFDictionaryRef)query, NULL);
-        MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
+        if ([self isRecentItem:query])
+        {
+            // This item was just modified a moment ago, report a *potential* collision
+            MSID_LOG_WARN(context, @"Set keychain item for recently-modified account");
+        }
+        MSID_LOG_VERBOSE_PII(context, @"SecItemUpdate: query=%@ update=%@", query, update);
+        status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+        MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
     }
 
     if (status != errSecSuccess)
