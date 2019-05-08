@@ -25,11 +25,12 @@
 
 @interface MSIDSharedCredentialCacheItem ()
 
-@property NSDictionary *json;
-@property NSMutableDictionary<NSString *, MSIDSharedAccount *> *cacheObjects;
-@property (nonatomic, readonly) dispatch_queue_t queue;
+@property NSRecursiveLock *lock;
+@property NSMutableDictionary *cacheObjects;
+@property NSMutableDictionary *json;
 
 @end
+
 
 @implementation MSIDSharedCredentialCacheItem
 
@@ -37,11 +38,10 @@
 {
     if(self = [super init])
     {
-        self.credentials = [NSMutableDictionary dictionary];
-        _cacheObjects = [NSMutableDictionary dictionary];
-        _queue = dispatch_queue_create("com.microsoft.universalstorage",
-                                       DISPATCH_QUEUE_CONCURRENT);
+        self.lock = [NSRecursiveLock new];
+        self.cacheObjects = [NSMutableDictionary dictionary];
     }
+    
     return self;
 }
 
@@ -57,55 +57,25 @@
     return instance;
 }
 
-- (void)setObject:(MSIDCredentialCacheItem *)object forKey:(id)key
-{
-    MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
-    NSString *accountKey = cacheKey.account;
-    MSIDSharedAccount *sharedAccount = [self.credentials objectForKey:accountKey];
-    if (!sharedAccount)
-    {
-        sharedAccount = [MSIDSharedAccount new];
-        sharedAccount.accountIdentifier = accountKey;
-    }
-    
-    [sharedAccount.refreshTokens setObject:object forKey:[self getCredentialId:cacheKey]];
-    self.credentials[accountKey] = sharedAccount;
-    
-}
-
--(MSIDSharedAccount *)objectForKey:(id)key {
-    __block id rv = nil;
-    
-    dispatch_sync(self.queue, ^{ 
-        rv = [self.cacheObjects objectForKey:key];
-    });
-    
-    return rv;
-}
-
 - (NSString *)getCredentialId: (MSIDDefaultCredentialCacheKey *)key
 {
+    [self.lock lock];
     NSString *clientId = key.familyId ? key.familyId : key.clientId;
-    return [key credentialIdWithType:key.credentialType clientId:clientId realm:key.realm enrollmentId:key.enrollmentId];
+    NSString *refreshTokenKey = [key credentialIdWithType:key.credentialType clientId:clientId realm:key.realm enrollmentId:key.enrollmentId];
+    [self.lock unlock];
+    return refreshTokenKey;
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                                  error:(NSError * __autoreleasing *)error
 {
-    MSID_TRACE;
+    [self.lock lock];
+    
     if (!(self = [self init]))
     {
         return nil;
     }
     
-    if (!json)
-    {
-        MSID_LOG_WARN(nil, @"Tried to decode a credential cache item from nil json");
-        return nil;
-    }
-    
-    _json = json;
-
     for (NSString *accountKey in json)
     {
         MSIDSharedAccount *sharedAccount = [[MSIDSharedAccount alloc] init];
@@ -124,19 +94,22 @@
             }
         }
         
-        [self.credentials setObject:sharedAccount forKey:accountKey];
+        [self.cacheObjects setObject:sharedAccount forKey:accountKey];
     }
     
+    [self.lock unlock];
     return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
+    [self.lock lock];
+    NSEnumerator *keys = [self keyEnumerator];
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
-    for(NSString *accountKey in self.credentials)
+    for (id<NSCopying> accountKey in keys)
     {
-        MSIDSharedAccount *account = [self.credentials objectForKey:accountKey];
+        MSIDSharedAccount *account = [self.cacheObjects objectForKey:accountKey];
         if (account)
         {
             NSMutableDictionary *accountDict = [NSMutableDictionary dictionary];
@@ -152,7 +125,84 @@
         }
     }
     
+    [self.lock unlock];
     return dictionary;
 }
+
+
+- (void)setRefreshToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key
+{
+    [self.lock lock];
+    NSString *accountKey = key.account;
+    MSIDSharedAccount *account = [self.cacheObjects objectForKey:accountKey];
+    
+    if (!account)
+    {
+        account = [MSIDSharedAccount new];
+        account.accountIdentifier = accountKey;
+    }
+    
+    [account.refreshTokens setObject:token forKey:[self getCredentialId:key]];
+    [self.cacheObjects setObject:account forKey:accountKey];
+    [self.lock unlock];
+}
+
+- (NSEnumerator *)keyEnumerator;
+{
+    NSEnumerator    *result;
+    [self.lock lock];
+    result = [self.cacheObjects keyEnumerator];
+    [self.lock unlock];
+    return result;
+}
+
+- (MSIDSharedCredentialCacheItem *)mergeCredential:(MSIDSharedCredentialCacheItem *)currentItem
+{
+    [self.lock lock];
+    NSEnumerator *keys = [currentItem keyEnumerator];
+    
+    for (id<NSCopying> key in keys) {
+        MSIDSharedAccount *previousAccount = [self.cacheObjects objectForKey:key];
+        MSIDSharedAccount *currentAccount = [currentItem.cacheObjects objectForKey:key];
+        if (!previousAccount)
+        {
+            // The new account was not already in self, so simply add it.
+            [self.cacheObjects setObject:currentAccount forKey:key];
+        } else
+        {
+            [self.cacheObjects setObject:[previousAccount mergeAccount:currentAccount] forKey:key];
+        }
+    }
+    
+    [self.lock unlock];
+    return self;
+}
+
+- (NSMutableArray<MSIDCredentialCacheItem *> *)allCredentials
+{
+    [self.lock lock];
+    NSEnumerator *keys = [self keyEnumerator];
+    NSMutableArray<MSIDCredentialCacheItem *> *tokenList = [NSMutableArray new];
+    
+    for (id<NSCopying> key in keys)
+    {
+        MSIDSharedAccount *account = [self.cacheObjects objectForKey:key];
+        if (account)
+        {
+            for (NSString *key in account.refreshTokens)
+            {
+                MSIDCredentialCacheItem *sharedCredential = [account.refreshTokens objectForKey:key];
+                if (sharedCredential)
+                {
+                    [tokenList addObject:sharedCredential];
+                }
+            }
+        }
+    }
+    
+    [self.lock unlock];
+    return tokenList;
+}
+
 
 @end

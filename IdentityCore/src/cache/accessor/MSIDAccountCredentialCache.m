@@ -272,8 +272,9 @@
     else
     {
         MSIDSharedCredentialCacheItem *item = [MSIDSharedCredentialCacheItem sharedInstance];
-        [item setObject:credential forKey:key];
+        [item setRefreshToken:credential forKey:key];
         return [_dataSource saveSharedToken:item key:key serializer:_serializer context:context error:error];
+        
     }
 #endif
     

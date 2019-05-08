@@ -27,17 +27,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSharedCredentialCacheItem<KeyType, ObjectType> : MSIDCredentialCacheItem <MSIDJsonSerializable>
+@interface MSIDSharedCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
 
 + (MSIDSharedCredentialCacheItem *)sharedInstance;
 
-@property NSMutableDictionary<NSString *, MSIDSharedAccount *> *credentials;
+- (void)setRefreshToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
 
-- (NSString *)getCredentialId:(MSIDDefaultCredentialCacheKey *)key;
+- (MSIDSharedCredentialCacheItem *)mergeCredential:(MSIDSharedCredentialCacheItem *)item;
 
-- (nullable ObjectType)objectForKey:(KeyType)key;
+- (NSMutableArray<MSIDCredentialCacheItem *> *)allCredentials;
 
-- (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
 
 @end
 

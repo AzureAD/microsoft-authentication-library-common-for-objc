@@ -477,8 +477,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                               context:(__unused id<MSIDRequestContext>)context
                                                 error:(__unused NSError **)error
 {
-    NSDate *methodStart = [NSDate date];
-    
     NSArray *tokenItems = [self itemsWithKey:key context:context error:error];
 
     if (!tokenItems)
@@ -503,13 +501,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             }
         }
     }
-    
-    /* ... Do whatever you need to do ... */
-    
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:methodStart];
-    NSLog(@"ExecutionTime for other credentials = %f", executionTime);
-    
+
     return tokenList;
 }
 
@@ -527,10 +519,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                             error:(NSError **)error
 {
     MSID_TRACE;
-    NSDate *methodStart = [NSDate date];
-    
-    /* ... Do whatever you need to do ... */
-    
     NSMutableArray<MSIDCredentialCacheItem *> *tokenList = [NSMutableArray new];
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     query[(id)kSecAttrAccount] = self.keychainGroup;
@@ -545,23 +533,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
         NSData *sharedCredentialData = [resultDict objectForKey:(id)kSecValueData];
         MSIDSharedCredentialCacheItem *sharedCredentialItem = (MSIDSharedCredentialCacheItem *)[serializer deserializeSharedCredentialCacheItem:sharedCredentialData];
-        for (NSString *accountKey in sharedCredentialItem.credentials)
-        {
-            MSIDSharedAccount *account = [sharedCredentialItem.credentials objectForKey:accountKey];
-            for (NSString *key in account.refreshTokens)
-            {
-                MSIDCredentialCacheItem *sharedCredential = [account.refreshTokens objectForKey:key];
-                if (sharedCredential)
-                {
-                    [tokenList addObject:sharedCredential];
-                }
-            }
-        }
+        tokenList = [sharedCredentialItem allCredentials];
     }
-    
-    NSDate *methodFinish = [NSDate date];
-    NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:methodStart];
-    NSLog(@"ExecutionTime for Refresh Tokens = %f", executionTime);
     
     return tokenList;
     
@@ -789,22 +762,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         NSData *previousData = [resultDict objectForKey:(id)kSecValueData];
         MSIDSharedCredentialCacheItem *previousItem = [serializer deserializeSharedCredentialCacheItem:previousData];
         MSIDSharedCredentialCacheItem *currentItem = [serializer deserializeSharedCredentialCacheItem:itemData];
-        MSIDSharedAccount *previousAccount = [previousItem.credentials objectForKey:key.account];
-        if (previousAccount)
-        {
-            MSIDSharedAccount *currentAccount = [currentItem.credentials objectForKey:key.account];
-            for (NSString *key in currentAccount.refreshTokens)
-            {
-                MSIDCredentialCacheItem *item = [currentAccount.refreshTokens objectForKey:key];
-                [previousAccount.refreshTokens setObject:item forKey:key];
-            }
-        }
-        else
-        {
-            MSIDSharedAccount *currentAccount = [currentItem.credentials objectForKey:key.account];
-            [previousItem.credentials setObject:currentAccount forKey:key.account];
-        }
-        
+        [previousItem mergeCredential:currentItem];
         update[(id)kSecValueData] = [serializer serializeSharedCredentialCacheItem:previousItem];
         status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)update);
     }
