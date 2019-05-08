@@ -21,33 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryTestDispatcher.h"
+#import "MSIDTestTelemetryEventsObserver.h"
 
-@implementation MSIDTelemetryTestDispatcher
+@implementation MSIDTestTelemetryEventsObserver
 
-- (void)setTestCallback:(TestCallback)callback
+- (void)onEventsReceived:(NSArray<NSDictionary<NSString *, NSString *> *> *)events
 {
-    _testCallback = callback;
-}
-
-- (BOOL)containsObserver:(id)observer
-{
-    return NO;
-}
-
-- (void)flush:(NSString *)requestId
-{
-}
-
-- (void)receive:(NSString *)requestId event:(id<MSIDTelemetryEventInterface>)event
-{ 
-    // call _testCallback when it receives telemetry event
-    // this is for the purpose of unit test
-    if (_testCallback)
-    {
-        _testCallback(event);
-    }
+    if (self.eventsReceivedBlock) self.eventsReceivedBlock(events);
 }
 
 @end
-
