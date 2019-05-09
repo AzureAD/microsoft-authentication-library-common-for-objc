@@ -321,7 +321,7 @@
 
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
     
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME oid:nil tenantId:DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.rawIdToken, idToken);
 }
 
@@ -345,7 +345,7 @@
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertEqualObjects(token.familyId, @"familyId");
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME tenantId:DEFAULT_TEST_UTID];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:DEFAULT_TEST_ID_TOKEN_USERNAME oid:nil tenantId:DEFAULT_TEST_UTID];
     
     XCTAssertEqualObjects(token.idToken, idToken);
     XCTAssertEqualObjects(token.resource, DEFAULT_TEST_RESOURCE);

@@ -105,6 +105,8 @@
     account.homeAccountId = [_homeAccountId copyWithZone:zone];
     account.legacyAccountIdentifierType = _legacyAccountIdentifierType;
     account.localAccountId = [_localAccountId copyWithZone:zone];
+    account.uid = [_uid copyWithZone:zone];
+    account.utid = [_utid copyWithZone:zone];
     return account;
 }
 
