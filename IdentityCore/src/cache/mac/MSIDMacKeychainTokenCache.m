@@ -159,6 +159,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
 
@@ -255,6 +256,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         {
             return nil;
         }
+
+        self.synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
 
         self.defaultCacheQuery = @{
                                    // All account items are saved as generic passwords.
@@ -584,9 +587,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnRef] = @YES;
 
-    CFTypeRef cfItems = nil;
     MSID_LOG_INFO(context, @"Trying to find keychain items...");
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
+    __block CFTypeRef cfItems = nil;
+    __block OSStatus status;
+    dispatch_sync(self.synchronizationQueue, ^{
+        status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
+    });
     MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
 
     if (status == errSecItemNotFound)
@@ -612,8 +618,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecReturnAttributes] = @YES;
     query[(id)kSecReturnData] = @YES;
 
-    CFTypeRef cfItemDicts = nil;
-    status = SecItemCopyMatching((CFDictionaryRef)query, &cfItemDicts);
+    __block CFTypeRef cfItemDicts = nil;
+    dispatch_sync(self.synchronizationQueue, ^{
+        status = SecItemCopyMatching((CFDictionaryRef)query, &cfItemDicts);
+    });
     NSArray *itemDicts = CFBridgingRelease(cfItemDicts);
     return itemDicts;
 }
@@ -654,15 +662,18 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self primaryAttributesForKey:key];
     NSMutableDictionary *update = [self secondaryAttributesForKey:key];
     update[(id)kSecValueData] = itemData;
-    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
+    __block OSStatus status;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+        MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
 
-    if (status == errSecItemNotFound)
-    {
-        [query addEntriesFromDictionary:update];
-        status = SecItemAdd((CFDictionaryRef)query, NULL);
-        MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
-    }
+        if (status == errSecItemNotFound)
+        {
+            [query addEntriesFromDictionary:update];
+            status = SecItemAdd((CFDictionaryRef)query, NULL);
+            MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
+        }
+    });
 
     if (status != errSecSuccess)
     {
@@ -699,7 +710,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
 
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    __block OSStatus status;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        status = SecItemDelete((CFDictionaryRef)query);
+    });
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
 
     if (status != errSecSuccess && status != errSecItemNotFound)
@@ -744,7 +758,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    __block OSStatus status;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        status = SecItemDelete((CFDictionaryRef)query);
+    });
     MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
 
     if (status != errSecSuccess && status != errSecItemNotFound)
