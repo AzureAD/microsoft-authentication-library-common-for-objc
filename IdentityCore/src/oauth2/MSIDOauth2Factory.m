@@ -229,7 +229,7 @@
     
     if (!token.accessToken)
     {
-        MSID_LOG_WARN(nil, @"Trying to initialize access token when missing access token field");
+        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
         return NO;
     }
     NSDate *expiresOn = response.expiryDate;
