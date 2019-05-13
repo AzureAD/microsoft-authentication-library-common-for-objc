@@ -317,23 +317,16 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self primaryAccountAttributesForKey:key];
     NSMutableDictionary *update = [self secondaryAccountAttributesForKey:key];
     update[(id)kSecValueData] = jsonData;
+    MSID_LOG_VERBOSE_PII(context, @"SecItemUpdate: query=%@ update=%@", query, update);
+    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
 
-    NSMutableDictionary *combined = [query mutableCopy];
-    [combined addEntriesFromDictionary:update];
-    MSID_LOG_VERBOSE_PII(context, @"SecItemAdd: query=%@", combined);
-    OSStatus status = SecItemAdd((CFDictionaryRef)combined, NULL);
-    MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
-
-    if (status == errSecDuplicateItem)
+    if (status == errSecItemNotFound)
     {
-        if ([self isRecentItem:query])
-        {
-            // This item was just modified a moment ago, report a *potential* collision
-            MSID_LOG_WARN(context, @"Set keychain item for recently-modified account");
-        }
-        MSID_LOG_VERBOSE_PII(context, @"SecItemUpdate: query=%@ update=%@", query, update);
-        status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-        MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
+        [query addEntriesFromDictionary:update];
+        MSID_LOG_VERBOSE_PII(context, @"SecItemAdd: query=%@", query);
+        status = SecItemAdd((CFDictionaryRef)query, NULL);
+        MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
     }
 
     if (status != errSecSuccess)
@@ -691,26 +684,4 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return _PII_NULLIFY(self.keychainGroup);
 }
-
-// Check if the keychain item been modified recently
-- (BOOL)isRecentItem:(NSDictionary *)query
-{
-    NSMutableDictionary *itemQuery = [query mutableCopy];
-    itemQuery[(id)kSecReturnAttributes] = @YES;
-    CFTypeRef cfItemDict = nil;
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)itemQuery, &cfItemDict);
-    if (status != errSecSuccess)
-    {
-        return NO;
-    }
-    NSDictionary *itemDict = CFBridgingRelease(cfItemDict);
-    NSDate *lastMod = itemDict[(id)kSecAttrModificationDate];
-    if (lastMod && fabs([lastMod timeIntervalSinceNow]) < 1) // less than a second ago
-    {
-        return YES;
-    }
-    return NO;
-}
-
 @end
-

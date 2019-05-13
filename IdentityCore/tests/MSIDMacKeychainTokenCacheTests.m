@@ -30,7 +30,6 @@
 #import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDDefaultAccountCacheQuery.h"
 #import "MSIDMacKeychainTokenCache.h"
-#import "MSIDMacKeychainTokenCache+TestUtil.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "NSString+MSIDExtensions.h"
@@ -404,24 +403,4 @@
 
     [self multiAccountTestCleanup];
 }
-
-- (void)testMacKeychainCache_whenAccountWritten_isRecentItemReturnsExpectedResults
-{
-    NSError *error;
-    BOOL result = [_dataSource saveAccount:_testAccount key:_testAccountKey serializer:_serializer context:nil error:&error];
-    XCTAssertTrue(result);
-    XCTAssertNil(error);
-    
-    // Verify isRecentItem called immediately returns true
-    NSDictionary *dict = [_dataSource primaryAccountAttributesForKey:_testAccountKey];
-    XCTAssertNotNil(dict);
-    BOOL isRecent = [_dataSource isRecentItem:dict];
-    XCTAssertTrue(isRecent);
-    
-    // Pause briefly, then verify isRecentItem is now false
-    [NSThread sleepForTimeInterval:2];
-    isRecent = [_dataSource isRecentItem:dict];
-    XCTAssertFalse(isRecent);
-}
-
 @end
