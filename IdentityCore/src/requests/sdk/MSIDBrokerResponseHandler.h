@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error;
 
+- (BOOL)canHandleBrokerResponse:(NSURL *)response;
+
 @end
 
 NS_ASSUME_NONNULL_END

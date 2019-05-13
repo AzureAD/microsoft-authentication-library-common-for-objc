@@ -74,7 +74,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -121,7 +122,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -168,7 +170,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -214,7 +217,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

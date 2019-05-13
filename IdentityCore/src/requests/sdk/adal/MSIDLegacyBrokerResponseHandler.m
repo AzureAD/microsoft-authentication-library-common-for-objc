@@ -31,6 +31,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDConstants.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -83,7 +84,7 @@
     {
         NSDictionary *intuneResponseDictionary = @{@"response": encryptedParams[@"intune_mam_token"],
                                                    @"hash": encryptedParams[@"intune_mam_token_hash"],
-                                                   @"msg_protocol_ver": encryptedParams[@"msg_protocol_ver"] ?: @2};
+                                                   MSID_BROKER_PROTOCOL_VERSION_KEY: encryptedParams[MSID_BROKER_PROTOCOL_VERSION_KEY] ?: @2};
 
         NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:intuneResponseDictionary
                                                                              correlationId:correlationID
@@ -168,6 +169,23 @@
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, errorResponse.subError, nil, correlationId, userInfo);
 
     return brokerError;
+}
+
+- (BOOL)canHandleBrokerResponse:(NSURL *)response
+{
+    if (!response) { return NO; }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qpString = [components percentEncodedQuery];
+    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
+
+    NSString *protocolVersion = queryParamsMap[MSID_BROKER_PROTOCOL_VERSION_KEY];
+    BOOL isValidVersion = [protocolVersion isEqualToString:MSID_ADAL_BROKER_MESSAGE_VERSION];
+    
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    BOOL isADALInitiatedRequest = [resumeDictionary[MSID_SDK_NAME_KEY] isEqualToString:MSID_ADAL_SDK_NAME];
+    
+    return isValidVersion && isADALInitiatedRequest;
 }
 
 @end

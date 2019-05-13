@@ -47,7 +47,7 @@
     [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
     NSString *promptParam = MSIDPromptParamFromType(self.requestParameters.promptType);
     [contents msidSetNonEmptyString:promptParam forKey:@"prompt"];
-    [contents setValue:@"3" forKey:@"msg_protocol_ver"];
+    [contents setValue:@"3" forKey:MSID_BROKER_PROTOCOL_VERSION_KEY];
     
     return contents;
 }
@@ -55,7 +55,8 @@
 - (NSDictionary *)protocolResumeDictionaryContents
 {
     return @{@"scope": self.requestParameters.target ?: @"",
-             @"oidc_scope": self.requestParameters.oidcScope ?: @""};
+             @"oidc_scope": self.requestParameters.oidcScope ?: @"",
+             MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
 }
 
 @end

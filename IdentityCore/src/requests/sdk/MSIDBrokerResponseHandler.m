@@ -131,6 +131,11 @@
                                                                 error:error];
 }
 
+- (BOOL)canHandleBrokerResponse:(__unused NSURL *)response
+{
+    return YES;
+}
+
 #pragma mark - Helpers
 
 - (NSDictionary *)verifyResumeStateDicrionary:(NSURL *)response error:(NSError **)error

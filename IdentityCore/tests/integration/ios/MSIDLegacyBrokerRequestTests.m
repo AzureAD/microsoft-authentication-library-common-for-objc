@@ -74,7 +74,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -119,7 +120,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -163,7 +165,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -205,7 +208,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

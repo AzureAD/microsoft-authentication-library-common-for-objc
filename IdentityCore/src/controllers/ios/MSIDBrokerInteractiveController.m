@@ -230,6 +230,12 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         MSID_LOG_WARN(nil, @"Asked to handle non broker response. Skipping request.");
         return NO;
     }
+    
+    if (![responseHandler canHandleBrokerResponse:resultURL])
+    {
+        MSID_LOG_INFO(nil, @"This broker response cannot be handled. Skipping request.");
+        return NO;
+    }
 
     NSError *resultError = nil;
     MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL error:&resultError];

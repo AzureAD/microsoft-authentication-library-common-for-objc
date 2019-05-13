@@ -29,6 +29,7 @@
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDConstants.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -197,6 +198,23 @@
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo);
     
     return brokerError;
+}
+
+- (BOOL)canHandleBrokerResponse:(NSURL *)response
+{
+    if (!response) { return NO; }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qpString = [components percentEncodedQuery];
+    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
+    
+    NSString *protocolVersion = queryParamsMap[MSID_BROKER_PROTOCOL_VERSION_KEY];
+    BOOL isValidVersion = [protocolVersion isEqualToString:MSID_MSAL_BROKER_MESSAGE_VERSION];
+    
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    BOOL isMSALInitiatedRequest = [resumeDictionary[MSID_SDK_NAME_KEY] isEqualToString:MSID_MSAL_SDK_NAME];
+    
+    return isValidVersion && isMSALInitiatedRequest;
 }
 
 @end
