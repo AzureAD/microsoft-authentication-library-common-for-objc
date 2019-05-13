@@ -38,7 +38,7 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDTokenFilteringHelper.h"
 #import "NSString+MSIDExtensions.h"
-#import "MSIDIdTokenClaims.h"
+#import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
 #import "MSIDAuthorityFactory.h"
@@ -330,11 +330,16 @@
         account.accountType = MSIDAccountTypeMSSTS;
         
         NSError *localError;
-        MSIDIdTokenClaims *idTokenClaims = [[MSIDIdTokenClaims alloc] initWithRawIdToken:refreshToken.idToken error:&localError];
+        MSIDAADV1IdTokenClaims *idTokenClaims = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:refreshToken.idToken error:&localError];
         if (!localError)
         {
             account.name = idTokenClaims.name;
             account.localAccountId = idTokenClaims.uniqueId;
+            BOOL clientIdMatch = !clientId ||[clientId isEqualToString:refreshToken.clientId];
+            if (clientIdMatch)
+            {
+                account.idTokenClaims = idTokenClaims;
+            }
         }
         
         [resultAccounts addObject:account];

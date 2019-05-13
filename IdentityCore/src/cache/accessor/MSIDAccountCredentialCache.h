@@ -25,15 +25,16 @@
 #import "MSIDCredentialType.h"
 #import "MSIDAccountType.h"
 
-@class MSIDCredentialCacheItem;
 @class MSIDAccountCacheItem;
-@class MSIDDefaultCredentialCacheKey;
-@protocol MSIDTokenCacheDataSource;
-@class MSIDDefaultCredentialCacheQuery;
-@class MSIDDefaultAccountCacheQuery;
-@class MSIDDefaultAccountCacheKey;
 @class MSIDAppMetadataCacheItem;
 @class MSIDAppMetadataCacheQuery;
+@class MSIDCredentialCacheItem;
+@class MSIDDefaultAccountCacheKey;
+@class MSIDDefaultAccountCacheQuery;
+@class MSIDDefaultCredentialCacheKey;
+@class MSIDDefaultCredentialCacheQuery;
+@protocol MSIDRequestContext;
+@protocol MSIDTokenCacheDataSource;
 
 @interface MSIDAccountCredentialCache : NSObject
 

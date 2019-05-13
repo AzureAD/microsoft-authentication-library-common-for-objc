@@ -41,10 +41,12 @@
 
 + (NSString *)idTokenWithName:(NSString *)name
             preferredUsername:(NSString *)preferredUsername
+                          oid:(NSString *)oid
                      tenantId:(NSString *)tid;
 
 + (NSString *)idTokenWithName:(NSString *)name
                           upn:(NSString *)upn
+                          oid:(NSString *)oid
                      tenantId:(NSString *)tid;
 
 + (NSString *)idTokenWithName:(NSString *)name

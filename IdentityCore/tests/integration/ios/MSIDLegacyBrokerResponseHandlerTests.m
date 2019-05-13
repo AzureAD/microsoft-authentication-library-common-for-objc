@@ -75,7 +75,7 @@
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" tenantId:@"contoso.com-guid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
 
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
 
@@ -217,7 +217,7 @@
 
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" tenantId:@"contoso.com-guid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
 
     NSDictionary *intuneMAMTokenDictionary = @{@"authority":@"https://login.microsoftonline.de/common",
                                                @"client_id": @"my_client_id",
@@ -336,7 +336,7 @@
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" tenantId:@"contoso.com-guid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
 
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
 
