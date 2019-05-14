@@ -113,7 +113,6 @@ static NSInteger kCredentialTypePrefix = 2000;
         _environment = environment;
         _clientId = clientId;
         _credentialType = type;
-        self.isShared = (type == MSIDRefreshTokenType);
     }
 
     return self;
@@ -139,6 +138,11 @@ static NSInteger kCredentialTypePrefix = 2000;
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
     return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
+}
+
+- (BOOL)isShared
+{
+    return self.credentialType == MSIDRefreshTokenType;
 }
 
 #pragma mark - Broker

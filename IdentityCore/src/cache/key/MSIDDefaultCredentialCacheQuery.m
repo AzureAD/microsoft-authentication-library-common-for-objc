@@ -183,4 +183,9 @@
     return nil;
 }
 
+- (BOOL)isShared
+{
+    return (self.credentialType == MSIDRefreshTokenType);
+}
+
 @end
