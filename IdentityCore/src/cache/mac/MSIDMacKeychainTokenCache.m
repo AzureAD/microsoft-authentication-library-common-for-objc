@@ -305,6 +305,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                    domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
         return NO;
     }
+    
+    // If this item was recently modified by another process (ignoring ourselves), report a *potential* collision
+    [self checkIfRecentlyModifiedAccount:account context:context];
 
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];
     account.lastModificationApp = processInfo.processName;
@@ -689,4 +692,29 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return _PII_NULLIFY(self.keychainGroup);
 }
+
+// If this account was modified a moment ago by another process, report a *potential* collision
+- (BOOL)checkIfRecentlyModifiedAccount:(MSIDAccountCacheItem*)account
+                               context:(nullable id<MSIDRequestContext>)context
+{
+    if (account.lastModificationTime && account.lastModificationProcess)
+    {
+        // Only check if the previous modification was by another process
+        if (account.lastModificationProcess.intValue != [[NSProcessInfo processInfo] processIdentifier])
+        {
+            double timeDifference = [[NSDate date] timeIntervalSince1970] - account.lastModificationTime.doubleValue;
+            if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
+            {
+                MSID_LOG_WARN(context, @"Set keychain item for recently-modified account (delta %0.3f) pid:%@ app:%@",
+                              timeDifference, account.lastModificationProcess, account.lastModificationApp);
+                NSLog(@"Set keychain item for recently-modified account (delta %0.3f) pid:%@ app:%@",
+                      timeDifference, account.lastModificationProcess, account.lastModificationApp);
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
+
 @end

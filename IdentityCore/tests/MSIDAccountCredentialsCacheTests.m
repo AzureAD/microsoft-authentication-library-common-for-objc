@@ -38,10 +38,6 @@
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
 
-@interface MSIDAccountCredentialCache (Testing)
-- (BOOL)checkIfRecentlyModifiedAccount:(MSIDAccountCacheItem*)account context:(nullable id<MSIDRequestContext>)context;
-@end
-
 @interface MSIDAccountCredentialsCacheTests : XCTestCase
 
 @property (nonatomic) MSIDAccountCredentialCache *cache;
@@ -2340,35 +2336,4 @@
     item.familyId = familyId;
     return item;
 }
-
-- (void)testSaveAccount_whenAccountSaved_shouldSaveValidLastModInfo
-{
-    MSIDAccountCacheItem *item = [self createTestAccountCacheItem];
-    
-    NSError *error = nil;
-    BOOL result = [self.cache saveAccount:item context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-    
-    // read the same account we just wrote
-    MSIDAccountCacheItem *account = [self.cache getAccount:[MSIDDefaultAccountCacheQuery new] context:nil error:&error];
-    XCTAssertNil(error);
-    XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.lastModificationApp, NSProcessInfo.processInfo.processName);
-    XCTAssertEqual(account.lastModificationProcess.intValue, NSProcessInfo.processInfo.processIdentifier);
-    XCTAssertTrue(account.lastModificationTime.doubleValue <= [[NSDate date] timeIntervalSince1970]);
-    
-    result = [self.cache checkIfRecentlyModifiedAccount:account context:nil];
-    XCTAssertFalse(result); // this check should ignore items our process has written
-    
-    // check behavior if item had been written by a different process:
-    account.lastModificationProcess = [NSString stringWithFormat:@"%d", (NSProcessInfo.processInfo.processIdentifier + 1)];
-    result = [self.cache checkIfRecentlyModifiedAccount:account context:nil];
-    XCTAssertTrue(result); // a different process id, so it should be considered as recent
-    
-    [NSThread sleepForTimeInterval:1.0];
-    result = [self.cache checkIfRecentlyModifiedAccount:account context:nil];
-    XCTAssertFalse(result); // no longer "recent" due to the above delay
-}
-
 @end
