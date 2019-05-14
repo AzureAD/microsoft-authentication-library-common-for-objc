@@ -119,7 +119,7 @@
         
         if (![self supportsCredentialType:tokenCacheItem.credentialType])
         {
-            MSID_LOG_ERROR(nil, @"Trying to initialize with a wrong token type");
+            MSID_LOG_WARN(nil, @"Trying to initialize with a wrong token type");
             return nil;
         }
 
@@ -131,7 +131,7 @@
         
         if (!_authority)
         {
-            MSID_LOG_ERROR(nil, @"Trying to initialize token when missing authority field");
+            MSID_LOG_WARN(nil, @"Trying to initialize token when missing authority field");
             return nil;
         }
         
@@ -139,7 +139,7 @@
         
         if (!_clientId)
         {
-            MSID_LOG_ERROR(nil, @"Trying to initialize token when missing clientId field");
+            MSID_LOG_WARN(nil, @"Trying to initialize token when missing clientId field");
             return nil;
         }
         

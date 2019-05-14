@@ -266,7 +266,7 @@
     
     if (!token.refreshToken)
     {
-        MSID_LOG_ERROR(nil, @"Trying to initialize refresh token when missing refresh token field");
+        MSID_LOG_WARN(nil, @"Trying to initialize refresh token when missing refresh token field");
         return NO;
     }
 
@@ -288,7 +288,7 @@
     
     if (!token.rawIdToken)
     {
-        MSID_LOG_ERROR(nil, @"Trying to initialize ID token when missing ID token field");
+        MSID_LOG_WARN(nil, @"Trying to initialize ID token when missing ID token field");
         return NO;
     }
 
