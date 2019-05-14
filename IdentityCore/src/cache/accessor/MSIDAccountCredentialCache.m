@@ -270,10 +270,6 @@
     }
 
     key.username = account.username;
-    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-    account.lastModificationApp = processInfo.processName;
-    account.lastModificationProcess = [NSString stringWithFormat:@"%d", processInfo.processIdentifier];
-    account.lastModificationTime = [NSString stringWithFormat:@"%0.3f", [[NSDate date] timeIntervalSince1970]];
     return [_dataSource saveAccount:account
                                 key:key
                          serializer:_serializer

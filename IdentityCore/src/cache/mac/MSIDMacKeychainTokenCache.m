@@ -306,6 +306,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         return NO;
     }
 
+    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+    account.lastModificationApp = processInfo.processName;
+    account.lastModificationProcess = [NSString stringWithFormat:@"%d", processInfo.processIdentifier];
+    account.lastModificationTime = [NSString stringWithFormat:@"%0.3f", [[NSDate date] timeIntervalSince1970]];
+
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
     if (!jsonData)
     {
