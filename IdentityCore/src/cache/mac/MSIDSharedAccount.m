@@ -35,15 +35,4 @@
     return self;
 }
 
-- (MSIDSharedAccount *)mergeAccount:(MSIDSharedAccount *)currentAccount
-{
-    for (NSString *key in currentAccount.refreshTokens)
-    {
-        MSIDCredentialCacheItem *item = [currentAccount.refreshTokens objectForKey:key];
-        [self.refreshTokens setObject:item forKey:key];
-    }
-    
-    return self;
-}
-
 @end

@@ -27,10 +27,12 @@
 @class MSIDAccountCacheItem;
 @class MSIDCacheKey;
 @class MSIDAppMetadataCacheItem;
+@class MSIDSharedCredentialCacheItem;
 
 @protocol MSIDRequestContext;
 @protocol MSIDAccountItemSerializer;
 @protocol MSIDCredentialItemSerializer;
+@protocol MSIDSharedCredentialItemSerializer;
 @protocol MSIDAppMetadataItemSerializer;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
@@ -58,10 +60,10 @@
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
 
-- (NSArray<MSIDCredentialCacheItem *> *)refreshTokensWithKey:(MSIDCacheKey *)key
-                                                  serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                                     context:(id<MSIDRequestContext>)context
-                                                       error:(NSError **)error;
+- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
+                                          serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error;
 
 // Wipe info
 

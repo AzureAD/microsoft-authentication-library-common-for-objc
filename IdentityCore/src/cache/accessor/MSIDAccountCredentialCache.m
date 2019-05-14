@@ -88,7 +88,11 @@
     }
     else
     {
-        results = [_dataSource refreshTokensWithKey:cacheQuery serializer:_serializer context:context error:&cacheError];
+        MSIDSharedCredentialCacheItem *sharedCredential = [_dataSource sharedCredentialWithKey:cacheQuery serializer:_serializer context:context error:error];
+        if (sharedCredential)
+        {
+            return [sharedCredential allCredentials];
+        }
     }
     
 #endif
@@ -273,6 +277,17 @@
     {
         MSIDSharedCredentialCacheItem *item = [MSIDSharedCredentialCacheItem sharedInstance];
         [item setRefreshToken:credential forKey:key];
+        
+        MSIDSharedCredentialCacheItem *sharedCredential = [_dataSource sharedCredentialWithKey:key serializer:_serializer context:context error:error];
+        if (sharedCredential)
+        {
+            // Make sure we copy over all the additional fields
+            NSMutableDictionary *mergedDictionary = [sharedCredential.jsonDictionary mutableCopy];
+            [mergedDictionary addEntriesFromDictionary:item.jsonDictionary];
+            item = [[MSIDSharedCredentialCacheItem alloc] initWithJSONDictionary:mergedDictionary error:error];
+        }
+
+        
         return [_dataSource saveSharedToken:item key:key serializer:_serializer context:context error:error];
         
     }
@@ -301,7 +316,9 @@
     if (previousAccount)
     {
         // Make sure we copy over all the additional fields
-        [account updateFieldsFromAccount:previousAccount];
+        NSMutableDictionary *mergedDictionary = [previousAccount.jsonDictionary mutableCopy];
+        [mergedDictionary addEntriesFromDictionary:account.jsonDictionary];
+        account = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:mergedDictionary error:error];
     }
 
     key.username = account.username;

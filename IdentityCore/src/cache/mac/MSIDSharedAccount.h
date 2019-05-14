@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSString *accountIdentifier;
 @property NSMutableDictionary<NSString *,MSIDCredentialCacheItem *> *refreshTokens;
-- (MSIDSharedAccount *)mergeAccount:(MSIDSharedAccount *)account;
 
 @end
 

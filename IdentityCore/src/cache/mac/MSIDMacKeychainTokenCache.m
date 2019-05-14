@@ -513,13 +513,13 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     return [self removeItemsWithKey:key context:context error:error];
 }
 
-- (NSArray *)refreshTokensWithKey:(MSIDCacheKey *)key
-                       serializer:(__unused id<MSIDSharedCredentialItemSerializer>)serializer
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
+                                                serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
+                                                   context:(id<MSIDRequestContext>)context
+                                                     error:(NSError **)error;
 {
     MSID_TRACE;
-    NSMutableArray<MSIDCredentialCacheItem *> *tokenList = [NSMutableArray new];
+    MSIDSharedCredentialCacheItem *sharedCredentialItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     query[(id)kSecAttrAccount] = self.keychainGroup;
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
@@ -528,16 +528,14 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     CFDictionaryRef result = nil;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
-    if (status != errSecItemNotFound)
+    if (status == errSecSuccess)
     {
         NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
         NSData *sharedCredentialData = [resultDict objectForKey:(id)kSecValueData];
-        MSIDSharedCredentialCacheItem *sharedCredentialItem = (MSIDSharedCredentialCacheItem *)[serializer deserializeSharedCredentialCacheItem:sharedCredentialData];
-        tokenList = [sharedCredentialItem allCredentials];
+        sharedCredentialItem = (MSIDSharedCredentialCacheItem *)[serializer deserializeSharedCredentialCacheItem:sharedCredentialData];
     }
     
-    return tokenList;
-    
+    return sharedCredentialItem;
 }
 
 #pragma mark - App Metadata
@@ -743,31 +741,26 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     query[(id)kSecAttrAccount] = self.keychainGroup;
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
-    query[(id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
-    query[(id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
+    NSMutableDictionary *update = [self secondaryAttributesForKey:key];
+    update[(id)kSecValueData] = itemData;
+    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
     
-    CFDictionaryRef result = nil;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
-    NSMutableDictionary *update = [NSMutableDictionary dictionary];
     if (status == errSecItemNotFound)
     {
-        update[(id)kSecValueData] = itemData;
         [query addEntriesFromDictionary:update];
         status = SecItemAdd((CFDictionaryRef)query, NULL);
         MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
     }
-    else
+    
+    if (status != errSecSuccess)
     {
-        NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
-        NSData *previousData = [resultDict objectForKey:(id)kSecValueData];
-        MSIDSharedCredentialCacheItem *previousItem = [serializer deserializeSharedCredentialCacheItem:previousData];
-        MSIDSharedCredentialCacheItem *currentItem = [serializer deserializeSharedCredentialCacheItem:itemData];
-        [previousItem mergeCredential:currentItem];
-        update[(id)kSecValueData] = [serializer serializeSharedCredentialCacheItem:previousItem];
-        status = SecItemUpdate((__bridge CFDictionaryRef)query, (__bridge CFDictionaryRef)update);
+        [self createError:@"Failed to write item to keychain"
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return NO;
     }
     
-    return status == errSecSuccess;
+    return YES;
 }
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
