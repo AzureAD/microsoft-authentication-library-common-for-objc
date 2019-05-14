@@ -697,22 +697,40 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 - (BOOL)checkIfRecentlyModifiedAccount:(MSIDAccountCacheItem*)account
                                context:(nullable id<MSIDRequestContext>)context
 {
-    if (account.lastModificationTime && account.lastModificationProcess)
+    return [self checkIfRecentlyModifiedItem:context
+                                        time:account.lastModificationTime
+                                     process:account.lastModificationProcess
+                                         app:account.lastModificationApp];
+}
+
+- (BOOL)checkIfRecentlyModifiedCredential:(MSIDCredentialCacheItem*)credential
+                                  context:(nullable id<MSIDRequestContext>)context
+{
+    return [self checkIfRecentlyModifiedItem:context
+                                        time:credential.lastModificationTime
+                                     process:credential.lastModificationProcess
+                                         app:credential.lastModificationApp];
+}
+
+- (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
+                               time:(NSString*)lastModificationTime
+                            process:(NSString*)lastModificationProcess
+                                app:(NSString*)lastModificationApp
+{
+    if (lastModificationTime && lastModificationProcess)
     {
         // Only check if the previous modification was by another process
-        if (account.lastModificationProcess.intValue != [[NSProcessInfo processInfo] processIdentifier])
+        if (lastModificationProcess.intValue != [[NSProcessInfo processInfo] processIdentifier])
         {
-            double timeDifference = [[NSDate date] timeIntervalSince1970] - account.lastModificationTime.doubleValue;
+            double timeDifference = [[NSDate date] timeIntervalSince1970] - lastModificationTime.doubleValue;
             if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
             {
-                MSID_LOG_WARN(context, @"Set keychain item for recently-modified account (delta %0.3f) pid:%@ app:%@",
-                              timeDifference, account.lastModificationProcess, account.lastModificationApp);
+                MSID_LOG_WARN(context, @"Set keychain item for recently-modified item (delta %0.3f) pid:%@ app:%@",
+                              timeDifference, lastModificationProcess, lastModificationApp);
                 return YES;
             }
         }
     }
     return NO;
 }
-
-
 @end
