@@ -707,8 +707,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             {
                 MSID_LOG_WARN(context, @"Set keychain item for recently-modified account (delta %0.3f) pid:%@ app:%@",
                               timeDifference, account.lastModificationProcess, account.lastModificationApp);
-                NSLog(@"Set keychain item for recently-modified account (delta %0.3f) pid:%@ app:%@",
-                      timeDifference, account.lastModificationProcess, account.lastModificationApp);
                 return YES;
             }
         }
