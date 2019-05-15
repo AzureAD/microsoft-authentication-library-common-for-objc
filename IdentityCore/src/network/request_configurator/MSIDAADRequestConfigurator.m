@@ -58,7 +58,7 @@
     
     if (authorityUrl)
     {
-        requestUrl = [requestUrl msidURLForPreferredHost:[authorityUrl msidHostWithPortIfNecessary] context:nil error:nil];
+        requestUrl = [requestUrl msidURLForHost:[authorityUrl msidHostWithPortIfNecessary] context:nil error:nil];
     }
     
     NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];

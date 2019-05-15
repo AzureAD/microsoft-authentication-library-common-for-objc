@@ -195,7 +195,7 @@ const unichar queryStringSeparator = '?';
 }
 
 
-- (NSURL *)msidURLForPreferredHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError **)error
+- (NSURL *)msidURLForHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError **)error
 {
     NSURL *url = [self copy];
     

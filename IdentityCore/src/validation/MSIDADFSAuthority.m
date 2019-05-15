@@ -78,6 +78,13 @@
 
 #pragma mark - Protected
 
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    return @"Awesome ADFS realm";
+}
+
 - (id<MSIDAuthorityResolving>)resolver
 {
     return [MSIDAdfsAuthorityResolver new];

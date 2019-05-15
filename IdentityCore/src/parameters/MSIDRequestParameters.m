@@ -31,6 +31,7 @@
 #import "MSIDConfiguration.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation MSIDRequestParameters
 
@@ -143,9 +144,16 @@
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostName]) return;
-
-    NSURL *cloudAuthority = [self.authority.url msidAuthorityWithCloudInstanceHostname:cloudHostName];
-    _cloudAuthority = [MSIDAuthorityFactory authorityFromUrl:cloudAuthority context:self error:nil];
+    
+    NSError *cloudHostError = nil;
+    
+    _cloudAuthority = [self.authority authorityWithUpdatedCloudHostInstanceName:cloudHostName error:&cloudHostError];
+    
+    if (!_cloudAuthority && cloudHostError)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", cloudHostName, cloudHostError.domain, (long)cloudHostError.code);
+    }
+    
     [self updateMSIDConfiguration];
 }
 

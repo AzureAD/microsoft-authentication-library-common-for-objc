@@ -21,16 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRefreshToken.h"
+#import <Foundation/Foundation.h>
 
-@class MSIDLegacyTokenCacheItem;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLegacyRefreshToken : MSIDRefreshToken
+@interface NSURL (MSIDAADUtils)
 
-@property (readwrite) NSString *idToken;
-@property (readwrite) NSString *idTokenRealm; // TODO: understand if this is necessary?
+- (NSString *)msidAADTenant;
+- (NSURL *)msidAADAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
 
-- (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
-- (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
++ (NSURL *)msidAADURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
++ (NSURL *)msidAADURLWithEnvironment:(NSString *)environment;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -31,6 +31,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDB2CAuthority.h"
 #import "MSIDADFSAuthority.h"
+#import "NSURL+MSIDAADUtils.h"
 
 @interface MSIDAADAuthority()
 
@@ -230,6 +231,13 @@
 
 #pragma mark - Protected
 
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    return [self tenantFromAuthorityUrl:url context:context error:error].rawTenant;
+}
+
 - (id<MSIDAuthorityResolving>)resolver
 {
     return [MSIDAadAuthorityResolver new];
@@ -272,6 +280,16 @@
     
     NSString *rawTenant = [paths[1] lowercaseString];
     return [[MSIDAADTenant alloc] initWithRawTenant:rawTenant context:context error:error];
+}
+
+#pragma mark - Sovereign
+
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error
+{
+    if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
+    
+    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:cloudHostInstanceName];
+    return [[MSIDAADAuthority alloc] initWithURL:cloudAuthorityURL context:nil error:error];
 }
 
 @end

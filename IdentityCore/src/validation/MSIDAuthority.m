@@ -68,6 +68,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         {
             BOOL isValid = [self.class isAuthorityFormatValid:url context:context error:error];
             if (!isValid) return nil;
+            _realm = [self.class realmFromURL:url context:context error:error];
+            if (!_realm) return nil;
         }
         _url = url;
         _environment = url.msidHostWithPortIfNecessary;
@@ -296,9 +298,24 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 #pragma mark - Protected
 
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    NSAssert(NO, @"Abstract method");
+    return nil;
+}
+
 - (id<MSIDAuthorityResolving>)resolver
 {
     NSAssert(NO, @"Abstract method");
+    return nil;
+}
+
+#pragma mark - Sovereign
+
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error
+{
     return nil;
 }
 

@@ -26,6 +26,12 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 
+@interface MSIDB2CAuthority()
+
+@property (nonatomic, readwrite, nonnull) NSString *tenantId;
+
+@end
+
 @implementation MSIDB2CAuthority
 
 - (nullable instancetype)initWithURL:(NSURL *)url
@@ -119,6 +125,23 @@
 
 #pragma mark - Protected
 
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    if ([url.pathComponents count] < 3)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return nil;
+    }
+    
+    return url.pathComponents[2];
+}
+
 - (id<MSIDAuthorityResolving>)resolver
 {
     return [MSIDB2CAuthorityResolver new];
@@ -174,6 +197,13 @@
     authority.openIdConfigurationEndpoint = [_openIdConfigurationEndpoint copyWithZone:zone];
     authority.metadata = self.metadata;
     return authority;
+}
+
+#pragma mark - Getters
+
+- (NSString *)realm
+{
+    return @"ADFS realm!";
 }
 
 @end

@@ -95,12 +95,9 @@
 
     if (self)
     {
-        __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:tokenCacheItem.authority context:nil error:nil];
-        
         _accessToken = tokenCacheItem.accessToken;
         _idToken = tokenCacheItem.idToken;
         _accessTokenType = tokenCacheItem.oauthTokenType;
-        _authority = authority;
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
@@ -121,9 +118,8 @@
     cacheItem.accessToken = self.accessToken;
     cacheItem.idToken = self.idToken;
     cacheItem.oauthTokenType = self.accessTokenType;
-    cacheItem.authority = self.storageAuthority.url ? self.storageAuthority.url : self.authority.url;
-    cacheItem.environment = self.authority.environment;
-    cacheItem.realm = self.authority.url.msidTenant;
+    cacheItem.environment = self.storageEnvironment ? self.storageEnvironment : self.environment;
+    cacheItem.realm = self.realm;
     cacheItem.clientId = self.clientId;
     cacheItem.additionalInfo = self.additionalServerInfo;
     cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
