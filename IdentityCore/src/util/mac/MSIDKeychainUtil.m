@@ -21,13 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDMacKeychainTokenCache+Testing.h"
+#import "MSIDKeychainUtil.h"
 
-@implementation MSIDMacKeychainTokenCache (Testing)
+@implementation MSIDKeychainUtil
 
 + (NSString *)teamId
 {
-    return @"Fake_Team_Id";
+    static dispatch_once_t once;
+    static NSString *keychainTeamId = nil;
+    
+    dispatch_once(&once, ^{
+        SecCodeRef selfCode = NULL;
+        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+        
+        if (selfCode)
+        {
+            CFDictionaryRef cfDic = NULL;
+            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+            NSDictionary* signingDic = CFBridgingRelease(cfDic);
+            keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+            
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
+            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
+            
+            CFRelease(selfCode);
+        }
+    });
+    
+    return keychainTeamId;
+}
+
++ (NSString *)accessGroup:(NSString *)group
+{
+    if (!group)
+    {
+        return nil;
+    }
+    
+    if (!MSIDKeychainUtil.teamId)
+    {
+        return nil;
+    }
+    
+    return [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, group];
 }
 
 @end

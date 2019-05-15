@@ -26,7 +26,6 @@
 @interface MSIDKeychainUtil : NSObject
 
 @property (class, readonly, nullable) NSString *teamId;
-@property (class, readonly, nullable) NSString *appDefaultAccessGroup;
 
 + (nullable NSString *)accessGroup:(nullable NSString *)group;
 
