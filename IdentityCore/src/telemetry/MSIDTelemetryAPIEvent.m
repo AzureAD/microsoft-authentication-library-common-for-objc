@@ -102,7 +102,7 @@
 - (void)setUserInformation:(MSIDAccount *)account
 {
     [self setProperty:MSID_TELEMETRY_KEY_USER_ID value:account.accountIdentifier.displayableId];
-    [self setProperty:MSID_TELEMETRY_KEY_TENANT_ID value:account.authority.realm];
+    [self setProperty:MSID_TELEMETRY_KEY_TENANT_ID value:account.realm];
 }
 
 - (void)setOauthErrorCode:(NSString *)oauthErrorCode

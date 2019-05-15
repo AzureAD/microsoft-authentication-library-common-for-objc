@@ -67,12 +67,13 @@
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:tokenResponse configuration:configuration];
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
+    MSIDAuthority *resultAuthority = tokenResponse.idTokenObj.issuerAuthority ? tokenResponse.idTokenObj.issuerAuthority : configuration.authority;
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                               refreshToken:refreshToken
                                                                    idToken:tokenResponse.idToken
                                                                    account:account
-                                                                 authority:accessToken.authority
+                                                                 authority:resultAuthority
                                                              correlationId:correlationID
                                                              tokenResponse:tokenResponse];
 
