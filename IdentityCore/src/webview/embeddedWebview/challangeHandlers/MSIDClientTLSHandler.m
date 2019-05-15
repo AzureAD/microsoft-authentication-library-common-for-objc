@@ -67,7 +67,7 @@
     
     for (NSData *distinguishedName in distinguishedNames)
     {
-        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];
+        NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSASCIIStringEncoding] lowercaseString];
         if ([distinguishedNameString containsString:[kMSIDProtectionSpaceDistinguishedName lowercaseString]])
         {
             return YES;
@@ -81,8 +81,8 @@
                    context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:nil];
-    if (!info || ![info isWorkPlaceJoined])
+    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:challenge];
+    if (!info)
     {
         MSID_LOG_INFO(context, @"Device is not workplace joined");
         MSID_LOG_INFO_PII(context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
