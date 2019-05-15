@@ -129,7 +129,7 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    if ([url.pathComponents count] < 3)
+    if ([url.pathComponents count] < 4)
     {
         if (error)
         {

@@ -82,7 +82,17 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return @"Awesome ADFS realm";
+    if ([url.pathComponents count] < 2)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"ADFS authority should have at least 2 segments in the path (i.e. https://<host>/adfs...)", nil, nil, nil, context.correlationId, nil);
+        }
+        
+        return nil;
+    }
+    
+    return url.pathComponents[1];
 }
 
 - (id<MSIDAuthorityResolving>)resolver
