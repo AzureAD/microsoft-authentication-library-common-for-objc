@@ -204,7 +204,8 @@
         return NO;
     }
     
-    token.authority = configuration.authority;
+    token.environment = configuration.authority.environment;
+    token.realm = configuration.authority.realm;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
@@ -364,7 +365,8 @@
     account.familyName = response.idTokenObj.familyName;
     account.middleName = response.idTokenObj.middleName;
     account.name = response.idTokenObj.name;
-    account.authority = configuration.authority;
+    account.environment = configuration.authority.environment;
+    account.realm = configuration.authority.realm;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
     return YES;

@@ -111,6 +111,8 @@
     return YES;
 }
 
+/*
+ TODO: check if can remove me!
 - (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
                                    tokenResponse:(MSIDB2CTokenResponse *)response
                                            error:(NSError **)error
@@ -121,6 +123,6 @@
     }
 
     return [MSIDAuthorityFactory authorityWithRawTenant:response.clientInfo.utid msidAuthority:requestAuthority context:nil error:error];
-}
+}*/
 
 @end

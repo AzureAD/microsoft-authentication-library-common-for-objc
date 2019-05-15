@@ -138,7 +138,9 @@
     }
 
     accessToken.scopes = responseScopes;
-    accessToken.authority = [self authorityFromRequestAuthority:accessToken.authority tokenResponse:response error:nil];
+    MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
+    accessToken.environment = authority.environment;
+    accessToken.realm = authority.realm;
 
     return YES;
 }
@@ -153,8 +155,10 @@
     {
         return NO;
     }
-
-    token.authority = [self authorityFromRequestAuthority:token.authority tokenResponse:response error:nil];
+    
+    MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
+    token.environment = authority.environment;
+    token.realm = authority.realm;
 
     return YES;
 }
@@ -174,8 +178,10 @@
     {
         return NO;
     }
-
-    account.authority = [self authorityFromRequestAuthority:account.authority tokenResponse:response error:nil];
+    
+    MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
+    account.environment = authority.environment;
+    account.realm = authority.realm;
     return YES;
 }
 
@@ -183,10 +189,15 @@
                                    tokenResponse:(MSIDTokenResponse *)response
                                            error:(NSError **)error
 {
-    return [MSIDAuthorityFactory authorityFromUrl:requestAuthority.url
-                                         rawTenant:response.idTokenObj.realm
-                                           context:nil
-                                             error:error];
+    if (response.idTokenObj.issuerAuthority)
+    {
+        // TODO: should we instead use tenant id from response???
+        return response.idTokenObj.issuerAuthority;
+    }
+    else
+    {
+        return requestAuthority;
+    }
 }
 
 #pragma mark - Webview

@@ -68,11 +68,10 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         {
             BOOL isValid = [self.class isAuthorityFormatValid:url context:context error:error];
             if (!isValid) return nil;
-            _realm = [self.class realmFromURL:url context:context error:error];
-            if (!_realm) return nil;
         }
         _url = url;
         _environment = url.msidHostWithPortIfNecessary;
+        _realm = [self.class realmFromURL:url context:context error:error];
     }
     return self;
 }
@@ -301,6 +300,13 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
+{
+    return url.path;
+}
+
++ (NSString *)realmFromNormalizedURL:(NSURL *)url
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
     NSAssert(NO, @"Abstract method");
     return nil;

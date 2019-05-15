@@ -35,6 +35,7 @@
 #define ID_TOKEN_FAMILY_NAME         @"family_name"
 #define ID_TOKEN_MIDDLE_NAME         @"middle_name"
 #define ID_TOKEN_EMAIL               @"email"
+#define ID_TOKEN_ISSUER              @"iss"
 
 @implementation MSIDIdTokenClaims
 
@@ -45,6 +46,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_GIVEN_NAME, givenName)
 MSID_JSON_ACCESSOR(ID_TOKEN_FAMILY_NAME, familyName)
 MSID_JSON_ACCESSOR(ID_TOKEN_MIDDLE_NAME, middleName)
 MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
+MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
 {
@@ -154,6 +156,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     _uniqueId = [MSIDHelpers normalizeUserId:self.subject];
     _userId = [MSIDHelpers normalizeUserId:self.subject];
     _userIdDisplayable = NO;
+    _issuerAuthority = nil; // TODO: init with base Oauth Authority
 }
 
 - (NSString *)username

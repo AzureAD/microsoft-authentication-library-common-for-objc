@@ -187,9 +187,12 @@
         return NO;
     }
     
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    if (response.idTokenObj.issuerAuthority)
+    {
+        account.environment = response.idTokenObj.issuerAuthority.environment;
+        account.realm = response.idTokenObj.issuerAuthority.realm;
+    }
     
-    account.authority = authority;
     return YES;
 }
 
@@ -202,9 +205,12 @@
         return NO;
     }
     
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    if (response.idTokenObj.issuerAuthority)
+    {
+        token.environment = response.idTokenObj.issuerAuthority.environment;
+        token.realm = response.idTokenObj.issuerAuthority.realm;
+    }
 
-    token.authority = authority;
     return YES;
 }
 

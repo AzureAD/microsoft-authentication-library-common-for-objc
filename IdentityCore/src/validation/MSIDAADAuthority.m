@@ -235,7 +235,13 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    return [self tenantFromAuthorityUrl:url context:context error:error].rawTenant;
+    if ([self isAuthorityFormatValid:url context:context error:error])
+    {
+        return [self tenantFromAuthorityUrl:url context:context error:error].rawTenant;
+    }
+    
+    // We don't support non standard AAD authority formats
+    return nil;
 }
 
 - (id<MSIDAuthorityResolving>)resolver

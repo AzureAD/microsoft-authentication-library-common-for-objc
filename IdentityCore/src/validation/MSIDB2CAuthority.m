@@ -129,17 +129,13 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    if ([url.pathComponents count] < 4)
+    if ([self isAuthorityFormatValid:url context:context error:error])
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"B2C authority should have at least 3 segments in the path (i.e. https://<host>/tfp/<tenant>/<policy>/...)", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return nil;
+        return url.pathComponents[2];
     }
     
-    return url.pathComponents[2];
+    // We do support non standard B2C authority formats
+    return url.path;
 }
 
 - (id<MSIDAuthorityResolving>)resolver
