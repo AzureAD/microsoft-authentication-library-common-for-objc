@@ -21,14 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccessToken.h"
-#import "MSIDLegacyCredentialCacheCompatible.h"
+#import <Foundation/Foundation.h>
 
 @class MSIDLegacyTokenCacheItem;
 
-@interface MSIDLegacyAccessToken : MSIDAccessToken <MSIDLegacyCredentialCacheCompatible>
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readwrite) NSString *accessTokenType;
-@property (readwrite) NSString *idToken;
+@protocol MSIDLegacyCredentialCacheCompatible <NSObject>
+
+- (nullable instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
+- (nullable MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
 
 @end
+
+NS_ASSUME_NONNULL_END
