@@ -190,6 +190,7 @@
     if (response.idTokenObj.issuerAuthority)
     {
         account.environment = response.idTokenObj.issuerAuthority.environment;
+        account.storageEnvironment = [response.idTokenObj.issuerAuthority cacheEnvironmentWithContext:nil];
         account.realm = response.idTokenObj.issuerAuthority.realm;
     }
     
@@ -208,6 +209,7 @@
     if (response.idTokenObj.issuerAuthority)
     {
         token.environment = response.idTokenObj.issuerAuthority.environment;
+        token.storageEnvironment = [response.idTokenObj.issuerAuthority cacheEnvironmentWithContext:nil];
         token.realm = response.idTokenObj.issuerAuthority.realm;
     }
 

@@ -587,8 +587,6 @@
     MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"(Legacy accessor) Saving access token in legacy accessor %@", accessToken);
     
     return [self saveToken:accessToken
-             configuration:configuration
-                  response:response
                    context:context
                      error:error];
 }
@@ -611,8 +609,6 @@
     MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", refreshToken);
     
     BOOL result = [self saveToken:refreshToken
-                    configuration:configuration
-                         response:response
                           context:context
                             error:error];
 
@@ -630,8 +626,6 @@
     familyRefreshToken.clientId = [MSIDCacheKey familyClientId:refreshToken.familyId];
     
     return [self saveToken:familyRefreshToken
-             configuration:configuration
-                  response:response
                    context:context
                      error:error];
 }
@@ -655,33 +649,22 @@
 
     // Save token for legacy single resource token
     return [self saveToken:legacyToken
-             configuration:configuration
-                  response:response
                    context:context
                      error:error];
 }
 
 - (BOOL)saveToken:(MSIDBaseToken<MSIDLegacyCredentialCacheCompatible> *)token
-    configuration:(MSIDConfiguration *)configuration
-         response:(MSIDTokenResponse *)response
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
     
-    MSIDAuthority *authority = response.idTokenObj.issuerAuthority ?: configuration.authority; // TODO: optimize this code
-    NSString *cacheEnvironment = [[authority cacheUrlWithContext:context] msidHostWithPortIfNecessary]; // TODO: replace this with cache environment
     MSIDCredentialCacheItem *tokenCacheItem = token.legacyTokenCacheItem;
 
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Legacy accessor) Saving token %@ with authority %@, environment %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], authority.url, cacheEnvironment, tokenCacheItem.clientId);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Legacy accessor) Saving token %@ for account %@ with authority %@, environment %@, clientID %@", tokenCacheItem, token.accountIdentifier.displayableId, authority.url, cacheEnvironment, tokenCacheItem.clientId);
-
-    // The authority used to retrieve the item over the network can differ from the preferred authority used to
-    // cache the item. As it would be awkward to cache an item using an authority other then the one we store
-    // it with we switch it out before saving it to cache.
-    tokenCacheItem.environment = cacheEnvironment;
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Legacy accessor) Saving token %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:tokenCacheItem.credentialType], token.storageEnvironment, token.realm, tokenCacheItem.clientId);
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Legacy accessor) Saving token %@ for account %@ with environment %@, realm %@, clientID %@", tokenCacheItem, token.accountIdentifier.displayableId, token.storageEnvironment, token.realm, tokenCacheItem.clientId);
     
-    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithEnvironment:cacheEnvironment
+    MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithEnvironment:tokenCacheItem.environment
                                                                                   realm:tokenCacheItem.realm
                                                                                clientId:tokenCacheItem.clientId
                                                                                resource:tokenCacheItem.target
@@ -695,7 +678,7 @@
     if (!result)
     {
         [MSIDTelemetry stopCacheEvent:event withItem:token success:NO context:context];
-        MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context,@"Failed to save token with alias: %@", authority.url);
+        MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Failed to save token with alias: %@", tokenCacheItem.environment);
         return NO;
     }
 

@@ -140,6 +140,7 @@
     accessToken.scopes = responseScopes;
     MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
     accessToken.environment = authority.environment;
+    accessToken.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
     accessToken.realm = authority.realm;
 
     return YES;
@@ -158,6 +159,7 @@
     
     MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
     token.environment = authority.environment;
+    token.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
     token.realm = authority.realm;
 
     return YES;
@@ -181,6 +183,7 @@
     
     MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
     account.environment = authority.environment;
+    account.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
     account.realm = authority.realm;
     return YES;
 }

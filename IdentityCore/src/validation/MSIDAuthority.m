@@ -127,6 +127,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return self.url;
 }
 
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext>)context
+{
+    return self.url.msidHostWithPortIfNecessary;
+}
+
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
 {
     return @[self.url];

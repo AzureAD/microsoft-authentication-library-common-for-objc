@@ -684,13 +684,10 @@
         return NO;
     }
     
-    MSIDAuthority *authority = response.idTokenObj.issuerAuthority ?: configuration.authority;
-    NSString *cacheEnvironment = [[authority cacheUrlWithContext:context] msidHostWithPortIfNecessary]; // TODO: replace this with cache environment
-
     // Delete access tokens with intersecting scopes
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
-    query.environment = cacheEnvironment;
+    query.environment = accessToken.storageEnvironment;
     query.realm = accessToken.realm;
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
@@ -706,8 +703,6 @@
     }
 
     return [self saveToken:accessToken
-             configuration:configuration
-                  response:response
                    context:context
                      error:error];
 }
@@ -723,8 +718,6 @@
     if (idToken)
     {
         return [self saveToken:idToken
-                 configuration:configuration
-                      response:response
                        context:context
                          error:error];
     }
@@ -752,8 +745,6 @@
         MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Saving family refresh token %@", refreshToken);
 
         if (![self saveToken:refreshToken
-               configuration:configuration
-                    response:response
                      context:context
                        error:error])
         {
@@ -764,8 +755,6 @@
     // Save a separate entry for MRRT
     refreshToken.familyId = nil;
     return [self saveToken:refreshToken
-             configuration:configuration
-                  response:response
                    context:context
                      error:error];
 }
@@ -781,8 +770,6 @@
     if (account)
     {
         return [self saveAccount:account
-                   configuration:configuration
-                        response:response
                          context:context
                            error:error];
     }
@@ -960,8 +947,6 @@
 }
 
 - (BOOL)saveToken:(MSIDBaseToken *)token
-    configuration:(MSIDConfiguration *)configuration
-         response:(MSIDTokenResponse *)response
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -973,19 +958,12 @@
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
     MSIDCredentialCacheItem *cacheItem = token.tokenCacheItem;
-    
-    MSIDAuthority *authority = response.idTokenObj.issuerAuthority ?: configuration.authority;
-    NSString *cacheEnvironment = [[authority cacheUrlWithContext:context] msidHostWithPortIfNecessary]; // TODO: replace this with cache environment
-    
-    cacheItem.environment = cacheEnvironment;
     BOOL result = [_accountCredentialCache saveCredential:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:token success:result context:context];
     return result;
 }
 
 - (BOOL)saveAccount:(MSIDAccount *)account
-      configuration:(MSIDConfiguration *)configuration
-           response:(MSIDTokenResponse *)response
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -997,10 +975,6 @@
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE context:context];
 
     MSIDAccountCacheItem *cacheItem = account.accountCacheItem;
-    
-    MSIDAuthority *authority = response.idTokenObj.issuerAuthority ?: configuration.authority;
-    NSString *cacheEnvironment = [[authority cacheUrlWithContext:context] msidHostWithPortIfNecessary]; // TODO: replace this with cache environment
-    cacheItem.environment = cacheEnvironment;
     BOOL result = [_accountCredentialCache saveAccount:cacheItem context:context error:error];
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     return result;
@@ -1113,7 +1087,7 @@
         return NO;
     }
     
-    metadata.environment = [[configuration.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
+    metadata.environment = [configuration.authority cacheEnvironmentWithContext:context];
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_APP_METADATA_WRITE
                                                                     context:context];
     
@@ -1157,7 +1131,7 @@
         // Create new app metadata if there's no app metadata present at all
         MSIDAppMetadataCacheItem *appmetadata = [MSIDAppMetadataCacheItem new];
         appmetadata.clientId = clientId;
-        appmetadata.environment = [[authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
+        appmetadata.environment = [authority cacheEnvironmentWithContext:context];
         appmetadata.familyId = familyId;
         return [_accountCredentialCache saveAppMetadata:appmetadata context:context error:error];
     }

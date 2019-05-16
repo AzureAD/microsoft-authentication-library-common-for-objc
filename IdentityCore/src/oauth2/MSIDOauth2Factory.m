@@ -205,6 +205,7 @@
     }
     
     token.environment = configuration.authority.environment;
+    token.storageEnvironment = [configuration.authority cacheEnvironmentWithContext:nil];
     token.realm = configuration.authority.realm;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
@@ -366,6 +367,7 @@
     account.middleName = response.idTokenObj.middleName;
     account.name = response.idTokenObj.name;
     account.environment = configuration.authority.environment;
+    account.storageEnvironment = [configuration.authority cacheEnvironmentWithContext:nil];
     account.realm = configuration.authority.realm;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
@@ -378,6 +380,7 @@
 {
     metadata.clientId = configuration.clientId;
     metadata.environment = configuration.authority.environment;
+    // TODO: add storage environment!
     return YES;
 }
 

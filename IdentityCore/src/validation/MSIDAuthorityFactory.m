@@ -29,6 +29,7 @@
 
 @implementation MSIDAuthorityFactory
 
+// TODO: check where this is being used
 + (MSIDAuthority *)authorityFromUrl:(NSURL *)url
                                context:(id<MSIDRequestContext>)context
                                  error:(NSError **)error

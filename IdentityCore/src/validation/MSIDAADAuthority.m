@@ -92,6 +92,11 @@
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
 }
 
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext>)context
+{
+    return [self cacheUrlWithContext:context].msidHostWithPortIfNecessary;
+}
+
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
