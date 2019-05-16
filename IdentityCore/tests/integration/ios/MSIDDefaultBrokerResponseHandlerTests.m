@@ -586,48 +586,58 @@
     XCTAssertNil(refreshToken.familyId);
 }
 
--(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIntiatedByMsal_shouldReturnYes
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIntiatedByMsalAndHasCompletionBlock_shouldReturnYes
 {
     NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
     MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
     
-    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url];
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
     
     XCTAssertTrue(result);
 }
 
--(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIsNotIntiatedByMsal_shouldReturnNo
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIsNotIntiatedByMsalAndHasCompletionBlock_shouldReturnNo
 {
     NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
     MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
     
-    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url];
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
     
     XCTAssertFalse(result);
 }
 
--(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndNoResumeDictionary_shouldReturnNo
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndNoResumeDictionaryAndNoCompletionBlock_shouldReturnNo
 {
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
     MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
     
-    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url];
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:NO];
     
     XCTAssertFalse(result);
 }
 
--(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIntiatedByMSAL_shouldReturnNo
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndNoResumeDictionaryAndHasCompletionBlock_shouldReturnYes
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIntiatedByMSALAndHasCompletionBlock_shouldReturnNo
 {
     NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
     MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
     
-    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url];
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
     
     XCTAssertFalse(result);
 }

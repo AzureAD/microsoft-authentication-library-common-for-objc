@@ -201,6 +201,7 @@
 }
 
 - (BOOL)canHandleBrokerResponse:(NSURL *)response
+             hasCompletionBlock:(BOOL)hasCompletionBlock
 {
     if (!response) { return NO; }
     
@@ -212,7 +213,7 @@
     BOOL isValidVersion = [protocolVersion isEqualToString:MSID_MSAL_BROKER_MESSAGE_VERSION];
     
     NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
-    BOOL isMSALInitiatedRequest = [resumeDictionary[MSID_SDK_NAME_KEY] isEqualToString:MSID_MSAL_SDK_NAME];
+    BOOL isMSALInitiatedRequest = [resumeDictionary[MSID_SDK_NAME_KEY] isEqualToString:MSID_MSAL_SDK_NAME] || (resumeDictionary == nil && hasCompletionBlock);
     
     return isValidVersion && isMSALInitiatedRequest;
 }

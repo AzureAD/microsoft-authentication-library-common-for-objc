@@ -132,6 +132,7 @@
 }
 
 - (BOOL)canHandleBrokerResponse:(__unused NSURL *)response
+             hasCompletionBlock:(__unused BOOL)hasCompletionBlock
 {
     return YES;
 }
