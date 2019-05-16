@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, readwrite) NSString *appKey;
 
 /* OSX specific property. Determines if an item is shared across apps.  */
-@property BOOL isShared;
+@property (readonly) BOOL isShared;
 
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service
