@@ -21,22 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDMetadataCacheDataSource.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
-
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                             metadataAccessor:(MSIDMetadataCacheAccessor *)metadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+@interface MSIDKeychainMetadataCache : NSObject <MSIDMetadataCacheDataSource>
 
 @end
-
-NS_ASSUME_NONNULL_END

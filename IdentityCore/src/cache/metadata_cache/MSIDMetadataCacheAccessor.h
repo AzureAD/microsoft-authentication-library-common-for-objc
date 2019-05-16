@@ -21,22 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+@class MSIDRequestParameters;
+@class MSIDTokenResponse;
+@class MSIDAuthority;
+@class MSIDAccountIdentifier;
+@class MSIDConfiguration;
+@protocol MSIDRequestContext;
+@protocol MSIDMetadataCacheDataSource;
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@interface MSIDMetadataCacheAccessor : NSObject
 
-NS_ASSUME_NONNULL_BEGIN
+- (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+- (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)requestAuthority
+                                  accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                      configuration:(MSIDConfiguration *)configuration
+                                              error:(NSError **)error;
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                             metadataAccessor:(MSIDMetadataCacheAccessor *)metadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (BOOL)updateAuthorityMapWithRequestParameters:(MSIDRequestParameters *)parameters
+                              accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error;
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -21,22 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDAuthorityMapCacheKey.h"
+#import "MSIDCacheKey.h"
+#import "MSIDAccountIdentifier.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+static NSInteger kAuthorityMapMetadataType = 5001;
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDAuthorityMapCacheKey
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                 clientId:(NSString *)clientId
+{
+    if (!accountIdentifier || !clientId) return nil;
+    
+    self = [super initWithAccount:accountIdentifier.homeAccountId
+                          service:[NSString stringWithFormat:@"%@-%@", MSID_APP_METADATA_AUTHORITY_MAP_TYPE, accountIdentifier.homeAccountId]
+                          generic:nil
+                             type:@(kAuthorityMapMetadataType)];
+    return self;
+}
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                             metadataAccessor:(MSIDMetadataCacheAccessor *)metadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+
 
 @end
-
-NS_ASSUME_NONNULL_END

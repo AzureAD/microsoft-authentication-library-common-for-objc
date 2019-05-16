@@ -127,6 +127,7 @@ NSString *const MSID_PRT_TOKEN_CACHE_TYPE                = @"PrimaryRefreshToken
 NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
 NSString *const MSID_GENERAL_CACHE_ITEM_TYPE             = @"general_cache_item";
 NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";
+NSString *const MSID_APP_METADATA_AUTHORITY_MAP_TYPE     = @"authority_map";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
 NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";

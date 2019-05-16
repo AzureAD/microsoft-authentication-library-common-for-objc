@@ -33,6 +33,7 @@
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
                               defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                             metadataAccessor:(MSIDMetadataCacheAccessor *)metadataAccessor
                        tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];
@@ -41,6 +42,7 @@
     {
         _oauthFactory = oauthFactory;
         _tokenCache = defaultAccessor;
+        _metadataCache = metadataAccessor;
         _tokenResponseValidator = tokenResponseValidator;
     }
 
@@ -52,7 +54,8 @@
     return [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                              oauthFactory:self.oauthFactory
                                                    tokenResponseValidator:self.tokenResponseValidator
-                                                               tokenCache:self.tokenCache];
+                                                               tokenCache:self.tokenCache
+                                                            metadataCache:self.metadataCache];
 }
 
 - (MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDRequestParameters *)parameters
@@ -62,7 +65,8 @@
                                                                forceRefresh:forceRefresh
                                                                oauthFactory:self.oauthFactory
                                                      tokenResponseValidator:self.tokenResponseValidator
-                                                                 tokenCache:self.tokenCache];
+                                                                 tokenCache:self.tokenCache
+                                                              metadataCache:self.metadataCache];
 }
 
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters

@@ -119,9 +119,9 @@
 {
     NSURLComponents *tokenEndpoint = [NSURLComponents componentsWithURL:self.authority.metadata.tokenEndpoint resolvingAgainstBaseURL:NO];
 
-    if (self.cloudAuthority)
+    if (self.internalAuthority)
     {
-        tokenEndpoint.host = self.cloudAuthority.environment;
+        tokenEndpoint.host = self.internalAuthority.environment;
     }
 
     NSMutableDictionary *endpointQPs = [[NSDictionary msidDictionaryFromURLEncodedString:tokenEndpoint.percentEncodedQuery] mutableCopy];
@@ -145,7 +145,15 @@
     if ([NSString msidIsStringNilOrBlank:cloudHostName]) return;
 
     NSURL *cloudAuthority = [self.authority.url msidAuthorityWithCloudInstanceHostname:cloudHostName];
-    _cloudAuthority = [MSIDAuthorityFactory authorityFromUrl:cloudAuthority context:self error:nil];
+    _internalAuthority= [MSIDAuthorityFactory authorityFromUrl:cloudAuthority context:self error:nil];
+    [self updateMSIDConfiguration];
+}
+
+- (void)setCacheLookupAuthority:(MSIDAuthority *)lookupAuthority
+{
+    if (!lookupAuthority) return;
+    
+    _internalAuthority = lookupAuthority;
     [self updateMSIDConfiguration];
 }
 
@@ -181,7 +189,7 @@
 
 - (void)updateMSIDConfiguration
 {
-    MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
+    MSIDAuthority *authority = self.internalAuthority ? self.internalAuthority : self.authority;
 
     MSIDConfiguration *config = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                  redirectUri:self.redirectUri

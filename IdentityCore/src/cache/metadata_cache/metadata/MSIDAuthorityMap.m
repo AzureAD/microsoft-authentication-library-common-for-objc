@@ -21,25 +21,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
+#import "MSIDAuthorityMap.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDCache.h"
+#import "MSIDAuthority.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDIdToken;
+@implementation MSIDAuthorityMap
+{
+    MSIDCache *_authorityMap;
+}
 
-NS_ASSUME_NONNULL_BEGIN
+- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                 clientId:(NSString *)clientId
+{
+    if (!accountIdentifier || !clientId) return nil;
+    
+    self = [super init];
+    if (self)
+    {
+        self.accountIdentifier = accountIdentifier;
+        self.clientId = clientId;
+        _authorityMap = [MSIDCache new];
+    }
+    return self;
+}
 
-@interface MSIDDefaultSilentTokenRequest : MSIDSilentTokenRequest
+- (BOOL)addMappingWithRequestAuthority:(MSIDAuthority *)requestAuthority
+                     internalAuthority:(MSIDAuthority *)internalAuthority
+{
+    if (!internalAuthority.url.absoluteString || !internalAuthority.url.absoluteString) return NO;
+    
+    [_authorityMap setObject:internalAuthority.url.absoluteString forKey:internalAuthority.url.absoluteString];
+    return YES;
+}
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
-                                     metadataCache:(nonnull MSIDMetadataCacheAccessor *)metadataCache;
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError * __autoreleasing *)error
+{
+    //TODO
+    return nil;
+}
 
--(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
-                                 error:(NSError **)error;
+- (NSDictionary *)jsonDictionary
+{
+    //TODO
+    return nil;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

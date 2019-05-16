@@ -38,6 +38,7 @@
 @interface MSIDDefaultSilentTokenRequest()
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
+@property (nonatomic) MSIDMetadataCacheAccessor *metadataAccessor;
 @property (nonatomic) MSIDAppMetadataCacheItem *appMetadata;
 
 @end
@@ -51,6 +52,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
+                                     metadataCache:(nonnull MSIDMetadataCacheAccessor *)metadataCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -60,6 +62,8 @@
     if (self)
     {
         _defaultAccessor = tokenCache;
+        _metadataAccessor = metadataCache;
+        
     }
 
     return self;
@@ -71,6 +75,15 @@
 {
     NSError *cacheError = nil;
 
+    //get lookup authority by using metadataCache
+    MSIDAuthority *lookupAuthority = [self.metadataAccessor cacheLookupAuthorityForAuthority:self.requestParameters.authority
+                                                                           accountIdentifier:self.requestParameters.accountIdentifier
+                                                                               configuration:self.requestParameters.msidConfiguration];
+    if (lookupAuthority)
+    {
+        [self.requestParameters.setCacheLookupAuthority:lookupAuthority];
+    }
+    
     MSIDAccessToken *accessToken = [self.defaultAccessor getAccessTokenForAccount:self.requestParameters.accountIdentifier
                                                                     configuration:self.requestParameters.msidConfiguration
                                                                           context:self.requestParameters

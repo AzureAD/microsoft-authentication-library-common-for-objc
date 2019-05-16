@@ -25,6 +25,7 @@
 
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
+@property (nonatomic) MSIDMetadataCacheAccessor *metadataCache;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 
 @end

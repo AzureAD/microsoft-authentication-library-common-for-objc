@@ -21,22 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+@class MSIDAccountIdentifier;
+@class MSIDAuthority;
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+#import "MSIDJsonSerializable.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDAuthorityMap : NSObject <MSIDJsonSerializable>
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *clientId;
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                             metadataAccessor:(MSIDMetadataCacheAccessor *)metadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                 clientId:(NSString *)clientId;
+
+- (BOOL)addMappingWithRequestAuthority:(MSIDAuthority *)requestAuthority
+                     internalAuthority:(MSIDAuthority *)internalAuthority;
 
 @end
-
-NS_ASSUME_NONNULL_END
