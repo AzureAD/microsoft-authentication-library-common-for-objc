@@ -21,38 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDDefaultAccountCacheQuery.h"
+#import "MSIDKeychainUtil.h"
 
-@implementation MSIDDefaultAccountCacheQuery
+@implementation MSIDKeychainUtil
 
-- (NSString *)account
++ (NSString *)teamId
 {
-    if (self.homeAccountId && self.environment)
+    static dispatch_once_t once;
+    static NSString *keychainTeamId = nil;
+    
+    dispatch_once(&once, ^{
+        SecCodeRef selfCode = NULL;
+        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+        
+        if (selfCode)
+        {
+            CFDictionaryRef cfDic = NULL;
+            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+            NSDictionary* signingDic = CFBridgingRelease(cfDic);
+            keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+            
+            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
+            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
+            
+            CFRelease(selfCode);
+        }
+    });
+    
+    return keychainTeamId;
+}
+
++ (NSString *)accessGroup:(NSString *)group
+{
+    if (!group)
     {
-        return [super account];
+        return nil;
     }
-
-    return nil;
-}
-
-- (NSNumber *)type
-{
-    if (self.accountType != MSIDAccountTypeOther)
+    
+    if (!MSIDKeychainUtil.teamId)
     {
-        return [super type];
+        return nil;
     }
-
-    return nil;
-}
-
-- (BOOL)exactMatch
-{
-    return self.homeAccountId && self.environment && self.realm;
-}
-
-- (BOOL)isShared
-{
-    return YES;
+    
+    return [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, group];
 }
 
 @end

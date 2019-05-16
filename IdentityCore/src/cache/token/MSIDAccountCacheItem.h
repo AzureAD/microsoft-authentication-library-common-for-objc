@@ -40,7 +40,6 @@
 @property (readwrite, nullable) NSString *realm;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 @property (readwrite, nullable) NSString *alternativeAccountId;
-
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
