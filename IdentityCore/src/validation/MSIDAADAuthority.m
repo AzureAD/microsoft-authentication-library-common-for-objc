@@ -192,7 +192,7 @@
                                      context:(id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
-    __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:rawTenant];
+    __auto_type authorityUrl = [NSURL msidAADURLWithEnvironment:environment tenant:rawTenant];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
