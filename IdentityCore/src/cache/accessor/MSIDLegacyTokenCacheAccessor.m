@@ -467,7 +467,7 @@
                     clientId:(NSString *)clientId
                     familyId:(NSString *)familyId
                      context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error // TODO: update me
+                       error:(NSError **)error 
 {
     if (!accountIdentifier)
     {

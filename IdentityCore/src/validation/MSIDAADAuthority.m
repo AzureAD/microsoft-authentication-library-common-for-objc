@@ -72,6 +72,7 @@
             if (![self.class isAuthorityFormatValid:_url context:context error:error]) return nil;
             
             _tenant = [self.class tenantFromAuthorityUrl:self.url context:context error:error];
+            _realm = _tenant.rawTenant;
         }
     }
     

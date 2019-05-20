@@ -384,7 +384,6 @@
 {
     metadata.clientId = configuration.clientId;
     metadata.environment = configuration.authority.environment;
-    // TODO: add storage environment!
     return YES;
 }
 

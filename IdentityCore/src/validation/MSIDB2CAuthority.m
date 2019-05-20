@@ -68,6 +68,7 @@
         {
             _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@/%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1], rawTenant, url.pathComponents[3]]];
             if (![self.class isAuthorityFormatValid:_url context:context error:error]) return nil;
+            _realm = rawTenant;
         }
     }
 

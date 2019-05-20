@@ -36,6 +36,7 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 {
 @protected
     NSURL *_url;
+    NSString *_realm;
     NSURL *_openIdConfigurationEndpoint;
 }
 
