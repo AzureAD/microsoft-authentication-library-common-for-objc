@@ -239,7 +239,7 @@
     XCTAssertEqual([accessTokensInCache count], 2);
 }
 
-- (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentAuthorities_shouldSave2Tokens
+- (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentRequestAuthorities_shouldSave1TokenWithSameTenantId
 {
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -273,7 +273,7 @@
     XCTAssertTrue(result);
 
     NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
-    XCTAssertEqual([accessTokensInCache count], 2);
+    XCTAssertEqual([accessTokensInCache count], 1);
 }
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentUsers_shouldSave2Tokens
