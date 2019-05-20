@@ -33,7 +33,7 @@
     static NSString *keychainTeamId = nil;
     
     dispatch_once(&once, ^{
-        NSString *accessGroup = [MSIDKeychainUtil appDefaultAccessGroup];
+        NSString *accessGroup = [self.class appDefaultAccessGroup];
         NSArray *components = [accessGroup componentsSeparatedByString:@"."];
         NSString *bundleSeedID = [components firstObject];
         keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;

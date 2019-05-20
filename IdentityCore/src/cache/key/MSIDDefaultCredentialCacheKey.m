@@ -140,6 +140,11 @@ static NSInteger kCredentialTypePrefix = 2000;
     return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
 }
 
+- (BOOL)isShared
+{
+    return self.credentialType == MSIDRefreshTokenType;
+}
+
 #pragma mark - Broker
 
 - (NSNumber *)appKeyHash
