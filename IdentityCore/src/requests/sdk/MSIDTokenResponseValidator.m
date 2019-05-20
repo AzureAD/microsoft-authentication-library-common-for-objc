@@ -112,14 +112,18 @@
         MSIDFillAndLogError(error, MSIDErrorInternal, @"Broker response is nil", correlationID);
         return nil;
     }
+    
+    if (!brokerResponse.msidAuthority)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"No authority returned from broker", nil, nil, nil, correlationID, nil);
+        }
+        
+        return nil;
+    }
 
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:brokerResponse.authority]
-                                                           context:nil
-                                                             error:error];
-
-    if (!authority) return nil;
-
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:brokerResponse.msidAuthority
                                                                         redirectUri:nil
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
