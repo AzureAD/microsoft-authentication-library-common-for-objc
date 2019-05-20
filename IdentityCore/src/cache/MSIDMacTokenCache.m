@@ -276,6 +276,22 @@ return NO; \
     return nil;
 }
 
+- (BOOL)saveOrUpdateMetadataItem:(NSData *)item
+                          forKey:(MSIDCacheKey *)key
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
+{
+    // TODO:
+    return NO;
+}
+
+- (NSData *)metadataItemWithKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    return nil;
+}
+
 #pragma mark - Removal
 
 - (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
