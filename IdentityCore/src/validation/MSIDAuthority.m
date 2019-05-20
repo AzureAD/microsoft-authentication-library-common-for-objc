@@ -309,14 +309,6 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return url.path;
 }
 
-+ (NSString *)realmFromNormalizedURL:(NSURL *)url
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
-{
-    NSAssert(NO, @"Abstract method");
-    return nil;
-}
-
 - (id<MSIDAuthorityResolving>)resolver
 {
     NSAssert(NO, @"Abstract method");
