@@ -196,11 +196,4 @@
     return authority;
 }
 
-#pragma mark - Getters
-
-- (NSString *)realm
-{
-    return @"ADFS realm!";
-}
-
 @end
