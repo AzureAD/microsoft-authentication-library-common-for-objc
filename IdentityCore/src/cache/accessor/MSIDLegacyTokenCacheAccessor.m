@@ -415,7 +415,7 @@
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
     
     NSString *storageEnvironment = token.storageEnvironment ? token.storageEnvironment : token.environment;
-    NSURL *storageAuthority = [NSURL msidAADURLWithEnvironment:storageEnvironment tenant:token.realm]; // TODO: do we need to create authority here?
+    NSURL *storageAuthority = [NSURL msidAADURLWithEnvironment:storageEnvironment tenant:token.realm];
 
     __auto_type lookupAliases = storageAuthority ? @[storageAuthority] : @[];
 

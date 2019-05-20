@@ -45,12 +45,6 @@
 - (BOOL)msidIsEquivalentAuthorityHost:(NSURL *)aURL;
 
 - (NSString *)msidHostWithPortIfNecessary;
-//- (NSString *)msidTenant;
-//- (NSURL *)msidAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
-
-//+ (NSURL *)msidURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
-//+ (NSURL *)msidURLWithEnvironment:(NSString *)environment;
-
 - (NSDictionary *)msidQueryParameters;
 
 - (NSURL *)msidURLForHost:(NSString *)preferredHost context:(id<MSIDRequestContext>)context error:(NSError * __autoreleasing *)error;
