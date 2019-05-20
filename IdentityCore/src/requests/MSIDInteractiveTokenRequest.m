@@ -71,7 +71,7 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenCache = tokenCache;
-        _meatadataCache = metadataCache;
+        _metadataCache = metadataCache;
     }
 
     return self;

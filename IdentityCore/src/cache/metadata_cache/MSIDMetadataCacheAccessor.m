@@ -64,12 +64,13 @@
 }
 
 - (BOOL)updateAuthorityMapWithRequestParameters:(MSIDRequestParameters *)parameters
+                                 cacheAuthority:(MSIDAuthority *)cacheAuthority
                               accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                         context:(id<MSIDRequestContext>)context
                                           error:(NSError **)error
 {
     //No need to update if the request authority is the same as the authority used internally
-    if (!parameters.internalAuthority.url || parameters.authority.url == parameters.internalAuthority.url) return YES;
+    if (!cacheAuthority.url || parameters.authority.url == cacheAuthority.url) return YES;
     
     MSIDAuthorityMapCacheKey *key = [[MSIDAuthorityMapCacheKey alloc] initWithAccountIdentifier:accountIdentifier clientId:parameters.clientId];
     
@@ -81,7 +82,7 @@
     }
     
     [authorityMap addMappingWithRequestAuthority:parameters.authority
-                               internalAuthority:parameters.internalAuthority];
+                               internalAuthority:cacheAuthority];
     
     return [_metadataCache updateMetadataItem:authorityMap withKey:key ofType:MSIDAuthorityMap.class context:context error:error];
 }

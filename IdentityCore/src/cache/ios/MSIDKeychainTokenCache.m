@@ -411,8 +411,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 {
     NSArray *items = [self itemsWithKey:key context:context error:error];
     
-    if (!items)
+    if (!items || items.count < 1)
     {
+        MSID_LOG_WARN(context, @"Found no metadata item.");
         return nil;
     }
     

@@ -213,6 +213,7 @@
     //save metadata
     NSError *updateMetadataError = nil;
     [metadataCache updateAuthorityMapWithRequestParameters:parameters
+                                            cacheAuthority:tokenResult.accessToken.authority
                                          accountIdentifier:tokenResult.accessToken.accountIdentifier
                                                    context:parameters
                                                      error:&updateMetadataError];

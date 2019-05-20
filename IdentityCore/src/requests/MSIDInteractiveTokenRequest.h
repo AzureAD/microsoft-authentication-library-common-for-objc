@@ -38,7 +38,7 @@ typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullabl
 @property (nonatomic, readonly, nonnull) MSIDInteractiveRequestParameters *requestParameters;
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
-@property (nonatomic, readonly, nonnull) MSIDMetadataCacheAccessor *meatadataCache;
+@property (nonatomic, readonly, nonnull) MSIDMetadataCacheAccessor *metadataCache;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters

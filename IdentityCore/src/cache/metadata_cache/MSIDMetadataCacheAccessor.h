@@ -40,6 +40,7 @@
                                               error:(NSError **)error;
 
 - (BOOL)updateAuthorityMapWithRequestParameters:(MSIDRequestParameters *)parameters
+                                 cacheAuthority:(MSIDAuthority *)cacheAuthority
                               accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                         context:(id<MSIDRequestContext>)context
                                           error:(NSError **)error;

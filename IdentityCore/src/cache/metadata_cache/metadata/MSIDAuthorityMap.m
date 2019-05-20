@@ -25,6 +25,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDCache.h"
 #import "MSIDAuthority.h"
+#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDAuthorityMap
 {
@@ -51,13 +52,21 @@
 {
     if (!internalAuthority.url.absoluteString || !internalAuthority.url.absoluteString) return NO;
     
-    [_authorityMap setObject:internalAuthority.url.absoluteString forKey:internalAuthority.url.absoluteString];
+    [_authorityMap setObject:internalAuthority.url.absoluteString forKey:requestAuthority.url.absoluteString];
     return YES;
 }
 
 - (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)authority
 {
-    return [_authorityMap objectForKey:authority.url.absoluteString];
+    NSString *authorityStr = [_authorityMap objectForKey:authority.url.absoluteString];
+    
+    if (!authorityStr) return nil;
+    
+    NSURL *authorityUrl = [NSURL URLWithString:authorityStr];
+    
+    if (!authorityUrl) return nil;
+    
+    return [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
@@ -76,7 +85,7 @@
     
     self.clientId = json[MSID_CLIENT_ID_CACHE_KEY];
     self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:json[MSID_HOME_ACCOUNT_ID_CACHE_KEY]];
-    _authorityMap = json[MSID_AUTHORITY_MAP_CACHE_KEY];
+    _authorityMap = [[MSIDCache alloc] initWithDictionary:json[MSID_AUTHORITY_MAP_CACHE_KEY]];
     return self;
 }
 
@@ -86,7 +95,7 @@
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.accountIdentifier.homeAccountId;
-    dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = _authorityMap;
+    dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = _authorityMap.toDictionary;
     return dictionary;
 }
 
