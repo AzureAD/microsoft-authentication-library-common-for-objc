@@ -305,14 +305,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                    domain:MSIDErrorDomain errorCode:MSIDErrorInternal error:error context:context];
         return NO;
     }
-    
-    // If this item was recently modified by another process (ignoring ourselves), report a *potential* collision
-    [self checkIfRecentlyModifiedAccount:account context:context];
-
-    NSProcessInfo *processInfo = [NSProcessInfo processInfo];
-    account.lastModificationApp = processInfo.processName;
-    account.lastModificationProcess = [NSString stringWithFormat:@"%d", processInfo.processIdentifier];
-    account.lastModificationTime = [NSString stringWithFormat:@"%0.3f", [[NSDate date] timeIntervalSince1970]];
 
     NSData *jsonData = [serializer serializeAccountCacheItem:account];
     if (!jsonData)
@@ -691,46 +683,5 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     }
 
     return _PII_NULLIFY(self.keychainGroup);
-}
-
-// If this account was modified a moment ago by another process, report a *potential* collision
-- (BOOL)checkIfRecentlyModifiedAccount:(MSIDAccountCacheItem*)account
-                               context:(nullable id<MSIDRequestContext>)context
-{
-    return [self checkIfRecentlyModifiedItem:context
-                                        time:account.lastModificationTime
-                                     process:account.lastModificationProcess
-                                         app:account.lastModificationApp];
-}
-
-- (BOOL)checkIfRecentlyModifiedCredential:(MSIDCredentialCacheItem*)credential
-                                  context:(nullable id<MSIDRequestContext>)context
-{
-    return [self checkIfRecentlyModifiedItem:context
-                                        time:credential.lastModificationTime
-                                     process:credential.lastModificationProcess
-                                         app:credential.lastModificationApp];
-}
-
-- (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
-                               time:(NSString*)lastModificationTime
-                            process:(NSString*)lastModificationProcess
-                                app:(NSString*)lastModificationApp
-{
-    if (lastModificationTime && lastModificationProcess)
-    {
-        // Only check if the previous modification was by another process
-        if (lastModificationProcess.intValue != [[NSProcessInfo processInfo] processIdentifier])
-        {
-            double timeDifference = [[NSDate date] timeIntervalSince1970] - lastModificationTime.doubleValue;
-            if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
-            {
-                MSID_LOG_WARN(context, @"Set keychain item for recently-modified item (delta %0.3f) pid:%@ app:%@",
-                              timeDifference, lastModificationProcess, lastModificationApp);
-                return YES;
-            }
-        }
-    }
-    return NO;
 }
 @end

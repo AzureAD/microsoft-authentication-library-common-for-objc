@@ -69,8 +69,6 @@
     result &= (!self.clientInfo && !item.clientInfo) || [self.clientInfo.rawClientInfo isEqualToString:item.clientInfo.rawClientInfo];
     result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
     result &= (!self.alternativeAccountId && !item.alternativeAccountId) || [self.alternativeAccountId isEqualToString:item.alternativeAccountId];
-    // Ignore the lastMod properties (two otherwise-identical items with different
-    // last modification informational values should be considered equal)
     return result;
 }
 
@@ -111,9 +109,6 @@
     item.clientInfo = [self.clientInfo copyWithZone:zone];
     item.environment = [self.environment copyWithZone:zone];
     item.alternativeAccountId = [self.alternativeAccountId copyWithZone:zone];
-    item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
-    item.lastModificationProcess = [self.lastModificationProcess copyWithZone:zone];
-    item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
 
@@ -154,9 +149,6 @@
     _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_CLIENT_INFO_CACHE_KEY] error:nil];
     _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     _alternativeAccountId = json[MSID_ALTERNATIVE_ACCOUNT_ID_KEY];
-    _lastModificationTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
-    _lastModificationProcess = json[MSID_LAST_MOD_PROCESS_CACHE_KEY];
-    _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
     return self;
 }
 
@@ -187,9 +179,6 @@
     dictionary[MSID_REALM_CACHE_KEY] = _realm;
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
     dictionary[MSID_ALTERNATIVE_ACCOUNT_ID_KEY] = _alternativeAccountId;
-    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = _lastModificationTime;
-    dictionary[MSID_LAST_MOD_PROCESS_CACHE_KEY] = _lastModificationProcess;
-    dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
     return dictionary;
 }
 
