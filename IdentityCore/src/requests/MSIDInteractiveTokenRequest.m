@@ -61,7 +61,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
-                                     metadataCache:(nonnull MSIDMetadataCacheAccessor *)metadataCache
+                                     metadataCache:(nullable MSIDMetadataCacheAccessor *)metadataCache
 {
     self = [super init];
 

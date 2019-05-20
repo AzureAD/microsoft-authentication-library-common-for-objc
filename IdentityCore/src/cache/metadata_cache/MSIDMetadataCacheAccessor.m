@@ -24,11 +24,13 @@
 #import "MSIDMetadataCacheAccessor.h"
 #import "MSIDConfiguration.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDCacheAside.h"
+#import "MSIDMetadataCacheAside.h"
+#import "MSIDAuthorityMapCacheKey.h"
+#import "MSIDAuthorityMap.h"
 
 @implementation MSIDMetadataCacheAccessor
 {
-    MSIDCacheAside *_metadataCache;
+    MSIDMetadataCacheAside *_metadataCache;
 }
 
 - (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource
@@ -39,7 +41,7 @@
     
     if (self)
     {
-        _metadataCache = [[MSIDCacheAside alloc] initWithDataSource:dataSource];
+        _metadataCache = [[MSIDMetadataCacheAside alloc] initWithDataSource:dataSource];
     }
     
     return self;
@@ -54,7 +56,7 @@
 {
     MSIDAuthorityMapCacheKey *key = [[MSIDAuthorityMapCacheKey alloc] initWithAccountIdentifier:accountIdentifier clientId:configuration.clientId];
     
-    MSIDAuthorityMap *authorityMap = (MSIDAuthorityMap *)[_metadataCache cacheItemWithKey:key ofType:MSIDAuthorityMap.class context:context error:error];
+    MSIDAuthorityMap *authorityMap = (MSIDAuthorityMap *)[_metadataCache metadataItemWithKey:key ofType:MSIDAuthorityMap.class context:context error:error];
     
     if (!authorityMap) return nil;
     
@@ -69,19 +71,19 @@
     //No need to update if the request authority is the same as the authority used internally
     if (!parameters.internalAuthority.url || parameters.authority.url == parameters.internalAuthority.url) return YES;
     
-    MSIDAuthorityMapCacheKey *key = [[MSIDAuthorityMapCacheKey alloc] initWithAccountIdentifier:accountIdentifier clientId:configuration.clientId];
+    MSIDAuthorityMapCacheKey *key = [[MSIDAuthorityMapCacheKey alloc] initWithAccountIdentifier:accountIdentifier clientId:parameters.clientId];
     
-    MSIDAuthorityMap *authorityMap = (MSIDAuthorityMap *)[_metadataCache cacheItemWithKey:key];
+    MSIDAuthorityMap *authorityMap = (MSIDAuthorityMap *)[_metadataCache metadataItemWithKey:key ofType:MSIDAuthorityMap.class context:context error:error];
     
     if (!authorityMap)
     {
-        authorityMap = [[MSIDAuthorityMap alloc] initWithAccountIdentifier:accountIdentifier clientId:parameters.clientId]
+        authorityMap = [[MSIDAuthorityMap alloc] initWithAccountIdentifier:accountIdentifier clientId:parameters.clientId];
     }
     
     [authorityMap addMappingWithRequestAuthority:parameters.authority
                                internalAuthority:parameters.internalAuthority];
     
-    return [_metadataCache updateCacheItem:authorityMap withKey:key context:context error:error];
+    return [_metadataCache updateMetadataItem:authorityMap withKey:key ofType:MSIDAuthorityMap.class context:context error:error];
 }
 
 @end

@@ -381,6 +381,58 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return appMetadataitems;
 }
 
+- (BOOL)saveOrUpdateMetadataItem:(NSData *)item
+                          forKey:(MSIDCacheKey *)key
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
+{
+    if (!item)
+    {
+        if (error)
+        {
+            NSString *errorMessage = @"Nil metadata item is received!";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Nil metadata item is received!");
+        return NO;
+    }
+    
+    MSID_LOG_VERBOSE(context, @"Saving metadata item info %@", item);
+    
+    return [self saveData:item
+                      key:key
+                  context:context
+                    error:error];
+}
+
+- (NSData *)metadataItemWithKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *metadataitems = [NSMutableArray new];
+    
+    for (NSDictionary *attrs in items)
+    {
+        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
+        
+        if (itemData)
+        {
+            [metadataitems addObject:itemData];
+        }
+    }
+    
+    MSID_LOG_WARN(context, @"Found %lu items.", (unsigned long)metadataitems.count);
+    
+    return metadataitems[0];
+}
+
 #pragma mark - Removal
 
 - (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key

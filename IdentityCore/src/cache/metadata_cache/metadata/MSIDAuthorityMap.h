@@ -37,4 +37,6 @@
 - (BOOL)addMappingWithRequestAuthority:(MSIDAuthority *)requestAuthority
                      internalAuthority:(MSIDAuthority *)internalAuthority;
 
+- (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)authority;
+
 @end

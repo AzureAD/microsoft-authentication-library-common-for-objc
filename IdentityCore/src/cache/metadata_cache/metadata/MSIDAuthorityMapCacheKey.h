@@ -23,6 +23,8 @@
 
 #import "MSIDCacheKey.h"
 
+@class MSIDAccountIdentifier;
+
 @interface MSIDAuthorityMapCacheKey : MSIDCacheKey
 
 - (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier

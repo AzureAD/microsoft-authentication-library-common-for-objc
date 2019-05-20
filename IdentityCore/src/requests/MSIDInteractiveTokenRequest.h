@@ -29,6 +29,7 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 @class MSIDWebWPJResponse;
+@class MSIDMetadataCacheAccessor;
 
 typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
@@ -44,7 +45,7 @@ typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullabl
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
-                                     metadataCache:(nonnull MSIDMetadataCacheAccessor *)metadataCache;
+                                     metadataCache:(nullable MSIDMetadataCacheAccessor *)metadataCache;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock;
 

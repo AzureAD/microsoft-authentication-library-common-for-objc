@@ -55,17 +55,39 @@
     return YES;
 }
 
+- (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)authority
+{
+    return [_authorityMap objectForKey:authority.url.absoluteString];
+}
+
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                                  error:(NSError * __autoreleasing *)error
 {
-    //TODO
-    return nil;
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    if (!json)
+    {
+        MSID_LOG_WARN(nil, @"Tried to decode an authority map item from nil json");
+        return nil;
+    }
+    
+    self.clientId = json[MSID_CLIENT_ID_CACHE_KEY];
+    self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:json[MSID_HOME_ACCOUNT_ID_CACHE_KEY]];
+    _authorityMap = json[MSID_AUTHORITY_MAP_CACHE_KEY];
+    return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    //TODO
-    return nil;
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    
+    dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
+    dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.accountIdentifier.homeAccountId;
+    dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = _authorityMap;
+    return dictionary;
 }
 
 @end

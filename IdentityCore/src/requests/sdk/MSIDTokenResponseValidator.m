@@ -31,6 +31,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDBasicContext.h"
+#import "MSIDMetadataCacheAccessor.h"
 
 @implementation MSIDTokenResponseValidator
 

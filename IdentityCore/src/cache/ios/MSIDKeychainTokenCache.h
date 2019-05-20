@@ -23,8 +23,9 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
+#import "MSIDMetadataCacheDataSource.h"
 
-@interface MSIDKeychainTokenCache : NSObject<MSIDTokenCacheDataSource>
+@interface MSIDKeychainTokenCache : NSObject<MSIDTokenCacheDataSource, MSIDMetadataCacheDataSource>
 
 /*!
  The name of the group to be used by default when creating an instance of MSIDKeychainTokenCache,

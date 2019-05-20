@@ -23,11 +23,13 @@
 
 @protocol MSIDMetadataCacheDataSource <NSObject>
 
-- (BOOL)saveOrUpdateItem:(NSData *)item
-                  forKey:(MSIDCacheKey *)key
-                   error:(NSError **)error;
+- (BOOL)saveOrUpdateMetadataItem:(NSData *)item
+                          forKey:(MSIDCacheKey *)key
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error;
 
-- (NSData *)itemWithKey:(MSIDCacheKey *)key
-                  error:(NSError **)error;
+- (NSData *)metadataItemWithKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error;
 
 @end

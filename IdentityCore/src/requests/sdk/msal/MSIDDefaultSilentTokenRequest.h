@@ -25,6 +25,7 @@
 
 @class MSIDDefaultTokenCacheAccessor;
 @class MSIDIdToken;
+@class MSIDMetadataCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 

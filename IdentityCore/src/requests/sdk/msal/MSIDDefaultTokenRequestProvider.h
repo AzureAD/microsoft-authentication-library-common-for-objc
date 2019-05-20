@@ -27,6 +27,7 @@
 @class MSIDDefaultTokenCacheAccessor;
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
+@class MSIDMetadataCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 

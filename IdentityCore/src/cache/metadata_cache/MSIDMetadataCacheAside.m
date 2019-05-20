@@ -21,16 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCacheAside.h"
+#import "MSIDMetadataCacheAside.h"
 #import "MSIDMetadataCacheDataSource.h"
 #import "MSIDCache.h"
 #import "MSIDJsonSerializable.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonSerializing.h"
+#import "MSIDCacheKey.h"
 
-@implementation MSIDCacheAside
+@implementation MSIDMetadataCacheAside
 {
-    MSIDCache *_memoryCache;
+    NSMutableDictionary *_memoryCache;
     id<MSIDMetadataCacheDataSource> _dataSource;
     dispatch_queue_t _synchronizationQueue;
     MSIDJsonSerializer *_jsonSerializer;
@@ -44,9 +45,9 @@
     
     if (self)
     {
-        _memoryCache = [MSIDCache new];
+        _memoryCache = [NSMutableDictionary new];
         _dataSource = dataSource;
-        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidcacheaside-%@", [NSUUID UUID].UUIDString];
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmetadatacacheaside-%@", [NSUUID UUID].UUIDString];
         _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
         _jsonSerializer = [MSIDJsonSerializer new];
     }
@@ -54,10 +55,10 @@
     return self;
 }
 
-- (id<MSIDJsonSerializable>)cacheItemWithKey:(MSIDCacheKey *)key
-                                      ofType:(Class)klass
-                                     context:(id<MSIDRequestContext>)context
-                                       error:(NSError **)error
+- (id<MSIDJsonSerializable>)metadataItemWithKey:(MSIDCacheKey *)key
+                                         ofType:(Class)klass
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error
 {
     if (!key) return nil;
     
@@ -78,11 +79,11 @@
     return item;
 }
 
-- (BOOL)updateCacheItem:(id<MSIDJsonSerializable>)cacheItem
-                withKey:(MSIDCacheKey *)key
-                 ofType:(Class)klass
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
+- (BOOL)updateMetadataItem:(id<MSIDJsonSerializable>)cacheItem
+                   withKey:(MSIDCacheKey *)key
+                    ofType:(Class)klass
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
 {
     if (!cacheItem || !key)
     {
@@ -112,7 +113,7 @@
         else
         {
             [_memoryCache setObject:cacheItem forKey:key];
-            update = [self saveItemToDataSource:cacheItem forKey:key error:&localError];
+            update = [self saveItemToDataSource:cacheItem forKey:key context:context error:&localError];
         }
     });
     
@@ -130,7 +131,7 @@
     if (item) return item;
     
     NSError *localError = nil;
-    NSData *data = [_dataSource itemWithKey:key error:&localError];
+    NSData *data = [_dataSource metadataItemWithKey:key context:context error:&localError];
     if (data && !localError)
     {
         item = [_jsonSerializer fromJsonData:data ofType:klass context:context error:&localError];
@@ -158,7 +159,7 @@
     NSData *data = [_jsonSerializer toJsonData:cacheItem context:context error:error];
     if (!data) return NO;
     
-    return [_dataSource saveOrUpdateItem:data forKey:key error:error];
+    return [_dataSource saveOrUpdateMetadataItem:data forKey:key context:context error:error];
 }
 
 @end

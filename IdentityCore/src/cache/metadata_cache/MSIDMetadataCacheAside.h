@@ -21,8 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDMetadataCacheDataSource.h"
+@protocol MSIDMetadataCacheDataSource;
+@protocol MSIDJsonSerializable;
+@class MSIDCacheKey;
 
-@interface MSIDKeychainMetadataCache : NSObject <MSIDMetadataCacheDataSource>
+@interface MSIDMetadataCacheAside : NSObject
+
+- (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
+
+- (id<MSIDJsonSerializable>)metadataItemWithKey:(MSIDCacheKey *)key
+                                         ofType:(Class)klass
+                                        context:(id<MSIDRequestContext>)context
+                                          error:(NSError **)error;
+
+- (BOOL)updateMetadataItem:(id<MSIDJsonSerializable>)cacheItem
+                   withKey:(MSIDCacheKey *)key
+                    ofType:(Class)klass
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
 @end

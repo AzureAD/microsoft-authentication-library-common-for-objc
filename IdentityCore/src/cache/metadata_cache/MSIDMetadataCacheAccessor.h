@@ -36,6 +36,7 @@
 - (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)requestAuthority
                                   accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                       configuration:(MSIDConfiguration *)configuration
+                                            context:(id<MSIDRequestContext>)context
                                               error:(NSError **)error;
 
 - (BOOL)updateAuthorityMapWithRequestParameters:(MSIDRequestParameters *)parameters

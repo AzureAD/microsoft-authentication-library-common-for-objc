@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDCacheKey : NSObject
+@interface MSIDCacheKey : NSObject <NSCopying>
 {
     NSString *_account;
     NSString *_service;

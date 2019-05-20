@@ -34,6 +34,7 @@
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDConfiguration.h"
+#import "MSIDMetadataCacheAccessor.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -78,10 +79,12 @@
     //get lookup authority by using metadataCache
     MSIDAuthority *lookupAuthority = [self.metadataAccessor cacheLookupAuthorityForAuthority:self.requestParameters.authority
                                                                            accountIdentifier:self.requestParameters.accountIdentifier
-                                                                               configuration:self.requestParameters.msidConfiguration];
+                                                                               configuration:self.requestParameters.msidConfiguration
+                                                                                     context:self.requestParameters
+                                                                                       error:nil];
     if (lookupAuthority)
     {
-        [self.requestParameters.setCacheLookupAuthority:lookupAuthority];
+        [self.requestParameters setCacheLookupAuthority:lookupAuthority];
     }
     
     MSIDAccessToken *accessToken = [self.defaultAccessor getAccessTokenForAccount:self.requestParameters.accountIdentifier
@@ -221,6 +224,11 @@
 - (id<MSIDCacheAccessor>)tokenCache
 {
     return self.defaultAccessor;
+}
+
+- (MSIDMetadataCacheAccessor *)metadataCache
+{
+    return self.metadataAccessor;
 }
 
 #pragma mark - Helpers
