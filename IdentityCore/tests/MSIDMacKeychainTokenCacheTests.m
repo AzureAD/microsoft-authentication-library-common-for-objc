@@ -44,9 +44,9 @@
 @interface MSIDMacKeychainTokenCache (Testing)
 
 - (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
-                               time:(NSString*)lastModificationTime
+                               time:(NSDate *)lastModificationTime
                             process:(int)lastModificationProcessID
-                                app:(NSString*)lastModificationApp;
+                                app:(NSString *)lastModificationApp;
 
 @end
 
@@ -624,8 +624,7 @@
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.lastModificationApp, NSProcessInfo.processInfo.processName);
     XCTAssertEqual(account.lastModificationProcessID, NSProcessInfo.processInfo.processIdentifier);
-    XCTAssertTrue(account.lastModificationTime.doubleValue <= [[NSDate date] timeIntervalSince1970]);
-    
+    XCTAssertTrue([account.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:account.lastModificationTime
                                               process:account.lastModificationProcessID
@@ -668,8 +667,8 @@
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.lastModificationApp, NSProcessInfo.processInfo.processName);
     XCTAssertEqual(token.lastModificationProcessID, NSProcessInfo.processInfo.processIdentifier);
-    XCTAssertTrue(token.lastModificationTime.doubleValue <= [[NSDate date] timeIntervalSince1970]);
-    
+    XCTAssertTrue([token.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
+
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:token.lastModificationTime
                                               process:token.lastModificationProcessID

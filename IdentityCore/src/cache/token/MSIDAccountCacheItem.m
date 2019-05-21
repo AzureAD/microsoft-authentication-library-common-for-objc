@@ -154,9 +154,16 @@
     _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:json[MSID_CLIENT_INFO_CACHE_KEY] error:nil];
     _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     _alternativeAccountId = json[MSID_ALTERNATIVE_ACCOUNT_ID_KEY];
-    _lastModificationTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
+
+    // Last Modification info (currently used on macOS only)
+    NSString *modTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
+    if (modTime)
+    {
+        _lastModificationTime = [NSDate dateWithTimeIntervalSince1970:[modTime doubleValue]];
+    }
     _lastModificationProcessID = [json[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] intValue];
     _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
+
     return self;
 }
 
@@ -174,7 +181,7 @@
     {
         [dictionary addEntriesFromDictionary:_additionalAccountFields];
     }
-    
+
     dictionary[MSID_AUTHORITY_TYPE_CACHE_KEY] = [MSIDAccountTypeHelpers accountTypeAsString:_accountType];
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_LOCAL_ACCOUNT_ID_CACHE_KEY] = _localAccountId;
@@ -187,9 +194,18 @@
     dictionary[MSID_REALM_CACHE_KEY] = _realm;
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
     dictionary[MSID_ALTERNATIVE_ACCOUNT_ID_KEY] = _alternativeAccountId;
-    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = _lastModificationTime;
-    dictionary[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] = [NSString stringWithFormat:@"%d", _lastModificationProcessID];
+
+    // Last Modification info (currently used on macOS only)
+    if (_lastModificationTime)
+    {
+        dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [NSString stringWithFormat:@"%0.3f", [_lastModificationTime timeIntervalSince1970]];
+    }
+    if (_lastModificationProcessID)
+    {
+        dictionary[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] = [NSString stringWithFormat:@"%d", _lastModificationProcessID];
+    }
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
+
     return dictionary;
 }
 

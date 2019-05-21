@@ -69,7 +69,7 @@
 @property (readwrite, nullable) NSString *appKey;
 
 // Last Modification info (currently used on macOS only)
-@property (readwrite, nullable) NSString *lastModificationTime;
+@property (readwrite, nullable) NSDate* lastModificationTime;
 @property (readwrite) int lastModificationProcessID;
 @property (readwrite, nullable) NSString *lastModificationApp;
 

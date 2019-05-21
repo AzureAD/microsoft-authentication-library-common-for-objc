@@ -172,7 +172,13 @@
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
-    _lastModificationTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
+
+    // Last Modification info (currently used on macOS only)
+    NSString *modTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
+    if (modTime)
+    {
+        _lastModificationTime = [NSDate dateWithTimeIntervalSince1970:[modTime doubleValue]];
+    }
     _lastModificationProcessID = [json[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] intValue];
     _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
 
@@ -213,8 +219,17 @@
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
-    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = _lastModificationTime;
-    dictionary[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] = [NSString stringWithFormat:@"%d", _lastModificationProcessID];
+
+    // Last Modification info (currently used on macOS only)
+    if (_lastModificationTime)
+    {
+        dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] =
+            [NSString stringWithFormat:@"%0.3f", [_lastModificationTime timeIntervalSince1970]];
+    }
+    if (_lastModificationProcessID)
+    {
+        dictionary[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] = [NSString stringWithFormat:@"%d", _lastModificationProcessID];
+    }
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
 
     return dictionary;
