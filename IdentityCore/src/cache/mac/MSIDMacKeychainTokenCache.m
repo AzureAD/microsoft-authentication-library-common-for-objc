@@ -301,11 +301,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 {
     assert(account);
     assert(serializer);
-    
+
     // If this item was recently modified by another process (ignoring ourselves), report a *potential* collision
     [self checkIfRecentlyModifiedAccount:account context:context];
     [self updateLastModifiedForAccount:account];
-    
+
     NSData *itemData = [serializer serializeAccountCacheItem:account];
 
     if (!itemData)
@@ -414,6 +414,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 {
     assert(credential);
     assert(serializer);
+
+    // If this item was recently modified by another process (ignoring ourselves), report a *potential* collision
+    [self checkIfRecentlyModifiedCredential:credential context:context];
+    [self updateLastModifiedForCredential:credential];
+
     NSData *itemData = [serializer serializeCredentialCacheItem:credential];
 
     if (!itemData)
