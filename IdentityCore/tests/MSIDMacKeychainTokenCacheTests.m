@@ -43,10 +43,10 @@
 
 @interface MSIDMacKeychainTokenCache (Testing)
 
-- (BOOL)checkIfRecentlyModifiedAccount:(MSIDAccountCacheItem*)account
-                               context:(nullable id<MSIDRequestContext>)context;
-- (BOOL)checkIfRecentlyModifiedCredential:(MSIDCredentialCacheItem*)credential
-                                  context:(nullable id<MSIDRequestContext>)context;
+- (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
+                               time:(NSString*)lastModificationTime
+                            process:(NSString*)lastModificationProcess
+                                app:(NSString*)lastModificationApp;
 
 @end
 
@@ -626,16 +626,25 @@
     XCTAssertEqual(account.lastModificationProcess.intValue, NSProcessInfo.processInfo.processIdentifier);
     XCTAssertTrue(account.lastModificationTime.doubleValue <= [[NSDate date] timeIntervalSince1970]);
     
-    result = [_dataSource checkIfRecentlyModifiedAccount:account context:nil];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:account.lastModificationTime
+                                              process:account.lastModificationProcess
+                                                  app:account.lastModificationApp];
     XCTAssertFalse(result); // this check should ignore items our process has written
     
     // check behavior if item had been written by a different process:
     account.lastModificationProcess = [NSString stringWithFormat:@"%d", (NSProcessInfo.processInfo.processIdentifier + 1)];
-    result = [_dataSource checkIfRecentlyModifiedAccount:account context:nil];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:account.lastModificationTime
+                                              process:account.lastModificationProcess
+                                                  app:account.lastModificationApp];
     XCTAssertTrue(result); // a different process id, so it should be considered as recent
     
     [NSThread sleepForTimeInterval:1.0];
-    result = [_dataSource checkIfRecentlyModifiedAccount:account context:nil];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:account.lastModificationTime
+                                              process:account.lastModificationProcess
+                                                  app:account.lastModificationApp];
     XCTAssertFalse(result); // no longer "recent" due to the above delay
 }
 
@@ -661,16 +670,25 @@
     XCTAssertEqual(token.lastModificationProcess.intValue, NSProcessInfo.processInfo.processIdentifier);
     XCTAssertTrue(token.lastModificationTime.doubleValue <= [[NSDate date] timeIntervalSince1970]);
     
-    result = [_dataSource checkIfRecentlyModifiedCredential:token context:nil];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:token.lastModificationTime
+                                              process:token.lastModificationProcess
+                                                  app:token.lastModificationApp];
     XCTAssertFalse(result); // this check should ignore items our process has written
     
     // check behavior if item had been written by a different process:
     token.lastModificationProcess = [NSString stringWithFormat:@"%d", (NSProcessInfo.processInfo.processIdentifier + 1)];
-    result = [_dataSource checkIfRecentlyModifiedCredential:token context:nil];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:token.lastModificationTime
+                                              process:token.lastModificationProcess
+                                                  app:token.lastModificationApp];
     XCTAssertTrue(result); // a different process id, so it should be considered as recent
     
     [NSThread sleepForTimeInterval:1.0];
-    result = [_dataSource checkIfRecentlyModifiedCredential:token context:nil];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:token.lastModificationTime
+                                              process:token.lastModificationProcess
+                                                  app:token.lastModificationApp];
     XCTAssertFalse(result); // no longer "recent" due to the above delay
 }
 

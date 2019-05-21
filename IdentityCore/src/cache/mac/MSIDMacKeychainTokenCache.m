@@ -160,7 +160,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
 @property (readwrite, nonnull) NSString *lastModificationApp;
-@property (readwrite, nonnull) NSString *lastModificationProcess;
+@property (readwrite) int processIdentifier;
 
 @end
 
@@ -271,11 +271,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                    
                                    };
 
-        self.lastModificationProcess = [NSString stringWithFormat:@"%d", NSProcessInfo.processInfo.processIdentifier];
-        self.lastModificationApp = NSBundle.mainBundle.bundleIdentifier;
+        self.processIdentifier = [[NSProcessInfo processInfo] processIdentifier];
+        self.lastModificationApp = [[NSBundle mainBundle] bundleIdentifier];
         if (!self.lastModificationApp)
         {
-            self.lastModificationApp = NSProcessInfo.processInfo.processName;
+            self.lastModificationApp = [[NSProcessInfo processInfo] processName];
         }
 
         MSID_LOG_INFO(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
@@ -301,11 +301,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 {
     assert(account);
     assert(serializer);
-
-    // If this item was recently modified by another process (ignoring ourselves), report a *potential* collision
-    [self checkIfRecentlyModifiedAccount:account context:context];
-    [self updateLastModifiedForAccount:account];
-
+    [self updateLastModifiedForAccount:account context:context];
     NSData *itemData = [serializer serializeAccountCacheItem:account];
 
     if (!itemData)
@@ -414,11 +410,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 {
     assert(credential);
     assert(serializer);
-
-    // If this item was recently modified by another process (ignoring ourselves), report a *potential* collision
-    [self checkIfRecentlyModifiedCredential:credential context:context];
-    [self updateLastModifiedForCredential:credential];
-
+    [self updateLastModifiedForCredential:credential context:context];
     NSData *itemData = [serializer serializeCredentialCacheItem:credential];
 
     if (!itemData)
@@ -862,25 +854,33 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     return _PII_NULLIFY(self.keychainGroup);
 }
 
-// If this account was modified a moment ago by another process, report a *potential* collision
-- (BOOL)checkIfRecentlyModifiedAccount:(MSIDAccountCacheItem*)account
-                               context:(nullable id<MSIDRequestContext>)context
+// Update the lastModification properties for an account object
+- (void)updateLastModifiedForAccount:(MSIDAccountCacheItem*)account
+                             context:(nullable id<MSIDRequestContext>)context
 {
-    return [self checkIfRecentlyModifiedItem:context
-                                        time:account.lastModificationTime
-                                     process:account.lastModificationProcess
-                                         app:account.lastModificationApp];
+    [self checkIfRecentlyModifiedItem:context
+                                 time:account.lastModificationTime
+                              process:account.lastModificationProcess
+                                  app:account.lastModificationApp];
+    account.lastModificationApp = _lastModificationApp;
+    account.lastModificationProcess = [NSString stringWithFormat:@"%d", _processIdentifier];
+    account.lastModificationTime = [NSString stringWithFormat:@"%0.3f", [[NSDate date] timeIntervalSince1970]];
 }
 
-- (BOOL)checkIfRecentlyModifiedCredential:(MSIDCredentialCacheItem*)credential
-                                  context:(nullable id<MSIDRequestContext>)context
+// Update the lastModification properties for a credential object
+- (void)updateLastModifiedForCredential:(MSIDCredentialCacheItem*)credential
+                                context:(nullable id<MSIDRequestContext>)context
 {
-    return [self checkIfRecentlyModifiedItem:context
-                                        time:credential.lastModificationTime
-                                     process:credential.lastModificationProcess
-                                         app:credential.lastModificationApp];
+    [self checkIfRecentlyModifiedItem:context
+                                 time:credential.lastModificationTime
+                              process:credential.lastModificationProcess
+                                  app:credential.lastModificationApp];
+    credential.lastModificationApp = _lastModificationApp;
+    credential.lastModificationProcess = [NSString stringWithFormat:@"%d", _processIdentifier];
+    credential.lastModificationTime = [NSString stringWithFormat:@"%0.3f", [[NSDate date] timeIntervalSince1970]];
 }
 
+// If this item was modified a moment ago by another process, report a *potential* collision
 - (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
                                time:(NSString*)lastModificationTime
                             process:(NSString*)lastModificationProcess
@@ -889,7 +889,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (lastModificationTime && lastModificationProcess)
     {
         // Only check if the previous modification was by another process
-        if (lastModificationProcess.intValue != [[NSProcessInfo processInfo] processIdentifier])
+        if (lastModificationProcess.intValue != _processIdentifier)
         {
             double timeDifference = [[NSDate date] timeIntervalSince1970] - lastModificationTime.doubleValue;
             if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
@@ -901,20 +901,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         }
     }
     return NO;
-}
-
-- (void)updateLastModifiedForAccount:(MSIDAccountCacheItem*)account
-{
-    account.lastModificationApp = _lastModificationApp;
-    account.lastModificationProcess = _lastModificationProcess;
-    account.lastModificationTime = [NSString stringWithFormat:@"%0.3f", [[NSDate date] timeIntervalSince1970]];
-}
-
-- (void)updateLastModifiedForCredential:(MSIDCredentialCacheItem*)credential
-{
-    credential.lastModificationApp = _lastModificationApp;
-    credential.lastModificationProcess = _lastModificationProcess;
-    credential.lastModificationTime = [NSString stringWithFormat:@"%0.3f", [[NSDate date] timeIntervalSince1970]];
 }
 
 @end
