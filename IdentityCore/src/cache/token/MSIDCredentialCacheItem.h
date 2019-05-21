@@ -68,6 +68,11 @@
 // Storing for latter token deletion purpose, not serialized
 @property (readwrite, nullable) NSString *appKey;
 
+// Last Modification info (currently used on macOS only)
+@property (readwrite, nullable) NSString *lastModificationTime;
+@property (readwrite, nullable) NSString *lastModificationProcess;
+@property (readwrite, nullable) NSString *lastModificationApp;
+
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;

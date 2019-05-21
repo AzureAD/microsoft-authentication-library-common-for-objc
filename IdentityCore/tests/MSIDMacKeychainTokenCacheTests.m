@@ -41,6 +41,11 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAppMetadataCacheKey.h"
 
+@interface MSIDMacKeychainTokenCache (Testing)
+- (BOOL)checkIfRecentlyModifiedAccount:(MSIDAccountCacheItem*)account context:(nullable id<MSIDRequestContext>)context;
+@end
+
+
 @interface MSIDMacKeychainTokenCacheTests : XCTestCase
 {
     MSIDMacKeychainTokenCache *_dataSource;
@@ -640,4 +645,51 @@
     return @"Fake_Team_Id";
 }
 
+- (void)testSaveAccount_whenAccountSaved_shouldSaveValidLastModInfo
+{
+    MSIDAccountCacheItem *account = [MSIDAccountCacheItem new];
+    account.environment = DEFAULT_TEST_ENVIRONMENT;
+    account.realm = @"Contoso.COM";
+    account.homeAccountId = @"uid.utid";
+    account.localAccountId = @"homeAccountIdA";
+    account.accountType = MSIDAccountTypeAADV1;
+    account.username = @"UsernameA";
+    account.givenName = @"GivenNameA";
+    account.familyName = @"FamilyNameA";
+    account.middleName = @"MiddleNameA";
+    account.name = @"NameA";
+    account.alternativeAccountId = @"AltIdA";
+    account.additionalAccountFields = @{@"key1": @"value1", @"key2": @"value2"};
+    
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
+                                                                                    environment:account.environment
+                                                                                          realm:account.realm
+                                                                                           type:account.accountType];
+    
+    
+    NSError *error = nil;
+    BOOL result = [_dataSource saveAccount:account key:key serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    // read the same account we just wrote
+    account = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.lastModificationApp, NSProcessInfo.processInfo.processName);
+    XCTAssertEqual(account.lastModificationProcess.intValue, NSProcessInfo.processInfo.processIdentifier);
+    XCTAssertTrue(account.lastModificationTime.doubleValue <= [[NSDate date] timeIntervalSince1970]);
+    
+    result = [_dataSource checkIfRecentlyModifiedAccount:account context:nil];
+    XCTAssertFalse(result); // this check should ignore items our process has written
+    
+    // check behavior if item had been written by a different process:
+    account.lastModificationProcess = [NSString stringWithFormat:@"%d", (NSProcessInfo.processInfo.processIdentifier + 1)];
+    result = [_dataSource checkIfRecentlyModifiedAccount:account context:nil];
+    XCTAssertTrue(result); // a different process id, so it should be considered as recent
+    
+    [NSThread sleepForTimeInterval:1.0];
+    result = [_dataSource checkIfRecentlyModifiedAccount:account context:nil];
+    XCTAssertFalse(result); // no longer "recent" due to the above delay
+}
 @end
