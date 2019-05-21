@@ -130,7 +130,7 @@
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];
     item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
-    item.lastModificationProcess = [self.lastModificationProcess copyWithZone:zone];
+    item.lastModificationProcessID = self.lastModificationProcessID;
     item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
@@ -172,9 +172,8 @@
     _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
-
     _lastModificationTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
-    _lastModificationProcess = json[MSID_LAST_MOD_PROCESS_CACHE_KEY];
+    _lastModificationProcessID = [json[MSID_LAST_MOD_PROCESS_CACHE_KEY] intValue];
     _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
 
     // Additional Info
@@ -215,7 +214,7 @@
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
     dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = _lastModificationTime;
-    dictionary[MSID_LAST_MOD_PROCESS_CACHE_KEY] = _lastModificationProcess;
+    dictionary[MSID_LAST_MOD_PROCESS_CACHE_KEY] = [NSString stringWithFormat:@"%d", _lastModificationProcessID];
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
 
     return dictionary;

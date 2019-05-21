@@ -112,7 +112,7 @@
     item.environment = [self.environment copyWithZone:zone];
     item.alternativeAccountId = [self.alternativeAccountId copyWithZone:zone];
     item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
-    item.lastModificationProcess = [self.lastModificationProcess copyWithZone:zone];
+    item.lastModificationProcessID = self.lastModificationProcessID;
     item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
@@ -155,7 +155,7 @@
     _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
     _alternativeAccountId = json[MSID_ALTERNATIVE_ACCOUNT_ID_KEY];
     _lastModificationTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
-    _lastModificationProcess = json[MSID_LAST_MOD_PROCESS_CACHE_KEY];
+    _lastModificationProcessID = [json[MSID_LAST_MOD_PROCESS_CACHE_KEY] intValue];
     _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
     return self;
 }
@@ -188,7 +188,7 @@
     dictionary[MSID_CLIENT_INFO_CACHE_KEY] = _clientInfo.rawClientInfo;
     dictionary[MSID_ALTERNATIVE_ACCOUNT_ID_KEY] = _alternativeAccountId;
     dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = _lastModificationTime;
-    dictionary[MSID_LAST_MOD_PROCESS_CACHE_KEY] = _lastModificationProcess;
+    dictionary[MSID_LAST_MOD_PROCESS_CACHE_KEY] = [NSString stringWithFormat:@"%d", _lastModificationProcessID];
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
     return dictionary;
 }
