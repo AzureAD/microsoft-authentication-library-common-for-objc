@@ -36,6 +36,7 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "NSString+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
+#import "MSIDKeychainUtil+Internal.h"
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 #import "MSIDTestIdTokenUtil.h"
@@ -63,12 +64,8 @@
 
 - (void)setUp
 {
-    [self swizzleMethod:@selector(teamId)
-                inClass:[MSIDKeychainUtil class]
-             withMethod:@selector(teamIdMock)
-              fromClass:[self class]
-     ];
-    
+    MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+    keychainUtil.teamId = @"FakeTeamId";
     _dataSource = [MSIDMacKeychainTokenCache new];
     _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
     _serializer = [MSIDCacheItemJsonSerializer new];
@@ -205,12 +202,6 @@
 
 - (void)tearDown
 {
-    [self swizzleMethod:@selector(teamId)
-                inClass:[MSIDKeychainUtil class]
-             withMethod:@selector(teamIdMock)
-              fromClass:[self class]
-     ];
-
     [_dataSource removeItemsWithAccountKey:_testAccountKey context:nil error:nil];
     [_cache clearWithContext:nil error:nil];
     _dataSource = nil;
@@ -623,21 +614,6 @@
     item.environment = @"login.microsoftonline.com";
     item.familyId = familyId;
     return item;
-}
-
-- (void)swizzleMethod:(SEL)defaultMethod
-              inClass:(Class)class
-           withMethod:(SEL)swizzledMethod
-            fromClass:(Class)aNewClass
-{
-    Method originalMethod = class_getClassMethod(class, defaultMethod);
-    Method mockMethod = class_getClassMethod(aNewClass, swizzledMethod);
-    method_exchangeImplementations(originalMethod, mockMethod);
-}
-
-+ (NSString *)teamIdMock
-{
-    return @"Fake_Team_Id";
 }
 
 @end

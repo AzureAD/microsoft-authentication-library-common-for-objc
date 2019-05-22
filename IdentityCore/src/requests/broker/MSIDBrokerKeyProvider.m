@@ -47,17 +47,18 @@
         {
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
-
-        if (!MSIDKeychainUtil.teamId)
+        
+        MSIDKeychainUtil *keyChainUtil = [MSIDKeychainUtil sharedInstance];
+        if (!keyChainUtil.teamId)
         {
             MSID_LOG_ERROR(nil, @"Failed to read teamID from keychain");
             return nil;
         }
 
         // Add team prefix to keychain group if it is missed.
-        if (![keychainGroup hasPrefix:MSIDKeychainUtil.teamId])
+        if (![keychainGroup hasPrefix:keyChainUtil.teamId])
         {
-            keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
+            keychainGroup = [keyChainUtil accessGroup:keychainGroup];
         }
 
         _keychainAccessGroup = keychainGroup;

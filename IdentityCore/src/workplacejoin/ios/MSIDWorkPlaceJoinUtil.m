@@ -51,7 +51,8 @@ goto _error; \
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                                       error:(NSError **)error
 {
-    NSString *teamId = [MSIDKeychainUtil teamId];
+    MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+    NSString *teamId = keychainUtil.teamId;
     
 #if TARGET_OS_SIMULATOR
     NSString *sharedAccessGroup = nil;
