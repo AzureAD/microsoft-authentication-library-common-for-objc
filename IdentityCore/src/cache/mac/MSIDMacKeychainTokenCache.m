@@ -240,8 +240,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
-        MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
-        NSString *teamId = keychainUtil.teamId;
+        NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
         if (!teamId) return nil;
 
         // Add team prefix to keychain group if it is missed.
