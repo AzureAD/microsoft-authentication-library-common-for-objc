@@ -64,7 +64,8 @@
 
 - (void)setUp
 {
-    [[MSIDKeychainUtil sharedInstance] teamId] = @"FakeTeamId";
+    MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+    keychainUtil.teamId = @"FakeTeamId";
     _dataSource = [MSIDMacKeychainTokenCache new];
     _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
     _serializer = [MSIDCacheItemJsonSerializer new];
