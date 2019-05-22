@@ -45,7 +45,6 @@
 
 - (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
                                time:(NSDate *)lastModificationTime
-                            process:(int)lastModificationProcessID
                                 app:(NSString *)lastModificationApp;
 
 @end
@@ -622,27 +621,26 @@
     account = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.lastModificationApp, NSProcessInfo.processInfo.processName);
-    XCTAssertEqual(account.lastModificationProcessID, NSProcessInfo.processInfo.processIdentifier);
+    NSString *modApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
+                        NSProcessInfo.processInfo.processIdentifier];
+    XCTAssertEqualObjects(account.lastModificationApp, modApp);
     XCTAssertTrue([account.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:account.lastModificationTime
-                                              process:account.lastModificationProcessID
                                                   app:account.lastModificationApp];
     XCTAssertFalse(result); // this check should ignore items our process has written
     
     // check behavior if item had been written by a different process:
-    account.lastModificationProcessID = (NSProcessInfo.processInfo.processIdentifier + 1);
+    account.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
+                                   (NSProcessInfo.processInfo.processIdentifier + 1)];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:account.lastModificationTime
-                                              process:account.lastModificationProcessID
                                                   app:account.lastModificationApp];
     XCTAssertTrue(result); // a different process id, so it should be considered as recent
     
     [NSThread sleepForTimeInterval:1.0];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:account.lastModificationTime
-                                              process:account.lastModificationProcessID
                                                   app:account.lastModificationApp];
     XCTAssertFalse(result); // no longer "recent" due to the above delay
 }
@@ -665,28 +663,27 @@
     token = [_dataSource tokenWithKey:key serializer:_serializer context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.lastModificationApp, NSProcessInfo.processInfo.processName);
-    XCTAssertEqual(token.lastModificationProcessID, NSProcessInfo.processInfo.processIdentifier);
+    NSString *lastModApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
+                            NSProcessInfo.processInfo.processIdentifier];
+    XCTAssertEqualObjects(token.lastModificationApp, lastModApp);
     XCTAssertTrue([token.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
 
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:token.lastModificationTime
-                                              process:token.lastModificationProcessID
                                                   app:token.lastModificationApp];
     XCTAssertFalse(result); // this check should ignore items our process has written
     
     // check behavior if item had been written by a different process:
-    token.lastModificationProcessID = (NSProcessInfo.processInfo.processIdentifier + 1);
+    token.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
+                                 (NSProcessInfo.processInfo.processIdentifier + 1)];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:token.lastModificationTime
-                                              process:token.lastModificationProcessID
                                                   app:token.lastModificationApp];
     XCTAssertTrue(result); // a different process id, so it should be considered as recent
     
     [NSThread sleepForTimeInterval:1.0];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:token.lastModificationTime
-                                              process:token.lastModificationProcessID
                                                   app:token.lastModificationApp];
     XCTAssertFalse(result); // no longer "recent" due to the above delay
 }

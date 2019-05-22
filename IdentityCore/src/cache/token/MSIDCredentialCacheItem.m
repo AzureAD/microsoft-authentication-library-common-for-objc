@@ -130,7 +130,6 @@
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];
     item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
-    item.lastModificationProcessID = self.lastModificationProcessID;
     item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
@@ -179,7 +178,6 @@
     {
         _lastModificationTime = [NSDate dateWithTimeIntervalSince1970:[modTime doubleValue]];
     }
-    _lastModificationProcessID = [json[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] intValue];
     _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
 
     // Additional Info
@@ -225,10 +223,6 @@
     {
         dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] =
             [NSString stringWithFormat:@"%0.3f", [_lastModificationTime timeIntervalSince1970]];
-    }
-    if (_lastModificationProcessID)
-    {
-        dictionary[MSID_LAST_MOD_PROCESS_ID_CACHE_KEY] = [NSString stringWithFormat:@"%d", _lastModificationProcessID];
     }
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
 

@@ -43,8 +43,7 @@
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
 // Last Modification info (currently used on macOS only)
-@property (readwrite, nullable) NSDate* lastModificationTime;
-@property (readwrite) int lastModificationProcessID;
+@property (readwrite, nullable) NSDate *lastModificationTime;
 @property (readwrite, nullable) NSString *lastModificationApp;
 
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
