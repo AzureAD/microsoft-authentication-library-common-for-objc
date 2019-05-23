@@ -257,6 +257,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             return nil;
         }
 
+        // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
+        // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
+        // However, it's not entirely clear if this applies to all keychain APIs.
+        // Since our applications often perform a large number of cache reads on mulitple threads, it would be preferable to
+        // allow concurrent readers, even if writes are serialized. For this reason this is a concurrent queue, and the
+        // dispatch queue calls are used. We intend to clarify this behavior with Apple.
         self.synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
 
         self.defaultCacheQuery = @{
