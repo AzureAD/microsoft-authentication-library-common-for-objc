@@ -159,7 +159,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
-@property (readwrite, nonnull) NSString *lastModificationApp;
+@property (readwrite, nonnull) NSString *appIdentifier;
 
 @end
 
@@ -276,7 +276,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             appIdentifier = [[NSProcessInfo processInfo] processName];
 
         }
-        self.lastModificationApp = [NSString stringWithFormat:@"%@;%d", appIdentifier, NSProcessInfo.processInfo.processIdentifier];
+        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", appIdentifier, NSProcessInfo.processInfo.processIdentifier];
 
         MSID_LOG_INFO(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
         MSID_LOG_INFO_PII(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", self.keychainGroup);
@@ -861,7 +861,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     [self checkIfRecentlyModifiedItem:context
                                  time:account.lastModificationTime
                                   app:account.lastModificationApp];
-    account.lastModificationApp = _lastModificationApp;
+    account.lastModificationApp = _appIdentifier;
     account.lastModificationTime = [NSDate date];
 }
 
@@ -872,7 +872,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     [self checkIfRecentlyModifiedItem:context
                                  time:credential.lastModificationTime
                                   app:credential.lastModificationApp];
-    credential.lastModificationApp = _lastModificationApp;
+    credential.lastModificationApp = _appIdentifier;
     credential.lastModificationTime = [NSDate date];
 }
 
@@ -884,7 +884,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     if (lastModificationTime && lastModificationApp)
     {
         // Only check if the previous modification was by another process
-        if ([_lastModificationApp isEqualToString:lastModificationApp] == NO)
+        if ([_appIdentifier isEqualToString:lastModificationApp] == NO)
         {
             NSTimeInterval timeDifference = [lastModificationTime timeIntervalSinceNow];
             if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
