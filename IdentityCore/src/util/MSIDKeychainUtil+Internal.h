@@ -21,13 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDMacKeychainTokenCache+Testing.h"
+#import "MSIDKeychainUtil.h"
 
-@implementation MSIDMacKeychainTokenCache (Testing)
+NS_ASSUME_NONNULL_BEGIN
 
-+ (NSString *)teamId
-{
-    return @"Fake_Team_Id";
-}
+@interface MSIDKeychainUtil ()
+
+@property (readwrite, nullable) NSString *teamId;
 
 @end
+
+NS_ASSUME_NONNULL_END

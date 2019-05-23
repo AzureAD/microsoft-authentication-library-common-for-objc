@@ -242,13 +242,13 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
-        NSString *teamId = [self.class teamId];
-        if (!teamId) return nil;
-
+        MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+        if (!keychainUtil.teamId) return nil;
+        
         // Add team prefix to keychain group if it is missed.
-        if (![keychainGroup hasPrefix:teamId])
+        if (![keychainGroup hasPrefix:keychainUtil.teamId])
         {
-            keychainGroup = [[NSString alloc] initWithFormat:@"%@.%@", teamId, keychainGroup];
+            keychainGroup = [keychainUtil accessGroup:keychainGroup];
         }
 
         self.keychainGroup = keychainGroup;
@@ -301,8 +301,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_ERROR(context, @"Failed to serialize account item.");
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
     }
 
@@ -409,8 +409,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_ERROR(context, @"Failed to serialize account item.");
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        
         return NO;
     }
 
@@ -462,7 +463,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     if (items.count > 1)
     {
-        [self createError:@"The token cache store for this resource contains more than one user"
+        MSID_LOG_ERROR(context, @"The token cache store for this resource contains more than one token");
+        [self createError:@"The token cache store for this resource contains more than one token"
                    domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
         return nil;
     }
@@ -556,9 +558,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize app metadata item.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
         return NO;
     }
 
@@ -717,6 +719,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     if (status != errSecSuccess)
     {
+        MSID_LOG_ERROR(context, @"Failed to write item to keychain (status: %d)", (int)status);
         [self createError:@"Failed to write item to keychain"
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
@@ -774,9 +777,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_VERBOSE(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(account), _PII_NULLIFY(service), [self keychainGroupLoggingName]);
     MSID_LOG_VERBOSE_PII(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", account, service, self.keychainGroup);
 
-    if (!key)
+    if (!key || !(key.service || key.account))
     {
-        [self createError:@"Key is nil."
+        MSID_LOG_ERROR(context, @"Key is nil or one of the key attributes account or service is nil.");
+        [self createError:@"Key is nil or one of the key attributes account or service is nil."
                    domain:MSIDErrorDomain errorCode:MSIDErrorInvalidDeveloperParameter error:error context:context];
         return NO;
     }
@@ -791,6 +795,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
+        MSID_LOG_ERROR(context, @"Failed to remove multiple items from keychain (status: %d)", (int)status);
         [self createError:@"Failed to remove multiple items from keychain"
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
@@ -838,9 +843,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         if (error)
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
         }
-        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
-        
         return NO;
     }
 
@@ -928,25 +932,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     }
     
     return _PII_NULLIFY(self.keychainGroup);
-}
-
-+ (NSString *)teamId
-{
-    return @"1234";
-//    NSString* teamIdentifier = nil;
-//    SecCodeRef selfCode = NULL;
-//    SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
-//
-//    if (selfCode)
-//    {
-//        CFDictionaryRef cfDic = NULL;
-//        SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
-//        NSDictionary* signingDic = CFBridgingRelease(cfDic);
-//        teamIdentifier = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
-//        CFRelease(selfCode);
-//    }
-//
-//    return teamIdentifier;
 }
 
 @end

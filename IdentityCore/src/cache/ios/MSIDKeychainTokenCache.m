@@ -105,12 +105,13 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
     }
     
-    if (!MSIDKeychainUtil.teamId) return nil;
+    MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+    if (!keychainUtil.teamId) return nil;
     
     // Add team prefix to keychain group if it is missed.
-    if (![keychainGroup hasPrefix:MSIDKeychainUtil.teamId])
+    if (![keychainGroup hasPrefix:keychainUtil.teamId])
     {
-        keychainGroup = [MSIDKeychainUtil accessGroup:keychainGroup];
+        keychainGroup = [keychainUtil accessGroup:keychainGroup];
     }
     
     _keychainGroup = keychainGroup;

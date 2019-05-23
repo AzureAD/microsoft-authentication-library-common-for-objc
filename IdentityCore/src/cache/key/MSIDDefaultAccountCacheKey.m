@@ -46,7 +46,6 @@ static NSInteger kAccountTypePrefix = 1000;
         _environment = environment;
         _realm = realm ? realm : @"";
         _accountType = type;
-        self.isShared = YES;
     }
 
     return self;
@@ -73,6 +72,11 @@ static NSInteger kAccountTypePrefix = 1000;
 - (NSString *)service
 {
     return self.realm.msidTrimmedString.lowercaseString;
+}
+
+- (BOOL)isShared
+{
+    return YES;
 }
 
 @end
