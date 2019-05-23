@@ -183,7 +183,8 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -203,7 +204,8 @@
     
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -246,7 +248,8 @@
     
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -284,7 +287,8 @@
     
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -319,7 +323,8 @@
 
     MSIDLegacyAccessToken *token = [factory legacyAccessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -352,7 +357,8 @@
 
     MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -380,7 +386,8 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
@@ -409,7 +416,8 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"subject");
@@ -448,7 +456,8 @@
     XCTAssertEqualObjects(account.givenName, @"Eric");
     XCTAssertEqualObjects(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
-    XCTAssertEqualObjects(account.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY);
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"common");
 }
 
 - (void)testAppMetadataFromResponse_whenOIDCTokenResponse_shouldReturnMetadataWithCorrectFields

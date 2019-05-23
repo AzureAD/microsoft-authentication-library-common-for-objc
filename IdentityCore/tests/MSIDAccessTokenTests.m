@@ -247,7 +247,8 @@
     
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"test3": @"test4"};
     XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
@@ -289,7 +290,8 @@
 
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.windows.net");
+    XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"test3": @"test4"};
     XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
@@ -389,7 +391,8 @@
 {
     MSIDAccessToken *token = [MSIDAccessToken new];
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy_id" homeAccountId:@"uid.utid"];
-    token.authority = [@"https://contoso.com/common" authority];
+    token.environment = @"contoso.com";
+    token.realm = @"common";
     token.clientId = @"clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];

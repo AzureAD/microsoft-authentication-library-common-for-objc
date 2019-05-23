@@ -178,7 +178,8 @@
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -201,7 +202,8 @@
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -224,7 +226,8 @@
 
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"common");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -244,7 +247,8 @@
 
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -276,7 +280,8 @@
     XCTAssertEqualObjects(account.givenName, @"name");
     XCTAssertEqualObjects(account.familyName, @"family");
     XCTAssertEqualObjects(account.name, @"name");
-    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"1234-5678-90abcdefg");
 }
 
 

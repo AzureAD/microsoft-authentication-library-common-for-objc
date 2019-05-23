@@ -81,7 +81,7 @@
                                                               refreshToken:refreshToken
                                                                    idToken:response.idToken
                                                                    account:account
-                                                                 authority:accessToken.authority
+                                                                 authority:parameters.authority
                                                              correlationId:parameters.correlationId
                                                              tokenResponse:response];
 

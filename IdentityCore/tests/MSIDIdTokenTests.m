@@ -119,7 +119,8 @@
     
     MSIDIdToken *token = [[MSIDIdToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/contoso.com" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
@@ -134,7 +135,8 @@
 - (MSIDIdToken *)createToken
 {
     MSIDIdToken *token = [MSIDIdToken new];
-    token.authority = [@"https://contoso.com/common" authority];
+    token.environment = @"contoso.com";
+    token.realm = @"common";
     token.clientId = @"some clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];

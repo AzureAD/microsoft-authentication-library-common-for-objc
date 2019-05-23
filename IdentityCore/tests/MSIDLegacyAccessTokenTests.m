@@ -214,7 +214,8 @@
     
     MSIDLegacyAccessToken *token = [[MSIDLegacyAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"common");
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
@@ -242,7 +243,8 @@
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test" upn:@"testuser@upn.com" oid:nil tenantId:@"contoso.com"];
 
     cacheItem.idToken = idToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
+    cacheItem.realm = @"contoso.com";
+    cacheItem.environment = @"login.windows.net";
     cacheItem.oauthTokenType = @"token type";
 
     NSDate *expiresOn = [NSDate date];
@@ -256,7 +258,8 @@
 
     MSIDLegacyAccessToken *token = [[MSIDLegacyAccessToken alloc] initWithLegacyTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [@"https://login.windows.net/contoso.com" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.windows.net");
+    XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
@@ -279,7 +282,8 @@
 - (MSIDLegacyAccessToken *)createToken
 {
     MSIDLegacyAccessToken *token = [MSIDLegacyAccessToken new];
-    token.authority = [@"https://contoso.com/common" authority];
+    token.environment = @"contoso.com";
+    token.realm = @"common";
     token.clientId = @"some clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id" homeAccountId:@"uid.utid"];

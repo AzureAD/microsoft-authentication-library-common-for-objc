@@ -125,7 +125,7 @@
     __auto_type authorityUrl = [@"https://login.microsoftonline.com:8080/tfp/tenant/policy" msidUrl];
     NSError *error = nil;
 
-    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl rawTenant:@"new_tenantId" context:nil error:&error];
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:YES rawTenant:@"new_tenantId" context:nil error:&error];
 
     XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com:8080/tfp/new_tenantId/policy" msidUrl]);
     XCTAssertNil(error);

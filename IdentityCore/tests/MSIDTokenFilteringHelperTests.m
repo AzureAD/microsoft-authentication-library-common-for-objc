@@ -66,7 +66,8 @@
     XCTAssertEqual([result count], 1);
     
     MSIDIdToken *expectedToken = [MSIDIdToken new];
-    expectedToken.authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    expectedToken.environment = @"login.microsoftonline.com";
+    expectedToken.realm = @"contoso.com";
     expectedToken.clientId = DEFAULT_TEST_CLIENT_ID;
     expectedToken.rawIdToken = @"id";
     
@@ -94,7 +95,8 @@
     XCTAssertEqual([result count], 2);
     
     MSIDIdToken *expectedToken = [MSIDIdToken new];
-    expectedToken.authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    expectedToken.environment = @"login.microsoftonline.com";
+    expectedToken.realm = @"contoso.com";
     expectedToken.clientId = DEFAULT_TEST_CLIENT_ID;
     expectedToken.rawIdToken = @"id";
     
