@@ -34,7 +34,6 @@
 		1E4252352187DA0D00C149E9 /* MSIDAppMetadataCacheQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E4252342187DA0D00C149E9 /* MSIDAppMetadataCacheQueryTests.m */; };
 		1E4252362187DA1B00C149E9 /* MSIDAppMetadataCacheQueryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E4252342187DA0D00C149E9 /* MSIDAppMetadataCacheQueryTests.m */; };
 		1E4D74AB216E7AE70091426A /* MSIDGeneralCacheItemType.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E4D74AA216E7AE70091426A /* MSIDGeneralCacheItemType.m */; };
-		1E51BC892279067000856A4E /* MSIDMacKeychainTokenCache+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E51BC86227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.m */; };
 		1E51BC962279480400856A4E /* MSIDSharedCredentialItemSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E51BC952279480400856A4E /* MSIDSharedCredentialItemSerializer.h */; };
 		1E51BC992279486700856A4E /* MSIDSharedCredentialCacheItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E51BC972279486700856A4E /* MSIDSharedCredentialCacheItem.h */; };
 		1E51BC9A2279486700856A4E /* MSIDSharedCredentialCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */; };
@@ -1183,8 +1182,6 @@
 		1E4252342187DA0D00C149E9 /* MSIDAppMetadataCacheQueryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppMetadataCacheQueryTests.m; sourceTree = "<group>"; };
 		1E4D74A9216E7AE70091426A /* MSIDGeneralCacheItemType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDGeneralCacheItemType.h; sourceTree = "<group>"; };
 		1E4D74AA216E7AE70091426A /* MSIDGeneralCacheItemType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGeneralCacheItemType.m; sourceTree = "<group>"; };
-		1E51BC85227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDMacKeychainTokenCache+Testing.h"; sourceTree = "<group>"; };
-		1E51BC86227905DF00856A4E /* MSIDMacKeychainTokenCache+Testing.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDMacKeychainTokenCache+Testing.m"; sourceTree = "<group>"; };
 		1E51BC952279480400856A4E /* MSIDSharedCredentialItemSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSharedCredentialItemSerializer.h; sourceTree = "<group>"; };
 		1E51BC972279486700856A4E /* MSIDSharedCredentialCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSharedCredentialCacheItem.h; sourceTree = "<group>"; };
 		1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSharedCredentialCacheItem.m; sourceTree = "<group>"; };
