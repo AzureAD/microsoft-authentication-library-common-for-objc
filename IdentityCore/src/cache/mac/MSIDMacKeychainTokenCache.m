@@ -257,6 +257,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             return nil;
         }
 
+        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                              NSProcessInfo.processInfo.processIdentifier];;
+
         self.defaultCacheQuery = @{
                                    // All account items are saved as generic passwords.
                                    (id)kSecClass: (id)kSecClassGenericPassword,
@@ -270,13 +273,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                    
                                    };
 
-        NSString *appIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-        if (!appIdentifier)
-        {
-            appIdentifier = [[NSProcessInfo processInfo] processName];
-
-        }
-        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", appIdentifier, NSProcessInfo.processInfo.processIdentifier];
 
         MSID_LOG_INFO(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
         MSID_LOG_INFO_PII(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", self.keychainGroup);

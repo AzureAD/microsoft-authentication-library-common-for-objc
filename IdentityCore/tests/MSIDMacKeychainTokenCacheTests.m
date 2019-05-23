@@ -41,14 +41,14 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAppMetadataCacheKey.h"
 
-@interface MSIDMacKeychainTokenCache (Testing)
+@interface MSIDMacKeychainTokenCache (Internal)
 
+// Provide access to this internal method for testing:
 - (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
                                time:(NSDate *)lastModificationTime
                                 app:(NSString *)lastModificationApp;
 
 @end
-
 
 @interface MSIDMacKeychainTokenCacheTests : XCTestCase
 {
@@ -621,9 +621,9 @@
     account = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(account);
-    NSString *modApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
-                        NSProcessInfo.processInfo.processIdentifier];
-    XCTAssertEqualObjects(account.lastModificationApp, modApp);
+    NSString *lastModApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                            NSProcessInfo.processInfo.processIdentifier];
+    XCTAssertEqualObjects(account.lastModificationApp, lastModApp);
     XCTAssertTrue([account.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:account.lastModificationTime
@@ -631,7 +631,7 @@
     XCTAssertFalse(result); // this check should ignore items our process has written
     
     // check behavior if item had been written by a different process:
-    account.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
+    account.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
                                    (NSProcessInfo.processInfo.processIdentifier + 1)];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:account.lastModificationTime
@@ -663,7 +663,7 @@
     token = [_dataSource tokenWithKey:key serializer:_serializer context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    NSString *lastModApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
+    NSString *lastModApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
                             NSProcessInfo.processInfo.processIdentifier];
     XCTAssertEqualObjects(token.lastModificationApp, lastModApp);
     XCTAssertTrue([token.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
@@ -674,7 +674,7 @@
     XCTAssertFalse(result); // this check should ignore items our process has written
     
     // check behavior if item had been written by a different process:
-    token.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSProcessInfo.processInfo.processName,
+    token.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
                                  (NSProcessInfo.processInfo.processIdentifier + 1)];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:token.lastModificationTime
