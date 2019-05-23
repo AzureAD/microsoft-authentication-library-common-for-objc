@@ -44,6 +44,7 @@
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
+#import "MSIDAADAuthority.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -292,6 +293,25 @@
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 
     return tokenRequest;
+}
+
+#pragma mark - Authority
+
+- (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                      tokenResponse:(MSIDTokenResponse *)response
+                                              error:(NSError **)error
+{
+    if (response.idTokenObj.issuerAuthority)
+    {
+        return [MSIDAADAuthority aadAuthorityWithEnvironment:configuration.authority.environment
+                                                   rawTenant:response.idTokenObj.issuerAuthority.realm
+                                                     context:nil
+                                                       error:error];
+    }
+    else
+    {
+        return configuration.authority;
+    }
 }
 
 @end
