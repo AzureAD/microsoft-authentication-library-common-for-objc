@@ -38,6 +38,7 @@
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSDate+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
 
@@ -173,11 +174,7 @@
     _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
 
     // Last Modification info (currently used on macOS only)
-    NSString *modTime = json[MSID_LAST_MOD_TIME_CACHE_KEY];
-    if (modTime)
-    {
-        _lastModificationTime = [NSDate dateWithTimeIntervalSince1970:[modTime doubleValue]];
-    }
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:json[MSID_LAST_MOD_TIME_CACHE_KEY]];
     _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
 
     // Additional Info
@@ -219,11 +216,7 @@
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
 
     // Last Modification info (currently used on macOS only)
-    if (_lastModificationTime)
-    {
-        dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] =
-            [NSString stringWithFormat:@"%0.3f", [_lastModificationTime timeIntervalSince1970]];
-    }
+    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
 
     return dictionary;
