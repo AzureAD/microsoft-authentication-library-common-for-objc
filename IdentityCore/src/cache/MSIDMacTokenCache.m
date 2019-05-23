@@ -197,9 +197,17 @@ return NO; \
                     key:(MSIDCacheKey *)key
              serializer:(id<MSIDCredentialItemSerializer>)serializer
                 context:(id<MSIDRequestContext>)context
-                  error:(NSError * __autoreleasing *)error
+                  error:(NSError **)error
 {
     return NO;
+}
+
+- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
+                                                serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
+                                                   context:(id<MSIDRequestContext>)context
+                                                     error:(NSError **)error
+{
+    return nil;
 }
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
@@ -595,14 +603,6 @@ return NO; \
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
     [self clear];
     return YES;
-}
-
-- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
-                                                serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
-                                                   context:(id<MSIDRequestContext>)context
-                                                     error:(NSError **)error;
-{
-    return nil;
 }
 
 @end
