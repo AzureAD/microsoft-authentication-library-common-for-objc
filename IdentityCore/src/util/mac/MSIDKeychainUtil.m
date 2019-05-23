@@ -28,11 +28,6 @@
 
 - (instancetype)init
 {
-    return [[self class] sharedInstance];
-}
-
-- (instancetype)initPrivate
-{
     self = [super init];
     if (self)
     {
@@ -48,7 +43,7 @@
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
-        singleton = [[self alloc] initPrivate];
+        singleton = [[self alloc] init];
     });
     
     return singleton;
@@ -64,8 +59,24 @@
     {
         CFDictionaryRef cfDic = NULL;
         SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+        
+        if (!cfDic)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to retrieve code signing information");
+            CFRelease(selfCode);
+            return nil;
+        }
+        
         NSDictionary* signingDic = CFBridgingRelease(cfDic);
         keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+        
+        if (!keychainTeamId)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to retrieve team identifier");
+            CFRelease(selfCode);
+            return nil;
+        }
+        
         MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
         MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
         CFRelease(selfCode);

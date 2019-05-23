@@ -30,11 +30,6 @@
 
 - (instancetype)init
 {
-    return [[self class] sharedInstance];
-}
-
-- (instancetype)initPrivate
-{
     self = [super init];
     if (self)
     {
@@ -50,7 +45,7 @@
     static dispatch_once_t onceToken;
     
     dispatch_once(&onceToken, ^{
-        singleton = [[self alloc] initPrivate];
+        singleton = [[self alloc] init];
     });
     
     return singleton;

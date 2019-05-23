@@ -29,6 +29,9 @@
 
 + (nonnull MSIDKeychainUtil *)sharedInstance;
 
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
+
 - (nullable NSString *)accessGroup:(nullable NSString *)group;
 
 @end
