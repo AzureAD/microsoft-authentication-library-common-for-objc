@@ -138,7 +138,15 @@
     }
 
     accessToken.scopes = responseScopes;
-    MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
+    NSError *authorityError = nil;
+    MSIDAuthority *authority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
+    
+    if (!authority)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
+        return NO;
+    }
+    
     accessToken.environment = authority.environment;
     accessToken.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
     accessToken.realm = authority.realm;
@@ -157,7 +165,15 @@
         return NO;
     }
     
-    MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
+    NSError *authorityError = nil;
+    MSIDAuthority *authority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
+    
+    if (!authority)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
+        return NO;
+    }
+    
     token.environment = authority.environment;
     token.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
     token.realm = authority.realm;
@@ -180,27 +196,20 @@
     {
         return NO;
     }
+
+    NSError *authorityError = nil;
+    MSIDAuthority *authority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
     
-    MSIDAuthority *authority = [self authorityFromRequestAuthority:configuration.authority tokenResponse:response error:nil];
+    if (!authority)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
+        return NO;
+    }
+    
     account.environment = authority.environment;
     account.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
     account.realm = authority.realm;
     return YES;
-}
-
-- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
-                                   tokenResponse:(MSIDTokenResponse *)response
-                                           error:(NSError **)error
-{
-    if (response.idTokenObj.issuerAuthority)
-    {
-        // TODO: should we instead use tenant id from response???
-        return response.idTokenObj.issuerAuthority;
-    }
-    else
-    {
-        return requestAuthority;
-    }
 }
 
 #pragma mark - Webview

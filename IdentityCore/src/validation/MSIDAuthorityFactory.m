@@ -44,7 +44,7 @@
     NSError *underlyingError;
     if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
-        __auto_type b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:url rawTenant:rawTenant context:context error:&underlyingError];
+        __auto_type b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:url validateFormat:YES rawTenant:rawTenant context:context error:&underlyingError];
         if (b2cAuthority) return b2cAuthority;
     }
     

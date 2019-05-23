@@ -31,6 +31,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDIdToken.h"
+#import "MSIDB2CAuthority.h"
 
 @implementation MSIDB2COauth2Factory
 
@@ -111,18 +112,15 @@
     return YES;
 }
 
-/*
- TODO: check if can remove me!
-- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
-                                   tokenResponse:(MSIDB2CTokenResponse *)response
-                                           error:(NSError **)error
+- (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                      tokenResponse:(MSIDB2CTokenResponse *)response
+                                              error:(NSError **)error
 {
-    if (![self checkResponseClass:response context:nil error:error])
-    {
-        return nil;
-    }
-
-    return [MSIDAuthorityFactory authorityWithRawTenant:response.clientInfo.utid msidAuthority:requestAuthority context:nil error:error];
-}*/
+    return [[MSIDB2CAuthority alloc] initWithURL:configuration.authority.url
+                                  validateFormat:NO
+                                       rawTenant:response.clientInfo.utid
+                                         context:nil
+                                           error:error];
+}
 
 @end

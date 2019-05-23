@@ -25,10 +25,11 @@
 #import "MSIDLegacyCredentialCacheCompatible.h"
 
 @class MSIDLegacyTokenCacheItem;
+@class MSIDIdTokenClaims;
 
 @interface MSIDLegacyRefreshToken : MSIDRefreshToken <MSIDLegacyCredentialCacheCompatible>
 
 @property (readwrite) NSString *idToken;
-@property (readwrite) NSString *idTokenRealm; // TODO: understand if this is necessary?
+@property (readonly) MSIDIdTokenClaims *idTokenClaims;
 
 @end

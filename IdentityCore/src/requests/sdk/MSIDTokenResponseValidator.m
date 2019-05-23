@@ -67,7 +67,20 @@
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:tokenResponse configuration:configuration];
 
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
-    MSIDAuthority *resultAuthority = tokenResponse.idTokenObj.issuerAuthority ? tokenResponse.idTokenObj.issuerAuthority : configuration.authority;
+    NSError *authorityError = nil;
+    MSIDAuthority *resultAuthority = [factory resultAuthorityWithConfiguration:configuration tokenResponse:tokenResponse error:&authorityError];
+    
+    if (!resultAuthority)
+    {
+        MSID_LOG_ERROR_CORR(correlationID, @"Failed to create authority with error %@, %ld", authorityError.domain, (long)authorityError.code);
+        
+        if (error)
+        {
+            *error = authorityError;
+        }
+        
+        return nil;
+    }
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                               refreshToken:refreshToken

@@ -437,4 +437,20 @@
     return tokenRequest;
 }
 
+#pragma mark - Authority
+
+- (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                      tokenResponse:(MSIDTokenResponse *)response
+                                              error:(NSError **)error
+{
+    if (response.idTokenObj.issuerAuthority)
+    {
+        return response.idTokenObj.issuerAuthority;
+    }
+    else
+    {
+        return configuration.authority;
+    }
+}
+
 @end

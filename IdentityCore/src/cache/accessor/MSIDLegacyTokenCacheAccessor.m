@@ -328,19 +328,17 @@
         account.username = refreshToken.accountIdentifier.displayableId;
         account.accountType = MSIDAccountTypeMSSTS;
         account.environment = refreshToken.environment;
-        account.realm = refreshToken.idTokenRealm;
         
-        NSError *localError;
-        MSIDAADV1IdTokenClaims *idTokenClaims = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:refreshToken.idToken error:&localError];
-        if (!localError)
+        MSIDIdTokenClaims *idTokenClaims = refreshToken.idTokenClaims;
+        account.realm = idTokenClaims.realm;
+        account.name = idTokenClaims.name;
+        account.localAccountId = idTokenClaims.uniqueId;
+        
+        BOOL clientIdMatch = !clientId ||[clientId isEqualToString:refreshToken.clientId];
+        
+        if (clientIdMatch)
         {
-            account.name = idTokenClaims.name;
-            account.localAccountId = idTokenClaims.uniqueId;
-            BOOL clientIdMatch = !clientId ||[clientId isEqualToString:refreshToken.clientId];
-            if (clientIdMatch)
-            {
-                account.idTokenClaims = idTokenClaims;
-            }
+            account.idTokenClaims = idTokenClaims;
         }
         
         [resultAccounts addObject:account];
