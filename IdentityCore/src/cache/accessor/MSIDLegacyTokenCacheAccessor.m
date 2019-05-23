@@ -47,7 +47,6 @@
 @interface MSIDLegacyTokenCacheAccessor()
 {
     id<MSIDTokenCacheDataSource> _dataSource;
-    id<MSIDTokenCacheDataSource> _dataSourceMac;
     MSIDKeyedArchiverSerializer *_serializer;
     NSArray *_otherAccessors;
 }
