@@ -154,12 +154,12 @@
 static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstorage";
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
+static dispatch_queue_t s_synchronizationQueue;
 
 @interface MSIDMacKeychainTokenCache ()
 
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
-@property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
 
@@ -263,7 +263,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         // Since our applications often perform a large number of cache reads on mulitple threads, it would be preferable to
         // allow concurrent readers, even if writes are serialized. For this reason this is a concurrent queue, and the
         // dispatch queue calls are used. We intend to clarify this behavior with Apple.
-        self.synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
+        //
+        // To protect the underlying keychain API, a single queue is used even if multiple instances of this class are allocated.
+        static dispatch_once_t s_once;
+        dispatch_once(&s_once, ^{
+            s_synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
+        });
 
         self.defaultCacheQuery = @{
                                    // All account items are saved as generic passwords.
@@ -596,7 +601,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_INFO(context, @"Trying to find keychain items...");
     __block CFTypeRef cfItems = nil;
     __block OSStatus status;
-    dispatch_sync(self.synchronizationQueue, ^{
+    dispatch_sync(s_synchronizationQueue, ^{
         status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
     });
     MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
@@ -625,7 +630,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecReturnData] = @YES;
 
     __block CFTypeRef cfItemDicts = nil;
-    dispatch_sync(self.synchronizationQueue, ^{
+    dispatch_sync(s_synchronizationQueue, ^{
         status = SecItemCopyMatching((CFDictionaryRef)query, &cfItemDicts);
     });
     NSArray *itemDicts = CFBridgingRelease(cfItemDicts);
@@ -669,7 +674,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *update = [self secondaryAttributesForKey:key];
     update[(id)kSecValueData] = itemData;
     __block OSStatus status;
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(s_synchronizationQueue, ^{
         status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
         MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
 
@@ -717,7 +722,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
     __block OSStatus status;
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(s_synchronizationQueue, ^{
         status = SecItemDelete((CFDictionaryRef)query);
     });
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
@@ -765,7 +770,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
     __block OSStatus status;
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(s_synchronizationQueue, ^{
         status = SecItemDelete((CFDictionaryRef)query);
     });
     MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
