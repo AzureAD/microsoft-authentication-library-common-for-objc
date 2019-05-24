@@ -53,24 +53,34 @@ MSID_FORM_ACCESSOR(@"scope", scope);
                                                                           error:nil];
 }
 
+- (NSString *)errorCode
+{
+    return self.formDictionary[@"broker_error_code"];
+}
+
+- (NSString *)errorDomain
+{
+    return self.formDictionary[@"broker_error_domain"];
+}
+
 - (NSString *)oauthErrorCode
 {
-    return self.errorMetadata[@"oauth_error"];
+    return self.formDictionary[@"error"];
 }
 
 - (NSString *)errorDescription
 {
-    return self.errorMetadata[@"error_description"];
+    return self.formDictionary[@"error_description"];
 }
 
 - (NSString *)subError
 {
-    return self.errorMetadata[@"oauth_sub_error"];
+    return self.formDictionary[@"suberror"];
 }
 
 - (NSString *)httpHeaders
 {
-    return self.errorMetadata[@"http_headers"];
+    return self.errorMetadata[@"http_response_headers"];
 }
 
 - (NSString *)username
