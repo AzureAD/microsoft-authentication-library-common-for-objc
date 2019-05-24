@@ -301,10 +301,10 @@
                                       tokenResponse:(MSIDTokenResponse *)response
                                               error:(NSError **)error
 {
-    if (response.idTokenObj.issuerAuthority)
+    if (response.idTokenObj.realm)
     {
         return [MSIDAADAuthority aadAuthorityWithEnvironment:configuration.authority.environment
-                                                   rawTenant:response.idTokenObj.issuerAuthority.realm
+                                                   rawTenant:response.idTokenObj.realm
                                                      context:nil
                                                        error:error];
     }

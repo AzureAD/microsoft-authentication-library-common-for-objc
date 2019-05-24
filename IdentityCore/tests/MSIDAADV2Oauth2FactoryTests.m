@@ -49,6 +49,7 @@
 #import "MSIDAuthority.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAADAuthority.h"
 
 @interface MSIDAADV2Oauth2FactoryTests : XCTestCase
 
@@ -322,7 +323,8 @@
     NSString *scopeInResposne = @"user.read";
     
     // construct configuration
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:nil redirectUri:nil clientId:nil target:scopeInRequest];
+    MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] rawTenant:nil context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:nil target:scopeInRequest];
     
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -350,7 +352,8 @@
     NSString *scopeInResposne = @"user.read";
     
     // construct configuration
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:nil redirectUri:nil clientId:nil target:scopeInRequest];
+    MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] rawTenant:nil context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:nil target:scopeInRequest];
     
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",

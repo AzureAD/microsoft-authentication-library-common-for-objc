@@ -290,7 +290,7 @@
 
     MSIDAccessToken *token = [[MSIDAccessToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.environment, @"login.windows.net");
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
     NSDictionary *additionalServerInfo = @{@"test": @"test2", @"test3": @"test4"};

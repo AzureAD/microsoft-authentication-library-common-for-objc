@@ -26,12 +26,6 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 
-@interface MSIDB2CAuthority()
-
-@property (nonatomic, readwrite, nonnull) NSString *tenantId;
-
-@end
-
 @implementation MSIDB2CAuthority
 
 - (nullable instancetype)initWithURL:(NSURL *)url

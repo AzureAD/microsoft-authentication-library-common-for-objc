@@ -183,7 +183,7 @@
     XCTAssertEqualObjects(refreshToken.familyId, @"1");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
     
     //Check id token in cache
     NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:self.cacheAccessor];
@@ -479,7 +479,7 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"intune-mam-refreshtoken");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
     
     XCTAssertNil(refreshToken.familyId);
 }
@@ -593,7 +593,7 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"additional-refreshtoken");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
     XCTAssertNil(refreshToken.familyId);
 }
 

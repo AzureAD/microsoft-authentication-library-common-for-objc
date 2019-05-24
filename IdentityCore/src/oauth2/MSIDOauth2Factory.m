@@ -346,7 +346,7 @@
     }
 
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.preferredUsername
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
                                                                      homeAccountId:token.accountIdentifier.homeAccountId];
     token.realm = response.idTokenObj.realm;
     return YES;

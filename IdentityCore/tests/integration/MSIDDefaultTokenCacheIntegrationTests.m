@@ -256,7 +256,13 @@
     XCTAssertNil(error);
 
     // save 2nd token with different authority
-    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                  RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                              scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                             idToken:[MSIDTestIdTokenUtil idTokenWithName:@"name" upn:@"upn@upn.com" oid:@"oid" tenantId:@"tid2"]
+                                                                                 uid:DEFAULT_TEST_UID
+                                                                                utid:DEFAULT_TEST_UTID
+                                                                            familyId:nil];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/8eaef023-2b34-4da1-9baa-8bc8c9d6a490"
                                                                                 clientId:DEFAULT_TEST_CLIENT_ID

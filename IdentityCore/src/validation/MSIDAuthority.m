@@ -71,7 +71,16 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         }
         _url = url;
         _environment = url.msidHostWithPortIfNecessary;
-        _realm = [self.class realmFromURL:url context:context error:error];
+        
+        NSError *realmError = nil;
+        _realm = [self.class realmFromURL:url context:context error:&realmError];
+        
+        if (realmError && validateFormat)
+        {
+            MSID_LOG_WARN(context, @"Failed to extract realm for authority");
+            if (error) *error = realmError;
+            return nil;
+        }
     }
     return self;
 }

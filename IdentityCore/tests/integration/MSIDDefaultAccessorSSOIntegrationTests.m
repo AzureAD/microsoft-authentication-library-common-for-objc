@@ -172,7 +172,7 @@
     XCTAssertEqualObjects(accessToken.scopes, scopes);
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(accessToken.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(accessToken.realm, @"tenantid.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertNotNil(accessToken.extendedExpiresOn);
@@ -185,7 +185,7 @@
     XCTAssertNil(refreshToken.familyId);
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
@@ -197,7 +197,7 @@
     XCTAssertEqualObjects(defaultIDToken.rawIdToken, idToken);
     XCTAssertEqual(defaultIDToken.credentialType, MSIDIDTokenType);
     XCTAssertEqualObjects(defaultIDToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(defaultIDToken.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(defaultIDToken.realm, @"tenantid.onmicrosoft.com");
     XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, nil);
@@ -258,7 +258,7 @@
     XCTAssertEqualObjects(accessToken.scopes, scopes);
     XCTAssertEqual(accessToken.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(accessToken.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(accessToken.realm, @"tenantid.onmicrosoft.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertNotNil(accessToken.extendedExpiresOn);
@@ -271,7 +271,7 @@
     XCTAssertNil(refreshToken.familyId);
     XCTAssertEqual(refreshToken.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(refreshToken.additionalServerInfo, nil);
@@ -535,7 +535,7 @@
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid2.utid");
     XCTAssertEqualObjects(refreshToken.environment, @"login.windows.net");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
 }
 
 - (void)testGetRefreshTokenWithAccount_whenNoFamilyId_andTokenInSecondaryAccessor_shouldReturnToken
@@ -655,7 +655,7 @@
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid2.utid");
     XCTAssertEqualObjects(refreshToken.familyId, @"3");
     XCTAssertEqualObjects(refreshToken.environment, @"login.windows.net");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
 }
 
 - (void)testGetRefreshTokenWithAccount_whenFamilyIdProvided_andTokenInSecondaryAccessor_shouldReturnToken
@@ -779,7 +779,7 @@
     XCTAssertEqualObjects(refreshToken.familyId, @"3");
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.environment, @"login.windows.net");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
 }
 
 - (void)testGetRefreshTokenWithAccount_whenNoFamilyIdProvided_andTokensInBothAccessors_shouldReturnTokenFromPrimary
@@ -841,7 +841,7 @@
     XCTAssertEqualObjects(refreshToken.familyId, nil);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.environment, @"login.windows.net");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
 }
 
 - (void)testGetRefreshTokenWithAccount_whenFamilyIdProvided_andOnlyClientTokenInPrimaryAccessor_shouldReturnNil
@@ -2028,7 +2028,7 @@
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(refreshToken.storageEnvironment, @"login.windows.net");
-    XCTAssertEqualObjects(refreshToken.realm, @"utid");
+    XCTAssertNil(refreshToken.realm);
 }
 
 #pragma mark - Get ID token

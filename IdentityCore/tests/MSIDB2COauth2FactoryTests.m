@@ -174,7 +174,10 @@
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
     MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
-    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/tfp/test_tenantid/policy"
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
@@ -198,7 +201,10 @@
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
     MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:nil];
-    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/tfp/1234-5678-90abcdefg/policy"
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
 
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
@@ -243,7 +249,10 @@
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
     MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
-    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/tfp/test_tenantid/policy"
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
 
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
 
@@ -263,13 +272,11 @@
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
     MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
-
-    MSIDConfiguration *configuration =
-
-    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY authority]
-                                     redirectUri:@"redirect uri"
-                                        clientId:@"client id"
-                                          target:@"target"];
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/tfp/test_tenantid/policy"
+                                                                                clientId:@"client id"
+                                                                             redirectUri:@"redirect uri"
+                                                                                  target:@"target"];
 
     MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
     XCTAssertNotNil(account);

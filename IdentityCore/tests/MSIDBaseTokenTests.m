@@ -73,42 +73,60 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testBaseTokenIsEqual_whenAuthorityIsNotEqual_shouldReturnFalse
+- (void)testBaseTokenIsEqual_whenEnvironmentIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
+    lhs.environment = @"contoso.com";
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[NSURL URLWithString:@"https://contoso2.com"] forKey:@"authority"];
+    rhs.environment = @"contoso2.com";
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testBaseTokenIsEqual_whenAuthorityIsEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenEnvironmentIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
+    lhs.realm = @"contoso.com";
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"authority"];
-    
+    rhs.realm = @"contoso.com";
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testBaseTokenIsEqual_whenStorageAuthorityIsNotEqual_shouldReturnFalse
+- (void)testBaseTokenIsEqual_whenRealmIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"storageAuthority"];
+    lhs.realm = @"contoso.com";
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[NSURL URLWithString:@"https://contoso2.com"] forKey:@"storageAuthority"];
+    rhs.realm = @"contoso2.com";
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testBaseTokenIsEqual_whenRealmIsEqual_shouldReturnTrue
+{
+    MSIDBaseToken *lhs = [MSIDBaseToken new];
+    lhs.environment = @"contoso.com";
+    MSIDBaseToken *rhs = [MSIDBaseToken new];
+    rhs.environment = @"contoso.com";
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
+- (void)testBaseTokenIsEqual_whenStorageEnvironmentIsNotEqual_shouldReturnFalse
+{
+    MSIDBaseToken *lhs = [MSIDBaseToken new];
+    lhs.storageEnvironment = @"contoso.com";
+    MSIDBaseToken *rhs = [MSIDBaseToken new];
+    rhs.storageEnvironment = @"contoso2.com";
 
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testBaseTokenIsEqual_whenStorageAuthorityIsEqual_shouldReturnTrue
+- (void)testBaseTokenIsEqual_whenStorageEnvironmentIsEqual_shouldReturnTrue
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];
-    [lhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"storageAuthority"];
+    lhs.storageEnvironment = @"contoso.com";
     MSIDBaseToken *rhs = [MSIDBaseToken new];
-    [rhs setValue:[NSURL URLWithString:@"https://contoso.com"] forKey:@"storageAuthority"];
+    rhs.storageEnvironment = @"contoso.com";
 
     XCTAssertEqualObjects(lhs, rhs);
 }
@@ -240,20 +258,17 @@
     cacheItem.additionalInfo = @{@"test": @"test2"};
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
+    cacheItem.realm = @"contoso.com";
 
     MSIDBaseToken *token = [[MSIDBaseToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"common");
+    XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
 
-    token.storageEnvironment = @"login.windows.net";
-
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
-    cacheItem.environment = @"login.windows.net";
-    cacheItem.realm = @"common";
     XCTAssertEqualObjects(cacheItem, newCacheItem);
 }
 
