@@ -38,6 +38,7 @@
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSDate+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
 
@@ -85,6 +86,8 @@
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
     result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
+    // Ignore the lastMod properties (two otherwise-identical items with different
+    // last modification informational values should be considered equal)
     return result;
 }
 
@@ -127,6 +130,8 @@
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];
+    item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
+    item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
 
@@ -168,6 +173,10 @@
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
 
+    // Last Modification info (currently used on macOS only)
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:json[MSID_LAST_MOD_TIME_CACHE_KEY]];
+    _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
+
     // Additional Info
 
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
@@ -205,6 +214,10 @@
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
+
+    // Last Modification info (currently used on macOS only)
+    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
+    dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
 
     return dictionary;
 }

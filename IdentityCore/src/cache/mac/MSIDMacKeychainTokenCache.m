@@ -160,6 +160,7 @@ static dispatch_queue_t s_synchronizationQueue;
 
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
+@property (readwrite, nonnull) NSString *appIdentifier;
 
 @end
 
@@ -257,6 +258,9 @@ static dispatch_queue_t s_synchronizationQueue;
             return nil;
         }
 
+        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                              NSProcessInfo.processInfo.processIdentifier];;
+
         // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
         // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
         // However, it's not entirely clear if this applies to all keychain APIs.
@@ -283,6 +287,7 @@ static dispatch_queue_t s_synchronizationQueue;
                                    
                                    };
 
+
         MSID_LOG_INFO(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
         MSID_LOG_INFO_PII(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", self.keychainGroup);
     }
@@ -306,6 +311,7 @@ static dispatch_queue_t s_synchronizationQueue;
 {
     assert(account);
     assert(serializer);
+    [self updateLastModifiedForAccount:account context:context];
     NSData *itemData = [serializer serializeAccountCacheItem:account];
 
     if (!itemData)
@@ -414,6 +420,7 @@ static dispatch_queue_t s_synchronizationQueue;
 {
     assert(credential);
     assert(serializer);
+    [self updateLastModifiedForCredential:credential context:context];
     NSData *itemData = [serializer serializeCredentialCacheItem:credential];
 
     if (!itemData)
@@ -869,6 +876,50 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     
     return _PII_NULLIFY(self.keychainGroup);
+}
+
+// Update the lastModification properties for an account object
+- (void)updateLastModifiedForAccount:(MSIDAccountCacheItem *)account
+                             context:(nullable id<MSIDRequestContext>)context
+{
+    [self checkIfRecentlyModifiedItem:context
+                                 time:account.lastModificationTime
+                                  app:account.lastModificationApp];
+    account.lastModificationApp = _appIdentifier;
+    account.lastModificationTime = [NSDate date];
+}
+
+// Update the lastModification properties for a credential object
+- (void)updateLastModifiedForCredential:(MSIDCredentialCacheItem *)credential
+                                context:(nullable id<MSIDRequestContext>)context
+{
+    [self checkIfRecentlyModifiedItem:context
+                                 time:credential.lastModificationTime
+                                  app:credential.lastModificationApp];
+    credential.lastModificationApp = _appIdentifier;
+    credential.lastModificationTime = [NSDate date];
+}
+
+// If this item was modified a moment ago by another process, report a *potential* collision
+- (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
+                               time:(NSDate *)lastModificationTime
+                                app:(NSString *)lastModificationApp
+{
+    if (lastModificationTime && lastModificationApp)
+    {
+        // Only check if the previous modification was by another process
+        if ([_appIdentifier isEqualToString:lastModificationApp] == NO)
+        {
+            NSTimeInterval timeDifference = [lastModificationTime timeIntervalSinceNow];
+            if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
+            {
+                MSID_LOG_WARN(context, @"Set keychain item for recently-modified item (delta %0.3f) app:%@",
+                              timeDifference, lastModificationApp);
+                return YES;
+            }
+        }
+    }
+    return NO;
 }
 
 @end
