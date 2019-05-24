@@ -611,7 +611,6 @@
                                                                                           realm:account.realm
                                                                                            type:account.accountType];
     
-    
     NSError *error = nil;
     BOOL result = [_dataSource saveAccount:account key:key serializer:_serializer context:nil error:&error];
     XCTAssertNil(error);
