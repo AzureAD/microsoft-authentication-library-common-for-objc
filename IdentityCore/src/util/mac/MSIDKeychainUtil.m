@@ -22,48 +22,82 @@
 // THE SOFTWARE.
 
 #import "MSIDKeychainUtil.h"
+#import "MSIDKeychainUtil+Internal.h"
 
 @implementation MSIDKeychainUtil
 
-+ (NSString *)teamId
+- (instancetype)init
 {
-    static dispatch_once_t once;
-    static NSString *keychainTeamId = nil;
+    self = [super init];
+    if (self)
+    {
+        self.teamId = [self getTeamId];
+    }
     
-    dispatch_once(&once, ^{
-        SecCodeRef selfCode = NULL;
-        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
-        
-        if (selfCode)
-        {
-            CFDictionaryRef cfDic = NULL;
-            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
-            NSDictionary* signingDic = CFBridgingRelease(cfDic);
-            keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
-            
-            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
-            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
-            
-            CFRelease(selfCode);
-        }
+    return self;
+}
+
++ (MSIDKeychainUtil *)sharedInstance
+{
+    static MSIDKeychainUtil *singleton = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        singleton = [[self alloc] init];
     });
+    
+    return singleton;
+}
+
+- (NSString *)getTeamId
+{
+    NSString *keychainTeamId = nil;
+    SecCodeRef selfCode = NULL;
+    SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+    
+    if (selfCode)
+    {
+        CFDictionaryRef cfDic = NULL;
+        SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+        
+        if (!cfDic)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to retrieve code signing information");
+            CFRelease(selfCode);
+            return nil;
+        }
+        
+        NSDictionary* signingDic = CFBridgingRelease(cfDic);
+        keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+        
+        if (!keychainTeamId)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to retrieve team identifier");
+            CFRelease(selfCode);
+            return nil;
+        }
+        
+        MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
+        MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
+        CFRelease(selfCode);
+    }
     
     return keychainTeamId;
 }
 
-+ (NSString *)accessGroup:(NSString *)group
+- (NSString *)accessGroup:(NSString *)group
 {
     if (!group)
     {
         return nil;
     }
     
-    if (!MSIDKeychainUtil.teamId)
+    if (!self.teamId)
     {
         return nil;
     }
     
-    return [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, group];
+    return [[NSString alloc] initWithFormat:@"%@.%@", self.teamId, group];
 }
 
 @end

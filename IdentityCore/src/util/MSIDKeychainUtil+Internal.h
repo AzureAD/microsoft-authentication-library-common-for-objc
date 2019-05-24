@@ -21,17 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDKeychainUtil.h"
 
-@interface MSIDKeychainUtil : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readonly, nullable) NSString *teamId;
+@interface MSIDKeychainUtil ()
 
-+ (nonnull MSIDKeychainUtil *)sharedInstance;
-
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-- (nullable NSString *)accessGroup:(nullable NSString *)group;
+@property (readwrite, nullable) NSString *teamId;
 
 @end
+
+NS_ASSUME_NONNULL_END

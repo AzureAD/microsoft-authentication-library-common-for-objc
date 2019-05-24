@@ -22,30 +22,50 @@
 // THE SOFTWARE.
 
 #import "MSIDKeychainUtil.h"
+#import "MSIDKeychainUtil+Internal.h"
 
 @implementation MSIDKeychainUtil
 
 #pragma mark - Public
 
-+ (NSString *)teamId
+- (instancetype)init
 {
-    static dispatch_once_t once;
-    static NSString *keychainTeamId = nil;
+    self = [super init];
+    if (self)
+    {
+        self.teamId = [self getTeamId];
+    }
     
-    dispatch_once(&once, ^{
-        NSString *accessGroup = [self.class appDefaultAccessGroup];
-        NSArray *components = [accessGroup componentsSeparatedByString:@"."];
-        NSString *bundleSeedID = [components firstObject];
-        keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
-        
-        MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
-        MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
+    return self;
+}
+
++ (MSIDKeychainUtil *)sharedInstance
+{
+    static MSIDKeychainUtil *singleton = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        singleton = [[self alloc] init];
     });
+    
+    return singleton;
+}
+
+- (NSString *)getTeamId
+{
+    NSString *keychainTeamId = nil;
+    NSString *accessGroup = [self appDefaultAccessGroup];
+    NSArray *components = [accessGroup componentsSeparatedByString:@"."];
+    NSString *bundleSeedID = [components firstObject];
+    keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
+    
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
     
     return keychainTeamId;
 }
 
-+ (NSString *)appDefaultAccessGroup
+- (NSString *)appDefaultAccessGroup
 {
     static dispatch_once_t once;
     static NSString *appDefaultAccessGroup = nil;
@@ -100,27 +120,27 @@
     return appDefaultAccessGroup;
 }
 
-+ (NSString *)accessGroup:(NSString *)group
+- (NSString *)accessGroup:(NSString *)group
 {
     if (!group)
     {
         return nil;
     }
     
-    if (!MSIDKeychainUtil.teamId)
+    if (!self.teamId)
     {
         return nil;
     }
     
 #if TARGET_OS_SIMULATOR
     // In simulator team id can be "FAKETEAMID" (for example in UT without host app).
-    if ([MSIDKeychainUtil.teamId isEqualToString:@"FAKETEAMID"])
+    if ([self.teamId isEqualToString:@"FAKETEAMID"])
     {
-        return [MSIDKeychainUtil appDefaultAccessGroup];
+        return [self appDefaultAccessGroup];
     }
 #endif
     
-    return [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, group];
+    return [[NSString alloc] initWithFormat:@"%@.%@", self.teamId, group];
 }
 
 @end
