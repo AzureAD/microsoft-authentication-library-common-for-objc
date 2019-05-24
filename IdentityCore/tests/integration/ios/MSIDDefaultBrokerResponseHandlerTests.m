@@ -224,7 +224,8 @@
       @"error_metadata" : errorMetaDataString,
       @"error": @"invalid_grant",
       @"suberror": @"consent_required",
-      @"error_description": @"Error occured"
+      @"error_description": @"Error occured",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -273,7 +274,8 @@
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       @"error_metadata" : errorMetaDataString,
-      @"error_description" : @"Error occured"
+      @"error_description" : @"Error occured",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -337,7 +339,8 @@
       @"error_metadata" : errorMetaDataString,
       @"error": @"unauthorized_client",
       @"suberror": @"protection_policies_required",
-      @"error_description": @"AADSTS53005: Application needs to enforce intune protection policies"
+      @"error_description": @"AADSTS53005: Application needs to enforce intune protection policies",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -425,7 +428,8 @@
       @"additional_tokens" : intuneMAMTokenString,
       @"error": @"unauthorized_client",
       @"suberror": @"protection_policies_required",
-      @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies"
+      @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -536,7 +540,8 @@
       @"additional_tokens" : additionalTokenString,
       @"error": @"invalid_grant",
       @"suberror": @"consent_required",
-      @"error_description" : @"Error occured"
+      @"error_description" : @"Error occured",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
