@@ -46,11 +46,8 @@
     
     if (self)
     {
-        _userInfoKeyMapping = @{@"error_description" : MSIDErrorDescriptionKey,
-                                @"oauth_error" : MSIDOAuthErrorKey,
-                                @"oauth_sub_error" : MSIDOAuthSubErrorKey,
-                                @"correlation_id" : MSIDCorrelationIdKey,
-                                @"http_headers" : MSIDHTTPHeadersKey,
+        _userInfoKeyMapping = @{@"correlation_id" : MSIDCorrelationIdKey,
+                                @"http_response_headers" : MSIDHTTPHeadersKey,
                                 @"http_response_code" : MSIDHTTPResponseCodeKey,
                                 @"x-broker-app-ver" : MSIDBrokerVersionKey,
                                 @"username" : MSIDUserDisplayableIdkey,
@@ -114,7 +111,8 @@
     }
     
     // Successful case
-    if ([NSString msidIsStringNilOrBlank:decryptedResponse[@"error_domain"]])
+    if ([NSString msidIsStringNilOrBlank:decryptedResponse[@"broker_error_domain"]]
+        && [decryptedResponse[@"success"] boolValue])
     {
         return [[MSIDAADV2BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
     }
@@ -186,7 +184,6 @@
             [userInfo setValue:errorResponse.errorMetadata[metadataKey] forKey:userInfokey];
         }
     }
-
     //Special handling for non-string error metadata
     NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
     if (httpHeaders)
