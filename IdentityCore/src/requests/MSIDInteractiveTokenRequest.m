@@ -49,7 +49,7 @@
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
-@property (nonatomic) MSIDMetadataCacheAccessor *metadataCache;
+@property (nonatomic) MSIDAccountMetadataCacheAccessor *metadataCache;
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 
@@ -61,7 +61,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
-                                     metadataCache:(nullable MSIDMetadataCacheAccessor *)metadataCache
+                                     metadataCache:(nullable MSIDAccountMetadataCacheAccessor *)metadataCache
 {
     self = [super init];
 

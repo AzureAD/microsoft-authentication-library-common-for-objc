@@ -21,26 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAuthorityMapCacheKey.h"
-#import "MSIDCacheKey.h"
-#import "MSIDAccountIdentifier.h"
+#import "MSIDMetadataCacheDataSource.h"
 
-static NSInteger kAuthorityMapMetadataType = 5001;
+@protocol MSIDJsonSerializable;
+@class MSIDCacheKey;
 
-@implementation MSIDAuthorityMapCacheKey
+@interface MSIDMetadataCache : NSObject
 
-- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                 clientId:(NSString *)clientId
-{
-    if (!accountIdentifier || !clientId) return nil;
-    
-    self = [super initWithAccount:accountIdentifier.homeAccountId
-                          service:[NSString stringWithFormat:@"%@-%@", MSID_APP_METADATA_AUTHORITY_MAP_TYPE, accountIdentifier.homeAccountId]
-                          generic:nil
-                             type:@(kAuthorityMapMetadataType)];
-    return self;
-}
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
+- (instancetype)initWithPersistantDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+                        key:(MSIDAccountMetadataCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error;
 
 @end

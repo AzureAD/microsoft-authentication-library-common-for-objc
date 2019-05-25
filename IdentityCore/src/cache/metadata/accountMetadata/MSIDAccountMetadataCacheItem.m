@@ -21,16 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAuthorityMap.h"
+#import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDCache.h"
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
 
-@implementation MSIDAuthorityMap
-{
-    MSIDCache *_authorityMap;
-}
+static const NSString *AccountMetadataURLMapKey = @"URLMap";
+
+@implementation MSIDAccountMetadataCacheItem
 
 - (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                  clientId:(NSString *)clientId
@@ -40,33 +38,34 @@
     self = [super init];
     if (self)
     {
-        self.accountIdentifier = accountIdentifier;
-        self.clientId = clientId;
-        _authorityMap = [MSIDCache new];
+        _accountIdentifier = accountIdentifier;
+        _clientId = clientId;
+        _internalMap = [NSMutableDictionary new];
     }
     return self;
 }
 
-- (BOOL)addMappingWithRequestAuthority:(MSIDAuthority *)requestAuthority
-                     internalAuthority:(MSIDAuthority *)internalAuthority
+#pragma mark - URL caching
+- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL
 {
-    if (!internalAuthority.url.absoluteString || !internalAuthority.url.absoluteString) return NO;
+    if (![NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
+        || ![NSString msidIsStringNilOrBlank:requestURL.absoluteString]) return NO;
     
-    [_authorityMap setObject:internalAuthority.url.absoluteString forKey:requestAuthority.url.absoluteString];
+    NSMutableDictionary *urlMap = _internalMap[MSID_ACCOUNT_CACHE_KEY];
+    if (!urlMap)
+    {
+        urlMap = [NSMutableDictionary new];
+        _internalMap[AccountMetadataURLMapKey] = urlMap;
+    }
+    
+    urlMap[requestURL.absoluteString] = cachedURL.absoluteString;
     return YES;
 }
 
-- (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)authority
+- (NSURL *)cachedURL:(NSURL *)cachedURL
 {
-    NSString *authorityStr = [_authorityMap objectForKey:authority.url.absoluteString];
-    
-    if (!authorityStr) return nil;
-    
-    NSURL *authorityUrl = [NSURL URLWithString:authorityStr];
-    
-    if (!authorityUrl) return nil;
-    
-    return [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+    NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
+    return [[NSURL alloc] initWithString:urlMap[cachedURL.absoluteString]];
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
@@ -85,7 +84,9 @@
     
     self.clientId = json[MSID_CLIENT_ID_CACHE_KEY];
     self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:json[MSID_HOME_ACCOUNT_ID_CACHE_KEY]];
-    _authorityMap = [[MSIDCache alloc] initWithDictionary:json[MSID_AUTHORITY_MAP_CACHE_KEY]];
+
+    _internalMap = [NSMutableDictionary new];
+    
     return self;
 }
 
@@ -95,8 +96,56 @@
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.accountIdentifier.homeAccountId;
-    dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = _authorityMap.toDictionary;
+    dictionary[MSID_ACCOUNT_CACHE_KEY] = _internalMap;
+    
     return dictionary;
 }
+
+#pragma mark - Equal
+// TODO: Check isEqual!
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:self.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToItem:(MSIDAccountMetadataCacheItem *)object];
+}
+
+- (BOOL)isEqualToItem:(MSIDAccountMetadataCacheItem *)item
+{
+    BOOL result = YES;
+    result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
+    result &= (![self.accountIdentifier isEqual:item.accountIdentifier]);
+    return result;
+}
+
+#pragma mark - NSObject
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + self.accountIdentifier.hash;
+    return hash;
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
+    item.accountIdentifier = [self.accountIdentifier copyWithZone:zone];
+    item.clientId = [self.clientId copyWithZone:zone];
+    
+    return item;
+}
+
 
 @end

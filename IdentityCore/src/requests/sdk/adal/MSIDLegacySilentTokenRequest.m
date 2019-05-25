@@ -25,7 +25,7 @@
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDAccessToken.h"
 #import "NSError+MSIDExtensions.h"
-#import "MSIDMetadataCacheAccessor.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 @interface MSIDLegacySilentTokenRequest()
 
@@ -103,7 +103,7 @@
     return self.legacyAccessor;
 }
 
-- (MSIDMetadataCacheAccessor *)metadataCache
+- (MSIDAccountMetadataCacheAccessor *)metadataCache
 {
     return nil;
 }

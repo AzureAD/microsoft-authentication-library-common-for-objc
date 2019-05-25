@@ -31,7 +31,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDBasicContext.h"
-#import "MSIDMetadataCacheAccessor.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -194,7 +194,7 @@
 - (MSIDTokenResult *)validateAndSaveTokenResponse:(MSIDTokenResponse *)tokenResponse
                                      oauthFactory:(MSIDOauth2Factory *)factory
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                                    metadataCache:(MSIDMetadataCacheAccessor *)metadataCache
+                                    metadataCache:(MSIDAccountMetadataCacheAccessor *)metadataCache
                                 requestParameters:(MSIDRequestParameters *)parameters
                                             error:(NSError **)error
 {
@@ -212,11 +212,12 @@
     
     //save metadata
     NSError *updateMetadataError = nil;
-    [metadataCache updateAuthorityMapWithRequestParameters:parameters
-                                            cacheAuthority:tokenResult.accessToken.authority
-                                         accountIdentifier:tokenResult.accessToken.accountIdentifier
-                                                   context:parameters
-                                                     error:&updateMetadataError];
+    [metadataCache updateAuthorityURL:tokenResult.accessToken.authority.url
+                        ForRequestURL:parameters.authority.url
+                    accountIdentifier:tokenResult.accessToken.accountIdentifier
+                             clientId:parameters.clientId
+                              context:parameters
+                                error:&updateMetadataError];
     
     if (updateMetadataError)
     {

@@ -25,7 +25,7 @@
 
 @class MSIDDefaultTokenCacheAccessor;
 @class MSIDIdToken;
-@class MSIDMetadataCacheAccessor;
+@class MSIDAccountMetadataCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
-                                     metadataCache:(nonnull MSIDMetadataCacheAccessor *)metadataCache;
+                                     metadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)metadataCache;
 
 -(MSIDIdToken *)getIDTokenForTokenType:(MSIDCredentialType)idTokenType
                                  error:(NSError **)error;

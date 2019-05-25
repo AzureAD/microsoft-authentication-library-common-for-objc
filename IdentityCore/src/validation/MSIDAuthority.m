@@ -70,7 +70,6 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
             if (!isValid) return nil;
         }
         _url = url;
-        _environment = url.msidHostWithPortIfNecessary;
     }
     return self;
 }
@@ -115,6 +114,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
          if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
      }];
 }
+
+- (NSString *)environment { return _url.msidHostWithPortIfNecessary; }
 
 - (NSURL *)networkUrlWithContext:(__unused id<MSIDRequestContext>)context
 {
@@ -237,6 +238,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     
     return YES;
 }
+
+- (void)replaceURL:(NSURL *)url { _url = url; }
 
 #pragma mark - NSObject
 

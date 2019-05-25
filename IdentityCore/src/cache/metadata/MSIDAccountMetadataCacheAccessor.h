@@ -21,22 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class MSIDAccountIdentifier;
+@class MSIDRequestParameters;
+@class MSIDTokenResponse;
 @class MSIDAuthority;
+@class MSIDAccountIdentifier;
+@class MSIDConfiguration;
+@protocol MSIDRequestContext;
+@protocol MSIDMetadataCacheDataSource;
 
-#import "MSIDJsonSerializable.h"
+@interface MSIDAccountMetadataCacheAccessor : NSObject
 
-@interface MSIDAuthorityMap : NSObject <MSIDJsonSerializable>
+- (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic) NSString *clientId;
+- (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
+         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                  clientId:(NSString *)clientId
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
-- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                 clientId:(NSString *)clientId;
-
-- (BOOL)addMappingWithRequestAuthority:(MSIDAuthority *)requestAuthority
-                     internalAuthority:(MSIDAuthority *)internalAuthority;
-
-- (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)authority;
+- (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
+             ForRequestURL:(NSURL *)requestAuthorityURL
+         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                  clientId:(NSString *)clientId
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
 @end

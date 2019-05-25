@@ -21,13 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCacheKey.h"
+@class MSIDAccountMetadataCacheItem;
+@class MSIDAccountMetadataCacheKey;
+@protocol MSIDAccountMetadataCacheItemSerializer;
 
-@class MSIDAccountIdentifier;
+@protocol MSIDMetadataCacheDataSource <NSObject>
 
-@interface MSIDAuthorityMapCacheKey : MSIDCacheKey
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+                        key:(MSIDAccountMetadataCacheKey *)key
+                 serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
 
-- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                 clientId:(NSString *)clientId;
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+                                              serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error;
 
 @end

@@ -20,29 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+#import <Foundation/Foundation.h>
 
-@class MSIDRequestParameters;
-@class MSIDTokenResponse;
-@class MSIDAuthority;
-@class MSIDAccountIdentifier;
-@class MSIDConfiguration;
-@protocol MSIDRequestContext;
-@protocol MSIDMetadataCacheDataSource;
+@class MSIDAccountMetadataCacheItem;
 
-@interface MSIDMetadataCacheAccessor : NSObject
+@protocol MSIDAccountMetadataCacheItemSerializer <NSObject>
 
-- (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
-
-- (MSIDAuthority *)cacheLookupAuthorityForAuthority:(MSIDAuthority *)requestAuthority
-                                  accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                      configuration:(MSIDConfiguration *)configuration
-                                            context:(id<MSIDRequestContext>)context
-                                              error:(NSError **)error;
-
-- (BOOL)updateAuthorityMapWithRequestParameters:(MSIDRequestParameters *)parameters
-                                 cacheAuthority:(MSIDAuthority *)cacheAuthority
-                              accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                        context:(id<MSIDRequestContext>)context
-                                          error:(NSError **)error;
+- (NSData *)serializeAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item;
+- (MSIDAccountMetadataCacheItem *)deserializeAccountMetadata:(NSData *)data;
 
 @end

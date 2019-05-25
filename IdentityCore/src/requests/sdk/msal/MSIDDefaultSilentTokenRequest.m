@@ -34,12 +34,12 @@
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDConfiguration.h"
-#import "MSIDMetadataCacheAccessor.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
-@property (nonatomic) MSIDMetadataCacheAccessor *metadataAccessor;
+@property (nonatomic) MSIDAccountMetadataCacheAccessor *metadataAccessor;
 @property (nonatomic) MSIDAppMetadataCacheItem *appMetadata;
 
 @end
@@ -53,7 +53,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
-                                     metadataCache:(nonnull MSIDMetadataCacheAccessor *)metadataCache
+                                     metadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)metadataCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -77,11 +77,15 @@
     NSError *cacheError = nil;
 
     //get lookup authority by using metadataCache
-    MSIDAuthority *lookupAuthority = [self.metadataAccessor cacheLookupAuthorityForAuthority:self.requestParameters.authority
-                                                                           accountIdentifier:self.requestParameters.accountIdentifier
-                                                                               configuration:self.requestParameters.msidConfiguration
-                                                                                     context:self.requestParameters
-                                                                                       error:nil];
+    NSURL *cachedURL = [self.metadataAccessor getAuthorityURL:self.requestParameters.authority.url
+                                            accountIdentifier:self.requestParameters.accountIdentifier
+                                                     clientId:self.requestParameters.clientId
+                                                      context:self.requestParameters
+                                                        error:nil];
+    
+    MSIDAuthority *lookupAuthority = [self.requestParameters.authority copy];
+    [lookupAuthority replaceURL:cachedURL];
+    
     if (lookupAuthority)
     {
         [self.requestParameters setCacheLookupAuthority:lookupAuthority];
@@ -226,7 +230,7 @@
     return self.defaultAccessor;
 }
 
-- (MSIDMetadataCacheAccessor *)metadataCache
+- (MSIDAccountMetadataCacheAccessor *)metadataCache
 {
     return self.metadataAccessor;
 }

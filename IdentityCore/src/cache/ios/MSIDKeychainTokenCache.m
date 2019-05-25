@@ -29,6 +29,8 @@
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheKey.h"
 
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
@@ -381,58 +383,24 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return appMetadataitems;
 }
 
-- (BOOL)saveOrUpdateMetadataItem:(NSData *)item
-                          forKey:(MSIDCacheKey *)key
-                         context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
+
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+                        key:(MSIDAccountMetadataCacheKey *)key
+                 serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
 {
-    if (!item)
-    {
-        if (error)
-        {
-            NSString *errorMessage = @"Nil metadata item is received!";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
-        }
-        MSID_LOG_ERROR(context, @"Nil metadata item is received!");
-        return NO;
-    }
-    
-    MSID_LOG_VERBOSE(context, @"Saving metadata item info %@", item);
-    
-    return [self saveData:item
-                      key:key
-                  context:context
-                    error:error];
+    return NO;
 }
 
-- (NSData *)metadataItemWithKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+                                              serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
-    
-    if (!items || items.count < 1)
-    {
-        MSID_LOG_WARN(context, @"Found no metadata item.");
-        return nil;
-    }
-    
-    NSMutableArray *metadataitems = [NSMutableArray new];
-    
-    for (NSDictionary *attrs in items)
-    {
-        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        
-        if (itemData)
-        {
-            [metadataitems addObject:itemData];
-        }
-    }
-    
-    MSID_LOG_WARN(context, @"Found %lu items.", (unsigned long)metadataitems.count);
-    
-    return metadataitems[0];
+    return nil;
 }
+
 
 #pragma mark - Removal
 

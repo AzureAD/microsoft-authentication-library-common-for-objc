@@ -117,7 +117,7 @@ NSString *const MSID_FAMILY_NAME_CACHE_KEY               = @"family_name";
 NSString *const MSID_NAME_CACHE_KEY                      = @"name";
 NSString *const MSID_ALTERNATIVE_ACCOUNT_ID_KEY          = @"alternative_account_id";
 NSString *const MSID_SESSION_KEY_CACHE_KEY               = @"session_key";
-NSString *const MSID_AUTHORITY_MAP_CACHE_KEY             = @"authority_map";
+NSString *const MSID_ACCOUNT_CACHE_KEY                   = @"account_key";
 
 NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
 NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";

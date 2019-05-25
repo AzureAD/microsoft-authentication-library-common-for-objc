@@ -21,15 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@protocol MSIDMetadataCacheDataSource <NSObject>
+@class MSIDAccountIdentifier;
 
-- (BOOL)saveOrUpdateMetadataItem:(NSData *)item
-                          forKey:(MSIDCacheKey *)key
-                         context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error;
+#import "MSIDJsonSerializable.h"
 
-- (NSData *)metadataItemWithKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
+@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying>
+{
+    NSMutableDictionary *_internalMap;
+}
+
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *clientId;
+
+- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                 clientId:(NSString *)clientId;
+
+// Authority map caching
+- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL;
+- (NSURL *)cachedURL:(NSURL *)requestURL;
 
 @end

@@ -488,7 +488,7 @@
     return nil;
 }
 
-- (MSIDMetadataCacheAccessor *)metadataCache
+- (MSIDAccountMetadataCacheAccessor *)metadataCache
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;

@@ -33,7 +33,7 @@
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
                               defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                             metadataAccessor:(MSIDMetadataCacheAccessor *)metadataAccessor
+                             metadataAccessor:(MSIDAccountMetadataCacheAccessor *)metadataAccessor
                        tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];

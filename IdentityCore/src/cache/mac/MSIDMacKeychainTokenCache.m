@@ -561,6 +561,17 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     return NO;
 }
 
+#pragma mark - Account metadata
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    // TODO: Need to implement this
+    return nil;
+}
+
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    // TODO: Need to implement this
+    return NO;
+}
+
 #pragma mark - Wipe Info
 
 // Saves information about the app which most-recently removed a token.
@@ -684,4 +695,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 
     return _PII_NULLIFY(self.keychainGroup);
 }
+
+
 @end
