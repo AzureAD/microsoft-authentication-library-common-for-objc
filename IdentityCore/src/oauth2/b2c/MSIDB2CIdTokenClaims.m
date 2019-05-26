@@ -53,7 +53,6 @@ MSID_JSON_ACCESSOR(@"tfp", tfp)
     _userId = [MSIDHelpers normalizeUserId:userId];
     
     NSError *issuerError = nil;
-    // TODO: verify that this will be always set to something that can be later retrieved from cache
     _issuerAuthority = [[MSIDB2CAuthority alloc] initWithURL:[NSURL URLWithString:self.issuer] validateFormat:NO context:nil error:&issuerError];
     
     if (!_issuerAuthority)
