@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDInteractiveRequestParametersTests : XCTestCase
 
@@ -33,7 +33,7 @@
 
 - (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSUUID *correlationID = [NSUUID UUID];
     
     NSError *error = nil;
@@ -67,7 +67,7 @@
 
 - (void)testAllAuthorizeRequestScopes_whenOnlyResourceScopesProvided_shouldReturnResourceScopesOnly
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
@@ -87,7 +87,7 @@
 
 - (void)testAllAuthorizeRequestScopes_whenBothResourceAndOIDCScopesProvided_shouldReturnAllScopesCombined
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
@@ -106,7 +106,7 @@
 
 - (void)testAllAuthorizeRequestScopes_whenResource_AndOIDCS_AndExtraScopesProvided_shouldReturnAllScopesCombined
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"

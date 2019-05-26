@@ -38,7 +38,6 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAuthority.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
 #import "MSIDAccountIdentifier.h"

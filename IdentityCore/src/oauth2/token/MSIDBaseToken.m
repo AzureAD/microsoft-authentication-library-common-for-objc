@@ -27,7 +27,6 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDClientInfo.h"
 #import "MSIDAuthority.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAccountIdentifier.h"
 
 @implementation MSIDBaseToken

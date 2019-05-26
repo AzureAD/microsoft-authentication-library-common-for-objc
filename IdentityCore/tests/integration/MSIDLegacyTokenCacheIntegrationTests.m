@@ -40,7 +40,6 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
-#import "NSString+MSIDTestUtil.h"
 #import "MSIDTestCacheAccessorHelper.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase

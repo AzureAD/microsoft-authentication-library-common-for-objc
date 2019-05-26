@@ -24,7 +24,6 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDVersion.h"
 #import "MSIDConstants.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOpenIdProviderMetadata.h"

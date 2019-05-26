@@ -37,7 +37,6 @@
 #import "MSIDOAuth2Constants.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADV1WebviewFactory.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
 #import "MSIDRefreshTokenGrantRequest.h"

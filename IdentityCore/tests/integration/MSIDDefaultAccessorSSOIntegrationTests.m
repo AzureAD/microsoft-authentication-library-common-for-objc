@@ -53,9 +53,8 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAADV2BrokerResponse.h"
 #import "MSIDTestCacheAccessorHelper.h"
-#import "MSIDAuthorityFactory.h"
-#import "MSIDV1IdToken.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDV1IdToken.h"
 
 @interface MSIDDefaultTokenCacheAccessor (TestUtil)
 
@@ -1621,7 +1620,7 @@
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy.id"
                                                                                  homeAccountId:@"home.id"];
 
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
     MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority context:nil error:&error];
 
     XCTAssertNil(error);
@@ -1647,7 +1646,7 @@
 
     NSError *error = nil;
 
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/contoso.com"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.windows.net/contoso.com" aadAuthority];
 
     MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority context:nil error:&error];
 

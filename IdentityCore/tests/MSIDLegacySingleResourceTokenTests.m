@@ -28,7 +28,6 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
-#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDLegacySingleResourceTokenTests : XCTestCase
 

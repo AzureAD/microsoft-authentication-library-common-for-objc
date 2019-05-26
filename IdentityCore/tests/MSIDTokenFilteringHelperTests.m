@@ -35,7 +35,6 @@
 #import "MSIDAccount.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDIdToken.h"
-#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDTokenFilteringHelperTests : XCTestCase
 

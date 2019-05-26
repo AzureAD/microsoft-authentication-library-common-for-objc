@@ -41,7 +41,6 @@
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Cache.h"
-#import "MSIDAuthorityFactory.h"
 #import "NSURL+MSIDExtensions.h"
 #import "NSURL+MSIDAADUtils.h"
 

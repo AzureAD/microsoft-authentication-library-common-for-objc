@@ -33,7 +33,6 @@
 #import "MSIDIdToken.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAADV2WebviewFactory.h"
-#import "MSIDAuthorityFactory.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"

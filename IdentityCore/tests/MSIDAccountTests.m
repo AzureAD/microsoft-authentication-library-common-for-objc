@@ -144,7 +144,7 @@
 
 - (void)testAccountCacheItem_shouldReturnProperCacheItem
 {
-    __auto_type authority = [@"https://login.microsoftonline.com/common" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     
     MSIDAccount *account = [MSIDAccount new];
     account.environment = authority.environment;

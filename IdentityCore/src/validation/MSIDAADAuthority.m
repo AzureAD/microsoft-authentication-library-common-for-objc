@@ -25,7 +25,6 @@
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADTenant.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"

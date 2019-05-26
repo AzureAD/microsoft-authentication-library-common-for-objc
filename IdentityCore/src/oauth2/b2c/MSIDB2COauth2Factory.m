@@ -29,7 +29,6 @@
 #import "MSIDB2CTokenResponse.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAccessToken.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDIdToken.h"
 #import "MSIDB2CAuthority.h"
 

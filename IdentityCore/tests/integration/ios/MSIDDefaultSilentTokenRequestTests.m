@@ -28,7 +28,6 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDTestIdentifiers.h"
@@ -49,6 +48,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDB2COauth2Factory.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -73,7 +73,7 @@
 - (MSIDRequestParameters *)silentRequestParameters
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
     parameters.oidcScope = @"openid profile offline_access";
@@ -87,7 +87,7 @@
 - (MSIDRequestParameters *)silentB2CParameters
 {
     MSIDRequestParameters *parameters = [MSIDRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/signup"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/tfp/contoso.com/signup" b2cAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
     parameters.oidcScope = @"openid profile offline_access";
@@ -578,7 +578,7 @@
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSString *authority = @"https://login.microsoftonline.com/contoso.com";
-    silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:authority] context:nil error:nil];
+    silentParameters.authority = [authority aadAuthority];
 
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
@@ -1354,7 +1354,7 @@
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
 
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
-    silentParameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/1234-5678-90abcdefg"] context:nil error:nil];
+    silentParameters.authority = [@"https://login.windows.net/1234-5678-90abcdefg" aadAuthority];
 
     [self saveTokensInCache:tokenCache
               configuration:silentParameters.msidConfiguration

@@ -23,12 +23,12 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDLegacyBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClaimsRequest.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDLegacyBrokerRequestTests : XCTestCase
 
@@ -216,7 +216,7 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"myresource";
     parameters.correlationId = [NSUUID new];

@@ -26,7 +26,6 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
-#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDRefreshTokenTests : XCTestCase
 

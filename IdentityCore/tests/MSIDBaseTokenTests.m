@@ -24,7 +24,6 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDBaseTokenTests : XCTestCase

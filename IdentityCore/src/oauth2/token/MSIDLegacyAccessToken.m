@@ -24,7 +24,6 @@
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountIdentifier.h"

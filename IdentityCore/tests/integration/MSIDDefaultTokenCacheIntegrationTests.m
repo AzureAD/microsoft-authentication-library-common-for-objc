@@ -502,7 +502,7 @@
     XCTAssertEqual([accessTokensInCache count], 4);
 
     configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
 
     // retrieve first at
     NSError *error = nil;
@@ -531,7 +531,7 @@
                                           error:nil];
 
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
 
     NSError *error = nil;
 
@@ -563,7 +563,7 @@
                                           error:nil];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
     
     NSError *error = nil;
     
@@ -596,7 +596,7 @@
 
     // Retrieve token
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
 
     NSError *error = nil;
     MSIDAccessToken *returnedToken = [_cacheAccessor getAccessTokenForAccount:account

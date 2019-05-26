@@ -31,7 +31,6 @@
 #import "MSIDClientInfo.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
-#import "MSIDAuthorityFactory.h"
 
 @implementation MSIDAccount
 

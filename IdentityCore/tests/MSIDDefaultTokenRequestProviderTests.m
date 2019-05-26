@@ -28,7 +28,7 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDDefaultSilentTokenRequest.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDDefaultTokenResponseValidator.h"
 
 @interface MSIDDefaultTokenRequestProviderTests : XCTestCase
@@ -59,7 +59,7 @@
     MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-testapp://auth";
     parameters.target = @"user.read";
     parameters.clientId = @"client_id";
