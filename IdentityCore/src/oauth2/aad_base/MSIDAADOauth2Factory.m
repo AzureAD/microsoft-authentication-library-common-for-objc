@@ -245,7 +245,7 @@
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
     account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.accountIdentifier.displayableId
-                                                                         homeAccountId:response.clientInfo.accountIdentifier];
+                                                                       homeAccountId:response.clientInfo.accountIdentifier];
 
     return YES;
 }

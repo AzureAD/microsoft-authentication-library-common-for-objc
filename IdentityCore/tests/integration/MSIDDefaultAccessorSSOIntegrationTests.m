@@ -220,10 +220,10 @@
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(account.realm, @"tenantid.onmicrosoft.com");
     XCTAssertNil(account.alternativeAccountId);
-    XCTAssertEqualObjects(account.environment, @"login.windows.net");
-    XCTAssertEqualObjects(account.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"tenantid.onmicrosoft.com");
 }
 
 - (void)testSaveTokensWithFactory_whenMultiResourceResponse_savesTokensOnlyToDefaultAccessor
@@ -283,7 +283,7 @@
     XCTAssertEqualObjects(defaultIDToken.rawIdToken, idToken);
     XCTAssertEqual(defaultIDToken.credentialType, MSIDIDTokenType);
     XCTAssertEqualObjects(defaultIDToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(defaultIDToken.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(defaultIDToken.realm, @"tenantid.onmicrosoft.com");
     XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(defaultIDToken.additionalServerInfo, nil);
@@ -306,10 +306,10 @@
     XCTAssertEqualObjects(account.familyName, @"World");
     XCTAssertEqualObjects(account.name, @"Hello World");
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(account.realm, @"tenantid.onmicrosoft.com");
     XCTAssertNil(account.alternativeAccountId);
     XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(account.realm, @"tenantId.onmicrosoft.com");
+    XCTAssertEqualObjects(account.realm, @"tenantid.onmicrosoft.com");
     // Now check legacy accessor
     NSArray *legacyAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_otherAccessor];
     XCTAssertEqual([legacyAccessTokens count], 0);

@@ -48,6 +48,7 @@
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDB2COauth2Factory.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -616,7 +617,7 @@
         XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+        NSURL *tenantURL = [NSURL URLWithString:@"https://login.microsoftonline.com/1234-5678-90abcdefg"];
         XCTAssertEqualObjects(result.authority.url, tenantURL);
         XCTAssertEqualObjects(result.refreshToken.refreshToken, @"new rt");
         [expectation fulfill];
@@ -1027,7 +1028,7 @@
 
     MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
                                                                                                        forceRefresh:NO
-                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                                       oauthFactory:[MSIDB2COauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache];
 

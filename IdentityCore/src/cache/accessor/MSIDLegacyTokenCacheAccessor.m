@@ -327,7 +327,8 @@
         account.accountIdentifier = refreshToken.accountIdentifier;
         account.username = refreshToken.accountIdentifier.displayableId;
         account.accountType = MSIDAccountTypeMSSTS;
-        account.environment = refreshToken.environment;
+        account.environment = authority.environment ? authority.environment : refreshToken.environment;
+        account.storageEnvironment = refreshToken.environment;
         
         MSIDIdTokenClaims *idTokenClaims = refreshToken.idTokenClaims;
         account.realm = idTokenClaims.realm;

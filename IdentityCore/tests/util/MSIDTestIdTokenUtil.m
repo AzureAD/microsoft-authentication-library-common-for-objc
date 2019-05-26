@@ -86,9 +86,8 @@
                           oid:(NSString *)oid
                      tenantId:(NSString *)tid
 {
-    NSString *issuer = tid ? [NSString stringWithFormat:@"https://login.microsoftonline.com/%@", tid] : @"issuer";
     NSString *idTokenp1 = [@{ @"typ": @"JWT", @"alg": @"RS256", @"kid": @"_kid_value"} msidBase64UrlJson];
-    NSString *idTokenp2 = [@{ @"iss" : issuer,
+    NSString *idTokenp2 = [@{ @"iss" : @"issuer",
                               @"name" : name,
                               @"upn" : upn,
                               @"ver": @"1.0",

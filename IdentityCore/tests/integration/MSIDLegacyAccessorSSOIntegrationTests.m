@@ -252,7 +252,7 @@
     XCTAssertNil(defaultRefreshToken.familyId);
     XCTAssertEqual(defaultRefreshToken.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(defaultRefreshToken.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(defaultRefreshToken.realm, @"common");
+    XCTAssertNil(defaultRefreshToken.realm);
     XCTAssertEqualObjects(defaultRefreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultRefreshToken.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(defaultRefreshToken.additionalServerInfo, nil);
@@ -705,7 +705,7 @@
     XCTAssertTrue([refreshToken isKindOfClass:[MSIDRefreshToken class]]);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.environment, @"login.windows.net");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
 }
 
 - (void)testGetRefreshTokenWithAccount_whenFamilyIdProvided_andTokenInPrimaryAccessor_shouldReturnToken
@@ -826,7 +826,7 @@
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.familyId, @"2");
     XCTAssertEqualObjects(refreshToken.environment, @"login.windows.net");
-    XCTAssertEqualObjects(refreshToken.realm, @"common");
+    XCTAssertNil(refreshToken.realm);
 }
 
 - (void)testGetRefreshTokenWithAccount_whenFamilyIdProvided_andTokensInBothAccessors_shouldReturnTokenFromPrimary
@@ -1586,7 +1586,7 @@
     XCTAssertEqualObjects(accessToken.accountIdentifier.displayableId, @"upn@test.com");
     XCTAssertEqualObjects(accessToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(accessToken.refreshToken, @"refresh token 2");
-    XCTAssertEqualObjects(accessToken.environment, @"login.windows.net");
+    XCTAssertEqualObjects(accessToken.environment, @"login.windows.com");
     XCTAssertEqualObjects(accessToken.realm, @"common");
 }
 

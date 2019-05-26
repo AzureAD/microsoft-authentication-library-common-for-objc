@@ -35,7 +35,7 @@
 #import "MSIDIdToken.h"
 #import "MSIDAuthority.h"
 #import "MSIDOAuth2Constants.h"
-
+#import "MSIDAccountIdentifier.h"
 #import "MSIDAADV1WebviewFactory.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDAADAuthority.h"
@@ -169,12 +169,15 @@
     {
         return NO;
     }
+    
+    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
+                                                                         homeAccountId:response.clientInfo.accountIdentifier];
 
     return YES;
 }
 
 - (BOOL)fillAccount:(MSIDAccount *)account
-       fromResponse:(MSIDTokenResponse *)response
+       fromResponse:(MSIDAADTokenResponse *)response
       configuration:(MSIDConfiguration *)configuration
 {
     if (![super fillAccount:account fromResponse:response configuration:configuration])
@@ -187,11 +190,18 @@
         return NO;
     }
     
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
+                                                                       homeAccountId:response.clientInfo.accountIdentifier];
+    
     if (response.idTokenObj.issuerAuthority)
     {
         account.environment = response.idTokenObj.issuerAuthority.environment;
         account.storageEnvironment = [response.idTokenObj.issuerAuthority cacheEnvironmentWithContext:nil];
-        account.realm = response.idTokenObj.issuerAuthority.realm;
+    }
+    
+    if (response.idTokenObj.realm)
+    {
+        account.realm = response.idTokenObj.realm;
     }
     
     return YES;
@@ -242,6 +252,15 @@
 {
     // TODO: implement me for ADAL
     return nil;
+}
+
+#pragma mark - Authority
+
+- (MSIDAuthority *)resultAuthorityWithConfiguration:(__unused MSIDConfiguration *)configuration
+                                      tokenResponse:(__unused MSIDTokenResponse *)response
+                                              error:(__unused NSError **)error
+{
+    return configuration.authority;
 }
 
 @end

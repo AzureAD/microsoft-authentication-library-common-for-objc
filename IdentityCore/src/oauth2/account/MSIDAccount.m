@@ -78,7 +78,6 @@
     NSUInteger hash = 0;
     hash = hash * 31 + self.accountIdentifier.displayableId.hash;
     hash = hash * 31 + self.accountType;
-    hash = hash * 31 + self.storageEnvironment.hash;
     hash = hash * 31 + self.environment.hash;
     hash = hash * 31 + self.realm.hash;
     hash = hash * 31 + self.alternativeAccountId.hash;
@@ -110,7 +109,6 @@
     result &= self.accountType == account.accountType;
     result &= (!self.alternativeAccountId && !account.alternativeAccountId) || [self.alternativeAccountId isEqualToString:account.alternativeAccountId];
     result &= (!self.environment && !account.environment) || [self.environment isEqualToString:account.environment];
-    result &= (!self.storageEnvironment && !account.storageEnvironment) || [self.storageEnvironment isEqualToString:account.storageEnvironment];
     result &= (!self.realm && !account.realm) || [self.realm isEqualToString:account.realm];
     result &= (!self.username && !account.username) || [self.username isEqualToString:account.username];
     return result;
@@ -174,7 +172,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDAccount environment: %@ realm: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@", self.environment,  self.realm, self.username, self.accountIdentifier.homeAccountId, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId];
+    return [NSString stringWithFormat:@"MSIDAccount environment: %@ storage environment %@ realm: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@", self.environment, self.storageEnvironment,  self.realm, self.username, self.accountIdentifier.homeAccountId, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId];
 }
 
 @end

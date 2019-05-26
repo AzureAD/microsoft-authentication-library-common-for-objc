@@ -358,7 +358,7 @@
     MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.environment, configuration.authority.environment);
-    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
+    XCTAssertEqualObjects(token.realm, @"common");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
     XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);

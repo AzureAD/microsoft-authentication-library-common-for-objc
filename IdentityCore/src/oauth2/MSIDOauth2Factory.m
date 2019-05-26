@@ -310,7 +310,7 @@
     
     token.refreshToken = response.refreshToken;
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.preferredUsername
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
                                                                      homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
@@ -328,7 +328,7 @@
     }
 
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.preferredUsername
+    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
                                                                      homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
@@ -348,7 +348,6 @@
     token.idToken = response.idToken;
     token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
                                                                      homeAccountId:token.accountIdentifier.homeAccountId];
-    token.realm = response.idTokenObj.realm;
     return YES;
 }
 

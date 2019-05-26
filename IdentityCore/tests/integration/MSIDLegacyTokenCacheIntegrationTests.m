@@ -744,7 +744,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
-    token.storageEnvironment = @"login.microsoftonline.com";
+    token.realm = @"common";
     XCTAssertEqualObjects(token, returnedToken);
     XCTAssertEqualObjects(returnedToken.storageEnvironment, @"login.microsoftonline.com");
 }

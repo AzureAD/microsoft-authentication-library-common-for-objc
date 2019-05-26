@@ -310,7 +310,7 @@
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.realm, @"common");
     
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     

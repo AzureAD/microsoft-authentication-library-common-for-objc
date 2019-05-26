@@ -148,7 +148,7 @@
     MSIDLegacyRefreshToken *token = [[MSIDLegacyRefreshToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"common");
+    XCTAssertNil(token.realm);
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
