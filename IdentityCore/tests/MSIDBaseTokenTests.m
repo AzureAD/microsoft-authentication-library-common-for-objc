@@ -111,26 +111,6 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testBaseTokenIsEqual_whenStorageEnvironmentIsNotEqual_shouldReturnFalse
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    lhs.storageEnvironment = @"contoso.com";
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    rhs.storageEnvironment = @"contoso2.com";
-
-    XCTAssertNotEqualObjects(lhs, rhs);
-}
-
-- (void)testBaseTokenIsEqual_whenStorageEnvironmentIsEqual_shouldReturnTrue
-{
-    MSIDBaseToken *lhs = [MSIDBaseToken new];
-    lhs.storageEnvironment = @"contoso.com";
-    MSIDBaseToken *rhs = [MSIDBaseToken new];
-    rhs.storageEnvironment = @"contoso.com";
-
-    XCTAssertEqualObjects(lhs, rhs);
-}
-
 - (void)testBaseTokenIsEqual_whenClientIdIsNotEqual_shouldReturnFalse
 {
     MSIDBaseToken *lhs = [MSIDBaseToken new];

@@ -39,7 +39,7 @@
 
 /*
  'storageEnvironment' is used only for latter token deletion.
- We can not use 'requestEnvironment' because cache item could be saved with
+ We can not use 'environment' because cache item could be saved with
  'preferred authority' and it might not be equal to provided 'authority'.
  */
 @property (readwrite) NSString *storageEnvironment;

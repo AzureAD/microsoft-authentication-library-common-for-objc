@@ -66,7 +66,6 @@
 - (NSUInteger)hash
 {
     NSUInteger hash = 0;
-    hash = hash * 31 + self.storageEnvironment.hash;
     hash = hash * 31 + self.environment.hash;
     hash = hash * 31 + self.realm.hash;
     hash = hash * 31 + self.clientId.hash;
@@ -84,7 +83,6 @@
     }
     
     BOOL result = YES;
-    result &= (!self.storageEnvironment && !item.storageEnvironment) || [self.storageEnvironment isEqualToString:item.storageEnvironment];
     result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
     result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];

@@ -25,8 +25,6 @@
 
 @interface MSIDB2CAuthority : MSIDAuthority
 
-@property (nonatomic, readonly, nonnull) NSString *tenantId;
-
 - (nullable instancetype)initWithURL:(nonnull NSURL *)url
                       validateFormat:(BOOL)validateFormat
                              context:(nullable id<MSIDRequestContext>)context
