@@ -182,7 +182,7 @@
           }
           
           __auto_type authorityUrl = [[NSURL alloc] initWithString:authorityString];
-          __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+          __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl rawTenant:nil context:nil error:nil];
           
           MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                               redirectUri:nil
