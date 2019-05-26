@@ -27,10 +27,24 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSURL (MSIDAADUtils)
 
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
 - (NSString *)msidAADTenant;
+
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
 - (NSURL *)msidAADAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
 
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
 + (NSURL *)msidAADURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
+
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
 + (NSURL *)msidAADURLWithEnvironment:(NSString *)environment;
 
 @end
