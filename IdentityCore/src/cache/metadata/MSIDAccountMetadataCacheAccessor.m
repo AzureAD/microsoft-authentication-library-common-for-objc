@@ -78,7 +78,10 @@
         authorityMap = [[MSIDAccountMetadataCacheItem alloc] initWithAccountIdentifier:accountIdentifier clientId:clientId];
     }
     
-    [authorityMap setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL];
+    if (![authorityMap setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL error:error])
+    {
+        return NO;
+    }
     
     return [_metadataCache saveAccountMetadata:authorityMap
                                            key:key

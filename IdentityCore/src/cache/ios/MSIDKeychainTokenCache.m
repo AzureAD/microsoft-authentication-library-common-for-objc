@@ -31,6 +31,7 @@
 #import "MSIDAppMetadataItemSerializer.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDAccountMetadataCacheItemSerializer.h"
 
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
@@ -390,7 +391,24 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    return NO;
+
+    if (!item)
+    {
+        if (error)
+        {
+            NSString *errorMessage = @"Nil metadata item is received!";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Nil metadata item is received!");
+        return NO;
+    }
+    
+    MSID_LOG_VERBOSE(context, @"Saving metadata item info %@", item);
+    
+    return [self saveData:[serializer serializeAccountMetadataCacheItem:item]
+                      key:key
+                  context:context
+                    error:error];
 }
 
 - (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
@@ -398,7 +416,15 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    return nil;
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items || items.count < 1)
+    {
+        MSID_LOG_WARN(context, @"Found no metadata item.");
+        return nil;
+    }
+    
+    return [serializer deserializeAccountMetadata:items[0]];
 }
 
 

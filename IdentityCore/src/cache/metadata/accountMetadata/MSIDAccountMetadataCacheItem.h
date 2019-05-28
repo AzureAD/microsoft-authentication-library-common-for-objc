@@ -30,14 +30,14 @@
     NSMutableDictionary *_internalMap;
 }
 
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic) NSString *clientId;
+@property (nonatomic, readonly) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic, readonly) NSString *clientId;
 
 - (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                  clientId:(NSString *)clientId;
 
 // Authority map caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL;
+- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error;
 - (NSURL *)cachedURL:(NSURL *)requestURL;
 
 @end

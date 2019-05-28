@@ -35,7 +35,7 @@
 @interface MSIDRequestParameters : NSObject <MSIDRequestContext>
 
 @property (nonatomic) MSIDAuthority *authority;
-@property (nonatomic) MSIDAuthority *internalAuthority;
+@property (nonatomic) MSIDAuthority *cloudAuthority;
 @property (nonatomic) NSString *redirectUri;
 @property (nonatomic) NSString *clientId;
 @property (nonatomic) NSString *target;
@@ -73,7 +73,6 @@
 
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
-- (void)setCacheLookupAuthority:(MSIDAuthority *)lookupAuthority;
 - (NSString *)allTokenRequestScopes;
 
 - (BOOL)validateParametersWithError:(NSError **)error;

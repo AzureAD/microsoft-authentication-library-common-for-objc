@@ -212,7 +212,7 @@
     
     //save metadata
     NSError *updateMetadataError = nil;
-    [metadataCache updateAuthorityURL:tokenResult.accessToken.authority.url
+    [metadataCache updateAuthorityURL:tokenResult.authority.url
                         ForRequestURL:parameters.authority.url
                     accountIdentifier:tokenResult.accessToken.accountIdentifier
                              clientId:parameters.clientId

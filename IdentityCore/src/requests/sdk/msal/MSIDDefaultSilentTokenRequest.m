@@ -75,22 +75,6 @@
 - (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
 {
     NSError *cacheError = nil;
-
-    //get lookup authority by using metadataCache
-    NSURL *cachedURL = [self.metadataAccessor getAuthorityURL:self.requestParameters.authority.url
-                                            accountIdentifier:self.requestParameters.accountIdentifier
-                                                     clientId:self.requestParameters.clientId
-                                                      context:self.requestParameters
-                                                        error:nil];
-    
-    MSIDAuthority *lookupAuthority = [self.requestParameters.authority copy];
-    [lookupAuthority replaceURL:cachedURL];
-    
-    if (lookupAuthority)
-    {
-        [self.requestParameters setCacheLookupAuthority:lookupAuthority];
-    }
-    
     MSIDAccessToken *accessToken = [self.defaultAccessor getAccessTokenForAccount:self.requestParameters.accountIdentifier
                                                                     configuration:self.requestParameters.msidConfiguration
                                                                           context:self.requestParameters
