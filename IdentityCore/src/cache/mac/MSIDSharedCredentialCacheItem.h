@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDSharedCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
 
+- (instancetype _Nullable)init NS_UNAVAILABLE;
+
++ (instancetype _Nullable)new NS_UNAVAILABLE;
+
 + (MSIDSharedCredentialCacheItem *)sharedInstance;
 
 - (void)setRefreshToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
