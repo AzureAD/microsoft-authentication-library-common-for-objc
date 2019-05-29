@@ -753,7 +753,7 @@ static dispatch_queue_t s_synchronizationQueue;
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
-    return nil;
+    return NO;
 }
 
 #pragma mark - Wipe Info
