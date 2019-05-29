@@ -306,7 +306,7 @@
     XCTAssertNotNil(token.expiresOn);
     XCTAssertNil(token.familyId);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
 - (void)testLegacyAccessTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -340,7 +340,7 @@
     XCTAssertEqualObjects(token.scopes, scopes);
     XCTAssertNotNil(token.expiresOn);
     XCTAssertEqualObjects(token.accessTokenType, @"Bearer");
-    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
 - (void)testLegacyRefreshTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -369,7 +369,7 @@
     XCTAssertEqualObjects(token.idToken, idToken);
 
     XCTAssertNil(token.familyId);
-    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
+    XCTAssertEqualObjects(token.accountIdentifier.displayableId, DEFAULT_TEST_ID_TOKEN_USERNAME);
 }
 
 - (void)testIDTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken

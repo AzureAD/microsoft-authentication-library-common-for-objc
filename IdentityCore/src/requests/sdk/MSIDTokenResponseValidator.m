@@ -61,10 +61,26 @@
 
         return nil;
     }
+    
+    return [self createTokenResultFromResponse:tokenResponse
+                                  oauthFactory:factory
+                                 configuration:configuration
+                                requestAccount:accountIdentifier
+                                 correlationID:correlationID
+                                         error:error];
+}
 
+- (MSIDTokenResult *)createTokenResultFromResponse:(MSIDTokenResponse *)tokenResponse
+                                      oauthFactory:(MSIDOauth2Factory *)factory
+                                     configuration:(MSIDConfiguration *)configuration
+                                    requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
+                                     correlationID:(NSUUID *)correlationID
+                                             error:(NSError **)error
+
+{
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:tokenResponse configuration:configuration];
     MSIDRefreshToken *refreshToken = [factory refreshTokenFromResponse:tokenResponse configuration:configuration];
-
+    
     MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
     NSError *authorityError = nil;
     MSIDAuthority *resultAuthority = [factory resultAuthorityWithConfiguration:configuration tokenResponse:tokenResponse error:&authorityError];
@@ -80,7 +96,7 @@
         
         return nil;
     }
-
+    
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                               refreshToken:refreshToken
                                                                    idToken:tokenResponse.idToken
@@ -88,7 +104,7 @@
                                                                  authority:resultAuthority
                                                              correlationId:correlationID
                                                              tokenResponse:tokenResponse];
-
+    
     return result;
 }
 

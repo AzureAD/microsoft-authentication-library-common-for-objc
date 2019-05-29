@@ -227,12 +227,15 @@
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
     MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid"];
-    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithB2CAuthority:@"https://login.microsoftonline.com/tfp/test_tenantid/policy"
+                                                                                   clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                redirectUri:nil
+                                                                                     target:DEFAULT_TEST_SCOPE];
 
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"common");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];

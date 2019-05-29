@@ -117,6 +117,7 @@
                                configuration:(MSIDConfiguration *)configuration
 {
     MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
+    
     BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
@@ -204,13 +205,15 @@
         return NO;
     }
     
-    token.environment = configuration.authority.environment;
-    token.storageEnvironment = [configuration.authority cacheEnvironmentWithContext:nil];
-    token.realm = configuration.authority.realm;
+    MSIDAuthority *cacheAuthority = [self cacheAuthorityWithConfiguration:configuration tokenResponse:response];
+    if (!cacheAuthority) return NO;
+    
+    token.environment = cacheAuthority.environment;
+    token.storageEnvironment = [cacheAuthority cacheEnvironmentWithContext:nil];
+    token.realm = cacheAuthority.realm;
     token.clientId = configuration.clientId;
     token.additionalServerInfo = response.additionalServerInfo;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.preferredUsername
-                                                                     homeAccountId:response.idTokenObj.userId];
+    token.accountIdentifier = [self accountIdentifierFromResponse:response];
     return YES;
 }
 
@@ -261,6 +264,7 @@
     
     if (!response.isMultiResource)
     {
+        MSID_LOG_WARN(nil, @"Initializing non multi resource refresh token.");
         return NO;
     }
     
@@ -308,10 +312,9 @@
         return NO;
     }
     
+    token.realm = configuration.authority.realm;
     token.refreshToken = response.refreshToken;
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
-                                                                     homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -327,9 +330,8 @@
         return NO;
     }
 
+    token.realm = configuration.authority.realm;
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
-                                                                     homeAccountId:token.accountIdentifier.homeAccountId];
     token.accessTokenType = response.tokenType ? response.tokenType : MSID_OAUTH2_BEARER;
     return YES;
 }
@@ -345,9 +347,8 @@
         return NO;
     }
 
+    token.realm = configuration.authority.realm;
     token.idToken = response.idToken;
-    token.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
-                                                                     homeAccountId:token.accountIdentifier.homeAccountId];
     return YES;
 }
 
@@ -361,17 +362,19 @@
     {
         return NO;
     }
+    
+    MSIDAuthority *cacheAuthority = [self cacheAuthorityWithConfiguration:configuration tokenResponse:response];
+    if (!cacheAuthority) return NO;
 
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.preferredUsername
-                                                                       homeAccountId:homeAccountId];
+    account.accountIdentifier = [self accountIdentifierFromResponse:response];
     account.username = response.idTokenObj.username;
     account.givenName = response.idTokenObj.givenName;
     account.familyName = response.idTokenObj.familyName;
     account.middleName = response.idTokenObj.middleName;
     account.name = response.idTokenObj.name;
-    account.environment = configuration.authority.environment;
-    account.storageEnvironment = [configuration.authority cacheEnvironmentWithContext:nil];
-    account.realm = configuration.authority.realm;
+    account.environment = cacheAuthority.environment;
+    account.storageEnvironment = [cacheAuthority cacheEnvironmentWithContext:nil];
+    account.realm = cacheAuthority.realm;
     account.accountType = response.accountType;
     account.localAccountId = response.idTokenObj.uniqueId;
     return YES;
@@ -381,8 +384,11 @@
            fromResponse:(__unused MSIDTokenResponse *)response
           configuration:(MSIDConfiguration *)configuration
 {
+    MSIDAuthority *cacheAuthority = [self cacheAuthorityWithConfiguration:configuration tokenResponse:response];
+    if (!cacheAuthority) return NO;
+    
     metadata.clientId = configuration.clientId;
-    metadata.environment = configuration.authority.environment;
+    metadata.environment = cacheAuthority.environment;
     return YES;
 }
 
@@ -436,7 +442,21 @@
     return tokenRequest;
 }
 
-#pragma mark - Authority
+#pragma mark - Common identifiers
+
+- (MSIDAuthority *)cacheAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                     tokenResponse:(__unused MSIDTokenResponse *)response
+{
+    return configuration.authority;
+}
+
+- (MSIDAccountIdentifier *)accountIdentifierFromResponse:(MSIDTokenResponse *)response
+{
+    return [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.preferredUsername
+                                                  homeAccountId:response.idTokenObj.userId];
+}
+
+#pragma mark - Result authority
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDTokenResponse *)response

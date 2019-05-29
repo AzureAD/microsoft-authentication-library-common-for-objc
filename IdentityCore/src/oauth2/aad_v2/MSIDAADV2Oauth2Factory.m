@@ -130,85 +130,11 @@
     }
 
     // We want to keep case as it comes from the server side, because scopes are case sensitive by OIDC spec
-    NSOrderedSet *responseScopes = [response.scope msidScopeSet];
-
-    if (!response.scope)
+    if (!accessToken.scopes)
     {
-        responseScopes = configuration.scopes;
+        accessToken.scopes = configuration.scopes;
     }
 
-    accessToken.scopes = responseScopes;
-    NSError *authorityError = nil;
-    MSIDAuthority *authority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
-    
-    if (!authority)
-    {
-        MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
-        return NO;
-    }
-    
-    accessToken.environment = authority.environment;
-    accessToken.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
-    accessToken.realm = authority.realm;
-
-    return YES;
-}
-
-- (BOOL)fillIDToken:(MSIDIdToken *)token
-       fromResponse:(MSIDTokenResponse *)response
-      configuration:(MSIDConfiguration *)configuration
-{
-    BOOL result = [super fillIDToken:token fromResponse:response configuration:configuration];
-
-    if (!result)
-    {
-        return NO;
-    }
-    
-    NSError *authorityError = nil;
-    MSIDAuthority *authority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
-    
-    if (!authority)
-    {
-        MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
-        return NO;
-    }
-    
-    token.environment = authority.environment;
-    token.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
-    token.realm = authority.realm;
-
-    return YES;
-}
-
-- (BOOL)fillAccount:(MSIDAccount *)account
-       fromResponse:(MSIDAADV2TokenResponse *)response
-      configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return NO;
-    }
-
-    BOOL result = [super fillAccount:account fromResponse:response configuration:configuration];
-
-    if (!result)
-    {
-        return NO;
-    }
-
-    NSError *authorityError = nil;
-    MSIDAuthority *authority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
-    
-    if (!authority)
-    {
-        MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
-        return NO;
-    }
-    
-    account.environment = authority.environment;
-    account.storageEnvironment = [authority cacheEnvironmentWithContext:nil];
-    account.realm = authority.realm;
     return YES;
 }
 

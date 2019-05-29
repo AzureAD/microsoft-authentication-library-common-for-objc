@@ -243,9 +243,6 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.alternativeAccountId = response.idTokenObj.alternativeAccountId;
 
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.accountIdentifier.displayableId
-                                                                       homeAccountId:response.clientInfo.accountIdentifier];
-
     return YES;
 }
 
@@ -255,18 +252,15 @@
          fromResponse:(MSIDAADTokenResponse *)response
         configuration:(MSIDConfiguration *)configuration
 {
-    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
-    {
-        return NO;
-    }
-
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return NO;
     }
-
-    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:baseToken.accountIdentifier.displayableId
-                                                                           homeAccountId:response.clientInfo.accountIdentifier];
+    
+    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
+    {
+        return NO;
+    }
 
     if (response.speInfo)
     {
@@ -278,6 +272,38 @@
     return YES;
 }
 
+#pragma mark - Common identifiers
+
+- (MSIDAccountIdentifier *)accountIdentifierFromResponse:(MSIDAADTokenResponse *)response
+{
+    return [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.username
+                                                  homeAccountId:response.clientInfo.accountIdentifier];
+}
+
+- (MSIDAuthority *)cacheAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                     tokenResponse:(MSIDTokenResponse *)response
+{
+    if (response.idTokenObj.realm)
+    {
+        NSError *authorityError = nil;
+        MSIDAADAuthority *authority = [MSIDAADAuthority aadAuthorityWithEnvironment:configuration.authority.environment
+                                                                          rawTenant:response.idTokenObj.realm
+                                                                            context:nil
+                                                                              error:&authorityError];
+        
+        if (!authority)
+        {
+            MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
+            return nil;
+        }
+        
+        return authority;
+    }
+    else
+    {
+        return configuration.authority;
+    }
+}
 
 #pragma mark - Webview
 

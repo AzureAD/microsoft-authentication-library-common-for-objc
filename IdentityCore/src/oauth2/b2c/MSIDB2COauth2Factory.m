@@ -111,6 +111,24 @@
     return YES;
 }
 
+- (MSIDAuthority *)cacheAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                     tokenResponse:(MSIDTokenResponse *)response
+{
+    NSError *authorityError = nil;
+    
+    MSIDAuthority *cacheAuthority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
+    
+    if (!cacheAuthority)
+    {
+        MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
+        return nil;
+    }
+    
+    return cacheAuthority;
+}
+
+#pragma mark - Authority
+
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDB2CTokenResponse *)response
                                               error:(NSError **)error

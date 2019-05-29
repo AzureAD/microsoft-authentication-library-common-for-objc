@@ -155,26 +155,6 @@
     return YES;
 }
 
-- (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
-         fromResponse:(MSIDAADTokenResponse *)response
-        configuration:(MSIDConfiguration *)configuration
-{
-    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
-    {
-        return NO;
-    }
-
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return NO;
-    }
-    
-    baseToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
-                                                                         homeAccountId:response.clientInfo.accountIdentifier];
-
-    return YES;
-}
-
 - (BOOL)fillAccount:(MSIDAccount *)account
        fromResponse:(MSIDAADTokenResponse *)response
       configuration:(MSIDConfiguration *)configuration
@@ -187,15 +167,6 @@
     if (![self checkResponseClass:response context:nil error:nil])
     {
         return NO;
-    }
-    
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
-                                                                       homeAccountId:response.clientInfo.accountIdentifier];
-    
-    if (response.idTokenObj.issuerAuthority)
-    {
-        account.environment = response.idTokenObj.issuerAuthority.environment;
-        account.storageEnvironment = [response.idTokenObj.issuerAuthority cacheEnvironmentWithContext:nil];
     }
     
     if (response.idTokenObj.realm)
@@ -215,11 +186,9 @@
         return NO;
     }
     
-    if (response.idTokenObj.issuerAuthority)
+    if (response.idTokenObj.realm)
     {
-        token.environment = response.idTokenObj.issuerAuthority.environment;
-        token.storageEnvironment = [response.idTokenObj.issuerAuthority cacheEnvironmentWithContext:nil];
-        token.realm = response.idTokenObj.issuerAuthority.realm;
+        token.realm = response.idTokenObj.realm;
     }
 
     return YES;
@@ -251,6 +220,14 @@
 {
     // TODO: implement me for ADAL
     return nil;
+}
+
+#pragma mark - Common identifiers
+
+- (MSIDAccountIdentifier *)accountIdentifierFromResponse:(MSIDAADTokenResponse *)response
+{
+    return [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
+                                                  homeAccountId:response.clientInfo.accountIdentifier];
 }
 
 #pragma mark - Authority

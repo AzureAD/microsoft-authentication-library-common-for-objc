@@ -55,6 +55,7 @@
 #import "MSIDTestCacheAccessorHelper.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDV1IdToken.h"
+#import "MSIDAADV1Oauth2Factory.h"
 
 @interface MSIDDefaultTokenCacheAccessor (TestUtil)
 
