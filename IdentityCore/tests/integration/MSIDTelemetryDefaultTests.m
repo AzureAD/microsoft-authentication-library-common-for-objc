@@ -224,7 +224,7 @@
     XCTAssertEqual([defaultEventPropertyNames count], piiEnabled ? 9 : 6);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
 #else
-    XCTAssertEqual([defaultEventPropertyNames count], piiEnabled ? 7 : 5);
+    XCTAssertEqual([defaultEventPropertyNames count], piiEnabled ? 8 : 5);
 #endif
     XCTAssertTrue([defaultEventPropertyNames containsObject:@"Microsoft.Test.event_name"]);
     XCTAssertTrue([defaultEventPropertyNames containsObject:@"Microsoft.Test.x_client_cpu"]);

@@ -264,8 +264,7 @@ return NO; \
                 context:(__unused id<MSIDRequestContext>)context
                   error:(__unused NSError **)error
 {
-    // TODO: implement me
-    return NO;
+    return YES;
 }
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
