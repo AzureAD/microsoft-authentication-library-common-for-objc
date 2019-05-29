@@ -32,6 +32,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDBasicContext.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -214,7 +215,7 @@
     NSError *updateMetadataError = nil;
     [metadataCache updateAuthorityURL:tokenResult.authority.url
                         ForRequestURL:parameters.authority.url
-                    accountIdentifier:tokenResult.accessToken.accountIdentifier
+                        homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
                              clientId:parameters.clientId
                               context:parameters
                                 error:&updateMetadataError];

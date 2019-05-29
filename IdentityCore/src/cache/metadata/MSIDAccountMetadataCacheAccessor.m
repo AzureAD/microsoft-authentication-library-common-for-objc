@@ -48,12 +48,12 @@
 }
 
 - (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
-         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+             homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithAccountIdentifier:accountIdentifier clientId:clientId];
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
     MSIDAccountMetadataCacheItem *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
     if (!authorityMap) { return nil; }
     
@@ -62,7 +62,7 @@
 
 - (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
              ForRequestURL:(NSURL *)requestAuthorityURL
-         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+             homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
@@ -71,11 +71,11 @@
     if (!cacheAuthorityURL
         || [cacheAuthorityURL isEqual:requestAuthorityURL]) return YES;
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithAccountIdentifier:accountIdentifier clientId:clientId];
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
     MSIDAccountMetadataCacheItem *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
     if (!authorityMap)
     {
-        authorityMap = [[MSIDAccountMetadataCacheItem alloc] initWithAccountIdentifier:accountIdentifier clientId:clientId];
+        authorityMap = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
     
     if (![authorityMap setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL error:error])

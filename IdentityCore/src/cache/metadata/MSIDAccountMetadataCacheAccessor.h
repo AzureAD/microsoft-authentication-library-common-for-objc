@@ -24,7 +24,6 @@
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
 @class MSIDAuthority;
-@class MSIDAccountIdentifier;
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @protocol MSIDMetadataCacheDataSource;
@@ -34,14 +33,14 @@
 - (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
 - (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
-         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+             homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
 - (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
              ForRequestURL:(NSURL *)requestAuthorityURL
-         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+             homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;

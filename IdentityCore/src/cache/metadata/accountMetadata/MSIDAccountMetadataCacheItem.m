@@ -30,15 +30,16 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 @implementation MSIDAccountMetadataCacheItem
 
-- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                 clientId:(NSString *)clientId
+- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
+                             clientId:(NSString *)clientId
+
 {
-    if (!accountIdentifier || !clientId) return nil;
+    if (!homeAccountId || !clientId) return nil;
     
     self = [super init];
     if (self)
     {
-        _accountIdentifier = accountIdentifier;
+        _homeAccountId = homeAccountId;
         _clientId = clientId;
         _internalMap = [NSMutableDictionary new];
     }
@@ -48,8 +49,8 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 #pragma mark - URL caching
 - (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error
 {
-    if (![NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
-        || ![NSString msidIsStringNilOrBlank:requestURL.absoluteString])
+    if ([NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
+        || [NSString msidIsStringNilOrBlank:requestURL.absoluteString])
     {
         if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Either a target or request URL produces a nil string", nil, nil, nil, nil, nil);
         
@@ -70,7 +71,9 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 - (NSURL *)cachedURL:(NSURL *)cachedURL
 {
     NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
-    return [[NSURL alloc] initWithString:urlMap[cachedURL.absoluteString]];
+    NSString *cachedURLString = urlMap[cachedURL.absoluteString];
+    
+    return cachedURLString ? [[NSURL alloc] initWithString:urlMap[cachedURL.absoluteString]] : nil;
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
@@ -88,7 +91,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     }
     
     self->_clientId = json[MSID_CLIENT_ID_CACHE_KEY];
-    self->_accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:json[MSID_HOME_ACCOUNT_ID_CACHE_KEY]];
+    self->_homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
 
     _internalMap = [NSMutableDictionary new];
     
@@ -100,7 +103,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
-    dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.accountIdentifier.homeAccountId;
+    dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.homeAccountId;
     dictionary[MSID_ACCOUNT_CACHE_KEY] = _internalMap;
     
     return dictionary;
@@ -127,7 +130,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 {
     BOOL result = YES;
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
-    result &= (![self.accountIdentifier isEqual:item.accountIdentifier]);
+    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];;
     result &= (![_internalMap isEqualToDictionary:item->_internalMap]);
     
     return result;
@@ -139,7 +142,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.clientId.hash;
-    hash = hash * 31 + self.accountIdentifier.hash;
+    hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + _internalMap.hash;
     
     return hash;
@@ -150,7 +153,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
-    item->_accountIdentifier = [self.accountIdentifier copyWithZone:zone];
+    item->_homeAccountId = [self.homeAccountId copyWithZone:zone];
     item->_clientId = [self.clientId copyWithZone:zone];
     item->_internalMap = [self->_internalMap copyWithZone:zone];
     

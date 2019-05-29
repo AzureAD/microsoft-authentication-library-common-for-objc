@@ -46,7 +46,7 @@
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDMetadataCacheAccessor.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 @interface MSIDDefaultInteractiveTokenRequestTests : XCTestCase
 
@@ -63,10 +63,10 @@
     return tokenCache;
 }
 
-- (MSIDMetadataCacheAccessor *)metadataCache
+- (MSIDAccountMetadataCacheAccessor *)metadataCache
 {
     id<MSIDMetadataCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
-    MSIDMetadataCacheAccessor *metadataCache = [[MSIDMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    MSIDAccountMetadataCacheAccessor *metadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
     return metadataCache;
 }
 

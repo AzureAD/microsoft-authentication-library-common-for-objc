@@ -23,11 +23,9 @@
 
 #import "MSIDCacheKey.h"
 
-@class MSIDAccountIdentifier;
-
 @interface MSIDAccountMetadataCacheKey : MSIDCacheKey
 
-- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                 clientId:(NSString *)clientId;
+- (instancetype)initWitHomeAccountId:(NSString *)homeAccountId
+                            clientId:(NSString *)clientId;
 
 @end

@@ -21,20 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class MSIDAccountIdentifier;
-
 #import "MSIDJsonSerializable.h"
 
 @interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying>
 {
+    @public // This is for unit testing purposes. No accessor should write to this directly.
     NSMutableDictionary *_internalMap;
 }
 
-@property (nonatomic, readonly) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;
 
-- (instancetype)initWithAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                 clientId:(NSString *)clientId;
+
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
+
+- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
+                             clientId:(NSString *)clientId;
 
 // Authority map caching
 - (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error;

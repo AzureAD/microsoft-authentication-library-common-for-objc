@@ -42,7 +42,7 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
 @property (nonatomic, readwrite) NSString *utid;
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                             clientInfo:(MSIDClientInfo *)clientInfo;
+                        clientInfo:(MSIDClientInfo *)clientInfo;
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
                           homeAccountId:(NSString *)homeAccountId;
