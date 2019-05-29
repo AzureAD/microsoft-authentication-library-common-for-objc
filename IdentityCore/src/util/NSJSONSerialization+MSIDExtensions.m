@@ -21,34 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSJSONSerialization+MSIDExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
 
-@interface NSData (MSIDExtensions)
+@implementation NSJSONSerialization (MSIDExtensions)
 
-/*!
- =============================================================================
- Hashing
- =============================================================================
- */
-- (NSData *)msidSHA1;
-- (NSData *)msidSHA256;
-
-/*!
- =============================================================================
- Constructors
- =============================================================================
- */
-+ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString;
-
-/*!
- =============================================================================
- Convenience methods
- =============================================================================
- */
-/*! Converts to hex string */
-- (NSString *)msidHexString;
-
-/*! Converts NSData to base64 String */
-- (NSString *)msidBase64UrlEncodedString;
++ (NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError **)error
+{
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
+                                                         options:NSJSONReadingMutableContainers
+                                                           error:error];
+    
+    if (!json || ![json isKindOfClass:[NSDictionary class]])
+    {
+        return nil;
+    }
+    
+    return [json msidNormalizedJSONDictionary];
+}
 
 @end
