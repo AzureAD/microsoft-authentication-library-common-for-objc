@@ -747,13 +747,13 @@ static dispatch_queue_t s_synchronizationQueue;
 
 #pragma mark - Account metadata
 - (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    // TODO: Need to implement this
+    [self createUnimplementedError:error context:context];
     return nil;
 }
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    // TODO: Need to implement this
-    return NO;
+    [self createUnimplementedError:error context:context];
+    return nil;
 }
 
 #pragma mark - Wipe Info

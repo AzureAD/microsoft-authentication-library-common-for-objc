@@ -120,7 +120,7 @@
 - (MSIDAccountMetadataCacheItem *)deserializeAccountMetadata:(NSData *)data
 {
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *item = (MSIDAccountMetadataCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDAppMetadataCacheItem.class context:nil error:&error];
+    MSIDAccountMetadataCacheItem *item = (MSIDAccountMetadataCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDAccountMetadataCacheItem.class context:nil error:&error];
     
     if (!item)
     {

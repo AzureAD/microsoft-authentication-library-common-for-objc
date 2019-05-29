@@ -28,6 +28,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDCacheItemJsonSerializerTests : XCTestCase
 
@@ -206,6 +207,48 @@
     
     XCTAssertNil(appMetadata);
 }
+
+#pragma mark - Account metadata
+
+- (void)testSerializeAccountMetadataCacheItem_andDeserialized_shouldReturnSameItem
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    
+    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    [cacheItem setCachedURL:[NSURL URLWithString:@"https://internalcontoso.com"] forRequestURL:[NSURL URLWithString:@"https://consoto.com"] error:nil];
+    
+    NSData *data = [serializer serializeAccountMetadataCacheItem:cacheItem];
+    MSIDAccountMetadataCacheItem *resultItem = [serializer deserializeAccountMetadata:data];
+    
+    XCTAssertNotNil(data);
+    XCTAssertEqualObjects(resultItem, cacheItem);
+}
+
+- (void)testSerializeAccountMetadataCacheItem_whenDataIsNil_shouldReturnNil
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    NSData *data = [serializer serializeAccountMetadataCacheItem:nil];
+    XCTAssertNil(data);
+}
+
+
+- (void)testDeserializeAccountMetadataCacheItem_whenDataIsNil_shouldReturnNil
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    MSIDAccountMetadataCacheItem *appMetadata = [serializer deserializeAccountMetadata:nil];
+    XCTAssertNil(appMetadata);
+}
+
+- (void)testDeserializeAccountMetadataCacheItem_whenDataInvalid_shouldReturnNil
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    MSIDAccountMetadataCacheItem *appMetadata = [serializer deserializeAccountMetadata:data];
+    XCTAssertNil(appMetadata);
+}
+
+
 
 #pragma mark - Private
 

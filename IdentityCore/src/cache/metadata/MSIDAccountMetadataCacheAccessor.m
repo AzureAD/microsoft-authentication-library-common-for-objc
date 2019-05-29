@@ -72,18 +72,18 @@
         || [cacheAuthorityURL isEqual:requestAuthorityURL]) return YES;
     
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    MSIDAccountMetadataCacheItem *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
-    if (!authorityMap)
+    MSIDAccountMetadataCacheItem *accountMetadataItem = [_metadataCache accountMetadataWithKey:key context:context error:error];
+    if (!accountMetadataItem)
     {
-        authorityMap = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+        accountMetadataItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
     
-    if (![authorityMap setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL error:error])
+    if (![accountMetadataItem setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL error:error])
     {
         return NO;
     }
     
-    return [_metadataCache saveAccountMetadata:authorityMap
+    return [_metadataCache saveAccountMetadata:accountMetadataItem
                                            key:key
                                        context:context error:error];
 }

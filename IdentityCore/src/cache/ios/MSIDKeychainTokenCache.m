@@ -425,7 +425,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         return nil;
     }
     
-    return [serializer deserializeAccountMetadata:items[0]];
+    NSData *itemData = [items[0] objectForKey:(id)kSecValueData];
+    return [serializer deserializeAccountMetadata:itemData];
 }
 
 

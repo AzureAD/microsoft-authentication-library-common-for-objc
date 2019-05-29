@@ -34,6 +34,8 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
+#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheKey.h"
 
 @interface MSIDKeychainTokenCacheIntegrationTests : XCTestCase
 
@@ -585,7 +587,7 @@
     XCTAssertEqualObjects(appMetadataItems[0], appMetadata2);
 }
 
-- (void)testAppMetadataEntriesWithKey_ShouldReturnCorrentEntries
+- (void)testAppMetadataEntriesWithKey_ShouldReturnCorrectEntries
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDAppMetadataCacheItem *appMetadata = [MSIDAppMetadataCacheItem new];
@@ -621,5 +623,33 @@
     XCTAssertEqualObjects(appMetadataItems[0].clientId, @"clientId1");
     XCTAssertEqualObjects(appMetadataItems[0].environment, @"environment1");
 }
+
+- (void)testSaveAccountMetadata_whenItemAlreadyExists_shouldUpdateItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadataCacheItem *item = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    
+    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] error:nil];
+    
+    NSError *error;
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:&error]);
+    XCTAssertNil(error);
+    
+    MSIDAccountMetadataCacheItem *cachedItem = [keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:&error];
+    XCTAssertNotNil(cachedItem);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(item, cachedItem);
+    
+    XCTAssertTrue([item setCachedURL:[NSURL URLWithString:@"https://internalContoso2.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] error:&error]);
+    XCTAssertNil(error);
+    
+    XCTAssertNotNil(item);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(item, cachedItem);
+}
+
 
 @end
