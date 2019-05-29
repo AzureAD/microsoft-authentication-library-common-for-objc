@@ -73,8 +73,7 @@
     
     for (NSString *accountKey in json)
     {
-        MSIDSharedAccount *sharedAccount = [[MSIDSharedAccount alloc] init];
-        sharedAccount.accountIdentifier = accountKey;
+        MSIDSharedAccount *sharedAccount = [[MSIDSharedAccount alloc] initWithAccountIdentifier:accountKey];
         NSDictionary *rtDict = [json valueForKey:accountKey];
         
         if (rtDict && [rtDict isKindOfClass:[NSDictionary class]])
@@ -129,8 +128,7 @@
     
     if (!account)
     {
-        account = [MSIDSharedAccount new];
-        account.accountIdentifier = accountKey;
+        account = [[MSIDSharedAccount alloc] initWithAccountIdentifier:accountKey];
     }
     
     [account.refreshTokens setObject:token forKey:[self getCredentialId:key]];
@@ -181,7 +179,7 @@
 
 - (NSArray *)allKeys
 {
-    __block NSArray *keys;
+    __block NSArray *keys = nil;
     /* make your READs sychronous */
     dispatch_sync(self.queue, ^{
         keys = [self.cacheObjects allKeys];

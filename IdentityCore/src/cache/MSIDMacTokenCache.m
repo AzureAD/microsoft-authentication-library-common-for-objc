@@ -193,23 +193,6 @@ return NO; \
     return result;
 }
 
-- (BOOL)saveSharedToken:(MSIDCredentialCacheItem *)item
-                    key:(MSIDCacheKey *)key
-             serializer:(id<MSIDCredentialItemSerializer>)serializer
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
-{
-    return NO;
-}
-
-- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
-                                                serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
-                                                   context:(id<MSIDRequestContext>)context
-                                                     error:(NSError **)error
-{
-    return nil;
-}
-
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
                           serializer:(id<MSIDCredentialItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
@@ -603,6 +586,42 @@ return NO; \
     MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
     [self clear];
     return YES;
+}
+
+#pragma mark Mac Cache
+
+- (BOOL)saveSharedToken:(MSIDSharedCredentialCacheItem *)credential
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
+{
+    return NO;
+}
+
+- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
+                                                serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
+                                                   context:(id<MSIDRequestContext>)context
+                                                     error:(NSError **)error
+{
+    return nil;
+}
+
+- (BOOL)saveUserToken:(MSIDUserCredentialCacheItem *)item
+                  key:(MSIDCacheKey *)key
+           serializer:(id<MSIDUserCredentialItemSerializer>)serializer
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error
+{
+    return NO;
+}
+
+- (MSIDUserCredentialCacheItem *)userCredentialWithKey:(MSIDCacheKey *)key
+                                            serializer:(id<MSIDUserCredentialItemSerializer>)serializer
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error
+{
+    return nil;
 }
 
 @end

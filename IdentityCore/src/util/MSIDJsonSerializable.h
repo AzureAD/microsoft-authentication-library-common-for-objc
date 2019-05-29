@@ -25,8 +25,8 @@
 
 @protocol MSIDJsonSerializable <NSObject>
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+- (instancetype)initWithJSONDictionary:(id)json
                                  error:(NSError * __autoreleasing *)error;
-- (NSDictionary *)jsonDictionary;
+- (id)jsonDictionary;
 
 @end

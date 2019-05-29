@@ -36,6 +36,7 @@
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDSharedCredentialCacheItem.h"
+#import "MSIDUserCredentialCacheItem.h"
 
 @interface MSIDAccountCredentialCache()
 {
@@ -81,10 +82,16 @@
 #else
     if (cacheQuery.credentialType != MSIDRefreshTokenType)
     {
-        results = [_dataSource tokensWithKey:cacheQuery
-                                  serializer:_serializer
-                                     context:context
-                                       error:&cacheError];
+        MSIDUserCredentialCacheItem *userCredential = [_dataSource userCredentialWithKey:cacheQuery serializer:_serializer context:context error:error];
+        NSLog(@"%@",cacheQuery.account);
+        NSLog(@"%@",cacheQuery.service);
+        NSLog(@"%@",cacheQuery.generic);
+        NSLog(@"%@",cacheQuery.type);
+        
+        if (userCredential)
+        {
+            return [userCredential credentialsWithKey:cacheQuery];
+        }
     }
     else
     {
@@ -267,11 +274,22 @@
 #else
     if (credential.credentialType != MSIDRefreshTokenType)
     {
-        return [_dataSource saveToken:credential
-                                  key:key
-                           serializer:_serializer
-                              context:context
-                                error:error];
+        MSIDUserCredentialCacheItem *item = [MSIDUserCredentialCacheItem sharedInstance];
+        [item setUserToken:credential forKey:key];
+        MSIDUserCredentialCacheItem *userCredential = [_dataSource userCredentialWithKey:key serializer:_serializer context:context error:error];
+        if (userCredential)
+        {
+            // Make sure we copy over all the additional fields
+            NSMutableArray *mergedArray = [userCredential.jsonDictionary mutableCopy];
+            [mergedArray addObjectsFromArray:item.jsonDictionary];
+            item = [[MSIDUserCredentialCacheItem alloc] initWithJSONDictionary:mergedArray error:error];
+        }
+        
+        return [_dataSource saveUserToken:item
+                                      key:key
+                               serializer:_serializer
+                                  context:context
+                                    error:error];
     }
     else
     {
@@ -286,7 +304,6 @@
             [mergedDictionary addEntriesFromDictionary:item.jsonDictionary];
             item = [[MSIDSharedCredentialCacheItem alloc] initWithJSONDictionary:mergedDictionary error:error];
         }
-
         
         return [_dataSource saveSharedToken:item key:key serializer:_serializer context:context error:error];
         

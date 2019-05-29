@@ -36,7 +36,7 @@
                context:(id<MSIDRequestContext>)context
                  error:(NSError **)error
 {
-    __auto_type jsonDictionary = [serializable jsonDictionary];
+    id jsonDictionary = [serializable jsonDictionary];
     if (!jsonDictionary)
     {
         return nil;

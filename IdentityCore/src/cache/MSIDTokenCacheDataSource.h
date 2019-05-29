@@ -28,12 +28,14 @@
 @class MSIDCacheKey;
 @class MSIDAppMetadataCacheItem;
 @class MSIDSharedCredentialCacheItem;
+@class MSIDUserCredentialCacheItem;
 
 @protocol MSIDRequestContext;
 @protocol MSIDAccountItemSerializer;
 @protocol MSIDCredentialItemSerializer;
 @protocol MSIDSharedCredentialItemSerializer;
 @protocol MSIDAppMetadataItemSerializer;
+@protocol MSIDUserCredentialItemSerializer;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
@@ -44,12 +46,6 @@
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error;
 
-- (BOOL)saveSharedToken:(MSIDCredentialCacheItem *)item
-                    key:(MSIDCacheKey *)key
-             serializer:(id<MSIDCredentialItemSerializer>)serializer
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error;
-
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
                           serializer:(id<MSIDCredentialItemSerializer>)serializer
                              context:(id<MSIDRequestContext>)context
@@ -59,11 +55,6 @@
                                       serializer:(id<MSIDCredentialItemSerializer>)serializer
                                          context:(id<MSIDRequestContext>)context
                                            error:(NSError **)error;
-
-- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
-                                          serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
-                                             context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error;
 
 // Wipe info
 
@@ -118,5 +109,29 @@
                                                         serializer:(id<MSIDAppMetadataItemSerializer>)serializer
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error;
+
+#pragma mark - Mac Cache
+
+- (BOOL)saveSharedToken:(MSIDSharedCredentialCacheItem *)credential
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error;
+
+- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
+                                                serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
+                                                   context:(id<MSIDRequestContext>)context
+                                                     error:(NSError **)error;
+
+- (BOOL)saveUserToken:(MSIDUserCredentialCacheItem *)item
+                  key:(MSIDCacheKey *)key
+           serializer:(id<MSIDUserCredentialItemSerializer>)serializer
+              context:(id<MSIDRequestContext>)context
+                error:(NSError **)error;
+
+- (MSIDUserCredentialCacheItem *)userCredentialWithKey:(MSIDCacheKey *)key
+                                            serializer:(id<MSIDUserCredentialItemSerializer>)serializer
+                                               context:(id<MSIDRequestContext>)context
+                                                 error:(NSError **)error;
 
 @end

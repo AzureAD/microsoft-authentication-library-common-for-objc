@@ -25,11 +25,13 @@
 
 @implementation MSIDSharedAccount
 
-- (instancetype)init
+- (instancetype _Nullable)initWithAccountIdentifier:(nonnull NSString *)accountIdentifier
 {
-    if(self = [super init])
+    self = [super init];
+    if (self)
     {
-        self.refreshTokens = [NSMutableDictionary new];
+        _refreshTokens = [NSMutableDictionary dictionary];
+        _accountIdentifier = accountIdentifier;
     }
     
     return self;

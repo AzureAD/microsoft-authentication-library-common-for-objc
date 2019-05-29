@@ -23,19 +23,22 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDJsonSerializable.h"
+#import "MSIDDefaultCredentialCacheKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSharedAccount : NSObject
+@interface MSIDUserCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
 
-@property (nullable, readonly) NSString *accountIdentifier;
+- (instancetype _Nullable)init NS_UNAVAILABLE;
 
-- (instancetype _Nullable)initWithAccountIdentifier:(nonnull NSString *)accountIdentifier NS_DESIGNATED_INITIALIZER;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
++ (MSIDUserCredentialCacheItem *)sharedInstance;
 
-@property NSMutableDictionary<NSString *,MSIDCredentialCacheItem *> *refreshTokens;
+- (void)setUserToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
+
+- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key;
 
 @end
 
