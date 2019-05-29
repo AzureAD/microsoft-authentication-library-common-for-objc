@@ -120,6 +120,8 @@
 
 - (void)setClientTelemetry:(NSString *)clientTelemetry
 {
+    [self setProperty:MSID_TELEMETRY_KEY_CLIENT_TELEMETRY_RAW value:clientTelemetry];
+    
     if (![NSString msidIsStringNilOrBlank:clientTelemetry])
     {
         [_propertyMap addEntriesFromDictionary:[clientTelemetry msidParsedClientTelemetry]];
@@ -143,7 +145,8 @@
                                      MSID_TELEMETRY_KEY_SERVER_ERROR_CODE,
                                      MSID_TELEMETRY_KEY_SERVER_SUBERROR_CODE,
                                      MSID_TELEMETRY_KEY_RT_AGE,
-                                     MSID_TELEMETRY_KEY_SPE_INFO
+                                     MSID_TELEMETRY_KEY_SPE_INFO,
+                                     MSID_TELEMETRY_KEY_CLIENT_TELEMETRY_RAW
                                      ]];
     });
     

@@ -40,8 +40,11 @@
 @property (readwrite, nullable) NSString *realm;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 @property (readwrite, nullable) NSString *alternativeAccountId;
-
 @property (readwrite, nullable) NSDictionary *additionalAccountFields;
+
+// Last Modification info (currently used on macOS only)
+@property (readwrite, nullable) NSDate *lastModificationTime;
+@property (readwrite, nullable) NSString *lastModificationApp;
 
 - (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
 

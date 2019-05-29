@@ -108,7 +108,7 @@
         return NO;
     }
 
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Legacy accessor) Saving SSO state");
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default accessor) Saving SSO state");
 
     BOOL result = [self saveRefreshTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
 
@@ -687,7 +687,7 @@
     // Delete access tokens with intersecting scopes
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = accessToken.accountIdentifier.homeAccountId;
-    query.environment = [[accessToken.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];
+    query.environment = [[accessToken.authority cacheUrlWithContext:context] msidHostWithPortIfNecessary];;
     query.realm = accessToken.authority.url.msidTenant;
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];

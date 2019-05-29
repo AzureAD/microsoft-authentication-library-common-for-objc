@@ -38,6 +38,7 @@
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSDate+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
 
@@ -85,6 +86,8 @@
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
     result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
+    // Ignore the lastMod properties (two otherwise-identical items with different
+    // last modification informational values should be considered equal)
     return result;
 }
 
@@ -127,6 +130,8 @@
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];
+    item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
+    item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
 
@@ -168,6 +173,10 @@
     _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
 
+    // Last Modification info (currently used on macOS only)
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:json[MSID_LAST_MOD_TIME_CACHE_KEY]];
+    _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
+
     // Additional Info
 
     NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
@@ -206,6 +215,10 @@
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
 
+    // Last Modification info (currently used on macOS only)
+    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
+    dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
+
     return dictionary;
 }
 
@@ -218,16 +231,20 @@
         return YES;
     }
     
+    if(comparisonOptions == MSIDExactStringMatch)
+    {
+        return [self.target.msidNormalizedString isEqualToString:target.msidNormalizedString];
+    }
+
     NSOrderedSet *inputSet = [NSOrderedSet msidOrderedSetFromString:target normalize:YES];
     NSOrderedSet *tokenSet = [NSOrderedSet msidOrderedSetFromString:self.target normalize:YES];
 
     switch (comparisonOptions) {
-        case MSIDExactStringMatch:
-            return [self.target.lowercaseString isEqualToString:target.lowercaseString];
         case MSIDSubSet:
             return [inputSet isSubsetOfOrderedSet:tokenSet];
         case MSIDIntersect:
             return [inputSet intersectsOrderedSet:tokenSet];
+        case MSIDExactStringMatch:
         default:
             return NO;
     }
@@ -239,7 +256,8 @@
                      environment:(nullable NSString *)environment
               environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
+    if (homeAccountId && 
+        ![self.homeAccountId.msidNormalizedString isEqualToString:homeAccountId.msidNormalizedString])
     {
         return NO;
     }
@@ -250,12 +268,14 @@
 - (BOOL)matchByEnvironment:(nullable NSString *)environment
         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (environment && ![self.environment isEqualToString:environment])
+    if (environment && 
+        ![self.environment.msidNormalizedString isEqualToString:environment.msidNormalizedString])
     {
         return NO;
     }
 
-    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    if ([environmentAliases count] && 
+        ![self.environment.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases])
     {
         return NO;
     }
@@ -270,7 +290,7 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (realm && ![self.realm isEqualToString:realm])
+    if (realm && ![self.realm.msidNormalizedString isEqualToString:realm.msidNormalizedString])
     {
         return NO;
     }
@@ -287,8 +307,8 @@
 
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
-        if ((clientId && [self.clientId isEqualToString:clientId])
-            || (familyId && [self.familyId isEqualToString:familyId]))
+        if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
+            || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
             return YES;
         }
@@ -297,12 +317,12 @@
     }
     else
     {
-        if (clientId && ![self.clientId isEqualToString:clientId])
+        if (clientId && ![self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
         {
             return NO;
         }
 
-        if (familyId && ![self.familyId isEqualToString:familyId])
+        if (familyId && ![self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString])
         {
             return NO;
         }
