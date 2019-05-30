@@ -61,7 +61,7 @@
                                                              oauthFactory:self.oauthFactory
                                                    tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]
                                                                tokenCache:self.tokenCache
-                                                            metadataCache:nil];
+                                                    accountMetadataCache:nil];
 }
 
 - (MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDRequestParameters *)parameters

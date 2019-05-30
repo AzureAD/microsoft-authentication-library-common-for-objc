@@ -65,11 +65,11 @@
     return tokenCache;
 }
 
-- (MSIDAccountMetadataCacheAccessor *)metadataCache
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     id<MSIDMetadataCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
-    MSIDAccountMetadataCacheAccessor *metadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
-    return metadataCache;
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    return accountMetadataCache;
 }
 
 - (MSIDAccountCredentialCache *)accountCredentialCache
@@ -126,7 +126,7 @@
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
     
-    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters forceRefresh:NO oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache metadataCache:self.metadataCache];
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters forceRefresh:NO oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -158,7 +158,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                       accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -207,7 +207,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -270,7 +270,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -327,7 +327,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -384,7 +384,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -441,7 +441,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -495,7 +495,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -562,7 +562,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -620,7 +620,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -671,7 +671,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -699,7 +699,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
@@ -771,7 +771,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -799,7 +799,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
@@ -850,7 +850,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     NSString *authority = @"https://login.microsoftonline.com/1234-5678-90abcdefg";
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
@@ -937,7 +937,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1001,7 +1001,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1054,7 +1054,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1114,7 +1114,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1185,7 +1185,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1264,7 +1264,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1354,7 +1354,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1445,7 +1445,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1474,7 +1474,7 @@
                                                                                                              oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                                    tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                tokenCache:tokenCache
-                                                                                                            metadataCache:self.metadataCache];
+                                                                                                            accountMetadataCache:self.accountMetadataCache];
     
     MSIDTestURLResponse *secondResponse = [MSIDTestURLResponse refreshTokenGrantResponseWithRT:@"new mrrt"
                                                                                  requestClaims:nil
@@ -1563,7 +1563,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1615,7 +1615,7 @@
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                          tokenCache:tokenCache
-                                                                                                      metadataCache:self.metadataCache];
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -1649,7 +1649,7 @@
                                                                                                              oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                                    tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                tokenCache:tokenCache
-                                                                                                            metadataCache:self.metadataCache];
+                                                                                                            accountMetadataCache:self.accountMetadataCache];
     XCTestExpectation *secondExpectation = [self expectationWithDescription:@"silent request"];
     
     [secondSilentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {

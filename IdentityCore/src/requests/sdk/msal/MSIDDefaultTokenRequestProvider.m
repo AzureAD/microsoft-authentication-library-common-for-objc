@@ -33,7 +33,7 @@
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
                               defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                             metadataAccessor:(MSIDAccountMetadataCacheAccessor *)metadataAccessor
+                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
                        tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];
@@ -42,7 +42,7 @@
     {
         _oauthFactory = oauthFactory;
         _tokenCache = defaultAccessor;
-        _metadataCache = metadataAccessor;
+        _accountMetadataCache = accountMetadataAccessor;
         _tokenResponseValidator = tokenResponseValidator;
     }
 
@@ -55,7 +55,7 @@
                                                              oauthFactory:self.oauthFactory
                                                    tokenResponseValidator:self.tokenResponseValidator
                                                                tokenCache:self.tokenCache
-                                                            metadataCache:self.metadataCache];
+                                                    accountMetadataCache:self.accountMetadataCache];
 }
 
 - (MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDRequestParameters *)parameters
@@ -66,7 +66,7 @@
                                                                oauthFactory:self.oauthFactory
                                                      tokenResponseValidator:self.tokenResponseValidator
                                                                  tokenCache:self.tokenCache
-                                                              metadataCache:self.metadataCache];
+                                                      accountMetadataCache:self.accountMetadataCache];
 }
 
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters

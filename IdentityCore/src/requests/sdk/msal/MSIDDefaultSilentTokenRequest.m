@@ -39,7 +39,7 @@
 @interface MSIDDefaultSilentTokenRequest()
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
-@property (nonatomic) MSIDAccountMetadataCacheAccessor *metadataAccessor;
+@property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataAccessor;
 @property (nonatomic) MSIDAppMetadataCacheItem *appMetadata;
 
 @end
@@ -53,7 +53,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
-                                     metadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)metadataCache
+                             accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -63,8 +63,7 @@
     if (self)
     {
         _defaultAccessor = tokenCache;
-        _metadataAccessor = metadataCache;
-        
+        _accountMetadataAccessor = accountMetadataCache;
     }
 
     return self;
@@ -216,7 +215,7 @@
 
 - (MSIDAccountMetadataCacheAccessor *)metadataCache
 {
-    return self.metadataAccessor;
+    return self.accountMetadataAccessor;
 }
 
 #pragma mark - Helpers
