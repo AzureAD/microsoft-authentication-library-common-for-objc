@@ -25,6 +25,7 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDBrokerResponse+Internal.h"
 #import "MSIDAADV2TokenResponse.h"
+#import "NSJSONSerialization+MSIDExtensions.h"
 
 @implementation MSIDAADV2BrokerResponse
 
@@ -40,7 +41,7 @@ MSID_FORM_ACCESSOR(@"scope", scope);
         NSString *errorMetadataJSON = form[@"error_metadata"];
         if (errorMetadataJSON)
         {
-            _errorMetadata = [NSDictionary msidDictionaryFromJsonData:[errorMetadataJSON dataUsingEncoding:NSUTF8StringEncoding] error:nil];
+            _errorMetadata = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:[errorMetadataJSON dataUsingEncoding:NSUTF8StringEncoding] error:nil];
         }
     }
 
