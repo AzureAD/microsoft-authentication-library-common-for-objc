@@ -28,10 +28,12 @@
 
 @class MSIDInteractiveRequestParameters;
 @class MSIDWebWPJResponse;
+@class MSIDExternalCacheSeeder;
 
 @interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
+@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider

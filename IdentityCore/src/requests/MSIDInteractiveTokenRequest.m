@@ -42,6 +42,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDExternalCacheSeeder.h"
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -245,9 +246,8 @@
             completionBlock(nil, error, nil);
             return;
         }
-
-        NSError *validationError = nil;
         
+        NSError *validationError;
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
@@ -276,18 +276,34 @@
             return;
         }
         
-        BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
-                                                               tokenResult:tokenResult
-                                                             correlationID:self.requestParameters.correlationId
-                                                                     error:&validationError];
-        
-        if (!accountChecked)
+        void (^validateAccountAndCompleteBlock)(void) = ^
         {
-            completionBlock(nil, validationError, nil);
-            return;
-        }
+            NSError *validationError;
+            BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
+                                                                   tokenResult:tokenResult
+                                                                 correlationID:self.requestParameters.correlationId
+                                                                         error:&validationError];
+            
+            if (!accountChecked)
+            {
+                completionBlock(nil, validationError, nil);
+                return;
+            }
+            
+            completionBlock(tokenResult, nil, nil);
+        };
         
-        completionBlock(tokenResult, nil, nil);
+        if (self.externalCacheSeeder != nil)
+        {
+            [self.externalCacheSeeder seedTokenResponse:tokenResponse
+                                                factory:self.oauthFactory
+                                      requestParameters:self.requestParameters
+                                        completionBlock:validateAccountAndCompleteBlock];
+        }
+        else
+        {
+            validateAccountAndCompleteBlock();
+        }
     }];
 }
 

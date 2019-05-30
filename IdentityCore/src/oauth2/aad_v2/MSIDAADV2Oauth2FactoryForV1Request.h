@@ -21,19 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDAADV2Oauth2Factory.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDTelemetryAPIEvent;
-@class MSIDExternalCacheSeeder;
-
-@protocol MSIDRequestControlling <NSObject>
-
-@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
-
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+@interface MSIDAADV2Oauth2FactoryForV1Request : MSIDAADV2Oauth2Factory
 
 @end
 

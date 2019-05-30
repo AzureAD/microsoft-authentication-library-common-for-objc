@@ -31,6 +31,7 @@
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @class MSIDLegacyAccessToken;
+@class MSIDLegacyRefreshToken;
 
 @interface MSIDLegacyTokenCacheAccessor : NSObject <MSIDCacheAccessor>
 
@@ -43,5 +44,10 @@
                                                       configuration:(MSIDConfiguration *)configuration
                                                             context:(id<MSIDRequestContext>)context
                                                               error:(NSError **)error;
+
+- (BOOL)saveRefreshToken:(MSIDLegacyRefreshToken *)refreshToken
+           configuration:(MSIDConfiguration *)configuration
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
 
 @end

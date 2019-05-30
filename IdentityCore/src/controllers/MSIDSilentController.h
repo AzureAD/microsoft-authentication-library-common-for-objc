@@ -25,9 +25,12 @@
 #import "MSIDBaseRequestController.h"
 #import "MSIDRequestControlling.h"
 
+@class MSIDExternalCacheSeeder;
+
 @interface MSIDSilentController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (nonatomic, readonly) BOOL forceRefresh;
+@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh

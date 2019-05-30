@@ -28,10 +28,12 @@
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
+@class MSIDExternalCacheSeeder;
 
 @interface MSIDSilentTokenRequest : NSObject
 
 @property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
+@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh

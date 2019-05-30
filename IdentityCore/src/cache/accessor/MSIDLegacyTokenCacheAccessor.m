@@ -587,6 +587,46 @@
                      error:error];
 }
 
+- (BOOL)saveRefreshToken:(MSIDLegacyRefreshToken *)refreshToken
+           configuration:(MSIDConfiguration *)configuration
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    if (!refreshToken)
+    {
+        MSID_LOG_INFO(context, @"No refresh token, not updating cache.");
+        return YES;
+    }
+    
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor");
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", refreshToken);
+    
+    BOOL result = [self saveToken:refreshToken
+                        cacheItem:refreshToken.legacyTokenCacheItem
+                           userId:refreshToken.accountIdentifier.displayableId
+                          context:context
+                            error:error];
+    
+    if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
+    {
+        // If saving failed or it's not an FRT, we're done
+        return result;
+    }
+    
+    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context,@"Saving family refresh token in all caches");
+    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Saving family refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
+    
+    // If it's an FRT, save it separately and update the clientId of the token item
+    MSIDLegacyRefreshToken *familyRefreshToken = [refreshToken copy];
+    familyRefreshToken.clientId = [MSIDCacheKey familyClientId:refreshToken.familyId];
+    
+    return [self saveToken:familyRefreshToken
+                 cacheItem:familyRefreshToken.legacyTokenCacheItem
+                    userId:familyRefreshToken.accountIdentifier.displayableId
+                   context:context
+                     error:error];
+}
+
 - (BOOL)saveRefreshTokenWithConfiguration:(MSIDConfiguration *)configuration
                                  response:(MSIDTokenResponse *)response
                                   factory:(MSIDOauth2Factory *)factory
@@ -594,40 +634,14 @@
                                     error:(NSError **)error
 {
     MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
-
+    
     if (!refreshToken)
     {
         MSID_LOG_INFO(context, @"No refresh token returned in the token response, not updating cache");
         return YES;
     }
     
-    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor");
-    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", refreshToken);
-
-    BOOL result = [self saveToken:refreshToken
-                        cacheItem:refreshToken.legacyTokenCacheItem
-                           userId:refreshToken.accountIdentifier.displayableId
-                          context:context
-                            error:error];
-
-    if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
-    {
-        // If saving failed or it's not an FRT, we're done
-        return result;
-    }
-
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context,@"Saving family refresh token in all caches");
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Saving family refresh token in all caches %@", _PII_NULLIFY(refreshToken.refreshToken));
-
-    // If it's an FRT, save it separately and update the clientId of the token item
-    MSIDLegacyRefreshToken *familyRefreshToken = [refreshToken copy];
-    familyRefreshToken.clientId = [MSIDCacheKey familyClientId:refreshToken.familyId];
-
-    return [self saveToken:familyRefreshToken
-                 cacheItem:familyRefreshToken.legacyTokenCacheItem
-                    userId:familyRefreshToken.accountIdentifier.displayableId
-                   context:context
-                     error:error];
+    return [self saveRefreshToken:refreshToken configuration:configuration context:context error:error];
 }
 
 - (BOOL)saveLegacySingleResourceTokenWithConfiguration:(MSIDConfiguration *)configuration

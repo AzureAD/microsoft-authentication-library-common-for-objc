@@ -21,20 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDAADV2Oauth2FactoryForV1Request.h"
+#import "MSIDOauth2Factory+Internal.h"
+#import "MSIDV1IdToken.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDAADV2Oauth2FactoryForV1Request
 
-@class MSIDTelemetryAPIEvent;
-@class MSIDExternalCacheSeeder;
-
-@protocol MSIDRequestControlling <NSObject>
-
-@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
-
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (MSIDIdToken *)idTokenFromResponse:(MSIDTokenResponse *)response
+                       configuration:(MSIDConfiguration *)configuration
+{
+    MSIDV1IdToken *idToken = [[MSIDV1IdToken alloc] init];
+    
+    BOOL result = [self fillIDToken:idToken fromResponse:response configuration:configuration];
+    
+    if (!result) return nil;
+    return idToken;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

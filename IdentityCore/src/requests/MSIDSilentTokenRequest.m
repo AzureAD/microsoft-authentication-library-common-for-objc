@@ -33,6 +33,7 @@
 #import "MSIDTokenResult.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDExternalCacheSeeder.h"
 
 @interface MSIDSilentTokenRequest()
 
@@ -434,9 +435,24 @@
             completionBlock(nil, validationError);
             return;
         }
-
-        MSID_LOG_INFO(self.requestParameters, @"Returning token result.");
-        completionBlock(tokenResult, nil);
+        
+        void (^completionBlockWrapper)(void) = ^
+        {
+            MSID_LOG_INFO(self.requestParameters, @"Returning token result.");
+            completionBlock(tokenResult, nil);
+        };
+        
+        if (self.externalCacheSeeder != nil)
+        {
+            [self.externalCacheSeeder seedTokenResponse:tokenResponse
+                                                factory:self.oauthFactory
+                                      requestParameters:self.requestParameters
+                                        completionBlock:completionBlockWrapper];
+        }
+        else
+        {
+            completionBlockWrapper();
+        }
     }];
 }
 

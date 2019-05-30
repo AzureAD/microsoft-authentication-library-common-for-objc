@@ -22,18 +22,24 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+
+@class MSIDLegacyTokenCacheAccessor;
+@class MSIDDefaultTokenCacheAccessor;
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
+@class MSIDOauth2Factory;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDTelemetryAPIEvent;
-@class MSIDExternalCacheSeeder;
+@interface MSIDExternalCacheSeeder : NSObject
 
-@protocol MSIDRequestControlling <NSObject>
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
+@property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
 
-@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
-
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (void)seedTokenResponse:(MSIDTokenResponse *)tokenResponse
+                  factory:(MSIDOauth2Factory *)factory
+        requestParameters:(MSIDRequestParameters *)requestParameters
+          completionBlock:(void(^)(void))completionBlock;
 
 @end
 

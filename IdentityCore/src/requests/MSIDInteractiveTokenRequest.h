@@ -29,6 +29,7 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 @class MSIDWebWPJResponse;
+@class MSIDExternalCacheSeeder;
 
 typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
@@ -38,6 +39,7 @@ typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullabl
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
