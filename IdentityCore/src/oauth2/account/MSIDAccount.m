@@ -163,7 +163,12 @@
 
 - (BOOL)isHomeTenantAccount
 {
-    return [self.realm isEqualToString:self.accountIdentifier.utid];
+    if (self.accountType == MSIDAccountTypeMSSTS)
+    {
+        return [self.realm isEqualToString:self.accountIdentifier.utid];
+    }
+    
+    return YES;
 }
 
 #pragma mark - Description
