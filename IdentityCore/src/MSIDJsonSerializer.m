@@ -31,6 +31,21 @@
 
 @implementation MSIDJsonSerializer
 
+#pragma mark - Init
+
+- (instancetype)init
+{
+    self = [super init];
+    
+    if (self)
+    {
+        // Normalize by default unless developer has explicitly verified that normalization is not needed
+        _normalizeJSON = YES;
+    }
+    
+    return self;
+}
+
 #pragma mark - MSIDJsonSerializing
 
 - (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
@@ -119,8 +134,14 @@
         return nil;
     }
     
-    NSDictionary *json = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:data error:error];
-    return json;
+    if (self.normalizeJSON)
+    {
+        return [NSJSONSerialization msidNormalizedDictionaryFromJsonData:data error:error];
+    }
+    
+    return [NSJSONSerialization JSONObjectWithData:data
+                                           options:NSJSONReadingMutableContainers
+                                             error:error];
 }
 
 @end
