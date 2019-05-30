@@ -115,9 +115,10 @@
                                      message,
                                      nil,
                                      nil, nil, context.correlationId, nil);
+            
+            MSID_LOG_ERROR(nil, @"%@", message);
         }
         
-        MSID_LOG_ERROR(nil, @"%@", message);
         return NO;
     }
     
@@ -140,9 +141,10 @@
                                      message,
                                      nil,
                                      nil, nil, context.correlationId, nil);
+            
+            MSID_LOG_ERROR(nil, @"%@", message);
         }
         
-        MSID_LOG_ERROR(nil, @"%@", message);
         return NO;
     }
     
