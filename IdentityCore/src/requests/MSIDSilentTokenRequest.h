@@ -33,7 +33,10 @@
 @interface MSIDSilentTokenRequest : NSObject
 
 @property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
+
+#if TARGET_OS_OSX
 @property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
+#endif
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh

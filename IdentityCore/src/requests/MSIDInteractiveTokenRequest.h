@@ -39,7 +39,10 @@ typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullabl
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
+
+#if TARGET_OS_OSX
 @property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
+#endif
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory

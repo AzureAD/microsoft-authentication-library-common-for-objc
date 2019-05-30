@@ -31,7 +31,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDRequestControlling <NSObject>
 
+#if TARGET_OS_OSX
 @property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
+#endif
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
 

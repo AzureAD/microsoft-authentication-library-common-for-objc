@@ -442,6 +442,7 @@
             completionBlock(tokenResult, nil);
         };
         
+#if TARGET_OS_OSX
         if (self.externalCacheSeeder != nil)
         {
             [self.externalCacheSeeder seedTokenResponse:tokenResponse
@@ -450,6 +451,7 @@
                                         completionBlock:completionBlockWrapper];
         }
         else
+#endif
         {
             completionBlockWrapper();
         }
