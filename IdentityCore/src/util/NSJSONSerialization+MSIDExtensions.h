@@ -21,34 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+NS_ASSUME_NONNULL_BEGIN
 
-@interface NSData (MSIDExtensions)
+@interface NSJSONSerialization (MSIDExtensions)
 
-/*!
- =============================================================================
- Hashing
- =============================================================================
- */
-- (NSData *)msidSHA1;
-- (NSData *)msidSHA256;
-
-/*!
- =============================================================================
- Constructors
- =============================================================================
- */
-+ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString;
-
-/*!
- =============================================================================
- Convenience methods
- =============================================================================
- */
-/*! Converts to hex string */
-- (NSString *)msidHexString;
-
-/*! Converts NSData to base64 String */
-- (NSString *)msidBase64UrlEncodedString;
++ (NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError **)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

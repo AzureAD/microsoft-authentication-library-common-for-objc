@@ -21,34 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDKeychainUtil.h"
 
-@interface NSData (MSIDExtensions)
+NS_ASSUME_NONNULL_BEGIN
 
-/*!
- =============================================================================
- Hashing
- =============================================================================
- */
-- (NSData *)msidSHA1;
-- (NSData *)msidSHA256;
+@interface MSIDKeychainUtil ()
 
-/*!
- =============================================================================
- Constructors
- =============================================================================
- */
-+ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString;
-
-/*!
- =============================================================================
- Convenience methods
- =============================================================================
- */
-/*! Converts to hex string */
-- (NSString *)msidHexString;
-
-/*! Converts NSData to base64 String */
-- (NSString *)msidBase64UrlEncodedString;
+@property (readwrite, nullable) NSString *teamId;
 
 @end
+
+NS_ASSUME_NONNULL_END

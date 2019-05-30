@@ -113,7 +113,8 @@
       @"ext_expires_on" : extExpiresOnString,
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
-      @"foci" : @"1"
+      @"foci" : @"1",
+      @"success": @YES
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -214,9 +215,6 @@
     NSDictionary *errorMetadata =
     @{
       @"http_response_code" : @200,
-      @"error_description" : @"Error occured",
-      @"oauth_error" : @"invalid_grant",
-      @"oauth_sub_error" : @"consent_required",
       @"username" : @"user@contoso.com",
       @"home_account_id" : @"1.1234-5678-90abcdefg",
       @"declined_scopes" : @"decliendScope1 decliendScope2",
@@ -226,11 +224,15 @@
     
     NSDictionary *brokerResponseParams =
     @{
-      @"error_code" : @"-42004",
-      @"error_domain" : @"MSALErrorDomain",
+      @"broker_error_code" : @"-42004",
+      @"broker_error_domain" : @"MSALErrorDomain",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       @"error_metadata" : errorMetaDataString,
+      @"error": @"invalid_grant",
+      @"suberror": @"consent_required",
+      @"error_description": @"Error occured",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -268,18 +270,19 @@
     NSDictionary *errorMetadata =
     @{
       @"http_response_code" : @429,
-      @"error_description" : @"Error occured",
-      @"http_headers" : @"Content-Type=application%2Fjson%3B+charset%3Dutf-8&P3P=CP%3D%22DSP+CUR+OTPi+IND+OTRi+ONL+FIN%22&Access-Control-Allow-Origin=%2A&x-ms-request-id=1739e4e0-4b6e-4aba-b404-4979a0d41c00&Cache-Control=private&Date=Sat%2C+17+Nov+2018+23%3A20%3A03+GMT&Strict-Transport-Security=max-age%3D31536000%3B+includeSubDomains&client-request-id=14202594-2dfc-4ee8-a908-d337ca2b266b&Content-Length=975&X-Content-Type-Options=nosniff"
+      @"http_response_headers" : @"Content-Type=application%2Fjson%3B+charset%3Dutf-8&P3P=CP%3D%22DSP+CUR+OTPi+IND+OTRi+ONL+FIN%22&Access-Control-Allow-Origin=%2A&x-ms-request-id=1739e4e0-4b6e-4aba-b404-4979a0d41c00&Cache-Control=private&Date=Sat%2C+17+Nov+2018+23%3A20%3A03+GMT&Strict-Transport-Security=max-age%3D31536000%3B+includeSubDomains&client-request-id=14202594-2dfc-4ee8-a908-d337ca2b266b&Content-Length=975&X-Content-Type-Options=nosniff"
       };
     NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
     
     NSDictionary *brokerResponseParams =
     @{
-      @"error_code" : @"111",
-      @"error_domain" : @"NSURLErrorDomain",
+      @"broker_error_code" : @"111",
+      @"broker_error_domain" : @"NSURLErrorDomain",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       @"error_metadata" : errorMetaDataString,
+      @"error_description" : @"Error occured",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -329,9 +332,6 @@
     NSDictionary *errorMetadata =
     @{
       @"http_response_code" : @200,
-      @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
-      @"oauth_error" : @"unauthorized_client",
-      @"oauth_sub_error" : @"protection_policies_required",
       @"username" : @"user@contoso.com",
       @"home_account_id" : @"1.1234-5678-90abcdefg",
       };
@@ -339,11 +339,15 @@
     
     NSDictionary *brokerResponseParams =
     @{
-      @"error_code" : @"213",
-      @"error_domain" : @"MSALErrorDomain",
+      @"broker_error_code" : @"213",
+      @"broker_error_domain" : @"MSALErrorDomain",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       @"error_metadata" : errorMetaDataString,
+      @"error": @"unauthorized_client",
+      @"suberror": @"protection_policies_required",
+      @"error_description": @"AADSTS53005: Application needs to enforce intune protection policies",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -416,9 +420,6 @@
     NSDictionary *errorMetadata =
     @{
       @"http_response_code" : @200,
-      @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
-      @"oauth_error" : @"unauthorized_client",
-      @"oauth_sub_error" : @"protection_policies_required",
       @"username" : @"user@contoso.com",
       @"home_account_id" : @"1.1234-5678-90abcdefg",
       };
@@ -426,12 +427,16 @@
     
     NSDictionary *brokerResponseParams =
     @{
-      @"error_code" : @"213",
-      @"error_domain" : @"MSALErrorDomain",
+      @"broker_error_code" : @"213",
+      @"broker_error_domain" : @"MSALErrorDomain",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       @"error_metadata" : errorMetaDataString,
       @"additional_tokens" : intuneMAMTokenString,
+      @"error": @"unauthorized_client",
+      @"suberror": @"protection_policies_required",
+      @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
@@ -529,9 +534,6 @@
     NSDictionary *errorMetadata =
     @{
       @"http_response_code" : @200,
-      @"error_description" : @"Error occured",
-      @"oauth_error" : @"invalid_grant",
-      @"oauth_sub_error" : @"consent_required",
       @"username" : @"user@contoso.com",
       @"home_account_id" : @"1.1234-5678-90abcdefg",
       @"granted_scopes" : @"myscope1 myscope2",
@@ -541,12 +543,16 @@
     
     NSDictionary *brokerResponseParams =
     @{
-      @"error_code" : @"-42004",
-      @"error_domain" : @"MSALErrorDomain",
+      @"broker_error_code" : @"-42004",
+      @"broker_error_domain" : @"MSALErrorDomain",
       @"correlation_id" : correlationId,
       @"x-broker-app-ver" : @"1.0.0",
       @"error_metadata" : errorMetaDataString,
       @"additional_tokens" : additionalTokenString,
+      @"error": @"invalid_grant",
+      @"suberror": @"consent_required",
+      @"error_description" : @"Error occured",
+      @"success": @NO
       };
     
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams

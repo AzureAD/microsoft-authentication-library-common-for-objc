@@ -159,6 +159,35 @@
     [self assertHTTPEvent:self.receivedEvents[2]];
 }
 
+- (void)testFlush_whenThereIsHttpEventWithClientTelemetry_shouldSendEvents
+{
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+    NSString *requestId = [[MSIDTelemetry sharedInstance] generateRequestId];
+    NSUUID *correlationId = [NSUUID UUID];
+    __auto_type context = [MSIDTestContext new];
+    context.telemetryRequestId = requestId;
+    context.correlationId = correlationId;
+    
+    // HTTP event
+    __auto_type event = [[MSIDTelemetryHttpEvent alloc] initWithName:@"httpEvent" context:context];
+    [event setClientTelemetry:@"1,123,1234,255.0643,I,qwe"];
+    [[MSIDTelemetry sharedInstance] startEvent:requestId eventName:@"httpEvent"];
+    [[MSIDTelemetry sharedInstance] stopEvent:requestId event:event];
+    
+    [[MSIDTelemetry sharedInstance] flush:requestId];
+    
+    // Verify results: there should be 2 events (default, HTTP)
+    XCTAssertEqual([self.receivedEvents count], 2);
+    [self assertDefaultEvent:self.receivedEvents[0] piiEnabled:YES];
+    __auto_type httpEventInfo = self.receivedEvents[1];
+    [self assertHTTPEvent:httpEventInfo];
+    XCTAssertEqualObjects(httpEventInfo[@"Microsoft.Test.rt_age"], @"255.0643");
+    XCTAssertEqualObjects(httpEventInfo[@"Microsoft.Test.server_error_code"], @"123");
+    XCTAssertEqualObjects(httpEventInfo[@"Microsoft.Test.server_sub_error_code"], @"1234");
+    XCTAssertEqualObjects(httpEventInfo[@"Microsoft.Test.spe_info"], @"I");
+    XCTAssertEqualObjects(httpEventInfo[@"Microsoft.Test.x-ms-clitelem"], @"1,123,1234,255.0643,I,qwe");
+}
+
 - (void)testFlush_whenThereAre2EventsAndObserverIsSetAndSetTelemetryOnFailureYes_shouldFilterEvents
 {
     MSIDTelemetry.sharedInstance.notifyOnFailureOnly = YES;

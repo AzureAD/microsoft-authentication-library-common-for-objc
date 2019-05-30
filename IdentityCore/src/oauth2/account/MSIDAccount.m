@@ -158,7 +158,6 @@
     cacheItem.name = self.name;
     cacheItem.familyName = self.familyName;
     cacheItem.clientInfo = self.clientInfo;
-    
     return cacheItem;
 }
 
