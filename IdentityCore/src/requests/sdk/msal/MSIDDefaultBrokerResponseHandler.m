@@ -30,6 +30,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDBrokerResponseHandler+Internal.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -203,19 +204,10 @@
 - (BOOL)canHandleBrokerResponse:(NSURL *)response
              hasCompletionBlock:(BOOL)hasCompletionBlock
 {
-    if (!response) { return NO; }
-    
-    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
-    NSString *qpString = [components percentEncodedQuery];
-    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
-    
-    NSString *protocolVersion = queryParamsMap[MSID_BROKER_PROTOCOL_VERSION_KEY];
-    BOOL isValidVersion = [protocolVersion isEqualToString:MSID_MSAL_BROKER_MESSAGE_VERSION];
-    
-    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
-    BOOL isMSALInitiatedRequest = [resumeDictionary[MSID_SDK_NAME_KEY] isEqualToString:MSID_MSAL_SDK_NAME] || (resumeDictionary == nil && hasCompletionBlock);
-    
-    return isValidVersion && isMSALInitiatedRequest;
+    return [self canHandleBrokerResponse:response
+                      hasCompletionBlock:hasCompletionBlock
+                         protocolVersion:MSID_MSAL_BROKER_MESSAGE_VERSION
+                                 sdkName:MSID_MSAL_SDK_NAME];
 }
 
 @end
