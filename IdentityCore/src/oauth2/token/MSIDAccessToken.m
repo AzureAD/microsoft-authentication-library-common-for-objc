@@ -115,7 +115,7 @@ static NSUInteger s_expirationBuffer = 300;
 
         if (!_accessToken)
         {
-            MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
+            MSID_LOG_WARN(nil, @"Trying to initialize access token when missing access token field");
             return nil;
         }
         
@@ -123,7 +123,7 @@ static NSUInteger s_expirationBuffer = 300;
         
         if (!_target)
         {
-            MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing target field");
+            MSID_LOG_WARN(nil, @"Trying to initialize access token when missing target field");
             return nil;
         }
     }

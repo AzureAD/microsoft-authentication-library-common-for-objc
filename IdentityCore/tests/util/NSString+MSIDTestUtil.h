@@ -25,7 +25,9 @@
 
 @interface NSString (MSIDTestUtil)
 
-- (MSIDAuthority *)authority;
+- (MSIDAuthority *)aadAuthority;
+- (MSIDAuthority *)b2cAuthority;
+- (MSIDAuthority *)adfsAuthority;
 - (NSURL *)msidUrl;
 - (NSData *)msidData;
 

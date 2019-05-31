@@ -30,6 +30,7 @@
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDPrimaryRefreshToken.h"
+#import "NSURL+MSIDAADUtils.h"
 
 @interface MSIDLegacyTokenCacheItem()
 {
@@ -63,7 +64,6 @@
     result &= (!self.accessToken && !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
     result &= (!self.refreshToken && !item.refreshToken) || [self.refreshToken isEqualToString:item.refreshToken];
     result &= (!self.idToken && !item.idToken) || [self.idToken isEqualToString:item.idToken];
-    result &= (!self.authority && !item.authority) || [self.authority isEqual:item.authority];
     result &= (!self.oauthTokenType && !item.oauthTokenType) || [self.oauthTokenType isEqualToString:item.oauthTokenType];
     return result;
 }
@@ -76,7 +76,6 @@
     hash = hash * 31 + self.accessToken.hash;
     hash = hash * 31 + self.refreshToken.hash;
     hash = hash * 31 + self.idToken.hash;
-    hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.oauthTokenType.hash;
     return hash;
 }
@@ -89,7 +88,6 @@
     item.accessToken = [self.accessToken copyWithZone:zone];
     item.refreshToken = [self.refreshToken copyWithZone:zone];
     item.idToken = [self.idToken copyWithZone:zone];
-    item.authority = [self.authority copyWithZone:zone];
     item.oauthTokenType = [self.oauthTokenType copyWithZone:zone];
     return item;
 }
@@ -112,9 +110,9 @@
 
     if (authorityString)
     {
-        self.authority = [NSURL URLWithString:authorityString];
-        self.environment = self.authority.msidHostWithPortIfNecessary;
-        self.realm = self.authority.msidTenant;
+        NSURL *authorityURL = [NSURL URLWithString:authorityString];
+        self.environment = authorityURL.msidHostWithPortIfNecessary;
+        self.realm = authorityURL.msidAADTenant;
     }
 
     self.clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
@@ -154,7 +152,9 @@
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
+    NSURL *authorityURL = [NSURL msidAADURLWithEnvironment:self.environment tenant:self.realm];
+    
+    [coder encodeObject:authorityURL.absoluteString forKey:@"authority"];
     [coder encodeObject:self.accessToken forKey:@"accessToken"];
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
 

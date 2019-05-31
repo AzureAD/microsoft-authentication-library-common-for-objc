@@ -239,42 +239,6 @@
     XCTAssertEqual([accessTokensInCache count], 2);
 }
 
-- (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentRequestAuthorities_shouldSave1TokenWithSameTenantId
-{
-    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
-
-    NSError *error = nil;
-
-    // save 1st token with default test scope
-    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
-                                                     response:tokenResponse
-                                                      factory:[MSIDAADV2Oauth2Factory new]
-                                                      context:nil
-                                                        error:&error];
-
-    XCTAssertTrue(result);
-    XCTAssertNil(error);
-
-    // save 2nd token with different authority
-    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/8eaef023-2b34-4da1-9baa-8bc8c9d6a490"
-                                                                                clientId:DEFAULT_TEST_CLIENT_ID
-                                                                             redirectUri:nil
-                                                                                  target:DEFAULT_TEST_SCOPE];
-
-    result = [_cacheAccessor saveTokensWithConfiguration:configuration
-                                                response:tokenResponse2
-                                                 factory:[MSIDAADV2Oauth2Factory new]
-                                                 context:nil
-                                                   error:&error];
-
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-
-    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
-    XCTAssertEqual([accessTokensInCache count], 1);
-}
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentUsers_shouldSave2Tokens
 {
@@ -496,7 +460,7 @@
     XCTAssertEqual([accessTokensInCache count], 4);
 
     configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
 
     // retrieve first at
     NSError *error = nil;
@@ -525,7 +489,7 @@
                                           error:nil];
 
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
 
     NSError *error = nil;
 
@@ -557,7 +521,7 @@
                                           error:nil];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
     
     NSError *error = nil;
     
@@ -590,7 +554,7 @@
 
     // Retrieve token
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
 
     NSError *error = nil;
     MSIDAccessToken *returnedToken = [_cacheAccessor getAccessTokenForAccount:account

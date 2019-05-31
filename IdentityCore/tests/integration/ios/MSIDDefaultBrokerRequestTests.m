@@ -26,7 +26,7 @@
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDDefaultBrokerRequestTests : XCTestCase
@@ -74,7 +74,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -121,7 +122,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -168,7 +170,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -214,7 +217,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -225,7 +229,7 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"myscope1 myscope2";
     parameters.correlationId = [NSUUID new];

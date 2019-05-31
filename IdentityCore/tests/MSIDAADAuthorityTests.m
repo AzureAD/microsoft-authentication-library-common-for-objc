@@ -542,7 +542,7 @@
 {
     [self setupAADAuthorityCache];
     
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"]];
@@ -556,7 +556,7 @@
 {
     [self setupAADAuthorityCache];
 
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     NSArray *expectedAliases = @[@"login.windows.net",
                                  @"login.microsoftonline.com",
                                  @"login.microsoft.com"];
@@ -572,7 +572,7 @@
 {
     [self setupAADAuthorityCache];
     
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"],
@@ -589,7 +589,7 @@
 {
     [self setupAADAuthorityCache];
     
-    __auto_type authority = [@"https://login.microsoftonline.com/organizations" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/organizations" aadAuthority];
     NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/common"],
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/common"]];
@@ -603,7 +603,7 @@
 {
     [self setupAADAuthorityCache];
     
-    __auto_type authority = [@"https://login.microsoftonline.com/common" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/common"],
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/common"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/common"]];
@@ -617,7 +617,7 @@
 {
     [self setupAADAuthorityCache];
     
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     NSArray *expectedAliases = @[[NSURL URLWithString:@"https://login.windows.net/contoso.com"],
                                  [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"],
                                  [NSURL URLWithString:@"https://login.microsoft.com/contoso.com"],
@@ -634,7 +634,7 @@
 {
     [self setupAADAuthorityCache];
     
-    __auto_type authority = [@"https://login.microsoftonline.com/consumers" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/consumers" aadAuthority];
     NSArray *expectedAliases = @[];
     
     NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
@@ -646,7 +646,7 @@
 
 - (void)testCopy_whenAllPropertiesAreSet_shouldReturnEqualCopy
 {
-    __auto_type authority = [@"https://login.microsoftonline.com/common" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     authority.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
     authority.metadata = [MSIDOpenIdProviderMetadata new];
     MSIDAADAuthority *authorityCopy = [authority copy];
@@ -660,11 +660,11 @@
 {
     __auto_type metadata = [MSIDOpenIdProviderMetadata new];
     
-    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
     lhs.metadata = metadata;
     
-    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     rhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
     rhs.metadata = metadata;
 
@@ -673,10 +673,10 @@
 
 - (void)testIsEqual_whenOpenIdConfigurationEndpointsAreNotEqual_shouldReturnFalse
 {
-    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
     
-    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     rhs.openIdConfigurationEndpoint = [@"https://example.com/qwe" msidUrl];
     
     XCTAssertNotEqualObjects(lhs, rhs);
@@ -684,10 +684,10 @@
 
 - (void)testIsEqual_whenMetadataAreNotEqual_shouldReturnFalse
 {
-    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    MSIDAADAuthority *lhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     lhs.metadata = [MSIDOpenIdProviderMetadata new];
     
-    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" authority];
+    MSIDAADAuthority *rhs = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
     rhs.metadata = [MSIDOpenIdProviderMetadata new];
     
     XCTAssertNotEqualObjects(lhs, rhs);

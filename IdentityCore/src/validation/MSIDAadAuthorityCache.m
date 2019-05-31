@@ -90,7 +90,7 @@ static BOOL VerifyHostString(NSString *host, NSString *label, BOOL isAliases, id
     
     // Run this through urlForPreferredHost to make sure it does not return any errors.
     NSError *err;
-    [[NSURL URLWithString:@"https://fakeurl.contoso.com"] msidURLForPreferredHost:host context:context error:&err];
+    [[NSURL URLWithString:@"https://fakeurl.contoso.com"] msidURLForHost:host context:context error:&err];
     
     if (err)
     {
