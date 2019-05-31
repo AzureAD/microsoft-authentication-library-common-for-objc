@@ -523,9 +523,9 @@
 		B275520E208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */; };
 		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
-		B27CCE0722A0A24F00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCE0522A0A24E00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
-		B27CCE0822A0A24F00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCE0522A0A24E00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
-		B27CCE0922A0A24F00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B27CCE0622A0A24E00CAD565 /* NSJSONSerialization+MSIDExtensions.h */; };
+		B27CCE1322A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B27CCE1122A0AFCE00CAD565 /* NSJSONSerialization+MSIDExtensions.h */; };
+		B27CCE1422A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCE1222A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
+		B27CCE1522A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCE1222A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
 		B2807FF7204CAFDF00944D89 /* MSIDHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */; };
 		B2807FF8204CAFDF00944D89 /* MSIDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */; };
 		B2807FF9204CAFDF00944D89 /* MSIDHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */; };
@@ -1227,8 +1227,8 @@
 		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
 		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
 		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
-		B27CCE0522A0A24E00CAD565 /* NSJSONSerialization+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSJSONSerialization+MSIDExtensions.m"; path = "../../../../../../../../../Downloads/NSJSONSerialization+MSIDExtensions.m"; sourceTree = "<group>"; };
-		B27CCE0622A0A24E00CAD565 /* NSJSONSerialization+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSJSONSerialization+MSIDExtensions.h"; path = "../../../../../../../../../Downloads/NSJSONSerialization+MSIDExtensions.h"; sourceTree = "<group>"; };
+		B27CCE1122A0AFCE00CAD565 /* NSJSONSerialization+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSJSONSerialization+MSIDExtensions.h"; sourceTree = "<group>"; };
+		B27CCE1222A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSJSONSerialization+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B2807FF5204CAFDF00944D89 /* MSIDHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHelpers.h; sourceTree = "<group>"; };
 		B2807FF6204CAFDF00944D89 /* MSIDHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHelpers.m; sourceTree = "<group>"; };
 		B2807FFA204CB16B00944D89 /* MSIDHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHelperTests.m; sourceTree = "<group>"; };
@@ -2193,10 +2193,10 @@
 			children = (
 				96F21AF020A4C895002B87C3 /* ios */,
 				237A6D61203269740084E15F /* MSIDJsonSerializable.h */,
-				B27CCE0622A0A24E00CAD565 /* NSJSONSerialization+MSIDExtensions.h */,
-				B27CCE0522A0A24E00CAD565 /* NSJSONSerialization+MSIDExtensions.m */,
 				96CD69571FE84A0300D41938 /* MSIDJsonObject.h */,
 				96CD69581FE84A0300D41938 /* MSIDJsonObject.m */,
+				B27CCE1122A0AFCE00CAD565 /* NSJSONSerialization+MSIDExtensions.h */,
+				B27CCE1222A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m */,
 				23BDA6781FCE693800FE14BE /* MSIDKeychainUtil.h */,
 				23BDA6791FCE693800FE14BE /* MSIDKeychainUtil.m */,
 				B2CDB5721FE2F4DB003A4B5C /* NSOrderedSet+MSIDExtensions.h */,
@@ -2653,7 +2653,7 @@
 				96CD694F1FE849C800D41938 /* MSIDTokenRequest.h in Headers */,
 				96F21AED20A4C6F2002B87C3 /* UIApplication+MSIDExtensions.h in Headers */,
 				96F21B3120A65896002B87C3 /* MSIDWebviewAuthorization.h in Headers */,
-				B27CCE0922A0A24F00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */,
+				B27CCE1322A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3208,7 +3208,7 @@
 				B251CC4D204105A7005E0179 /* MSIDIdToken.m in Sources */,
 				B2893CB11FCF6A8C00E348E9 /* NSMutableDictionary+MSIDExtensions.m in Sources */,
 				04930F961FEDB2E100FC4DCD /* MSIDAuthority.m in Sources */,
-				B27CCE0822A0A24F00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */,
+				B27CCE1522A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */,
 				238E19DC2086FE28004DF483 /* MSIDAuthorizationCodeGrantRequest.m in Sources */,
 				9686480620C7711400EF7E73 /* MSIDAADV1WebviewFactory.m in Sources */,
 				B26A0B7F2071ADCE006BD95A /* MSIDOauth2Factory.m in Sources */,
@@ -3528,7 +3528,7 @@
 				B214C39F1FE854FE0070C4F2 /* MSIDLegacyTokenCacheAccessor.m in Sources */,
 				D62600161FBD380500EE4487 /* NSDictionary+MSIDExtensions.m in Sources */,
 				B2B1D579204369D600DD81F0 /* MSIDAccountType.m in Sources */,
-				B27CCE0722A0A24F00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */,
+				B27CCE1422A0AFCF00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */,
 				23D744792097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m in Sources */,
 				B203197C217BF11B006488D0 /* MSIDClientCapabilitiesUtil.m in Sources */,
 				230847A72082C5830024CE7C /* MSIDHttpRequest.m in Sources */,
