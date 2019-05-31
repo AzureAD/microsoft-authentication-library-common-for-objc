@@ -113,7 +113,8 @@
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
-    XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(result.accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(result.accessToken.realm, @"common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
@@ -124,7 +125,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 2);
@@ -132,7 +134,8 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
 - (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_shouldReturnNilResultAndError
@@ -271,7 +274,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"intune-mam-accesstoken");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -279,7 +283,8 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"intune-mam-refreshtoken");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
 - (void)testHandleBrokerResponse_whenBrokerErrorResponseWithHttpHeaders_shouldReturnNilResultAndErrorWithHeaders
@@ -373,7 +378,8 @@
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
-    XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(result.accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(result.accessToken.realm, @"common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
@@ -384,7 +390,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -392,7 +399,8 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
 #pragma mark - Helpers

@@ -21,14 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccessToken.h"
-#import "MSIDLegacyCredentialCacheCompatible.h"
+#import <Foundation/Foundation.h>
 
-@class MSIDLegacyTokenCacheItem;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDLegacyAccessToken : MSIDAccessToken <MSIDLegacyCredentialCacheCompatible>
+@interface NSURL (MSIDAADUtils)
 
-@property (readwrite) NSString *accessTokenType;
-@property (readwrite) NSString *idToken;
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
+- (NSString *)msidAADTenant;
+
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
+- (NSURL *)msidAADAuthorityWithCloudInstanceHostname:(NSString *)cloudInstanceHostName;
+
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
++ (NSURL *)msidAADURLWithEnvironment:(NSString *)environment tenant:(NSString *)tenant;
+
+/**
+ // WARNING: This method should be only used in classes working with "AAD".
+ */
++ (NSURL *)msidAADURLWithEnvironment:(NSString *)environment;
 
 @end
+
+NS_ASSUME_NONNULL_END

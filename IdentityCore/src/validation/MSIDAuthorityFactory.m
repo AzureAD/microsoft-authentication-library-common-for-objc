@@ -44,7 +44,7 @@
     NSError *underlyingError;
     if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
-        __auto_type b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:url rawTenant:rawTenant context:context error:&underlyingError];
+        __auto_type b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:url validateFormat:YES rawTenant:rawTenant context:context error:&underlyingError];
         if (b2cAuthority) return b2cAuthority;
     }
     
@@ -68,26 +68,6 @@
     }
     
     return nil;
-}
-
-+ (MSIDAuthority *)authorityWithRawTenant:(NSString *)rawTenant
-                            msidAuthority:(MSIDAuthority *)msidAuthority
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
-{
-    if ([msidAuthority isKindOfClass:[MSIDB2CAuthority class]])
-    {
-        MSIDB2CAuthority *b2cAuthority = [[MSIDB2CAuthority alloc] initWithURL:msidAuthority.url rawTenant:rawTenant context:context error:error];
-        
-        if (b2cAuthority)
-        {
-            return b2cAuthority;
-        }
-        
-        return [[MSIDB2CAuthority alloc] initWithURL:msidAuthority.url validateFormat:NO context:context error:error];
-    }
-    
-    return [self authorityFromUrl:msidAuthority.url rawTenant:rawTenant context:context error:error];
 }
 
 @end

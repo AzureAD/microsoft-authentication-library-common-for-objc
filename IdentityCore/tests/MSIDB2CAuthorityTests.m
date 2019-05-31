@@ -125,7 +125,7 @@
     __auto_type authorityUrl = [@"https://login.microsoftonline.com:8080/tfp/tenant/policy" msidUrl];
     NSError *error = nil;
 
-    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl rawTenant:@"new_tenantId" context:nil error:&error];
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:YES rawTenant:@"new_tenantId" context:nil error:&error];
 
     XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com:8080/tfp/new_tenantId/policy" msidUrl]);
     XCTAssertNil(error);
@@ -191,7 +191,7 @@
 
 - (void)testLegacyRefreshTokenLookupAliases_shouldReturnOriginalAuthority
 {
-    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant/policy" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/tfp/tenant/policy" b2cAuthority];
     NSArray *expectedAliases = @[authority.url];
     
     NSArray *aliases = [authority legacyRefreshTokenLookupAliases];
@@ -253,11 +253,11 @@
 {
     __auto_type metadata = [MSIDOpenIdProviderMetadata new];
     
-    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" b2cAuthority];
     lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
     lhs.metadata = metadata;
     
-    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" b2cAuthority];
     rhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
     rhs.metadata = metadata;
     
@@ -266,10 +266,10 @@
 
 - (void)testIsEqual_whenOpenIdConfigurationEndpointsAreNotEqual_shouldReturnFalse
 {
-    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" b2cAuthority];
     lhs.openIdConfigurationEndpoint = [@"https://example.com" msidUrl];
     
-    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" b2cAuthority];
     rhs.openIdConfigurationEndpoint = [@"https://example.com/qwe" msidUrl];
     
     XCTAssertNotEqualObjects(lhs, rhs);
@@ -277,10 +277,10 @@
 
 - (void)testIsEqual_whenMetadataAreNotEqual_shouldReturnFalse
 {
-    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    __auto_type *lhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" b2cAuthority];
     lhs.metadata = [MSIDOpenIdProviderMetadata new];
     
-    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" authority];
+    __auto_type *rhs = (MSIDB2CAuthority *)[@"https://some.net/tfp/tenant/policy" b2cAuthority];
     rhs.metadata = [MSIDOpenIdProviderMetadata new];
     
     XCTAssertNotEqualObjects(lhs, rhs);

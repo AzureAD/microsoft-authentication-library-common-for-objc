@@ -134,7 +134,9 @@
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(result.accessToken.accountIdentifier.displayableId, @"user@contoso.com");
-    XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertEqualObjects(result.accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(result.accessToken.realm, @"contoso.com-guid");
+    
     XCTAssertTrue([expiresOn timeIntervalSinceDate:result.accessToken.expiresOn] < 1);
     XCTAssertTrue([extExpiresOn timeIntervalSinceDate:result.accessToken.extendedExpiresOn] < 1);
     
@@ -154,7 +156,8 @@
     XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
     XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(result.account.clientInfo.rawClientInfo, rawClientInfo);
-    XCTAssertEqualObjects(result.account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertEqualObjects(result.account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(result.account.realm, @"contoso.com-guid");
     
     XCTAssertFalse(result.accessToken.isExpired);
     
@@ -166,7 +169,8 @@
     XCTAssertEqualObjects(accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(accessToken.scopes, [scopes msidScopeSet]);
     XCTAssertEqualObjects(accessToken.clientId, @"my_client_id");
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(accessToken.realm, @"contoso.com-guid");
     XCTAssertEqualObjects(accessToken.expiresOn, result.accessToken.expiresOn);
     XCTAssertEqualObjects(accessToken.extendedExpiresOn, result.accessToken.extendedExpiresOn);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
@@ -179,20 +183,23 @@
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(refreshToken.familyId, @"1");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
+    XCTAssertNil(refreshToken.realm);
     
     //Check id token in cache
     NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:self.cacheAccessor];
     XCTAssertEqual([idTokens count], 1);
     
     MSIDIdToken *idToken = idTokens[0];
-    XCTAssertEqualObjects(idToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertEqualObjects(idToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(idToken.realm, @"contoso.com-guid");
     XCTAssertEqualObjects(idToken.rawIdToken, idTokenString);
     
     //Check account in cache
     NSArray *accounts = [self.cacheAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:nil context:nil error:nil];
     MSIDAccount *account = accounts[0];
-    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"contoso.com-guid");
     XCTAssertEqualObjects(account.username, @"user@contoso.com");
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
     XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"user@contoso.com");
@@ -463,7 +470,9 @@
     XCTAssertEqualObjects(accessToken.accessToken, @"intune-mam-accesstoken");
     XCTAssertEqualObjects(accessToken.scopes, [scopes msidScopeSet]);
     XCTAssertEqualObjects(accessToken.clientId, @"my_client_id");
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(accessToken.realm, @"contoso.com-guid");
+    
     XCTAssertTrue([expiresOn timeIntervalSinceDate:accessToken.expiresOn] < 1);
     XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpiresOn] < 1);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
@@ -474,7 +483,9 @@
     MSIDRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"intune-mam-refreshtoken");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
+    XCTAssertNil(refreshToken.realm);
+    
     XCTAssertNil(refreshToken.familyId);
 }
 
@@ -575,7 +586,8 @@
     XCTAssertEqualObjects(accessToken.accessToken, @"additional-accesstoken");
     XCTAssertEqualObjects(accessToken.scopes, [scopes msidScopeSet]);
     XCTAssertEqualObjects(accessToken.clientId, @"my_client_id");
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com-guid");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(accessToken.realm, @"contoso.com-guid");
     XCTAssertTrue([expiresOn timeIntervalSinceDate:accessToken.expiresOn] < 1);
     XCTAssertTrue([extExpiresOn timeIntervalSinceDate:accessToken.extendedExpiresOn] < 1);
     XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
@@ -586,7 +598,8 @@
     MSIDRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"additional-refreshtoken");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
+    XCTAssertNil(refreshToken.realm);
     XCTAssertNil(refreshToken.familyId);
 }
 

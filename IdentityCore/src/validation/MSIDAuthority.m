@@ -71,6 +71,16 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         }
         _url = url;
         _environment = url.msidHostWithPortIfNecessary;
+        
+        NSError *realmError = nil;
+        _realm = [self.class realmFromURL:url context:context error:&realmError];
+        
+        if (realmError && validateFormat)
+        {
+            MSID_LOG_WARN(context, @"Failed to extract realm for authority");
+            if (error) *error = realmError;
+            return nil;
+        }
     }
     return self;
 }
@@ -124,6 +134,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 - (NSURL *)cacheUrlWithContext:(__unused id<MSIDRequestContext>)context
 {
     return self.url;
+}
+
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext>)context
+{
+    return self.url.msidHostWithPortIfNecessary;
 }
 
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
@@ -296,9 +311,23 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 #pragma mark - Protected
 
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    return url.path;
+}
+
 - (id<MSIDAuthorityResolving>)resolver
 {
     NSAssert(NO, @"Abstract method");
+    return nil;
+}
+
+#pragma mark - Sovereign
+
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error
+{
     return nil;
 }
 
