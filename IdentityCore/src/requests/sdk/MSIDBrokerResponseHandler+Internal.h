@@ -21,31 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
+#import "MSIDBrokerResponseHandler.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDOauth2Factory;
-@class MSIDBrokerResponse;
-@class MSIDTokenResult;
-@class MSIDTokenResponseValidator;
-@class MSIDBrokerCryptoProvider;
-
-@interface MSIDBrokerResponseHandler : NSObject
-
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nullable) MSIDBrokerCryptoProvider *brokerCryptoProvider;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic, readonly, nullable) id<MSIDCacheAccessor> tokenCache;
-
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator;
-
-- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error;
+@interface MSIDBrokerResponseHandler (Internal)
 
 - (BOOL)canHandleBrokerResponse:(NSURL *)response
-             hasCompletionBlock:(BOOL)hasCompletionBlock;
+             hasCompletionBlock:(BOOL)hasCompletionBlock
+                protocolVersion:(NSString *)protocolVersion
+                        sdkName:(NSString *)sdkName;
 
 @end
 

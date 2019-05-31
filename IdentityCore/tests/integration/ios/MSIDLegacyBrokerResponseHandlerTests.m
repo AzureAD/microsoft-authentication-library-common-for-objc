@@ -68,6 +68,8 @@
 
     SecItemDelete((CFDictionaryRef)query);
 
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    
     [super tearDown];
 }
 
@@ -403,6 +405,62 @@
     XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIntiatedByAdalAndHasCompletionBlock_shouldReturnYes
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIsNotIntiatedByAdalAndHasCompletionBlock_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertFalse(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndNoResumeDictionaryAndNoCompletionBlock_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:NO];
+    
+    XCTAssertFalse(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndNoResumeDictionaryAndHasCompletionBlock_shouldReturnYes
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIntiatedByAdalAndHasCompletionBlock_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertFalse(result);
+}
+
 #pragma mark - Helpers
 
 - (void)saveResumeStateWithAuthority:(NSString *)authority
@@ -410,7 +468,8 @@
     NSDictionary *resumeState = @{@"authority": authority,
                                   @"resource": @"https://graph.windows.net",
                                   @"keychain_group": @"com.microsoft.adalcache",
-                                  @"redirect_uri": @"x-msauth-test://com.microsoft.testapp"
+                                  @"redirect_uri": @"x-msauth-test://com.microsoft.testapp",
+                                  @"sdk_name": @"adal-objc"
                                   };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
