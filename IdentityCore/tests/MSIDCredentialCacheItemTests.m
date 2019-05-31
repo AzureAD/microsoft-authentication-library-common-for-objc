@@ -273,4 +273,30 @@
     XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
 }
 
+- (void)testInitWithJSONData_whenJSONDictionaryContainsNulls_shouldReturnTokenCacheItemWithMissingFields
+{
+    NSDictionary *corruptedJsonDictionary = @{@"credential_type": @"IdToken",
+                                              @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                              @"secret": DEFAULT_TEST_ID_TOKEN,
+                                              @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                              @"realm": @"contoso.com",
+                                              @"home_account_id": @"uid.utid",
+                                              @"family_id": [NSNull null]
+                                              };
+    
+    NSError *error = nil;
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:corruptedJsonDictionary error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
+    XCTAssertEqual(cacheItem.credentialType, MSIDIDTokenType);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ID_TOKEN);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
+    XCTAssertNil(cacheItem.familyId);
+    XCTAssertFalse([[cacheItem familyId] isKindOfClass:[NSNull class]]);
+}
+
 @end

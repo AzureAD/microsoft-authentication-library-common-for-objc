@@ -53,16 +53,13 @@
         return YES;
     }
     
-    error = nil;
-    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[[NSURL alloc] initWithString:submitUrl]
+    // Extract authority from submit url
+    NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
+    NSString *authority = [authorityParts objectAtIndex:0];
+    
+    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
                                                           challengeData:queryParamsMap
-                                                                context:context
-                                                                  error:&error];
-    if (!authHeader)
-    {
-        completionHandler(nil, error);
-        return YES;
-    }
+                                                                context:context];
     
     // Attach client version to response url
     NSURLComponents *responseUrlComp = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:submitUrl] resolvingAgainstBaseURL:NO];
