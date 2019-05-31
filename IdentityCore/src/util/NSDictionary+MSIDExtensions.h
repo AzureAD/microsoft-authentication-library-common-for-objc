@@ -27,12 +27,12 @@
 
 + (NSDictionary *)msidDictionaryFromQueryString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string;
-+ (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error;
 
 - (NSString *)msidWWWFormURLEncode;
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
-- (NSString *)msidStringForKey:(NSString *)dictKey;
-
+- (NSString *)msidStringObjectForKey:(NSString *)key;
+- (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass;
+- (NSDictionary *)msidNormalizedJSONDictionary;
 
 - (BOOL)msidAssertType:(Class)type
                ofField:(NSString *)field

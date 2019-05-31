@@ -78,16 +78,6 @@
     return queryDict;
 }
 
-+ (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error
-{
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
-                                                         options:NSJSONReadingMutableContainers
-                                                           error:error];
-    
-    return json;
-}
-
-
 - (NSString *)msidWWWFormURLEncode
 {
     return [NSString msidWWWFormURLEncodedStringFromDictionary:self];
@@ -154,21 +144,63 @@
     return YES;
 }
 
-- (NSString *)msidStringForKey:(NSString *)dictKey
+- (NSString *)msidStringObjectForKey:(NSString *)key
 {
-    if (!dictKey)
+    return [self msidObjectForKey:key ofClass:[NSString class]];
+}
+
+- (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass
+{
+    if (!key)
     {
         return nil;
     }
-
-    NSString *value = self[dictKey];
-
-    if (![NSString msidIsStringNilOrBlank:value])
+    
+    id object = [self objectForKey:key];
+    
+    if (object && [object isKindOfClass:requiredClass])
     {
-        return value;
+        return object;
     }
-
+    
     return nil;
+}
+
+- (NSDictionary *)msidNormalizedJSONDictionary
+{
+    NSMutableDictionary *normalizedDictionary = [NSMutableDictionary new];
+    
+    [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        
+        if ([obj isKindOfClass:[NSDictionary class]])
+        {
+            normalizedDictionary[key] = [[self objectForKey:key] msidNormalizedJSONDictionary];
+        }
+        else if ([obj isKindOfClass:[NSArray class]])
+        {
+            NSMutableArray *normalizedArray = [NSMutableArray new];
+            
+            for (id arrayObject in (NSArray *)obj)
+            {
+                if ([arrayObject isKindOfClass:[NSDictionary class]])
+                {
+                    [normalizedArray addObject:[arrayObject msidNormalizedJSONDictionary]];
+                }
+                else if (![arrayObject isKindOfClass:[NSNull class]])
+                {
+                    [normalizedArray addObject:arrayObject];
+                }
+            }
+            
+            normalizedDictionary[key] = normalizedArray;
+        }
+        else if (![obj isKindOfClass:[NSNull class]])
+        {
+            normalizedDictionary[key] = [self objectForKey:key];
+        }
+    }];
+    
+    return normalizedDictionary;
 }
 
 @end

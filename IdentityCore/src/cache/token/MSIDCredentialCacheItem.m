@@ -132,9 +132,9 @@
 
     _json = json;
 
-    _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
-    _credentialType = [MSIDCredentialTypeHelpers credentialTypeFromString:json[MSID_CREDENTIAL_TYPE_CACHE_KEY]];
-    _secret = json[MSID_TOKEN_CACHE_KEY];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    _credentialType = [MSIDCredentialTypeHelpers credentialTypeFromString:[json msidStringObjectForKey:MSID_CREDENTIAL_TYPE_CACHE_KEY]];
+    _secret = [json msidStringObjectForKey:MSID_TOKEN_CACHE_KEY];
 
     if (!_secret)
     {
@@ -142,17 +142,17 @@
         return nil;
     }
 
-    _target = json[MSID_TARGET_CACHE_KEY];
-    _realm = json[MSID_REALM_CACHE_KEY];
-    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
-    _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
-    _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
-    _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
-    _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
+    _target = [json msidStringObjectForKey:MSID_TARGET_CACHE_KEY];
+    _realm = [json msidStringObjectForKey:MSID_REALM_CACHE_KEY];
+    _environment = [json msidStringObjectForKey:MSID_ENVIRONMENT_CACHE_KEY];
+    _expiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXPIRES_ON_CACHE_KEY]];
+    _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
+    _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
+    _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
 
     // Additional Info
-    NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
-    NSDate *extendedExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
+    NSString *speInfo = [json msidStringObjectForKey:MSID_SPE_INFO_CACHE_KEY];
+    NSDate *extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
     
     NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
     additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;

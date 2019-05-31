@@ -26,6 +26,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDOAuth2Constants.h"
 #import "NSString+MSIDTelemetryExtensions.h"
+#import "NSJSONSerialization+MSIDExtensions.h"
 
 @implementation MSIDTelemetryHttpEvent
 
@@ -79,14 +80,14 @@
     }
     
     NSError* jsonError  = nil;
-    id jsonObject = [NSJSONSerialization JSONObjectWithData:responseData options:0 error:&jsonError];
+    NSDictionary *jsonObject = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:responseData error:&jsonError];
     
     if (!jsonObject || ![jsonObject isKindOfClass:[NSDictionary class]])
     {
         return;
     }
     
-    NSString *oauthError = [(NSDictionary *)jsonObject objectForKey:MSID_OAUTH2_ERROR];
+    NSString *oauthError = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR];
     [self setProperty:MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE value:oauthError];
     self.errorInEvent = ![NSString msidIsStringNilOrBlank:oauthError];
 }

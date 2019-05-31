@@ -165,36 +165,67 @@
 - (void)testMsidStringForKey_whenNilKey_shouldReturnNil
 {
     NSDictionary *dictionary = [NSDictionary new];
-    NSString *result = [dictionary msidStringForKey:nil];
+    NSString *result = [dictionary msidStringObjectForKey:nil];
     XCTAssertNil(result);
 }
 
 - (void)testMsidStringForKey_whenValueMissing_shouldReturnNil
 {
     NSDictionary *dictionary = @{@"key1": @"value2"};
-    NSString *result = [dictionary msidStringForKey:@"missing"];
+    NSString *result = [dictionary msidStringObjectForKey:@"missing"];
     XCTAssertNil(result);
 }
 
-- (void)testMsidStringForKey_whenValuePresent_andIsBlank_shouldReturnNil
+- (void)testMsidStringForKey_whenNullValuePresent_andIsBlank_shouldReturnNil
 {
-    NSDictionary *dictionary = @{@"key1": @""};
-    NSString *result = [dictionary msidStringForKey:@"key1"];
+    NSDictionary *dictionary = @{@"key1": [NSNull null]};
+    NSString *result = [dictionary msidStringObjectForKey:@"key1"];
     XCTAssertNil(result);
 }
 
 - (void)testMsidStringForKey_whenValuePresent_andIsString_shouldReturnValue
 {
     NSDictionary *dictionary = @{@"key1": @"value1"};
-    NSString *result = [dictionary msidStringForKey:@"key1"];
+    NSString *result = [dictionary msidStringObjectForKey:@"key1"];
     XCTAssertEqualObjects(result, @"value1");
 }
 
 - (void)testMsidStringForKey_whenValuePresent_andNotString_shouldReturnNil
 {
     NSDictionary *dictionary = @{@"key1": [NSNull null]};
-    NSString *result = [dictionary msidStringForKey:@"key1"];
+    NSString *result = [dictionary msidStringObjectForKey:@"key1"];
     XCTAssertNil(result);
+}
+
+- (void)testMSIDNormalizedDictionary_whenNoNulls_returnDictionary
+{
+    NSDictionary *input = @{@"test1": @"test2", @"tets3": @"test4"};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(input, result);
+}
+
+- (void)testMSIDNormalizedDictionary_whenDictionaryContainsNulls_returnNormalizedDictionary
+{
+    NSDictionary *input = @{@"test1": @"test2", @"test3": @"test4", @"null-test": [NSNull null]};
+    NSDictionary *expectedResult = @{@"test1": @"test2", @"test3": @"test4"};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(expectedResult, result);
+}
+
+- (void)testMSIDNormalizedDictionary_whenDictionaryContainsDictionariesWithNulls_returnNormalizedDictionary
+{
+    NSDictionary *input = @{@"test1":@"test2", @"test3": @"test4", @"test5": @{@"test1": [NSNull null], @"test2": @"test3", @"test4": @{@"test5": [NSNull null]}}};
+    NSDictionary *expectedResult = @{@"test1":@"test2", @"test3": @"test4", @"test5": @{@"test2": @"test3", @"test4": @{}}};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(expectedResult, result);
+}
+
+- (void)testMSIDNornalizedDictionary_whenDictionaryContainsArraysWithDictionariesWithNulls_returnNormalizedDictionary
+{
+    NSDictionary *input = @{@"input1": @"test2", @"test3": @[[NSNull null], @{@"test1": @{@"test1": [NSNull null], @"test3": @"test4"}}]};
+    NSDictionary *expectedResult = @{@"input1": @"test2", @"test3": @[@{@"test1": @{@"test3": @"test4"}}]};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(expectedResult, result);
 }
 
 @end
