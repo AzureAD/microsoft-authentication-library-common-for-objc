@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDExternalCacheSeeder.h"
+#import "MSIDExternalAADCacheSeeder.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDRefreshTokenGrantRequest.h"
 #import "MSIDTokenResponse.h"
@@ -32,7 +32,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDAADV2Oauth2FactoryForV1Request.h"
 
-@implementation MSIDExternalCacheSeeder
+@implementation MSIDExternalAADCacheSeeder
 
 - (void)seedTokenResponse:(MSIDTokenResponse *)originalTokenResponse
                   factory:(MSIDOauth2Factory *)factory

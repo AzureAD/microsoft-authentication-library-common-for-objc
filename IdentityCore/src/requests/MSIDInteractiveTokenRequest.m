@@ -42,7 +42,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
-#import "MSIDExternalCacheSeeder.h"
+#import "MSIDExternalAADCacheSeeder.h"
 
 @interface MSIDInteractiveTokenRequest()
 

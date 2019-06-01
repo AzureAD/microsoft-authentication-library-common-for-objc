@@ -29,7 +29,7 @@
 @class MSIDInteractiveRequestParameters;
 @class MSIDWebWPJResponse;
 #if TARGET_OS_OSX
-@class MSIDExternalCacheSeeder;
+@class MSIDExternalAADCacheSeeder;
 #endif
 
 @interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
@@ -37,7 +37,7 @@
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
 
 #if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
+@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
 #endif
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters

@@ -47,11 +47,11 @@
 		2306D2B820AD07C400F875A3 /* MSIDURLSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2306D2B620AD07C400F875A3 /* MSIDURLSessionManager.h */; };
 		2306D2B920AD07C400F875A3 /* MSIDURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2306D2B720AD07C400F875A3 /* MSIDURLSessionManager.m */; };
 		2306D2BA20AD07C400F875A3 /* MSIDURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2306D2B720AD07C400F875A3 /* MSIDURLSessionManager.m */; };
-		2307163D2299ED3800FDD044 /* MSIDExternalCacheSeeder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2307163B2299ED3800FDD044 /* MSIDExternalCacheSeeder.h */; };
+		2307163D2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.h in Headers */ = {isa = PBXBuildFile; fileRef = 2307163B2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.h */; };
 		23071655229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.h in Headers */ = {isa = PBXBuildFile; fileRef = 23071653229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.h */; };
 		23071656229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.m in Sources */ = {isa = PBXBuildFile; fileRef = 23071654229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.m */; };
 		23071657229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.m in Sources */ = {isa = PBXBuildFile; fileRef = 23071654229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.m */; };
-		2307165B22A0903B00FDD044 /* MSIDExternalCacheSeeder.m in Sources */ = {isa = PBXBuildFile; fileRef = 2307163C2299ED3800FDD044 /* MSIDExternalCacheSeeder.m */; };
+		2307165B22A0903B00FDD044 /* MSIDExternalAADCacheSeeder.m in Sources */ = {isa = PBXBuildFile; fileRef = 2307163C2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.m */; };
 		2308476B207D6D500024CE7C /* NSData+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 23084769207D6D500024CE7C /* NSData+MSIDExtensions.h */; };
 		2308476C207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */; };
 		2308476D207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 2308476A207D6D500024CE7C /* NSData+MSIDExtensions.m */; };
@@ -1195,8 +1195,8 @@
 		2306D2B120AD05A700F875A3 /* MSIDURLSessionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDURLSessionDelegate.h; sourceTree = "<group>"; };
 		2306D2B620AD07C400F875A3 /* MSIDURLSessionManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDURLSessionManager.h; sourceTree = "<group>"; };
 		2306D2B720AD07C400F875A3 /* MSIDURLSessionManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDURLSessionManager.m; sourceTree = "<group>"; };
-		2307163B2299ED3800FDD044 /* MSIDExternalCacheSeeder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDExternalCacheSeeder.h; sourceTree = "<group>"; };
-		2307163C2299ED3800FDD044 /* MSIDExternalCacheSeeder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExternalCacheSeeder.m; sourceTree = "<group>"; };
+		2307163B2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDExternalAADCacheSeeder.h; sourceTree = "<group>"; };
+		2307163C2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDExternalAADCacheSeeder.m; sourceTree = "<group>"; };
 		23071653229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADV2Oauth2FactoryForV1Request.h; sourceTree = "<group>"; };
 		23071654229F56AE00FDD044 /* MSIDAADV2Oauth2FactoryForV1Request.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2Oauth2FactoryForV1Request.m; sourceTree = "<group>"; };
 		23084769207D6D500024CE7C /* NSData+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MSIDExtensions.h"; sourceTree = "<group>"; };
@@ -3498,8 +3498,8 @@
 				23B37D1920C9ECFB0018722F /* MSIDCache.m */,
 				2323A6C32217AD4A00727088 /* MSIDBasicContext.h */,
 				2323A6C42217AD4A00727088 /* MSIDBasicContext.m */,
-				2307163B2299ED3800FDD044 /* MSIDExternalCacheSeeder.h */,
-				2307163C2299ED3800FDD044 /* MSIDExternalCacheSeeder.m */,
+				2307163B2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.h */,
+				2307163C2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.m */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -3779,7 +3779,7 @@
 				2306D2B820AD07C400F875A3 /* MSIDURLSessionManager.h in Headers */,
 				232173F02182B195009852C6 /* MSIDIntuneCacheDataSource.h in Headers */,
 				B210F4281FDDE198005A8F76 /* MSIDJsonObject.h in Headers */,
-				2307163D2299ED3800FDD044 /* MSIDExternalCacheSeeder.h in Headers */,
+				2307163D2299ED3800FDD044 /* MSIDExternalAADCacheSeeder.h in Headers */,
 				238E19C02086FC38004DF483 /* MSIDHttpResponseSerializer.h in Headers */,
 				238E19C32086FC38004DF483 /* MSIDResponseSerialization.h in Headers */,
 				B28D90A0218FBBA200E230D6 /* MSIDTokenResponseValidator.h in Headers */,
@@ -4680,7 +4680,7 @@
 				238EF03A208FDBA20035ABE6 /* MSIDAADV1RefreshTokenGrantRequest.m in Sources */,
 				238A04912089A3C800989EE0 /* MSIDHttpRequestTelemetry.m in Sources */,
 				B20657CD1FC9271000412B7D /* MSIDTelemetryUIEvent.m in Sources */,
-				2307165B22A0903B00FDD044 /* MSIDExternalCacheSeeder.m in Sources */,
+				2307165B22A0903B00FDD044 /* MSIDExternalAADCacheSeeder.m in Sources */,
 				2306D2BA20AD07C400F875A3 /* MSIDURLSessionManager.m in Sources */,
 				23FB5C472255A13A002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.m in Sources */,
 			);

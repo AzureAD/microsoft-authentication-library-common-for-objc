@@ -27,12 +27,12 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDTelemetryAPIEvent;
-@class MSIDExternalCacheSeeder;
+@class MSIDExternalAADCacheSeeder;
 
 @protocol MSIDRequestControlling <NSObject>
 
 #if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalCacheSeeder *externalCacheSeeder;
+@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
 #endif
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;

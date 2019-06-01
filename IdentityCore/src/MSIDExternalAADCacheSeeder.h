@@ -31,7 +31,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDExternalCacheSeeder : NSObject
+@interface MSIDExternalAADCacheSeeder : NSObject
 
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
