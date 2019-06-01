@@ -48,27 +48,19 @@
     MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Attempting to handle client TLS challenge. host: %@", host);
     
     // See if this is a challenge for the WPJ cert.
-    // See if this is a challenge for the WPJ cert.
-    NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
-    if ([MSIDWPJChallengeHandler isWPJChallenge:distinguishedNames])
+    if ([MSIDWPJChallengeHandler handleChallenge:challenge
+                                         webview:webview
+                                         context:context
+                               completionHandler:completionHandler])
     {
-        return [MSIDWPJChallengeHandler handleChallenge:challenge
-                                                webview:webview
-                                                context:context
-                                      completionHandler:completionHandler];
+        return YES;
     }
-    else
-    {
-#if TARGET_OS_IPHONE
-        return NO;
-#else
-        // If it is not WPJ challenge, it has to be CBA.
-        return [MSIDCertAuthHandler handleChallenge:challenge
-                                            webview:webview
-                                            context:context
-                                  completionHandler:completionHandler];
-#endif
-    }
+    
+    // If it is not WPJ challenge, it has to be CBA.
+    return [MSIDCertAuthHandler handleChallenge:challenge
+                                        webview:webview
+                                        context:context
+                              completionHandler:completionHandler];
 }
 
 @end
