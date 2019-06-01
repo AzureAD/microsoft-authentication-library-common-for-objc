@@ -25,8 +25,15 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
+
+@interface MSIDAccountMetadataCacheItem()
+{
+    NSMutableDictionary *_internalMap;
+}
+@end
 
 @implementation MSIDAccountMetadataCacheItem
 
@@ -57,7 +64,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         return NO;
     }
     
-    NSMutableDictionary *urlMap = _internalMap[MSID_ACCOUNT_CACHE_KEY];
+    NSMutableDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
     if (!urlMap)
     {
         urlMap = [NSMutableDictionary new];
@@ -73,7 +80,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
     NSString *cachedURLString = urlMap[cachedURL.absoluteString];
     
-    return cachedURLString ? [[NSURL alloc] initWithString:urlMap[cachedURL.absoluteString]] : nil;
+    return cachedURLString ? [[NSURL alloc] initWithString:cachedURLString] : nil;
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
@@ -90,10 +97,9 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         return nil;
     }
     
-    self->_clientId = json[MSID_CLIENT_ID_CACHE_KEY];
-    self->_homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
-
-    _internalMap = [NSMutableDictionary new];
+    self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    self->_homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
+    self->_internalMap = [[json msidObjectForKey:MSID_ACCOUNT_CACHE_KEY ofClass:NSDictionary.class] mutableCopy];
     
     return self;
 }
@@ -108,6 +114,8 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     return dictionary;
 }
+
+- (NSDictionary *)internalMap { return _internalMap; }
 
 #pragma mark - Equal
 

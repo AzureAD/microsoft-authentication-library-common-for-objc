@@ -35,7 +35,7 @@
 - (nullable MSIDTokenResult *)validateAndSaveTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse
                                               oauthFactory:(nonnull MSIDOauth2Factory *)factory
                                                 tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
-                                             metadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)metadataCache
+                                      accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)metadataCache
                                          requestParameters:(nonnull MSIDRequestParameters *)parameters
                                                      error:(NSError * _Nullable * _Nullable)error;
 

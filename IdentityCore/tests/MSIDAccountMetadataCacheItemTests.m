@@ -82,7 +82,7 @@
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso.com"]
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority.com"] error:&error]);
-    XCTAssertEqualObjects(cacheItem->_internalMap,
+    XCTAssertEqualObjects(cacheItem.internalMap,
                           @{ @"URLMap" : @{ @"https://testAuthority.com" : @"https://contoso.com"}});
 }
 
@@ -94,7 +94,7 @@
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority.com"] error:&error]);
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso2.com"]
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority.com"] error:&error]);
-    XCTAssertEqualObjects(cacheItem->_internalMap,
+    XCTAssertEqualObjects(cacheItem.internalMap,
                           @{ @"URLMap" : @{ @"https://testAuthority.com" : @"https://contoso2.com"}});
 }
 

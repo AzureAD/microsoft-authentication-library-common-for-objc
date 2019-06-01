@@ -53,6 +53,14 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
+    if (!requestAuthorityURL
+        || [NSString msidIsStringNilOrBlank:homeAccountId]
+        || [NSString msidIsStringNilOrBlank:clientId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"One or more of input field is nil - request requestAuthorityURL, homeAccountId, or clientID", nil, nil, nil, nil, nil);
+        return nil;
+    }
+    
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
     MSIDAccountMetadataCacheItem *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
     if (!authorityMap) { return nil; }
@@ -61,7 +69,7 @@
 }
 
 - (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
-             ForRequestURL:(NSURL *)requestAuthorityURL
+             forRequestURL:(NSURL *)requestAuthorityURL
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
                    context:(id<MSIDRequestContext>)context

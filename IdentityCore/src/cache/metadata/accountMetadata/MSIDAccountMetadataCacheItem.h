@@ -24,14 +24,10 @@
 #import "MSIDJsonSerializable.h"
 
 @interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying>
-{
-    @public // This is for unit testing purposes. No accessor should write to this directly.
-    NSMutableDictionary *_internalMap;
-}
 
 @property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;
-
+@property (nonatomic, readonly) NSDictionary *internalMap;
 
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)init NS_UNAVAILABLE;

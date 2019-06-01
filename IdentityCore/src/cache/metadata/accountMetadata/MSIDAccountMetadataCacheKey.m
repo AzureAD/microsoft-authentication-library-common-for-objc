@@ -29,12 +29,12 @@ static NSInteger kAuthorityMapMetadataType = 5001;
 @implementation MSIDAccountMetadataCacheKey
 
 - (instancetype)initWitHomeAccountId:(NSString *)homeAccountId
-                            clientId:(NSString *)clientId;
+                            clientId:(NSString *)clientId
 {
     if (!homeAccountId || !clientId) return nil;
     
     self = [super initWithAccount:homeAccountId
-                          service:[NSString stringWithFormat:@"%@-%@", MSID_APP_METADATA_AUTHORITY_MAP_TYPE, homeAccountId]
+                          service:[NSString stringWithFormat:@"%@-%@", MSID_APP_METADATA_AUTHORITY_MAP_TYPE, clientId]
                           generic:nil
                              type:@(kAuthorityMapMetadataType)];
     return self;

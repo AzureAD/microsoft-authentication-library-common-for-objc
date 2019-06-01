@@ -76,16 +76,13 @@
     __block NSError *localError;
     __block BOOL saveSuccess = NO;
     
+    if ([item isEqual:_memoryCache[key]]) return YES;
+    
     dispatch_barrier_sync(_synchronizationQueue, ^{
-        MSIDAccountMetadataCacheItem *currentItem = [_dataSource accountMetadataWithKey:key serializer:_jsonSerializer context:context error:&localError];
-        
-        if (![item isEqual:currentItem])
+        saveSuccess = [_dataSource saveAccountMetadata:item key:key serializer:_jsonSerializer context:context error:&localError];
+        if (saveSuccess)
         {
-            saveSuccess = [_dataSource saveAccountMetadata:item key:key serializer:_jsonSerializer context:context error:&localError];
-            if (saveSuccess)
-            {
-                _memoryCache[key] = item;
-            }
+            _memoryCache[key] = item;
         }
     });
     

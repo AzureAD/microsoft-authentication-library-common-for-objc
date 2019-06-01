@@ -228,7 +228,7 @@
 - (MSIDTokenResult *)validateAndSaveTokenResponse:(MSIDTokenResponse *)tokenResponse
                                      oauthFactory:(MSIDOauth2Factory *)factory
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                                    metadataCache:(MSIDAccountMetadataCacheAccessor *)metadataCache
+                             accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                 requestParameters:(MSIDRequestParameters *)parameters
                                             error:(NSError **)error
 {
@@ -246,12 +246,12 @@
     
     //save metadata
     NSError *updateMetadataError = nil;
-    [metadataCache updateAuthorityURL:tokenResult.authority.url
-                        ForRequestURL:parameters.authority.url
-                        homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
-                             clientId:parameters.clientId
-                              context:parameters
-                                error:&updateMetadataError];
+    [accountMetadataCache updateAuthorityURL:tokenResult.authority.url
+                               forRequestURL:parameters.authority.url
+                               homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
+                                    clientId:parameters.clientId
+                                     context:parameters
+                                       error:&updateMetadataError];
     
     if (updateMetadataError)
     {

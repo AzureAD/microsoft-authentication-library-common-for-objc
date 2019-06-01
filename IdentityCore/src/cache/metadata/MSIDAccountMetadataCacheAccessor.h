@@ -39,7 +39,7 @@
                      error:(NSError **)error;
 
 - (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
-             ForRequestURL:(NSURL *)requestAuthorityURL
+             forRequestURL:(NSURL *)requestAuthorityURL
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
                    context:(id<MSIDRequestContext>)context

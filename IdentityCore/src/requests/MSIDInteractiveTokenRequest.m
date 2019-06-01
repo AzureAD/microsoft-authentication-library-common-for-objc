@@ -254,7 +254,7 @@
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
-                                                                                   metadataCache:self.metadataCache
+                                                                            accountMetadataCache:self.metadataCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
         
