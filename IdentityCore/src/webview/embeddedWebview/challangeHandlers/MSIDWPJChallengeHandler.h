@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDWPJChallengeHandler : NSObject<MSIDChallengeHandling>
 
++ (BOOL)isWPJChallenge:(NSArray *)distinguishedNames;
+
 @end
 
 NS_ASSUME_NONNULL_END
