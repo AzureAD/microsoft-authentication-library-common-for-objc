@@ -36,11 +36,25 @@
                                   challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
 {
+    NSError *localError = nil;
     MSIDRegistrationInformation *info =
     [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil];
-    NSString *pKeyAuthHeader = @"";
     
-    if (info && challengeData)
+    if (!info && localError)
+    {
+        MSID_LOG_ERROR(context, @"Failed to create PKeyAuth request");
+    }
+    
+    if (!challengeData)
+    {
+        // Error should have been logged before this where there is more information on why the challenge data was bad
+        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
+    }
+    else if (![info isWorkPlaceJoined])
+    {
+        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
+    }
+    else
     {
         NSString *certAuths = [challengeData valueForKey:@"CertAuthorities"];
         NSString *expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
@@ -51,6 +65,8 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
+                
+                info = nil;
             }
         }
         else if (expectedThumbprint)
@@ -61,29 +77,25 @@
             if (![expectedThumbprint isEqualToString:thumbprint])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
+                
+                info = nil;
             }
         }
-        
+    }
+    
+    NSString *pKeyAuthHeader = @"";
+    if (info)
+    {
         NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
         urlComponents.query = nil; // Strip out query parameters.
         __auto_type audience = urlComponents.string;
         
         pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:audience nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
-    }
-    else if (!challengeData)
-    {
-        // Error should have been logged before this where there is more information on why the challenge data was bad
-        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
-    }
-    else if (!info)
-    {
-        MSID_LOG_INFO(nil, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
+        info = nil;
     }
     
-    pKeyAuthHeader = [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader, [challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
-    
-    return pKeyAuthHeader;
+    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
 }
 
 
