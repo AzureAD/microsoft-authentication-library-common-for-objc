@@ -45,4 +45,9 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
+- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
+                     clientId:(NSString *)clientId
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
+
 @end

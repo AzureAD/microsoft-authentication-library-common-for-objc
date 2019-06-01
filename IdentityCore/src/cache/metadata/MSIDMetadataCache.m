@@ -28,7 +28,6 @@
 #import "MSIDJsonSerializing.h"
 #import "MSIDCacheKey.h"
 #import "MSIDAccountMetadataCacheItem.h"
-#import "MSIDAccountMetadataCacheKey.h"
 
 @implementation MSIDMetadataCache
 {
@@ -57,7 +56,7 @@
 }
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
-                        key:(MSIDAccountMetadataCacheKey *)key
+                        key:(MSIDCacheKey *)key
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
@@ -90,7 +89,7 @@
     return saveSuccess;
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
@@ -117,6 +116,35 @@
     
     if (error) *error = localError;
     return item;
+}
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
+{
+    if (!key)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorInvalidInternalParameter,
+                                     @"cacheItem and key could not be nil.",
+                                     nil, nil, nil, nil, nil);
+        }
+        return NO;
+    }
+    
+    __block BOOL success = NO;
+    __block NSError *localError;
+    
+    dispatch_sync(_synchronizationQueue, ^{
+        [_memoryCache removeObjectForKey:key];
+        
+        success = [_dataSource removeAccountMetadataForKey:key context:context error:&localError];
+    });
+    
+    if (error) *error = localError;
+    return success;
 }
 
 @end

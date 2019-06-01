@@ -96,4 +96,13 @@
                                        context:context error:error];
 }
 
+- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
+                     clientId:(NSString *)clientId
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
+{
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
+    return [_metadataCache removeAccountMetadataForKey:key context:context error:error];
+}
+
 @end

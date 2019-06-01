@@ -34,11 +34,15 @@
 - (instancetype)initWithPersistantDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
-                        key:(MSIDAccountMetadataCacheKey *)key
+                        key:(MSIDCacheKey *)key
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
+
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error;
 

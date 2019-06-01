@@ -643,13 +643,35 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(item, cachedItem);
     
+    // Resave with different item
     XCTAssertTrue([item setCachedURL:[NSURL URLWithString:@"https://internalContoso2.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] error:&error]);
     XCTAssertNil(error);
+    
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:&error]);
+    cachedItem = [keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:&error];
     
     XCTAssertNotNil(item);
     XCTAssertNil(error);
     XCTAssertEqualObjects(item, cachedItem);
 }
 
-
+- (void)testRemoveAccountMetadata_shouldRemoveItem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadataCacheItem *item = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] error:nil];
+    [keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:nil];
+    
+    XCTAssertNotNil([keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:nil]);
+    
+    NSError *error;
+    XCTAssertTrue([keychainTokenCache removeAccountMetadataForKey:key context:nil error:&error]);
+    XCTAssertNil(error);
+    XCTAssertNil([keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:nil]);
+    
+    
+}
 @end

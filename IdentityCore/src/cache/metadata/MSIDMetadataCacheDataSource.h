@@ -22,20 +22,24 @@
 // THE SOFTWARE.
 
 @class MSIDAccountMetadataCacheItem;
-@class MSIDAccountMetadataCacheKey;
+@class MSIDCacheKey;
 @protocol MSIDAccountMetadataCacheItemSerializer;
 
 @protocol MSIDMetadataCacheDataSource <NSObject>
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
-                        key:(MSIDAccountMetadataCacheKey *)key
+                        key:(MSIDCacheKey *)key
                  serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                               serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error;
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
 
 @end

@@ -387,7 +387,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
-                        key:(MSIDAccountMetadataCacheKey *)key
+                        key:(MSIDCacheKey *)key
                  serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
@@ -412,7 +412,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     error:error];
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                               serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
@@ -428,7 +428,6 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSData *itemData = [items[0] objectForKey:(id)kSecValueData];
     return [serializer deserializeAccountMetadata:itemData];
 }
-
 
 #pragma mark - Removal
 
@@ -451,6 +450,13 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
