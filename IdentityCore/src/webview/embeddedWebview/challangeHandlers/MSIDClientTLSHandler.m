@@ -25,8 +25,6 @@
 #import "MSIDClientTLSHandler.h"
 #import "MSIDCertAuthHandler.h"
 #import "MSIDWPJChallengeHandler.h"
-#import "MSIDWorkPlaceJoinUtil.h"
-#import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation MSIDClientTLSHandler
 
