@@ -57,7 +57,7 @@
     NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
-    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
+    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:[NSURL URLWithString:authority]
                                                           challengeData:queryParamsMap
                                                                 context:context];
     
@@ -95,8 +95,7 @@
     NSError *error = nil;
     NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:requestUrl
                                                           challengeData:authHeaderParams
-                                                                context:context
-                                                                  error:&error];
+                                                                context:context];
     if (completionHandler)
     {
         completionHandler(authHeader, error);

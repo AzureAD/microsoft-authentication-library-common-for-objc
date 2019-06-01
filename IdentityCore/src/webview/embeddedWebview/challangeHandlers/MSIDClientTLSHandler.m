@@ -25,6 +25,8 @@
 #import "MSIDClientTLSHandler.h"
 #import "MSIDCertAuthHandler.h"
 #import "MSIDWPJChallengeHandler.h"
+#import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation MSIDClientTLSHandler
 
@@ -46,17 +48,24 @@
     MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Attempting to handle client TLS challenge. host: %@", host);
     
     // See if this is a challenge for the WPJ cert.
-    if ([MSIDWPJChallengeHandler handleChallenge:challenge
-                                         webview:webview
-                                         context:context
-                               completionHandler:completionHandler])
+    // See if this is a challenge for the WPJ cert.
+    NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
+    if ([self isWPJChallenge:distinguishedNames])
     {
-        return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
+        return [self handleWPJChallenge:challenge
+                                webview:webview
+                                context:context
+                      completionHandler:completionHandler];
     }
+    
 #if TARGET_OS_IPHONE
     return NO;
 #else
-    return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
+    // If it is not WPJ challenge, it has to be CBA.
+    return [MSIDCertAuthHandler handleChallenge:challenge
+                                        webview:webview
+                                        context:context
+                              completionHandler:completionHandler];
 #endif
 }
 
@@ -76,6 +85,7 @@
 }
 
 + (BOOL)handleWPJChallenge:(NSURLAuthenticationChallenge *)challenge
+                   webview:(WKWebView *)webview
                    context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
