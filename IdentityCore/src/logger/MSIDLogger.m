@@ -100,6 +100,78 @@ static NSDateFormatter *s_dateFormatter = nil;
 - (void)logWithLevel:(MSIDLogLevel)level
              context:(id<MSIDRequestContext>)context
        correlationId:(NSUUID *)correlationId
+         containsPII:(BOOL)containsPII
+              format:(NSString *)format, ...
+{
+    if (!format) return;
+    if (level > self.level) return;
+    if (!self.callback && !self.NSLoggingEnabled) return;
+
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+    
+    __uint64_t tid;
+    pthread_threadid_np(NULL, &tid);
+    
+    // Prevent queue from growing infinitely large.
+    dispatch_semaphore_wait(self.queueSemaphore, DISPATCH_TIME_FOREVER);
+    
+    dispatch_async(self.loggerQueue, ^{
+        @autoreleasepool
+        {
+            NSString *logComponent = [context logComponent];
+            NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
+            
+            NSString *correlationIdStr = @"";
+            
+            if (correlationId)
+            {
+                correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
+            }
+            else if (context)
+            {
+                correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
+            }
+            
+            NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
+            
+            NSString *sdkName = [MSIDVersion sdkName];
+            NSString *sdkVersion = [MSIDVersion sdkVersion];
+            
+            __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
+            if (!threadName) {
+                threadName = [NSThread currentThread].name ?: @"";
+            }
+            
+            __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID=%llu%@", tid, threadName];
+            
+            if (self.NSLoggingEnabled)
+            {
+                NSString *levelStr = [self stringForLogLevel:_level];
+                
+                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@: %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
+                
+                NSLog(@"%@", log);
+            }
+            
+            if (self.callback)
+            {
+                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
+                
+                BOOL lineContainsPII = self.PiiLoggingEnabled ? containsPII : NO;
+                self.callback(level, log, lineContainsPII);
+            }
+            
+            dispatch_semaphore_signal(self.queueSemaphore);
+        }
+    });
+}
+
+- (void)logWithLevel:(MSIDLogLevel)level
+             context:(id<MSIDRequestContext>)context
+       correlationId:(NSUUID *)correlationId
                isPII:(BOOL)isPii
   ignoreIfPIIEnabled:(BOOL)ignoreIfPIIEnabled
               format:(NSString *)format, ...

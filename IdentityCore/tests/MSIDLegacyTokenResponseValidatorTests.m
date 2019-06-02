@@ -52,9 +52,8 @@
 - (void)testValidateAccount_whenAccountTypeIsRequiredDisplayableId_andAccountMismatch_shouldReturnError
 {
     MSIDTokenResult *testResult = [self testTokenResult];
-    MSIDAccountIdentifier *testAccount = [MSIDAccountIdentifier new];
+    MSIDAccountIdentifier *testAccount = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user2@contoso.com" homeAccountId:nil];
     testAccount.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
-    testAccount.displayableId = @"user2@contoso.com";
     
     NSError *error = nil;
     BOOL result = [self.validator validateAccount:testAccount
@@ -87,9 +86,8 @@
 - (void)testValidateAccount_whenAccountTypeIsRequiredDisplayableId_andAccountMatches_shouldReturnNoError
 {
     MSIDTokenResult *testResult = [self testTokenResult];
-    MSIDAccountIdentifier *testAccount = [MSIDAccountIdentifier new];
+    MSIDAccountIdentifier *testAccount = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:nil];
     testAccount.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
-    testAccount.displayableId = @"user@contoso.com";
     
     NSError *error = nil;
     BOOL result = [self.validator validateAccount:testAccount
@@ -97,18 +95,15 @@
                                     correlationID:[NSUUID new]
                                             error:&error];
     
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorMismatchedAccount);
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
 }
 
 - (void)testValidateAccount_whenAccountTypeIsOptionalDisplayableId_andAccountMatches_shouldReturnNoError
 {
     MSIDTokenResult *testResult = [self testTokenResult];
-    MSIDAccountIdentifier *testAccount = [MSIDAccountIdentifier new];
+    MSIDAccountIdentifier *testAccount = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:nil];
     testAccount.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeOptionalDisplayableId;
-    testAccount.displayableId = @"user@contoso.com";
     
     NSError *error = nil;
     BOOL result = [self.validator validateAccount:testAccount
@@ -139,9 +134,8 @@
 - (void)testValidateAccount_whenAccountTypeIsOptionalDisplayableId_andAccountMismatch_shouldReturnNoError
 {
     MSIDTokenResult *testResult = [self testTokenResult];
-    MSIDAccountIdentifier *testAccount = [MSIDAccountIdentifier new];
+    MSIDAccountIdentifier *testAccount = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user2@contoso.com" homeAccountId:nil];
     testAccount.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeOptionalDisplayableId;
-    testAccount.displayableId = @"user2@contoso.com";
     
     NSError *error = nil;
     BOOL result = [self.validator validateAccount:testAccount
@@ -226,8 +220,10 @@
 {
     MSIDAccount *account = [MSIDAccount new];
     account.username = @"user@contoso.com";
-    account.accountIdentifier.homeAccountId = @"uid.utid";
+    
+    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"uid.utid"];
     account.localAccountId = @"unique_oid";
+    account.accountIdentifier = accountIdentifier;
     
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:[MSIDAccessToken new]
                                                               refreshToken:nil

@@ -23,6 +23,15 @@
 
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClientInfo.h"
+#import "MSIDMaskedHashableLogParameter.h"
+#import "MSIDMaskedUsernameLogParameter.h"
+
+@interface MSIDAccountIdentifier()
+
+@property (nonatomic, readwrite) MSIDMaskedHashableLogParameter *maskedHomeAccountId;
+@property (nonatomic, readwrite) MSIDMaskedUsernameLogParameter *maskedDisplayableId;
+
+@end
 
 @implementation MSIDAccountIdentifier
 
@@ -50,6 +59,8 @@
 
     _displayableId = legacyAccountId;
     _homeAccountId = homeAccountId;
+    _maskedHomeAccountId = [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_homeAccountId];
+    _maskedDisplayableId = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_displayableId];
     _legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     NSArray *accountComponents = [homeAccountId componentsSeparatedByString:@"."];
@@ -100,13 +111,11 @@
 
 - (instancetype)copyWithZone:(NSZone *)zone
 {
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier allocWithZone:zone] init];
-    account.displayableId = [_displayableId copyWithZone:zone];
-    account.homeAccountId = [_homeAccountId copyWithZone:zone];
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier allocWithZone:zone] initWithDisplayableId:[self.displayableId copyWithZone:zone] homeAccountId:[self.homeAccountId copyWithZone:zone]];
     account.legacyAccountIdentifierType = _legacyAccountIdentifierType;
-    account.localAccountId = [_localAccountId copyWithZone:zone];
-    account.uid = [_uid copyWithZone:zone];
-    account.utid = [_utid copyWithZone:zone];
+    account.localAccountId = [self.localAccountId copyWithZone:zone];
+    account.uid = [self.uid copyWithZone:zone];
+    account.utid = [self.utid copyWithZone:zone];
     return account;
 }
 

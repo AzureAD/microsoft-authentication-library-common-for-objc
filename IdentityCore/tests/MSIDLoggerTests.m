@@ -243,6 +243,36 @@
     XCTAssertEqual(logger.lastLevel, MSIDLogLevelVerbose);
 }
 
+- (void)testLogWithContextMacro_whenContainsPii_andPiiDisabled_shouldLogMessageWithMaskedPii
+{
+    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
+    
+    [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
+    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, nil, YES, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_PARAM(@"very sensitive data"));
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertNotNil(logger.lastMessage);
+    XCTAssertFalse(logger.containsPII);
+    XCTAssertTrue([logger.lastMessage containsString:@"My pii message arg1, pii param Masked(__NSCFConstantString,(not-null))"]);
+    XCTAssertEqual(logger.lastLevel, MSIDLogLevelVerbose);
+}
+
+- (void)testLogWithContextMacro_whenContainsPii_andPiiEnabled_shouldLogMessageWithRawPii
+{
+    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
+    
+    [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
+    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, nil, YES, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_PARAM(@"very sensitive data"));
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertNotNil(logger.lastMessage);
+    XCTAssertTrue(logger.containsPII);
+    XCTAssertTrue([logger.lastMessage containsString:@"My pii message arg1, pii param very sensitive data"]);
+    XCTAssertEqual(logger.lastLevel, MSIDLogLevelVerbose);
+}
+
 #pragma mark - Log level
 
 - (void)testSetLogLevel_withLogLevelNothing_shouldNotInvokeCallback

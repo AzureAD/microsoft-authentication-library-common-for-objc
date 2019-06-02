@@ -27,6 +27,9 @@
 
 #import "MSIDLogger.h"
 #import "MSIDRequestContext.h"
+#import "MSIDMaskedLogParameter.h"
+#import "MSIDMaskedHashableLogParameter.h"
+#import "MSIDMaskedUsernameLogParameter.h"
 
 // Convenience macro for obscuring PII in log macros that don't allow PII.
 #define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-null)" : @"(null)"
@@ -76,6 +79,15 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
 #define MSID_LOG_VERBOSE_PII(_ctx, _fmt, ...) \
 MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
 
+
+// New macroses
+#define MSID_LOG_WITH_CONTEXT(_LVL, _CONTEXT, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:_PII format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG_WITH_CORRELATION(_LVL, _CORRELATION_ID, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:_PII format:_FMT, ##__VA_ARGS__]
+
+#define MSID_PII_LOG_PARAM(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER]
+#define MSID_PII_LOG_HASH_PARAM(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
+#define MSID_PII_LOG_USERNAME_PARAM(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
+
 #define MSID_TRACE // Unused
 
 @interface MSIDLogger (Internal)
@@ -95,6 +107,15 @@ MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
                isPII:(BOOL)isPii
   ignoreIfPIIEnabled:(BOOL)ignoreIfPIIEnabled
               format:(NSString *)format, ... NS_FORMAT_FUNCTION(6, 7);
+
+// Same log line for both cases
+// If PII is not enabled, mask sensitive data
+// If PII is enabled, pass on sensitive data
+- (void)logWithLevel:(MSIDLogLevel)level
+             context:(id<MSIDRequestContext>)context
+       correlationId:(NSUUID *)correlationId
+         containsPII:(BOOL)containsPII
+              format:(NSString *)format, ... NS_FORMAT_FUNCTION(5, 6);
 
 - (void)logToken:(NSString *)token
        tokenType:(NSString *)tokenType
