@@ -226,74 +226,11 @@ return NO; \
     return result;
 }
 
-#pragma mark - Accounts
-
-- (BOOL)saveAccount:(__unused MSIDAccountCacheItem *)item
-                key:(__unused MSIDCacheKey *)key
-         serializer:(__unused id<MSIDAccountItemSerializer>)serializer
-            context:(__unused id<MSIDRequestContext>)context
-              error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return NO;
-}
-
-- (MSIDAccountCacheItem *)accountWithKey:(__unused MSIDCacheKey *)key
-                              serializer:(__unused id<MSIDAccountItemSerializer>)serializer
-                                 context:(__unused id<MSIDRequestContext>)context
-                                   error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return nil;
-}
-
-- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(__unused MSIDCacheKey *)key
-                                          serializer:(__unused id<MSIDAccountItemSerializer>)serializer
-                                             context:(__unused id<MSIDRequestContext>)context
-                                               error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return nil;
-}
-
-#pragma mark - AppMetadata
-
-- (BOOL)saveAppMetadata:(__unused MSIDAppMetadataCacheItem *)item
-                    key:(__unused MSIDCacheKey *)key
-             serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
-                context:(__unused id<MSIDRequestContext>)context
-                  error:(__unused NSError **)error
-{
-    return YES;
-}
-
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
-                                                        serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
-                                                           context:(__unused id<MSIDRequestContext>)context
-                                                             error:(__unused NSError **)error
-{
-    return nil;
-}
-
 #pragma mark - Removal
 
-- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    return [self removeItemsWithKey:key context:context error:error];
-}
-
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
-{
-    return [self removeItemsWithKey:key context:context error:error];
-}
-
-- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }

@@ -43,17 +43,16 @@
             error:(NSError **)error;
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                          serializer:(id<MSIDCredentialItemSerializer>)serializer
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error;
+                               serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error;
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error;
+                                           serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error;
 
 // Wipe info
-
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error;
 
@@ -61,49 +60,12 @@
                      error:(NSError **)error;
 
 // Removal
+- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
 
-- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error;
-
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error;
-
-- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error;
-
-// Accounts
-
-- (BOOL)saveAccount:(MSIDAccountCacheItem *)item
-                key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAccountItemSerializer>)serializer
-            context:(id<MSIDRequestContext>)context
-              error:(NSError **)error;
-
-- (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
-                              serializer:(id<MSIDAccountItemSerializer>)serializer
-                                 context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error;
-
-- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
-                                          serializer:(id<MSIDAccountItemSerializer>)serializer
-                                             context:(id<MSIDRequestContext>)context
-                                               error:(NSError **)error;
-
+// Clear all
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error;
-
-- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
-                    key:(MSIDCacheKey *)key
-             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error;
-
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
-                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                                                           context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error;
 
 @end

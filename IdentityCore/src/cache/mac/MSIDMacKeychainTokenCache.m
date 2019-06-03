@@ -38,6 +38,7 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDJsonObject.h"
 
 /**
  This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -402,9 +403,9 @@ static dispatch_queue_t s_synchronizationQueue;
 // Errors:
 // * MSIDKeychainErrorDomain/OSStatus: Apple status codes from SecItemDelete()
 //
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
@@ -501,9 +502,9 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 // Remove one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
-- (BOOL)removeItemsWithTokenKey:(__unused MSIDCacheKey *)key
-                        context:(__unused id<MSIDRequestContext>)context
-                          error:(__unused NSError **)error
+- (BOOL)removeTokensWithKey:(__unused MSIDCacheKey *)key
+                    context:(__unused id<MSIDRequestContext>)context
+                      error:(__unused NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
@@ -576,7 +577,7 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 // Remove items with the given Metadata key from the macOS keychain cache.
-- (BOOL)removeItemsWithMetadataKey:(__unused MSIDCacheKey *)key
+- (BOOL)removeMetadataItemsWithKey:(__unused MSIDCacheKey *)key
                            context:(__unused id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
@@ -743,6 +744,71 @@ static dispatch_queue_t s_synchronizationQueue;
     }
 
     return YES;
+}
+
+#pragma mark - JSON Object
+
+// TODO: mac keychain token cache and iOS keychain token cache should share same base class
+- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
+                                       serializer:(id<MSIDJsonSerializing>)serializer
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
+{
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *jsonItems = [[NSMutableArray<MSIDJsonObject *> alloc] initWithCapacity:items.count];
+    
+    for (NSDictionary *attrs in items)
+    {
+        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
+        MSIDJsonObject *jsonItem = (MSIDJsonObject *)[serializer fromJsonData:itemData ofType:MSIDJsonObject.class context:context error:error];
+        
+        if (jsonItem)
+        {
+            [jsonItems addObject:jsonItem];
+        }
+        else
+        {
+            MSID_LOG_INFO(context, @"Failed to deserialize json item.");
+        }
+    }
+    
+    MSID_LOG_VERBOSE(context, @"Found %lu items.", (unsigned long)jsonItems.count);
+    return jsonItems;
+}
+
+- (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
+            serializer:(id<MSIDJsonSerializing>)serializer
+                   key:(MSIDCacheKey *)key
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError **)error
+{
+    assert(jsonObject);
+    assert(serializer);
+    
+    NSData *itemData = [serializer toJsonData:jsonObject context:context error:error];
+    
+    if (!itemData)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        return NO;
+    }
+    
+    MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", jsonObject);
+    
+    return [self saveData:itemData
+                      key:key
+                  context:context
+                    error:error];
 }
 
 #pragma mark - Wipe Info

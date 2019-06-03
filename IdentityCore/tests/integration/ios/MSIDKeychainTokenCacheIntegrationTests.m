@@ -227,7 +227,7 @@
     
     NSError *error;
     
-    [keychainTokenCache removeItemsWithTokenKey:key context:nil error:&error];
+    [keychainTokenCache removeTokensWithKey:key context:nil error:&error];
     
     items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -248,7 +248,7 @@
     
     NSError *error;
     
-    [keychainTokenCache removeItemsWithTokenKey:key context:nil error:&error];
+    [keychainTokenCache removeTokensWithKey:key context:nil error:&error];
     
     items = [keychainTokenCache tokensWithKey:[MSIDCacheKey new] serializer:serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -286,7 +286,7 @@
     
     NSError *error;
     
-    BOOL result = [keychainTokenCache removeItemsWithTokenKey:nil context:nil error:&error];
+    BOOL result = [keychainTokenCache removeTokensWithKey:nil context:nil error:&error];
     items = [keychainTokenCache tokensWithKey:nil serializer:serializer context:nil error:nil];
     
     XCTAssertFalse(result);

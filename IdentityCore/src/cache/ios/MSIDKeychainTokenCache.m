@@ -29,6 +29,7 @@
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDJsonSerializing.h"
 
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
@@ -382,25 +383,89 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return appMetadataitems;
 }
 
+#pragma mark - JSON Object
+
+- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
+                                       serializer:(id<MSIDJsonSerializing>)serializer
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
+{
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *jsonItems = [[NSMutableArray<MSIDJsonObject *> alloc] initWithCapacity:items.count];
+    
+    for (NSDictionary *attrs in items)
+    {
+        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
+        MSIDJsonObject *jsonItem = (MSIDJsonObject *)[serializer fromJsonData:itemData ofType:MSIDJsonObject.class context:context error:error];
+        
+        if (jsonItem)
+        {
+            [jsonItems addObject:jsonItem];
+        }
+        else
+        {
+            MSID_LOG_INFO(context, @"Failed to deserialize json item.");
+        }
+    }
+    
+    MSID_LOG_VERBOSE(context, @"Found %lu items.", (unsigned long)jsonItems.count);
+    return jsonItems;
+}
+
+- (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
+            serializer:(id<MSIDJsonSerializing>)serializer
+                   key:(MSIDCacheKey *)key
+               context:(id<MSIDRequestContext>)context
+                 error:(NSError **)error
+{
+    assert(jsonObject);
+    assert(serializer);
+    
+    NSData *itemData = [serializer toJsonData:jsonObject context:context error:error];
+    
+    if (!itemData)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        return NO;
+    }
+    
+    MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", jsonObject);
+    
+    return [self saveData:itemData
+                      key:key
+                  context:context
+                    error:error];
+}
+
 #pragma mark - Removal
 
-- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
 {
     MSIDCacheKey *tokenCacheKey = [self overrideTokenKey:key];
     
     return [self removeItemsWithKey:tokenCacheKey context:context error:error];
 }
 
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
-- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+- (BOOL)removeMetadataItemsWithKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
@@ -794,6 +859,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
     return YES;
 }
+
 
 @end
 
