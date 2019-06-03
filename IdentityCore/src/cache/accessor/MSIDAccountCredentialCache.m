@@ -83,10 +83,6 @@
     if (cacheQuery.credentialType != MSIDRefreshTokenType)
     {
         MSIDUserCredentialCacheItem *userCredential = [_dataSource userCredentialWithKey:cacheQuery serializer:_serializer context:context error:error];
-        NSLog(@"%@",cacheQuery.account);
-        NSLog(@"%@",cacheQuery.service);
-        NSLog(@"%@",cacheQuery.generic);
-        NSLog(@"%@",cacheQuery.type);
         
         if (userCredential)
         {
@@ -280,8 +276,8 @@
         if (savedCredential)
         {
             // Make sure we copy over all the additional fields
-            NSArray *mergedCredential = [currentCredential mergeCredential:savedCredential];
-            currentCredential = [[MSIDUserCredentialCacheItem alloc] initWithJSONDictionary:mergedCredential error:error];
+            [currentCredential mergeCredential:savedCredential];
+            currentCredential = [[MSIDUserCredentialCacheItem alloc] initWithJSONDictionary:currentCredential.jsonDictionary error:error];
         }
         
         return [_dataSource saveUserToken:currentCredential

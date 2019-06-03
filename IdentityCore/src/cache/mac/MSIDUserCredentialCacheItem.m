@@ -90,6 +90,7 @@
 {
     NSMutableArray *userTokens = [NSMutableArray array];
     NSArray *allTokens = [self allObjects];
+    
     for (MSIDUserAccount *token in allTokens)
     {
         NSMutableDictionary *userToken = [NSMutableDictionary dictionary];
@@ -157,16 +158,11 @@
     return array;
 }
 
-- (NSArray *)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential
+- (void)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential
 {
-    __block NSArray *array;
-    
-    dispatch_sync(self.queue, ^{
-        NSSet *mergedSet = [self.cacheObjects setByAddingObjectsFromSet:userCredential.cacheObjects];
-        array = [NSMutableArray arrayWithArray:[mergedSet allObjects]];
+    dispatch_barrier_sync(self.queue, ^{
+        [self.cacheObjects setByAddingObjectsFromSet:userCredential.cacheObjects];
     });
-    
-    return array;
 }
 
 @end
