@@ -41,4 +41,8 @@
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 @property (readwrite, nullable) NSString *alternativeAccountId;
 
+// Last Modification info (currently used on macOS only)
+@property (readwrite, nullable) NSDate *lastModificationTime;
+@property (readwrite, nullable) NSString *lastModificationApp;
+
 @end

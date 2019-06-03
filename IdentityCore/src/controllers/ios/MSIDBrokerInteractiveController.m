@@ -230,6 +230,13 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         MSID_LOG_WARN(nil, @"Asked to handle non broker response. Skipping request.");
         return NO;
     }
+    
+    BOOL hasCompletionBlock = [[self.class currentBrokerController] hasCompletionBlock];
+    if (![responseHandler canHandleBrokerResponse:resultURL hasCompletionBlock:hasCompletionBlock])
+    {
+        MSID_LOG_INFO(nil, @"This broker response cannot be handled. Skipping request.");
+        return NO;
+    }
 
     NSError *resultError = nil;
     MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL error:&resultError];
@@ -388,6 +395,17 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         self.requestCompletionBlock = completionBlock;
         return completionBlock;
     }
+}
+
+- (BOOL)hasCompletionBlock
+{
+    BOOL result = NO;
+    @synchronized(self)
+    {
+        result = self.requestCompletionBlock != nil;
+    }
+    
+    return result;
 }
 
 #pragma mark - Current controller

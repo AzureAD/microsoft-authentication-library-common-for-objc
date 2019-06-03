@@ -33,10 +33,22 @@
 {
     
     
-    return [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY authority]
+    return [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY aadAuthority]
                                             redirectUri:nil
                                                clientId:DEFAULT_TEST_CLIENT_ID
                                                  target:nil];
+}
+
++ (MSIDConfiguration *)configurationWithB2CAuthority:(NSString *)authorityUrlString
+                                            clientId:(NSString *)clientId
+                                         redirectUri:(NSString *)redirectUri
+                                              target:(NSString *)target
+{
+    
+    return [[MSIDConfiguration alloc] initWithAuthority:[authorityUrlString b2cAuthority]
+                                            redirectUri:redirectUri
+                                               clientId:clientId
+                                                 target:target];
 }
 
 + (MSIDConfiguration *)configurationWithAuthority:(NSString *)authorityUrlString
@@ -45,7 +57,7 @@
                                            target:(NSString *)target
 {
     
-    return [[MSIDConfiguration alloc] initWithAuthority:[authorityUrlString authority]
+    return [[MSIDConfiguration alloc] initWithAuthority:[authorityUrlString aadAuthority]
                                             redirectUri:redirectUri
                                                clientId:clientId
                                                  target:target];

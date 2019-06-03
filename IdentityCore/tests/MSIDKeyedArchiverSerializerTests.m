@@ -44,14 +44,13 @@
     MSIDLegacyTokenCacheItem *cacheItem = [[MSIDLegacyTokenCacheItem alloc] init];
     cacheItem.refreshToken = @"refresh token value";
     cacheItem.familyId = @"familyId value";
+    cacheItem.environment = @"contoso.com";
+    cacheItem.realm = @"common";
     cacheItem.speInfo = @"test";
-    cacheItem.authority = [NSURL URLWithString:@"https://contoso.com/common"];
     cacheItem.clientId = @"some clientId";
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.oauthTokenType = @"access token type";
     cacheItem.secret = cacheItem.refreshToken;
-    cacheItem.realm = cacheItem.authority.msidTenant;
-    cacheItem.environment = cacheItem.authority.msidHostWithPortIfNecessary;
     
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
     MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];

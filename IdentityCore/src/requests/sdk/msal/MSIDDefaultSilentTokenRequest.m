@@ -34,6 +34,7 @@
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDConfiguration.h"
+#import "MSIDTokenResponse.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -118,12 +119,12 @@
     {
         MSID_LOG_WARN(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
     }
-
+    
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                               refreshToken:refreshToken
                                                                    idToken:idToken.rawIdToken
                                                                    account:account
-                                                                 authority:accessToken.authority
+                                                                 authority:self.requestParameters.msidConfiguration.authority
                                                              correlationId:self.requestParameters.correlationId
                                                              tokenResponse:nil];
 

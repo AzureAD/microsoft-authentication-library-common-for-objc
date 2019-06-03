@@ -233,7 +233,7 @@
                                                               refreshToken:nil
                                                                    idToken:@"id token"
                                                                    account:account
-                                                                 authority:[@"https://login.microsoftonline.com/contoso.com" authority]
+                                                                 authority:[@"https://login.microsoftonline.com/contoso.com" aadAuthority]
                                                              correlationId:[NSUUID new]
                                                              tokenResponse:nil];
     

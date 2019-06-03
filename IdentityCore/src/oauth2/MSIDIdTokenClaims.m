@@ -27,6 +27,7 @@
 
 #import "MSIDIdTokenClaims.h"
 #import "MSIDHelpers.h"
+#import "MSIDAuthority+Internal.h"
 
 #define ID_TOKEN_SUBJECT             @"sub"
 #define ID_TOKEN_PERFERRED_USERNAME  @"preferred_username"
@@ -35,6 +36,7 @@
 #define ID_TOKEN_FAMILY_NAME         @"family_name"
 #define ID_TOKEN_MIDDLE_NAME         @"middle_name"
 #define ID_TOKEN_EMAIL               @"email"
+#define ID_TOKEN_ISSUER              @"iss"
 
 @implementation MSIDIdTokenClaims
 
@@ -45,6 +47,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_GIVEN_NAME, givenName)
 MSID_JSON_ACCESSOR(ID_TOKEN_FAMILY_NAME, familyName)
 MSID_JSON_ACCESSOR(ID_TOKEN_MIDDLE_NAME, middleName)
 MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
+MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError **)error
 {
@@ -154,6 +157,8 @@ MSID_JSON_ACCESSOR(ID_TOKEN_EMAIL, email)
     _uniqueId = [MSIDHelpers normalizeUserId:self.subject];
     _userId = [MSIDHelpers normalizeUserId:self.subject];
     _userIdDisplayable = NO;
+    // TODO: change this to base Oauth2 authority once we support other IDPs
+    _issuerAuthority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:self.issuer] context:nil error:nil];
 }
 
 - (NSString *)username

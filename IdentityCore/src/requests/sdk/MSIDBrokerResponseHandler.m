@@ -35,6 +35,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTelemetryBrokerEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDBrokerResponseHandler+Internal.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -131,6 +132,26 @@
                                                                 error:error];
 }
 
+- (BOOL)canHandleBrokerResponse:(NSURL *)response
+             hasCompletionBlock:(BOOL)hasCompletionBlock
+                protocolVersion:(NSString *)expectedProtocolVersion
+                        sdkName:(NSString *)sdkName
+{
+    if (!response) { return NO; }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qpString = [components percentEncodedQuery];
+    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
+    
+    NSString *protocolVersion = queryParamsMap[MSID_BROKER_PROTOCOL_VERSION_KEY];
+    BOOL isValidVersion = [protocolVersion isEqualToString:expectedProtocolVersion];
+    
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    BOOL isRequestInitiatedBySdk = [resumeDictionary[MSID_SDK_NAME_KEY] isEqualToString:sdkName] || (resumeDictionary == nil && hasCompletionBlock);
+    
+    return isValidVersion && isRequestInitiatedBySdk;
+}
+
 #pragma mark - Helpers
 
 - (NSDictionary *)verifyResumeStateDicrionary:(NSURL *)response error:(NSError **)error
@@ -192,6 +213,12 @@
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
+}
+
+- (BOOL)canHandleBrokerResponse:(__unused NSURL *)response
+             hasCompletionBlock:(__unused BOOL)hasCompletionBlock
+{
+    return YES;
 }
 
 @end

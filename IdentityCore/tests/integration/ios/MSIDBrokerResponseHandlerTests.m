@@ -165,4 +165,13 @@
     XCTAssertEqual(error.code, MSIDErrorBrokerKeyNotFound);
 }
 
+- (void)testCanHandleBrokerResponse_shouldReturnYes
+{
+    MSIDBrokerResponseHandler *brokerResponseHandler = [[MSIDBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:[NSURL new] hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
 @end
