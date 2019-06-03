@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key;
 
+- (NSArray *)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential;
+
 @end
 
 NS_ASSUME_NONNULL_END

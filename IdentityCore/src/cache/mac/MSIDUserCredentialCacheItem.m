@@ -26,7 +26,7 @@
 
 @interface MSIDUserCredentialCacheItem ()
 
-@property (nonatomic) NSMutableArray *cacheObjects;
+@property (nonatomic) NSMutableSet *cacheObjects;
 @property (nonatomic) dispatch_queue_t queue;
 
 @end
@@ -38,7 +38,7 @@
 {
     if(self = [super init])
     {
-        self.cacheObjects = [NSMutableArray array];
+        self.cacheObjects = [NSMutableSet set];
         self.queue = dispatch_queue_create("com.microsoft.universalStorage",DISPATCH_QUEUE_CONCURRENT);
     }
     
@@ -146,13 +146,27 @@
     });
 }
 
-- (NSArray*)allObjects {
+- (NSArray *)allObjects
+{
     __block NSArray *array;
+    
     dispatch_sync(self.queue, ^{
-        array = [NSArray arrayWithArray:self.cacheObjects];
+        array = [NSMutableArray arrayWithArray:[self.cacheObjects allObjects]];
     });
+    
     return array;
 }
 
+- (NSArray *)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential
+{
+    __block NSArray *array;
+    
+    dispatch_sync(self.queue, ^{
+        NSSet *mergedSet = [self.cacheObjects setByAddingObjectsFromSet:userCredential.cacheObjects];
+        array = [NSMutableArray arrayWithArray:[mergedSet allObjects]];
+    });
+    
+    return array;
+}
 
 @end

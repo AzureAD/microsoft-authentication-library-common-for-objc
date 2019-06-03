@@ -274,18 +274,17 @@
 #else
     if (credential.credentialType != MSIDRefreshTokenType)
     {
-        MSIDUserCredentialCacheItem *item = [MSIDUserCredentialCacheItem sharedInstance];
-        [item setUserToken:credential forKey:key];
-        MSIDUserCredentialCacheItem *userCredential = [_dataSource userCredentialWithKey:key serializer:_serializer context:context error:error];
-        if (userCredential)
+        MSIDUserCredentialCacheItem *currentCredential = [MSIDUserCredentialCacheItem sharedInstance];
+        [currentCredential setUserToken:credential forKey:key];
+        MSIDUserCredentialCacheItem *savedCredential = [_dataSource userCredentialWithKey:key serializer:_serializer context:context error:error];
+        if (savedCredential)
         {
             // Make sure we copy over all the additional fields
-            NSMutableArray *mergedArray = [userCredential.jsonDictionary mutableCopy];
-            [mergedArray addObjectsFromArray:item.jsonDictionary];
-            item = [[MSIDUserCredentialCacheItem alloc] initWithJSONDictionary:mergedArray error:error];
+            NSArray *mergedCredential = [currentCredential mergeCredential:savedCredential];
+            currentCredential = [[MSIDUserCredentialCacheItem alloc] initWithJSONDictionary:mergedCredential error:error];
         }
         
-        return [_dataSource saveUserToken:item
+        return [_dataSource saveUserToken:currentCredential
                                       key:key
                                serializer:_serializer
                                   context:context
