@@ -73,34 +73,11 @@
     NSError *cacheError = nil;
     NSArray<MSIDCredentialCacheItem *> *results = nil;
 
-    #if TARGET_OS_IPHONE
     results = [_dataSource tokensWithKey:cacheQuery
-                                                                  serializer:_serializer
-                                                                     context:context
-                                                                       error:&cacheError];
+                              serializer:_serializer
+                                 context:context
+                                   error:&cacheError];
     
-#else
-    if (cacheQuery.credentialType != MSIDRefreshTokenType)
-    {
-        MSIDUserCredentialCacheItem *userCredential = [_dataSource userCredentialWithKey:cacheQuery serializer:_serializer context:context error:error];
-        
-        if (userCredential)
-        {
-            return [userCredential credentialsWithKey:cacheQuery];
-        }
-    }
-    else
-    {
-        MSIDSharedCredentialCacheItem *sharedCredential = [_dataSource sharedCredentialWithKey:cacheQuery serializer:_serializer context:context error:error];
-        if (sharedCredential)
-        {
-            return [sharedCredential allCredentials];
-        }
-    }
-    
-#endif
-    
-
     if (cacheError)
     {
         if (error)
@@ -261,50 +238,11 @@
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
     
-#if TARGET_OS_IPHONE
     return [_dataSource saveToken:credential
                               key:key
                        serializer:_serializer
                           context:context
                             error:error];
-#else
-    if (credential.credentialType != MSIDRefreshTokenType)
-    {
-        MSIDUserCredentialCacheItem *currentCredential = [MSIDUserCredentialCacheItem sharedInstance];
-        [currentCredential setUserToken:credential forKey:key];
-        MSIDUserCredentialCacheItem *savedCredential = [_dataSource userCredentialWithKey:key serializer:_serializer context:context error:error];
-        if (savedCredential)
-        {
-            // Make sure we copy over all the additional fields
-            [currentCredential mergeCredential:savedCredential];
-            currentCredential = [[MSIDUserCredentialCacheItem alloc] initWithJSONDictionary:currentCredential.jsonDictionary error:error];
-        }
-        
-        return [_dataSource saveUserToken:currentCredential
-                                      key:key
-                               serializer:_serializer
-                                  context:context
-                                    error:error];
-    }
-    else
-    {
-        MSIDSharedCredentialCacheItem *item = [MSIDSharedCredentialCacheItem sharedInstance];
-        [item setRefreshToken:credential forKey:key];
-        
-        MSIDSharedCredentialCacheItem *sharedCredential = [_dataSource sharedCredentialWithKey:key serializer:_serializer context:context error:error];
-        if (sharedCredential)
-        {
-            // Make sure we copy over all the additional fields
-            NSMutableDictionary *mergedDictionary = [sharedCredential.jsonDictionary mutableCopy];
-            [mergedDictionary addEntriesFromDictionary:item.jsonDictionary];
-            item = [[MSIDSharedCredentialCacheItem alloc] initWithJSONDictionary:mergedDictionary error:error];
-        }
-        
-        return [_dataSource saveSharedToken:item key:key serializer:_serializer context:context error:error];
-        
-    }
-#endif
-    
 }
 
 // Writing accounts

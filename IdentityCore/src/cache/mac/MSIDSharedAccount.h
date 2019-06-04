@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property NSMutableDictionary<NSString *,MSIDCredentialCacheItem *> *refreshTokens;
 
+- (MSIDSharedAccount *)mergeAccount:(MSIDSharedAccount *)account;
+
 @end
 
 NS_ASSUME_NONNULL_END

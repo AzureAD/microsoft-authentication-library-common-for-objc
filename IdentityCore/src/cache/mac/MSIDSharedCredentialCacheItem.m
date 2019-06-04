@@ -30,7 +30,6 @@
 
 @end
 
-
 @implementation MSIDSharedCredentialCacheItem
 
 - (instancetype)initPrivate
@@ -38,7 +37,7 @@
     if(self = [super init])
     {
         self.cacheObjects = [NSMutableDictionary dictionary];
-        self.queue = dispatch_queue_create("com.microsoft.universalStorage",DISPATCH_QUEUE_CONCURRENT);
+        self.queue = dispatch_queue_create("com.microsoft.universalStorage", DISPATCH_QUEUE_CONCURRENT);
     }
     
     return self;
@@ -99,7 +98,7 @@
     NSArray *keys = [self allKeys];
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
-    for (id<NSCopying> accountKey in keys)
+    for (NSString *accountKey in keys)
     {
         MSIDSharedAccount *account = [self objectForKey:accountKey];
         if (account)
@@ -140,14 +139,16 @@
     NSArray *keys = [self allKeys];
     NSMutableArray<MSIDCredentialCacheItem *> *tokenList = [NSMutableArray new];
     
-    for (id<NSCopying> key in keys)
+    for (NSString *key in keys)
     {
         MSIDSharedAccount *account = [self objectForKey:key];
+        
         if (account)
         {
             for (NSString *key in account.refreshTokens)
             {
                 MSIDCredentialCacheItem *sharedCredential = [account.refreshTokens objectForKey:key];
+                
                 if (sharedCredential)
                 {
                     [tokenList addObject:sharedCredential];
@@ -159,7 +160,7 @@
     return tokenList;
 }
 
--(id)objectForKey:(id<NSCopying>)key
+- (MSIDSharedAccount *)objectForKey:(NSString *)key
 {
     __block id rv = nil;
     
@@ -170,17 +171,17 @@
     return rv;
 }
 
--(void)setObject:(id)object forKey:(id<NSCopying>)key
+- (void)setObject:(MSIDSharedAccount *)account forKey:(NSString *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects setObject:object forKey:key];
+        [self.cacheObjects setObject:account forKey:key];
     });
 }
 
 - (NSArray *)allKeys
 {
     __block NSArray *keys = nil;
-    /* make your READs sychronous */
+    
     dispatch_sync(self.queue, ^{
         keys = [self.cacheObjects allKeys];
     });
@@ -188,5 +189,36 @@
     return keys;
 }
 
+- (MSIDSharedCredentialCacheItem *)mergeCredential:(MSIDSharedCredentialCacheItem *)savedCredential
+{
+    NSArray *keys = [savedCredential allKeys];
+    
+    for (NSString *key in keys) {
+        MSIDSharedAccount *previousAccount = [self objectForKey:key];
+        MSIDSharedAccount *currentAccount = [savedCredential objectForKey:key];
+        if (!previousAccount)
+        {
+            // The new account was not already in self, so simply add it.
+            [self setObject:currentAccount forKey:key];
+        }
+        else
+        {
+            MSIDSharedAccount *mergedAccount = [self mergeAccount:previousAccount withAccount:currentAccount];
+            [self setObject:mergedAccount forKey:key];
+        }
+    }
+    
+    return self;
+}
 
+- (MSIDSharedAccount *)mergeAccount:(MSIDSharedAccount *)currentAccount withAccount:(MSIDSharedAccount *)savedAccount
+{
+    __block MSIDSharedAccount *account = nil;
+    
+    dispatch_sync(self.queue, ^{
+        account = [currentAccount mergeAccount:savedAccount];
+    });
+    
+    return account;
+}
 @end

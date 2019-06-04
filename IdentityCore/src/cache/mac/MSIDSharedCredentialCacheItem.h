@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSMutableArray<MSIDCredentialCacheItem *> *)allCredentials;
 
+- (MSIDSharedCredentialCacheItem *)mergeCredential:(MSIDSharedCredentialCacheItem *)sharedCredential;
 
 @end
 

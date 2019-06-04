@@ -39,7 +39,7 @@
     if(self = [super init])
     {
         self.cacheObjects = [NSMutableSet set];
-        self.queue = dispatch_queue_create("com.microsoft.universalStorage",DISPATCH_QUEUE_CONCURRENT);
+        self.queue = dispatch_queue_create("com.microsoft.universalStorage", DISPATCH_QUEUE_CONCURRENT);
     }
     
     return self;
@@ -57,13 +57,6 @@
     return instance;
 }
 
-- (NSString *)getCredentialId: (MSIDDefaultCredentialCacheKey *)key
-{
-    NSString *clientId = key.familyId ? key.familyId : key.clientId;
-    NSString *refreshTokenKey = [key credentialIdWithType:key.credentialType clientId:clientId realm:key.realm enrollmentId:key.enrollmentId];
-    return refreshTokenKey;
-}
-
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                                  error:(NSError * __autoreleasing *)error
 {
@@ -78,8 +71,14 @@
         NSString *service = [userDict objectForKey:(__bridge id)kSecAttrService];
         NSNumber *type = [userDict objectForKey:(__bridge id)kSecAttrType];
         NSData *generic = [[userDict objectForKey:(__bridge id)kSecAttrGeneric] dataUsingEncoding:NSUTF8StringEncoding];
+        
         MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:[userDict objectForKey:(__bridge id)kSecValueData] error:error];
-        MSIDUserAccount *userAccount = [[MSIDUserAccount alloc] initWithAccount:account service:service generic:generic type:type credentialCacheItem:cacheItem];
+        
+        MSIDUserAccount *userAccount = [[MSIDUserAccount alloc] initWithAccount:account
+                                                                        service:service
+                                                                        generic:generic
+                                                                           type:type
+                                                            credentialCacheItem:cacheItem];
         [self addObject:userAccount];
     }
     
@@ -106,13 +105,18 @@
 }
 
 
-- (void)setUserToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
+- (void)setUserToken:(MSIDCredentialCacheItem *)token forKey:(MSIDCacheKey *)key;
 {
-    MSIDUserAccount *account = [[MSIDUserAccount alloc] initWithAccount:key.account service:key.service generic:key.generic type:key.type credentialCacheItem:token];
+    MSIDUserAccount *account = [[MSIDUserAccount alloc] initWithAccount:key.account
+                                                                service:key.service
+                                                                generic:key.generic
+                                                                   type:key.type
+                                                    credentialCacheItem:token];
+    
     [self addObject:account];
 }
 
-- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key;
+- (NSMutableArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDCacheKey *)key;
 {
     // Build array of sub-predicates:
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
@@ -125,14 +129,14 @@
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.gena == %@", key.generic]];
     if (key.type)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.type == %@", key.type]];
+    
     // Combine all sub-predicates with AND:
     NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
-    NSArray *filteredArray = [[self allObjects] filteredArrayUsingPredicate:matchAttributes];
-    NSLog(@"%@",filteredArray);
     
+    NSArray *filteredCredentials = [[self allObjects] filteredArrayUsingPredicate:matchAttributes];
     NSMutableArray<MSIDCredentialCacheItem*> *userCredentials = [NSMutableArray array];
     
-    for (MSIDUserAccount *userAccount in filteredArray)
+    for (MSIDUserAccount *userAccount in filteredCredentials)
     {
         [userCredentials addObject:userAccount.cacheItem];
     }
@@ -160,7 +164,7 @@
 
 - (void)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential
 {
-    dispatch_barrier_sync(self.queue, ^{
+    dispatch_barrier_async(self.queue, ^{
         [self.cacheObjects setByAddingObjectsFromSet:userCredential.cacheObjects];
     });
 }

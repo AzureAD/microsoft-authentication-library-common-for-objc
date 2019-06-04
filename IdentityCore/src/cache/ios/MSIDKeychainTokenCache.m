@@ -199,23 +199,6 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return items.firstObject;
 }
 
-- (BOOL)saveSharedToken:(MSIDCredentialCacheItem *)item
-                    key:(MSIDCacheKey *)key
-             serializer:(id<MSIDCredentialItemSerializer>)serializer
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
-{
-    return NO;
-}
-
-- (MSIDSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
-                                                serializer:(id<MSIDSharedCredentialItemSerializer>)serializer
-                                                   context:(id<MSIDRequestContext>)context
-                                                     error:(NSError **)error
-{
-    return nil;
-}
-
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
                                            serializer:(id<MSIDCredentialItemSerializer>)serializer
                                               context:(id<MSIDRequestContext>)context

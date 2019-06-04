@@ -37,4 +37,10 @@
     return self;
 }
 
+- (MSIDSharedAccount *)mergeAccount:(MSIDSharedAccount *)savedAccount
+{
+    [self.refreshTokens addEntriesFromDictionary:savedAccount.refreshTokens];
+    return self;
+}
+
 @end
