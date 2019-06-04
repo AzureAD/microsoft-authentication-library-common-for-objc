@@ -224,6 +224,24 @@
     XCTAssertEqualObjects(resultItem, cacheItem);
 }
 
+- (void)testDeserializeAccountMetadata_whenDataIsValid_shouldReturnAccount {
+    NSDictionary *jsonDict = @{ @"home_account_id": @"homeAccountId",
+                                @"client_id": @"clientId",
+                                @"account_metadata" : @{ @"URLMap" : @{ @"https://contoso.com" : @"https://internalcontoso.com" } }
+                                };
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDict
+                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                         error:nil];
+    
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    MSIDAccountMetadataCacheItem *cacheItem = [serializer deserializeAccountMetadata:jsonData];
+    
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"homeAccountId");
+    XCTAssertEqualObjects(cacheItem.clientId, @"clientId");
+    XCTAssertEqualObjects([cacheItem cachedURL:[NSURL URLWithString:@"https://contoso.com"]], [NSURL URLWithString:@"https://internalcontoso.com"]);
+}
+
 - (void)testSerializeAccountMetadataCacheItem_whenDataIsNil_shouldReturnNil
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];

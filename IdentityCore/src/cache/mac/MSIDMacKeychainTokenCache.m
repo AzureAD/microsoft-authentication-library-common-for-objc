@@ -38,6 +38,7 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDAccountMetadataCacheKey.h"
 
 /**
  This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -746,12 +747,18 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 #pragma mark - Account metadata
+
 - (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
     return nil;
 }
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    [self createUnimplementedError:error context:context];
+    return NO;
+}
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
     return NO;
 }

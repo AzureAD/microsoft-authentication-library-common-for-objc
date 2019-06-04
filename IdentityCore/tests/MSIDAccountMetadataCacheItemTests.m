@@ -59,7 +59,7 @@
 
 #pragma mark - JSON deserialization
 
-- (void)testInitWithJSONDictionary_whenAllJSONFieldsSet_shouldAccountMetadataItemWithNilAuthorityMapping
+- (void)testInitWithJSONDictionary_whenAllJSONFieldsSet_shouldHaveCorrectItem
 {
     NSDictionary *jsonDictionary = @{ @"client_id" : @"clientId",
                                       @"home_account_id" : @"homeAccountId" };
