@@ -116,7 +116,7 @@
     [self addObject:account];
 }
 
-- (NSMutableArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDCacheKey *)key;
+- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDCacheKey *)key;
 {
     // Build array of sub-predicates:
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
@@ -141,7 +141,7 @@
         [userCredentials addObject:userAccount.cacheItem];
     }
     
-    return userCredentials;
+    return [userCredentials copy];
 }
 
 - (void)addObject:(MSIDUserAccount *)obj

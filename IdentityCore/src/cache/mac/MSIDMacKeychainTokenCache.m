@@ -518,7 +518,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                               context:(__unused id<MSIDRequestContext>)context
                                                 error:(__unused NSError **)error
 {
-    NSMutableArray<MSIDCredentialCacheItem *> *tokenList = [NSMutableArray new];
+    NSArray<MSIDCredentialCacheItem *> *tokenList = [[NSArray<MSIDCredentialCacheItem *> alloc] init];
     
     if (key.isShared)
     {

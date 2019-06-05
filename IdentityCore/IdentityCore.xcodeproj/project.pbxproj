@@ -37,6 +37,8 @@
 		1E51BC962279480400856A4E /* MSIDSharedCredentialItemSerializer.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E51BC952279480400856A4E /* MSIDSharedCredentialItemSerializer.h */; };
 		1E51BC992279486700856A4E /* MSIDSharedCredentialCacheItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E51BC972279486700856A4E /* MSIDSharedCredentialCacheItem.h */; };
 		1E51BC9A2279486700856A4E /* MSIDSharedCredentialCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */; };
+		1E52CD1222A7049E00F7C758 /* MSIDUserAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E86291F229DAFCA00D88D7C /* MSIDUserAccount.m */; };
+		1E52CD1322A7056A00F7C758 /* MSIDUserCredentialCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E862918229CD6DC00D88D7C /* MSIDUserCredentialCacheItem.m */; };
 		1E57AEBD227CC56200F4199B /* MSIDSharedAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E57AEBB227CC55800F4199B /* MSIDSharedAccount.m */; };
 		1E5B2A862294F5CA003C579D /* MSIDKeychainUtil+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E5B2A852294F5CA003C579D /* MSIDKeychainUtil+Internal.h */; };
 		1E5E716A227E8CF8009191C5 /* MSIDSharedCredentialCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E51BC982279486700856A4E /* MSIDSharedCredentialCacheItem.m */; };
@@ -4915,6 +4917,7 @@
 				60B3855E20A96E0600D546D0 /* MSIDWebviewUIController.m in Sources */,
 				23FB5C3022551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m in Sources */,
 				23FB5C2C225517AA002BF1EB /* MSIDIndividualClaimRequest.m in Sources */,
+				1E52CD1222A7049E00F7C758 /* MSIDUserAccount.m in Sources */,
 				238E19E22086FE28004DF483 /* MSIDAADAuthorizationCodeRequest.m in Sources */,
 				B2964BE2205103920000BC95 /* MSIDTokenFilteringHelper.m in Sources */,
 				233E96EE22652B00007FCE2A /* MSIDDefaultDispatcher.m in Sources */,
@@ -5039,6 +5042,7 @@
 				B2EF143C1FF2F228005DC1C0 /* MSIDAADV2TokenResponse.m in Sources */,
 				B297E1DD20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.m in Sources */,
 				B281B335226BB83C009619AB /* MSIDOAuthRequestConfigurator.m in Sources */,
+				1E52CD1322A7056A00F7C758 /* MSIDUserCredentialCacheItem.m in Sources */,
 				B2115828202BD5F3005CE586 /* MSIDCacheKey.m in Sources */,
 				B28BDAC0221F7F230055FFE6 /* MSIDCBAWebAADAuthResponse.m in Sources */,
 				B297E1F120A25F0C00F370EC /* MSIDLegacyTokenCacheItem.m in Sources */,

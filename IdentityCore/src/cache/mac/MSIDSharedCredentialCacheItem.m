@@ -134,7 +134,7 @@
     [self setObject:account forKey:accountKey];
 }
 
-- (NSMutableArray<MSIDCredentialCacheItem *> *)allCredentials
+- (NSArray<MSIDCredentialCacheItem *> *)allCredentials
 {
     NSArray *keys = [self allKeys];
     NSMutableArray<MSIDCredentialCacheItem *> *tokenList = [NSMutableArray new];
@@ -157,7 +157,7 @@
         }
     }
     
-    return tokenList;
+    return [tokenList copy];
 }
 
 - (MSIDSharedAccount *)objectForKey:(NSString *)key

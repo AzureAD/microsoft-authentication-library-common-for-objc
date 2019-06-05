@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setRefreshToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
 
-- (NSMutableArray<MSIDCredentialCacheItem *> *)allCredentials;
+- (NSArray<MSIDCredentialCacheItem *> *)allCredentials;
 
 - (MSIDSharedCredentialCacheItem *)mergeCredential:(MSIDSharedCredentialCacheItem *)sharedCredential;
 
