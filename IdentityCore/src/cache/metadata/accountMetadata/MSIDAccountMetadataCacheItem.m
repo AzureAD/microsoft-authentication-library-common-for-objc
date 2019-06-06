@@ -75,12 +75,10 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     return YES;
 }
 
-- (NSURL *)cachedURL:(NSURL *)cachedURL
+- (NSURL *)cachedURL:(NSURL *)requestURL
 {
     NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
-    NSString *cachedURLString = urlMap[cachedURL.absoluteString];
-    
-    return cachedURLString ? [[NSURL alloc] initWithString:cachedURLString] : nil;
+    return [NSURL URLWithString:urlMap[requestURL.absoluteString]];
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json

@@ -105,4 +105,10 @@
     return [_metadataCache removeAccountMetadataForKey:key context:context error:error];
 }
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
+{
+    return [_metadataCache clearWithContext:context error:error];
+}
+
 @end

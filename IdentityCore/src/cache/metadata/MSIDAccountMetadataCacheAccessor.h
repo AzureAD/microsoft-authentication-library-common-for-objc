@@ -50,4 +50,7 @@
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
 
+- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
+                   error:(NSError **)error;
+
 @end
