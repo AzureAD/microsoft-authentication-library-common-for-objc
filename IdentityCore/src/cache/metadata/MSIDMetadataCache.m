@@ -37,7 +37,7 @@
     MSIDCacheItemJsonSerializer *_jsonSerializer;
 }
 
-- (instancetype)initWithPersistantDataSource:(id<MSIDMetadataCacheDataSource>)dataSource
+- (instancetype)initWithPersistentDataSource:(id<MSIDMetadataCacheDataSource>)dataSource
 {
     if (!dataSource) return nil;
     
@@ -85,7 +85,7 @@
         }
     });
     
-    if (error) *error = localError;
+    if (error && localError) *error = localError;
     return saveSuccess;
 }
 
@@ -114,7 +114,7 @@
         }
     });
     
-    if (error) *error = localError;
+    if (error && localError) *error = localError;
     return item;
 }
 
@@ -143,7 +143,7 @@
         success = [_dataSource removeAccountMetadataForKey:key context:context error:&localError];
     });
     
-    if (error) *error = localError;
+    if (error && localError) *error = localError;
     return success;
 }
 
@@ -159,7 +159,7 @@
          success = [_dataSource clearWithContext:context error:&localError];
      });
     
-    if (error) *error = localError;
+    if (error && localError) *error = localError;
     return success;
 }
 

@@ -31,7 +31,7 @@
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithPersistantDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
+- (instancetype)initWithPersistentDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
                         key:(MSIDCacheKey *)key

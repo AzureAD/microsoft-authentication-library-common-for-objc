@@ -41,7 +41,7 @@
     
     if (self)
     {
-        _metadataCache = [[MSIDMetadataCache alloc] initWithPersistantDataSource:dataSource];
+        _metadataCache = [[MSIDMetadataCache alloc] initWithPersistentDataSource:dataSource];
     }
     
     return self;

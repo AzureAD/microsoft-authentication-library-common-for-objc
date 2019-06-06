@@ -30,9 +30,8 @@
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 @interface MSIDAccountMetadataCacheItem()
-{
-    NSMutableDictionary *_internalMap;
-}
+@property NSMutableDictionary *internalMap;
+
 @end
 
 @implementation MSIDAccountMetadataCacheItem
@@ -112,8 +111,6 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     return dictionary;
 }
-
-- (NSDictionary *)internalMap { return _internalMap; }
 
 #pragma mark - Equal
 

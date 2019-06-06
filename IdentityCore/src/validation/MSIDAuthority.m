@@ -253,8 +253,6 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return YES;
 }
 
-- (void)replaceURL:(NSURL *)url { _url = url; }
-
 #pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
