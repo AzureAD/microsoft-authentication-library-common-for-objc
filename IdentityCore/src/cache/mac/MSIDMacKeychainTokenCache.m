@@ -40,128 +40,115 @@
 #import "MSIDAppMetadataItemSerializer.h"
 
 /**
-This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
-There are three types of items stored:
-  1) Secret shareable artifacts (SSO credentials: Refresh tokens, other global credentials)
-  2) Non-secret shareable artifacts (account metadata)
-  3) Secret non-shareable artifacts (access tokens, ID tokens)
-
-In addition to the basic account & credential properties, the following definitions are used below:
-  <account_id>    :  “<home_account_id>-<environment>”
-  <credential_id> : “<credential_type>-<client_id>-<realm>”
-  <access_group>  : e.g. "com.microsoft.officecache"
-  <username>      : e.g. "joe@contoso.com"
-
-Below, attributes marked with "*" are primary keys for the keychain.
-For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
-Other secondary attributes do not make items unique, only the primary attributes.
-
-Type 1 (Secret shareable artifacts) Keychain Item Attributes
-============================================================
-ATTRIBUTE         VALUE
-~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-*kSecClass        kSecClassGenericPassword
-*kSecAttrAccount  <access_group>
-*kSecAttrService  “Microsoft Credentials”
-kSecAttrCreator   A hash of <access_group>
-kSecAttrLabel     "Microsoft Credentials"
-kSecAttrAccess    < See access control list below >
-kSecValueData     JSON data (UTF8 encoded) – shared credentials (multiple credentials saved in one keychain item)
-
-Type 1 JSON Data Example:
-{
-  "cache": {
-    "credentials": {
-      "account_id1": {
-        "credential_id1": "credential1 payload",
-        "credential_id2": "credential2 payload"
-      },
-      "account_id2": {
-        "credential_id1": "credential1 payload",
-        "credential_id2": "credential2 payload"
-      }
-    }
-  }
-}
-
-Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
-================================================================
-ATTRIBUTE         VALUE
-~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-*kSecClass        kSecClassGenericPassword
-*kSecAttrAccount  <access_group>-<account_id>
-*kSecAttrService  <realm>
-kSecAttrGeneric   <username>
-kSecAttrCreator   A hash of <access_group>
-kSecAttrLabel     "Microsoft Credentials"
-kSecAttrAccess    < See access control list below >
-kSecValueData     JSON data (UTF8 encoded) – account object
-
-Type 2 JSON Data Example:
-{
-  "home_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
-  "environment": "login.microsoftonline.com",
-  "realm": "f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
-  "authority_type": "MSSTS",
-  "username": "testuser@contoso.com",
-  "given_name": "First Name",
-  "family_name": "Last Name",
-  "name": "Test Username",
-  "local_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084",
-  "alternative_account_id": "alt",
-  "test": "test2",
-  "test3": "test4"
-}
-
-Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
-===============================================================
-ATTRIBUTE         VALUE
-~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
-*kSecClass        kSecClassGenericPassword
-*kSecAttrAccount  <access_group>-<app_bundle_id>-<account_id>
-*kSecAttrService  <credential_id>-<target>
-kSetAttrGeneric   <credential_id>
-kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
-kSecAttrCreator   A hash of <access_group>
-kSecAttrLabel     "Microsoft Credentials"
-kSecAttrAccess    < See access control list below >
-kSecValueData     JSON data (UTF8 encoded) – credential object
-
-Error handling:
-* Generally this class has three error cases: success, recoverable
-  error, and unrecoverable error. Whenever possible, recoverable
-  errors should be handled here, locally, without surfacing them
-  to the caller. (For example, when writing an account to the
-  keychain, the SecItemUpdate() may fail since the item isn't in
-  the keychian yet. This is normal, and the code continues using
-  SecItemAdd() without returning an error. If this add failed, a
-  non-recoverable error would be returned to the caller.) Where
-  applicable, macOS keychain OSStatus results are surfaced to the
-  caller as MSID-standard NSError objects.
-
-Additional Notes:
-* For a given <access_group>, multiple credentials are stored in
-  a single Type 1 keychain item.  This is a work-around for a macOS
-  keychain limitation related to ACLs (Access Control Lists) and
-  is intended to minimize macOS keychain access prompts.  Once
-  an application has access to the keychain item it can generally
-  access and update credentials without further keychain prompts.
-
-* Although we are specifying that which applications has the
-  ability to change the ACLs (kSecACLAuthorizationChangeACL), we
-  are not currently using this feature.  This is because,
-  SecTrustedApplicationRefs are considered opaque objects; we
-  cannot access their original content (ie. AppPath etc).  This is
-  for future-proofing so that when there is a documented way to
-  update these SecTrustedApplicationRefs, we don't need to prompt
-  the user.
-
-* Currently Access Control Lists
+ This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
+ There are three types of items stored:
+ 1) Secret shareable artifacts (SSO credentials: Refresh tokens, other global credentials)
+ 2) Non-secret shareable artifacts (account metadata)
+ 3) Secret non-shareable artifacts (access tokens, ID tokens)
  
-Reference(s):
-* Apple Keychain Services: https://developer.apple.com/documentation/security/keychain_services?language=objc
-* Schema:
-https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FUnifiedSchema%2FSchema.md&version=GBdev
+ In addition to the basic account & credential properties, the following definitions are used below:
+ <account_id>    :  “<home_account_id>-<environment>”
+ <credential_id> : “<credential_type>-<client_id>-<realm>”
+ <access_group>  : e.g. "com.microsoft.officecache"
+ <username>      : e.g. "joe@contoso.com"
+ 
+ Below, attributes marked with "*" are primary keys for the keychain.
+ For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
+ Other secondary attributes do not make items unique, only the primary attributes.
+ 
+ Type 1 (Secret shareable artifacts) Keychain Item Attributes
+ ============================================================
+ ATTRIBUTE         VALUE
+ ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
+ *kSecClass        kSecClassGenericPassword
+ *kSecAttrAccount  <access_group>
+ *kSecAttrService  “Microsoft Credentials”
+ kSecAttrCreator   A hash of <access_group>
+ kSecAttrLabel     "Microsoft Credentials"
+ kSecValueData     JSON data (UTF8 encoded) – shared credentials (multiple credentials saved in one keychain item)
+ 
+ Type 1 JSON Data Example:
+ {
+ "cache": {
+ "credentials": {
+ "account_id1": {
+ "credential_id1": "credential1 payload",
+ "credential_id2": "credential2 payload"
+ },
+ "account_id2": {
+ "credential_id1": "credential1 payload",
+ "credential_id2": "credential2 payload"
+ }
+ }
+ }
+ }
+ 
+ Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
+ ================================================================
+ ATTRIBUTE         VALUE
+ ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
+ *kSecClass        kSecClassGenericPassword
+ *kSecAttrAccount  <access_group>-<account_id>
+ *kSecAttrService  <realm>
+ kSecAttrGeneric   <username>
+ kSecAttrCreator   A hash of <access_group>
+ kSecAttrLabel     "Microsoft Credentials"
+ kSecValueData     JSON data (UTF8 encoded) – account object
+ 
+ Type 2 JSON Data Example:
+ {
+ "home_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+ "environment": "login.microsoftonline.com",
+ "realm": "f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+ "authority_type": "MSSTS",
+ "username": "testuser@contoso.com",
+ "given_name": "First Name",
+ "family_name": "Last Name",
+ "name": "Test Username",
+ "local_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084",
+ "alternative_account_id": "alt",
+ "test": "test2",
+ "test3": "test4"
+ }
+ 
+ Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
+ ===============================================================
+ ATTRIBUTE         VALUE
+ ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
+ *kSecClass        kSecClassGenericPassword
+ *kSecAttrAccount  <access_group>-<app_bundle_id>-<account_id>
+ *kSecAttrService  <credential_id>-<target>
+ kSetAttrGeneric   <credential_id>
+ kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
+ kSecAttrCreator   A hash of <access_group>
+ kSecAttrLabel     "Microsoft Credentials"
+ kSecValueData     JSON data (UTF8 encoded) – credential object
+ 
+ Error handling:
+ * Generally this class has three error cases: success, recoverable
+ error, and unrecoverable error. Whenever possible, recoverable
+ errors should be handled here, locally, without surfacing them
+ to the caller. (For example, when writing an account to the
+ keychain, the SecItemUpdate() may fail since the item isn't in
+ the keychian yet. This is normal, and the code continues using
+ SecItemAdd() without returning an error. If this add failed, a
+ non-recoverable error would be returned to the caller.) Where
+ applicable, macOS keychain OSStatus results are surfaced to the
+ caller as MSID-standard NSError objects.
+ 
+ Additional Notes:
+ * For a given <access_group>, multiple credentials are stored in
+ a single Type 1 keychain item.  This is a work-around for a macOS
+ keychain limitation related to ACLs (Access Control Lists) and
+ is intended to minimize macOS keychain access prompts.  Once
+ an application has access to the keychain item it can generally
+ access and update credentials without further keychain prompts.
+ 
+ Reference(s):
+ * Apple Keychain Services: https://developer.apple.com/documentation/security/keychain_services?language=objc
+ * Schema:
+ https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FUnifiedSchema%2FSchema.md&version=GBdev
+ 
 */
 
 /**
@@ -282,21 +269,7 @@ SecAccess: {
     }
   }
 }
- 
 
-Additional Notes:
-* Although we are specifying that which applications has the
-  ability to change the ACLs (kSecACLAuthorizationChangeACL), we
-  are not currently using this feature.  This is because,
-  SecTrustedApplicationRefs are considered opaque objects; we
-  cannot access their original content (ie. AppPath etc).  This is
-  for future-proofing so that when there is a documented way to
-  update these SecTrustedApplicationRefs, we don't need to prompt
-  the user.
-
-* Currently Access Control Lists
- 
- 
 References(s):
 * Apple Keychain Services Access Control Lists:
  https://developer.apple.com/documentation/security/ksecattraccess?language=objc
