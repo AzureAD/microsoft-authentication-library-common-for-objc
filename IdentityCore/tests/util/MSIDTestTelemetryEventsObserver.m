@@ -21,14 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDMacKeychainTokenCache.h"
+#import "MSIDTestTelemetryEventsObserver.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDTestTelemetryEventsObserver
 
-@interface MSIDMacKeychainTokenCache (Testing)
-
-+ (NSString *)teamId;
+- (void)onEventsReceived:(NSArray<NSDictionary<NSString *, NSString *> *> *)events
+{
+    if (self.eventsReceivedBlock) self.eventsReceivedBlock(events);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

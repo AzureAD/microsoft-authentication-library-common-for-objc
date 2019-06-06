@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAADV2TokenResponse.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDAccessToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDRefreshToken.h"
@@ -63,8 +63,7 @@
 
 - (MSIDConfiguration *)aadTestConfiguration
 {
-    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:authorityURL context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
 
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:@"msalb6c69a37-df96-4db0-9088-2ab96e1d8215://auth"
@@ -471,8 +470,7 @@
 
 - (MSIDConfiguration *)b2cTestConfiguration
 {
-    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/iosmsalb2c.onmicrosoft.com/b2c_1_signin"];
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:authorityURL context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/tfp/iosmsalb2c.onmicrosoft.com/b2c_1_signin" b2cAuthority];
 
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:@"msal0a7f52dd-260e-432f-94de-b47828c3f372://auth"

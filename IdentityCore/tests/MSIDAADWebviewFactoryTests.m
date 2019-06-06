@@ -37,7 +37,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCacheRecord.h"
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDOpenIdProviderMetadata.h"
 
@@ -106,7 +106,7 @@
 
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
 
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
     MSIDOpenIdProviderMetadata *metadata = [MSIDOpenIdProviderMetadata new];
     metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
     authority.metadata = metadata;

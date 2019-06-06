@@ -23,12 +23,12 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDLegacyBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClaimsRequest.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDLegacyBrokerRequestTests : XCTestCase
 
@@ -74,7 +74,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -119,7 +120,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -163,7 +165,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -205,7 +208,8 @@
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
-                                               @"resource": @"myresource"
+                                               @"resource": @"myresource",
+                                               @"sdk_name" : @"adal-objc"
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -216,7 +220,7 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"myresource";
     parameters.correlationId = [NSUUID new];

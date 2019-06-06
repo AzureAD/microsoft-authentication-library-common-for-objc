@@ -50,4 +50,9 @@
     return self.homeAccountId && self.environment && self.realm;
 }
 
+- (BOOL)isShared
+{
+    return YES;
+}
+
 @end

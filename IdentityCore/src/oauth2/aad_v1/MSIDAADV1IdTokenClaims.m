@@ -27,6 +27,7 @@
 
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDHelpers.h"
+#import "MSIDAADAuthority.h"
 
 #define ID_TOKEN_UPN                @"upn"
 #define ID_TOKEN_IDP                @"idp"
@@ -90,6 +91,14 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
     }
 
     _userId = [MSIDHelpers normalizeUserId:_userId];
+    
+    NSError *issuerError = nil;
+    _issuerAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:self.issuer] rawTenant:nil context:nil error:&issuerError];
+    
+    if (!_issuerAuthority)
+    {
+        MSID_LOG_WARN(nil, @"Failed to initialize issuer authority with error %@, %ld", issuerError.domain, (long)issuerError.code);
+    }
 }
 
 - (NSString *)alternativeAccountId

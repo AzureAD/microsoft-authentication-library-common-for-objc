@@ -305,11 +305,13 @@ References(s):
 static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstorage";
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
+static dispatch_queue_t s_synchronizationQueue;
 
 @interface MSIDMacKeychainTokenCache ()
 
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
+@property (readwrite, nonnull) NSString *appIdentifier;
 @property (readwrite) NSArray *trustedApplications;
 @property (readwrite, nonnull) id accessForCredentials;
 @property (readwrite, nonnull) id accessForAccounts;
@@ -397,13 +399,13 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
-        NSString *teamId = [self.class teamId];
-        if (!teamId) return nil;
-
+        MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+        if (!keychainUtil.teamId) return nil;
+        
         // Add team prefix to keychain group if it is missed.
-        if (![keychainGroup hasPrefix:teamId])
+        if (![keychainGroup hasPrefix:keychainUtil.teamId])
         {
-            keychainGroup = [[NSString alloc] initWithFormat:@"%@.%@", teamId, keychainGroup];
+            keychainGroup = [keychainUtil accessGroup:keychainGroup];
         }
 
         self.keychainGroup = keychainGroup;
@@ -443,6 +445,22 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
             return nil;
         }
 
+        self.appIdentifier = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                              NSProcessInfo.processInfo.processIdentifier];;
+
+        // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
+        // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
+        // However, it's not entirely clear if this applies to all keychain APIs.
+        // Since our applications often perform a large number of cache reads on mulitple threads, it would be preferable to
+        // allow concurrent readers, even if writes are serialized. For this reason this is a concurrent queue, and the
+        // dispatch queue calls are used. We intend to clarify this behavior with Apple.
+        //
+        // To protect the underlying keychain API, a single queue is used even if multiple instances of this class are allocated.
+        static dispatch_once_t s_once;
+        dispatch_once(&s_once, ^{
+            s_synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
+        });
+
         self.defaultCacheQuery = @{
                                    // All account items are saved as generic passwords.
                                    (id)kSecClass: (id)kSecClassGenericPassword,
@@ -455,6 +473,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                    (id)kSecAttrLabel: s_defaultKeychainLabel
                                    
                                    };
+
 
         MSID_LOG_INFO(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
         MSID_LOG_INFO_PII(nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", self.keychainGroup);
@@ -479,6 +498,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 {
     assert(account);
     assert(serializer);
+    [self updateLastModifiedForAccount:account context:context];
     NSData *itemData = [serializer serializeAccountCacheItem:account];
 
     if (!itemData)
@@ -486,8 +506,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_ERROR(context, @"Failed to serialize account item.");
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
     }
 
@@ -588,6 +608,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 {
     assert(credential);
     assert(serializer);
+    [self updateLastModifiedForCredential:credential context:context];
     NSData *itemData = [serializer serializeCredentialCacheItem:credential];
 
     if (!itemData)
@@ -595,8 +616,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_ERROR(context, @"Failed to serialize account item.");
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        
         return NO;
     }
 
@@ -624,7 +646,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     if (items.count > 1)
     {
-        [self createError:@"The token cache store for this resource contains more than one user"
+        MSID_LOG_ERROR(context, @"The token cache store for this resource contains more than one token");
+        [self createError:@"The token cache store for this resource contains more than one token"
                    domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
         return nil;
     }
@@ -692,9 +715,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize app metadata item.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
         return NO;
     }
 
@@ -772,9 +795,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     query[(id)kSecReturnRef] = @YES;
 
-    CFTypeRef cfItems = nil;
     MSID_LOG_INFO(context, @"Trying to find keychain items...");
-    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
+    __block CFTypeRef cfItems = nil;
+    __block OSStatus status;
+    dispatch_sync(s_synchronizationQueue, ^{
+        status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
+    });
     MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
 
     if (status == errSecItemNotFound)
@@ -800,8 +826,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecReturnAttributes] = @YES;
     query[(id)kSecReturnData] = @YES;
 
-    CFTypeRef cfItemDicts = nil;
-    status = SecItemCopyMatching((CFDictionaryRef)query, &cfItemDicts);
+    __block CFTypeRef cfItemDicts = nil;
+    dispatch_sync(s_synchronizationQueue, ^{
+        status = SecItemCopyMatching((CFDictionaryRef)query, &cfItemDicts);
+    });
     NSArray *itemDicts = CFBridgingRelease(cfItemDicts);
     return itemDicts;
 }
@@ -843,19 +871,23 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self primaryAttributesForKey:key];
     NSMutableDictionary *update = [self secondaryAttributesForKey:key];
     update[(id)kSecValueData] = itemData;
-    OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-    MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
+    __block OSStatus status;
+    dispatch_barrier_sync(s_synchronizationQueue, ^{
+        status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
+        MSID_LOG_INFO(context, @"Keychain update status: %d", (int)status);
 
-    if (status == errSecItemNotFound)
-    {
-        [query addEntriesFromDictionary:update];
-        query[(id)kSecAttrAccess] = access;
-        status = SecItemAdd((CFDictionaryRef)query, NULL);
-        MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
-    }
+        if (status == errSecItemNotFound)
+        {
+            [query addEntriesFromDictionary:update];
+	    query[(id)kSecAttrAccess] = access;
+            status = SecItemAdd((CFDictionaryRef)query, NULL);
+            MSID_LOG_INFO(context, @"Keychain add status: %d", (int)status);
+        }
+    });
 
     if (status != errSecSuccess)
     {
+        MSID_LOG_ERROR(context, @"Failed to write item to keychain (status: %d)", (int)status);
         [self createError:@"Failed to write item to keychain"
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
@@ -875,9 +907,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     MSID_LOG_VERBOSE(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(account), _PII_NULLIFY(service), [self keychainGroupLoggingName]);
     MSID_LOG_VERBOSE_PII(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", account, service, self.keychainGroup);
 
-    if (!key)
+    if (!key || !(key.service || key.account))
     {
-        [self createError:@"Key is nil."
+        MSID_LOG_ERROR(context, @"Key is nil or one of the key attributes account or service is nil.");
+        [self createError:@"Key is nil or one of the key attributes account or service is nil."
                    domain:MSIDErrorDomain errorCode:MSIDErrorInvalidDeveloperParameter error:error context:context];
         return NO;
     }
@@ -887,11 +920,15 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
 
     MSID_LOG_INFO(context, @"Trying to delete keychain items...");
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    __block OSStatus status;
+    dispatch_barrier_sync(s_synchronizationQueue, ^{
+        status = SecItemDelete((CFDictionaryRef)query);
+    });
     MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
 
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
+        MSID_LOG_ERROR(context, @"Failed to remove multiple items from keychain (status: %d)", (int)status);
         [self createError:@"Failed to remove multiple items from keychain"
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
@@ -931,7 +968,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
-    OSStatus status = SecItemDelete((CFDictionaryRef)query);
+    __block OSStatus status;
+    dispatch_barrier_sync(s_synchronizationQueue, ^{
+        status = SecItemDelete((CFDictionaryRef)query);
+    });
     MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
 
     if (status != errSecSuccess && status != errSecItemNotFound)
@@ -939,9 +979,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         if (error)
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
         }
-        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
-        
         return NO;
     }
 
@@ -1144,22 +1183,48 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     return _PII_NULLIFY(self.keychainGroup);
 }
 
-+ (NSString *)teamId
+// Update the lastModification properties for an account object
+- (void)updateLastModifiedForAccount:(MSIDAccountCacheItem *)account
+                             context:(nullable id<MSIDRequestContext>)context
 {
-    NSString* teamIdentifier = nil;
-    SecCodeRef selfCode = NULL;
-    SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+    [self checkIfRecentlyModifiedItem:context
+                                 time:account.lastModificationTime
+                                  app:account.lastModificationApp];
+    account.lastModificationApp = _appIdentifier;
+    account.lastModificationTime = [NSDate date];
+}
 
-    if (selfCode)
+// Update the lastModification properties for a credential object
+- (void)updateLastModifiedForCredential:(MSIDCredentialCacheItem *)credential
+                                context:(nullable id<MSIDRequestContext>)context
+{
+    [self checkIfRecentlyModifiedItem:context
+                                 time:credential.lastModificationTime
+                                  app:credential.lastModificationApp];
+    credential.lastModificationApp = _appIdentifier;
+    credential.lastModificationTime = [NSDate date];
+}
+
+// If this item was modified a moment ago by another process, report a *potential* collision
+- (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
+                               time:(NSDate *)lastModificationTime
+                                app:(NSString *)lastModificationApp
+{
+    if (lastModificationTime && lastModificationApp)
     {
-        CFDictionaryRef cfDic = NULL;
-        SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
-        NSDictionary* signingDic = CFBridgingRelease(cfDic);
-        teamIdentifier = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
-        CFRelease(selfCode);
+        // Only check if the previous modification was by another process
+        if ([_appIdentifier isEqualToString:lastModificationApp] == NO)
+        {
+            NSTimeInterval timeDifference = [lastModificationTime timeIntervalSinceNow];
+            if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
+            {
+                MSID_LOG_WARN(context, @"Set keychain item for recently-modified item (delta %0.3f) app:%@",
+                              timeDifference, lastModificationApp);
+                return YES;
+            }
+        }
     }
-
-    return teamIdentifier;
+    return NO;
 }
 
 @end

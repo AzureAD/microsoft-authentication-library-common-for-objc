@@ -24,7 +24,6 @@
 #import <XCTest/XCTest.h>
 #import "MSIDInteractiveTokenRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
@@ -46,6 +45,7 @@
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
+#import "NSString+MSIDTestUtil.h"
 
 @interface MSIDDefaultInteractiveTokenRequestTests : XCTestCase
 
@@ -87,7 +87,7 @@
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -185,7 +185,7 @@
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"instance_aware" : @"true" };
@@ -284,7 +284,7 @@
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -375,7 +375,7 @@
     
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -467,7 +467,7 @@
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -556,7 +556,7 @@
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -619,7 +619,7 @@
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
@@ -678,7 +678,7 @@
 
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
     parameters.clientId = @"my_client_id";
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };

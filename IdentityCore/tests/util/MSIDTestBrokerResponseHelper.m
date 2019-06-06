@@ -24,6 +24,7 @@
 #import "MSIDTestBrokerResponseHelper.h"
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonDigest.h>
+#import "MSIDConstants.h"
 
 @implementation MSIDTestBrokerResponseHelper
 

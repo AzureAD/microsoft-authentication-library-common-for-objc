@@ -39,7 +39,8 @@
     cacheItem.refreshToken = @"rt";
     cacheItem.idToken = @"id";
     cacheItem.oauthTokenType = @"token type";
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"client";
     cacheItem.credentialType = MSIDLegacySingleResourceTokenType;
     cacheItem.secret = @"at";
@@ -72,8 +73,8 @@
     XCTAssertEqualObjects(newItem.refreshToken, @"rt");
     XCTAssertEqualObjects(newItem.idToken, @"id");
     XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
-    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
-    XCTAssertEqualObjects(newItem.authority, authorityURL);
+    XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(newItem.realm, @"contoso.com");
     XCTAssertEqualObjects(newItem.clientId, @"client");
     XCTAssertEqual(newItem.credentialType, MSIDLegacySingleResourceTokenType);
     XCTAssertEqualObjects(newItem.secret, @"at");
@@ -94,7 +95,8 @@
     cacheItem.accessToken = @"at";
     cacheItem.idToken = @"id";
     cacheItem.oauthTokenType = @"token type";
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"client";
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.secret = @"at";
@@ -125,8 +127,8 @@
     XCTAssertEqualObjects(newItem.accessToken, @"at");
     XCTAssertEqualObjects(newItem.idToken, @"id");
     XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
-    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
-    XCTAssertEqualObjects(newItem.authority, authorityURL);
+    XCTAssertEqualObjects(newItem.realm, @"contoso.com");
+    XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(newItem.clientId, @"client");
     XCTAssertEqual(newItem.credentialType, MSIDAccessTokenType);
     XCTAssertEqualObjects(newItem.secret, @"at");
@@ -146,7 +148,8 @@
     cacheItem.refreshToken = @"rt";
     cacheItem.idToken = @"id";
     cacheItem.oauthTokenType = @"token type";
-    cacheItem.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem.environment = @"login.microsoftonline.com";
+    cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"client";
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.secret = @"rt";
@@ -178,8 +181,8 @@
     XCTAssertEqualObjects(newItem.refreshToken, @"rt");
     XCTAssertEqualObjects(newItem.idToken, @"id");
     XCTAssertEqualObjects(newItem.oauthTokenType, @"token type");
-    NSURL *authorityURL = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
-    XCTAssertEqualObjects(newItem.authority, authorityURL);
+    XCTAssertEqualObjects(newItem.realm, @"contoso.com");
+    XCTAssertEqualObjects(newItem.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(newItem.clientId, @"client");
     XCTAssertEqual(newItem.credentialType, MSIDRefreshTokenType);
     XCTAssertEqualObjects(newItem.secret, @"rt");
@@ -201,14 +204,16 @@
     cacheItem1.refreshToken = @"rt";
     cacheItem1.idToken = @"id";
     cacheItem1.oauthTokenType = @"token type";
-    cacheItem1.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem1.environment = @"login.microsoftonline.com";
+    cacheItem1.realm = @"contoso.com";
     
     MSIDLegacyTokenCacheItem *cacheItem2 = [MSIDLegacyTokenCacheItem new];
     cacheItem2.accessToken = @"at";
     cacheItem2.refreshToken = @"rt";
     cacheItem2.idToken = @"id";
     cacheItem2.oauthTokenType = nil;
-    cacheItem1.authority = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"];
+    cacheItem2.environment = @"login.microsoftonline.com";
+    cacheItem2.realm = @"contoso.com";
     XCTAssertNotEqualObjects(cacheItem1, cacheItem2);
 }
 

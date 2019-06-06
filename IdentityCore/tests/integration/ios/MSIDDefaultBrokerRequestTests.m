@@ -26,7 +26,7 @@
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDDefaultBrokerRequestTests : XCTestCase
@@ -55,7 +55,7 @@
                                       @"client_app_version" : @"1.0",
                                       //V2 broker protocol specific
                                       //Nil/empty value is not sent
-                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2",
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
@@ -74,7 +74,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -99,7 +100,7 @@
                                       @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
-                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2",
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
@@ -121,7 +122,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -146,7 +148,7 @@
                                       @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
-                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2",
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
@@ -168,7 +170,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -193,7 +196,7 @@
                                       @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4",
                                       @"client_app_name" : @"MSIDTestsHostApp",
                                       @"client_app_version" : @"1.0",
-                                      @"request_scopes" : @"myscope1 myscope2",
+                                      @"scope" : @"myscope1 myscope2",
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
@@ -214,7 +217,8 @@
                                                @"keychain_group" : @"com.microsoft.mygroup",
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
-                                               @"oidc_scope" : @"oidcscope1 oidcscope2"
+                                               @"oidc_scope" : @"oidcscope1 oidcscope2",
+                                               @"sdk_name" : @"msal-objc"
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -225,7 +229,7 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"myscope1 myscope2";
     parameters.correlationId = [NSUUID new];
