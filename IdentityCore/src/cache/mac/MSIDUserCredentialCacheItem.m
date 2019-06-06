@@ -116,7 +116,7 @@
     [self addObject:account];
 }
 
-- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDCacheKey *)key;
+- (NSArray<MSIDUserAccount *> *)credentialsWithKey:(MSIDCacheKey *)key
 {
     // Build array of sub-predicates:
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
@@ -133,15 +133,7 @@
     // Combine all sub-predicates with AND:
     NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
     
-    NSArray *filteredCredentials = [[self allObjects] filteredArrayUsingPredicate:matchAttributes];
-    NSMutableArray<MSIDCredentialCacheItem*> *userCredentials = [NSMutableArray array];
-    
-    for (MSIDUserAccount *userAccount in filteredCredentials)
-    {
-        [userCredentials addObject:userAccount.cacheItem];
-    }
-    
-    return [userCredentials copy];
+    return [[self allObjects] filteredArrayUsingPredicate:matchAttributes];
 }
 
 - (void)addObject:(MSIDUserAccount *)obj
@@ -166,6 +158,13 @@
 {
     dispatch_barrier_async(self.queue, ^{
         [self.cacheObjects setByAddingObjectsFromSet:userCredential.cacheObjects];
+    });
+}
+
+- (void)removeUserAccounts:(NSArray<MSIDUserAccount *> *)userAccounts
+{
+    dispatch_barrier_async(self.queue, ^{
+        [self.cacheObjects minusSet:[NSSet setWithArray:userAccounts]];
     });
 }
 

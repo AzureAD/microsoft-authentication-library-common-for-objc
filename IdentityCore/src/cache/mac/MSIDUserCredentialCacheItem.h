@@ -25,6 +25,7 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDJsonSerializable.h"
 #import "MSIDDefaultCredentialCacheKey.h"
+#import "MSIDUserAccount.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,9 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)setUserToken:(MSIDCredentialCacheItem *)token forKey:(MSIDCacheKey *)key;
 
-- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDCacheKey *)key;
+- (NSArray<MSIDUserAccount *> *)credentialsWithKey:(MSIDCacheKey *)key;
 
 - (void)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential;
+
+- (void)removeUserAccounts:(NSArray<MSIDUserAccount *> *)userAccounts;
 
 @end
 
