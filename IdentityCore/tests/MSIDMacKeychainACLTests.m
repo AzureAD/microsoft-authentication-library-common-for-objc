@@ -171,7 +171,7 @@
     XCTAssertEqual(expected, [actual integerValue]);
 }
 
-- (void)testFoobar
+- (void)testMacKeychainCacheACL_readWriteAccountFromDifferentProcess
 {
     NSString* accountStr = [NSString stringWithUTF8String:[[_serializer serializeAccountCacheItem:_account] bytes]];
     
