@@ -25,25 +25,25 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDJsonSerializable.h"
 #import "MSIDDefaultCredentialCacheKey.h"
-#import "MSIDUserAccount.h"
+#import "MSIDMacAppCredential.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDUserCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
+@interface MSIDMacAppCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 
 + (instancetype _Nullable)new NS_UNAVAILABLE;
 
-+ (MSIDUserCredentialCacheItem *)sharedInstance;
++ (MSIDMacAppCredentialCacheItem *)sharedInstance;
 
 - (void)setUserToken:(MSIDCredentialCacheItem *)token forKey:(MSIDCacheKey *)key;
 
-- (NSArray<MSIDUserAccount *> *)credentialsWithKey:(MSIDCacheKey *)key;
+- (NSArray<MSIDMacAppCredential *> *)credentialsWithKey:(MSIDCacheKey *)key;
 
-- (void)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential;
+- (void)mergeCredential:(MSIDMacAppCredentialCacheItem *)userCredential;
 
-- (void)removeUserAccounts:(NSArray<MSIDUserAccount *> *)userAccounts;
+- (void)removeUserAccounts:(NSArray<MSIDMacAppCredential *> *)userAccounts;
 
 @end
 

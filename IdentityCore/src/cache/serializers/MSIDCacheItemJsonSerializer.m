@@ -25,11 +25,11 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonSerializable.h"
 #import "MSIDCredentialCacheItem.h"
-#import "MSIDSharedCredentialCacheItem.h"
+#import "MSIDMacSharedCredentialCacheItem.h"
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
-#import "MSIDUserCredentialCacheItem.h"
+#import "MSIDMacAppCredentialCacheItem.h"
 
 @interface MSIDCacheItemJsonSerializer()
 
@@ -70,15 +70,15 @@
     return item;
 }
 
-- (NSData *)serializeSharedCredentialCacheItem:(MSIDSharedCredentialCacheItem *)item
+- (NSData *)serializeSharedCredentialCacheItem:(MSIDMacSharedCredentialCacheItem *)item
 {
     return [self.jsonSerializer toJsonData:item context:nil error:nil];
 }
 
-- (MSIDSharedCredentialCacheItem *)deserializeSharedCredentialCacheItem:(NSData *)data
+- (MSIDMacSharedCredentialCacheItem *)deserializeSharedCredentialCacheItem:(NSData *)data
 {
     NSError *error = nil;
-    MSIDSharedCredentialCacheItem *item = (MSIDSharedCredentialCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDSharedCredentialCacheItem.class context:nil error:&error];
+    MSIDMacSharedCredentialCacheItem *item = (MSIDMacSharedCredentialCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDMacSharedCredentialCacheItem.class context:nil error:&error];
     
     if (!item)
     {
@@ -89,15 +89,15 @@
     return item;
 }
 
-- (NSData *)serializeUserCredentialCacheItem:(MSIDUserCredentialCacheItem *)item
+- (NSData *)serializeAppCredentialCacheItem:(MSIDMacAppCredentialCacheItem *)item
 {
     return [self.jsonSerializer toJsonData:item context:nil error:nil];
 }
 
-- (MSIDUserCredentialCacheItem *)deserializeUserCredentialCacheItem:(NSData *)data
+- (MSIDMacAppCredentialCacheItem *)deserializeAppCredentialCacheItem:(NSData *)data
 {
     NSError *error = nil;
-    MSIDUserCredentialCacheItem *item = (MSIDUserCredentialCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDUserCredentialCacheItem.class context:nil error:&error];
+    MSIDMacAppCredentialCacheItem *item = (MSIDMacAppCredentialCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDMacAppCredentialCacheItem.class context:nil error:&error];
     
     if (!item)
     {

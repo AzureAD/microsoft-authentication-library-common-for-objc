@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDUserAccount.h"
+#import "MSIDMacAppCredential.h"
 
-@implementation MSIDUserAccount
+@implementation MSIDMacAppCredential
 
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service
@@ -58,10 +58,10 @@
         return NO;
     }
     
-    return [self isEqualToItem:(MSIDUserAccount *)object];
+    return [self isEqualToItem:(MSIDMacAppCredential *)object];
 }
 
-- (BOOL)isEqualToItem:(MSIDUserAccount *)item
+- (BOOL)isEqualToItem:(MSIDMacAppCredential *)item
 {
     BOOL result = YES;
     result &= (!self.acct && !item.acct) || [self.acct isEqualToString:item.acct];

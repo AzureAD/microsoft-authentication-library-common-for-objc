@@ -28,7 +28,7 @@
 #import "MSIDAccountItemSerializer.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
-#import "MSIDSharedCredentialItemSerializer.h"
+#import "MSIDMacSharedCredentialItemSerializer.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 

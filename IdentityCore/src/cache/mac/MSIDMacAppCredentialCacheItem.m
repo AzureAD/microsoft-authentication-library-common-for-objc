@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDUserCredentialCacheItem.h"
-#import "MSIDUserAccount.h"
+#import "MSIDMacAppCredentialCacheItem.h"
+#import "MSIDMacAppCredential.h"
 
-@interface MSIDUserCredentialCacheItem ()
+@interface MSIDMacAppCredentialCacheItem ()
 
 @property (nonatomic) NSMutableSet *cacheObjects;
 @property (nonatomic) dispatch_queue_t queue;
@@ -32,7 +32,7 @@
 @end
 
 
-@implementation MSIDUserCredentialCacheItem
+@implementation MSIDMacAppCredentialCacheItem
 
 - (instancetype)initPrivate
 {
@@ -45,9 +45,9 @@
     return self;
 }
 
-+ (MSIDUserCredentialCacheItem *)sharedInstance
++ (MSIDMacAppCredentialCacheItem *)sharedInstance
 {
-    static MSIDUserCredentialCacheItem *instance = nil;
+    static MSIDMacAppCredentialCacheItem *instance = nil;
     
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -74,7 +74,7 @@
         
         MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:[userDict objectForKey:(__bridge id)kSecValueData] error:error];
         
-        MSIDUserAccount *userAccount = [[MSIDUserAccount alloc] initWithAccount:account
+        MSIDMacAppCredential *userAccount = [[MSIDMacAppCredential alloc] initWithAccount:account
                                                                         service:service
                                                                         generic:generic
                                                                            type:type
@@ -90,7 +90,7 @@
     NSMutableArray *userTokens = [NSMutableArray array];
     NSArray *allTokens = [self allObjects];
     
-    for (MSIDUserAccount *token in allTokens)
+    for (MSIDMacAppCredential *token in allTokens)
     {
         NSMutableDictionary *userToken = [NSMutableDictionary dictionary];
         userToken[(__bridge id)kSecAttrAccount] = token.acct;
@@ -107,7 +107,7 @@
 
 - (void)setUserToken:(MSIDCredentialCacheItem *)token forKey:(MSIDCacheKey *)key;
 {
-    MSIDUserAccount *account = [[MSIDUserAccount alloc] initWithAccount:key.account
+    MSIDMacAppCredential *account = [[MSIDMacAppCredential alloc] initWithAccount:key.account
                                                                 service:key.service
                                                                 generic:key.generic
                                                                    type:key.type
@@ -116,7 +116,7 @@
     [self addObject:account];
 }
 
-- (NSArray<MSIDUserAccount *> *)credentialsWithKey:(MSIDCacheKey *)key
+- (NSArray<MSIDMacAppCredential *> *)credentialsWithKey:(MSIDCacheKey *)key
 {
     // Build array of sub-predicates:
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
@@ -136,7 +136,7 @@
     return [[self allObjects] filteredArrayUsingPredicate:matchAttributes];
 }
 
-- (void)addObject:(MSIDUserAccount *)obj
+- (void)addObject:(MSIDMacAppCredential *)obj
 {
     dispatch_barrier_async(self.queue, ^{
         [self.cacheObjects addObject:obj];
@@ -154,14 +154,14 @@
     return array;
 }
 
-- (void)mergeCredential:(MSIDUserCredentialCacheItem *)userCredential
+- (void)mergeCredential:(MSIDMacAppCredentialCacheItem *)userCredential
 {
     dispatch_barrier_async(self.queue, ^{
         [self.cacheObjects setByAddingObjectsFromSet:userCredential.cacheObjects];
     });
 }
 
-- (void)removeUserAccounts:(NSArray<MSIDUserAccount *> *)userAccounts
+- (void)removeUserAccounts:(NSArray<MSIDMacAppCredential *> *)userAccounts
 {
     dispatch_barrier_async(self.queue, ^{
         [self.cacheObjects minusSet:[NSSet setWithArray:userAccounts]];

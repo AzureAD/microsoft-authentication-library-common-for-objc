@@ -22,22 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCredentialCacheItem.h"
+
+@class MSIDMacAppCredentialCacheItem;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSharedAccount : NSObject
+@protocol MSIDMacAppCredentialItemSerializer <NSObject>
 
-@property (nullable, readonly) NSString *accountIdentifier;
-
-- (instancetype _Nullable)initWithAccountIdentifier:(nonnull NSString *)accountIdentifier NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-@property NSMutableDictionary<NSString *,MSIDCredentialCacheItem *> *refreshTokens;
-
-- (MSIDSharedAccount *)mergeAccount:(MSIDSharedAccount *)account;
+- (NSData *)serializeAppCredentialCacheItem:(MSIDMacAppCredentialCacheItem *)item;
+- (MSIDMacAppCredentialCacheItem *)deserializeAppCredentialCacheItem:(NSData *)data;
 
 @end
 

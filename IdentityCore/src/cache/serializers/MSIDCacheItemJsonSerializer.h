@@ -25,12 +25,12 @@
 #import "MSIDAccountItemSerializer.h"
 #import "MSIDCredentialItemSerializer.h"
 #import "MSIDAppMetadataItemSerializer.h"
-#import "MSIDSharedCredentialItemSerializer.h"
-#import "MSIDUserCredentialItemSerializer.h"
+#import "MSIDMacSharedCredentialItemSerializer.h"
+#import "MSIDMacAppCredentialItemSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCacheItemJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer, MSIDSharedCredentialItemSerializer, MSIDUserCredentialItemSerializer>
+@interface MSIDCacheItemJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer, MSIDMacSharedCredentialItemSerializer, MSIDMacAppCredentialItemSerializer>
 
 @end
 

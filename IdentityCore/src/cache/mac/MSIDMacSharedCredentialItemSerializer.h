@@ -25,12 +25,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDSharedCredentialCacheItem;
+@class MSIDMacSharedCredentialCacheItem;
 
-@protocol MSIDSharedCredentialItemSerializer <NSObject>
+@protocol MSIDMacSharedCredentialItemSerializer <NSObject>
 
-- (NSData *)serializeSharedCredentialCacheItem:(MSIDSharedCredentialCacheItem *)item;
-- (MSIDSharedCredentialCacheItem *)deserializeSharedCredentialCacheItem:(NSData *)data;
+- (NSData *)serializeSharedCredentialCacheItem:(MSIDMacSharedCredentialCacheItem *)item;
+- (MSIDMacSharedCredentialCacheItem *)deserializeSharedCredentialCacheItem:(NSData *)data;
 
 @end
 

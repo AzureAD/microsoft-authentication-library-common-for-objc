@@ -21,17 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDMacSharedCredential.h"
 
-@class MSIDUserCredentialCacheItem;
+@implementation MSIDMacSharedCredential
 
-NS_ASSUME_NONNULL_BEGIN
+- (instancetype _Nullable)initWithCredentialIdentifier:(nonnull NSString *)credentialIdentifier
+{
+    self = [super init];
+    if (self)
+    {
+        _refreshTokens = [NSMutableDictionary dictionary];
+        _credentialIdentifier = credentialIdentifier;
+    }
+    
+    return self;
+}
 
-@protocol MSIDUserCredentialItemSerializer <NSObject>
-
-- (NSData *)serializeUserCredentialCacheItem:(MSIDUserCredentialCacheItem *)item;
-- (MSIDUserCredentialCacheItem *)deserializeUserCredentialCacheItem:(NSData *)data;
+- (MSIDMacSharedCredential *)mergeCredential:(MSIDMacSharedCredential *)savedCredential
+{
+    [self.refreshTokens addEntriesFromDictionary:savedCredential.refreshTokens];
+    return self;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

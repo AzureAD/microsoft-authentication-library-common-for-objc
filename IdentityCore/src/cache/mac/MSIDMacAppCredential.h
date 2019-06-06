@@ -21,25 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
 #import "MSIDCredentialCacheItem.h"
-#import "MSIDSharedAccount.h"
-#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSharedCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
+@interface MSIDMacAppCredential : NSObject
 
-- (instancetype _Nullable)init NS_UNAVAILABLE;
+- (nullable id)initWithAccount:(nullable NSString *)account
+                       service:(nullable NSString *)service
+                       generic:(nullable NSData *)generic
+                          type:(nullable NSNumber *)type
+           credentialCacheItem:(MSIDCredentialCacheItem *)cacheItem NS_DESIGNATED_INITIALIZER;
 
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
-+ (MSIDSharedCredentialCacheItem *)sharedInstance;
+@property (nullable, readonly) NSString *acct;
 
-- (void)setRefreshToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
+/* Corresponds to kSecAttrService */
+@property (nullable, readonly) NSString *svce;
 
-- (NSArray<MSIDCredentialCacheItem *> *)allCredentials;
+/* Corresponds to kSecAttrType */
+@property (nullable, readonly) NSNumber *type;
 
-- (MSIDSharedCredentialCacheItem *)mergeCredential:(MSIDSharedCredentialCacheItem *)sharedCredential;
+/* Corresponds to kSecAttrGeneric */
+@property (nullable, readonly) NSData *gena;
+
+@property (nullable, readonly) MSIDCredentialCacheItem *cacheItem;
 
 @end
 

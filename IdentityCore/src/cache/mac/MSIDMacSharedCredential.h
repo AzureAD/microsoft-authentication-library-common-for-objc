@@ -26,29 +26,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDUserAccount : NSObject
+@interface MSIDMacSharedCredential : NSObject
 
-- (nullable id)initWithAccount:(nullable NSString *)account
-                       service:(nullable NSString *)service
-                       generic:(nullable NSData *)generic
-                          type:(nullable NSNumber *)type
-           credentialCacheItem:(MSIDCredentialCacheItem *)cacheItem NS_DESIGNATED_INITIALIZER;
+@property (nullable, readonly) NSString *credentialIdentifier;
+
+- (instancetype _Nullable)initWithCredentialIdentifier:(nonnull NSString *)accountIdentifier NS_DESIGNATED_INITIALIZER;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-@property (nullable, readonly) NSString *acct;
+@property NSMutableDictionary<NSString *,MSIDCredentialCacheItem *> *refreshTokens;
 
-/* Corresponds to kSecAttrService */
-@property (nullable, readonly) NSString *svce;
-
-/* Corresponds to kSecAttrType */
-@property (nullable, readonly) NSNumber *type;
-
-/* Corresponds to kSecAttrGeneric */
-@property (nullable, readonly) NSData *gena;
-
-@property (nullable, readonly) MSIDCredentialCacheItem *cacheItem;
+- (MSIDMacSharedCredential *)mergeCredential:(MSIDMacSharedCredential *)credential;
 
 @end
 

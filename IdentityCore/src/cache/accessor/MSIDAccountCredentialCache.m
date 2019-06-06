@@ -35,8 +35,8 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
-#import "MSIDSharedCredentialCacheItem.h"
-#import "MSIDUserCredentialCacheItem.h"
+#import "MSIDMacSharedCredentialCacheItem.h"
+#import "MSIDMacAppCredentialCacheItem.h"
 
 @interface MSIDAccountCredentialCache()
 {

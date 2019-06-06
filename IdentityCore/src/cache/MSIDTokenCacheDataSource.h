@@ -27,15 +27,15 @@
 @class MSIDAccountCacheItem;
 @class MSIDCacheKey;
 @class MSIDAppMetadataCacheItem;
-@class MSIDSharedCredentialCacheItem;
-@class MSIDUserCredentialCacheItem;
+@class MSIDMacSharedCredentialCacheItem;
+@class MSIDMacAppCredentialCacheItem;
 
 @protocol MSIDRequestContext;
 @protocol MSIDAccountItemSerializer;
 @protocol MSIDCredentialItemSerializer;
-@protocol MSIDSharedCredentialItemSerializer;
+@protocol MSIDMacSharedCredentialItemSerializer;
 @protocol MSIDAppMetadataItemSerializer;
-@protocol MSIDUserCredentialItemSerializer;
+@protocol MSIDMacAppCredentialItemSerializer;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
