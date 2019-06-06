@@ -49,7 +49,6 @@
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
-@property (nonatomic) MSIDAccountMetadataCacheAccessor *metadataCache;
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 
@@ -254,7 +253,7 @@
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
-                                                                            accountMetadataCache:self.metadataCache
+                                                                            accountMetadataCache:self.accountMetadataCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
         

@@ -60,7 +60,7 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
-    if (!item || key)
+    if (!item || !key)
     {
         if (error)
         {
