@@ -427,7 +427,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     assert(serializer);
     MSIDMacAppCredentialCacheItem *currentCredential = [MSIDMacAppCredentialCacheItem sharedInstance];
     [currentCredential setUserToken:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
-    MSIDMacAppCredentialCacheItem *savedCredential = [self userCredentialWithKey:key serializer:serializer context:context error:error];
+    MSIDMacAppCredentialCacheItem *savedCredential = [self appCredentialWithKey:key serializer:serializer context:context error:error];
     if (savedCredential)
     {
         // Make sure we copy over all the additional fields
@@ -533,7 +533,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     }
     else
     {
-        MSIDMacAppCredentialCacheItem *userCredential = [self userCredentialWithKey:key serializer:serializer context:context error:error];
+        MSIDMacAppCredentialCacheItem *userCredential = [self appCredentialWithKey:key serializer:serializer context:context error:error];
         
         if (userCredential)
         {
@@ -554,9 +554,38 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                         context:(__unused id<MSIDRequestContext>)context
                           error:(__unused NSError **)error
 {
-    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
-    MSIDMacAppCredentialCacheItem *userCredential = [self userCredentialWithKey:key serializer:serializer context:context error:error];
+    if (key.isShared)
+    {
+        return [self removeSharedCredentialsWithTokenKey:key context:context error:error];
+    }
+    else
+    {
+        return [self removeAppCredentialsWithTokenKey:key context:context error:error];
+    }
+}
 
+- (BOOL)removeSharedCredentialsWithTokenKey:(__unused MSIDCacheKey *)key
+                                    context:(__unused id<MSIDRequestContext>)context
+                                      error:(__unused NSError **)error
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    MSIDMacSharedCredentialCacheItem *sharedCredential = [self sharedCredentialWithKey:key serializer:serializer context:context error:error];
+    
+    if (sharedCredential)
+    {
+        
+    }
+    
+    return YES;
+}
+
+- (BOOL)removeAppCredentialsWithTokenKey:(__unused MSIDCacheKey *)key
+                                 context:(__unused id<MSIDRequestContext>)context
+                                   error:(__unused NSError **)error
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    MSIDMacAppCredentialCacheItem *userCredential = [self appCredentialWithKey:key serializer:serializer context:context error:error];
+    
     if (userCredential)
     {
         NSArray<MSIDMacAppCredential *> *userAccounts = [userCredential credentialsWithKey:key];
@@ -583,9 +612,9 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 }
 
 - (MSIDMacSharedCredentialCacheItem *)sharedCredentialWithKey:(MSIDCacheKey *)key
-                                                serializer:(id<MSIDMacSharedCredentialItemSerializer>)serializer
-                                                   context:(id<MSIDRequestContext>)context
-                                                     error:(NSError **)error;
+                                                   serializer:(id<MSIDMacSharedCredentialItemSerializer>)serializer
+                                                      context:(id<MSIDRequestContext>)context
+                                                        error:(NSError **)error
 {
     MSID_TRACE;
     MSIDMacSharedCredentialCacheItem *sharedCredentialItem = nil;
@@ -612,10 +641,10 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     return sharedCredentialItem;
 }
 
-- (MSIDMacAppCredentialCacheItem *)userCredentialWithKey:(MSIDCacheKey *)key
-                                            serializer:(id<MSIDMacAppCredentialItemSerializer>)serializer
-                                               context:(id<MSIDRequestContext>)context
-                                                 error:(NSError **)error
+- (MSIDMacAppCredentialCacheItem *)appCredentialWithKey:(MSIDCacheKey *)key
+                                             serializer:(id<MSIDMacAppCredentialItemSerializer>)serializer
+                                                context:(id<MSIDRequestContext>)context
+                                                  error:(NSError **)error
 {
     MSID_TRACE;
     MSIDMacAppCredentialCacheItem *userCredentialItem = nil;

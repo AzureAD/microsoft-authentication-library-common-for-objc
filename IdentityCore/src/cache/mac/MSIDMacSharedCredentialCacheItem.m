@@ -221,4 +221,11 @@
     
     return mergeCredential;
 }
+
+- (MSIDMacSharedCredentialCacheItem *)removeCredential:(MSIDCredentialCacheItem *)credential
+{
+    return nil;
+}
+
+
 @end
