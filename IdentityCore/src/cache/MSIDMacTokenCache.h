@@ -23,7 +23,9 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
+#import "MSIDMetadataCacheDataSource.h"
 
+// Legacy in memory cache for macOS ADAL
 @class MSIDMacTokenCache;
 
 @protocol MSIDMacTokenCacheDelegate <NSObject>
@@ -35,7 +37,7 @@
 
 @end
 
-@interface MSIDMacTokenCache : NSObject<MSIDTokenCacheDataSource>
+@interface MSIDMacTokenCache : NSObject<MSIDTokenCacheDataSource, MSIDMetadataCacheDataSource>
 
 @property (nonatomic, weak, nullable) id<MSIDMacTokenCacheDelegate> delegate;
 

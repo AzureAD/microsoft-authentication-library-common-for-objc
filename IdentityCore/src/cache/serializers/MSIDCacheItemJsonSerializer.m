@@ -28,6 +28,7 @@
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDCacheItemJsonSerializer()
 
@@ -100,6 +101,26 @@
 {
     NSError *error = nil;
     MSIDAppMetadataCacheItem *item = (MSIDAppMetadataCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDAppMetadataCacheItem.class context:nil error:&error];
+    
+    if (!item)
+    {
+        MSID_LOG_VERBOSE(nil, @"Failed to deserialize app metadata %@", error);
+        return nil;
+    }
+    
+    return item;
+}
+
+#pragma mark - Account metadata
+- (NSData *)serializeAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
+{
+    return [self.jsonSerializer toJsonData:item context:nil error:nil];
+}
+
+- (MSIDAccountMetadataCacheItem *)deserializeAccountMetadata:(NSData *)data
+{
+    NSError *error = nil;
+    MSIDAccountMetadataCacheItem *item = (MSIDAccountMetadataCacheItem *)[self.jsonSerializer fromJsonData:data ofType:MSIDAccountMetadataCacheItem.class context:nil error:&error];
     
     if (!item)
     {

@@ -21,23 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDJsonSerializable.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDAccountMetadataCacheAccessor;
+@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying>
 
-NS_ASSUME_NONNULL_BEGIN
+@property (nonatomic, readonly) NSString *homeAccountId;
+@property (nonatomic, readonly) NSString *clientId;
+@property (nonatomic, readonly) NSDictionary *internalMap;
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
+                             clientId:(NSString *)clientId;
+
+// Authority map caching
+- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error;
+- (NSURL *)cachedURL:(NSURL *)requestURL;
 
 @end
-
-NS_ASSUME_NONNULL_END

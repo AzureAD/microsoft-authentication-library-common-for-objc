@@ -30,6 +30,8 @@
 #import "MSIDAccessToken.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDBasicContext.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -226,6 +228,7 @@
 - (MSIDTokenResult *)validateAndSaveTokenResponse:(MSIDTokenResponse *)tokenResponse
                                      oauthFactory:(MSIDOauth2Factory *)factory
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                             accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                 requestParameters:(MSIDRequestParameters *)parameters
                                             error:(NSError **)error
 {
@@ -239,6 +242,21 @@
     if (!tokenResult)
     {
         return nil;
+    }
+    
+    //save metadata
+    NSError *updateMetadataError = nil;
+    [accountMetadataCache updateAuthorityURL:tokenResult.authority.url
+                               forRequestURL:parameters.authority.url
+                               homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
+                                    clientId:parameters.clientId
+                                     context:parameters
+                                       error:&updateMetadataError];
+    
+    if (updateMetadataError)
+    {
+        MSID_LOG_NO_PII(MSIDLogLevelError, nil, parameters, @"Failed to update auhtority map in cache. Error %ld, %@", (long)updateMetadataError.code, updateMetadataError.domain);
+        MSID_LOG_ERROR_PII(parameters, @"Failed to save tokens in cache. Error %@", updateMetadataError);
     }
 
     NSError *savingError = nil;
