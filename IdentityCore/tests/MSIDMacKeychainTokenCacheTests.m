@@ -303,7 +303,7 @@
                                                        error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(actualAccount);
-    XCTAssertTrue([expectedAccount.jsonDictionary isEqual:actualAccount.jsonDictionary]);
+    XCTAssertEqualObjects(expectedAccount, actualAccount);
 
     result = [_dataSource removeItemsWithAccountKey:key2 context:nil error:&error];
     XCTAssertTrue(result);
@@ -605,7 +605,6 @@
     account.middleName = @"MiddleNameA";
     account.name = @"NameA";
     account.alternativeAccountId = @"AltIdA";
-    account.additionalAccountFields = @{@"key1": @"value1", @"key2": @"value2"};
     
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                     environment:account.environment

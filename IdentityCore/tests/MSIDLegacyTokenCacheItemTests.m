@@ -57,9 +57,8 @@
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = @"family";
     cacheItem.homeAccountId = @"uid.utid";
-
-    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"test": @"test"};
-
+    cacheItem.speInfo = @"2";
+    NSDictionary *additionalInfo = @{@"test": @"test"};
     cacheItem.additionalInfo = additionalInfo;
 
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
@@ -86,6 +85,7 @@
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.speInfo, @"2");
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 
@@ -112,9 +112,8 @@
     cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.cachedAt = cachedAt;
     cacheItem.homeAccountId = @"uid.utid";
-
-    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"test": @"test"};
-
+    cacheItem.speInfo = @"2";
+    NSDictionary *additionalInfo = @{@"test": @"test"};
     cacheItem.additionalInfo = additionalInfo;
 
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
@@ -139,6 +138,7 @@
     XCTAssertEqualObjects(newItem.extendedExpiresOn, extExpiresOn);
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.speInfo, @"2");
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 
@@ -166,9 +166,8 @@
     cacheItem.cachedAt = cachedAt;
     cacheItem.familyId = @"family";
     cacheItem.homeAccountId = @"uid.utid";
-
-    NSDictionary *additionalInfo = @{@"spe_info": @"2", @"test": @"test"};
-
+    cacheItem.speInfo = @"2";
+    NSDictionary *additionalInfo = @{@"test": @"test"};
     cacheItem.additionalInfo = additionalInfo;
 
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
@@ -194,6 +193,7 @@
     XCTAssertEqualObjects(newItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(newItem.familyId, @"family");
     XCTAssertEqualObjects(newItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(newItem.speInfo, @"2");
     XCTAssertEqualObjects(newItem.additionalInfo, additionalInfo);
 }
 

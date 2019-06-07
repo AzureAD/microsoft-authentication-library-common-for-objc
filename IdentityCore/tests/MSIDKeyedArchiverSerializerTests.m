@@ -51,6 +51,7 @@
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.oauthTokenType = @"access token type";
     cacheItem.secret = cacheItem.refreshToken;
+    cacheItem.additionalInfo = @{};
     
     NSData *data = [serializer serializeCredentialCacheItem:cacheItem];
     MSIDCredentialCacheItem *resultToken = [serializer deserializeCredentialCacheItem:data];

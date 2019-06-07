@@ -69,6 +69,7 @@
     expectedToken.realm = @"contoso.com";
     expectedToken.clientId = DEFAULT_TEST_CLIENT_ID;
     expectedToken.rawIdToken = @"id";
+    expectedToken.additionalServerInfo = @{};
     
     XCTAssertEqualObjects(result[0], expectedToken);
 }
@@ -98,7 +99,8 @@
     expectedToken.realm = @"contoso.com";
     expectedToken.clientId = DEFAULT_TEST_CLIENT_ID;
     expectedToken.rawIdToken = @"id";
-    
+    expectedToken.additionalServerInfo = @{};
+
     XCTAssertEqualObjects(result[0], expectedToken);
     XCTAssertEqualObjects(result[1], expectedToken);
 }

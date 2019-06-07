@@ -105,6 +105,7 @@
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
         _idTokenClaims = tokenCacheItem.idTokenClaims;
+        _additionalServerInfo = tokenCacheItem.additionalInfo;
     }
 
     return self;

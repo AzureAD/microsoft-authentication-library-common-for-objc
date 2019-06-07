@@ -371,7 +371,7 @@
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
 #else
-    XCTAssertEqual(eventInfo.count, 13);
+    XCTAssertEqual(eventInfo.count, 12);
 #endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
@@ -504,7 +504,7 @@
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_dm"]);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.application_version"]);
 #else
-    XCTAssertEqual(eventInfo.count, 12);
+    XCTAssertEqual(eventInfo.count, 11);
 #endif
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.authority_validation_status"], @"1");
