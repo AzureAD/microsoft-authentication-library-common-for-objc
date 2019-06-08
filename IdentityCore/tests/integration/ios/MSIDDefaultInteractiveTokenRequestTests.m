@@ -45,6 +45,7 @@
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 #import "NSString+MSIDTestUtil.h"
 
 @interface MSIDDefaultInteractiveTokenRequestTests : XCTestCase
@@ -60,6 +61,13 @@
     id<MSIDTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
     MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     return tokenCache;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)metadataCache
+{
+    id<MSIDMetadataCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
+    MSIDAccountMetadataCacheAccessor *metadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    return metadataCache;
 }
 
 - (void)setUp
@@ -101,7 +109,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
 
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 
     XCTAssertNotNil(request);
 
@@ -199,7 +207,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
 
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 
     XCTAssertNotNil(request);
 
@@ -298,7 +306,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
 
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 
     XCTAssertNotNil(request);
 
@@ -389,7 +397,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
     
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
     
     XCTAssertNotNil(request);
     
@@ -481,7 +489,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
 
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 
     XCTAssertNotNil(request);
 
@@ -570,7 +578,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
 
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 
     XCTAssertNotNil(request);
 
@@ -633,7 +641,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
 
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 
     XCTAssertNotNil(request);
 
@@ -692,7 +700,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
 
-    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache];
+    MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 
     XCTAssertNotNil(request);
 
