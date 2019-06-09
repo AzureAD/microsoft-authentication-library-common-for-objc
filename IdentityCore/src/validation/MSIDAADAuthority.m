@@ -64,7 +64,7 @@
     self = [self initWithURL:url context:context error:error];
     if (self)
     {
-        if (rawTenant && self.tenant.type != MSIDAADTenantTypeIdentifier)
+        if (rawTenant)
         {
             _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [_url msidHostWithPortIfNecessary], rawTenant]];
             

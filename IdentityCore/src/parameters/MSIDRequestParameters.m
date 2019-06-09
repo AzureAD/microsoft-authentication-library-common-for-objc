@@ -143,7 +143,6 @@
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName
 {
     if ([NSString msidIsStringNilOrBlank:cloudHostName]) return;
-    
     NSError *cloudHostError = nil;
     
     _cloudAuthority = [self.authority authorityWithUpdatedCloudHostInstanceName:cloudHostName error:&cloudHostError];
@@ -152,7 +151,6 @@
     {
         MSID_LOG_ERROR(nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", cloudHostName, cloudHostError.domain, (long)cloudHostError.code);
     }
-    
     [self updateMSIDConfiguration];
 }
 

@@ -30,6 +30,9 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAppMetadataItemSerializer.h"
 #import "MSIDJsonSerializing.h"
+#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDAccountMetadataCacheItemSerializer.h"
 
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
@@ -447,6 +450,49 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     error:error];
 }
 
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+                        key:(MSIDCacheKey *)key
+                 serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
+{
+
+    if (!item)
+    {
+        if (error)
+        {
+            NSString *errorMessage = @"Nil metadata item is received!";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+        }
+        MSID_LOG_ERROR(context, @"Nil metadata item is received!");
+        return NO;
+    }
+    
+    MSID_LOG_VERBOSE(context, @"Saving metadata item info %@", item);
+    
+    return [self saveData:[serializer serializeAccountMetadataCacheItem:item]
+                      key:key
+                  context:context
+                    error:error];
+}
+
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
+                                              serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error
+{
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items || items.count < 1)
+    {
+        MSID_LOG_WARN(context, @"Found no metadata item.");
+        return nil;
+    }
+    
+    NSData *itemData = [items[0] objectForKey:(id)kSecValueData];
+    return [serializer deserializeAccountMetadata:itemData];
+}
+
 #pragma mark - Removal
 
 - (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
@@ -468,6 +514,13 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (BOOL)removeMetadataItemsWithKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }

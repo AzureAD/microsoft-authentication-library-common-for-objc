@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
+#import "MSIDMetadataCacheDataSource.h"
 
 @class MSIDAccountCacheItem;
 @protocol MSIDAccountItemSerializer;
@@ -32,7 +33,7 @@
 @protocol MSIDJsonSerializing;
 
 // Token cache data source supporting additional advanced types like accounts, app metadata and generic items
-@protocol MSIDExtendedTokenCacheDataSource <MSIDTokenCacheDataSource>
+@protocol MSIDExtendedTokenCacheDataSource <MSIDTokenCacheDataSource, MSIDMetadataCacheDataSource>
 
 // Accounts
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)item
@@ -54,22 +55,6 @@
 - (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error;
-
-// App metadata
-- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
-                    key:(MSIDCacheKey *)key
-             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error;
-
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
-                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
-                                                           context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error;
-
-- (BOOL)removeMetadataItemsWithKey:(MSIDCacheKey *)key
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error;
 
 // JSON Object
 - (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key

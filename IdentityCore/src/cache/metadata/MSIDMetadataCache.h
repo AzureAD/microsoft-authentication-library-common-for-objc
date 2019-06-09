@@ -21,23 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDMetadataCacheDataSource.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDAccountMetadataCacheAccessor;
+@protocol MSIDJsonSerializable;
+@class MSIDCacheKey;
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDMetadataCache : NSObject
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (instancetype)initWithPersistentDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
+
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+                        key:(MSIDCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error;
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError **)error;
+
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error;
 
 @end
-
-NS_ASSUME_NONNULL_END

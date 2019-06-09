@@ -206,6 +206,49 @@
     XCTAssertEqualObjects([accessTokensInCache[0] accessToken], tokenResponse2.accessToken);
 }
 
+- (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentAuthorities_shouldSave2Tokens
+{
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    NSError *error = nil;
+    
+    // save 1st token with default test scope
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                     response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
+                                                      context:nil
+                                                        error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    // save 2nd token with different authority
+    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                  RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                              scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                             idToken:[MSIDTestIdTokenUtil idTokenWithName:@"name" upn:@"upn@upn.com" oid:@"oid" tenantId:@"tid2"]
+                                                                                 uid:DEFAULT_TEST_UID
+                                                                                utid:DEFAULT_TEST_UTID
+                                                                            familyId:nil];
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/8eaef023-2b34-4da1-9baa-8bc8c9d6a490"
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
+    
+    result = [_cacheAccessor saveTokensWithConfiguration:configuration
+                                                response:tokenResponse2
+                                                 factory:[MSIDAADV2Oauth2Factory new]
+                                                 context:nil
+                                                   error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
+    XCTAssertEqual([accessTokensInCache count], 2);
+}
+
 - (void)testSaveTokensWithRequestParams_withAccessTokenSameEverythingWithScopesDontIntersect_shouldWriteNewToken
 {
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
@@ -239,48 +282,6 @@
     XCTAssertEqual([accessTokensInCache count], 2);
 }
 
-- (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentAuthorities_shouldSave2Tokens
-{
-    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
-
-    NSError *error = nil;
-
-    // save 1st token with default test scope
-    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
-                                                     response:tokenResponse
-                                                      factory:[MSIDAADV2Oauth2Factory new]
-                                                      context:nil
-                                                        error:&error];
-
-    XCTAssertTrue(result);
-    XCTAssertNil(error);
-
-    // save 2nd token with different authority
-    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
-                                                                                  RT:DEFAULT_TEST_REFRESH_TOKEN
-                                                                              scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
-                                                                             idToken:[MSIDTestIdTokenUtil idTokenWithName:@"name" upn:@"upn@upn.com" oid:@"oid" tenantId:@"tid2"]
-                                                                                 uid:DEFAULT_TEST_UID
-                                                                                utid:DEFAULT_TEST_UTID
-                                                                            familyId:nil];
-    
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/8eaef023-2b34-4da1-9baa-8bc8c9d6a490"
-                                                                                clientId:DEFAULT_TEST_CLIENT_ID
-                                                                             redirectUri:nil
-                                                                                  target:DEFAULT_TEST_SCOPE];
-
-    result = [_cacheAccessor saveTokensWithConfiguration:configuration
-                                                response:tokenResponse2
-                                                 factory:[MSIDAADV2Oauth2Factory new]
-                                                 context:nil
-                                                   error:&error];
-
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-
-    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
-    XCTAssertEqual([accessTokensInCache count], 2);
-}
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentUsers_shouldSave2Tokens
 {

@@ -25,10 +25,11 @@
 #import "MSIDAccountItemSerializer.h"
 #import "MSIDCredentialItemSerializer.h"
 #import "MSIDAppMetadataItemSerializer.h"
+#import "MSIDAccountMetadataCacheItemSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCacheItemJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer>
+@interface MSIDCacheItemJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer, MSIDAccountMetadataCacheItemSerializer>
 
 @end
 

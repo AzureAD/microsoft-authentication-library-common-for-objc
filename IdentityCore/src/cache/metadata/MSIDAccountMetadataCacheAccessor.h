@@ -21,23 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+@class MSIDRequestParameters;
+@class MSIDTokenResponse;
+@class MSIDAuthority;
+@class MSIDConfiguration;
+@protocol MSIDRequestContext;
+@protocol MSIDMetadataCacheDataSource;
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDAccountMetadataCacheAccessor;
+@interface MSIDAccountMetadataCacheAccessor : NSObject
 
-NS_ASSUME_NONNULL_BEGIN
+- (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+- (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
+             homeAccountId:(NSString *)homeAccountId
+                  clientId:(NSString *)clientId
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
+             forRequestURL:(NSURL *)requestAuthorityURL
+             homeAccountId:(NSString *)homeAccountId
+                  clientId:(NSString *)clientId
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
+
+- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
+                     clientId:(NSString *)clientId
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
 
 @end
-
-NS_ASSUME_NONNULL_END

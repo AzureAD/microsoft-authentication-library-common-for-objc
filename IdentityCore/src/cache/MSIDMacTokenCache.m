@@ -235,6 +235,14 @@ return NO; \
     return [self removeItemsWithKey:key context:context error:error];
 }
 
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError *__autoreleasing *)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
                      error:(NSError * __autoreleasing *)error

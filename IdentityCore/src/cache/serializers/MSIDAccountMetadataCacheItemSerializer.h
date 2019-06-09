@@ -20,24 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 #import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDAccountMetadataCacheAccessor;
+@class MSIDAccountMetadataCacheItem;
 
-NS_ASSUME_NONNULL_BEGIN
+@protocol MSIDAccountMetadataCacheItemSerializer <NSObject>
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
-
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (NSData *)serializeAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item;
+- (MSIDAccountMetadataCacheItem *)deserializeAccountMetadata:(NSData *)data;
 
 @end
-
-NS_ASSUME_NONNULL_END
