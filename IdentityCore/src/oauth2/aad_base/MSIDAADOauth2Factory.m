@@ -131,23 +131,23 @@
 
 - (void)checkCorrelationId:(NSUUID *)requestCorrelationId response:(MSIDAADTokenResponse *)response
 {
-    MSID_LOG_VERBOSE_CORR(requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
+    MSID_LOG_WITH_CORRELATION(MSIDLogLevelVerbose, requestCorrelationId, @"Token extraction. Attempt to extract the data from the server response.");
 
     if (![NSString msidIsStringNilOrBlank:response.correlationId])
     {
         NSUUID *responseUUID = [[NSUUID alloc] initWithUUIDString:response.correlationId];
         if (!responseUUID)
         {
-            MSID_LOG_INFO_CORR(requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, response.correlationId);
+            MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, requestCorrelationId, @"Bad correlation id - The received correlation id is not a valid UUID. Sent: %@; Received: %@", requestCorrelationId, response.correlationId);
         }
         else if (![requestCorrelationId isEqual:responseUUID])
         {
-            MSID_LOG_INFO_CORR(requestCorrelationId, @"Correlation id mismatch - Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, response.correlationId);
+            MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, requestCorrelationId, @"Correlation id mismatch - Mismatch between the sent correlation id and the received one. Sent: %@; Received: %@", requestCorrelationId, response.correlationId);
         }
     }
     else
     {
-        MSID_LOG_INFO_CORR(requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
+        MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, requestCorrelationId, @"Missing correlation id - No correlation id received for request with correlation id: %@", [requestCorrelationId UUIDString]);
     }
 }
 
@@ -293,7 +293,7 @@
         
         if (!authority)
         {
-            MSID_LOG_ERROR(nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
+            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
             return nil;
         }
         

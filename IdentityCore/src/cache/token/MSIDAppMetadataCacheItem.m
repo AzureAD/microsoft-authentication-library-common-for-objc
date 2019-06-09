@@ -90,7 +90,7 @@
     
     if (!json)
     {
-        MSID_LOG_WARN(nil, @"Tried to decode an account cache item from nil json");
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Tried to decode an account cache item from nil json");
         return nil;
     }
     

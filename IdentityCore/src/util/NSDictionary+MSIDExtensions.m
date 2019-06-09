@@ -55,14 +55,14 @@
         NSArray *queryElements = [query componentsSeparatedByString:@"="];
         if (queryElements.count > 2)
         {
-            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value: %@", query);
+            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Query parameter must be a form key=value: %@", query);
             continue;
         }
         
         NSString *key = isFormEncoded ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString].msidURLDecode;
         if ([NSString msidIsStringNilOrBlank:key])
         {
-            MSID_LOG_WARN(nil, @"Query parameter must have a key");
+            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Query parameter must have a key");
             continue;
         }
         
@@ -116,7 +116,7 @@
                                      nil,
                                      nil, nil, context.correlationId, nil);
             
-            MSID_LOG_ERROR(nil, @"%@", message);
+            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"%@", message);
         }
         
         return NO;
@@ -142,7 +142,7 @@
                                      nil,
                                      nil, nil, context.correlationId, nil);
             
-            MSID_LOG_ERROR(nil, @"%@", message);
+            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"%@", message);
         }
         
         return NO;
@@ -158,8 +158,7 @@
 
     if (!serializedData)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %ld, %@", (long)serializationError.code, serializationError.domain);
-        MSID_LOG_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %@", serializationError);
+        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelWarning, context, @"Failed to serialize data with error %@", MSID_PII_LOG_MASKABLE(serializationError));
         
         return nil;
     }

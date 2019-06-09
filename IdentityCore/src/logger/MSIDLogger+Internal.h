@@ -34,56 +34,12 @@
 // Convenience macro for obscuring PII in log macros that don't allow PII.
 #define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-null)" : @"(null)"
 
-#define MSID_LOG(_LVL, _CORRELATION, _CTX, _PII, _IGNORE_IF_PIIENABLED, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CTX correlationId:_CORRELATION isPII:_PII ignoreIfPIIEnabled:_IGNORE_IF_PIIENABLED format:_FMT, ##__VA_ARGS__]
-#define MSID_LOG_PII(_LVL, _CORRELATION, _CTX, _FMT, ...) MSID_LOG(_LVL, _CORRELATION, _CTX, YES, NO, _FMT, ##__VA_ARGS__)
-#define MSID_LOG_NO_PII(_LVL, _CORRELATION, _CTX, _FMT, ...) MSID_LOG(_LVL, _CORRELATION, _CTX, NO, YES, _FMT, ##__VA_ARGS__)
-
-/*
- Macros that take context should be prefered as context provides both log component and correlationId.
- However, ADAL has lots of components that don't know their context and only know their correlationId.
- Also, in some cases correlationId arriving from the broker or in the server response should be used and not the one in context.
- Therefore, _CORR macros are also provided for backward compatibility, but they should be used only when context is not otherwise available.
- */
-
-#define MSID_LOG_ERROR(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
-
-
-#define MSID_LOG_ERROR_CORR(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_ERROR_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelError, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_WARN(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_WARN_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelWarning, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_INFO(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_INFO_CORR(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_INFO_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelInfo, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_VERBOSE(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, NO, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_VERBOSE_CORR(_correlationId, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
-
-#define MSID_LOG_VERBOSE_PII(_ctx, _fmt, ...) \
-MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
-
-
-// New macros
 #define MSID_LOG_WITH_CONTEXT(_LVL, _CONTEXT, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:NO format:_FMT, ##__VA_ARGS__]
+
 #define MSID_LOG_WITH_CORRELATION(_LVL, _CORRELATION_ID, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:NO format:_FMT, ##__VA_ARGS__]
+
 #define MSID_LOG_WITH_CONTEXT_PII(_LVL, _CONTEXT, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:YES format:_FMT, ##__VA_ARGS__]
+
 #define MSID_LOG_WITH_CORRELATION_PII(_LVL, _CORRELATION_ID, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:YES format:_FMT, ##__VA_ARGS__]
 
 #define MSID_PII_LOG_MASKABLE(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER]

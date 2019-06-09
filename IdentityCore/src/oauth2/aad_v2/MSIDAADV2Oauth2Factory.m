@@ -103,8 +103,7 @@
 
     if (!response.clientInfo)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Client info was not returned in the server response");
-        MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Client info was not returned in the server response");
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Client info was not returned in the server response");
         
         if (error)
         {

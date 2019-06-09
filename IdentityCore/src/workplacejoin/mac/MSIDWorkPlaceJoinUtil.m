@@ -59,7 +59,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         *error = nil;
     }
     
-    MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information");
+    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,context, @"Attempting to get WPJ registration information");
     
     [self copyCertificate:&certificate identity:&identity issuer:&certificateIssuer context:context error:&localError];
     if (localError)
@@ -68,7 +68,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = localError;
         }
-        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ certificate. Error code: %ld", (long)localError.code);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Failed to retrieve WPJ certificate. Error code: %ld", (long)localError.code);
         goto _error;
     }
     
@@ -83,7 +83,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
     
     // Get the private key
-    MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
+    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,context, @"Retrieving WPJ private key reference.");
     
     privateKey = [self copyPrivateKeyRefForIdentifier:kMSIDPrivateKeyIdentifier context:context error:&localError];
     if (localError)
@@ -92,7 +92,7 @@ static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
         {
             *error = localError;
         }
-        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ private key reference. Error code %ld", (long)localError.code);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Failed to retrieve WPJ private key reference. Error code %ld", (long)localError.code);
         goto _error;
     }
     
@@ -163,7 +163,7 @@ _error:
             *error = localError;
         }
         
-        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ client certificate from keychain. Error code: %ld", (long)localError.code);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Failed to retrieve WPJ client certificate from keychain. Error code: %ld", (long)localError.code);
         goto _error;
     }
     

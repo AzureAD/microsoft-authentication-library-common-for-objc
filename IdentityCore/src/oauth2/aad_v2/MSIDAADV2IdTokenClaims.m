@@ -70,7 +70,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
     
     if (!_issuerAuthority)
     {
-        MSID_LOG_WARN(nil, @"Failed to initialize issuer authority with error %@, %ld", issuerError.domain, (long)issuerError.code);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Failed to initialize issuer authority with error %@, %ld", issuerError.domain, (long)issuerError.code);
     }
 }
 

@@ -37,7 +37,7 @@
                 context:(id<MSIDRequestContext>)context
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler
 {
-    MSID_LOG_INFO(context, @"Handling PKeyAuth Challenge.");
+    MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, context, @"Handling PKeyAuth Challenge.");
     
     NSArray *parts = [challengeUrl componentsSeparatedByString:@"?"];
     NSString *qp = [parts objectAtIndex:1];
@@ -91,8 +91,7 @@
     
     if (!authHeaderParams)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Unparseable wwwAuthHeader received");
-        MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Unparseable wwwAuthHeader received %@", wwwAuthHeaderValue);
+        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, context, @"Unparseable wwwAuthHeader received %@", MSID_PII_LOG_MASKABLE(wwwAuthHeaderValue));
     }
     
     NSError *error = nil;

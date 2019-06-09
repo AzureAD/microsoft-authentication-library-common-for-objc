@@ -62,7 +62,7 @@
     
     if (!item)
     {
-        MSID_LOG_VERBOSE(nil, @"Failed to deserialize credential %@", error);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,nil, @"Failed to deserialize credential %@", error);
         return nil;
     }
     
@@ -83,7 +83,7 @@
     
     if (!item)
     {
-        MSID_LOG_VERBOSE(nil, @"Failed to deserialize credential %@", error);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,nil, @"Failed to deserialize credential %@", error);
         return nil;
     }
     
@@ -104,7 +104,7 @@
     
     if (!item)
     {
-        MSID_LOG_VERBOSE(nil, @"Failed to deserialize app metadata %@", error);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,nil, @"Failed to deserialize app metadata %@", error);
         return nil;
     }
     
@@ -124,7 +124,7 @@
     
     if (!item)
     {
-        MSID_LOG_VERBOSE(nil, @"Failed to deserialize app metadata %@", error);
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,nil, @"Failed to deserialize app metadata %@", error);
         return nil;
     }
     

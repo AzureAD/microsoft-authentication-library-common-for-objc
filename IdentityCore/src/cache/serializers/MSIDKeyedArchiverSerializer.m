@@ -106,7 +106,7 @@
 {
     if (![item isKindOfClass:[MSIDLegacyTokenCacheItem class]])
     {
-        MSID_LOG_WARN(nil, @"Asked to serialize MSIDCredentialCacheItem, which is unsupported");
+        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Asked to serialize MSIDCredentialCacheItem, which is unsupported");
         return nil;
     }
 

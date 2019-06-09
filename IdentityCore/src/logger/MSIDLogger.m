@@ -277,7 +277,7 @@ static NSDateFormatter *s_dateFormatter = nil;
         [logString appendFormat:@" expires on %@", expiresOn];
     }
     
-    MSID_LOG_INFO_PII(context, @"%@", logString);
+    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"%@", logString);
 }
 
 @end
