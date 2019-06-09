@@ -97,7 +97,6 @@ static NSString *keyDelimiter = @"-";
     
     for (MSIDDefaultCredentialCacheKey *appTokenKey in cacheObjects)
     {
-        NSLog(@"%@",appTokenKey.service);
         NSString *key = [NSString stringWithFormat:@"%@%@%@", appTokenKey.account, keyDelimiter, appTokenKey.service];
         MSIDCredentialCacheItem *appToken = [cacheObjects objectForKey:appTokenKey];
         NSDictionary *atDict = [appToken jsonDictionary];
