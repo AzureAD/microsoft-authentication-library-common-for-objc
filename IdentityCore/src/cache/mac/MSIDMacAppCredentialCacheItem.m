@@ -152,8 +152,7 @@ static NSString *keyDelimiter = @"-";
     NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
     
     NSDictionary *cacheObjects = [self getCopy];
-    NSArray<MSIDCredentialCacheItem *> *credentials = [[cacheObjects allValues] filteredArrayUsingPredicate:matchAttributes];
-    return credentials;
+    return [[cacheObjects allValues] filteredArrayUsingPredicate:matchAttributes];;
 }
 
 - (NSDictionary *)getCopy
