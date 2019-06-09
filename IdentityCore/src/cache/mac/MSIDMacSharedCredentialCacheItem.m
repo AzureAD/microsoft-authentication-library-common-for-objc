@@ -113,6 +113,14 @@ static NSString *keyDelimiter = @"-";
     });
 }
 
+- (void)removeSharedTokenForKey:(MSIDDefaultCredentialCacheKey *)key
+{
+    dispatch_barrier_async(self.queue, ^{
+        [self.cacheObjects removeObjectForKey:key];
+    });
+}
+
+
 - (void)mergeCredential:(MSIDMacSharedCredentialCacheItem *)credential
 {
     dispatch_barrier_async(self.queue, ^{

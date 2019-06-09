@@ -157,6 +157,8 @@ static NSInteger kCredentialTypePrefix = 2000;
     return nil;
 }
 
+#pragma mark - NSObject
+
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDDefaultCredentialCacheKey *item = [[self.class allocWithZone:zone] init];
@@ -167,10 +169,9 @@ static NSInteger kCredentialTypePrefix = 2000;
     item->_familyId = [_familyId copyWithZone:zone];
     item->_target = [_target copyWithZone:zone];
     item->_enrollmentId = [_enrollmentId copyWithZone:zone];
+    item->_credentialType = _credentialType;
     return item;
 }
-
-#pragma mark - NSObject
 
 - (BOOL)isEqual:(id)object
 {
@@ -197,6 +198,7 @@ static NSInteger kCredentialTypePrefix = 2000;
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.target && !item.target) || [self.target isEqualToString:item.target];
     result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
+    result &= (!self.credentialType && !item.credentialType) || self.credentialType == item.credentialType;
     return result;
 }
 
@@ -210,6 +212,7 @@ static NSInteger kCredentialTypePrefix = 2000;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.target.hash;
     hash = hash * 31 + self.enrollmentId.hash;
+    hash = hash * 31 + (NSUInteger)self.credentialType;
     return hash;
 }
 

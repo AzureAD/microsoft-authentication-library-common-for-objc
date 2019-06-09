@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDCredentialCacheItem.h"
-#import "MSIDMacSharedCredential.h"
 #import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -40,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)mergeCredential:(MSIDMacSharedCredentialCacheItem *)credential;
 
 - (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key;
+
+- (void)removeSharedTokenForKey:(MSIDDefaultCredentialCacheKey *)key;
 
 @end
 

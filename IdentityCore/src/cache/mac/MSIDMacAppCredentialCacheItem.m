@@ -22,15 +22,15 @@
 // THE SOFTWARE.
 
 #import "MSIDMacAppCredentialCacheItem.h"
-#import "MSIDMacAppCredential.h"
+
+static NSString *keyDelimiter = @"-";
 
 @interface MSIDMacAppCredentialCacheItem ()
 
-@property (nonatomic) NSMutableSet *cacheObjects;
+@property (nonatomic) NSMutableDictionary *cacheObjects;
 @property (nonatomic) dispatch_queue_t queue;
 
 @end
-
 
 @implementation MSIDMacAppCredentialCacheItem
 
@@ -38,7 +38,7 @@
 {
     if(self = [super init])
     {
-        self.cacheObjects = [NSMutableSet set];
+        self.cacheObjects = [NSMutableDictionary dictionary];
         self.queue = dispatch_queue_create("com.microsoft.universalStorage", DISPATCH_QUEUE_CONCURRENT);
     }
     
@@ -65,107 +65,103 @@
         return nil;
     }
     
-    for (NSDictionary *userDict in json)
+    for (NSString *tokenKey in json)
     {
-        NSString *account = [userDict objectForKey:(__bridge id)kSecAttrAccount];
-        NSString *service = [userDict objectForKey:(__bridge id)kSecAttrService];
-        NSNumber *type = [userDict objectForKey:(__bridge id)kSecAttrType];
-        NSData *generic = [[userDict objectForKey:(__bridge id)kSecAttrGeneric] dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *rtDict = [json objectForKey:tokenKey];
         
-        MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:[userDict objectForKey:(__bridge id)kSecValueData] error:error];
-        
-        MSIDMacAppCredential *userAccount = [[MSIDMacAppCredential alloc] initWithAccount:account
-                                                                        service:service
-                                                                        generic:generic
-                                                                           type:type
-                                                            credentialCacheItem:cacheItem];
-        [self addObject:userAccount];
+        if (rtDict)
+        {
+            MSIDCredentialCacheItem *appToken = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
+            MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:appToken.homeAccountId                      environment:appToken.environment clientId:appToken.clientId credentialType:appToken.credentialType];
+            
+            key.familyId = appToken.familyId;
+            key.realm = appToken.realm;
+            key.target = appToken.target;
+            key.enrollmentId = appToken.enrollmentId;
+            
+            [self setAppToken:appToken forKey:key];
+        }
     }
     
     return self;
 }
 
-- (id)jsonDictionary
+- (NSDictionary *)jsonDictionary
 {
-    NSMutableArray *userTokens = [NSMutableArray array];
-    NSArray *allTokens = [self allObjects];
+    NSDictionary *cacheObjects = [self getCopy];
+    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
-    for (MSIDMacAppCredential *token in allTokens)
+    for (MSIDDefaultCredentialCacheKey *appTokenKey in cacheObjects)
     {
-        NSMutableDictionary *userToken = [NSMutableDictionary dictionary];
-        userToken[(__bridge id)kSecAttrAccount] = token.acct;
-        userToken[(__bridge id)kSecAttrService] = token.svce;
-        userToken[(__bridge id)kSecAttrGeneric] = [[NSString alloc] initWithData:token.gena encoding:NSUTF8StringEncoding];
-        userToken[(__bridge id)kSecAttrType] = token.type;
-        userToken[(__bridge id)kSecValueData] = [token.cacheItem jsonDictionary];
-        [userTokens addObject:userToken];
+        NSLog(@"%@",appTokenKey.service);
+        NSString *key = [NSString stringWithFormat:@"%@%@%@", appTokenKey.account, keyDelimiter, appTokenKey.service];
+        MSIDCredentialCacheItem *appToken = [cacheObjects objectForKey:appTokenKey];
+        NSDictionary *atDict = [appToken jsonDictionary];
+        
+        if (atDict)
+        {
+            [dictionary setObject:atDict forKey:key];
+        }
     }
     
-    return userTokens;
+    return dictionary;
 }
 
-
-- (void)setUserToken:(MSIDCredentialCacheItem *)token forKey:(MSIDCacheKey *)key;
+- (void)setAppToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key
 {
-    MSIDMacAppCredential *account = [[MSIDMacAppCredential alloc] initWithAccount:key.account
-                                                                service:key.service
-                                                                generic:key.generic
-                                                                   type:key.type
-                                                    credentialCacheItem:token];
-    
-    [self addObject:account];
+    dispatch_barrier_async(self.queue, ^{
+        [self.cacheObjects setObject:token forKey:key];
+    });
 }
 
-- (NSArray<MSIDMacAppCredential *> *)credentialsWithKey:(MSIDCacheKey *)key
+- (void)removeAppTokenForKey:(MSIDDefaultCredentialCacheKey *)key
 {
-    // Build array of sub-predicates:
+    dispatch_barrier_async(self.queue, ^{
+        [self.cacheObjects removeObjectForKey:key];
+    });
+}
+
+- (void)mergeCredential:(MSIDMacAppCredentialCacheItem *)credential
+{
+    dispatch_barrier_async(self.queue, ^{
+        [self.cacheObjects addEntriesFromDictionary:credential.cacheObjects];
+    });
+}
+
+- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key
+{
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
     
-    if (key.account)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.acct == %@", key.account]];
-    if (key.service)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.svce == %@", key.service]];
-    if (key.generic)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.gena == %@", key.generic]];
-    if (key.type)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.type == %@", key.type]];
+    if (key.clientId)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.clientId == %@", key.clientId]];
+    if (key.environment)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.environment == %@", key.environment]];
+    if (key.homeAccountId)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.homeAccountId == %@", key.homeAccountId]];
+    if (key.credentialType)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.credentialType == %d", key.credentialType]];
+    if (key.target)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.target == %@", key.target]];
+    if (key.realm)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.realm == %@", key.realm]];
     
     // Combine all sub-predicates with AND:
     NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
     
-    return [[self allObjects] filteredArrayUsingPredicate:matchAttributes];
+    NSDictionary *cacheObjects = [self getCopy];
+    NSArray<MSIDCredentialCacheItem *> *credentials = [[cacheObjects allValues] filteredArrayUsingPredicate:matchAttributes];
+    return credentials;
 }
 
-- (void)addObject:(MSIDMacAppCredential *)obj
+- (NSDictionary *)getCopy
 {
-    dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects addObject:obj];
-    });
-}
-
-- (NSArray *)allObjects
-{
-    __block NSArray *array;
+    __block NSDictionary *copy;
     
     dispatch_sync(self.queue, ^{
-        array = [NSMutableArray arrayWithArray:[self.cacheObjects allObjects]];
+        copy = [self.cacheObjects copy];
     });
     
-    return array;
-}
-
-- (void)mergeCredential:(MSIDMacAppCredentialCacheItem *)userCredential
-{
-    dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects setByAddingObjectsFromSet:userCredential.cacheObjects];
-    });
-}
-
-- (void)removeUserAccounts:(NSArray<MSIDMacAppCredential *> *)userAccounts
-{
-    dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects minusSet:[NSSet setWithArray:userAccounts]];
-    });
+    return copy;
 }
 
 @end

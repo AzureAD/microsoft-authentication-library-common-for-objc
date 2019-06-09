@@ -426,11 +426,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     assert(credential);
     assert(serializer);
     MSIDMacAppCredentialCacheItem *currentCredential = [MSIDMacAppCredentialCacheItem sharedInstance];
-    [currentCredential setUserToken:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
+    [currentCredential setAppToken:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
     MSIDMacAppCredentialCacheItem *savedCredential = [self appCredentialWithKey:key serializer:serializer context:context error:error];
+    
     if (savedCredential)
     {
-        // Make sure we copy over all the additional fields
         [currentCredential mergeCredential:savedCredential];
     }
     
@@ -440,7 +440,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil);
         }
         MSID_LOG_ERROR(context, @"Failed to serialize token item.");
         return NO;
@@ -533,12 +533,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         
         if (userCredential)
         {
-            NSArray<MSIDMacAppCredential *> *userAccounts = [userCredential credentialsWithKey:key];
-            
-            for (MSIDMacAppCredential *userAccount in userAccounts)
-            {
-                [tokenList addObject:userAccount.cacheItem];
-            }
+            tokenList = [[userCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key] copy];
         }
     }
     
@@ -569,7 +564,8 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     if (sharedCredential)
     {
-        
+        [sharedCredential removeSharedTokenForKey:(MSIDDefaultCredentialCacheKey *)key];
+        return [self saveAppCredential:sharedCredential key:key serializer:serializer context:context error:error];
     }
     
     return YES;
@@ -580,28 +576,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
                                    error:(__unused NSError **)error
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
-    MSIDMacAppCredentialCacheItem *userCredential = [self appCredentialWithKey:key serializer:serializer context:context error:error];
+    MSIDMacAppCredentialCacheItem *appCredential = [self appCredentialWithKey:key serializer:serializer context:context error:error];
     
-    if (userCredential)
+    if (appCredential)
     {
-        NSArray<MSIDMacAppCredential *> *userAccounts = [userCredential credentialsWithKey:key];
-        [userCredential removeUserAccounts:userAccounts];
-        
-        NSData *itemData = [serializer serializeAppCredentialCacheItem:userCredential];
-        
-        if (!itemData)
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil);
-            }
-            MSID_LOG_ERROR(context, @"Failed to serialize token item.");
-            return NO;
-        }
-        
-        MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", userCredential);
-        
-        return [self saveCredential:itemData key:key context:context error:error];
+        [appCredential removeAppTokenForKey:(MSIDDefaultCredentialCacheKey *)key];
+        return [self saveAppCredential:appCredential key:key serializer:serializer context:context error:error];
     }
     
     return YES;
