@@ -80,13 +80,15 @@ MSID_LOG(MSIDLogLevelVerbose, _correlationId, nil, NO, NO, _fmt, ##__VA_ARGS__)
 MSID_LOG(MSIDLogLevelVerbose, nil, _ctx, YES, NO, _fmt, ##__VA_ARGS__)
 
 
-// New macroses
-#define MSID_LOG_WITH_CONTEXT(_LVL, _CONTEXT, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:_PII format:_FMT, ##__VA_ARGS__]
-#define MSID_LOG_WITH_CORRELATION(_LVL, _CORRELATION_ID, _PII, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:_PII format:_FMT, ##__VA_ARGS__]
+// New macros
+#define MSID_LOG_WITH_CONTEXT(_LVL, _CONTEXT, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:NO format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG_WITH_CORRELATION(_LVL, _CORRELATION_ID, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:NO format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG_WITH_CONTEXT_PII(_LVL, _CONTEXT, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:YES format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG_WITH_CORRELATION_PII(_LVL, _CORRELATION_ID, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:YES format:_FMT, ##__VA_ARGS__]
 
-#define MSID_PII_LOG_PARAM(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER]
-#define MSID_PII_LOG_HASH_PARAM(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
-#define MSID_PII_LOG_USERNAME_PARAM(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
+#define MSID_PII_LOG_MASKABLE(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER]
+#define MSID_PII_LOG_TRACKABLE(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
+#define MSID_PII_LOG_EMAIL(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
 
 #define MSID_TRACE // Unused
 

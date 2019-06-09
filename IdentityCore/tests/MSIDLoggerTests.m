@@ -249,7 +249,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, nil, YES, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_PARAM(@"very sensitive data"));
+    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -264,7 +264,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, nil, YES, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_PARAM(@"very sensitive data"));
+    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
