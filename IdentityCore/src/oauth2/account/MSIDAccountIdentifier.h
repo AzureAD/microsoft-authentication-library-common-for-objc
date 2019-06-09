@@ -47,7 +47,7 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
 @property (nonatomic, readonly) MSIDMaskedUsernameLogParameter *maskedDisplayableId;
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                             clientInfo:(MSIDClientInfo *)clientInfo;
+                        clientInfo:(MSIDClientInfo *)clientInfo;
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
                           homeAccountId:(NSString *)homeAccountId;

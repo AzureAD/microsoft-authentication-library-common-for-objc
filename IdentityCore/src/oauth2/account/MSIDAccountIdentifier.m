@@ -46,7 +46,7 @@
                              clientInfo:(MSIDClientInfo *)clientInfo
 {
     return [self initWithDisplayableId:legacyAccountId
-                           homeAccountId:clientInfo.accountIdentifier];
+                         homeAccountId:clientInfo.accountIdentifier];
 }
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId

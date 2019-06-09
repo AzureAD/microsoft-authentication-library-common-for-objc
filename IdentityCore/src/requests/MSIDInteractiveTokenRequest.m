@@ -60,6 +60,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super init];
 
@@ -69,6 +70,7 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenCache = tokenCache;
+        _accountMetadataCache = accountMetadataCache;
     }
 
     return self;
@@ -251,6 +253,7 @@
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
+                                                                            accountMetadataCache:self.accountMetadataCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
         

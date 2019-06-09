@@ -264,14 +264,14 @@
     XCTAssertNil(error);
 }
 
-- (void)testInitAADAuthority_andRawTenant_whenTenantIdentifier_shouldNotReplaceTenantId
+- (void)testInitAADAuthority_andRawTenant_whenTenantIdentifier_shouldReplaceTenantId
 {
     __auto_type authorityUrl = [@"https://login.microsoftonline.com:8080/contoso.com" msidUrl];
     NSError *error = nil;
 
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl rawTenant:@"new_tenantId" context:nil error:&error];
 
-    XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com:8080/contoso.com" msidUrl]);
+    XCTAssertEqualObjects(authority.url, [@"https://login.microsoftonline.com:8080/new_tenantId" msidUrl]);
     XCTAssertNil(error);
 }
 

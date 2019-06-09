@@ -33,6 +33,7 @@
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
                               defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
                        tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];
@@ -41,6 +42,7 @@
     {
         _oauthFactory = oauthFactory;
         _tokenCache = defaultAccessor;
+        _accountMetadataCache = accountMetadataAccessor;
         _tokenResponseValidator = tokenResponseValidator;
     }
 
@@ -52,7 +54,8 @@
     return [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                              oauthFactory:self.oauthFactory
                                                    tokenResponseValidator:self.tokenResponseValidator
-                                                               tokenCache:self.tokenCache];
+                                                               tokenCache:self.tokenCache
+                                                    accountMetadataCache:self.accountMetadataCache];
 }
 
 - (MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDRequestParameters *)parameters
@@ -62,7 +65,8 @@
                                                                forceRefresh:forceRefresh
                                                                oauthFactory:self.oauthFactory
                                                      tokenResponseValidator:self.tokenResponseValidator
-                                                                 tokenCache:self.tokenCache];
+                                                                 tokenCache:self.tokenCache
+                                                      accountMetadataCache:self.accountMetadataCache];
 }
 
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
