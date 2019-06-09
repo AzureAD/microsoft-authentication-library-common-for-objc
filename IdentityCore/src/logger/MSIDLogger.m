@@ -149,9 +149,9 @@ static NSDateFormatter *s_dateFormatter = nil;
             
             if (self.NSLoggingEnabled)
             {
-                NSString *levelStr = [self stringForLogLevel:_level];
+                NSString *logLevelStr = [self stringForLogLevel:_level];
                 
-                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@: %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, levelStr, message];
+                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@: %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, logLevelStr, message];
                 
                 NSLog(@"%@", log);
             }
