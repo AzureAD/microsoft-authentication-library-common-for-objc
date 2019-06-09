@@ -72,14 +72,18 @@ static NSString *keyDelimiter = @"-";
         if (rtDict)
         {
             MSIDCredentialCacheItem *appToken = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
-            MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:appToken.homeAccountId                      environment:appToken.environment clientId:appToken.clientId credentialType:appToken.credentialType];
             
-            key.familyId = appToken.familyId;
-            key.realm = appToken.realm;
-            key.target = appToken.target;
-            key.enrollmentId = appToken.enrollmentId;
-            
-            [self setAppToken:appToken forKey:key];
+            if (appToken)
+            {
+                MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:appToken.homeAccountId                      environment:appToken.environment clientId:appToken.clientId credentialType:appToken.credentialType];
+                
+                key.familyId = appToken.familyId;
+                key.realm = appToken.realm;
+                key.target = appToken.target;
+                key.enrollmentId = appToken.enrollmentId;
+                
+                [self setAppToken:appToken forKey:key];
+            }
         }
     }
     
