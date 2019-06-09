@@ -170,5 +170,48 @@ static NSInteger kCredentialTypePrefix = 2000;
     return item;
 }
 
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:self.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToItem:(MSIDDefaultCredentialCacheKey *)object];
+}
+
+- (BOOL)isEqualToItem:(MSIDDefaultCredentialCacheKey *)item
+{
+    BOOL result = YES;
+    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
+    result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
+    result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
+    result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
+    result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
+    result &= (!self.target && !item.target) || [self.target isEqualToString:item.target];
+    result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
+    return result;
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = 0;
+    hash = hash * 31 + self.homeAccountId.hash;
+    hash = hash * 31 + self.environment.hash;
+    hash = hash * 31 + self.realm.hash;
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + self.familyId.hash;
+    hash = hash * 31 + self.target.hash;
+    hash = hash * 31 + self.enrollmentId.hash;
+    return hash;
+}
+
 
 @end

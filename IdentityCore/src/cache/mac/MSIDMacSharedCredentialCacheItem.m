@@ -23,6 +23,8 @@
 
 #import "MSIDMacSharedCredentialCacheItem.h"
 
+static NSString *keyDelimiter = @"-";
+
 @interface MSIDMacSharedCredentialCacheItem ()
 
 @property (nonatomic) NSMutableDictionary *cacheObjects;
@@ -55,13 +57,6 @@
     return instance;
 }
 
-- (NSString *)getCredentialId: (MSIDDefaultCredentialCacheKey *)key
-{
-    NSString *clientId = key.familyId ? key.familyId : key.clientId;
-    NSString *refreshTokenKey = [key credentialIdWithType:key.credentialType clientId:clientId realm:key.realm enrollmentId:key.enrollmentId];
-    return refreshTokenKey;
-}
-
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                                  error:(NSError * __autoreleasing *)error
 {
@@ -70,24 +65,22 @@
         return nil;
     }
     
-    for (NSString *credentialKey in json)
+    for (NSString *refreshTokenKey in json)
     {
-        MSIDMacSharedCredential *sharedCredential = [[MSIDMacSharedCredential alloc] initWithCredentialIdentifier:credentialKey];
-        NSDictionary *rtDict = [json valueForKey:credentialKey];
+        NSDictionary *rtDict = [json objectForKey:refreshTokenKey];
         
-        if (rtDict && [rtDict isKindOfClass:[NSDictionary class]])
+        if (rtDict)
         {
-            for (NSString *rtKey in rtDict)
-            {
-                MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:[rtDict objectForKey:rtKey] error:error];
-                if (credential)
-                {
-                    [sharedCredential.refreshTokens setObject:credential forKey:rtKey];
-                }
-            }
+            MSIDCredentialCacheItem *refreshToken = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
+            MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:refreshToken.homeAccountId                      environment:refreshToken.environment clientId:refreshToken.clientId credentialType:refreshToken.credentialType];
+            
+            key.familyId = refreshToken.familyId;
+            key.realm = refreshToken.realm;
+            key.target = refreshToken.target;
+            key.enrollmentId = refreshToken.enrollmentId;
+            
+            [self setRefreshToken:refreshToken forKey:key];
         }
-        
-        [self setCredential:sharedCredential forKey:credentialKey];
     }
     
     return self;
@@ -95,137 +88,67 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    NSArray *keys = [self allKeys];
+    NSDictionary *cacheObjects = [self getCopy];
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
-    for (NSString *credentialKey in keys)
+    for (MSIDDefaultCredentialCacheKey *refreshTokenKey in cacheObjects)
     {
-        MSIDMacSharedCredential *sharedCredential = [self credentialForKey:credentialKey];
-        if (sharedCredential)
+        NSString *key = [NSString stringWithFormat:@"%@%@%@", refreshTokenKey.account, keyDelimiter, refreshTokenKey.service];
+        MSIDCredentialCacheItem *refreshToken = [cacheObjects objectForKey:refreshTokenKey];
+        NSDictionary *rtDict = [refreshToken jsonDictionary];
+        
+        if (rtDict)
         {
-            NSMutableDictionary *credentialDict = [NSMutableDictionary dictionary];
-            [dictionary setObject:credentialDict forKey:sharedCredential.credentialIdentifier];
-            for (NSString *refreshTokenKey in sharedCredential.refreshTokens)
-            {
-                MSIDCredentialCacheItem *credItem = [sharedCredential.refreshTokens objectForKey:refreshTokenKey];
-                if (credItem)
-                {
-                    [credentialDict setObject:[credItem jsonDictionary] forKey:refreshTokenKey];
-                }
-            }
+            [dictionary setObject:rtDict forKey:key];
         }
     }
     
     return dictionary;
 }
 
-
 - (void)setRefreshToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key
 {
-    NSString *credentialKey = key.account;
-    MSIDMacSharedCredential *sharedCredential = [self credentialForKey:credentialKey];
-    
-    if (!sharedCredential)
-    {
-        sharedCredential = [[MSIDMacSharedCredential alloc] initWithCredentialIdentifier:credentialKey];
-    }
-    
-    [sharedCredential.refreshTokens setObject:token forKey:[self getCredentialId:key]];
-    [self setCredential:sharedCredential forKey:credentialKey];
-}
-
-- (NSArray<MSIDCredentialCacheItem *> *)allCredentials
-{
-    NSArray *keys = [self allKeys];
-    NSMutableArray<MSIDCredentialCacheItem *> *tokenList = [NSMutableArray new];
-    
-    for (NSString *key in keys)
-    {
-        MSIDMacSharedCredential *sharedCredential = [self credentialForKey:key];
-        
-        if (sharedCredential)
-        {
-            for (NSString *key in sharedCredential.refreshTokens)
-            {
-                MSIDCredentialCacheItem *credential = [sharedCredential.refreshTokens objectForKey:key];
-                
-                if (sharedCredential)
-                {
-                    [tokenList addObject:credential];
-                }
-            }
-        }
-    }
-    
-    return [tokenList copy];
-}
-
-- (MSIDMacSharedCredential *)credentialForKey:(NSString *)key
-{
-    __block id rv = nil;
-    
-    dispatch_sync(self.queue, ^{
-        rv = [self.cacheObjects objectForKey:key];
+    dispatch_barrier_async(self.queue, ^{
+        [self.cacheObjects setObject:token forKey:key];
     });
-    
-    return rv;
 }
 
-- (void)setCredential:(MSIDMacSharedCredential *)credential forKey:(NSString *)key
+- (void)mergeCredential:(MSIDMacSharedCredentialCacheItem *)credential
 {
     dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects setObject:credential forKey:key];
+        [self.cacheObjects addEntriesFromDictionary:credential.cacheObjects];
     });
 }
 
-- (NSArray *)allKeys
+- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key
 {
-    __block NSArray *keys = nil;
+    NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
+    
+    if (key.clientId)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.clientId == %@", key.clientId]];
+    if (key.environment)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.environment == %@", key.environment]];
+    if (key.homeAccountId)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.homeAccountId == %@", key.homeAccountId]];
+    if (key.credentialType)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.credentialType == %d", key.credentialType]];
+    
+    // Combine all sub-predicates with AND:
+    NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
+    
+    NSDictionary *cacheObjects = [self getCopy];
+    return [[cacheObjects allValues] filteredArrayUsingPredicate:matchAttributes];
+}
+
+- (NSDictionary *)getCopy
+{
+    __block NSDictionary *copy;
     
     dispatch_sync(self.queue, ^{
-        keys = [self.cacheObjects allKeys];
+        copy = [self.cacheObjects copy];
     });
     
-    return keys;
+    return copy;
 }
-
-- (MSIDMacSharedCredentialCacheItem *)mergeSharedCredential:(MSIDMacSharedCredentialCacheItem *)credential
-{
-    NSArray *keys = [credential allKeys];
-    
-    for (NSString *key in keys) {
-        MSIDMacSharedCredential *savedCredential = [self credentialForKey:key];
-        MSIDMacSharedCredential *currentCredential = [credential credentialForKey:key];
-        if (!savedCredential)
-        {
-            // The new account was not already in self, so simply add it.
-            [self setCredential:currentCredential forKey:key];
-        }
-        else
-        {
-            MSIDMacSharedCredential *mergedCredential = [self mergeCredential:savedCredential withCredential:currentCredential];
-            [self setCredential:mergedCredential forKey:key];
-        }
-    }
-    
-    return self;
-}
-
-- (MSIDMacSharedCredential *)mergeCredential:(MSIDMacSharedCredential *)currentCredential withCredential:(MSIDMacSharedCredential *)savedCredential
-{
-    __block MSIDMacSharedCredential *mergeCredential = nil;
-    
-    dispatch_sync(self.queue, ^{
-        mergeCredential = [currentCredential mergeCredential:savedCredential];
-    });
-    
-    return mergeCredential;
-}
-
-- (MSIDMacSharedCredentialCacheItem *)removeCredential:(MSIDCredentialCacheItem *)credential
-{
-    return nil;
-}
-
 
 @end

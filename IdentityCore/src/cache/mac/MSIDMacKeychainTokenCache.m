@@ -432,7 +432,6 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     {
         // Make sure we copy over all the additional fields
         [currentCredential mergeCredential:savedCredential];
-        currentCredential = [[MSIDMacAppCredentialCacheItem alloc] initWithJSONDictionary:currentCredential.jsonDictionary error:error];
     }
     
     NSData *itemData = [serializer serializeAppCredentialCacheItem:currentCredential];
@@ -462,14 +461,11 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     assert(serializer);
     MSIDMacSharedCredentialCacheItem *currentCredential = [MSIDMacSharedCredentialCacheItem sharedInstance];
     [currentCredential setRefreshToken:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
-    
     MSIDMacSharedCredentialCacheItem *savedCredential = [self sharedCredentialWithKey:key serializer:serializer context:context error:error];
     
     if (savedCredential)
     {
-        // Make sure we copy over all the additional fields
-        [currentCredential mergeSharedCredential:savedCredential];
-        currentCredential = [[MSIDMacSharedCredentialCacheItem alloc] initWithJSONDictionary:currentCredential.jsonDictionary error:error];
+        [currentCredential mergeCredential:savedCredential];
     }
     
     NSData *itemData = [serializer serializeSharedCredentialCacheItem:currentCredential];
@@ -528,7 +524,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         
         if (sharedCredential)
         {
-            tokenList = [[sharedCredential allCredentials] copy];
+            tokenList = [[sharedCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key] copy];
         }
     }
     else
