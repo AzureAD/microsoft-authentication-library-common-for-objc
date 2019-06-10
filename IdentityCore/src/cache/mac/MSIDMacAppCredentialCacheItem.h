@@ -36,13 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (MSIDMacAppCredentialCacheItem *)sharedInstance;
 
-- (void)setAppToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
+- (void)setAppCredential:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
 
-- (void)mergeCredential:(MSIDMacAppCredentialCacheItem *)credential;
+- (void)mergeAppCredential:(MSIDMacAppCredentialCacheItem *)credential;
 
-- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key;
+- (NSArray<MSIDCredentialCacheItem *> *)appCredentialsWithKey:(MSIDDefaultCredentialCacheKey *)key;
 
-- (void)removeAppTokenForKey:(MSIDDefaultCredentialCacheKey *)key;
+- (void)removeAppCredentialForKey:(MSIDDefaultCredentialCacheKey *)key;
 
 @end
 

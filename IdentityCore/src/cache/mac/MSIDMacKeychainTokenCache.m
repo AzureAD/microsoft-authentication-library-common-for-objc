@@ -426,12 +426,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     assert(credential);
     assert(serializer);
     MSIDMacAppCredentialCacheItem *currentCredential = [MSIDMacAppCredentialCacheItem sharedInstance];
-    [currentCredential setAppToken:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
+    [currentCredential setAppCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
     MSIDMacAppCredentialCacheItem *savedCredential = [self appCredentialWithKey:key serializer:serializer context:context error:error];
     
     if (savedCredential)
     {
-        [currentCredential mergeCredential:savedCredential];
+        [currentCredential mergeAppCredential:savedCredential];
     }
     
     NSData *itemData = [serializer serializeAppCredentialCacheItem:currentCredential];
@@ -460,12 +460,12 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     assert(credential);
     assert(serializer);
     MSIDMacSharedCredentialCacheItem *currentCredential = [MSIDMacSharedCredentialCacheItem sharedInstance];
-    [currentCredential setRefreshToken:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
+    [currentCredential setSharedCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
     MSIDMacSharedCredentialCacheItem *savedCredential = [self sharedCredentialWithKey:key serializer:serializer context:context error:error];
     
     if (savedCredential)
     {
-        [currentCredential mergeCredential:savedCredential];
+        [currentCredential mergeSharedCredential:savedCredential];
     }
     
     NSData *itemData = [serializer serializeSharedCredentialCacheItem:currentCredential];
@@ -524,7 +524,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         
         if (sharedCredential)
         {
-            tokenList = [sharedCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
+            tokenList = [sharedCredential sharedCredentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
         }
     }
     else
@@ -533,7 +533,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
         
         if (appCredential)
         {
-            tokenList = [appCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
+            tokenList = [appCredential appCredentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
         }
     }
     
@@ -564,7 +564,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     if (sharedCredential)
     {
-        [sharedCredential removeSharedTokenForKey:(MSIDDefaultCredentialCacheKey *)key];
+        [sharedCredential removeSharedCredentialForKey:(MSIDDefaultCredentialCacheKey *)key];
         return [self saveSharedCredential:sharedCredential key:key serializer:serializer context:context error:error];
     }
     
@@ -580,7 +580,7 @@ static MSIDMacKeychainTokenCache *s_defaultCache = nil;
     
     if (appCredential)
     {
-        [appCredential removeAppTokenForKey:(MSIDDefaultCredentialCacheKey *)key];
+        [appCredential removeAppCredentialForKey:(MSIDDefaultCredentialCacheKey *)key];
         return [self saveAppCredential:appCredential key:key serializer:serializer context:context error:error];
     }
     

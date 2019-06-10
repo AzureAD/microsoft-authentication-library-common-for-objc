@@ -82,7 +82,7 @@ static NSString *keyDelimiter = @"-";
                 key.target = appToken.target;
                 key.enrollmentId = appToken.enrollmentId;
                 
-                [self setAppToken:appToken forKey:key];
+                [self setAppCredential:appToken forKey:key];
             }
         }
     }
@@ -103,6 +103,7 @@ static NSString *keyDelimiter = @"-";
         
         if (atDict)
         {
+            NSLog(@"%@",@"set");
             [dictionary setObject:atDict forKey:key];
         }
     }
@@ -110,29 +111,52 @@ static NSString *keyDelimiter = @"-";
     return dictionary;
 }
 
-- (void)setAppToken:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key
+- (void)setAppCredential:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
         [self.cacheObjects setObject:token forKey:key];
     });
 }
 
-- (void)removeAppTokenForKey:(MSIDDefaultCredentialCacheKey *)key
+-(MSIDCredentialCacheItem *)appCredentialForKey:(MSIDDefaultCredentialCacheKey *)key
+{
+    __block MSIDCredentialCacheItem *appCredential = nil;
+    
+    dispatch_sync(self.queue, ^{
+        appCredential = [self.cacheObjects objectForKey:key];
+    });
+    
+    return appCredential;
+}
+
+- (void)removeAppCredentialForKey:(MSIDDefaultCredentialCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
         [self.cacheObjects removeObjectForKey:key];
     });
 }
 
-- (void)mergeCredential:(MSIDMacAppCredentialCacheItem *)credential
+- (void)mergeAppCredential:(MSIDMacAppCredentialCacheItem *)credential
 {
     dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects addEntriesFromDictionary:credential.cacheObjects];
+        NSDictionary *copy = [credential.cacheObjects copy];
+        [self.cacheObjects addEntriesFromDictionary:copy];
     });
 }
 
-- (NSArray<MSIDCredentialCacheItem *> *)credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key
+- (NSArray<MSIDCredentialCacheItem *> *)appCredentialsWithKey:(MSIDDefaultCredentialCacheKey *)key
 {
+    if (key.account && key.service)
+    {
+        MSIDCredentialCacheItem *credential = [self appCredentialForKey:key];
+        if (credential)
+        {
+            return @[credential];
+        }
+        
+        return nil;
+    }
+    
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
     
     if (key.clientId)
