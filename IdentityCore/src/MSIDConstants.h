@@ -101,3 +101,6 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityGermany;
 extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUSGovernment;
 extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
+
+extern NSString * _Nonnull const MSID_DEFAULT_AAD_AUTHORITY;
+extern NSString * _Nonnull const MSID_DEFAULT_MSA_TENANTID;
