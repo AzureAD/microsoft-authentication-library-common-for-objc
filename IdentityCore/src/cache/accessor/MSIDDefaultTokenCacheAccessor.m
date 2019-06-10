@@ -81,7 +81,15 @@
                               error:(NSError *__autoreleasing *)error
 {
     MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default accessor) Saving multi resource refresh token");
-
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    for (int i = 0; i < 10; ++i) {
+        dispatch_async(queue, ^{
+            [self saveAccessTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
+            [self saveSSOStateWithConfiguration:configuration response:response factory:factory context:context error:error];
+            [self saveIDTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
+        });
+    }
     // Save access token
     BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
 

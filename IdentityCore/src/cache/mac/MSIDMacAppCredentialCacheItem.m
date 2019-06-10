@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDMacAppCredentialCacheItem.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 static NSString *keyDelimiter = @"-";
 
@@ -103,7 +104,6 @@ static NSString *keyDelimiter = @"-";
         
         if (atDict)
         {
-            NSLog(@"%@",@"set");
             [dictionary setObject:atDict forKey:key];
         }
     }
@@ -138,8 +138,9 @@ static NSString *keyDelimiter = @"-";
 
 - (void)mergeAppCredential:(MSIDMacAppCredentialCacheItem *)credential
 {
+    NSDictionary *copy = [credential getCopy];
+    
     dispatch_barrier_async(self.queue, ^{
-        NSDictionary *copy = [credential.cacheObjects copy];
         [self.cacheObjects addEntriesFromDictionary:copy];
     });
 }
@@ -181,12 +182,12 @@ static NSString *keyDelimiter = @"-";
 
 - (NSDictionary *)getCopy
 {
-    __block NSDictionary *copy;
-    
+    __block NSMutableDictionary *copy;
+
     dispatch_sync(self.queue, ^{
-        copy = [self.cacheObjects copy];
+        copy = [self.cacheObjects mutableDeepCopy];
     });
-    
+
     return copy;
 }
 

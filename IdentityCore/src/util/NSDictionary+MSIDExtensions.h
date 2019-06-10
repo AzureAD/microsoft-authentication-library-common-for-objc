@@ -47,4 +47,6 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error;
 
+- (NSMutableDictionary *)mutableDeepCopy;
+
 @end

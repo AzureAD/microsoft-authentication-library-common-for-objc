@@ -138,8 +138,9 @@ static NSString *keyDelimiter = @"-";
 
 - (void)mergeSharedCredential:(MSIDMacSharedCredentialCacheItem *)credential
 {
+    NSDictionary *copy = [credential getCopy];
+    
     dispatch_barrier_async(self.queue, ^{
-        NSDictionary *copy = [credential.cacheObjects copy];
         [self.cacheObjects addEntriesFromDictionary:copy];
     });
 }
@@ -177,10 +178,10 @@ static NSString *keyDelimiter = @"-";
 
 - (NSDictionary *)getCopy
 {
-    __block NSDictionary *copy;
+    __block NSMutableDictionary *copy;
     
     dispatch_sync(self.queue, ^{
-        copy = [self.cacheObjects copy];
+        copy = [self.cacheObjects mutableDeepCopy];
     });
     
     return copy;
