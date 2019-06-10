@@ -24,8 +24,7 @@
 #import "MSIDMacTokenCache.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAccountItemSerializer.h"
+#import "MSIDCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
 
@@ -180,7 +179,7 @@ return NO; \
 
 - (BOOL)saveToken:(MSIDCredentialCacheItem *)item
               key:(MSIDCacheKey *)key
-       serializer:(id<MSIDCredentialItemSerializer>)serializer
+       serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError * __autoreleasing *)error
 {
@@ -193,9 +192,9 @@ return NO; \
 }
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                          serializer:(id<MSIDCredentialItemSerializer>)serializer
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError *__autoreleasing *)error
+                               serializer:(id<MSIDCacheItemSerializing>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError *__autoreleasing *)error
 {
     MSID_LOG_INFO(context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
@@ -214,9 +213,9 @@ return NO; \
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                         context:(__unused id<MSIDRequestContext>)context
-                                           error:(NSError * __autoreleasing *)error
+                                           serializer:(id<MSIDCacheItemSerializing>)serializer
+                                              context:(__unused id<MSIDRequestContext>)context
+                                                error:(NSError * __autoreleasing *)error
 {
     [self.delegate willAccessCache:self];
     NSArray *result = nil;
@@ -403,7 +402,7 @@ return NO; \
 
 - (BOOL)setItemImpl:(MSIDCredentialCacheItem *)item
                 key:(MSIDCacheKey *)key
-         serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
+         serializer:(__unused id<MSIDCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -470,7 +469,7 @@ return NO; \
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)itemsWithKeyImpl:(MSIDCacheKey *)key
-                                         serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
+                                         serializer:(__unused id<MSIDCacheItemSerializing>)serializer
                                             context:(id<MSIDRequestContext>)context
                                               error:(__unused NSError **)error
 {

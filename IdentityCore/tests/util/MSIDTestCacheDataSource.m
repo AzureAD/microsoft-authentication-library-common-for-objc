@@ -32,6 +32,8 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDAccount.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountCacheItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -67,7 +69,7 @@
 
 - (BOOL)saveToken:(MSIDCredentialCacheItem *)item
               key:(MSIDCacheKey *)key
-       serializer:(id<MSIDCredentialItemSerializer>)serializer
+       serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -93,9 +95,9 @@
 }
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                          serializer:(id<MSIDCredentialItemSerializer>)serializer
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                               serializer:(id<MSIDCacheItemSerializing>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
     if (!serializer)
     {
@@ -177,9 +179,9 @@
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+                                           serializer:(id<MSIDCacheItemSerializing>)serializer
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     if (!serializer)
     {
@@ -227,7 +229,7 @@
 
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)item
                 key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAccountItemSerializer>)serializer
+         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -242,7 +244,7 @@
         return NO;
     }
     
-    NSData *serializedItem = [serializer serializeAccountCacheItem:item];
+    NSData *serializedItem = [serializer serializeCacheItem:item];
     return [self saveItemData:serializedItem
                           key:key
                     cacheKeys:_accountKeys
@@ -252,7 +254,7 @@
 }
 
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
-                              serializer:(id<MSIDAccountItemSerializer>)serializer
+                              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -272,12 +274,12 @@
                                      context:context
                                        error:error];
     
-    MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:itemData];
+    MSIDAccountCacheItem *token = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountCacheItem class]];
     return token;
 }
 
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
-                                          serializer:(id<MSIDAccountItemSerializer>)serializer
+                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
@@ -301,7 +303,7 @@
     
     for (NSData *itemData in items)
     {
-        MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:itemData];
+        MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountCacheItem class]];
         
         if (account)
         {
@@ -313,7 +315,7 @@
 }
 
 - (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
-                                       serializer:(id<MSIDJsonSerializing>)serializer
+                                       serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError *__autoreleasing *)error
 {
@@ -323,7 +325,7 @@
 
 
 - (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
-            serializer:(id<MSIDJsonSerializing>)serializer
+            serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                    key:(MSIDCacheKey *)key
                context:(id<MSIDRequestContext>)context
                  error:(NSError *__autoreleasing *)error
@@ -529,7 +531,7 @@
     return YES;
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     if (!serializer)
     {
@@ -542,7 +544,7 @@
     }
     
     NSData *data = [self itemDataWithKey:key keysDictionary:_accountKeys contentDictionary:_accountContents context:context error:error];
-    return [serializer deserializeAccountMetadata:data];
+    return (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
 }
 
 
@@ -552,7 +554,7 @@
 }
 
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     if (!item || !serializer)
     {
@@ -563,7 +565,7 @@
         
         return NO;
     }
-    NSData *serializedItem = [serializer serializeAccountMetadataCacheItem:item];
+    NSData *serializedItem = [serializer serializeCacheItem:item];
     return [self saveItemData:serializedItem
                           key:key
                     cacheKeys:_accountKeys
@@ -575,7 +577,7 @@
 
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
                     key:(MSIDCacheKey *)key
-             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+             serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
@@ -590,7 +592,7 @@
         return NO;
     }
     
-    NSData *serializedItem = [serializer serializeAppMetadataCacheItem:item];
+    NSData *serializedItem = [serializer serializeCacheItem:item];
     return [self saveItemData:serializedItem
                           key:key
                     cacheKeys:_accountKeys
@@ -600,7 +602,7 @@
 }
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
-                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                        serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error;
 {
@@ -624,7 +626,7 @@
     
     for (NSData *itemData in items)
     {
-        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+        MSIDAppMetadataCacheItem *appMetadata = (MSIDAppMetadataCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAppMetadataCacheItem class]];
         
         if (appMetadata)
         {
@@ -682,7 +684,7 @@
 }
 
 - (NSArray *)allTokensWithType:(MSIDCredentialType)type
-                    serializer:(id<MSIDCredentialItemSerializer>)serializer
+                    serializer:(id<MSIDCacheItemSerializing>)serializer
 {
     NSMutableArray *results = [NSMutableArray array];
     
@@ -717,7 +719,7 @@
         
         for (NSData *accountData in [_accountContents allValues])
         {
-            MSIDAccountCacheItem *accountCacheItem = [serializer deserializeAccountCacheItem:accountData];
+            MSIDAccountCacheItem *accountCacheItem = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:accountData ofClass:[MSIDAccountCacheItem class]];
             
             if (accountCacheItem)
             {

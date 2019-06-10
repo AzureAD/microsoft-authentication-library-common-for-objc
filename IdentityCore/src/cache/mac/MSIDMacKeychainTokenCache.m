@@ -23,10 +23,8 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAccountCacheItem.h"
-#import "MSIDAccountItemSerializer.h"
 #import "MSIDAccountType.h"
 #import "MSIDCredentialCacheItem.h"
-#import "MSIDCredentialItemSerializer.h"
 #import "MSIDCredentialType.h"
 #import "MSIDError.h"
 #import "MSIDJsonSerializer.h"
@@ -37,9 +35,10 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDKeychainUtil.h"
 #import "MSIDDefaultAccountCacheKey.h"
-#import "MSIDAppMetadataItemSerializer.h"
 #import "MSIDJsonObject.h"
 #import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDExtendedCacheItemSerializing.h"
+#import "MSIDAppMetadataCacheItem.h"
 
 /**
  This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
@@ -307,14 +306,14 @@ static dispatch_queue_t s_synchronizationQueue;
 //
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)account
                 key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAccountItemSerializer>)serializer
+         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
     assert(account);
     assert(serializer);
     [self updateLastModifiedForAccount:account context:context];
-    NSData *itemData = [serializer serializeAccountCacheItem:account];
+    NSData *itemData = [serializer serializeCacheItem:account];
 
     if (!itemData)
     {
@@ -341,7 +340,7 @@ static dispatch_queue_t s_synchronizationQueue;
 // * MSIDErrorDomain/MSIDErrorCacheMultipleUsers: more than one keychain item matched the account key
 //
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
-                              serializer:(id<MSIDAccountItemSerializer>)serializer
+                              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -368,35 +367,11 @@ static dispatch_queue_t s_synchronizationQueue;
 // * MSIDKeychainErrorDomain/OSStatus: Apple status codes from SecItemCopyMatching()
 //
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
-                                          serializer:(id<MSIDAccountItemSerializer>)serializer
+                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
-    NSArray *accountItems = [self itemsWithKey:key context:context error:error];
-
-    if (!accountItems)
-    {
-        return nil;
-    }
-
-    NSMutableArray<MSIDAccountCacheItem *> *accountList = [NSMutableArray new];
-    for (NSDictionary *dict in accountItems)
-    {
-        NSData *jsonData = dict[(id)kSecValueData];
-        if (jsonData)
-        {
-            MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeAccountCacheItem:jsonData];
-            if (account != nil)
-            {
-                [accountList addObject:account];
-            }
-            else
-            {
-                MSID_LOG_WARN(context, @"Failed to deserialize account");
-            }
-        }
-    }
-    return accountList;
+    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:[MSIDAccountCacheItem class] context:context error:error];
 }
 
 // Remove one or more accounts from the keychain that match the key.
@@ -416,7 +391,7 @@ static dispatch_queue_t s_synchronizationQueue;
 // Write a credential to the macOS keychain cache.
 - (BOOL)saveToken:(__unused MSIDCredentialCacheItem *)credential
               key:(__unused MSIDCacheKey *)key
-       serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
+       serializer:(__unused id<MSIDCacheItemSerializing>)serializer
           context:(__unused id<MSIDRequestContext>)context
             error:(__unused NSError **)error
 {
@@ -447,7 +422,7 @@ static dispatch_queue_t s_synchronizationQueue;
 // Read a single credential from the macOS keychain cache.
 // If multiple matches are found, return nil and set an error.
 - (MSIDCredentialCacheItem *)tokenWithKey:(__unused MSIDCacheKey *)key
-                               serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
+                               serializer:(__unused id<MSIDCacheItemSerializing>)serializer
                                   context:(__unused id<MSIDRequestContext>)context
                                     error:(__unused NSError **)error
 {
@@ -471,7 +446,7 @@ static dispatch_queue_t s_synchronizationQueue;
 // Read one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
 // If not found, return an empty list without setting an error.
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(__unused MSIDCacheKey *)key
-                                           serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
+                                           serializer:(__unused id<MSIDCacheItemSerializing>)serializer
                                               context:(__unused id<MSIDRequestContext>)context
                                                 error:(__unused NSError **)error
 {
@@ -515,14 +490,14 @@ static dispatch_queue_t s_synchronizationQueue;
 // Save MSIDAppMetadataCacheItem (clientId/environment/familyId) in the macOS keychain cache.
 - (BOOL)saveAppMetadata:(__unused MSIDAppMetadataCacheItem *)metadata
                     key:(__unused MSIDCacheKey *)key
-             serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
+             serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(__unused id<MSIDRequestContext>)context
                   error:(__unused NSError **)error
 {
     assert(metadata);
     assert(serializer);
 
-    NSData *itemData = [serializer serializeAppMetadataCacheItem:metadata];
+    NSData *itemData = [serializer serializeCacheItem:metadata];
 
     if (!itemData)
     {
@@ -543,38 +518,12 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 // Read MSIDAppMetadataCacheItem (clientId/environment/familyId) items from the macOS keychain cache.
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
-                                                        serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
-                                                           context:(__unused id<MSIDRequestContext>)context
-                                                             error:(__unused NSError **)error
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
-
-    if (!items)
-    {
-        return nil;
-    }
-
-    NSMutableArray *appMetadataitems = [[NSMutableArray<MSIDAppMetadataCacheItem *> alloc] initWithCapacity:items.count];
-    
-    for (NSDictionary *attrs in items)
-    {
-        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
-        
-        if (appMetadata)
-        {
-            [appMetadataitems addObject:appMetadata];
-        }
-        else
-        {
-            MSID_LOG_INFO(context, @"Failed to deserialize app metadata item.");
-        }
-    }
-
-    MSID_LOG_VERBOSE(context, @"Found %lu items.", (unsigned long)appMetadataitems.count);
-
-    return appMetadataitems;
+     return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:[MSIDAppMetadataCacheItem class] context:context error:error];
 }
 
 // Remove items with the given Metadata key from the macOS keychain cache.
@@ -583,6 +532,42 @@ static dispatch_queue_t s_synchronizationQueue;
                              error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
+}
+
+- (NSArray *)cacheItemsWithKey:(MSIDCacheKey *)key
+                    serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                cacheItemClass:(Class)resultClass
+                       context:(id<MSIDRequestContext>)context
+                         error:(NSError **)error
+{
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    
+    if (!items)
+    {
+        return nil;
+    }
+    
+    NSMutableArray *resultItems = [[NSMutableArray alloc] initWithCapacity:items.count];
+    
+    for (__unused NSDictionary *attrs in items)
+    {
+        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
+        
+        id resultItem = [serializer deserializeCacheItem:itemData ofClass:resultClass];
+        
+        if (resultItem && [resultItem isKindOfClass:resultClass])
+        {
+            [resultItems addObject:resultItem];
+        }
+        else
+        {
+            MSID_LOG_INFO(context, @"Failed to deserialize item with class %@.", resultClass);
+        }
+    }
+    
+    MSID_LOG_VERBOSE(context, @"Found %lu items.", (unsigned long)resultItems.count);
+    
+    return resultItems;
 }
 
 - (NSArray *)itemsWithKey:(MSIDCacheKey *)key
@@ -749,42 +734,16 @@ static dispatch_queue_t s_synchronizationQueue;
 
 #pragma mark - JSON Object
 
-// TODO: mac keychain token cache and iOS keychain token cache should share same base class
 - (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
-                                       serializer:(id<MSIDJsonSerializing>)serializer
+                                       serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
-    
-    if (!items)
-    {
-        return nil;
-    }
-    
-    NSMutableArray *jsonItems = [[NSMutableArray<MSIDJsonObject *> alloc] initWithCapacity:items.count];
-    
-    for (NSDictionary *attrs in items)
-    {
-        NSData *itemData = [attrs objectForKey:(id)kSecValueData];
-        MSIDJsonObject *jsonItem = (MSIDJsonObject *)[serializer fromJsonData:itemData ofType:MSIDJsonObject.class context:context error:error];
-        
-        if (jsonItem)
-        {
-            [jsonItems addObject:jsonItem];
-        }
-        else
-        {
-            MSID_LOG_INFO(context, @"Failed to deserialize json item.");
-        }
-    }
-    
-    MSID_LOG_VERBOSE(context, @"Found %lu items.", (unsigned long)jsonItems.count);
-    return jsonItems;
+    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:[MSIDJsonObject class] context:context error:error];
 }
 
 - (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
-            serializer:(id<MSIDJsonSerializing>)serializer
+            serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                    key:(MSIDCacheKey *)key
                context:(id<MSIDRequestContext>)context
                  error:(NSError **)error
@@ -792,7 +751,7 @@ static dispatch_queue_t s_synchronizationQueue;
     assert(jsonObject);
     assert(serializer);
     
-    NSData *itemData = [serializer toJsonData:jsonObject context:context error:error];
+    NSData *itemData = [serializer serializeCacheItem:jsonObject];
     
     if (!itemData)
     {
@@ -814,12 +773,12 @@ static dispatch_queue_t s_synchronizationQueue;
 
 #pragma mark - Account metadata
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
     return nil;
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
     return NO;
 }

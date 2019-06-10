@@ -38,7 +38,7 @@
 @interface MSIDTokenCacheDataSourceIntegrationTests : XCTestCase
 
 @property (nonatomic) id<MSIDTokenCacheDataSource> dataSource;
-@property (nonatomic) id<MSIDCredentialItemSerializer> serializer;
+@property (nonatomic) id<MSIDCacheItemSerializing> serializer;
 @property (nonatomic) NSData *generic;
 
 @end

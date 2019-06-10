@@ -29,26 +29,24 @@
 @class MSIDAppMetadataCacheItem;
 
 @protocol MSIDRequestContext;
-@protocol MSIDAccountItemSerializer;
-@protocol MSIDCredentialItemSerializer;
-@protocol MSIDAppMetadataItemSerializer;
+@protocol MSIDCacheItemSerializing;
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
 // Tokens
 - (BOOL)saveToken:(MSIDCredentialCacheItem *)item
               key:(MSIDCacheKey *)key
-       serializer:(id<MSIDCredentialItemSerializer>)serializer
+       serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error;
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                               serializer:(id<MSIDCredentialItemSerializer>)serializer
+                               serializer:(id<MSIDCacheItemSerializing>)serializer
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error;
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                           serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                           serializer:(id<MSIDCacheItemSerializing>)serializer
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error;
 

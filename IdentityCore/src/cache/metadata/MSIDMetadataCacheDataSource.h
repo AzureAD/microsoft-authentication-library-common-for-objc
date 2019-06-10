@@ -23,20 +23,19 @@
 
 @class MSIDAccountMetadataCacheItem;
 @class MSIDCacheKey;
-@protocol MSIDAccountMetadataCacheItemSerializer;
 @class MSIDAppMetadataCacheItem;
-@protocol MSIDAppMetadataItemSerializer;
+@protocol MSIDExtendedCacheItemSerializing;
 
 @protocol MSIDMetadataCacheDataSource <NSObject>
 
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
                         key:(MSIDCacheKey *)key
-                 serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                 serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 
 - (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
-                                              serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer
+                                              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error;
 
@@ -47,12 +46,12 @@
 // App metadata
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
                     key:(MSIDCacheKey *)key
-             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+             serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error;
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
-                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                        serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error;
 

@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDExtendedTokenCacheDataSource.h"
 #import "MSIDBaseToken.h"
-#import "MSIDCredentialItemSerializer.h"
+#import "MSIDCacheItemSerializing.h"
 
 @interface MSIDTestCacheDataSource : NSObject <MSIDExtendedTokenCacheDataSource>
 
@@ -39,7 +39,7 @@
 - (NSArray *)allDefaultIDTokens;
 
 - (NSArray *)allTokensWithType:(MSIDCredentialType)type
-                    serializer:(id<MSIDCredentialItemSerializer>)serializer;
+                    serializer:(id<MSIDCacheItemSerializing>)serializer;
 
 - (NSArray *)allAccounts;
 

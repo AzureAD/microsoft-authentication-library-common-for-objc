@@ -26,10 +26,10 @@
 #import "MSIDMetadataCacheDataSource.h"
 
 @class MSIDAccountCacheItem;
-@protocol MSIDAccountItemSerializer;
 @protocol MSIDRequestContext;
 @class MSIDCacheKey;
 @class MSIDJsonObject;
+@protocol MSIDExtendedCacheItemSerializing;
 @protocol MSIDJsonSerializing;
 
 // Token cache data source supporting additional advanced types like accounts, app metadata and generic items
@@ -38,17 +38,17 @@
 // Accounts
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)item
                 key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAccountItemSerializer>)serializer
+         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
 
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
-                              serializer:(id<MSIDAccountItemSerializer>)serializer
+                              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
-                                          serializer:(id<MSIDAccountItemSerializer>)serializer
+                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error;
 
@@ -58,12 +58,12 @@
 
 // JSON Object
 - (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
-                                       serializer:(id<MSIDJsonSerializing>)serializer
+                                       serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error;
 
 - (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
-            serializer:(id<MSIDJsonSerializing>)serializer
+            serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                    key:(MSIDCacheKey *)key
                context:(id<MSIDRequestContext>)context
                  error:(NSError **)error;
