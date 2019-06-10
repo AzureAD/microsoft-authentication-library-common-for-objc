@@ -38,6 +38,8 @@
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSDate+MSIDExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
 
@@ -85,6 +87,8 @@
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
     result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
+    // Ignore the lastMod properties (two otherwise-identical items with different
+    // last modification informational values should be considered equal)
     return result;
 }
 
@@ -127,6 +131,8 @@
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.additionalInfo = [self.additionalInfo copyWithZone:zone];
+    item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
+    item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
 
@@ -148,9 +154,9 @@
 
     _json = json;
 
-    _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
-    _credentialType = [MSIDCredentialTypeHelpers credentialTypeFromString:json[MSID_CREDENTIAL_TYPE_CACHE_KEY]];
-    _secret = json[MSID_TOKEN_CACHE_KEY];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    _credentialType = [MSIDCredentialTypeHelpers credentialTypeFromString:[json msidStringObjectForKey:MSID_CREDENTIAL_TYPE_CACHE_KEY]];
+    _secret = [json msidStringObjectForKey:MSID_TOKEN_CACHE_KEY];
 
     if (!_secret)
     {
@@ -158,19 +164,22 @@
         return nil;
     }
 
-    _target = json[MSID_TARGET_CACHE_KEY];
-    _realm = json[MSID_REALM_CACHE_KEY];
-    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
-    _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
-    _extendedExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
-    _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
-    _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
-    _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
-    _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
+    _target = [json msidStringObjectForKey:MSID_TARGET_CACHE_KEY];
+    _realm = [json msidStringObjectForKey:MSID_REALM_CACHE_KEY];
+    _environment = [json msidStringObjectForKey:MSID_ENVIRONMENT_CACHE_KEY];
+    _expiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXPIRES_ON_CACHE_KEY]];
+    _extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
+    _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
+    _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
+    _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
+    _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
+
+    // Last Modification info (currently used on macOS only)
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:json[MSID_LAST_MOD_TIME_CACHE_KEY]];
+    _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
 
     // Additional Info
-
-    NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
+    NSString *speInfo = [json msidStringObjectForKey:MSID_SPE_INFO_CACHE_KEY];
     NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
     additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
 
@@ -205,6 +214,10 @@
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
+
+    // Last Modification info (currently used on macOS only)
+    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
+    dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
 
     return dictionary;
 }

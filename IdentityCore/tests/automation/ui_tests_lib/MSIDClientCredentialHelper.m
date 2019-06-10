@@ -29,7 +29,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "NSDictionary+MSIDExtensions.h"
-#import "MSIDAuthorityFactory.h"
+#import "MSIDAADAuthority.h"
 
 @implementation MSIDClientCredentialHelper
 
@@ -182,7 +182,7 @@
           }
           
           __auto_type authorityUrl = [[NSURL alloc] initWithString:authorityString];
-          __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+          __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl rawTenant:nil context:nil error:nil];
           
           MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                               redirectUri:nil

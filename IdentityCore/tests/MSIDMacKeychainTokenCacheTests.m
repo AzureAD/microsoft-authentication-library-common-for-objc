@@ -42,6 +42,15 @@
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAppMetadataCacheKey.h"
 
+@interface MSIDMacKeychainTokenCache (Internal)
+
+// Provide access to this internal method for testing:
+- (BOOL)checkIfRecentlyModifiedItem:(nullable id<MSIDRequestContext>)context
+                               time:(NSDate *)lastModificationTime
+                                app:(NSString *)lastModificationApp;
+
+@end
+
 @interface MSIDMacKeychainTokenCacheTests : XCTestCase
 {
     MSIDMacKeychainTokenCache *_dataSource;
@@ -570,6 +579,103 @@
     XCTAssertEqual(items.count, 1);
     XCTAssertTrue([items containsObject:token3]);
     XCTAssertNil(error);
+}
+
+- (void)testSaveAccount_whenAccountSaved_shouldSaveValidLastModInfo
+{
+    MSIDAccountCacheItem *account = [MSIDAccountCacheItem new];
+    account.environment = DEFAULT_TEST_ENVIRONMENT;
+    account.realm = @"Contoso.COM";
+    account.homeAccountId = @"uid.utid";
+    account.localAccountId = @"homeAccountIdA";
+    account.accountType = MSIDAccountTypeAADV1;
+    account.username = @"UsernameA";
+    account.givenName = @"GivenNameA";
+    account.familyName = @"FamilyNameA";
+    account.middleName = @"MiddleNameA";
+    account.name = @"NameA";
+    account.alternativeAccountId = @"AltIdA";
+    account.additionalAccountFields = @{@"key1": @"value1", @"key2": @"value2"};
+    
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
+                                                                                    environment:account.environment
+                                                                                          realm:account.realm
+                                                                                           type:account.accountType];
+    
+    NSError *error = nil;
+    BOOL result = [_dataSource saveAccount:account key:key serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    // read the same account we just wrote
+    account = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(account);
+    NSString *lastModApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                            NSProcessInfo.processInfo.processIdentifier];
+    XCTAssertEqualObjects(account.lastModificationApp, lastModApp);
+    XCTAssertTrue([account.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:account.lastModificationTime
+                                                  app:account.lastModificationApp];
+    XCTAssertFalse(result); // this check should ignore items our process has written
+    
+    // check behavior if item had been written by a different process:
+    account.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                                   (NSProcessInfo.processInfo.processIdentifier + 1)];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:account.lastModificationTime
+                                                  app:account.lastModificationApp];
+    XCTAssertTrue(result); // a different process id, so it should be considered as recent
+    
+    [NSThread sleepForTimeInterval:1.0];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:account.lastModificationTime
+                                                  app:account.lastModificationApp];
+    XCTAssertFalse(result); // no longer "recent" due to the above delay
+}
+
+- (void)testSaveToken_whenTokenSaved_shouldSaveValidLastModInfo
+{
+    MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
+    token.secret = @"secret";
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                          environment:@"login.microsoftonline.com"
+                                                                                             clientId:@"clientId"
+                                                                                       credentialType:MSIDRefreshTokenType];
+    
+    NSError *error = nil;
+    BOOL result = [_dataSource saveToken:token key:key serializer:_serializer context:nil error:nil];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    // read the same token we just wrote
+    token = [_dataSource tokenWithKey:key serializer:_serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(token);
+    NSString *lastModApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                            NSProcessInfo.processInfo.processIdentifier];
+    XCTAssertEqualObjects(token.lastModificationApp, lastModApp);
+    XCTAssertTrue([token.lastModificationTime timeIntervalSinceNow] <= 0.0); // NSTimeInterval in the past is negative
+
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:token.lastModificationTime
+                                                  app:token.lastModificationApp];
+    XCTAssertFalse(result); // this check should ignore items our process has written
+    
+    // check behavior if item had been written by a different process:
+    token.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
+                                 (NSProcessInfo.processInfo.processIdentifier + 1)];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:token.lastModificationTime
+                                                  app:token.lastModificationApp];
+    XCTAssertTrue(result); // a different process id, so it should be considered as recent
+    
+    [NSThread sleepForTimeInterval:1.0];
+    result = [_dataSource checkIfRecentlyModifiedItem:nil
+                                                 time:token.lastModificationTime
+                                                  app:token.lastModificationApp];
+    XCTAssertFalse(result); // no longer "recent" due to the above delay
 }
 
 #pragma mark - Helpers

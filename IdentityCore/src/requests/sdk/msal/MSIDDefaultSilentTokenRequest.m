@@ -34,10 +34,13 @@
 #import "NSError+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDConfiguration.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDTokenResponse.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
+@property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataAccessor;
 @property (nonatomic) MSIDAppMetadataCacheItem *appMetadata;
 
 @end
@@ -51,6 +54,7 @@
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull MSIDDefaultTokenCacheAccessor *)tokenCache
+                             accountMetadataCache:(nonnull MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -60,6 +64,7 @@
     if (self)
     {
         _defaultAccessor = tokenCache;
+        _accountMetadataAccessor = accountMetadataCache;
     }
 
     return self;
@@ -70,7 +75,6 @@
 - (nullable MSIDAccessToken *)accessTokenWithError:(NSError **)error
 {
     NSError *cacheError = nil;
-
     MSIDAccessToken *accessToken = [self.defaultAccessor getAccessTokenForAccount:self.requestParameters.accountIdentifier
                                                                     configuration:self.requestParameters.msidConfiguration
                                                                           context:self.requestParameters
@@ -118,12 +122,12 @@
     {
         MSID_LOG_WARN(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
     }
-
+    
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                               refreshToken:refreshToken
                                                                    idToken:idToken.rawIdToken
                                                                    account:account
-                                                                 authority:accessToken.authority
+                                                                 authority:self.requestParameters.msidConfiguration.authority
                                                              correlationId:self.requestParameters.correlationId
                                                              tokenResponse:nil];
 
@@ -208,6 +212,11 @@
 - (id<MSIDCacheAccessor>)tokenCache
 {
     return self.defaultAccessor;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)metadataCache
+{
+    return self.accountMetadataAccessor;
 }
 
 #pragma mark - Helpers

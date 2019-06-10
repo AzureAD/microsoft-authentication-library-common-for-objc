@@ -27,8 +27,24 @@
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "NSJSONSerialization+MSIDExtensions.h"
 
 @implementation MSIDJsonSerializer
+
+#pragma mark - Init
+
+- (instancetype)init
+{
+    self = [super init];
+    
+    if (self)
+    {
+        // Normalize by default unless developer has explicitly verified that normalization is not needed
+        _normalizeJSON = YES;
+    }
+    
+    return self;
+}
 
 #pragma mark - MSIDJsonSerializing
 
@@ -118,11 +134,14 @@
         return nil;
     }
     
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
-                                                         options:NSJSONReadingMutableContainers
-                                                           error:error];
+    if (self.normalizeJSON)
+    {
+        return [NSJSONSerialization msidNormalizedDictionaryFromJsonData:data error:error];
+    }
     
-    return json;
+    return [NSJSONSerialization JSONObjectWithData:data
+                                           options:NSJSONReadingMutableContainers
+                                             error:error];
 }
 
 @end

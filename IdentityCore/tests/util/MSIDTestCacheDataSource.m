@@ -508,6 +508,50 @@
     return YES;
 }
 
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
+    NSData *data = [self itemDataWithKey:key keysDictionary:_accountKeys contentDictionary:_accountContents context:context error:error];
+    return [serializer deserializeAccountMetadata:data];
+}
+
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!item || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+        }
+        
+        return NO;
+    }
+    NSData *serializedItem = [serializer serializeAccountMetadataCacheItem:item];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_accountKeys
+                 cacheContent:_accountContents
+                      context:context
+                        error:error];
+}
+
+
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
                     key:(MSIDCacheKey *)key
              serializer:(id<MSIDAppMetadataItemSerializer>)serializer

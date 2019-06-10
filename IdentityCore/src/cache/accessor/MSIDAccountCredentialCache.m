@@ -260,7 +260,7 @@
                                                                                           realm:account.realm
                                                                                            type:account.accountType];
 
-    // Get previous account, so we don't loose any fields
+    // Get previous account, so we don't lose any fields
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
 
     if (previousAccount)

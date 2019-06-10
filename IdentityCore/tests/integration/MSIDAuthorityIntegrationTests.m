@@ -240,7 +240,7 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnown_shouldReturnErrorNil
 {
-    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" aadAuthority];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fauthorize&" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
@@ -281,7 +281,7 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsNotKnown_shouldReturnErrorNil
 {
-    __auto_type authority = [@"https://example.com/common/qwe" authority];
+    __auto_type authority = [@"https://example.com/common/qwe" aadAuthority];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Fexample.com%2Fcommon%2Foauth2%2Fauthorize&" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
@@ -717,7 +717,7 @@
 
 - (void)testDiscoverAuthority_whenValidCloudADFSWithNilResponseAndErrorAuthorityValidateYes_shouldReturnError
 {
-    __auto_type authority = [@"https://login.windows.com/adfs/qwe" authority];
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" adfsAuthority];
     __auto_type upn = @"user@microsoft.com";
     
     // On Prem Drs Response

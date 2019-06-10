@@ -37,8 +37,16 @@ NSString *const MSID_BROKER_ADAL_SCHEME         = @"msauth";
 NSString *const MSID_BROKER_MSAL_SCHEME         = @"msauthv2";
 NSString *const MSID_BROKER_APP_BUNDLE_ID        = @"com.microsoft.azureauthenticator";
 NSString *const MSID_BROKER_APP_BUNDLE_ID_DF     = @"com.microsoft.azureauthenticator-df";
+NSString *const MSID_BROKER_MAX_PROTOCOL_VERSION = @"max_protocol_ver";
+NSString *const MSID_BROKER_PROTOCOL_VERSION_KEY = @"msg_protocol_ver";
+NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION = @"2";
+NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION = @"3";
 NSString *const MSID_AUTHENTICATOR_REDIRECT_URI  = @"urn:ietf:wg:oauth:2.0:oob";
 NSString *const MSID_DEFAULT_FAMILY_ID           = @"1";
+NSString *const MSID_ADAL_SDK_NAME               = @"adal-objc";
+NSString *const MSID_MSAL_SDK_NAME               = @"msal-objc";
+NSString *const MSID_SDK_NAME_KEY                = @"sdk_name";
+
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
 NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
