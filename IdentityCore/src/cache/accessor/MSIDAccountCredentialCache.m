@@ -51,13 +51,13 @@
 - (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
 {
     self = [super init];
-    
+
     if (self)
     {
         _dataSource = dataSource;
         _serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     }
-    
+
     return self;
 }
 
@@ -69,38 +69,38 @@
                                                                    error:(NSError * _Nullable * _Nullable)error
 {
     NSError *cacheError = nil;
-    
+
     NSArray<MSIDCredentialCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
                                                                   serializer:_serializer
                                                                      context:context
                                                                        error:&cacheError];
-    
+
     if (cacheError)
     {
         if (error)
         {
             *error = cacheError;
         }
-        
+
         return nil;
     }
-    
+
     if (!cacheQuery.exactMatch)
     {
         BOOL shouldMatchAccount = !cacheQuery.homeAccountId || !cacheQuery.environment;
-        
+
         NSMutableArray *filteredResults = [NSMutableArray array];
-        
+
         for (MSIDCredentialCacheItem *cacheItem in results)
         {
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
-                                            environment:cacheQuery.environment
-                                     environmentAliases:cacheQuery.environmentAliases])
+                                           environment:cacheQuery.environment
+                                    environmentAliases:cacheQuery.environmentAliases])
             {
                 continue;
             }
-            
+
             if (![cacheItem matchesWithRealm:cacheQuery.realm
                                     clientId:cacheQuery.clientId
                                     familyId:cacheQuery.familyId
@@ -110,34 +110,34 @@
             {
                 continue;
             }
-            
+
             [filteredResults addObject:cacheItem];
         }
-        
+
         return filteredResults;
     }
-    
+
     return results;
 }
 
 - (nullable MSIDCredentialCacheItem *)getCredential:(nonnull MSIDDefaultCredentialCacheKey *)key
-                                            context:(nullable id<MSIDRequestContext>)context
-                                              error:(NSError * _Nullable * _Nullable)error
+                                       context:(nullable id<MSIDRequestContext>)context
+                                         error:(NSError * _Nullable * _Nullable)error
 {
     assert(key);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get credential for key %@", key.logDescription);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get credential for key %@", key.piiLogDescription);
-    
+
     return [_dataSource tokenWithKey:key serializer:_serializer context:context error:error];
 }
 
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getAllCredentialsWithType:(MSIDCredentialType)type
-                                                                   context:(nullable id<MSIDRequestContext>)context
-                                                                     error:(NSError * _Nullable * _Nullable)error
+                                                              context:(nullable id<MSIDRequestContext>)context
+                                                                error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get all credentials with type %@", [MSIDCredentialTypeHelpers credentialTypeAsString:type]);
-    
+
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.credentialType = type;
     return [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
@@ -150,34 +150,34 @@
                                                              error:(NSError * _Nullable * _Nullable)error
 {
     assert(cacheQuery);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get accounts with environment %@", cacheQuery.environment);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, cacheQuery.homeAccountId);
-    
+
     NSArray<MSIDAccountCacheItem *> *cacheItems = [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];
-    
+
     if (!cacheQuery.exactMatch)
     {
         NSMutableArray<MSIDAccountCacheItem *> *filteredResults = [NSMutableArray array];
-        
+
         BOOL shouldMatchAccount = !cacheQuery.homeAccountId || !cacheQuery.environment;
-        
+
         for (MSIDAccountCacheItem *cacheItem in cacheItems)
         {
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
-                                            environment:cacheQuery.environment
-                                     environmentAliases:cacheQuery.environmentAliases])
+                                           environment:cacheQuery.environment
+                                    environmentAliases:cacheQuery.environmentAliases])
             {
                 continue;
             }
-            
+
             [filteredResults addObject:cacheItem];
         }
-        
+
         return filteredResults;
     }
-    
+
     return cacheItems;
 }
 
@@ -186,10 +186,10 @@
                                         error:(NSError * _Nullable * _Nullable)error
 {
     assert(key);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get account for key %@", key.logDescription);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get account for key %@", key.piiLogDescription);
-    
+
     return [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
 }
 
@@ -198,18 +198,18 @@
                                                                error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get all accounts with type %@", [MSIDAccountTypeHelpers accountTypeAsString:type]);
-    
+
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.accountType = MSIDAccountTypeMSSTS;
-    
+
     return [_dataSource accountsWithKey:query serializer:_serializer context:context error:error];
 }
 
 - (nullable NSArray<MSIDCredentialCacheItem *> *)getAllItemsWithContext:(nullable id<MSIDRequestContext>)context
-                                                                  error:(NSError * _Nullable * _Nullable)error
+                                                             error:(NSError * _Nullable * _Nullable)error
 {
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Get all items from cache");
-    
+
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.matchAnyCredentialType = YES;
     return [_dataSource tokensWithKey:query serializer:_serializer context:context error:error];
@@ -221,7 +221,7 @@
                  error:(NSError * _Nullable * _Nullable)error
 {
     assert(credential);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Saving token %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.environment, credential.realm, credential.clientId);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.environment, credential.clientId);
     
@@ -229,12 +229,12 @@
                                                                                           environment:credential.environment
                                                                                              clientId:credential.clientId
                                                                                        credentialType:credential.credentialType];
-    
+
     key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
-    
+
     return [_dataSource saveToken:credential
                               key:key
                        serializer:_serializer
@@ -248,26 +248,26 @@
               error:(NSError * _Nullable * _Nullable)error
 {
     assert(account);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Saving account with environment %@", account.environment);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Saving account %@", account);
-    
+
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                     environment:account.environment
                                                                                           realm:account.realm
                                                                                            type:account.accountType];
-    
+
     // Get previous account, so we don't lose any fields
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
-    
+
     if (previousAccount)
     {
         // Make sure we copy over all the additional fields
         [account updateFieldsFromAccount:previousAccount];
     }
-    
+
     key.username = account.username;
-    
+
     return [_dataSource saveAccount:account
                                 key:key
                          serializer:_serializer
@@ -281,17 +281,17 @@
                             error:(NSError * _Nullable * _Nullable)error
 {
     assert(cacheQuery);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.homeAccountId, cacheQuery.target);
-    
+
     if (cacheQuery.exactMatch)
     {
         return [_dataSource removeItemsWithTokenKey:cacheQuery context:context error:error];
     }
-    
+
     NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
-    
+
     return [self removeAllCredentials:matchedCredentials
                               context:context
                                 error:error];
@@ -302,28 +302,28 @@
                    error:(NSError * _Nullable * _Nullable)error
 {
     assert(credential);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credential %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.environment, credential.realm, credential.clientId);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.realm, credential.clientId);
-    
+
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
-                                                                                          environment:credential.environment
-                                                                                             clientId:credential.clientId
-                                                                                       credentialType:credential.credentialType];
-    
+                                                                                         environment:credential.environment
+                                                                                            clientId:credential.clientId
+                                                                                      credentialType:credential.credentialType];
+
     key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
     key.enrollmentId = credential.enrollmentId;
     key.appKey = credential.appKey;
-    
+
     BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
-    
+
     if (result && credential.credentialType == MSIDRefreshTokenType)
     {
         [_dataSource saveWipeInfoWithContext:context error:nil];
     }
-    
+
     return result;
 }
 
@@ -333,17 +333,17 @@
                           error:(NSError * _Nullable * _Nullable)error
 {
     assert(cacheQuery);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing accounts with environment %@, realm %@", cacheQuery.environment, cacheQuery.realm);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, cacheQuery.homeAccountId);
-    
+
     if (cacheQuery.exactMatch)
     {
         return [_dataSource removeItemsWithAccountKey:cacheQuery context:context error:error];
     }
-    
+
     NSArray<MSIDAccountCacheItem *> *matchedAccounts = [self getAccountsWithQuery:cacheQuery context:context error:error];
-    
+
     return [self removeAllAccounts:matchedAccounts context:context error:error];
 }
 
@@ -352,15 +352,15 @@
                 error:(NSError * _Nullable * _Nullable)error
 {
     assert(account);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing account with environment %@", account.environment);
     MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, account.homeAccountId, account.username);
-    
+
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
-                                                                                    environment:account.environment
-                                                                                          realm:account.realm
-                                                                                           type:account.accountType];
-    
+                                                                                   environment:account.environment
+                                                                                         realm:account.realm
+                                                                                          type:account.accountType];
+
     return [_dataSource removeItemsWithAccountKey:key context:context error:error];
 }
 
@@ -377,16 +377,16 @@
                        error:(NSError * _Nullable * _Nullable)error
 {
     assert(credentials);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing multiple credentials");
-    
+
     BOOL result = YES;
-    
+
     for (MSIDCredentialCacheItem *item in credentials)
     {
         result &= [self removeCredential:item context:context error:error];
     }
-    
+
     return result;
 }
 
@@ -395,16 +395,16 @@
                     error:(NSError * _Nullable * _Nullable)error
 {
     assert(accounts);
-    
+
     MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing multiple accounts");
-    
+
     BOOL result = YES;
-    
+
     for (MSIDAccountCacheItem *item in accounts)
     {
         result &= [self removeAccount:item context:context error:error];
     }
-    
+
     return result;
 }
 
@@ -434,7 +434,7 @@
                                                                          environment:metadata.environment
                                                                             familyId:metadata.familyId
                                                                          generalType:MSIDAppMetadataType];
-    
+
     return [_dataSource saveAppMetadata:metadata
                                     key:key
                              serializer:_serializer
