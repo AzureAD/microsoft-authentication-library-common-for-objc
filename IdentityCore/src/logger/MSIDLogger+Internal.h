@@ -54,17 +54,10 @@
  Logs message with the specified level. If correlationId is nil, uses correlationId from the context.
  @param context         Log context, provides correlationId and log component
  @param correlationId   Alternative way to pass correlationId for cases when context is not available
- @param isPii           Specifies if message contains PII
+ @param containsPII     Specifies if message contains PII
  @param format          Message format
 
  */
-
-- (void)logWithLevel:(MSIDLogLevel)level
-             context:(id<MSIDRequestContext>)context
-       correlationId:(NSUUID *)correlationId
-               isPII:(BOOL)isPii
-  ignoreIfPIIEnabled:(BOOL)ignoreIfPIIEnabled
-              format:(NSString *)format, ... NS_FORMAT_FUNCTION(6, 7);
 
 // Same log line for both cases
 // If PII is not enabled, mask sensitive data

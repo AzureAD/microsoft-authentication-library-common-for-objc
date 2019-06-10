@@ -44,7 +44,7 @@
 - (void)testLog_whenLogLevelNothingMessageValid_shouldNotThrow
 {
     [self keyValueObservingExpectationForObject:[MSIDTestLogger sharedLogger] keyPath:@"callbackInvoked" expectedValue:@1];
-    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelNothing context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"Message"]);
+    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelNothing context:nil correlationId:nil containsPII:NO format:@"Message"]);
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil([MSIDTestLogger sharedLogger].lastMessage);
@@ -52,7 +52,7 @@
 
 - (void)testLog_whenLogLevelErrorMessageNil_shouldNotThrow
 {
-    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:nil]);
+    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO format:nil]);
 }
 
 #pragma mark - PII flag
@@ -63,7 +63,7 @@
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES ignoreIfPIIEnabled:NO format:@"pii-message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:YES format:@"pii-message"];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
@@ -77,25 +77,12 @@
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"non-pii-message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO format:@"non-pii-message"];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
     XCTAssertEqual(testLogger.lastLevel, MSIDLogLevelError);
     XCTAssertFalse(testLogger.containsPII);
-}
-
-- (void)testLog_whenPiiEnabledNonPiiMessage_andIgnorePiiEnabledYES_shouldNotReturnMessageInCallback
-{
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
-    
-    __auto_type expectation = [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [expectation setInverted:YES];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:YES format:@"non-pii-message"];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertNil(testLogger.lastMessage);
 }
 
 - (void)testLog_whenPiiNotEnabledNonPiiMessage_shouldReturnMessageInCallback
@@ -104,7 +91,7 @@
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"non-pii-message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO format:@"non-pii-message"];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
@@ -112,17 +99,17 @@
     XCTAssertFalse(testLogger.containsPII);
 }
 
-- (void)testLog_whenPiiNotEnabledPiiMessage_shouldNotInvokeCallback
+- (void)testLog_whenPiiNotEnabledPiiMessage_shouldInvokeCallbackWithMaskedMessage
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
-    __auto_type expectation = [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [expectation setInverted:YES];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES ignoreIfPIIEnabled:NO format:@"pii-message"];
+    [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:YES format:@"pii-message %@", MSID_PII_LOG_MASKABLE(@"test")];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    XCTAssertNil(testLogger.lastMessage);
+    XCTAssertNotNil(testLogger.lastMessage);
+    XCTAssertTrue([testLogger.lastMessage containsString:@"pii-message Masked(not-null)"]);
 }
 
 #pragma mark - Log macros
@@ -254,7 +241,7 @@
     
     XCTAssertNotNil(logger.lastMessage);
     XCTAssertFalse(logger.containsPII);
-    XCTAssertTrue([logger.lastMessage containsString:@"My pii message arg1, pii param Masked(__NSCFConstantString,(not-null))"]);
+    XCTAssertTrue([logger.lastMessage containsString:@"My pii message arg1, pii param Masked(not-null)"]);
     XCTAssertEqual(logger.lastLevel, MSIDLogLevelVerbose);
 }
 

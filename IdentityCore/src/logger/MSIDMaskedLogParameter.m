@@ -57,14 +57,8 @@
         self.maskedParameterValue = [self maskedDescription];
         return self.maskedParameterValue;
     }
-    else if ([self.parameterValue isKindOfClass:[NSString class]])
-    {
-        return (NSString *)self.parameterValue;
-    }
-    else
-    {
-        return [NSString stringWithFormat:@"%@", self.parameterValue];
-    }
+    
+    return [NSString stringWithFormat:@"%@", self.parameterValue];
 }
 
 #pragma mark - Masking
@@ -75,7 +69,7 @@
     if ([self.parameterValue isKindOfClass:[NSArray class]])
     {
         NSArray *arrayParameter = (NSArray *)self.parameterValue;
-        return [NSString stringWithFormat:@"array.count=%ld", (long)arrayParameter.count];
+        return [NSString stringWithFormat:@"MaskedArray(count=%ld)", (long)arrayParameter.count];
     }
     else if ([self.parameterValue isKindOfClass:[NSError class]])
     {
@@ -83,7 +77,7 @@
         return [NSString stringWithFormat:@"MaskedError(%@, %ld)", errorParameter.domain, (long)errorParameter.code];
     }
     
-    return [NSString stringWithFormat:@"Masked(%@,%@)", [self.parameterValue class], _PII_NULLIFY(self.parameterValue)];
+    return [NSString stringWithFormat:@"Masked%@", _PII_NULLIFY(self.parameterValue)];
 }
 
 @end

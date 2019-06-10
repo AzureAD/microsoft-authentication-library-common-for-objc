@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithParameterValue:(id)parameter;
 
+- (NSString *)maskedDescription;
+
 @end
 
 NS_ASSUME_NONNULL_END

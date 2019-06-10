@@ -32,7 +32,7 @@
 {
     if (![self.parameterValue isKindOfClass:[NSString class]])
     {
-        return _PII_NULLIFY(self.parameterValue);
+        return [super maskedDescription];
     }
     
     NSString *stringValue = (NSString *)self.parameterValue;
