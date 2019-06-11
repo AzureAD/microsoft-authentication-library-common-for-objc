@@ -241,7 +241,7 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertNil(token.familyId);
 }
@@ -265,7 +265,7 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.rawIdToken, response.idToken);
 }
 

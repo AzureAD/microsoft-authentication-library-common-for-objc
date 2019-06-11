@@ -187,7 +187,7 @@
     XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
 }
 
 - (void)testAccessTokenFromResponse_whenOIDCTokenResponse_shouldReturnToken
@@ -208,7 +208,7 @@
     XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil];
@@ -252,7 +252,7 @@
     XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertNil(token.familyId);
 }
@@ -291,7 +291,7 @@
     XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
@@ -327,7 +327,7 @@
     XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertNotNil(token.cachedAt);
     XCTAssertEqualObjects(token.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
 
@@ -361,7 +361,7 @@
     XCTAssertEqualObjects(token.realm, @"common");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
 
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
@@ -390,7 +390,7 @@
     XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_ID_TOKEN_SUBJECT);
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
     XCTAssertEqualObjects(token.rawIdToken, idToken);

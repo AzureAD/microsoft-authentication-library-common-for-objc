@@ -144,14 +144,16 @@
         if (tokenCacheItem.speInfo)
         {
             serverInfo[MSID_SPE_INFO_CACHE_KEY] = tokenCacheItem.speInfo;
-
         }
         if (tokenCacheItem.extendedExpiresOn)
         {
             serverInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = tokenCacheItem.extendedExpiresOn;
         }
-        _additionalServerInfo = [NSDictionary dictionaryWithDictionary:serverInfo];
-
+        if (serverInfo.count)
+        {
+            _additionalServerInfo = [NSDictionary dictionaryWithDictionary:serverInfo];
+        }
+        
         if (tokenCacheItem.homeAccountId)
         {
             _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:tokenCacheItem.homeAccountId];

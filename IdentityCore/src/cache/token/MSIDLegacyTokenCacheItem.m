@@ -135,7 +135,10 @@
         self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];
         [additionalServer removeObjectForKey:MSID_SPE_INFO_CACHE_KEY];
     }
-    self.additionalInfo = additionalServer;
+    if (additionalServer.count)
+    {
+        self.additionalInfo = additionalServer;
+    }
 
     self.accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     self.refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];

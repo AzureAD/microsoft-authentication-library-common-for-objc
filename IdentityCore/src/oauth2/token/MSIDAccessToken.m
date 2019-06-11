@@ -111,7 +111,10 @@ static NSUInteger s_expirationBuffer = 300;
         _extendedExpiresOn = tokenCacheItem.extendedExpiresOn;
         NSMutableDictionary *serverInfo = [NSMutableDictionary dictionaryWithDictionary:_additionalServerInfo];
         [serverInfo removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-        _additionalServerInfo = serverInfo;
+        if (serverInfo.count)
+        {
+            _additionalServerInfo = serverInfo;
+        }
         _cachedAt = tokenCacheItem.cachedAt;
         _enrollmentId = tokenCacheItem.enrollmentId;
         _accessToken = tokenCacheItem.secret;

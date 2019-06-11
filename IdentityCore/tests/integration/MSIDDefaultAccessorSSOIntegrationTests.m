@@ -188,7 +188,7 @@
     XCTAssertNil(refreshToken.realm);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqual(refreshToken.additionalServerInfo.count, 0);
+    XCTAssertNil(refreshToken.additionalServerInfo);
 
     NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([idTokens count], 1);
@@ -200,7 +200,7 @@
     XCTAssertEqualObjects(defaultIDToken.realm, @"tenantid.onmicrosoft.com");
     XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqual(defaultIDToken.additionalServerInfo.count, 0);
+    XCTAssertNil(defaultIDToken.additionalServerInfo);
 
     NSArray *allTokens = [_nonSSOAccessor allTokensWithContext:nil error:nil];
     XCTAssertEqual([allTokens count], 3);
@@ -274,7 +274,7 @@
     XCTAssertNil(refreshToken.realm);
     XCTAssertEqualObjects(refreshToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(refreshToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqual(refreshToken.additionalServerInfo.count, 0);
+    XCTAssertNil(refreshToken.additionalServerInfo);
 
     NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
     XCTAssertEqual([idTokens count], 1);
@@ -286,7 +286,7 @@
     XCTAssertEqualObjects(defaultIDToken.realm, @"tenantid.onmicrosoft.com");
     XCTAssertEqualObjects(defaultIDToken.clientId, @"test_client_id");
     XCTAssertEqualObjects(defaultIDToken.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqual(defaultIDToken.additionalServerInfo.count, 0);
+    XCTAssertNil(defaultIDToken.additionalServerInfo);
 
     NSArray *allTokens = [_nonSSOAccessor allTokensWithContext:nil error:nil];
     XCTAssertEqual([allTokens count], 3);
