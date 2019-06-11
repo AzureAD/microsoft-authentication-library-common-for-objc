@@ -540,7 +540,12 @@
 {
     // Item 1.
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
+    token1.clientId = @"clientId";
+    token1.environment = @"environment";
+    token1.homeAccountId = @"uid.utid";
     token1.secret = @"secret1";
+    token1.target = @"user.read user.write";
+    token1.credentialType = MSIDAccessTokenType;
     MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                            environment:@"environment"
                                                                                               clientId:@"clientId"
@@ -550,9 +555,14 @@
     
     // Item 2.
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    token2.clientId = @"clientId";
+    token2.environment = @"environment";
+    token2.homeAccountId = @"uid.utid";
     token2.secret = @"secret2";
+    token2.credentialType = MSIDIDTokenType;
+    
     MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
-                                                                                           environment:@"login.microsoftonline.com"
+                                                                                           environment:@"environment"
                                                                                               clientId:@"clientId"
                                                                                         credentialType:MSIDIDTokenType];
     
@@ -561,15 +571,20 @@
     // Item 3.
     MSIDCredentialCacheItem *token3 = [MSIDCredentialCacheItem new];
     token3.secret = @"secret3";
+    token3.clientId = @"clientId";
+    token3.environment = @"environment";
+    token3.homeAccountId = @"uid.utid";
+    token3.credentialType = MSIDRefreshTokenType;
+    
     MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
-                                                                                           environment:@"login.microsoftonline.com"
+                                                                                           environment:@"environment"
                                                                                               clientId:@"clientId"
                                                                                         credentialType:MSIDRefreshTokenType];
     
     [_dataSource saveToken:token3 key:key3 serializer:_serializer context:nil error:nil];
     
     MSIDDefaultCredentialCacheKey *query = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
-                                                                                            environment:@"login.microsoftonline.com"
+                                                                                            environment:@"environment"
                                                                                                clientId:@"clientId"
                                                                                          credentialType:MSIDRefreshTokenType];
     NSError *error;
@@ -639,6 +654,11 @@
 {
     MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
     token.secret = @"secret";
+    token.clientId = @"clientId";
+    token.environment = @"login.microsoftonline.com";
+    token.homeAccountId = @"uid.utid";
+    token.credentialType = MSIDRefreshTokenType;
+    
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                           environment:@"login.microsoftonline.com"
                                                                                              clientId:@"clientId"

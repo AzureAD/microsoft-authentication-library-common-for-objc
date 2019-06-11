@@ -565,6 +565,21 @@ static dispatch_queue_t s_synchronizationQueue;
                         context:(__unused id<MSIDRequestContext>)context
                           error:(__unused NSError **)error
 {
+    MSID_TRACE;
+    NSString *account = key.account;
+    NSString *service = key.service;
+    
+    MSID_LOG_VERBOSE(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(account), _PII_NULLIFY(service), [self keychainGroupLoggingName]);
+    MSID_LOG_VERBOSE_PII(context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", account, service, self.keychainGroup);
+    
+    if (!key || !(key.service || key.account))
+    {
+        MSID_LOG_ERROR(context, @"Key is nil or one of the key attributes account or service is nil.");
+        [self createError:@"Key is nil or one of the key attributes account or service is nil."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInvalidDeveloperParameter error:error context:context];
+        return NO;
+    }
+    
     if (key.isShared)
     {
         return [self removeSharedCredentialsWithTokenKey:key context:context error:error];
