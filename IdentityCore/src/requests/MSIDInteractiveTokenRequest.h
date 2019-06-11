@@ -29,8 +29,11 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 @class MSIDWebWPJResponse;
-@class MSIDExternalAADCacheSeeder;
 @class MSIDAccountMetadataCacheAccessor;
+
+#if TARGET_OS_OSX
+@class MSIDExternalAADCacheSeeder;
+#endif
 
 typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 

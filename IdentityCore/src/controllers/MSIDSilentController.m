@@ -90,9 +90,6 @@
 
     MSIDSilentTokenRequest *silentRequest = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
                                                                                            forceRefresh:self.forceRefresh];
-#if TARGET_OS_OSX
-    silentRequest.externalCacheSeeder = self.externalCacheSeeder;
-#endif
 
     [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {

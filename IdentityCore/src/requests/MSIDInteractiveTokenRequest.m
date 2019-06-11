@@ -32,9 +32,6 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDCBAWebAADAuthResponse.h"
-#if TARGET_OS_IPHONE
-#import "MSIDAppExtensionUtil.h"
-#endif
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDPkce.h"
@@ -42,7 +39,14 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
+
+#if TARGET_OS_IPHONE
+#import "MSIDAppExtensionUtil.h"
+#endif
+
+#if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
+#endif
 
 @interface MSIDInteractiveTokenRequest()
 

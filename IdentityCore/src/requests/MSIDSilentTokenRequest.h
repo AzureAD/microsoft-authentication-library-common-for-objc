@@ -28,7 +28,10 @@
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
+
+#if TARGET_OS_OSX
 @class MSIDExternalAADCacheSeeder;
+#endif
 
 @interface MSIDSilentTokenRequest : NSObject
 

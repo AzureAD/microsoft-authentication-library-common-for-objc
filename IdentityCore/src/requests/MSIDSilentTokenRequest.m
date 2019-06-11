@@ -33,7 +33,10 @@
 #import "MSIDTokenResult.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
+
+#if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
+#endif
 
 @interface MSIDSilentTokenRequest()
 
