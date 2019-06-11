@@ -265,7 +265,7 @@ return NO; \
                   error:(__unused NSError **)error
 {
     // TODO: implement me
-    return NO;
+    return YES;
 }
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
@@ -273,8 +273,22 @@ return NO; \
                                                            context:(__unused id<MSIDRequestContext>)context
                                                              error:(__unused NSError **)error
 {
+    // TODO: implement me
     return nil;
 }
+
+#pragma mark - Account Metadata
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    // TODO: implement me
+    return nil;
+}
+
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+    // TODO: implement me
+    return YES;
+}
+
+
 
 #pragma mark - Removal
 
@@ -295,6 +309,14 @@ return NO; \
 - (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError *__autoreleasing *)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }

@@ -394,6 +394,7 @@
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
+                                                                            accountMetadataCache:self.metadataCache
                                                                                requestParameters:self.requestParameters
                                                                                            error:&validationError];
 
@@ -500,6 +501,12 @@
 }
 
 - (id<MSIDCacheAccessor>)tokenCache
+{
+    NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
+    return nil;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)metadataCache
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
     return nil;

@@ -29,6 +29,8 @@
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDConstants.h"
+#import "MSIDBrokerResponseHandler+Internal.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -194,6 +196,15 @@
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo);
     
     return brokerError;
+}
+
+- (BOOL)canHandleBrokerResponse:(NSURL *)response
+             hasCompletionBlock:(BOOL)hasCompletionBlock
+{
+    return [self canHandleBrokerResponse:response
+                      hasCompletionBlock:hasCompletionBlock
+                         protocolVersion:MSID_MSAL_BROKER_MESSAGE_VERSION
+                                 sdkName:MSID_MSAL_SDK_NAME];
 }
 
 @end

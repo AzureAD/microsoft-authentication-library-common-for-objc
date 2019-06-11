@@ -23,10 +23,11 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDTokenCacheDataSource.h"
+#import "MSIDMetadataCacheDataSource.h"
 #import "MSIDBaseToken.h"
 #import "MSIDCredentialItemSerializer.h"
 
-@interface MSIDTestCacheDataSource : NSObject <MSIDTokenCacheDataSource>
+@interface MSIDTestCacheDataSource : NSObject <MSIDTokenCacheDataSource, MSIDMetadataCacheDataSource>
 
 - (void)reset;
 

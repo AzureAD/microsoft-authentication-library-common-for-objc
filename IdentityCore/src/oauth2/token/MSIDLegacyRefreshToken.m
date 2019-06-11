@@ -24,7 +24,6 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
 
@@ -94,10 +93,7 @@
 
     if (self)
     {
-        __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:tokenCacheItem.authority context:nil error:nil];
-        
         _idToken = tokenCacheItem.idToken;
-        _authority = authority;
         _refreshToken = tokenCacheItem.refreshToken;
         
         if (!_refreshToken)
@@ -108,7 +104,7 @@
 
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
-        _realm = claims.realm;
+        _idTokenClaims = tokenCacheItem.idTokenClaims;
     }
 
     return self;
@@ -119,9 +115,8 @@
     MSIDLegacyTokenCacheItem *cacheItem = [MSIDLegacyTokenCacheItem new];
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.idToken = self.idToken;
-    cacheItem.authority = self.storageAuthority.url ? self.storageAuthority.url : self.authority.url;
-    cacheItem.environment = self.authority.environment;
-    cacheItem.realm = self.authority.url.msidTenant;
+    cacheItem.environment = self.storageEnvironment ? self.storageEnvironment : self.environment;
+    cacheItem.realm = self.realm;
     cacheItem.clientId = self.clientId;
     cacheItem.additionalInfo = self.additionalServerInfo;
     cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;

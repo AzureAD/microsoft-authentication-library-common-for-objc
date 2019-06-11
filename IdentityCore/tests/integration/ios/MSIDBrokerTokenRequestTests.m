@@ -23,11 +23,11 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
@@ -51,7 +51,7 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"mytarget mytarget2";
     parameters.correlationId = [NSUUID new];

@@ -25,6 +25,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDTokenResponse.h"
+#import "MSIDLegacyAccessToken.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @implementation MSIDLegacyTokenResponseValidator
 
@@ -47,6 +51,30 @@
     }
 
     return YES;
+}
+
+- (MSIDTokenResult *)createTokenResultFromResponse:(MSIDTokenResponse *)tokenResponse
+                                      oauthFactory:(MSIDOauth2Factory *)factory
+                                     configuration:(MSIDConfiguration *)configuration
+                                    requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
+                                     correlationID:(NSUUID *)correlationID
+                                             error:(NSError **)error
+
+{
+    MSIDLegacyAccessToken *accessToken = [factory legacyAccessTokenFromResponse:tokenResponse configuration:configuration];
+    MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:tokenResponse configuration:configuration];
+    
+    MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
+    
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:refreshToken
+                                                                   idToken:tokenResponse.idToken
+                                                                   account:account
+                                                                 authority:configuration.authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:tokenResponse];
+    
+    return result;
 }
 
 - (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier

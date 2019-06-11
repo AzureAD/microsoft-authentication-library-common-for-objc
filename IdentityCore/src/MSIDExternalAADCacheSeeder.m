@@ -60,7 +60,8 @@
     
     NSError *error;
     MSIDConfiguration *configuration = [requestParameters.msidConfiguration copy];
-    configuration.authority = idToken.authority;
+//    configuration.authority = idToken.authority;
+    configuration.authority = originalTokenResponse.idTokenObj.issuerAuthority;
     
     MSID_LOG_INFO(requestParameters, @"Trying to get legacy id token from cache.");
     

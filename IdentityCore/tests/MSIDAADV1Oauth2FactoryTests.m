@@ -204,7 +204,8 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -222,7 +223,8 @@
     
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -245,7 +247,8 @@
     
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -306,7 +309,9 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
+    
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -327,7 +332,8 @@
 
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
@@ -356,7 +362,8 @@
 
     MSIDLegacyAccessToken *token = [factory legacyAccessTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -385,7 +392,8 @@
 
     MSIDLegacyRefreshToken *token = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
 
-    XCTAssertEqualObjects(token.authority, configuration.authority);
+    XCTAssertEqualObjects(token.environment, configuration.authority.environment);
+    XCTAssertEqualObjects(token.realm, configuration.authority.realm);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -409,7 +417,7 @@
     NSDictionary *json = @{@"id_token": idToken, @"client_info": base64String};
 
     MSIDConfiguration *configuration =
-    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY authority]
+    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY aadAuthority]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];
@@ -429,7 +437,8 @@
     XCTAssertEqualObjects(account.name, @"Eric");
     XCTAssertNil(account.middleName);
     XCTAssertEqualObjects(account.alternativeAccountId, @"::live.com::XXXXXX");
-    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/tenantId");
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"tenantId");
 }
 
 - (void)testAccessTokenFromResponse_whenV1ResponseAndNoResourceInRequest_shouldUseResourceInRequest
@@ -437,7 +446,7 @@
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     
     NSString *resourceInRequest = @"https://contoso.com";
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[@"https://contoso.com/common" authority]
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[@"https://contoso.com/common" aadAuthority]
                                                                         redirectUri:@"fake_redirect_uri"
                                                                            clientId:@"fake_client_id"
                                                                              target:resourceInRequest];
@@ -458,7 +467,7 @@
     NSString *resourceInRequest = @"https://contoso.com/.Default";
     NSString *resourceInResponse = @"https://contoso.com";
 
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[@"https://contoso.com/common" authority]
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:[@"https://contoso.com/common" aadAuthority]
                                                                         redirectUri:@"fake_redirect_uri"
                                                                            clientId:@"fake_client_id"
                                                                              target:resourceInRequest];

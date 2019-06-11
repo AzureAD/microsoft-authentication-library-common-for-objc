@@ -87,7 +87,7 @@
     MSIDLegacyTokenCacheItem *legacyPrtCacheItem = [MSIDLegacyTokenCacheItem new];
     
     legacyPrtCacheItem.credentialType = MSIDPrimaryRefreshTokenType;
-    legacyPrtCacheItem.authority = self.storageAuthority.url ? self.storageAuthority.url : self.authority.url;
+    legacyPrtCacheItem.environment = self.storageEnvironment ? self.storageEnvironment : self.environment;
     legacyPrtCacheItem.clientId = self.clientId;
     
     return legacyPrtCacheItem;

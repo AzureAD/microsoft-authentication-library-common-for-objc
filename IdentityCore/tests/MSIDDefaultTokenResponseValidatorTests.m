@@ -58,7 +58,7 @@
 {
     __auto_type defaultOidcScope = @"openid profile offline_access";
     __auto_type correlationID = [NSUUID new];
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:@"some_uri"
                                                                            clientId:@"myclient"
@@ -102,7 +102,7 @@
 {
     __auto_type defaultOidcScope = @"openid profile offline_access";
     __auto_type correlationID = [NSUUID new];
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:@"some_uri"
                                                                            clientId:@"myclient"
@@ -136,7 +136,7 @@
 - (void)testValidateAccount_whenUIDMatch_shouldReturnYES
 {
     __auto_type correlationID = [NSUUID new];
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:@"some_uri"
                                                                            clientId:@"myclient"
@@ -169,7 +169,7 @@
 - (void)testValidateAccount_whenUIDMismatch_shouldReturnNO
 {
     __auto_type correlationID = [NSUUID new];
-    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority
                                                                         redirectUri:@"some_uri"
                                                                            clientId:@"myclient"
