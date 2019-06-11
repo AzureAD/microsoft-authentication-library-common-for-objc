@@ -43,7 +43,7 @@
         return nil;
     }
     
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin.", teamId];
+    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
 
     MSIDRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;

@@ -72,7 +72,9 @@
 {
     MSIDRegistrationInformation *info =
     [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil];
-    NSString *pKeyAuthHeader = @"";
+    NSString *authToken = @"";
+    NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
+    NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
     
     if (info && challengeData)
     {
@@ -95,7 +97,7 @@
             }
         }
         
-        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+        authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
     }
     
@@ -106,11 +108,9 @@
             // Error should have been logged before this where there is more information on why the challenge data was bad
             MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
         }
-        
-        pKeyAuthHeader = [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
     }
     
-    return pKeyAuthHeader;
+    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
 }
 
 
