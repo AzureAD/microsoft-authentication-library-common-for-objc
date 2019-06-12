@@ -157,6 +157,7 @@
     MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:tokenResponse
                                                                      configuration:configuration];
     refreshToken.idToken = idToken.rawIdToken;
+    refreshToken.accountIdentifier = idToken.accountIdentifier;
     
     MSID_LOG_INFO(context, @"Saving refresh token in external cache.");
     
