@@ -35,27 +35,15 @@
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
                                   challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError **)error
 {
     NSError *localError = nil;
     MSIDRegistrationInformation *info =
-    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context
-                                                error:&localError];
+    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil];
     
     if (!info && localError)
     {
-        // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
-        // the rest of the code, but if there was no error, we still create a response header, even if we
-        // don't have registration info
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to create PKeyAuth request");
-        
-        if (error)
-        {
-            *error = localError;
-        }
-        return nil;
     }
-    
     
     if (!challengeData)
     {

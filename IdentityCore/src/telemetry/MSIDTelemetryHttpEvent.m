@@ -81,7 +81,6 @@
     
     NSError* jsonError  = nil;
     
-    
     NSDictionary *jsonObject = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:responseData error:&jsonError];
     
     if (!jsonObject)
@@ -89,7 +88,7 @@
         return;
     }
     
-    NSString *oauthError = [jsonObject objectForKey:MSID_OAUTH2_ERROR];
+    NSString *oauthError = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR];
     [self setProperty:MSID_TELEMETRY_KEY_OAUTH_ERROR_CODE value:oauthError];
     self.errorInEvent = ![NSString msidIsStringNilOrBlank:oauthError];
 }

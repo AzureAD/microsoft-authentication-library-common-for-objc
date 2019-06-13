@@ -175,8 +175,8 @@
     _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
 
     // Last Modification info (currently used on macOS only)
-    _lastModificationTime = [NSDate msidDateFromTimeStamp:json[MSID_LAST_MOD_TIME_CACHE_KEY]];
-    _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_LAST_MOD_TIME_CACHE_KEY]];
+    _lastModificationApp = [json msidStringObjectForKey:MSID_LAST_MOD_APP_CACHE_KEY];
 
     // Additional Info
     NSString *speInfo = [json msidStringObjectForKey:MSID_SPE_INFO_CACHE_KEY];

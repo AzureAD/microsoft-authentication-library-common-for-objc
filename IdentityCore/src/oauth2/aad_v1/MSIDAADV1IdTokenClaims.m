@@ -103,7 +103,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
 
 - (NSString *)alternativeAccountId
 {
-    return _json[ID_TOKEN_ALT_SEC_ID];
+    return [_json msidStringObjectForKey:ID_TOKEN_ALT_SEC_ID];
 }
 
 - (NSString *)realm
