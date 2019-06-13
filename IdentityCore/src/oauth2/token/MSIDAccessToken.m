@@ -115,6 +115,10 @@ static NSUInteger s_expirationBuffer = 300;
         {
             _additionalServerInfo = serverInfo;
         }
+        else
+        {
+            _additionalServerInfo = nil;
+        }
         _cachedAt = tokenCacheItem.cachedAt;
         _enrollmentId = tokenCacheItem.enrollmentId;
         _accessToken = tokenCacheItem.secret;
