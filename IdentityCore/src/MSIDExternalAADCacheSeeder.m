@@ -60,7 +60,6 @@
     
     NSError *error;
     MSIDConfiguration *configuration = [requestParameters.msidConfiguration copy];
-//    configuration.authority = idToken.authority;
     configuration.authority = originalTokenResponse.idTokenObj.issuerAuthority;
     
     MSID_LOG_INFO(requestParameters, @"Trying to get legacy id token from cache.");
@@ -157,7 +156,6 @@
     MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:tokenResponse
                                                                      configuration:configuration];
     refreshToken.idToken = idToken.rawIdToken;
-    refreshToken.accountIdentifier = idToken.accountIdentifier;
     
     MSID_LOG_INFO(context, @"Saving refresh token in external cache.");
     
