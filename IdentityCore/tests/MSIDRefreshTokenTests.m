@@ -141,7 +141,8 @@
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
     XCTAssertNil(token.realm);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.additionalServerInfo, @{MSID_SPE_INFO_CACHE_KEY: @"test"});
+    XCTAssertEqualObjects(token.speInfo, @"test");
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.refreshToken, @"refresh token");
     

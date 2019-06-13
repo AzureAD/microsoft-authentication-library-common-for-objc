@@ -56,6 +56,8 @@
 @property (readwrite) NSString *clientId;
 @property (readwrite) NSDictionary *additionalServerInfo;
 @property (readwrite) MSIDAccountIdentifier *accountIdentifier;
+@property (readwrite) NSDate *extendedExpiresOn;
+@property (readwrite) NSString *speInfo;
 
 - (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem;
 - (MSIDCredentialCacheItem *)tokenCacheItem;

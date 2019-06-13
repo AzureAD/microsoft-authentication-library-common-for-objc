@@ -41,6 +41,8 @@
     item->_realm = [_realm copyWithZone:zone];
     item->_clientId = [_clientId copyWithZone:zone];
     item->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
+    item->_extendedExpiresOn = [_extendedExpiresOn copyWithZone:zone];
+    item->_speInfo = [_speInfo copyWithZone:zone];
     item->_additionalServerInfo = [_additionalServerInfo copyWithZone:zone];
     return item;
 }
@@ -69,6 +71,8 @@
     hash = hash * 31 + self.realm.hash;
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + self.accountIdentifier.hash;
+    hash = hash * 31 + self.extendedExpiresOn.hash;
+    hash = hash * 31 + self.speInfo.hash;
     hash = hash * 31 + self.additionalServerInfo.hash;
     hash = hash * 31 + self.credentialType;
     return hash;
@@ -86,6 +90,8 @@
     result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= (!self.accountIdentifier && !item.accountIdentifier) || [self.accountIdentifier isEqual:item.accountIdentifier];
+    result &= (!self.extendedExpiresOn && !item.extendedExpiresOn) || [self.extendedExpiresOn isEqual:item.extendedExpiresOn];
+    result &= (!self.speInfo && !item.speInfo) || [self.speInfo isEqual:item.speInfo];
     result &= (!self.additionalServerInfo && !item.additionalServerInfo) || [self.additionalServerInfo isEqualToDictionary:item.additionalServerInfo];
     result &= (self.credentialType == item.credentialType);
     
@@ -140,19 +146,8 @@
             return nil;
         }
 
-        NSMutableDictionary* serverInfo = [NSMutableDictionary new];
-        if (tokenCacheItem.speInfo)
-        {
-            serverInfo[MSID_SPE_INFO_CACHE_KEY] = tokenCacheItem.speInfo;
-        }
-        if (tokenCacheItem.extendedExpiresOn)
-        {
-            serverInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = tokenCacheItem.extendedExpiresOn;
-        }
-        if (serverInfo.count)
-        {
-            _additionalServerInfo = [NSDictionary dictionaryWithDictionary:serverInfo];
-        }
+        _extendedExpiresOn = tokenCacheItem.extendedExpiresOn;
+        _speInfo = tokenCacheItem.speInfo;
         
         if (tokenCacheItem.homeAccountId)
         {
@@ -170,7 +165,8 @@
     cacheItem.environment = self.storageEnvironment ? self.storageEnvironment : self.environment;
     cacheItem.realm = self.realm;
     cacheItem.clientId = self.clientId;
-    cacheItem.speInfo = self.additionalServerInfo[MSID_SPE_INFO_CACHE_KEY];
+    cacheItem.extendedExpiresOn = self.extendedExpiresOn;
+    cacheItem.speInfo = self.speInfo;
     cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
     return cacheItem;
 }

@@ -264,13 +264,7 @@
 
     if (response.speInfo)
     {
-        NSMutableDictionary *additionalServerInfo = [baseToken.additionalServerInfo mutableCopy];
-        if (additionalServerInfo == nil)
-        {
-            additionalServerInfo = [NSMutableDictionary new];
-        }
-        additionalServerInfo[MSID_SPE_INFO_CACHE_KEY] = response.speInfo;
-        baseToken.additionalServerInfo = additionalServerInfo;
+        baseToken.speInfo = response.speInfo;
     }
 
     return YES;

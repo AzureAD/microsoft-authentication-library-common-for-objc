@@ -201,8 +201,8 @@
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
-
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"spe_info": @"1"});
+    XCTAssertEqualObjects(token.speInfo, @"1");
+    XCTAssertNil(token.additionalServerInfo);
 }
 
 - (void)testBaseTokenFromResponse_whenOIDCTokenResponse_shouldReturnNil

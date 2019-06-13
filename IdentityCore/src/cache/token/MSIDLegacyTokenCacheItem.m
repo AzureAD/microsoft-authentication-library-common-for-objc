@@ -125,16 +125,10 @@
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
 
     NSMutableDictionary *additionalServer = [[coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"] mutableCopy];
-    if (additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY])
-    {
-        self.extendedExpiresOn = additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-        [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-    }
-    if (additionalServer[MSID_SPE_INFO_CACHE_KEY])
-    {
-        self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];
-        [additionalServer removeObjectForKey:MSID_SPE_INFO_CACHE_KEY];
-    }
+    self.extendedExpiresOn = additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];
+    [additionalServer removeObjectForKey:MSID_SPE_INFO_CACHE_KEY];
     if (additionalServer.count)
     {
         self.additionalInfo = additionalServer;
