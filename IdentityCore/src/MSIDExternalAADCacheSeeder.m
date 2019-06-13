@@ -32,20 +32,42 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDAADV2Oauth2FactoryForV1Request.h"
 
+@interface MSIDExternalAADCacheSeeder()
+
+@property (nonatomic) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
+@property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
+
+@end
+
 @implementation MSIDExternalAADCacheSeeder
+
+- (instancetype)initWithDefaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                 externalLegacyAccessor:(MSIDLegacyTokenCacheAccessor *)externalLegacyAccessor
+{
+    NSParameterAssert(defaultAccessor);
+    NSParameterAssert(externalLegacyAccessor);
+    
+    self = [super init];
+    if (self)
+    {
+        _defaultAccessor = defaultAccessor;
+        _externalLegacyAccessor = externalLegacyAccessor;
+    }
+    
+    return self;
+}
 
 - (void)seedTokenResponse:(MSIDTokenResponse *)originalTokenResponse
                   factory:(MSIDOauth2Factory *)factory
         requestParameters:(MSIDRequestParameters *)requestParameters
           completionBlock:(void(^)(void))completionBlock
 {
-    MSID_LOG_INFO(requestParameters, @"Beginning external cache seeding.");
+    NSParameterAssert(originalTokenResponse);
+    NSParameterAssert(factory);
+    NSParameterAssert(requestParameters);
+    NSParameterAssert(completionBlock);
     
-    if (!completionBlock)
-    {
-        MSID_LOG_ERROR(nil, @"Passed nil completionBlock");
-        return;
-    }
+    MSID_LOG_INFO(requestParameters, @"Beginning external cache seeding.");
     
     void (^completionBlockWrapper)(void) = ^
     {
@@ -94,6 +116,7 @@
     extraTokenRequestParameters[@"itver"] = @"1";
     requestParameters.extraTokenRequestParameters = extraTokenRequestParameters;
     
+    factory = [MSIDAADV2Oauth2FactoryForV1Request new];
     MSIDRefreshTokenGrantRequest *tokenRequest = [factory refreshTokenRequestWithRequestParameters:requestParameters
                                                                                       refreshToken:refreshToken.refreshToken];
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
@@ -107,7 +130,6 @@
              return;
          }
          
-         __auto_type factory = [MSIDAADV2Oauth2FactoryForV1Request new];
          MSIDIdToken *legacyIdToken = [factory idTokenFromResponse:tokenResponse
                                                      configuration:requestParameters.msidConfiguration];
          
@@ -156,6 +178,7 @@
     MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:tokenResponse
                                                                      configuration:configuration];
     refreshToken.idToken = idToken.rawIdToken;
+    refreshToken.accountIdentifier = idToken.accountIdentifier;
     
     MSID_LOG_INFO(context, @"Saving refresh token in external cache.");
     

@@ -24,6 +24,7 @@
 #import "MSIDAADV2Oauth2FactoryForV1Request.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDV1IdToken.h"
+#import "MSIDAADV2TokenResponseForV1Request.h"
 
 @implementation MSIDAADV2Oauth2FactoryForV1Request
 
@@ -36,6 +37,21 @@
     
     if (!result) return nil;
     return idToken;
+}
+
+- (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
+                                     context:(__unused id<MSIDRequestContext>)context
+                                       error:(NSError **)error
+{
+    return [[MSIDAADV2TokenResponseForV1Request alloc] initWithJSONDictionary:json error:error];
+}
+
+- (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
+                                refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
+                                     context:(__unused id<MSIDRequestContext>)context
+                                       error:(NSError * __autoreleasing *)error
+{
+    return [[MSIDAADV2TokenResponseForV1Request alloc] initWithJSONDictionary:json refreshToken:token error:error];
 }
 
 @end

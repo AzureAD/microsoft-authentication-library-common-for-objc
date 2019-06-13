@@ -21,31 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-
-@class MSIDLegacyTokenCacheAccessor;
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDTokenResponse;
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
+#import "MSIDAADV2TokenResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDExternalAADCacheSeeder : NSObject
-
-@property (nonatomic, readonly) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
-@property (nonatomic, readonly) MSIDDefaultTokenCacheAccessor *defaultAccessor;
-
-- (instancetype _Nullable)initWithDefaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                           externalLegacyAccessor:(MSIDLegacyTokenCacheAccessor *)externalLegacyAccessor NS_DESIGNATED_INITIALIZER;
-
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-- (void)seedTokenResponse:(MSIDTokenResponse *)tokenResponse
-                  factory:(MSIDOauth2Factory *)factory
-        requestParameters:(MSIDRequestParameters *)requestParameters
-          completionBlock:(void(^)(void))completionBlock;
+@interface MSIDAADV2TokenResponseForV1Request : MSIDAADV2TokenResponse
 
 @end
 
