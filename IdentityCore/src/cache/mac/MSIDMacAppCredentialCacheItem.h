@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDMacAppCredentialCacheItem : MSIDCredentialCacheItem <MSIDJsonSerializable>
+@interface MSIDMacAppCredentialCacheItem : NSObject <MSIDJsonSerializable>
 
 - (instancetype _Nullable)init NS_UNAVAILABLE;
 

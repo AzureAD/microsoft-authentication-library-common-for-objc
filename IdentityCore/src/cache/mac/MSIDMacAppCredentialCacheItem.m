@@ -177,7 +177,7 @@ static NSString *keyDelimiter = @"-";
     NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
     
     NSDictionary *cacheObjects = [self getCopy];
-    return [[cacheObjects allValues] filteredArrayUsingPredicate:matchAttributes];;
+    return [[cacheObjects allValues] filteredArrayUsingPredicate:matchAttributes];
 }
 
 - (NSDictionary *)getCopy
