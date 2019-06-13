@@ -62,7 +62,7 @@
                    context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:nil];
+    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:challenge];
     if (!info || ![info isWorkPlaceJoined])
     {
         MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Device is not workplace joined");

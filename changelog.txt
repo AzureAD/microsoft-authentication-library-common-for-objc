@@ -1,0 +1,3 @@
+Version 1.0.11
+------------
+* Apply hotfix 2.7.9 for Mac OS to query WPJ cert using issuers from authentication challenge
