@@ -98,7 +98,7 @@
         
         if (!_refreshToken)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Trying to initialize refresh token when missing refresh token field in cache");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Trying to initialize refresh token when missing refresh token field in cache");
             return nil;
         }
 

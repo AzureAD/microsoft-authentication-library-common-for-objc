@@ -62,7 +62,7 @@
         
         if (!cfDic)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
             CFRelease(selfCode);
             return nil;
         }
@@ -72,12 +72,12 @@
         
         if (!keychainTeamId)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to retrieve team identifier");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier");
             CFRelease(selfCode);
             return nil;
         }
         
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
         CFRelease(selfCode);
     }
     

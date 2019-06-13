@@ -67,12 +67,12 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
     if (parts.count != 3)
     {
         // Log a warning, but still try to read the id token for backward compatibility...
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Id token is not a JWT token");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Id token is not a JWT token");
     }
 
     if (parts.count < 1)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Id token is invalid");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Id token is invalid");
 
         if (error)
         {
@@ -95,7 +95,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
             if (jsonError)
             { 
-                MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelWarning
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning
                                           , nil, @"Failed to deserialize part of the id_token %@", MSID_PII_LOG_MASKABLE(jsonError));
 
                 if (error) *error = jsonError;
@@ -104,7 +104,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
             if (![jsonObject isKindOfClass:[NSDictionary class]])
             {
-                MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Invalid id token format");
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Invalid id token format");
 
                 if (error)
                 {
@@ -120,7 +120,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
     if (![allClaims count])
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Id token is invalid");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Id token is invalid");
 
         if (error)
         {
@@ -132,7 +132,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
     if (!(self = [super initWithJSONDictionary:allClaims error:error]))
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Id token is invalid");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Id token is invalid");
         return nil;
     }
     

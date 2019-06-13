@@ -131,7 +131,7 @@
 
     if (!response.clientInfo)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context, @"Client info was not returned in the server response");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Client info was not returned in the server response");
     }
 
     return YES;

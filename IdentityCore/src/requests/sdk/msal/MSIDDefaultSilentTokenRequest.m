@@ -87,7 +87,7 @@
             *error = cacheError;
         }
 
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, self.requestParameters, @"Access token lookup error %@", MSID_PII_LOG_MASKABLE(cacheError));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Access token lookup error %@", MSID_PII_LOG_MASKABLE(cacheError));
         return nil;
     }
 
@@ -109,7 +109,7 @@
 
     if (!idToken)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning, self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
     }
 
     MSIDAccount *account = [self.defaultAccessor getAccountForIdentifier:self.requestParameters.accountIdentifier
@@ -119,7 +119,7 @@
 
     if (!account)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
     }
     
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
@@ -193,7 +193,7 @@
         //reset family id if set in app's metadata
         if (!result)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,self.requestParameters, @"Failed to update app metadata");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,self.requestParameters, @"Failed to update app metadata");
         }
     }
 
@@ -234,7 +234,7 @@
             *error = cacheError;
         }
 
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, self.requestParameters, @"Failed reading app metadata with error %@", MSID_PII_LOG_MASKABLE(cacheError));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed reading app metadata with error %@", MSID_PII_LOG_MASKABLE(cacheError));
         return nil;
     }
 

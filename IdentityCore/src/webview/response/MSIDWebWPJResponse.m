@@ -59,7 +59,7 @@
         
         if (localError)
         {
-            MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, context, @"Failed to parse client_info, error: %@", MSID_PII_LOG_MASKABLE(localError));
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to parse client_info, error: %@", MSID_PII_LOG_MASKABLE(localError));
         }
     }
     

@@ -51,13 +51,13 @@
     {
         // This is the NTLM challenge: use the identity to authenticate:
         
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
         
         [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password, BOOL cancel)
          {
              if (cancel)
              {
-                 MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"NTLM challenge cancelled - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
+                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM challenge cancelled - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
                  
                  completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
              }
@@ -69,7 +69,7 @@
                  
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
-                 MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"NTLM credentials added - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
+                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM credentials added - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
              }
          }];
     }//@synchronized

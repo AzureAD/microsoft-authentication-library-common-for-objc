@@ -90,7 +90,7 @@ static NSString *s_redirectScheme = nil;
 
 + (BOOL)completeCertAuthChallenge:(NSURL *)endUrl error:(NSError *)error
 {
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, nil, @"Complete cert auth challenge with end URL: %@", [endUrl msidPIINullifiedURL]);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Complete cert auth challenge with end URL: %@", [endUrl msidPIINullifiedURL]);
     
     if (s_certAuthInProgress)
     {
@@ -133,11 +133,11 @@ static NSString *s_redirectScheme = nil;
     
     if (!currentSession)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"There is no current session open to continue with the cert auth challenge.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"There is no current session open to continue with the cert auth challenge.");
         return NO;
     }
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"Received CertAuthChallengehost from : %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Received CertAuthChallengehost from : %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
     
     NSURL *requestURL = [currentSession.webviewController startURL];
     

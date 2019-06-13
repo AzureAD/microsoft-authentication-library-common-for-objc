@@ -119,7 +119,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Error message! %d", 0);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Error message! %d", 0);
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -133,7 +133,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Oh no, a %@ thing happened!", @"bad");
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Oh no, a %@ thing happened!", @"bad");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -147,7 +147,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, nil, @"This informative message has been seen %d times", 20);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"This informative message has been seen %d times", 20);
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -161,7 +161,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,nil, @"So much noise, this message is %@ useful", @"barely");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,nil, @"So much noise, this message is %@ useful", @"barely");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -176,7 +176,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, nil, @"userId: %@ failed to sign in", @"user@contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"userId: %@ failed to sign in", @"user@contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -191,7 +191,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelWarning, nil, @"%@ pressed the cancel button", @"user@contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"%@ pressed the cancel button", @"user@contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -206,7 +206,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, nil, @"%@ is trying to log in", @"user@contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"%@ is trying to log in", @"user@contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -221,7 +221,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, nil, @"waiting on response from %@", @"contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"waiting on response from %@", @"contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -236,7 +236,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -251,7 +251,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -269,7 +269,7 @@
     
     __auto_type expectation = [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
     [expectation setInverted:YES];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"test error message");
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"test error message");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNil(logger.lastMessage);
@@ -281,7 +281,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"test error message");
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"test error message");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -297,7 +297,7 @@
     
     __auto_type expectation = [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
     [expectation setInverted:YES];
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,nil, @"test error message");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,nil, @"test error message");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNil(logger.lastMessage);

@@ -58,7 +58,7 @@
             *error = verificationError;
         }
 
-        MSID_LOG_WITH_CORRELATION_PII(MSIDLogLevelWarning, correlationID, @"Unsuccessful token response, error %@", MSID_PII_LOG_MASKABLE(verificationError));
+        MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, correlationID, @"Unsuccessful token response, error %@", MSID_PII_LOG_MASKABLE(verificationError));
 
         return nil;
     }
@@ -88,7 +88,7 @@
     
     if (!resultAuthority)
     {
-        MSID_LOG_WITH_CORRELATION(MSIDLogLevelError, correlationID, @"Failed to create authority with error %@, %ld", authorityError.domain, (long)authorityError.code);
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationID, @"Failed to create authority with error %@, %ld", authorityError.domain, (long)authorityError.code);
         
         if (error)
         {
@@ -134,7 +134,7 @@
                                      correlationID:(NSUUID *)correlationID
                                              error:(NSError **)error
 {
-    MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
+    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
     
     if (!brokerResponse)
     {
@@ -167,13 +167,13 @@
 
     if (!tokenResult)
     {
-        MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Broker response is not valid.");
+        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Broker response is not valid.");
         return nil;
     }
-    MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Broker response is valid.");
+    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Broker response is valid.");
 
     BOOL shouldSaveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse;
-    MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
+    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
 
     NSError *savingError = nil;
     BOOL isSaved = NO;
@@ -197,14 +197,14 @@
 
     if (!isSaved)
     {
-        MSID_LOG_WITH_CORRELATION_PII(MSIDLogLevelError, correlationID, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
+        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationID, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
     }
     else
     {
-        MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Saved broker response.");
+        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Saved broker response.");
     }
 
-    MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Validating token result.");
+    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating token result.");
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:configuration
                                        oidcScope:oidcScope
@@ -213,10 +213,10 @@
 
     if (!resultValid)
     {
-        MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Token result is invalid.");
+        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Token result is invalid.");
         return nil;
     }
-    MSID_LOG_WITH_CORRELATION(MSIDLogLevelInfo, correlationID, @"Token result is valid.");
+    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Token result is valid.");
 
     tokenResult.brokerAppVersion = brokerResponse.brokerAppVer;
     return tokenResult;
@@ -253,7 +253,7 @@
     
     if (updateMetadataError)
     {
-       MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+       MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
     }
 
     NSError *savingError = nil;
@@ -265,7 +265,7 @@
 
     if (!isSaved)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, parameters, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
     }
 
     BOOL resultValid = [self validateTokenResult:tokenResult

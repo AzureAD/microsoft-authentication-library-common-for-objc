@@ -107,7 +107,7 @@
         
         if (!tokenResult)
         {
-            MSID_LOG_WITH_CORRELATION_PII(MSIDLogLevelWarning, correlationID, @"Unable to save additional token with error %@", MSID_PII_LOG_MASKABLE(additionalTokensError));
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, correlationID, @"Unable to save additional token with error %@", MSID_PII_LOG_MASKABLE(additionalTokensError));
         }
     }
     

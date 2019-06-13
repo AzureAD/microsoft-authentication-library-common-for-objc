@@ -42,7 +42,7 @@
 {
     NSString *host = challenge.protectionSpace.host;
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"Attempting to handle client TLS challenge. host: %@", MSID_PII_LOG_TRACKABLE(host));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle client TLS challenge. host: %@", MSID_PII_LOG_TRACKABLE(host));
     
     // See if this is a challenge for the WPJ cert.
     if ([MSIDWPJChallengeHandler handleChallenge:challenge

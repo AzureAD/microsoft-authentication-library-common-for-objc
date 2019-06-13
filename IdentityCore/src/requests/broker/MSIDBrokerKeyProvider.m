@@ -51,7 +51,7 @@
         MSIDKeychainUtil *keyChainUtil = [MSIDKeychainUtil sharedInstance];
         if (!keyChainUtil.teamId)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to read teamID from keychain");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read teamID from keychain");
             return nil;
         }
 
@@ -137,7 +137,7 @@
     err = SecRandomCopyBytes(kSecRandomDefault, kChosenCipherKeySize, symmetricKey);
     if (err != errSecSuccess)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to copy random bytes for broker key. Error code: %d", (int)err);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to copy random bytes for broker key. Error code: %d", (int)err);
         MSIDFillAndLogError(error, MSIDErrorBrokerKeyFailedToCreate, @"Could not create broker key.", nil);
         free(symmetricKey);
         return nil;

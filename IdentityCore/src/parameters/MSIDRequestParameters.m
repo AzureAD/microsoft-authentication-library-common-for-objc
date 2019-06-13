@@ -149,7 +149,7 @@
     
     if (!_cloudAuthority && cloudHostError)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", cloudHostName, cloudHostError.domain, (long)cloudHostError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with cloud host name %@, and error %@, %ld", cloudHostName, cloudHostError.domain, (long)cloudHostError.code);
     }
     [self updateMSIDConfiguration];
 }

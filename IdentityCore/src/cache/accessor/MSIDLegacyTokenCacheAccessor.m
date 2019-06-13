@@ -82,7 +82,7 @@
 {
     if (response.isMultiResource)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Saving multi resource refresh token");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Saving multi resource refresh token");
         BOOL result = [self saveAccessTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
 
         if (!result) return NO;
@@ -91,7 +91,7 @@
     }
     else
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Saving single resource refresh token");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Saving single resource refresh token");
         return [self saveLegacySingleResourceTokenWithConfiguration:configuration response:response factory:factory context:context error:error];
     }
 }
@@ -108,7 +108,7 @@
         return NO;
     }
 
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Saving SSO state");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Saving SSO state");
 
     BOOL result = [self saveRefreshTokenWithConfiguration:configuration
                                                  response:response
@@ -131,7 +131,7 @@
                                              context:context
                                                error:&otherAccessorError])
         {
-            MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelWarning,context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(otherAccessorError));
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning,context, @"Failed to save SSO state in other accessor: %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(otherAccessorError));
         }
     }
 
@@ -165,7 +165,7 @@
         
         if (refreshToken)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found refresh token in a different accessor %@", [accessor class]);
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found refresh token in a different accessor %@", [accessor class]);
             return refreshToken;
         }
     }
@@ -201,7 +201,7 @@
         
         if (prt)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found primary refresh token in a different accessor %@", [accessor class]);
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found primary refresh token in a different accessor %@", [accessor class]);
             return prt;
         }
     }
@@ -216,7 +216,7 @@
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Get token %@ with authority %@, clientId %@, familyID %@, account %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], configuration.authority, configuration.clientId, familyId, accountIdentifier.maskedHomeAccountId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Get token %@ with authority %@, clientId %@, familyID %@, account %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], configuration.authority, configuration.clientId, familyId, accountIdentifier.maskedHomeAccountId);
     
     if (credentialType!=MSIDRefreshTokenType && credentialType!=MSIDPrimaryRefreshTokenType) return nil;
 
@@ -235,7 +235,7 @@
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,context, @"(Legacy accessor) Clearing everything in cache. This method should only be called in tests!");
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"(Legacy accessor) Clearing everything in cache. This method should only be called in tests!");
     return [_dataSource clearWithContext:context error:error];
 }
 
@@ -248,7 +248,7 @@
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@, account identifier %@, legacy identifier %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Get accounts with environment %@, clientId %@, familyId %@, account identifier %@, legacy identifier %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
     MSIDLegacyTokenCacheQuery *query = [MSIDLegacyTokenCacheQuery new];
@@ -306,12 +306,12 @@
 
     if ([allRefreshTokens count] == 0)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found no refresh tokens");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found no refresh tokens");
         [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
     }
     else
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found %lu refresh tokens", (unsigned long)[allRefreshTokens count]);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found %lu refresh tokens", (unsigned long)[allRefreshTokens count]);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
     }
 
@@ -404,7 +404,7 @@
         return NO;
     }
 
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"Removing refresh token with clientID %@, environment %@, realm %@, userId %@, token %@", token.clientId, token.environment, token.realm, token.accountIdentifier.maskedHomeAccountId, MSID_PII_LOG_MASKABLE(token));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Removing refresh token with clientID %@, environment %@, realm %@, userId %@, token %@", token.clientId, token.environment, token.realm, token.accountIdentifier.maskedHomeAccountId, MSID_PII_LOG_MASKABLE(token));
 
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
     
@@ -424,7 +424,7 @@
 
     if (tokenInCache && [tokenInCache.refreshToken isEqualToString:token.refreshToken])
     {
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_PII_LOG_MASKABLE(token));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_PII_LOG_MASKABLE(token));
         
         return [self removeTokenEnvironment:storageEnvironment
                                       realm:token.realm
@@ -468,7 +468,7 @@
         return NO;
     }
 
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", accountIdentifier.maskedDisplayableId, clientId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Clearing cache with account %@ and client id %@", accountIdentifier.maskedDisplayableId, clientId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
 
@@ -526,7 +526,7 @@
                                     context:context
                                       error:error])
         {
-            MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelWarning,context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(*error));
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning,context, @"Failed to clear cache from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(*error));
         }
     }
 
@@ -547,7 +547,7 @@
     NSString *clientId = familyId ? [MSIDCacheKey familyClientId:familyId] : configuration.clientId;
     NSArray<NSURL *> *aliases = [configuration.authority legacyRefreshTokenLookupAliases] ?: @[];
 
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Finding token %@ with legacy user ID %@, clientId %@, authority %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], accountIdentifier.maskedDisplayableId, clientId, aliases);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Finding token %@ with legacy user ID %@, clientId %@, authority %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credentialType], accountIdentifier.maskedDisplayableId, clientId, aliases);
 
     return (MSIDLegacyRefreshToken *)[self getTokenByLegacyUserId:accountIdentifier.displayableId
                                                              type:credentialType
@@ -573,7 +573,7 @@
         return NO;
     }
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving access token in legacy accessor %@", MSID_PII_LOG_MASKABLE(accessToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving access token in legacy accessor %@", MSID_PII_LOG_MASKABLE(accessToken));
     
     return [self saveToken:accessToken
                    context:context
@@ -590,11 +590,11 @@
 
     if (!refreshToken)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, context, @"No refresh token returned in the token response, not updating cache");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No refresh token returned in the token response, not updating cache");
         return YES;
     }
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", MSID_PII_LOG_MASKABLE(refreshToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", MSID_PII_LOG_MASKABLE(refreshToken));
     
     BOOL result = [self saveToken:refreshToken
                           context:context
@@ -606,7 +606,7 @@
         return result;
     }
 
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"Saving family refresh token in all caches %@", MSID_PII_LOG_MASKABLE(refreshToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Saving family refresh token in all caches %@", MSID_PII_LOG_MASKABLE(refreshToken));
 
     // If it's an FRT, save it separately and update the clientId of the token item
     MSIDLegacyRefreshToken *familyRefreshToken = [refreshToken copy];
@@ -631,7 +631,7 @@
         return NO;
     }
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving single resource tokens in legacy accessor %@", MSID_PII_LOG_MASKABLE(legacyToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving single resource tokens in legacy accessor %@", MSID_PII_LOG_MASKABLE(legacyToken));
 
     // Save token for legacy single resource token
     return [self saveToken:legacyToken
@@ -647,7 +647,7 @@
     
     MSIDCredentialCacheItem *tokenCacheItem = token.legacyTokenCacheItem;
 
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Saving token %@ for account %@ with environment %@, realm %@, clientID %@", MSID_PII_LOG_MASKABLE(tokenCacheItem), token.accountIdentifier.maskedDisplayableId, token.storageEnvironment, token.realm, tokenCacheItem.clientId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Saving token %@ for account %@ with environment %@, realm %@, clientID %@", MSID_PII_LOG_MASKABLE(tokenCacheItem), token.accountIdentifier.maskedDisplayableId, token.storageEnvironment, token.realm, tokenCacheItem.clientId);
     
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithEnvironment:tokenCacheItem.environment
                                                                                   realm:tokenCacheItem.realm
@@ -663,7 +663,7 @@
     if (!result)
     {
         [MSIDTelemetry stopCacheEvent:event withItem:token success:NO context:context];
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context, @"Failed to save token with alias: %@", tokenCacheItem.environment);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to save token with alias: %@", tokenCacheItem.environment);
         return NO;
     }
 
@@ -715,7 +715,7 @@
         return NO;
     }
 
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Removing token with clientId %@, environment %@, realm %@, target %@, account %@", clientId, environment, realm, target, MSID_PII_LOG_EMAIL(userId));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Removing token with clientId %@, environment %@, realm %@, target %@, account %@", clientId, environment, realm, target, MSID_PII_LOG_EMAIL(userId));
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE context:context];
     
@@ -752,7 +752,7 @@
 
     for (NSURL *alias in aliases)
     {
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, legacy userId %@", alias, clientId, resource, MSID_PII_LOG_EMAIL(legacyUserId));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Looking for token with alias %@, clientId %@, resource %@, legacy userId %@", alias, clientId, resource, MSID_PII_LOG_EMAIL(legacyUserId));
         
         MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithAuthority:alias
                                                                                  clientId:clientId
@@ -776,7 +776,7 @@
 
         if (cacheItem)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found token");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found token");
             MSIDBaseToken *token = [cacheItem tokenWithType:type];
             token.storageEnvironment = token.environment;
             token.environment = environment;

@@ -86,7 +86,7 @@ MSID_JSON_RW(MSID_OAUTH2_ID_TOKEN, idToken, setIdToken)
     
     if (!expiresIn && expiresInObj)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", expiresInObj);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Unparsable time - The response value for the access token expiration cannot be parsed: %@", expiresInObj);
     }
     
     return expiresIn;

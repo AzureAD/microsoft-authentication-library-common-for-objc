@@ -52,7 +52,7 @@
 
         if (![_requestParameters validateParametersWithError:&parametersError])
         {
-            MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, self.requestParameters,  @"Request parameters error %@", MSID_PII_LOG_MASKABLE(parametersError));
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters,  @"Request parameters error %@", MSID_PII_LOG_MASKABLE(parametersError));
 
             if (error)
             {

@@ -106,7 +106,7 @@ return NO; \
         @catch (id exception)
         {
             // This should be exceedingly rare as all of the objects in the cache we placed there.
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to serialize the cache!");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to serialize the cache!");
         }
     });
     
@@ -197,7 +197,7 @@ return NO; \
                              context:(id<MSIDRequestContext>)context
                                error:(NSError *__autoreleasing *)error
 {
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, context, @"itemWithKey:serializer:context:error:");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
     
     if (items.count > 1)
@@ -487,8 +487,8 @@ return NO; \
 {
     assert(key);
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"Set item, key info (account: %@ service: %@)", MSID_PII_LOG_MASKABLE(key.account), key.service);
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"Item info %@", MSID_PII_LOG_MASKABLE(item));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Set item, key info (account: %@ service: %@)", MSID_PII_LOG_MASKABLE(key.account), key.service);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Item info %@", MSID_PII_LOG_MASKABLE(item));
     
     if (!key)
     {
@@ -501,7 +501,7 @@ return NO; \
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Item is nil.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Set nil item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set nil item.");
         
         return NO;
     }
@@ -523,7 +523,7 @@ return NO; \
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service is not nil.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return NO;
     }
     
@@ -550,7 +550,7 @@ return NO; \
                                             context:(id<MSIDRequestContext>)context
                                               error:(__unused NSError **)error
 {
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"Get items, key info (account: %@ service: %@)", MSID_PII_LOG_MASKABLE(key.account), key.service);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Get items, key info (account: %@ service: %@)", MSID_PII_LOG_MASKABLE(key.account), key.service);
 
     if (!self.cache)
     {
@@ -601,7 +601,7 @@ return NO; \
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(__unused NSError **)error
 {
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests");
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests");
     [self clear];
     return YES;
 }

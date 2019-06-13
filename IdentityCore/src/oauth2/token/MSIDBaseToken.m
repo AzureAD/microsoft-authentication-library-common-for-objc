@@ -119,7 +119,7 @@
         
         if (![self supportsCredentialType:tokenCacheItem.credentialType])
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Trying to initialize with a wrong token type");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize with a wrong token type");
             return nil;
         }
 
@@ -128,7 +128,7 @@
         
         if (!_environment)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Trying to initialize token when missing environment field");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize token when missing environment field");
             return nil;
         }
         
@@ -136,7 +136,7 @@
         
         if (!_clientId)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Trying to initialize token when missing clientId field");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize token when missing clientId field");
             return nil;
         }
         

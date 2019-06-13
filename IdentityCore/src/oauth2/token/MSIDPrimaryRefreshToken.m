@@ -40,7 +40,7 @@
         
         if (!_sessionKey)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
             return nil;
         }
     }
@@ -73,7 +73,7 @@
         
         if (!_sessionKey)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
             return nil;
         }
     }

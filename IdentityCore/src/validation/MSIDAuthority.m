@@ -77,7 +77,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         
         if (realmError && validateFormat)
         {
-            MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,context, @"Failed to extract realm for authority");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Failed to extract realm for authority");
             if (error) *error = realmError;
             return nil;
         }
@@ -104,7 +104,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
     [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, context, @"Resolving authority: %@, upn: %@", MSID_PII_LOG_TRACKABLE(self.url), MSID_PII_LOG_EMAIL(upn));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Resolving authority: %@, upn: %@", MSID_PII_LOG_TRACKABLE(self.url), MSID_PII_LOG_EMAIL(upn));
     
     [resolver resolveAuthority:self
              userPrincipalName:upn
@@ -119,7 +119,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
          [validationEvent setAuthority:self];
          [[MSIDTelemetry sharedInstance] stopEvent:context.telemetryRequestId event:validationEvent];
          
-         MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, context, @"Resolved authority, validated: %@, error: %ld", validated ? @"YES" : @"NO", (long)error.code);
+         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Resolved authority, validated: %@, error: %ld", validated ? @"YES" : @"NO", (long)error.code);
          
          if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
      }];

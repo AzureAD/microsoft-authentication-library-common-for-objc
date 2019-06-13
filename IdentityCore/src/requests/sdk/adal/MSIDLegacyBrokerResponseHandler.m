@@ -107,7 +107,7 @@
 
         if (!intuneResult)
         {
-            MSID_LOG_WITH_CORRELATION_PII(MSIDLogLevelWarning, correlationID, @"Unable to save intune token with error %@", MSID_PII_LOG_MASKABLE(intuneError));
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, correlationID, @"Unable to save intune token with error %@", MSID_PII_LOG_MASKABLE(intuneError));
         }
         else
         {

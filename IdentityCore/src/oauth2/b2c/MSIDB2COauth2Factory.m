@@ -120,7 +120,7 @@
     
     if (!cacheAuthority)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
         return nil;
     }
     

@@ -57,7 +57,7 @@ MSID_JSON_ACCESSOR(@"tfp", tfp)
     
     if (!_issuerAuthority)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Failed to initialize issuer authority with error %@, %ld", issuerError.domain, (long)issuerError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to initialize issuer authority with error %@, %ld", issuerError.domain, (long)issuerError.code);
     }
 }
 

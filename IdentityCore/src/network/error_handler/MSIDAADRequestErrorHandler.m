@@ -54,7 +54,7 @@
     {
         httpRequest.retryCounter--;
         
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
         
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             [httpRequest sendWithBlock:completionBlock];
@@ -105,7 +105,7 @@
 
     id errorDescription = [NSHTTPURLResponse localizedStringForStatusCode:httpResponse.statusCode];
 
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelWarning, context, @"Http error raised. Http Code: %ld Description %@", (long)httpResponse.statusCode, MSID_PII_LOG_MASKABLE(errorDescription));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Http error raised. Http Code: %ld Description %@", (long)httpResponse.statusCode, MSID_PII_LOG_MASKABLE(errorDescription));
     
     NSMutableDictionary *additionalInfo = [NSMutableDictionary new];
     [additionalInfo setValue:httpResponse.allHeaderFields

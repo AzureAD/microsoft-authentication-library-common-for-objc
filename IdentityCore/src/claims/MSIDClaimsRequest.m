@@ -70,7 +70,7 @@
                                      nil, nil, nil, nil, nil);
         }
         
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to request claim: claim request is nil.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to request claim: claim request is nil.");
         return NO;
     }
     
@@ -117,7 +117,7 @@
                                      nil, nil, nil, nil, nil);
         }
         
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Failed to remove claim: name is nil.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to remove claim: name is nil.");
         
         return NO;
     }
@@ -234,7 +234,7 @@
                                  nil, nil, nil, nil, nil);
     }
     
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, nil, @"Invalid claims target: %@", string);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Invalid claims target: %@", string);
     
     return MSIDClaimsRequestTargetInvalid;
 }

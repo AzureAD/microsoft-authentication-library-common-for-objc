@@ -64,13 +64,13 @@
 {
     if (!startURL)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,context, @"Attemped to start with nil URL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with nil URL");
         return nil;
     }
     
     if (!endURL)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,context, @"Attemped to start with nil endURL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with nil endURL");
         return nil;
     }
     
@@ -107,7 +107,7 @@
 {
     if (!completionHandler)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,_context, @"CompletionHandler cannot be nil for interactive session.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,_context, @"CompletionHandler cannot be nil for interactive session.");
         return;
     }
     
@@ -134,7 +134,7 @@
 
 - (void)cancel
 {
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
@@ -145,7 +145,7 @@
 
 - (void)userCancel
 {
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
     
     // End web auth with error
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil);
@@ -181,7 +181,7 @@
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, self.context, @"Dismissed web view contoller.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissed web view contoller.");
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
     });
     
@@ -213,7 +213,7 @@
 
 - (void)startRequest:(NSURLRequest *)request
 {
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, self.context, @"Presenting web view contoller.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Presenting web view contoller.");
     
     _telemetryRequestId = [_context telemetryRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
@@ -235,7 +235,7 @@
 {
     NSURL *requestURL = navigationAction.request.URL;
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, self.context, @"-decidePolicyForNavigationAction host: %@", MSID_PII_LOG_TRACKABLE(requestURL.host));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-decidePolicyForNavigationAction host: %@", MSID_PII_LOG_TRACKABLE(requestURL.host));
     
     [MSIDNotifications notifyWebAuthDidStartLoad:requestURL];
     
@@ -264,7 +264,7 @@
 {
     NSURL *url = webView.URL;
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
     
     [MSIDNotifications notifyWebAuthDidFinishLoad:url];
     
@@ -285,7 +285,7 @@
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
-    MSID_LOG_WITH_CONTEXT(MSIDLogLevelVerbose,self.context,
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context,
                      @"%@ - %@. Previous challenge failure count: %ld",
                      @"webView:didReceiveAuthenticationChallenge:completionHandler",
                      authMethod, (long)challenge.previousFailureCount);
@@ -298,7 +298,7 @@
 
 - (void)completeWebAuthWithURL:(NSURL *)endURL
 {
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelInfo, self.context, @"-completeWebAuthWithURL: %@", [endURL msidPIINullifiedURL]);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"-completeWebAuthWithURL: %@", [endURL msidPIINullifiedURL]);
     
     [self endWebAuthWithURL:endURL error:nil];
 }
@@ -327,7 +327,7 @@
         return;
     }
     
-    MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, self.context, @"-webAuthFailWithError: %@", MSID_PII_LOG_MASKABLE(error));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"-webAuthFailWithError: %@", MSID_PII_LOG_MASKABLE(error));
     
     [self endWebAuthWithURL:nil error:error];
 }
@@ -357,7 +357,7 @@
     // redirecting to non-https url is not allowed
     if (![requestURL.scheme.lowercaseString isEqualToString:@"https"])
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelInfo, self.context, @"Server is redirecting to a non-https url");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Server is redirecting to a non-https url");
         
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil);
         [self endWebAuthWithURL:nil error:error];

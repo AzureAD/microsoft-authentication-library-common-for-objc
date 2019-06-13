@@ -145,7 +145,7 @@ const unichar queryStringSeparator = '?';
                 // setPercentEncodedHost and setPort both throw if there's an error, so it's okay for
                 // us to throw here as well to propogate the error
                 @throw [NSException exceptionWithName:@"InvalidNumberFormatException" reason:@"Port is not a valid integer or port" userInfo:nil];
-                MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Port is not a valid integer or port.");
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Port is not a valid integer or port.");
             }
             components.port = [NSNumber numberWithInt:port];
         }
@@ -160,7 +160,7 @@ const unichar queryStringSeparator = '?';
         
         if (error) *error = msidError;
         
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelError, context, @"Failed to replace a host in url.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to replace a host in url.");
         
         return nil;
     }

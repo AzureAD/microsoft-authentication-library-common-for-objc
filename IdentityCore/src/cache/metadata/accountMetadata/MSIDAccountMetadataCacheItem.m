@@ -90,7 +90,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     if (!json)
     {
-        MSID_LOG_WITH_CONTEXT(MSIDLogLevelWarning,nil, @"Tried to decode an authority map item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode an authority map item from nil json");
         return nil;
     }
     

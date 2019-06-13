@@ -64,7 +64,7 @@
                                                      error:&internalError];
     if (internalError)
     {
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelError, context, @"Failed to serialize to json data, error: %@", MSID_PII_LOG_MASKABLE(internalError));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to serialize to json data, error: %@", MSID_PII_LOG_MASKABLE(internalError));
         if (error) *error = internalError;
         return nil;
     }
@@ -85,7 +85,7 @@
     
     if (internalError)
     {
-        MSID_LOG_WITH_CONTEXT_PII(MSIDLogLevelVerbose, context, @"Failed to deserialize json object, error: %@", MSID_PII_LOG_MASKABLE(internalError));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Failed to deserialize json object, error: %@", MSID_PII_LOG_MASKABLE(internalError));
         
         if (error) *error = internalError;
         return nil;
