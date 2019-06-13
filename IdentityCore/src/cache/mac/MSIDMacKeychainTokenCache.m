@@ -421,11 +421,11 @@ static dispatch_queue_t s_synchronizationQueue;
 #pragma mark - Credentials
 
 // Write a credential to the macOS keychain cache.
-- (BOOL)saveToken:(__unused MSIDCredentialCacheItem *)credential
-              key:(__unused MSIDCacheKey *)key
-       serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
-          context:(__unused id<MSIDRequestContext>)context
-            error:(__unused NSError **)error
+- (BOOL)saveToken:(MSIDCredentialCacheItem *)credential
+              key:(MSIDCacheKey *)key
+       serializer:(id<MSIDCredentialItemSerializer>)serializer
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
 {
     assert(credential);
     assert(serializer);
@@ -446,10 +446,10 @@ static dispatch_queue_t s_synchronizationQueue;
     }
 }
 
-- (BOOL)saveAppCredential:(__unused MSIDMacAppCredentialCacheItem *)credential
-                      key:(__unused MSIDCacheKey *)key
-                  context:(__unused id<MSIDRequestContext>)context
-                    error:(__unused NSError **)error
+- (BOOL)saveAppCredential:(MSIDMacAppCredentialCacheItem *)credential
+                      key:(MSIDCacheKey *)key
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error
 {
     assert(credential);
     MSIDMacAppCredentialCacheItem *savedCredential = [self appCredentialWithKey:key context:context error:error];
@@ -508,10 +508,10 @@ static dispatch_queue_t s_synchronizationQueue;
 
 // Read a single credential from the macOS keychain cache.
 // If multiple matches are found, return nil and set an error.
-- (MSIDCredentialCacheItem *)tokenWithKey:(__unused MSIDCacheKey *)key
-                               serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
-                                  context:(__unused id<MSIDRequestContext>)context
-                                    error:(__unused NSError **)error
+- (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
+                               serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
     MSID_TRACE;
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key
@@ -532,10 +532,10 @@ static dispatch_queue_t s_synchronizationQueue;
 
 // Read one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
 // If not found, return an empty list without setting an error.
-- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(__unused MSIDCacheKey *)key
-                                           serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
-                                              context:(__unused id<MSIDRequestContext>)context
-                                                error:(__unused NSError **)error
+- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
+                                           serializer:(id<MSIDCredentialItemSerializer>)serializer
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     NSArray<MSIDCredentialCacheItem *> *tokenList = [[NSArray alloc] init];
     
@@ -566,9 +566,9 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 // Remove one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
-- (BOOL)removeItemsWithTokenKey:(__unused MSIDCacheKey *)key
-                        context:(__unused id<MSIDRequestContext>)context
-                          error:(__unused NSError **)error
+- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
     MSID_TRACE;
     NSString *account = key.account;
@@ -595,9 +595,9 @@ static dispatch_queue_t s_synchronizationQueue;
     }
 }
 
-- (BOOL)removeSharedCredentialsWithTokenKey:(__unused MSIDCacheKey *)key
-                                    context:(__unused id<MSIDRequestContext>)context
-                                      error:(__unused NSError **)error
+- (BOOL)removeSharedCredentialsWithTokenKey:(MSIDCacheKey *)key
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
 {
     MSIDMacSharedCredentialCacheItem *sharedCredential = [self sharedCredentialWithKey:key context:context error:error];
     
@@ -610,9 +610,9 @@ static dispatch_queue_t s_synchronizationQueue;
     return YES;
 }
 
-- (BOOL)removeAppCredentialsWithTokenKey:(__unused MSIDCacheKey *)key
-                                 context:(__unused id<MSIDRequestContext>)context
-                                   error:(__unused NSError **)error
+- (BOOL)removeAppCredentialsWithTokenKey:(MSIDCacheKey *)key
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
 {
     MSIDMacAppCredentialCacheItem *appCredential = [self appCredentialWithKey:key context:context error:error];
     
@@ -686,11 +686,11 @@ static dispatch_queue_t s_synchronizationQueue;
 #pragma mark - App Metadata
 
 // Save MSIDAppMetadataCacheItem (clientId/environment/familyId) in the macOS keychain cache.
-- (BOOL)saveAppMetadata:(__unused MSIDAppMetadataCacheItem *)metadata
-                    key:(__unused MSIDCacheKey *)key
-             serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
-                context:(__unused id<MSIDRequestContext>)context
-                  error:(__unused NSError **)error
+- (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)metadata
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
 {
     assert(metadata);
     assert(serializer);
@@ -716,10 +716,10 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 // Read MSIDAppMetadataCacheItem (clientId/environment/familyId) items from the macOS keychain cache.
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
-                                                        serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
-                                                           context:(__unused id<MSIDRequestContext>)context
-                                                             error:(__unused NSError **)error
+- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
+                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                           context:(id<MSIDRequestContext>)context
+                                                             error:(NSError **)error
 {
     NSArray *items = [self itemsWithKey:key context:context error:error];
 
@@ -751,8 +751,8 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 // Remove items with the given Metadata key from the macOS keychain cache.
-- (BOOL)removeItemsWithMetadataKey:(__unused MSIDCacheKey *)key
-                           context:(__unused id<MSIDRequestContext>)context
+- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+                           context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
@@ -992,7 +992,7 @@ static dispatch_queue_t s_synchronizationQueue;
 #pragma mark - Wipe Info
 
 // Saves information about the app which most-recently removed a token.
-- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
+- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
     [self createUnimplementedError:error context:context];
@@ -1000,7 +1000,7 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 // Read information about the app which most-recently removed a token.
-- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
+- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
     [self createUnimplementedError:error context:context];
