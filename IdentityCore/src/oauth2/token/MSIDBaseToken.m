@@ -119,7 +119,7 @@
         
         if (![self supportsCredentialType:tokenCacheItem.credentialType])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize with a wrong token type");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,nil, @"Trying to initialize with a wrong token type");
             return nil;
         }
 
