@@ -134,13 +134,11 @@ static NSUInteger s_expirationBuffer = 300;
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.expiresOn = self.expiresOn;
-    cacheItem.extendedExpiresOn = self.extendedExpiresOn;
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
     cacheItem.enrollmentId = self.enrollmentId;
     cacheItem.credentialType = MSIDAccessTokenType;
-    cacheItem.speInfo = self.speInfo;
     return cacheItem;
 }
 
