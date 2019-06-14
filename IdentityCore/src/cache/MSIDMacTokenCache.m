@@ -24,8 +24,7 @@
 #import "MSIDMacTokenCache.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDLegacyTokenCacheKey.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAccountItemSerializer.h"
+#import "MSIDCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
 
@@ -180,7 +179,7 @@ return NO; \
 
 - (BOOL)saveToken:(MSIDCredentialCacheItem *)item
               key:(MSIDCacheKey *)key
-       serializer:(id<MSIDCredentialItemSerializer>)serializer
+       serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError * __autoreleasing *)error
 {
@@ -193,9 +192,9 @@ return NO; \
 }
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                          serializer:(id<MSIDCredentialItemSerializer>)serializer
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError *__autoreleasing *)error
+                               serializer:(id<MSIDCacheItemSerializing>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError *__autoreleasing *)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
@@ -214,9 +213,9 @@ return NO; \
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                         context:(__unused id<MSIDRequestContext>)context
-                                           error:(NSError * __autoreleasing *)error
+                                           serializer:(id<MSIDCacheItemSerializing>)serializer
+                                              context:(__unused id<MSIDRequestContext>)context
+                                                error:(NSError * __autoreleasing *)error
 {
     [self.delegate willAccessCache:self];
     NSArray *result = nil;
@@ -226,89 +225,11 @@ return NO; \
     return result;
 }
 
-#pragma mark - Accounts
-
-- (BOOL)saveAccount:(__unused MSIDAccountCacheItem *)item
-                key:(__unused MSIDCacheKey *)key
-         serializer:(__unused id<MSIDAccountItemSerializer>)serializer
-            context:(__unused id<MSIDRequestContext>)context
-              error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return NO;
-}
-
-- (MSIDAccountCacheItem *)accountWithKey:(__unused MSIDCacheKey *)key
-                              serializer:(__unused id<MSIDAccountItemSerializer>)serializer
-                                 context:(__unused id<MSIDRequestContext>)context
-                                   error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return nil;
-}
-
-- (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(__unused MSIDCacheKey *)key
-                                          serializer:(__unused id<MSIDAccountItemSerializer>)serializer
-                                             context:(__unused id<MSIDRequestContext>)context
-                                               error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return nil;
-}
-
-#pragma mark - AppMetadata
-
-- (BOOL)saveAppMetadata:(__unused MSIDAppMetadataCacheItem *)item
-                    key:(__unused MSIDCacheKey *)key
-             serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
-                context:(__unused id<MSIDRequestContext>)context
-                  error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return YES;
-}
-
-- (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(__unused MSIDCacheKey *)key
-                                                        serializer:(__unused id<MSIDAppMetadataItemSerializer>)serializer
-                                                           context:(__unused id<MSIDRequestContext>)context
-                                                             error:(__unused NSError **)error
-{
-    // TODO: implement me
-    return nil;
-}
-
-#pragma mark - Account Metadata
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    // TODO: implement me
-    return nil;
-}
-
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDCacheKey *)key serializer:(id<MSIDAccountMetadataCacheItemSerializer>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    // TODO: implement me
-    return YES;
-}
-
-
-
 #pragma mark - Removal
 
-- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    return [self removeItemsWithKey:key context:context error:error];
-}
-
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
-{
-    return [self removeItemsWithKey:key context:context error:error];
-}
-
-- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
-                           context:(id<MSIDRequestContext>)context
-                             error:(NSError **)error
+- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
@@ -481,7 +402,7 @@ return NO; \
 
 - (BOOL)setItemImpl:(MSIDCredentialCacheItem *)item
                 key:(MSIDCacheKey *)key
-         serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
+         serializer:(__unused id<MSIDCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -546,7 +467,7 @@ return NO; \
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)itemsWithKeyImpl:(MSIDCacheKey *)key
-                                         serializer:(__unused id<MSIDCredentialItemSerializer>)serializer
+                                         serializer:(__unused id<MSIDCacheItemSerializing>)serializer
                                             context:(id<MSIDRequestContext>)context
                                               error:(__unused NSError **)error
 {

@@ -35,10 +35,11 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
 @interface MSIDAccountCredentialCache()
 {
-    id<MSIDTokenCacheDataSource> _dataSource;
+    id<MSIDExtendedTokenCacheDataSource> _dataSource;
     MSIDCacheItemJsonSerializer *_serializer;
 }
 
@@ -48,7 +49,7 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
 {
     self = [super init];
 
@@ -281,7 +282,7 @@
 
     if (cacheQuery.exactMatch)
     {
-        return [_dataSource removeItemsWithTokenKey:cacheQuery context:context error:error];
+        return [_dataSource removeTokensWithKey:cacheQuery context:context error:error];
     }
 
     NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
@@ -310,7 +311,7 @@
     key.enrollmentId = credential.enrollmentId;
     key.appKey = credential.appKey;
 
-    BOOL result = [_dataSource removeItemsWithTokenKey:key context:context error:error];
+    BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
 
     if (result && credential.credentialType == MSIDRefreshTokenType)
     {
@@ -331,7 +332,7 @@
 
     if (cacheQuery.exactMatch)
     {
-        return [_dataSource removeItemsWithAccountKey:cacheQuery context:context error:error];
+        return [_dataSource removeAccountsWithKey:cacheQuery context:context error:error];
     }
 
     NSArray<MSIDAccountCacheItem *> *matchedAccounts = [self getAccountsWithQuery:cacheQuery context:context error:error];
@@ -352,7 +353,7 @@
                                                                                          realm:account.realm
                                                                                           type:account.accountType];
 
-    return [_dataSource removeItemsWithAccountKey:key context:context error:error];
+    return [_dataSource removeAccountsWithKey:key context:context error:error];
 }
 
 // Clear all
@@ -445,7 +446,7 @@
                                                                             familyId:appMetadata.familyId
                                                                          generalType:MSIDAppMetadataType];
     
-    return [_dataSource removeItemsWithMetadataKey:key context:context error:error];
+    return [_dataSource removeMetadataItemsWithKey:key context:context error:error];
 }
 
 - (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)cacheQuery

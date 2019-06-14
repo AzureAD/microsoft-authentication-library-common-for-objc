@@ -57,7 +57,7 @@
 
 #pragma mark - MSIDCacheAccessor
 
-- (instancetype)initWithDataSource:(id<MSIDTokenCacheDataSource>)dataSource
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
                otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
 {
     self = [super init];

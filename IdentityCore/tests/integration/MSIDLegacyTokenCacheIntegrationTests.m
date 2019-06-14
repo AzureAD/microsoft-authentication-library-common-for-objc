@@ -47,7 +47,7 @@
     MSIDLegacyTokenCacheAccessor *_legacyAccessor;
     MSIDLegacyTokenCacheAccessor *_nonSSOAccessor;
     MSIDDefaultTokenCacheAccessor *_otherAccessor;
-    id<MSIDTokenCacheDataSource> _dataSource;
+    id<MSIDExtendedTokenCacheDataSource> _dataSource;
 }
 
 @end
@@ -75,7 +75,7 @@
 {
     [super tearDown];
 
-    [_dataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
+    [_dataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
 }
 
 #pragma mark - Saving

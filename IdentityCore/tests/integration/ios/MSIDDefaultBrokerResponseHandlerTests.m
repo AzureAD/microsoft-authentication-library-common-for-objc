@@ -57,7 +57,7 @@
     [super setUp];
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
     
-    id<MSIDTokenCacheDataSource> dataSource =  [[MSIDKeychainTokenCache alloc] init];
+    id<MSIDExtendedTokenCacheDataSource> dataSource =  [[MSIDKeychainTokenCache alloc] init];
     [dataSource clearWithContext:nil error:nil];
     MSIDLegacyTokenCacheAccessor *otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     self.cacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
