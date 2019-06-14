@@ -22,13 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDCacheItemSerializing.h"
+#import "MSIDJsonSerializable.h"
 
-@class MSIDAppMetadataCacheItem;
+@class MSIDAccountCacheItem;
+@class MSIDJsonObject;
 
-@protocol MSIDAppMetadataItemSerializer <NSObject>
+@protocol MSIDExtendedCacheItemSerializing <MSIDCacheItemSerializing>
 
-- (NSData *)serializeAppMetadataCacheItem:(MSIDAppMetadataCacheItem *)item;
-- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data;
+- (NSData *)serializeCacheItem:(id<MSIDJsonSerializable>)item;
+- (id<MSIDJsonSerializable>)deserializeCacheItem:(NSData *)data ofClass:(Class)expectedClass;
 
 @end
-

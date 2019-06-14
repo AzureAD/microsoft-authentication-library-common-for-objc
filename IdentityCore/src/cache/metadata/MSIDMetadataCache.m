@@ -147,20 +147,4 @@
     return success;
 }
 
-- (BOOL)clearWithContext:(id<MSIDRequestContext>)context
-                   error:(NSError **)error
-{
-    __block BOOL success = NO;
-    __block NSError *localError;
-    
-     dispatch_sync(_synchronizationQueue, ^{
-         [_memoryCache removeAllObjects];
-         
-         success = [_dataSource clearWithContext:context error:&localError];
-     });
-    
-    if (error && localError) *error = localError;
-    return success;
-}
-
 @end

@@ -33,8 +33,12 @@
 @class MSIDIdToken;
 @class MSIDAuthority;
 @class MSIDAppMetadataCacheItem;
+@protocol MSIDExtendedTokenCacheDataSource;
 
 @interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
+
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors;
 
 - (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                 configuration:(MSIDConfiguration *)configuration

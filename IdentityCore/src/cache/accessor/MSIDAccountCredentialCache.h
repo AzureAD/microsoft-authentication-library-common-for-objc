@@ -34,11 +34,11 @@
 @class MSIDDefaultCredentialCacheKey;
 @class MSIDDefaultCredentialCacheQuery;
 @protocol MSIDRequestContext;
-@protocol MSIDTokenCacheDataSource;
+@protocol MSIDExtendedTokenCacheDataSource;
 
 @interface MSIDAccountCredentialCache : NSObject
 
-- (nonnull instancetype)initWithDataSource:(nonnull id<MSIDTokenCacheDataSource>)dataSource;
+- (nonnull instancetype)initWithDataSource:(nonnull id<MSIDExtendedTokenCacheDataSource>)dataSource;
 
 /*
  Gets all credentials matching the parameters specified in the query

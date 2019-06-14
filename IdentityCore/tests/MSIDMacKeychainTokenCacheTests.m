@@ -157,13 +157,13 @@
 
     // Ensure these test accounts don't already exist:
     NSError* error;
-    BOOL result = [_dataSource removeItemsWithAccountKey:_keyA context:nil error:&error];
+    BOOL result = [_dataSource removeAccountsWithKey:_keyA context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    result = [_dataSource removeItemsWithAccountKey:_keyB context:nil error:&error];
+    result = [_dataSource removeAccountsWithKey:_keyB context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    result = [_dataSource removeItemsWithAccountKey:_keyC context:nil error:&error];
+    result = [_dataSource removeAccountsWithKey:_keyC context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -195,13 +195,13 @@
 {
     // Post-test cleanup:
     NSError *error;
-    BOOL result = [_dataSource removeItemsWithAccountKey:_keyA context:nil error:&error];
+    BOOL result = [_dataSource removeAccountsWithKey:_keyA context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    result = [_dataSource removeItemsWithAccountKey:_keyB context:nil error:&error];
+    result = [_dataSource removeAccountsWithKey:_keyB context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
-    result = [_dataSource removeItemsWithAccountKey:_keyC context:nil error:&error];
+    result = [_dataSource removeAccountsWithKey:_keyC context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
     NSArray<MSIDAccountCacheItem *> *accountList = [_dataSource accountsWithKey:_queryAll serializer:_serializer context:nil error:&error];
@@ -211,7 +211,7 @@
 
 - (void)tearDown
 {
-    [_dataSource removeItemsWithAccountKey:_testAccountKey context:nil error:nil];
+    [_dataSource removeAccountsWithKey:_testAccountKey context:nil error:nil];
     [_cache clearWithContext:nil error:nil];
     _dataSource = nil;
 }
@@ -295,7 +295,7 @@
     XCTAssertNotNil(actualAccount);
     XCTAssertTrue([expectedAccount isEqual:actualAccount]);
 
-    result = [_dataSource removeItemsWithAccountKey:key2 context:nil error:&error];
+    result = [_dataSource removeAccountsWithKey:key2 context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -308,7 +308,7 @@
     XCTAssertNil(deletedAccountA);
 }
 
-- (void)testRemoveItemsWithAccountKey_whenKeyIsValid_shouldRemoveItem
+- (void)testRemoveAccountsWithKey_whenKeyIsValid_shouldRemoveItem
 {
     NSError *error;
     BOOL result = [_dataSource saveAccount:_testAccount key:_testAccountKey serializer:_serializer context:nil error:&error];
@@ -322,7 +322,7 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(_testAccount, account2);
 
-    result = [_dataSource removeItemsWithAccountKey:_testAccountKey context:nil error:&error];
+    result = [_dataSource removeAccountsWithKey:_testAccountKey context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -342,7 +342,7 @@
     _testAccountKey.username = _testAccount.username;
 
     // make sure it's not there
-    BOOL result = [_dataSource removeItemsWithAccountKey:key context:nil error:&error];
+    BOOL result = [_dataSource removeAccountsWithKey:key context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -514,23 +514,23 @@
     XCTAssertEqualObjects(appMetadataItems[0], appMetadata2);
 }
 
-- (void)testRemoveItemsWithTokenKey_whenKeysServiceAndAccountIsNil_shouldReturnFalseAndError
+- (void)testRemoveTokensWithKey_whenKeysServiceAndAccountIsNil_shouldReturnFalseAndError
 {
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:nil service:nil generic:nil type:nil];
     NSError *error;
     
-    BOOL result = [_dataSource removeItemsWithTokenKey:key context:nil error:&error];
+    BOOL result = [_dataSource removeTokensWithKey:key context:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
 }
 
-- (void)testRemoveItemsWithMetadataKey_whenKeysServiceAndAccountIsNil_shouldReturnFalseAndError
+- (void)testRemoveMetadataItemsWithKey_whenKeysServiceAndAccountIsNil_shouldReturnFalseAndError
 {
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:nil service:nil generic:nil type:nil];
     NSError *error;
     
-    BOOL result = [_dataSource removeItemsWithMetadataKey:key context:nil error:&error];
+    BOOL result = [_dataSource removeMetadataItemsWithKey:key context:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);

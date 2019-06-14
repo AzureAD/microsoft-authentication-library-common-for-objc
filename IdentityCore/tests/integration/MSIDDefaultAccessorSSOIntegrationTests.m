@@ -70,7 +70,7 @@
     MSIDDefaultTokenCacheAccessor *_defaultAccessor;
     MSIDDefaultTokenCacheAccessor *_nonSSOAccessor;
     MSIDLegacyTokenCacheAccessor *_otherAccessor;
-    id<MSIDTokenCacheDataSource> _defaultDataSource;
+    id<MSIDExtendedTokenCacheDataSource> _defaultDataSource;
     id<MSIDTokenCacheDataSource> _otherDataSource;
 
 }
@@ -99,8 +99,8 @@
 - (void)tearDown
 {
     [super tearDown];
-    [_defaultDataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
-    [_otherDataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
+    [_defaultDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
+    [_otherDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 
 #if !TARGET_OS_IOS
