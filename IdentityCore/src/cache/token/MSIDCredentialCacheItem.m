@@ -148,7 +148,7 @@
 
     if (!json)
     {
-        MSID_LOG_WARN(nil, @"Tried to decode a credential cache item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode a credential cache item from nil json");
         return nil;
     }
 
@@ -160,7 +160,7 @@
 
     if (!_secret)
     {
-        MSID_LOG_WARN(nil, @"No secret present in the credential");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No secret present in the credential");
         return nil;
     }
 

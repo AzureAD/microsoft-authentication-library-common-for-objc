@@ -21,18 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDKeychainTokenCache.h"
+#import "MSIDMaskedLogParameter.h"
 
-@interface MSIDKeychainTokenCache (Internal)
+NS_ASSUME_NONNULL_BEGIN
 
-- (NSString *)keychainGroupLoggingName;
-
-- (NSMutableArray<MSIDCredentialCacheItem *> *)filterTokenItemsFromKeychainItems:(NSArray *)items
-                                                                      serializer:(id<MSIDCacheItemSerializing>)serializer
-                                                                         context:(id<MSIDRequestContext>)context;
-
-- (MSIDCacheKey *)overrideTokenKey:(MSIDCacheKey *)key;
-
-- (NSString *)extractAppKey:(NSString *)cacheKeyString;
+@interface MSIDMaskedHashableLogParameter : MSIDMaskedLogParameter
 
 @end
+
+NS_ASSUME_NONNULL_END

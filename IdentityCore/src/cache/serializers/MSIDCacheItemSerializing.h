@@ -23,11 +23,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDAccountCacheItem;
+@class MSIDCredentialCacheItem;
 
-@protocol MSIDAccountItemSerializer <NSObject>
+@protocol MSIDCacheItemSerializing <NSObject>
 
-- (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item;
-- (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data;
+- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
+- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
 
 @end

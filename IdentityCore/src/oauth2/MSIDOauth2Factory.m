@@ -234,14 +234,14 @@
     
     if (!token.accessToken)
     {
-        MSID_LOG_ERROR(nil, @"Trying to initialize access token when missing access token field");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Trying to initialize access token when missing access token field");
         return NO;
     }
     NSDate *expiresOn = response.expiryDate;
     
     if (!expiresOn)
     {
-        MSID_LOG_WARN(nil, @"The server did not return the expiration time for the access token.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"The server did not return the expiration time for the access token.");
         expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600.0]; //Assume 1hr expiration
     }
     
@@ -264,7 +264,7 @@
     
     if (!response.isMultiResource)
     {
-        MSID_LOG_WARN(nil, @"Initializing non multi resource refresh token.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Initializing non multi resource refresh token.");
         return NO;
     }
     
@@ -272,7 +272,7 @@
     
     if (!token.refreshToken)
     {
-        MSID_LOG_WARN(nil, @"Trying to initialize refresh token when missing refresh token field");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize refresh token when missing refresh token field");
         return NO;
     }
 
@@ -294,7 +294,7 @@
     
     if (!token.rawIdToken)
     {
-        MSID_LOG_WARN(nil, @"Trying to initialize ID token when missing ID token field");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize ID token when missing ID token field");
         return NO;
     }
 

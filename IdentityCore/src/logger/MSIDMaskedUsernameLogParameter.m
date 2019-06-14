@@ -21,14 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDMaskedUsernameLogParameter.h"
+#import "NSString+MSIDExtensions.h"
 
-@class MSIDAppMetadataCacheItem;
+@implementation MSIDMaskedUsernameLogParameter
 
-@protocol MSIDAppMetadataItemSerializer <NSObject>
+#pragma mark - Masking
 
-- (NSData *)serializeAppMetadataCacheItem:(MSIDAppMetadataCacheItem *)item;
-- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data;
+- (NSString *)maskedDescription
+{
+    if (![self.parameterValue isKindOfClass:[NSString class]])
+    {
+        return [super maskedDescription];
+    }
+    
+    NSString *stringValue = (NSString *)self.parameterValue;
+    
+    NSRange emailIndex = [stringValue rangeOfString:@"@"];
+    
+    if (emailIndex.location != NSNotFound)
+    {
+        NSString *username = [stringValue substringToIndex:emailIndex.location];
+        NSString *domain = [stringValue substringFromIndex:emailIndex.location];
+        return [NSString stringWithFormat:@"%@%@", [username msidSecretLoggingHash], domain];
+    }
+    
+    return [self.parameterValue msidSecretLoggingHash];
+}
 
 @end
-

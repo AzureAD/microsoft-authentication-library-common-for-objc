@@ -107,8 +107,7 @@
 
         if (!intuneResult)
         {
-            MSID_LOG_NO_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save intune token with error %ld, %@", (long)intuneError.code, intuneError.domain);
-            MSID_LOG_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save intune token with error %@", intuneError);
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, correlationID, @"Unable to save intune token with error %@", MSID_PII_LOG_MASKABLE(intuneError));
         }
         else
         {

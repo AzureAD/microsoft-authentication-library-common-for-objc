@@ -39,14 +39,12 @@
     
     if (!teamId)
     {
-        MSID_LOG_ERROR(context, @"Encountered an error when reading teamID from keychain.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
         return nil;
     }
     NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
     
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, nil, @"Attempting to get registration information - shared access Group");
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, nil, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
-
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
     MSIDRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;
@@ -56,23 +54,22 @@
     NSString *certificateIssuer = nil;
     OSStatus status = noErr;
     
-    MSID_LOG_VERBOSE(nil, @"Attempting to get registration information - shared access Group.");
-    MSID_LOG_VERBOSE_PII(nil, @"Attempting to get registration information - %@ shared access Group.", sharedAccessGroup);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group.", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
     
     identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
-        MSID_LOG_VERBOSE(context, @"Failed to retrieve WPJ identity.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
         CFReleaseNull(identity);
         return nil;
     }
     
     // Get the wpj certificate
-    MSID_LOG_VERBOSE(context, @"Retrieving WPJ certificate reference.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ certificate reference.");
     status = SecIdentityCopyCertificate(identity, &certificate);
     
     // Get the private key
-    MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ private key reference.");
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
     
     certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
@@ -80,7 +77,7 @@
     
     if(!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
-        MSID_LOG_ERROR(context, @"WPJ identity retrieved from keychain is invalid.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid.");
     }
     else
     {
