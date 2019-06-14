@@ -563,9 +563,9 @@ static dispatch_queue_t s_synchronizationQueue;
         }
     }
 
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Found %lu items.", (unsigned long)appMetadataitems.count);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Found %lu items.", (unsigned long)resultItems.count);
 
-    return appMetadataitems;
+    return resultItems;
 }
 
 // Remove items with the given Metadata key from the macOS keychain cache.
@@ -762,11 +762,11 @@ static dispatch_queue_t s_synchronizationQueue;
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token item.");
         return NO;
     }
     
-    MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", jsonObject);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", MSID_PII_LOG_MASKABLE(jsonObject));
     
     return [self saveData:itemData
                       key:key
