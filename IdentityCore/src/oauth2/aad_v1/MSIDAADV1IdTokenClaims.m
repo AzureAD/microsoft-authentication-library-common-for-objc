@@ -97,13 +97,13 @@ MSID_JSON_ACCESSOR(ID_TOKEN_UNIQUE_NAME, uniqueName)
     
     if (!_issuerAuthority)
     {
-        MSID_LOG_WARN(nil, @"Failed to initialize issuer authority with error %@, %ld", issuerError.domain, (long)issuerError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to initialize issuer authority with error %@, %ld", issuerError.domain, (long)issuerError.code);
     }
 }
 
 - (NSString *)alternativeAccountId
 {
-    return _json[ID_TOKEN_ALT_SEC_ID];
+    return [_json msidStringObjectForKey:ID_TOKEN_ALT_SEC_ID];
 }
 
 - (NSString *)realm

@@ -21,13 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
+#import "MSIDMaskedLogParameter.h"
 
-@interface MSIDPkeyAuthHelper : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                                        context:(nullable id<MSIDRequestContext>)context;
+@interface MSIDMaskedHashableLogParameter : MSIDMaskedLogParameter
 
 @end
+
+NS_ASSUME_NONNULL_END

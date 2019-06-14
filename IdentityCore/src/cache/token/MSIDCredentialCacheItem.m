@@ -148,7 +148,7 @@
 
     if (!json)
     {
-        MSID_LOG_WARN(nil, @"Tried to decode a credential cache item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode a credential cache item from nil json");
         return nil;
     }
 
@@ -160,7 +160,7 @@
 
     if (!_secret)
     {
-        MSID_LOG_WARN(nil, @"No secret present in the credential");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No secret present in the credential");
         return nil;
     }
 
@@ -175,8 +175,8 @@
     _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
 
     // Last Modification info (currently used on macOS only)
-    _lastModificationTime = [NSDate msidDateFromTimeStamp:json[MSID_LAST_MOD_TIME_CACHE_KEY]];
-    _lastModificationApp = json[MSID_LAST_MOD_APP_CACHE_KEY];
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_LAST_MOD_TIME_CACHE_KEY]];
+    _lastModificationApp = [json msidStringObjectForKey:MSID_LAST_MOD_APP_CACHE_KEY];
 
     // Additional Info
     NSString *speInfo = [json msidStringObjectForKey:MSID_SPE_INFO_CACHE_KEY];

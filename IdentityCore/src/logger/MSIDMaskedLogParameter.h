@@ -22,12 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDRegistrationInformation.h"
 
-@interface MSIDPkeyAuthHelper : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
-                                  challengeData:(nullable NSDictionary *)challengeData
-                                        context:(nullable id<MSIDRequestContext>)context;
+@interface MSIDMaskedLogParameter : NSObject
+
+@property (nonatomic, readonly) id parameterValue;
+
+- (instancetype)initWithParameterValue:(id)parameter;
+
+- (NSString *)maskedDescription;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -75,7 +75,7 @@
     
     if (!item)
     {
-        MSID_LOG_VERBOSE_PII(nil, @"Failed to deserialize object %@ of expected class %@", error, expectedClass);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Failed to deserialize object %@ of expected class %@", error, expectedClass);
         return nil;
     }
     

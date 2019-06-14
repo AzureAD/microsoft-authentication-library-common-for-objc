@@ -68,7 +68,7 @@
 - (void)showCertSelectionSheet:(NSArray *)identities
                        message:(NSString *)message
 {
-    MSID_LOG_INFO_CORR(_correlationId, @"Displaying Cert Selection Sheet");
+    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, _correlationId, @"Displaying Cert Selection Sheet");
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self beginSheet:identities message:message];
@@ -82,7 +82,7 @@
     _window = nil;
     if (returnCode != NSModalResponseOK)
     {
-        MSID_LOG_INFO_CORR(_correlationId, @"no certificate selected");
+        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, _correlationId, @"no certificate selected");
         _completionHandler(NULL);
         return;
     }
@@ -103,11 +103,11 @@
     // If web auth fails while the sheet is up that usually means the connection timed out, tear
     // down the cert selection sheet.
     
-    MSID_LOG_INFO_CORR(_correlationId, @"Aborting cert selection due to web auth failure");
+    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, _correlationId, @"Aborting cert selection due to web auth failure");
     NSArray *sheets = _window.sheets;
     if (sheets.count < 1)
     {
-        MSID_LOG_ERROR_CORR(_correlationId, @"Unable to find sheet to dismiss for client cert auth handler.");
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, _correlationId, @"Unable to find sheet to dismiss for client cert auth handler.");
         return;
     }
     // It turns out the SFChooseIdentityPanel is not the real sheet that gets displayed, so telling the window to end it

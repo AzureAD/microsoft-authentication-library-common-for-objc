@@ -315,8 +315,9 @@
                                            error:&error];
     XCTAssertNil(error);
     
-    account.displayableId = nil;
-
+    account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
+                                                     homeAccountId:@"some id"];
+    
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
@@ -797,8 +798,9 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account.displayableId = @"user Id 2";
-
+    account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user Id 2"
+                                                     homeAccountId:nil];
+    
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"at"
                                                                             rt:@"rt 2"
                                                                       resource:DEFAULT_TEST_RESOURCE

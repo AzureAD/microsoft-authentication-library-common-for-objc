@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAppMetadataCacheItem.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @interface MSIDAppMetadataCacheItem()
 
@@ -90,15 +91,15 @@
     
     if (!json)
     {
-        MSID_LOG_WARN(nil, @"Tried to decode an account cache item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode an account cache item from nil json");
         return nil;
     }
     
     _json = json;
     
-    _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
-    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
-    _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    _environment = [json msidStringObjectForKey:MSID_ENVIRONMENT_CACHE_KEY];
+    _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
     return self;
 }
 

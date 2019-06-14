@@ -2266,9 +2266,7 @@
 
     XCTAssertNotNil(account);
 
-    MSIDAccountIdentifier *identifier = [MSIDAccountIdentifier new];
-    identifier.homeAccountId = account.accountIdentifier.homeAccountId;
-    identifier.displayableId = account.username;
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:account.username homeAccountId:account.accountIdentifier.homeAccountId];
 
     MSIDAuthority *msidAuthority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
 
@@ -2342,9 +2340,7 @@
                      familyId:nil
                      accessor:_nonSSOAccessor];
 
-    MSIDAccountIdentifier *identifier = [MSIDAccountIdentifier new];
-    identifier.homeAccountId = @"uid.utid";
-    identifier.displayableId = @"upn@test.com";
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:@"uid.utid"];
 
     NSError *error = nil;
     MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];

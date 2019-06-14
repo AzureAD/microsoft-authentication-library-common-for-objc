@@ -40,7 +40,7 @@
 {
     if (!tokenResult.account)
     {
-        MSID_LOG_ERROR_CORR(correlationID, @"No account returned from server.");
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationID, @"No account returned from server.");
         
         if (error)
         {
@@ -82,8 +82,7 @@
           correlationID:(NSUUID *)correlationID
                   error:(NSError **)error
 {
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account");
-    MSID_LOG_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
+    MSID_LOG_WITH_CORR_PII(MSIDLogLevelVerbose, correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.maskedDisplayableId, tokenResult.account.accountIdentifier.maskedDisplayableId, MSID_PII_LOG_MASKABLE(tokenResult.account.localAccountId));
     
     switch (accountIdentifier.legacyAccountIdentifierType)
     {
