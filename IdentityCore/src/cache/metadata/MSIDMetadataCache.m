@@ -99,7 +99,7 @@
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return nil;
     }
 

@@ -43,24 +43,24 @@
     NSString *certificateIssuer  = nil;
     OSStatus status = noErr;
     
-    MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Attempting to get WPJ registration information.");
     identity = [self copyWPJIdentity:context issuer:&certificateIssuer certificateAuthorities:challenge.protectionSpace.distinguishedNames];
     
     // If there's no identity in the keychain, return nil. adError won't be set if the
     // identity can't be found since this isn't considered an error condition.
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
-        MSID_LOG_VERBOSE(context, @"Failed to retrieve WPJ identity.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
         CFReleaseNull(identity);
         return nil;
     }
     
     // Get the wpj certificate
-    MSID_LOG_VERBOSE(context, @"Retrieving WPJ certificate reference.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ certificate reference.");
     status = SecIdentityCopyCertificate(identity, &certificate);
     
     // Get the private key
-    MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ private key reference.");
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
     
     certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
@@ -68,7 +68,7 @@
     
     if(!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
-        MSID_LOG_ERROR(context, @"WPJ identity retrieved from keychain is invalid.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid.");
     }
     
     else
