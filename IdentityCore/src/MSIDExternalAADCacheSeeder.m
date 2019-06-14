@@ -102,6 +102,7 @@
                              tokenResponse:originalTokenResponse
                                    factory:factory
                              configuration:requestParameters.msidConfiguration
+                         providedAuthority:requestParameters.providedAuthority
                                    context:requestParameters
                            completionBlock:completionBlockWrapper];
         return;
@@ -159,6 +160,7 @@
                               tokenResponse:originalTokenResponse
                                     factory:factory
                               configuration:requestParameters.msidConfiguration
+                          providedAuthority:requestParameters.providedAuthority
                                     context:requestParameters
                             completionBlock:completionBlockWrapper];
      }];
@@ -170,15 +172,23 @@
                        tokenResponse:(MSIDTokenResponse *)tokenResponse
                              factory:(MSIDOauth2Factory *)factory
                        configuration:(MSIDConfiguration *)configuration
+                   providedAuthority:(MSIDAuthority *)providedAuthority
                              context:(id<MSIDRequestContext>)context
                      completionBlock:(void(^)(void))completionBlock
 {
     NSParameterAssert(completionBlock);
     
+    if (providedAuthority)
+    {
+        // If we have original authority provided by the developer, use it
+        // for caching RT in Legacy Cache.
+        configuration = [configuration copy];
+        configuration.authority = providedAuthority;
+    }
+    
     MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:tokenResponse
                                                                      configuration:configuration];
     refreshToken.idToken = idToken.rawIdToken;
-    refreshToken.accountIdentifier = idToken.accountIdentifier;
     
     MSID_LOG_INFO(context, @"Saving refresh token in external cache.");
     
