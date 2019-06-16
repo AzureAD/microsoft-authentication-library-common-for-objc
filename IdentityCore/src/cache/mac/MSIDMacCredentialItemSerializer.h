@@ -21,26 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCredentialCacheItem.h"
-#import "MSIDJsonSerializable.h"
+#import <Foundation/Foundation.h>
+
+@class MSIDMacCredentialCacheItem;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDMacSharedCredentialCacheItem : NSObject <MSIDJsonSerializable>
+@protocol MSIDMacCredentialItemSerializer <NSObject>
 
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
-
-+ (MSIDMacSharedCredentialCacheItem *)sharedInstance;
-
-- (void)setSharedCredential:(MSIDCredentialCacheItem *)token forKey:(MSIDDefaultCredentialCacheKey *)key;
-
-- (void)mergeSharedCredential:(MSIDMacSharedCredentialCacheItem *)credential;
-
-- (NSArray<MSIDCredentialCacheItem *> *)sharedCredentialsWithKey:(MSIDDefaultCredentialCacheKey *)key;
-
-- (void)removeSharedCredentialForKey:(MSIDDefaultCredentialCacheKey *)key;
+- (NSData *)serializeMacCredentialCacheItem:(MSIDMacCredentialCacheItem *)item;
+- (MSIDMacCredentialCacheItem *)deserializeMacCredentialCacheItem:(NSData *)data;
 
 @end
 
