@@ -263,7 +263,7 @@
         [mergedDictionary addEntriesFromDictionary:account.jsonDictionary];
         NSError *accountError;
         account = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:mergedDictionary error:&accountError];
-        if (accountError != nil || account == nil)
+        if (accountError || !account)
         {
             if (error)
             {
