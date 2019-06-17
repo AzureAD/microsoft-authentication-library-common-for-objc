@@ -158,6 +158,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstor
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 static dispatch_queue_t s_synchronizationQueue;
+static NSString *keyDelimiter = @"-";
 
 @interface MSIDMacKeychainTokenCache ()
 
@@ -432,15 +433,16 @@ static dispatch_queue_t s_synchronizationQueue;
     assert(serializer);
     
     [self updateLastModifiedForCredential:credential context:context];
+    NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@",key.account,keyDelimiter,key.service];
     
     if (key.isShared)
     {
-        [self.sharedCredential setCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
+        [self.sharedCredential setCredential:credential forKey:tokenKey];
         return [self saveCredential:self.sharedCredential key:key context:context error:error];
     }
     else
     {
-        [self.appCredential setCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
+        [self.appCredential setCredential:credential forKey:tokenKey];
         return [self saveCredential:self.appCredential key:key context:context error:error];
     }
 }
@@ -596,7 +598,8 @@ static dispatch_queue_t s_synchronizationQueue;
     
     if (macCredential)
     {
-        [macCredential removeCredentialForKey:(MSIDDefaultCredentialCacheKey *)key];
+        NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@",key.account,keyDelimiter,key.service];
+        [macCredential removeCredentialForKey:tokenKey];
         return [self saveCredential:macCredential key:key context:context error:error];
     }
     
@@ -632,7 +635,7 @@ static dispatch_queue_t s_synchronizationQueue;
     __block OSStatus status;
     
     dispatch_sync(s_synchronizationQueue, ^{
-        status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)result);
+        status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&result);
     });
     
     MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
