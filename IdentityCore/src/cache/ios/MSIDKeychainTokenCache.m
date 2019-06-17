@@ -60,13 +60,12 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 {
     if (s_defaultCache)
     {
-        MSID_LOG_ERROR(nil, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
         
         @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
     }
     
-    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Setting default keychain group.");
-    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Setting default keychain group to %@", defaultKeychainGroup);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Setting default keychain group to %@", MSID_PII_LOG_MASKABLE(defaultKeychainGroup));
     
     if ([defaultKeychainGroup isEqualToString:s_defaultKeychainGroup])
     {
@@ -133,8 +132,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                               (id)kSecAttrAccessGroup : self.keychainGroup,
                               (id)kSecAttrAccount : @"TokenWipe"};
     
-    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
-    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", _keychainGroup);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", MSID_PII_LOG_MASKABLE(_keychainGroup));
     
     return self;
 }
@@ -156,7 +154,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure generic field is not nil.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return NO;
     }
     
@@ -170,11 +168,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token item.");
         return NO;
     }
     
-    MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", item);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", MSID_PII_LOG_MASKABLE(item));
     
     return [self saveData:itemData
                       key:tokenCacheKey
@@ -187,7 +185,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    MSID_LOG_VERBOSE(context, @"itemWithKey:serializer:context:error:");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"itemWithKey:serializer:context:error:");
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key serializer:serializer context:context error:error];
     
     if (items.count > 1)
@@ -221,7 +219,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                               serializer:serializer
                                                                  context:context];
     
-    MSID_LOG_VERBOSE(context, @"Found %lu items.", (unsigned long)tokenItems.count);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Found %lu items.", (unsigned long)tokenItems.count);
 
     
     return tokenItems;
@@ -246,11 +244,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token item.");
         return NO;
     }
     
-    MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", item);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", MSID_PII_LOG_MASKABLE(item));
     
     return [self saveData:itemData
                       key:key
@@ -313,11 +311,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
             NSString *errorMessage = @"Failed to serialize app metadata item.";
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize app metadata item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize app metadata item.");
         return NO;
     }
     
-    MSID_LOG_VERBOSE(context, @"Saving keychain item, item info %@", item);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Saving keychain item, item info %@", item);
     
     return [self saveData:itemData
                       key:key
@@ -360,11 +358,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to serialize token item.");
         return NO;
     }
     
-    MSID_LOG_INFO_PII(context, @"Saving keychain item, item info %@", jsonObject);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", jsonObject);
     
     return [self saveData:itemData
                       key:key
@@ -386,11 +384,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
             NSString *errorMessage = @"Nil metadata item is received!";
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Nil metadata item is received!");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Nil metadata item is received!");
         return NO;
     }
     
-    MSID_LOG_VERBOSE(context, @"Saving metadata item info %@", item);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Saving metadata item info %@", item);
     
     return [self saveData:[serializer serializeCacheItem:item]
                       key:key
@@ -407,7 +405,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     
     if (!items || items.count < 1)
     {
-        MSID_LOG_WARN(context, @"Found no metadata item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Found no metadata item.");
         return nil;
     }
     
@@ -456,8 +454,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSData *generic = key.generic;
     NSNumber *type = key.type;
     
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(account), _PII_NULLIFY(service), [self keychainGroupLoggingName]);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", account, service, self.keychainGroup);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
     
     if (!key)
     {
@@ -492,9 +489,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         [query setObject:key.appKeyHash forKey:(id)kSecAttrCreator];
     }
     
-    MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    MSID_LOG_INFO(context, @"Keychain delete status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain delete status: %d", (int)status);
     
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
@@ -502,7 +499,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d)", (int)status);
         
         return NO;
     }
@@ -519,23 +516,23 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                 @"wipeTime" : [NSDate date]
                                 };
 
-    MSID_LOG_INFO_PII(context, @"Full wipe info: %@", wipeInfo);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Full wipe info: %@", MSID_PII_LOG_MASKABLE(wipeInfo));
     
     NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
     
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Trying to update wipe info...");
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context,@"Wipe query: %@", self.defaultWipeQuery);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Trying to update wipe info...");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Wipe query: %@", MSID_PII_LOG_MASKABLE(self.defaultWipeQuery));
     
     OSStatus status = SecItemUpdate((CFDictionaryRef)self.defaultWipeQuery, (CFDictionaryRef)@{ (id)kSecValueData:wipeData});
-    MSID_LOG_VERBOSE(context, @"Update wipe info status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Update wipe info status: %d", (int)status);
     if (status == errSecItemNotFound)
     {
         NSMutableDictionary *mutableQuery = [self.defaultWipeQuery mutableCopy];
         [mutableQuery addEntriesFromDictionary: @{(id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
                                                   (id)kSecValueData : wipeData}];
-        MSID_LOG_VERBOSE(context, @"Trying to add wipe info...");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to add wipe info...");
         status = SecItemAdd((CFDictionaryRef)mutableQuery, NULL);
-        MSID_LOG_VERBOSE(context, @"Add wipe info status: %d", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Add wipe info status: %d", (int)status);
     }
     
     if (status != errSecSuccess)
@@ -544,7 +541,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to save wipe token data into keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to save wipe token data into keychain (status: %d)", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save wipe token data into keychain (status: %d)", (int)status);
         return NO;
     }
     
@@ -560,18 +557,18 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     [query removeObjectForKey:(id)kSecAttrService];
     
     CFTypeRef data = nil;
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Trying to get wipe info...");
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Wipe query: %@", self.defaultWipeQuery);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Trying to get wipe info...");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Wipe query: %@", MSID_PII_LOG_MASKABLE(self.defaultWipeQuery));
     
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &data);
-    MSID_LOG_VERBOSE(context, @"Get wipe info status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Get wipe info status: %d", (int)status);
     
     if (status != errSecSuccess)
     {
         if (error && status != errSecItemNotFound)
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil);
-            MSID_LOG_ERROR(context, @"Failed to get a wipe data from keychain (status: %d)", (int)status);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to get a wipe data from keychain (status: %d)", (int)status);
         }
         
         return nil;
@@ -623,7 +620,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_INFO(context, @"Failed to deserialize token item.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize token item.");
         }
     }
     
@@ -655,9 +652,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     [deleteQuery setObject:service forKey:(id)kSecAttrService];
     [deleteQuery setObject:account forKey:(id)kSecAttrAccount];
     
-    MSID_LOG_VERBOSE(context, @"Trying to delete tombstone item...");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to delete tombstone item...");
     OSStatus status = SecItemDelete((CFDictionaryRef)deleteQuery);
-    MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain delete status: %d", (int)status);
 }
 
 #pragma mark - Helpers
@@ -689,11 +686,11 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         }
         else
         {
-            MSID_LOG_INFO(context, @"Failed to deserialize item with class %@.", resultClass);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize item with class %@.", resultClass);
         }
     }
     
-    MSID_LOG_VERBOSE(context, @"Found %lu items.", (unsigned long)resultItems.count);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Found %lu items.", (unsigned long)resultItems.count);
     
     return resultItems;
 }
@@ -707,8 +704,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSData *generic = key.generic;
     NSNumber *type = key.type;
     
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", _PII_NULLIFY(account), service, _PII_NULLIFY(generic), type, [self keychainGroupLoggingName]);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", account, service, generic, type, self.keychainGroup);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, generic, type, [self keychainGroupLoggingName]);
     
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     if (service)
@@ -737,9 +733,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     [query setObject:(id)kSecMatchLimitAll forKey:(id)kSecMatchLimit];
     
     CFTypeRef cfItems = nil;
-    MSID_LOG_VERBOSE(context, @"Trying to find keychain items...");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to find keychain items...");
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
-    MSID_LOG_INFO(context, @"Keychain find status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain find status: %d", (int)status);
     
     if (status == errSecItemNotFound)
     {
@@ -751,7 +747,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to find keychain item (status: %d)", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to find keychain item (status: %d)", (int)status);
         return nil;
     }
     
@@ -771,8 +767,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSData *generic = key.generic;
     NSNumber *type = key.type;
     
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", _PII_NULLIFY(account), _PII_NULLIFY(service), [self keychainGroupLoggingName]);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", account, service, self.keychainGroup);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
     
     if (!service)
     {
@@ -780,7 +775,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service field is not nil.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Set keychain item with invalid key.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return NO;
     }
     
@@ -790,7 +785,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to serialize token item.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token item.");
         return NO;
     }
     
@@ -803,7 +798,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         [query setObject:type forKey:(id)kSecAttrType];
     }
     
-    MSID_LOG_VERBOSE(context, @"Trying to update keychain item...");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to update keychain item...");
 
     NSMutableDictionary *updateDictionary = [@{(id)kSecValueData : itemData} mutableCopy];
 
@@ -813,7 +808,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
 
     OSStatus status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)updateDictionary);
-    MSID_LOG_VERBOSE(context, @"Keychain update status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain update status: %d", (int)status);
     if (status == errSecItemNotFound)
     {
         [query setObject:itemData forKey:(id)kSecValueData];
@@ -830,9 +825,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
         [query setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
         
-        MSID_LOG_VERBOSE(context, @"Trying to add keychain item...");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to add keychain item...");
         status = SecItemAdd((CFDictionaryRef)query, NULL);
-        MSID_LOG_VERBOSE(context, @"Keychain add status: %d", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain add status: %d", (int)status);
     }
     
     if (status != errSecSuccess)
@@ -841,7 +836,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to set item into keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to set item into keychain (status: %d)", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to set item into keychain (status: %d)", (int)status);
     }
     
     return status == errSecSuccess;
@@ -850,12 +845,12 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (BOOL)clearWithContext:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {
-    MSID_LOG_WARN(context, @"Clearing the whole context. This should only be executed in tests");
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests");
 
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
-    MSID_LOG_VERBOSE(context, @"Trying to delete keychain items...");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to delete keychain items...");
     OSStatus status = SecItemDelete((CFDictionaryRef)query);
-    MSID_LOG_VERBOSE(context, @"Keychain delete status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain delete status: %d", (int)status);
 
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
@@ -863,7 +858,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
         }
-        MSID_LOG_ERROR(context, @"Failed to delete keychain items (status: %d)", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d)", (int)status);
 
         return NO;
     }

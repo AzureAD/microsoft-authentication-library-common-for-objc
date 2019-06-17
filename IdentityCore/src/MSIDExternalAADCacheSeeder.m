@@ -67,11 +67,11 @@
     NSParameterAssert(requestParameters);
     NSParameterAssert(completionBlock);
     
-    MSID_LOG_INFO(requestParameters, @"Beginning external cache seeding.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Beginning external cache seeding.");
     
     void (^completionBlockWrapper)(void) = ^
     {
-        MSID_LOG_INFO(requestParameters, @"External cache seeding finished.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"External cache seeding finished.");
         completionBlock();
     };
     
@@ -84,7 +84,7 @@
     MSIDConfiguration *configuration = [requestParameters.msidConfiguration copy];
     configuration.authority = originalTokenResponse.idTokenObj.issuerAuthority;
     
-    MSID_LOG_INFO(requestParameters, @"Trying to get legacy id token from cache.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Trying to get legacy id token from cache.");
     
     MSIDIdToken *legacyIdToken = [self.defaultAccessor getIDTokenForAccount:accountIdentifier
                                                               configuration:configuration
@@ -96,7 +96,7 @@
     
     if (legacyIdToken)
     {
-        MSID_LOG_INFO(requestParameters, @"Found legacy id token in cache.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Found legacy id token in cache.");
         
         [self seedExternalCacheWithIdToken:legacyIdToken
                              tokenResponse:originalTokenResponse
@@ -108,7 +108,7 @@
         return;
     }
     
-    MSID_LOG_INFO(requestParameters, @"Legacy id token wasn't found in cache, sending network request to acquire legacy id token.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Legacy id token wasn't found in cache, sending network request to acquire legacy id token.");
     
     __auto_type refreshToken = [factory refreshTokenFromResponse:originalTokenResponse
                                                    configuration:requestParameters.msidConfiguration];
@@ -124,8 +124,7 @@
      {
          if (error)
          {
-             MSID_LOG_ERROR(requestParameters, @"Failed to acquire V1 Id Token token via Refresh token. Error %ld, %@", (long)error.code, error.domain);
-             MSID_LOG_ERROR_PII(requestParameters, @"Failed to acquire V1 Id Token token via Refresh token. Error %@", error);
+             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Failed to acquire V1 Id Token token via Refresh token, error: %@", MSID_PII_LOG_MASKABLE(error));
              
              completionBlockWrapper();
              return;
@@ -136,24 +135,22 @@
          
          if (!legacyIdToken)
          {
-             MSID_LOG_ERROR(requestParameters, @"Failed to parse V1 Id Token. Error %ld, %@", (long)error.code, error.domain);
-             MSID_LOG_ERROR_PII(requestParameters, @"Failed to parse V1 Id Token. Error %@", error);
+             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Failed to parse V1 Id Token, error: %@", MSID_PII_LOG_MASKABLE(error));
              
              completionBlockWrapper();
          }
          
-         MSID_LOG_INFO(requestParameters, @"Saving V1 id token in default cache.");
+         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Saving V1 id token in default cache.");
          
          NSError *localError;
          BOOL result = [self.defaultAccessor saveToken:legacyIdToken context:requestParameters error:&localError];
          if (result)
          {
-             MSID_LOG_INFO(requestParameters, @"Saved V1 id token in default cache.");
+             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Saved V1 id token in default cache.");
          }
          else
          {
-             MSID_LOG_ERROR(requestParameters, @"Failed to save V1 id token in default cache. Error %ld, %@", (long)error.code, error.domain);
-             MSID_LOG_ERROR_PII(requestParameters, @"Failed to save V1 id token in default cache. Error %@", error);
+             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Failed to save V1 id token in default cache, error: %@", MSID_PII_LOG_MASKABLE(error));
          }
          
          [self seedExternalCacheWithIdToken:legacyIdToken
@@ -190,7 +187,7 @@
                                                                      configuration:configuration];
     refreshToken.idToken = idToken.rawIdToken;
     
-    MSID_LOG_INFO(context, @"Saving refresh token in external cache.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Saving refresh token in external cache.");
     
     NSError *error;
     BOOL result = [self.externalLegacyAccessor saveRefreshToken:refreshToken
@@ -200,12 +197,11 @@
     
     if (result)
     {
-        MSID_LOG_INFO(context, @"Refresh token was saved in external cache.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Refresh token was saved in external cache.");
     }
     else
     {
-        MSID_LOG_ERROR(context, @"Failed to save refresh token in external cache. Error %ld, %@", (long)error.code, error.domain);
-        MSID_LOG_ERROR_PII(context, @"Failed to save refresh token in external cache. Error %@", error);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to save refresh token in external cache, error: %@", MSID_PII_LOG_MASKABLE(error));
     }
     
     completionBlock();

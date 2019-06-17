@@ -61,41 +61,6 @@
     return (MSIDCredentialCacheItem *)[self deserializeCacheItem:data ofClass:[MSIDCredentialCacheItem class]];
 }
 
-#pragma mark - Account
-
-- (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item
-{
-    return [self.jsonSerializer toJsonData:item context:nil error:nil];
-}
-
-- (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data
-{
-    return (MSIDAccountCacheItem *)[self deserializeCacheItem:data ofClass:[MSIDAccountCacheItem class]];
-}
-
-#pragma mark - App metadata
-
-- (NSData *)serializeAppMetadataCacheItem:(MSIDAppMetadataCacheItem *)item
-{
-    return [self.jsonSerializer toJsonData:item context:nil error:nil];
-}
-
-- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data
-{
-    return (MSIDAppMetadataCacheItem *)[self deserializeCacheItem:data ofClass:[MSIDAppMetadataCacheItem class]];
-}
-
-#pragma mark - Account metadata
-- (NSData *)serializeAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
-{
-    return [self.jsonSerializer toJsonData:item context:nil error:nil];
-}
-
-- (MSIDAccountMetadataCacheItem *)deserializeAccountMetadata:(NSData *)data
-{
-    return (MSIDAccountMetadataCacheItem *)[self deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
-}
-
 #pragma mark - JSON Object
 
 - (NSData *)serializeCacheItem:(id<MSIDJsonSerializable>)item
@@ -110,7 +75,7 @@
     
     if (!item)
     {
-        MSID_LOG_VERBOSE_PII(nil, @"Failed to deserialize object %@ of expected class %@", error, expectedClass);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Failed to deserialize object %@ of expected class %@", error, expectedClass);
         return nil;
     }
     

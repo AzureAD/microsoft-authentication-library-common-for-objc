@@ -130,7 +130,7 @@
 
     if (!json)
     {
-        MSID_LOG_WARN(nil, @"Tried to decode an account cache item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode an account cache item from nil json");
         return nil;
     }
 
@@ -140,7 +140,7 @@
 
     if (!_accountType)
     {
-        MSID_LOG_WARN(nil, @"No account type present in the JSON for credential");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No account type present in the JSON for credential");
         return nil;
     }
 
