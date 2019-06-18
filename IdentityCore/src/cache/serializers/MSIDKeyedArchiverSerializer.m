@@ -127,6 +127,16 @@
     return nil;
 }
 
+- (NSData *)serializeMacCredentialCacheItem:(MSIDCredentialCacheItem *)item
+{
+    return nil;
+}
+
+- (MSIDMacCredentialCacheItem *)deserializeMacCredentialCacheItem:(NSData *)data
+{
+    return nil;
+}
+
 #pragma mark - Class Mapping
 
 - (void)addEncodeClassMapping:(NSDictionary *)classMap

@@ -24,10 +24,13 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDCredentialCacheItem;
+@class MSIDMacCredentialCacheItem;
 
 @protocol MSIDCacheItemSerializing <NSObject>
 
 - (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
 - (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
+- (NSData *)serializeMacCredentialCacheItem:(MSIDMacCredentialCacheItem *)item;
+- (MSIDMacCredentialCacheItem *)deserializeMacCredentialCacheItem:(NSData *)data;
 
 @end

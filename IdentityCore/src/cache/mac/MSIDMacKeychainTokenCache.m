@@ -397,11 +397,11 @@ static NSString *keyDelimiter = @"-";
 #pragma mark - Credentials
 
 // Write a credential to the macOS keychain cache.
-- (BOOL)saveToken:(__unused MSIDCredentialCacheItem *)credential
-              key:(__unused MSIDCacheKey *)key
-       serializer:(__unused id<MSIDCacheItemSerializing>)serializer
-          context:(__unused id<MSIDRequestContext>)context
-            error:(__unused NSError **)error
+- (BOOL)saveToken:(MSIDCredentialCacheItem *)credential
+              key:(MSIDCacheKey *)key
+       serializer:(id<MSIDCacheItemSerializing>)serializer
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error
 {
     assert(credential);
     assert(serializer);
@@ -434,7 +434,7 @@ static NSString *keyDelimiter = @"-";
         [credential mergeCredential:savedCredential];
     }
     
-    NSData *itemData = [self.serializer serializeCacheItem:credential];
+    NSData *itemData = [self.serializer serializeMacCredentialCacheItem:credential];
     
     if (!itemData)
     {
@@ -497,10 +497,10 @@ static NSString *keyDelimiter = @"-";
 
 // Read a single credential from the macOS keychain cache.
 // If multiple matches are found, return nil and set an error.
-- (MSIDCredentialCacheItem *)tokenWithKey:(__unused MSIDCacheKey *)key
-                               serializer:(__unused id<MSIDCacheItemSerializing>)serializer
-                                  context:(__unused id<MSIDRequestContext>)context
-                                    error:(__unused NSError **)error
+- (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
+                               serializer:(id<MSIDCacheItemSerializing>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
     MSID_TRACE;
     NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key
@@ -521,10 +521,10 @@ static NSString *keyDelimiter = @"-";
 
 // Read one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
 // If not found, return an empty list without setting an error.
-- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(__unused MSIDCacheKey *)key
-                                           serializer:(__unused id<MSIDCacheItemSerializing>)serializer
-                                              context:(__unused id<MSIDRequestContext>)context
-                                                error:(__unused NSError **)error
+- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
+                                           serializer:(id<MSIDCacheItemSerializing>)serializer
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     NSArray<MSIDCredentialCacheItem *> *tokenList = [[NSArray alloc] init];
     
@@ -611,7 +611,7 @@ static NSString *keyDelimiter = @"-";
     {
         NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
         NSData *credentialData = [resultDict objectForKey:(id)kSecValueData];
-        macCredential = (MSIDMacCredentialCacheItem *)[self.serializer deserializeCacheItem:credentialData ofClass:[MSIDMacCredentialCacheItem class]];
+        macCredential = (MSIDMacCredentialCacheItem *)[self.serializer deserializeMacCredentialCacheItem:credentialData];
         
         if (!macCredential)
         {

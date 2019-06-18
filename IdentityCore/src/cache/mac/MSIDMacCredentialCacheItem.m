@@ -103,20 +103,32 @@ static NSString *keyDelimiter = @"-";
     
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
     
+    /*
+     Refresh token either has family Id as 1 or nil.
+     For app refresh token, we pass family id as nil which matches both FRT and RT instead of matching just RT
+     For clients that are not part of family, family is saved as empty string and added to refresh token query.
+     */
+    if ([NSString msidIsStringNilOrBlank:key.familyId])
+    {
+        key.familyId = nil;
+    }
+
+    [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.familyId == %@", key.familyId]];
     if (key.clientId)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.clientId == %@", key.clientId]];
-    
-    [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.familyId == %@", key.familyId]];
     if (key.environment)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.environment == %@", key.environment]];
     if (key.homeAccountId)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.homeAccountId == %@", key.homeAccountId]];
     if (key.credentialType)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.credentialType == %d", key.credentialType]];
-    if (key.target)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.target == %@", key.target]];
     if (key.realm)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.realm == %@", key.realm]];
+    /*
+     key.target is not added as target can be subset , intersect , superset or exact string match is matched later.
+     To do - realm is passed as common for at look up which results in no at being returned.
+     Implement the account metadata cache methods in MSIDMacKeychainTokenCache for this to work.
+     */
     
     // Combine all sub-predicates with AND:
     NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
