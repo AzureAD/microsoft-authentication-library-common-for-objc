@@ -59,8 +59,7 @@
     NSString *bundleSeedID = [components firstObject];
     keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
     
-    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
-    MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
     
     return keychainTeamId;
 }
@@ -81,14 +80,14 @@
 
         if (readStatus == errSecInteractionNotAllowed)
         {
-            MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld", (long)readStatus);
 
             OSStatus deleteStatus = SecItemDelete((__bridge CFDictionaryRef)query);
-            MSID_LOG_WARN(nil, @"Deleted existing teamID");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Deleted existing teamID");
 
             if (deleteStatus != errSecSuccess)
             {
-                MSID_LOG_ERROR(nil, @"Failed to delete teamID, result %ld", (long)deleteStatus);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to delete teamID, result %ld", (long)deleteStatus);
                 return;
             }
         }
@@ -106,14 +105,13 @@
         if (status == errSecSuccess)
         {
             appDefaultAccessGroup = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrAccessGroup)];
-            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Default app's access group: \"%@\".", _PII_NULLIFY(appDefaultAccessGroup));
-            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Default app's access group: \"%@\".", appDefaultAccessGroup);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Default app's access group: \"%@\".", MSID_PII_LOG_MASKABLE(appDefaultAccessGroup));
             
             CFRelease(result);
         }
         else
         {
-            MSID_LOG_ERROR(nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Encountered an error when reading teamIDHint in keychain. Keychain status %ld, read status %ld", (long)status, (long)readStatus);
         }
     });
     

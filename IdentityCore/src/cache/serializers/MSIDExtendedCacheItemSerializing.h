@@ -20,13 +20,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 #import <Foundation/Foundation.h>
+#import "MSIDCacheItemSerializing.h"
+#import "MSIDJsonSerializable.h"
 
-@class MSIDCredentialCacheItem;
+@class MSIDAccountCacheItem;
+@class MSIDJsonObject;
 
-@protocol MSIDCredentialItemSerializer <NSObject>
+@protocol MSIDExtendedCacheItemSerializing <MSIDCacheItemSerializing>
 
-- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
-- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
+- (NSData *)serializeCacheItem:(id<MSIDJsonSerializable>)item;
+- (id<MSIDJsonSerializable>)deserializeCacheItem:(NSData *)data ofClass:(Class)expectedClass;
 
 @end

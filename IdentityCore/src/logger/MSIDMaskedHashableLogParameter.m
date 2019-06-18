@@ -20,13 +20,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#import <Foundation/Foundation.h>
 
-@class MSIDAccountMetadataCacheItem;
+#import "MSIDMaskedHashableLogParameter.h"
+#import "NSString+MSIDExtensions.h"
 
-@protocol MSIDAccountMetadataCacheItemSerializer <NSObject>
+@implementation MSIDMaskedHashableLogParameter
 
-- (NSData *)serializeAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item;
-- (MSIDAccountMetadataCacheItem *)deserializeAccountMetadata:(NSData *)data;
+#pragma mark - Masking
+
+- (NSString *)maskedDescription
+{
+    if (![self.parameterValue isKindOfClass:[NSString class]])
+    {
+        return [super maskedDescription];
+    }
+    
+    return [self.parameterValue msidSecretLoggingHash];
+}
 
 @end

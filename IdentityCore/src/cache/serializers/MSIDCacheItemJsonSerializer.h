@@ -22,16 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAccountItemSerializer.h"
-#import "MSIDCredentialItemSerializer.h"
-#import "MSIDAppMetadataItemSerializer.h"
-#import "MSIDAccountMetadataCacheItemSerializer.h"
-#import "MSIDMacCredentialItemSerializer.h"
+#import "MSIDExtendedCacheItemSerializing.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCacheItemJsonSerializer : NSObject <MSIDCredentialItemSerializer, MSIDAccountItemSerializer, MSIDAppMetadataItemSerializer, MSIDMacCredentialItemSerializer, MSIDAccountMetadataCacheItemSerializer>
-
+@interface MSIDCacheItemJsonSerializer : NSObject <MSIDExtendedCacheItemSerializing>
 
 @end
 

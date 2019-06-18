@@ -50,7 +50,7 @@
 
 - (void)setUp
 {
-    id<MSIDTokenCacheDataSource> dataSource = nil;
+    id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
 
 #if TARGET_OS_IOS
     dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];

@@ -350,7 +350,7 @@
     MSIDMacTokenCache *cache = [MSIDMacTokenCache new];
     cache.delegate = self.macTokenCacheMocDelegate;
     
-    [cache removeItemsWithTokenKey:nil context:nil error:nil];
+    [cache removeTokensWithKey:nil context:nil error:nil];
     
     XCTAssertEqual(self.macTokenCacheMocDelegate.willWriteCount, 1);
     XCTAssertEqual(self.macTokenCacheMocDelegate.didWriteCount, 1);
