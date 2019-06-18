@@ -30,6 +30,7 @@ NSString *const MSID_TELEMETRY_EVENT_API_EVENT              = @"api_event";
 NSString *const MSID_TELEMETRY_EVENT_UI_EVENT               = @"ui_event";
 NSString *const MSID_TELEMETRY_EVENT_HTTP_REQUEST           = @"http_event";
 NSString *const MSID_TELEMETRY_EVENT_LAUNCH_BROKER          = @"broker_event";
+NSString *const MSID_TELEMETRY_EVENT_EXTERNAL_CACHE_SEEDING = @"external_cache_seeding";
 NSString *const MSID_TELEMETRY_EVENT_TOKEN_GRANT            = @"token_grant";
 NSString *const MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION   = @"authority_validation";
 NSString *const MSID_TELEMETRY_EVENT_ACQUIRE_TOKEN_SILENT   = @"acquire_token_silent_handler";

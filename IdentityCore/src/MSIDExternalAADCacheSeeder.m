@@ -31,6 +31,10 @@
 #import "MSIDIdToken.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAADV2Oauth2FactoryForV1Request.h"
+#import "MSIDTelemetry+Internal.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDTelemetryCacheEvent.h"
+#import "MSIDTelemetry+Cache.h"
 
 @interface MSIDExternalAADCacheSeeder()
 
@@ -69,9 +73,17 @@
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Beginning external cache seeding.");
     
-    void (^completionBlockWrapper)(void) = ^
+    [[MSIDTelemetry sharedInstance] startEvent:requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_EXTERNAL_CACHE_SEEDING];
+    
+    void (^completionBlockWrapper)(BOOL success) = ^(BOOL success)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"External cache seeding finished.");
+        
+        MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_EXTERNAL_CACHE_SEEDING
+                                                                        context:requestParameters];
+        
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:success context:requestParameters];
+        
         completionBlock();
     };
     
@@ -126,7 +138,7 @@
          {
              MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Failed to acquire V1 Id Token token via Refresh token, error: %@", MSID_PII_LOG_MASKABLE(error));
              
-             completionBlockWrapper();
+             completionBlockWrapper(false);
              return;
          }
          
@@ -137,7 +149,7 @@
          {
              MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Failed to parse V1 Id Token, error: %@", MSID_PII_LOG_MASKABLE(error));
              
-             completionBlockWrapper();
+             completionBlockWrapper(false);
          }
          
          MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Saving V1 id token in default cache.");
@@ -171,7 +183,7 @@
                        configuration:(MSIDConfiguration *)configuration
                    providedAuthority:(MSIDAuthority *)providedAuthority
                              context:(id<MSIDRequestContext>)context
-                     completionBlock:(void(^)(void))completionBlock
+                     completionBlock:(void(^)(BOOL success))completionBlock
 {
     NSParameterAssert(completionBlock);
     
@@ -204,7 +216,7 @@
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to save refresh token in external cache, error: %@", MSID_PII_LOG_MASKABLE(error));
     }
     
-    completionBlock();
+    completionBlock(result);
 }
 
 @end
