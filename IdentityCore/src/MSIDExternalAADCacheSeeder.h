@@ -22,29 +22,30 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
 
+@class MSIDLegacyTokenCacheAccessor;
 @class MSIDDefaultTokenCacheAccessor;
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
 @class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDAccountMetadataCacheAccessor;
-
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
+@interface MSIDExternalAADCacheSeeder : NSObject
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
+@property (nonatomic, readonly) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
+@property (nonatomic, readonly) MSIDDefaultTokenCacheAccessor *defaultAccessor;
 
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (instancetype _Nullable)initWithDefaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                           externalLegacyAccessor:(MSIDLegacyTokenCacheAccessor *)externalLegacyAccessor NS_DESIGNATED_INITIALIZER;
+
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
+
+- (void)seedTokenResponse:(MSIDTokenResponse *)tokenResponse
+                  factory:(MSIDOauth2Factory *)factory
+        requestParameters:(MSIDRequestParameters *)requestParameters
+          completionBlock:(void(^)(void))completionBlock;
 
 @end
 

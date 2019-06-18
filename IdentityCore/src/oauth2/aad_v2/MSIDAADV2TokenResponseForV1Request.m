@@ -21,31 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTokenRequestProviding.h"
+#import "MSIDAADV2TokenResponseForV1Request.h"
+#import "MSIDTokenResponse+Internal.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
-@class MSIDDefaultTokenCacheAccessor;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDAccountMetadataCacheAccessor;
+@implementation MSIDAADV2TokenResponseForV1Request
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDDefaultTokenRequestProvider : NSObject <MSIDTokenRequestProviding>
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
-                              defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
-                       tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
+- (BOOL)initIdToken:(NSError **)error
+{
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+        return self.idTokenObj != nil;
+    }
+    
+    return YES;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

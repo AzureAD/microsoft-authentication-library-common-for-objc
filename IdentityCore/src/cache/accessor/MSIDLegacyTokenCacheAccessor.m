@@ -580,14 +580,11 @@
                      error:error];
 }
 
-- (BOOL)saveRefreshTokenWithConfiguration:(MSIDConfiguration *)configuration
-                                 response:(MSIDTokenResponse *)response
-                                  factory:(MSIDOauth2Factory *)factory
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+- (BOOL)saveRefreshToken:(MSIDLegacyRefreshToken *)refreshToken
+           configuration:(MSIDConfiguration *)configuration
+                 context:(id<MSIDRequestContext>)context
+                   error:(NSError **)error
 {
-    MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
-
     if (!refreshToken)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No refresh token returned in the token response, not updating cache");
@@ -599,7 +596,7 @@
     BOOL result = [self saveToken:refreshToken
                           context:context
                             error:error];
-
+    
     if (!result || [NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
         // If saving failed or it's not an FRT, we're done
@@ -615,6 +612,23 @@
     return [self saveToken:familyRefreshToken
                    context:context
                      error:error];
+}
+
+- (BOOL)saveRefreshTokenWithConfiguration:(MSIDConfiguration *)configuration
+                                 response:(MSIDTokenResponse *)response
+                                  factory:(MSIDOauth2Factory *)factory
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:response configuration:configuration];
+    
+    if (!refreshToken)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No refresh token returned in the token response, not updating cache");
+        return YES;
+    }
+    
+    return [self saveRefreshToken:refreshToken configuration:configuration context:context error:error];
 }
 
 - (BOOL)saveLegacySingleResourceTokenWithConfiguration:(MSIDConfiguration *)configuration
