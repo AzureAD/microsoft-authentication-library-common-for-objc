@@ -185,20 +185,6 @@
     return cleanedDictionary;
 }
 
-- (NSMutableDictionary *)mutableDeepCopy
-{
-    NSMutableDictionary *newDictionary = [[NSMutableDictionary alloc] init];
-    NSEnumerator *enumerator = [self keyEnumerator];
-    id key;
-    while((key = [enumerator nextObject]))
-    {
-        id obj = [[self objectForKey:key] copy];
-        [newDictionary setObject:obj forKey:key];
-    }
-    
-    return newDictionary;
-}
-
 - (NSDictionary *)msidNormalizedJSONDictionary
 {
     NSMutableDictionary *normalizedDictionary = [NSMutableDictionary new];

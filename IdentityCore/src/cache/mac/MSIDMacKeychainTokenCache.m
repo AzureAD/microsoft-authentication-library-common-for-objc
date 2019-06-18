@@ -40,6 +40,7 @@
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDMacCredentialCacheItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDCacheItemJsonSerializer.h"
 
 /**
@@ -165,9 +166,9 @@ static NSString *keyDelimiter = @"-";
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
 @property (readwrite, nonnull) NSString *appIdentifier;
-@property MSIDCacheItemJsonSerializer *serializer;
 @property MSIDMacCredentialCacheItem *appCredential;
 @property MSIDMacCredentialCacheItem *sharedCredential;
+@property MSIDCacheItemJsonSerializer *serializer;
 @end
 
 @implementation MSIDMacKeychainTokenCache
@@ -245,7 +246,7 @@ static NSString *keyDelimiter = @"-";
     {
         self.appCredential = [MSIDMacCredentialCacheItem new];
         self.sharedCredential = [MSIDMacCredentialCacheItem new];
-        self.serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+        self.serializer = [MSIDCacheItemJsonSerializer new];
         
         if (!keychainGroup)
         {
@@ -298,7 +299,7 @@ static NSString *keyDelimiter = @"-";
                                    };
 
 
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@", [self keychainGroupLoggingName]);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Init MSIDMacKeychainTokenCache with keychainGroup: %@.", [self keychainGroupLoggingName]);
     }
 
     return self;
@@ -333,7 +334,7 @@ static NSString *keyDelimiter = @"-";
         return NO;
     }
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", MSID_PII_LOG_MASKABLE(account));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(account));
 
     return [self saveData:itemData
                       key:key
@@ -360,7 +361,7 @@ static NSString *keyDelimiter = @"-";
     
     if (items.count > 1)
     {
-        [self createError:@"The token cache store for this resource contains more than one user"
+        [self createError:@"The token cache store for this resource contains more than one user."
                    domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
         return nil;
     }
@@ -407,34 +408,35 @@ static NSString *keyDelimiter = @"-";
     assert(serializer);
     
     [self updateLastModifiedForCredential:credential context:context];
-    NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@",key.account,keyDelimiter,key.service];
+    NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
     
     if (key.isShared)
     {
         [self.sharedCredential setCredential:credential forKey:tokenKey];
-        return [self saveCredential:self.sharedCredential key:key context:context error:error];
+        return [self saveCredential:self.sharedCredential key:key serializer:serializer context:context error:error];
     }
     else
     {
         [self.appCredential setCredential:credential forKey:tokenKey];
-        return [self saveCredential:self.appCredential key:key context:context error:error];
+        return [self saveCredential:self.appCredential key:key serializer:serializer context:context error:error];
     }
 }
 
 - (BOOL)saveCredential:(MSIDMacCredentialCacheItem *)credential
                    key:(MSIDCacheKey *)key
+            serializer:(id<MSIDCacheItemSerializing>)serializer
                context:(id<MSIDRequestContext>)context
                  error:(NSError **)error
 {
     assert(credential);
-    MSIDMacCredentialCacheItem *savedCredential = [self credentialWithKey:key context:context error:error];
+    MSIDMacCredentialCacheItem *savedCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
     
     if (savedCredential)
     {
         [credential mergeCredential:savedCredential];
     }
     
-    NSData *itemData = [self.serializer serializeMacCredentialCacheItem:credential];
+    NSData *itemData = [serializer serializeMacCredentialCacheItem:credential];
     
     if (!itemData)
     {
@@ -447,7 +449,7 @@ static NSString *keyDelimiter = @"-";
         return NO;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", MSID_PII_LOG_MASKABLE(credential));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(credential));
     
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     NSString *account = key.account;
@@ -473,20 +475,20 @@ static NSString *keyDelimiter = @"-";
     __block OSStatus status;
     dispatch_barrier_sync(s_synchronizationQueue, ^{
         status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d.", (int)status);
         
         if (status == errSecItemNotFound)
         {
             [query addEntriesFromDictionary:update];
             status = SecItemAdd((CFDictionaryRef)query, NULL);
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain add status: %d", (int)status);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain add status: %d.", (int)status);
         }
     });
     
     if (status != errSecSuccess)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to write item to keychain (status: %d)", (int)status);
-        [self createError:@"Failed to write item to keychain"
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to write item to keychain (status: %d).", (int)status);
+        [self createError:@"Failed to write item to keychain."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
     }
@@ -510,8 +512,8 @@ static NSString *keyDelimiter = @"-";
     
     if (items.count > 1)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"The token cache store for this resource contains more than one token");
-        [self createError:@"The token cache store for this resource contains more than one token"
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"The token cache store for this resource contains more than one token.");
+        [self createError:@"The token cache store for this resource contains more than one token."
                    domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
         return nil;
     }
@@ -530,7 +532,7 @@ static NSString *keyDelimiter = @"-";
     
     if ([key isKindOfClass:([MSIDDefaultCredentialCacheKey class])])
     {
-        MSIDMacCredentialCacheItem *macCredential = [self credentialWithKey:key context:context error:error];
+        MSIDMacCredentialCacheItem *macCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
         
         if (macCredential)
         {
@@ -554,26 +556,20 @@ static NSString *keyDelimiter = @"-";
         return NO;
     }
     
-    return [self removeCredentialsWithKey:key context:context error:error];
-}
-
-- (BOOL)removeCredentialsWithKey:(MSIDCacheKey *)key
-                         context:(id<MSIDRequestContext>)context
-                           error:(NSError **)error
-{
-    MSIDMacCredentialCacheItem *macCredential = [self credentialWithKey:key context:context error:error];
+    MSIDMacCredentialCacheItem *macCredential = [self credentialWithKey:key serializer:self.serializer context:context error:error];
     
     if (macCredential)
     {
-        NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@",key.account,keyDelimiter,key.service];
+        NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
         [macCredential removeCredentialForKey:tokenKey];
-        return [self saveCredential:macCredential key:key context:context error:error];
+        return [self saveCredential:macCredential key:key serializer:self.serializer context:context error:error];
     }
     
     return YES;
 }
 
 - (MSIDMacCredentialCacheItem *)credentialWithKey:(MSIDCacheKey *)key
+                                       serializer:(id<MSIDCacheItemSerializing>)serializer
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
@@ -589,7 +585,7 @@ static NSString *keyDelimiter = @"-";
     else
     {
         // Secret item attribute: <keychainGroup>-<app_bundle_id>
-        query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup,[[NSBundle mainBundle] bundleIdentifier]];
+        query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]];
     }
     
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
@@ -605,17 +601,17 @@ static NSString *keyDelimiter = @"-";
         status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&result);
     });
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil,@"Keychain find status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Keychain find status: %d.", (int)status);
     
     if (status == errSecSuccess)
     {
         NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
         NSData *credentialData = [resultDict objectForKey:(id)kSecValueData];
-        macCredential = (MSIDMacCredentialCacheItem *)[self.serializer deserializeMacCredentialCacheItem:credentialData];
+        macCredential = (MSIDMacCredentialCacheItem *)[serializer deserializeMacCredentialCacheItem:credentialData];
         
         if (!macCredential)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize token.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize credential.");
         }
     }
     
@@ -647,7 +643,7 @@ static NSString *keyDelimiter = @"-";
         return NO;
     }
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", MSID_PII_LOG_MASKABLE(metadata));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(metadata));
 
     return [self saveData:itemData
                       key:key
@@ -724,7 +720,7 @@ static NSString *keyDelimiter = @"-";
     NSString *account = key.account;
     NSString *service = key.service;
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, MSID_PII_LOG_MASKABLE(key.generic), key.type, self.keychainGroup);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@).", MSID_PII_LOG_MASKABLE(account), service, MSID_PII_LOG_MASKABLE(key.generic), key.type, self.keychainGroup);
 
     NSMutableDictionary *cacheQuery = [self primaryAttributesForKey:key];
     [cacheQuery addEntriesFromDictionary:[self secondaryAttributesForKey:key]];
@@ -743,16 +739,16 @@ static NSString *keyDelimiter = @"-";
     dispatch_sync(s_synchronizationQueue, ^{
         status = SecItemCopyMatching((CFDictionaryRef)query, &cfItems);
     });
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain find status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain find status: %d.", (int)status);
 
     if (status == errSecItemNotFound)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"item not found");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"item not found.");
         return @[];
     }
     else if (status != errSecSuccess)
     {
-        [self createError:@"Failed to read item from keychain"
+        [self createError:@"Failed to read item from keychain."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return nil;
     }
@@ -785,7 +781,7 @@ static NSString *keyDelimiter = @"-";
     NSString *account = key.account;
 
     MSID_TRACE;
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@).", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
 
     if (!service.length)
     {
@@ -814,20 +810,20 @@ static NSString *keyDelimiter = @"-";
     __block OSStatus status;
     dispatch_barrier_sync(s_synchronizationQueue, ^{
         status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d.", (int)status);
 
         if (status == errSecItemNotFound)
         {
             [query addEntriesFromDictionary:update];
             status = SecItemAdd((CFDictionaryRef)query, NULL);
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain add status: %d", (int)status);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain add status: %d.", (int)status);
         }
     });
 
     if (status != errSecSuccess)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to write item to keychain (status: %d)", (int)status);
-        [self createError:@"Failed to write item to keychain"
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to write item to keychain (status: %d).", (int)status);
+        [self createError:@"Failed to write item to keychain."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
     }
@@ -843,7 +839,7 @@ static NSString *keyDelimiter = @"-";
     NSString *account = key.account;
     NSString *service = key.service;
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@).", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
 
     if (!key || !(key.service || key.account))
     {
@@ -863,12 +859,12 @@ static NSString *keyDelimiter = @"-";
         status = SecItemDelete((CFDictionaryRef)query);
     });
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain delete status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain delete status: %d.", (int)status);
 
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to remove multiple items from keychain (status: %d)", (int)status);
-        [self createError:@"Failed to remove multiple items from keychain"
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to remove multiple items from keychain (status: %d).", (int)status);
+        [self createError:@"Failed to remove multiple items from keychain."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
     }
@@ -907,7 +903,7 @@ static NSString *keyDelimiter = @"-";
         return NO;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@", MSID_PII_LOG_MASKABLE(jsonObject));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(jsonObject));
     
     return [self saveData:itemData
                       key:key
@@ -917,19 +913,61 @@ static NSString *keyDelimiter = @"-";
 
 #pragma mark - Account metadata
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    [self createUnimplementedError:error context:context];
-    return nil;
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+                                              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError *__autoreleasing *)error
+{
+    NSArray<MSIDAccountMetadataCacheItem *> *items =  [self cacheItemsWithKey:key
+                                                                   serializer:serializer
+                                                               cacheItemClass:[MSIDAccountMetadataCacheItem class]
+                                                                      context:context error:error];
+    
+    if (items.count > 1)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Multiple account metadata entries found in the cache.");
+        [self createError:@"Multiple account metadata entries found in the cache."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
+        return nil;
+    }
+    
+    return items.firstObject;
+    
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    [self createUnimplementedError:error context:context];
-    return NO;
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+                        key:(MSIDAccountMetadataCacheKey *)key
+                 serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing *)error
+{
+    assert(item);
+    assert(serializer);
+    
+    NSData *itemData = [serializer serializeCacheItem:item];
+    
+    if (!itemData)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account metadata item.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize account metadata item.");
+        }
+        
+        return NO;
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(item));
+    
+    return [self saveData:itemData
+                      key:key
+                  context:context
+                    error:error];
 }
 
-- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
-    [self createUnimplementedError:error context:context];
-    return NO;
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
 }
 
 #pragma mark - Wipe Info
@@ -957,7 +995,7 @@ static NSString *keyDelimiter = @"-";
                    error:(NSError **)error
 
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests");
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests.");
     
     // Delete all accounts for the keychainGroup
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
@@ -967,14 +1005,14 @@ static NSString *keyDelimiter = @"-";
     dispatch_barrier_sync(s_synchronizationQueue, ^{
         status = SecItemDelete((CFDictionaryRef)query);
     });
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain delete status: %d", (int)status);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain delete status: %d.", (int)status);
 
     if (status != errSecSuccess && status != errSecItemNotFound)
     {
         if (error)
         {
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d)", (int)status);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d).", (int)status);
         }
         return NO;
     }
@@ -1003,7 +1041,7 @@ static NSString *keyDelimiter = @"-";
         else
         {
             // Secret item attribute: <keychainGroup>-<app_bundle_id>-<homeAccountId>-<environment>
-            query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@-%@", self.keychainGroup,[[NSBundle mainBundle] bundleIdentifier], account];
+            query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier], account];
         }
     }
     if (service.length > 0)
@@ -1038,7 +1076,7 @@ static NSString *keyDelimiter = @"-";
 - (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error
                          context:(id<MSIDRequestContext>)context
 {
-    [self createError:@"Not Implemented" domain:MSIDErrorDomain errorCode:MSIDErrorUnsupportedFunctionality error:error context:context];
+    [self createError:@"Not Implemented." domain:MSIDErrorDomain errorCode:MSIDErrorUnsupportedFunctionality error:error context:context];
 }
 
 // Allocate an NEError, logging a warning.
@@ -1100,7 +1138,7 @@ static NSString *keyDelimiter = @"-";
             NSTimeInterval timeDifference = [lastModificationTime timeIntervalSinceNow];
             if (fabs(timeDifference) < 0.1) // less than 1/10th of a second ago
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Set keychain item for recently-modified item (delta %0.3f) app:%@",
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Set keychain item for recently-modified item (delta %0.3f) app:%@.",
                               timeDifference, lastModificationApp);
                 return YES;
             }

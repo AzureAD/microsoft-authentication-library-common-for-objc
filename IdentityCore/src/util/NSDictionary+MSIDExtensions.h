@@ -48,7 +48,6 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error;
 
-- (NSMutableDictionary *)mutableDeepCopy;
 - (NSDictionary *)msidNormalizedJSONDictionary;
 
 @end

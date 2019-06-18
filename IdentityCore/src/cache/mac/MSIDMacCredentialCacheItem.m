@@ -40,7 +40,8 @@ static NSString *keyDelimiter = @"-";
     if(self = [super init])
     {
         self.cacheObjects = [NSMutableDictionary dictionary];
-        self.queue = dispatch_queue_create("com.microsoft.universalStorage", DISPATCH_QUEUE_CONCURRENT);
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.universalstorage-%@", [NSUUID UUID].UUIDString];
+        self.queue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     }
     
     return self;
@@ -91,7 +92,7 @@ static NSString *keyDelimiter = @"-";
 {
     if (key.account && key.service)
     {
-        NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@",key.account,keyDelimiter,key.service];
+        NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
         MSIDCredentialCacheItem *credential = [self credentialForKey:tokenKey];
         if (credential)
         {
@@ -125,9 +126,7 @@ static NSString *keyDelimiter = @"-";
     if (key.realm)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.realm == %@", key.realm]];
     /*
-     key.target is not added as target can be subset , intersect , superset or exact string match is matched later.
-     To do - realm is passed as common for at look up which results in no at being returned.
-     Implement the account metadata cache methods in MSIDMacKeychainTokenCache for this to work.
+     key.target is not added as target can be subset , intersect , superset or exact string match and is matched later in the code.
      */
     
     // Combine all sub-predicates with AND:
