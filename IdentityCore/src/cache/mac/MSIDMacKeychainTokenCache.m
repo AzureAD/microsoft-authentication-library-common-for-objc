@@ -47,11 +47,23 @@
  This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
  There are three types of items stored:
  1) Secret shareable artifacts (SSO credentials: Refresh tokens, other global credentials)
- 2) Non-secret shareable artifacts (account metadata)
+ 2) Non-secret shareable artifacts (account)
  3) Secret non-shareable artifacts (access tokens, ID tokens)
+ 4) Non-secret non-shareable artifacts (app metadata, account metadata)
  
  In addition to the basic account & credential properties, the following definitions are used below:
- <account_id>    :  “<home_account_id>-<environment>”
+ <account_id>    :  For account - <home_account_id>-<environment>
+                    For app metadata - <environment>
+                    For account metadata - <home_account_id>
+ 
+ <service_id>    :  For account - <realm>
+                    For app metadata - <"appmetadata">-<client_id>
+                    For account metadata - <"authority_map">-<client_id>
+ 
+ <generic_id>    :  For account - <username>
+                    For app metadata - <family_id>
+                    For account metadata - <nil>
+ 
  <credential_id> : “<credential_type>-<client_id>-<realm>”
  <access_group>  : e.g. "com.microsoft.officecache"
  <username>      : e.g. "joe@contoso.com"
@@ -73,18 +85,12 @@
  
  Type 1 JSON Data Example:
  {
- "cache": {
- "credentials": {
- "account_id1": {
- "credential_id1": "credential1 payload",
- "credential_id2": "credential2 payload"
- },
- "account_id2": {
- "credential_id1": "credential1 payload",
- "credential_id2": "credential2 payload"
- }
- }
- }
+    "<home_account_id1>-<environment1>-<credential_type1>-<client_id1>-<realm1>-<target1>": {
+    credential1 payload
+    },
+    "<home_account_id2>-<environment2>-<credential_type2>-<client_id2>-<realm2>-<target2>": {
+    credential2 payload
+    }
  }
  
  Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
@@ -93,8 +99,8 @@
  ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
  *kSecClass        kSecClassGenericPassword
  *kSecAttrAccount  <access_group>-<account_id>
- *kSecAttrService  <realm>
- kSecAttrGeneric   <username>
+ *kSecAttrService  <service_id>
+ kSecAttrGeneric   <generic_id>
  kSecAttrCreator   A hash of <access_group>
  kSecAttrLabel     "Microsoft Credentials"
  kSecValueData     JSON data (UTF8 encoded) – account object
@@ -120,13 +126,51 @@
  ATTRIBUTE         VALUE
  ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
  *kSecClass        kSecClassGenericPassword
- *kSecAttrAccount  <access_group>-<app_bundle_id>-<account_id>
- *kSecAttrService  <credential_id>-<target>
- kSetAttrGeneric   <credential_id>
- kSecAttrType      Numeric Value: 2001=Access Token 2002=Refresh Token (Phase 1) 2003=IdToken
+ *kSecAttrAccount  <access_group>-<app_bundle_id>
+ *kSecAttrService  “Microsoft Credentials”
  kSecAttrCreator   A hash of <access_group>
  kSecAttrLabel     "Microsoft Credentials"
- kSecValueData     JSON data (UTF8 encoded) – credential object
+ kSecValueData     JSON data (UTF8 encoded) – app credentials (multiple credentials saved in one keychain item)
+ 
+ Type 3 JSON Data Example:
+ {
+ "<home_account_id1>-<environment1>-<credential_type1>-<client_id1>-<realm1>-<target1>": {
+    credential1 payload
+    },
+    "<home_account_id2>-<environment2>-<credential_type2>-<client_id2>-<realm2>-<target2>": {
+    credential2 payload
+    }
+ }
+ 
+ Type 4 (Non-secret non-shareable artifacts) Keychain Item Attributes
+ ================================================================
+ ATTRIBUTE         VALUE
+ ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
+ *kSecClass        kSecClassGenericPassword
+ *kSecAttrAccount  <access_group>-<app_bundle_id>-<account_id>
+ *kSecAttrService  <service_id>
+ kSecAttrGeneric   <generic_id>
+ kSecAttrCreator   A hash of <access_group>
+ kSecAttrLabel     "Microsoft Credentials"
+ kSecValueData     JSON data (UTF8 encoded) – app metadata / account metadata object
+ 
+ Type 4 JSON Data Example For App Metadata:
+ {
+ "client_id": "b6c69a37-df96-4db0-9088-2ab96e1d8215",
+ "family_id": "",
+ "environment": "login.windows.net"
+ }
+ 
+ Type 4 JSON Data Example For Account Metadata:
+ {
+ "client_id": "b6c69a37-df96-4db0-9088-2ab96e1d8215",
+ "account_metadata": {
+                    "URLMap": {
+                                "https:\/\/login.microsoftonline.com\/common": "https:\/\/login.microsoftonline.com\/f645ad92-e38d-4d1a-b510-d1b09a74a8ca"
+                              }
+                      },
+ "home_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca"
+ }
  
  Error handling:
  * Generally this class has three error cases: success, recoverable
@@ -532,15 +576,46 @@ static NSString *keyDelimiter = @"-";
     
     if ([key isKindOfClass:([MSIDDefaultCredentialCacheKey class])])
     {
-        MSIDMacCredentialCacheItem *macCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
+        /*
+         Lazy load app and shared credential blob to sync in memory cache with persistent cache.
+         */
+        [self initializeCredential:key serializer:serializer context:context error:error];
         
-        if (macCredential)
+        if (key.isShared)
         {
-            tokenList = [macCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
+            tokenList = [self.sharedCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
+        }
+        else
+        {
+            tokenList = [self.appCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
         }
     }
     
     return tokenList;
+}
+
+- (void)initializeCredential:(MSIDCacheKey *)key
+                  serializer:(id<MSIDCacheItemSerializing>)serializer
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
+{
+    if (!key.isShared && ![self.appCredential count])
+    {
+        MSIDMacCredentialCacheItem *appCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
+        if (appCredential)
+        {
+            self.appCredential = appCredential;
+        }
+    }
+    
+    if (key.isShared && ![self.sharedCredential count])
+    {
+        MSIDMacCredentialCacheItem *sharedCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
+        if (sharedCredential)
+        {
+            self.sharedCredential = sharedCredential;
+        }
+    }
 }
 
 // Remove one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
@@ -1040,7 +1115,11 @@ static NSString *keyDelimiter = @"-";
         }
         else
         {
-            // Secret item attribute: <keychainGroup>-<app_bundle_id>-<homeAccountId>-<environment>
+            /*
+             For account - key.account = <home_account_id>-<environment>
+             For app metadata, key.account = <environment>
+             For account metadata, key.account = <home_account_id>
+             */
             query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier], account];
         }
     }

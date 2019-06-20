@@ -207,4 +207,14 @@ static NSString *keyDelimiter = @"-";
     return values;
 }
 
+- (NSUInteger)count
+{
+    __block NSUInteger count;
+    dispatch_sync(self.queue, ^{
+        count = (NSUInteger)[self.cacheObjects count];
+    });
+    
+    return count;
+}
+
 @end

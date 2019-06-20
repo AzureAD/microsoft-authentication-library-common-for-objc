@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)removeCredentialForKey:(NSString *)key;
 
+- (NSUInteger)count;
+
 @end
 
 NS_ASSUME_NONNULL_END
