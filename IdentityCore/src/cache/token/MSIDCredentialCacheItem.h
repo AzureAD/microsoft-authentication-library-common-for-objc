@@ -62,8 +62,8 @@
 // Enrollment ID (access tokens only)
 @property (readwrite, nullable) NSString *enrollmentId;
 
-// Additional fields
-@property (readwrite, nullable) NSDictionary *additionalInfo;
+// speInfo
+@property (readwrite, nullable) NSString *speInfo;
 
 // Storing for latter token deletion purpose, not serialized
 @property (readwrite, nullable) NSString *appKey;

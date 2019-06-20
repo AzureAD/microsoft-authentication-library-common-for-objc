@@ -34,4 +34,7 @@
 @property (readwrite, nullable) NSString *oauthTokenType;
 @property (readonly, nullable) MSIDIdTokenClaims *idTokenClaims;
 
+// Additional fields
+@property (readwrite, nullable) NSDictionary *additionalInfo;
+
 @end

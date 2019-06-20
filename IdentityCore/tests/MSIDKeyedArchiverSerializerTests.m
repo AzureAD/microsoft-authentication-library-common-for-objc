@@ -44,9 +44,9 @@
     MSIDLegacyTokenCacheItem *cacheItem = [[MSIDLegacyTokenCacheItem alloc] init];
     cacheItem.refreshToken = @"refresh token value";
     cacheItem.familyId = @"familyId value";
-    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
     cacheItem.environment = @"contoso.com";
     cacheItem.realm = @"common";
+    cacheItem.speInfo = @"test";
     cacheItem.clientId = @"some clientId";
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.oauthTokenType = @"access token type";
@@ -66,7 +66,7 @@
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
     cacheItem.secret = @"refresh token value";
     cacheItem.familyId = @"familyId value";
-    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
+    cacheItem.speInfo = @"test";
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.clientId = @"some clientId";
     cacheItem.credentialType = MSIDRefreshTokenType;

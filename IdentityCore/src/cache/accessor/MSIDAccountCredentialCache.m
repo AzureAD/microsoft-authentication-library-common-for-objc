@@ -259,7 +259,18 @@
     if (previousAccount)
     {
         // Make sure we copy over all the additional fields
-        [account updateFieldsFromAccount:previousAccount];
+        NSMutableDictionary *mergedDictionary = [previousAccount.jsonDictionary mutableCopy];
+        [mergedDictionary addEntriesFromDictionary:account.jsonDictionary];
+        NSError *accountError;
+        account = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:mergedDictionary error:&accountError];
+        if (accountError || !account)
+        {
+            if (error)
+            {
+                *error = accountError;
+            }
+            return NO;
+        }
     }
 
     key.username = account.username;

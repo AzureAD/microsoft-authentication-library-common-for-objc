@@ -138,7 +138,7 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
@@ -149,7 +149,8 @@
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
     XCTAssertNil(token.realm);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.speInfo, @"test");
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.familyId, @"1");
     

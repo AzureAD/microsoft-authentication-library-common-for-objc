@@ -200,7 +200,7 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.target = @"target";
@@ -215,7 +215,7 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"access token";
@@ -230,7 +230,7 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.additionalInfo = @{@"test": @"test2", @"test3": @"test4"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
@@ -249,8 +249,8 @@
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
-    NSDictionary *additionalServerInfo = @{@"test": @"test2", @"test3": @"test4"};
-    XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
+    XCTAssertEqualObjects(token.speInfo, @"test");
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.extendedExpiresOn, extExpireTime);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
@@ -261,7 +261,7 @@
     XCTAssertEqualObjects(token.accessToken, @"token");
     XCTAssertNil(token.enrollmentId);
     XCTAssertEqual(token.credentialType, MSIDAccessTokenType);
-    
+
     MSIDCredentialCacheItem *newCacheItem = [token tokenCacheItem];
     XCTAssertEqualObjects(cacheItem, newCacheItem);
 }
@@ -272,7 +272,7 @@
     cacheItem.credentialType = MSIDAccessTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
-    cacheItem.additionalInfo = @{@"test": @"test2", @"test3": @"test4"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
@@ -292,8 +292,8 @@
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
-    NSDictionary *additionalServerInfo = @{@"test": @"test2", @"test3": @"test4"};
-    XCTAssertEqualObjects(token.additionalServerInfo, additionalServerInfo);
+    XCTAssertEqualObjects(token.speInfo, @"test");
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.extendedExpiresOn, extExpireTime);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.expiresOn, expiresOn);
