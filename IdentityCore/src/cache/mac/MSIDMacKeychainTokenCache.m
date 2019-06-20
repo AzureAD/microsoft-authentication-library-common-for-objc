@@ -134,7 +134,7 @@
  
  Type 3 JSON Data Example:
  {
- "<home_account_id1>-<environment1>-<credential_type1>-<client_id1>-<realm1>-<target1>": {
+    "<home_account_id1>-<environment1>-<credential_type1>-<client_id1>-<realm1>-<target1>": {
     credential1 payload
     },
     "<home_account_id2>-<environment2>-<credential_type2>-<client_id2>-<realm2>-<target2>": {
