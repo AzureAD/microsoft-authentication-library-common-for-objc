@@ -127,12 +127,12 @@
     return nil;
 }
 
-- (NSData *)serializeMacCredentialCacheItem:(MSIDCredentialCacheItem *)item
+- (NSData *)serializeCredentialStorageItem:(MSIDCredentialCacheItem *)item
 {
     return nil;
 }
 
-- (MSIDMacCredentialCacheItem *)deserializeMacCredentialCacheItem:(NSData *)data
+- (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(NSData *)data
 {
     return nil;
 }

@@ -30,7 +30,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDJsonObject.h"
-#import "MSIDMacCredentialCacheItem.h"
+#import "MSIDMacCredentialStorageItem.h"
 
 @interface MSIDCacheItemJsonSerializer()
 
@@ -62,14 +62,14 @@
     return (MSIDCredentialCacheItem *)[self deserializeCacheItem:data ofClass:[MSIDCredentialCacheItem class]];
 }
 
-- (NSData *)serializeMacCredentialCacheItem:(MSIDMacCredentialCacheItem *)item
+- (NSData *)serializeCredentialStorageItem:(MSIDMacCredentialStorageItem *)item
 {
     return [self.jsonSerializer toJsonData:item context:nil error:nil];
 }
 
-- (MSIDMacCredentialCacheItem *)deserializeMacCredentialCacheItem:(NSData *)data
+- (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(NSData *)data
 {
-    return (MSIDMacCredentialCacheItem *)[self deserializeCacheItem:data ofClass:[MSIDMacCredentialCacheItem class]];
+    return (MSIDMacCredentialStorageItem *)[self deserializeCacheItem:data ofClass:[MSIDMacCredentialStorageItem class]];
 }
 
 #pragma mark - JSON Object

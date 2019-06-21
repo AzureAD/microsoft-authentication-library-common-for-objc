@@ -39,7 +39,7 @@
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAppMetadataCacheItem.h"
-#import "MSIDMacCredentialCacheItem.h"
+#import "MSIDMacCredentialStorageItem.h"
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDCacheItemJsonSerializer.h"
 
@@ -210,8 +210,8 @@ static NSString *keyDelimiter = @"-";
 @property (readwrite, nonnull) NSString *keychainGroup;
 @property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
 @property (readwrite, nonnull) NSString *appIdentifier;
-@property MSIDMacCredentialCacheItem *appCredential;
-@property MSIDMacCredentialCacheItem *sharedCredential;
+@property MSIDMacCredentialStorageItem *appStorageItem;
+@property MSIDMacCredentialStorageItem *sharedStorageItem;
 @property MSIDCacheItemJsonSerializer *serializer;
 @end
 
@@ -288,8 +288,8 @@ static NSString *keyDelimiter = @"-";
     self = [super init];
     if (self)
     {
-        self.appCredential = [MSIDMacCredentialCacheItem new];
-        self.sharedCredential = [MSIDMacCredentialCacheItem new];
+        self.appStorageItem = [MSIDMacCredentialStorageItem new];
+        self.sharedStorageItem = [MSIDMacCredentialStorageItem new];
         self.serializer = [MSIDCacheItemJsonSerializer new];
         
         if (!keychainGroup)
@@ -452,35 +452,35 @@ static NSString *keyDelimiter = @"-";
     assert(serializer);
     
     [self updateLastModifiedForCredential:credential context:context];
-    NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+    NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
     
     if (key.isShared)
     {
-        [self.sharedCredential setCredential:credential forKey:tokenKey];
-        return [self saveCredential:self.sharedCredential key:key serializer:serializer context:context error:error];
+        [self.sharedStorageItem storeCredential:credential forKey:credentialKey];
+        return [self saveStorageItem:self.sharedStorageItem key:key serializer:serializer context:context error:error];
     }
     else
     {
-        [self.appCredential setCredential:credential forKey:tokenKey];
-        return [self saveCredential:self.appCredential key:key serializer:serializer context:context error:error];
+        [self.appStorageItem storeCredential:credential forKey:credentialKey];
+        return [self saveStorageItem:self.appStorageItem key:key serializer:serializer context:context error:error];
     }
 }
 
-- (BOOL)saveCredential:(MSIDMacCredentialCacheItem *)credential
-                   key:(MSIDCacheKey *)key
-            serializer:(id<MSIDCacheItemSerializing>)serializer
-               context:(id<MSIDRequestContext>)context
-                 error:(NSError **)error
+- (BOOL)saveStorageItem:(MSIDMacCredentialStorageItem *)storageItem
+                    key:(MSIDCacheKey *)key
+             serializer:(id<MSIDCacheItemSerializing>)serializer
+                context:(id<MSIDRequestContext>)context
+                  error:(NSError **)error
 {
-    assert(credential);
-    MSIDMacCredentialCacheItem *savedCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
+    assert(storageItem);
+    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
     
-    if (savedCredential)
+    if (savedStorageItem)
     {
-        [credential mergeCredential:savedCredential];
+        [storageItem mergeStorageItem:savedStorageItem];
     }
     
-    NSData *itemData = [serializer serializeMacCredentialCacheItem:credential];
+    NSData *itemData = [serializer serializeCredentialStorageItem:storageItem];
     
     if (!itemData)
     {
@@ -493,7 +493,7 @@ static NSString *keyDelimiter = @"-";
         return NO;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(credential));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(storageItem));
     
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     NSString *account = key.account;
@@ -579,41 +579,46 @@ static NSString *keyDelimiter = @"-";
         /*
          Lazy load app and shared credential blob to sync in memory cache with persistent cache.
          */
-        [self initializeCredential:key serializer:serializer context:context error:error];
+        [self initializeCredentialStorageItem:key serializer:serializer context:context error:error];
         
         if (key.isShared)
         {
-            tokenList = [self.sharedCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
+            tokenList = [self.sharedStorageItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
         }
         else
         {
-            tokenList = [self.appCredential credentialsWithKey:(MSIDDefaultCredentialCacheKey *)key];
+            tokenList = [self.appStorageItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
         }
     }
     
     return tokenList;
 }
 
-- (void)initializeCredential:(MSIDCacheKey *)key
-                  serializer:(id<MSIDCacheItemSerializing>)serializer
-                     context:(id<MSIDRequestContext>)context
-                       error:(NSError **)error
+- (void)initializeCredentialStorageItem:(MSIDCacheKey *)key
+                             serializer:(id<MSIDCacheItemSerializing>)serializer
+                                context:(id<MSIDRequestContext>)context
+                                  error:(NSError **)error
 {
-    if (!key.isShared && ![self.appCredential count])
+    @synchronized (self)
     {
-        MSIDMacCredentialCacheItem *appCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
-        if (appCredential)
+        MSIDMacCredentialStorageItem *storageItem = nil;
+        
+        if (!key.isShared && ![self.appStorageItem storedCredentialsCount])
         {
-            self.appCredential = appCredential;
+            storageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+            if (storageItem)
+            {
+                self.appStorageItem = storageItem;
+            }
         }
-    }
-    
-    if (key.isShared && ![self.sharedCredential count])
-    {
-        MSIDMacCredentialCacheItem *sharedCredential = [self credentialWithKey:key serializer:serializer context:context error:error];
-        if (sharedCredential)
+        
+        if (key.isShared && ![self.sharedStorageItem storedCredentialsCount])
         {
-            self.sharedCredential = sharedCredential;
+            storageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];;
+            if (storageItem)
+            {
+                self.sharedStorageItem = storageItem;
+            }
         }
     }
 }
@@ -631,25 +636,25 @@ static NSString *keyDelimiter = @"-";
         return NO;
     }
     
-    MSIDMacCredentialCacheItem *macCredential = [self credentialWithKey:key serializer:self.serializer context:context error:error];
+    MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
     
-    if (macCredential)
+    if (storageItem)
     {
-        NSString *tokenKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
-        [macCredential removeCredentialForKey:tokenKey];
-        return [self saveCredential:macCredential key:key serializer:self.serializer context:context error:error];
+        NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+        [storageItem removeStoredCredentialForKey:credentialKey];
+        return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
     }
     
     return YES;
 }
 
-- (MSIDMacCredentialCacheItem *)credentialWithKey:(MSIDCacheKey *)key
-                                       serializer:(id<MSIDCacheItemSerializing>)serializer
-                                          context:(id<MSIDRequestContext>)context
-                                            error:(NSError **)error
+- (MSIDMacCredentialStorageItem *)storageItemWithKey:(MSIDCacheKey *)key
+                                          serializer:(id<MSIDCacheItemSerializing>)serializer
+                                             context:(id<MSIDRequestContext>)context
+                                               error:(NSError **)error
 {
     MSID_TRACE;
-    MSIDMacCredentialCacheItem *macCredential = nil;
+    MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     
     if (key.isShared)
@@ -681,16 +686,16 @@ static NSString *keyDelimiter = @"-";
     if (status == errSecSuccess)
     {
         NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
-        NSData *credentialData = [resultDict objectForKey:(id)kSecValueData];
-        macCredential = (MSIDMacCredentialCacheItem *)[serializer deserializeMacCredentialCacheItem:credentialData];
+        NSData *storageData = [resultDict objectForKey:(id)kSecValueData];
+        storageItem = (MSIDMacCredentialStorageItem *)[serializer deserializeCredentialStorageItem:storageData];
         
-        if (!macCredential)
+        if (!storageItem)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize credential.");
         }
     }
     
-    return macCredential;
+    return storageItem;
 }
 
 #pragma mark - App Metadata
