@@ -135,7 +135,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     return self.url;
 }
 
-- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext>)context
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext> __unused)context
 {
     return self.url.msidHostWithPortIfNecessary;
 }
@@ -311,8 +311,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 #pragma mark - Protected
 
 + (NSString *)realmFromURL:(NSURL *)url
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                   context:(__unused id<MSIDRequestContext>)context
+                     error:(__unused NSError **)error
 {
     return url.path;
 }
@@ -325,7 +325,8 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 #pragma mark - Sovereign
 
-- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(__unused NSString *)cloudHostInstanceName
+                                                           error:(__unused NSError **)error
 {
     return nil;
 }

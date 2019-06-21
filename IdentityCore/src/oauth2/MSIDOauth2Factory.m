@@ -460,7 +460,7 @@
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
                                       tokenResponse:(MSIDTokenResponse *)response
-                                              error:(NSError **)error
+                                              error:(__unused NSError **)error
 {
     if (response.idTokenObj.issuerAuthority)
     {
