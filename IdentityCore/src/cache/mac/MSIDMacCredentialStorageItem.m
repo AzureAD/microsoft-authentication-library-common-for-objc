@@ -61,10 +61,10 @@ static NSString *keyDelimiter = @"-";
     {
         if (![self storedCredentialForKey:key])
         {
-            MSIDCredentialCacheItem *item = [storageItem.cacheObjects objectForKey:key];
-            if (item)
+            MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
+            if (credential)
             {
-                [self storeCredential:item forKey:key];
+                [self storeCredential:credential forKey:key];
             }
         }
     }
