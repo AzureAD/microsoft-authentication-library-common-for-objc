@@ -30,15 +30,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDMacCredentialStorageItem : NSObject <MSIDJsonSerializable>
 
-- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(NSString *)key;
+- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key;
 
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem;
 
 - (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key;
 
-- (void)removeStoredCredentialForKey:(NSString *)key;
-
-- (NSUInteger)storedCredentialsCount;
+- (void)removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key;
 
 @end
 

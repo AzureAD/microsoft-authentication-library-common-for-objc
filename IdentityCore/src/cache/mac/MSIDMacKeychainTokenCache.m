@@ -203,7 +203,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstor
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 static dispatch_queue_t s_synchronizationQueue;
-static NSString *keyDelimiter = @"-";
 
 @interface MSIDMacKeychainTokenCache ()
 
@@ -261,7 +260,6 @@ static NSString *keyDelimiter = @"-";
 
     dispatch_once(&s_once, ^{
         s_defaultCache = [MSIDMacKeychainTokenCache new];
-        
     });
 
     return s_defaultCache;
@@ -451,19 +449,15 @@ static NSString *keyDelimiter = @"-";
     assert(credential);
     assert(serializer);
     
-    [self updateLastModifiedForCredential:credential context:context];
-    NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    {
+        [self updateLastModifiedForCredential:credential context:context];
+        MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+        [storageItem storeCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
+        return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
+    }
     
-    if (key.isShared)
-    {
-        [self.sharedStorageItem storeCredential:credential forKey:credentialKey];
-        return [self saveStorageItem:self.sharedStorageItem key:key serializer:serializer context:context error:error];
-    }
-    else
-    {
-        [self.appStorageItem storeCredential:credential forKey:credentialKey];
-        return [self saveStorageItem:self.appStorageItem key:key serializer:serializer context:context error:error];
-    }
+    return NO;
 }
 
 - (BOOL)saveStorageItem:(MSIDMacCredentialStorageItem *)storageItem
@@ -486,8 +480,8 @@ static NSString *keyDelimiter = @"-";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token.", nil, nil, nil, context.correlationId, nil);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token.");
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize stored credential.", nil, nil, nil, context.correlationId, nil);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize stored credential.");
         }
         
         return NO;
@@ -496,20 +490,15 @@ static NSString *keyDelimiter = @"-";
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(storageItem));
     
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    NSString *account = key.account;
-    
-    if (account.length > 0)
+    if (key.isShared)
     {
-        if (key.isShared)
-        {
-            // Shared item attribute: <keychainGroup>
-            query[(id)kSecAttrAccount] = self.keychainGroup;
-        }
-        else
-        {
-            // Secret item attribute: <keychainGroup>-<app_bundle_id>
-            query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup,[[NSBundle mainBundle] bundleIdentifier]];
-        }
+        // Shared item attribute: <keychainGroup>
+        query[(id)kSecAttrAccount] = self.keychainGroup;
+    }
+    else
+    {
+        // Secret item attribute: <keychainGroup>-<app_bundle_id>
+        query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup,[[NSBundle mainBundle] bundleIdentifier]];
     }
     
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
@@ -572,55 +561,36 @@ static NSString *keyDelimiter = @"-";
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-    NSArray<MSIDCredentialCacheItem *> *tokenList = [[NSArray alloc] init];
+    NSArray<MSIDCredentialCacheItem *> *tokenList = @[];
     
     if ([key isKindOfClass:([MSIDDefaultCredentialCacheKey class])])
     {
         /*
-         Lazy load app and shared credential blob to sync in memory cache with persistent cache.
+         Sync in memory cache with persistent cache at the time of look up.
          */
-        [self initializeCredentialStorageItem:key serializer:serializer context:context error:error];
-        
-        if (key.isShared)
+        @synchronized (self)
         {
-            tokenList = [self.sharedStorageItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
-        }
-        else
-        {
-            tokenList = [self.appStorageItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
+            /*
+             For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
+             For AT/ID tokens, Look up in memory cache first, if no credential found, then merge it with persistent cache and perform additional look up.
+             */
+            MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+            MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+            
+            if (key.isShared)
+            {
+                [currentItem mergeStorageItem:savedItem];
+            }
+            else if (![[currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key] count])
+            {
+                [currentItem mergeStorageItem:savedItem];
+            }
+            
+            tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
         }
     }
     
     return tokenList;
-}
-
-- (void)initializeCredentialStorageItem:(MSIDCacheKey *)key
-                             serializer:(id<MSIDCacheItemSerializing>)serializer
-                                context:(id<MSIDRequestContext>)context
-                                  error:(NSError **)error
-{
-    @synchronized (self)
-    {
-        MSIDMacCredentialStorageItem *storageItem = nil;
-        
-        if (!key.isShared && ![self.appStorageItem storedCredentialsCount])
-        {
-            storageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-            if (storageItem)
-            {
-                self.appStorageItem = storageItem;
-            }
-        }
-        
-        if (key.isShared && ![self.sharedStorageItem storedCredentialsCount])
-        {
-            storageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];;
-            if (storageItem)
-            {
-                self.sharedStorageItem = storageItem;
-            }
-        }
-    }
 }
 
 // Remove one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
@@ -638,10 +608,9 @@ static NSString *keyDelimiter = @"-";
     
     MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
     
-    if (storageItem)
+    if (storageItem && [key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
     {
-        NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
-        [storageItem removeStoredCredentialForKey:credentialKey];
+        [storageItem removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key];
         return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
     }
     
@@ -691,8 +660,21 @@ static NSString *keyDelimiter = @"-";
         
         if (!storageItem)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize credential.");
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to deserialize stored credential.", nil, nil, nil, context.correlationId, nil);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize stored credential.");
+            }
+            
+            return nil;
         }
+    }
+    
+    else if (status != errSecItemNotFound)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to read stored credential from keychain (status: %d).", (int)status);
+        [self createError:@"Failed to read stored credential from keychain."
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
     }
     
     return storageItem;

@@ -47,10 +47,11 @@ static NSString *keyDelimiter = @"-";
     return self;
 }
 
-- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(NSString *)key
+- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects setObject:credential forKey:key];
+        NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+        [self.cacheObjects setObject:credential forKey:credentialKey];
     });
 }
 
@@ -64,27 +65,31 @@ static NSString *keyDelimiter = @"-";
             MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
             if (credential)
             {
-                [self storeCredential:credential forKey:key];
+                MSIDDefaultCredentialCacheKey *credentialKey = [self getKeyForCredential:credential];
+                [self storeCredential:credential forKey:credentialKey];
             }
         }
     }
 }
 
-- (MSIDCredentialCacheItem *)storedCredentialForKey:(NSString *)key
+- (MSIDDefaultCredentialCacheKey *)getKeyForCredential:(MSIDCredentialCacheItem *)credential
 {
-    __block MSIDCredentialCacheItem *credential = nil;
+    MSIDDefaultCredentialCacheKey *credentialKey = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId environment:credential.environment clientId:credential.clientId credentialType:credential.credentialType];
     
-    dispatch_sync(self.queue, ^{
-        credential = [self.cacheObjects objectForKey:key];
-    });
+    credentialKey.familyId = credential.familyId;
+    credentialKey.realm = credential.realm;
+    credentialKey.target = credential.target;
+    credentialKey.enrollmentId = credential.enrollmentId;
     
-    return credential;
+    return credentialKey;
 }
 
-- (void)removeStoredCredentialForKey:(NSString *)key
+- (void)removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects removeObjectForKey:key];
+        NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Removing credential for key %@.", MSID_PII_LOG_MASKABLE(credentialKey));
+        [self.cacheObjects removeObjectForKey:credentialKey];
     });
 }
 
@@ -99,22 +104,29 @@ static NSString *keyDelimiter = @"-";
             return @[credential];
         }
         
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Credential not found for key %@.", MSID_PII_LOG_MASKABLE(key));
         return nil;
     }
     
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
     
     /*
+     TODO: Investigate app metadata code to save familyId as nil for apps that are not part of family.
      Refresh token either has family Id as 1 or nil.
      For app refresh token, we pass family id as nil which matches both FRT and RT instead of matching just RT
      For clients that are not part of family, family is saved as empty string and added to refresh token query.
      */
+    NSString *familyId;
     if ([NSString msidIsStringNilOrBlank:key.familyId])
     {
-        key.familyId = nil;
+        familyId = nil;
+    }
+    else
+    {
+        familyId = key.familyId;
     }
 
-    [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.familyId == %@", key.familyId]];
+    [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.familyId == %@", familyId]];
     if (key.clientId)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.clientId == %@", key.clientId]];
     if (key.environment)
@@ -126,6 +138,7 @@ static NSString *keyDelimiter = @"-";
     if (key.realm)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.realm == %@", key.realm]];
     /*
+     TODO: key.target is passed for look up in ios implementation which does not match the exact target for the stored credential
      key.target is not added as target can be subset , intersect , superset or exact string match and is matched later in the code.
      */
     
@@ -149,12 +162,13 @@ static NSString *keyDelimiter = @"-";
     {
         NSDictionary *rtDict = [json objectForKey:credentialKey];
         
-        if (rtDict)
+        if (rtDict && [rtDict isKindOfClass:[NSDictionary class]])
         {
             MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
             
             if (credential)
             {
+                MSIDDefaultCredentialCacheKey *credentialKey = [self getKeyForCredential:credential];
                 [self storeCredential:credential forKey:credentialKey];
             }
         }
@@ -175,7 +189,7 @@ static NSString *keyDelimiter = @"-";
         {
             NSDictionary *atDict = [credential jsonDictionary];
             
-            if (atDict)
+            if (atDict && [atDict isKindOfClass:[NSDictionary class]])
             {
                 [dictionary setObject:atDict forKey:credentialKey];
             }
@@ -207,14 +221,15 @@ static NSString *keyDelimiter = @"-";
     return values;
 }
 
-- (NSUInteger)storedCredentialsCount
+- (MSIDCredentialCacheItem *)storedCredentialForKey:(NSString *)key
 {
-    __block NSUInteger count;
+    __block MSIDCredentialCacheItem *credential = nil;
+    
     dispatch_sync(self.queue, ^{
-        count = (NSUInteger)[self.cacheObjects count];
+        credential = [self.cacheObjects objectForKey:key];
     });
     
-    return count;
+    return credential;
 }
 
 @end

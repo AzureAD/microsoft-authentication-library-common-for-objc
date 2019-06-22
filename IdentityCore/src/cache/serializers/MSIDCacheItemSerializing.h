@@ -30,7 +30,10 @@
 
 - (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
 - (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
+
+#if !TARGET_OS_IPHONE
 - (NSData *)serializeCredentialStorageItem:(MSIDMacCredentialStorageItem *)item;
 - (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(NSData *)data;
+#endif
 
 @end
