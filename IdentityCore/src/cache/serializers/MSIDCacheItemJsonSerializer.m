@@ -65,7 +65,7 @@
     return (MSIDCredentialCacheItem *)[self deserializeCacheItem:data ofClass:[MSIDCredentialCacheItem class]];
 }
 
-#if !TARGET_OS_IPHONE
+#if TARGET_OS_OSX
 
 - (NSData *)serializeCredentialStorageItem:(MSIDMacCredentialStorageItem *)item
 {
