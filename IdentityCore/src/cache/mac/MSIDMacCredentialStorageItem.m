@@ -49,7 +49,7 @@ static NSString *keyDelimiter = @"-";
 
 - (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key
 {
-    dispatch_sync(self.queue, ^{
+    dispatch_barrier_async(self.queue, ^{
         NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
         [self.cacheObjects setObject:credential forKey:credentialKey];
     });
