@@ -49,7 +49,7 @@ static NSString *keyDelimiter = @"-";
 
 - (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key
 {
-    dispatch_barrier_async(self.queue, ^{
+    dispatch_sync(self.queue, ^{
         NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
         [self.cacheObjects setObject:credential forKey:credentialKey];
     });
@@ -57,31 +57,19 @@ static NSString *keyDelimiter = @"-";
 
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem
 {
-    NSArray *keys = [storageItem allKeys];
-    for (NSString *key in keys)
-    {
-        if (![self storedCredentialForKey:key])
+    dispatch_barrier_async(self.queue, ^{
+        for (NSString *key in storageItem.cacheObjects)
         {
-            MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
-            if (credential)
+            if (![self.cacheObjects objectForKey:key])
             {
-                MSIDDefaultCredentialCacheKey *credentialKey = [self getKeyForCredential:credential];
-                [self storeCredential:credential forKey:credentialKey];
+                MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
+                if (credential)
+                {
+                    [self.cacheObjects setObject:credential forKey:key];
+                }
             }
         }
-    }
-}
-
-- (MSIDDefaultCredentialCacheKey *)getKeyForCredential:(MSIDCredentialCacheItem *)credential
-{
-    MSIDDefaultCredentialCacheKey *credentialKey = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId environment:credential.environment clientId:credential.clientId credentialType:credential.credentialType];
-    
-    credentialKey.familyId = credential.familyId;
-    credentialKey.realm = credential.realm;
-    credentialKey.target = credential.target;
-    credentialKey.enrollmentId = credential.enrollmentId;
-    
-    return credentialKey;
+    });
 }
 
 - (void)removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key
@@ -95,19 +83,90 @@ static NSString *keyDelimiter = @"-";
 
 - (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key
 {
-    if (key.account && key.service)
-    {
-        NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
-        MSIDCredentialCacheItem *credential = [self storedCredentialForKey:credentialKey];
-        if (credential)
+    __block NSArray<MSIDCredentialCacheItem *> *credentials =  @[];
+    
+    dispatch_sync(self.queue, ^{
+        if (key.account && key.service)
         {
-            return @[credential];
+            NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
+            if (credential)
+            {
+                credentials = @[credential];
+            }
         }
-        
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Credential not found for key %@.", MSID_PII_LOG_MASKABLE(key));
-        return nil;
+        else
+        {
+            NSArray *storedCredentials = [self.cacheObjects allValues];
+            credentials = [storedCredentials filteredArrayUsingPredicate:[self createPredicateForKey:key]];
+        }
+    });
+    
+    return credentials;
+}
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json
+                                 error:(NSError * __autoreleasing *)error
+{
+    MSIDMacCredentialStorageItem *instance = [self init];
+    
+    if (instance)
+    {
+        for (NSString *credentialKey in json)
+        {
+            NSDictionary *rtDict = [json objectForKey:credentialKey];
+            
+            if (rtDict && [rtDict isKindOfClass:[NSDictionary class]])
+            {
+                MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
+                
+                if (credential)
+                {
+                    [instance.cacheObjects setObject:credential forKey:credentialKey];
+                }
+            }
+        }
     }
     
+    return instance;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    __block NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
+    
+    dispatch_sync(self.queue, ^{
+        for (NSString *credentialKey in self.cacheObjects)
+        {
+            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
+            if (credential)
+            {
+                NSDictionary *atDict = [credential jsonDictionary];
+                
+                if (atDict && [atDict isKindOfClass:[NSDictionary class]])
+                {
+                    [dictionary setObject:atDict forKey:credentialKey];
+                }
+            }
+        }
+    });
+    
+    return dictionary;
+}
+
+- (MSIDDefaultCredentialCacheKey *)getKeyForCredential:(MSIDCredentialCacheItem *)credential
+{
+    MSIDDefaultCredentialCacheKey *credentialKey = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId environment:credential.environment clientId:credential.clientId credentialType:credential.credentialType];
+    
+    credentialKey.familyId = credential.familyId;
+    credentialKey.realm = credential.realm;
+    credentialKey.target = credential.target;
+    credentialKey.enrollmentId = credential.enrollmentId;
+    return credentialKey;
+}
+
+- (NSPredicate *)createPredicateForKey:(MSIDDefaultCredentialCacheKey *)key
+{
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
     
     /*
@@ -125,7 +184,7 @@ static NSString *keyDelimiter = @"-";
     {
         familyId = key.familyId;
     }
-
+    
     [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.familyId == %@", familyId]];
     if (key.clientId)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.clientId == %@", key.clientId]];
@@ -143,93 +202,7 @@ static NSString *keyDelimiter = @"-";
      */
     
     // Combine all sub-predicates with AND:
-    NSPredicate *matchAttributes = [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
-    
-    NSArray *storedCredentials = [self allValues];
-    NSArray *filteredCredentials = [storedCredentials filteredArrayUsingPredicate:matchAttributes];
-    return filteredCredentials;
-}
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error
-{
-    if (!(self = [self init]))
-    {
-        return nil;
-    }
-    
-    for (NSString *credentialKey in json)
-    {
-        NSDictionary *rtDict = [json objectForKey:credentialKey];
-        
-        if (rtDict && [rtDict isKindOfClass:[NSDictionary class]])
-        {
-            MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
-            
-            if (credential)
-            {
-                MSIDDefaultCredentialCacheKey *credentialKey = [self getKeyForCredential:credential];
-                [self storeCredential:credential forKey:credentialKey];
-            }
-        }
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSArray *credentialKeys = [self allKeys];
-    NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
-    
-    for (NSString *credentialKey in credentialKeys)
-    {
-        MSIDCredentialCacheItem *credential = [self storedCredentialForKey:credentialKey];
-        if (credential)
-        {
-            NSDictionary *atDict = [credential jsonDictionary];
-            
-            if (atDict && [atDict isKindOfClass:[NSDictionary class]])
-            {
-                [dictionary setObject:atDict forKey:credentialKey];
-            }
-        }
-    }
-    
-    return dictionary;
-}
-
-- (NSArray *)allKeys
-{
-    __block NSArray *keys;
-    /* make your READs sychronous */
-    dispatch_sync(self.queue, ^{
-        keys = [self.cacheObjects allKeys];
-    });
-    
-    return keys;
-}
-
-- (NSArray *)allValues
-{
-    __block NSArray *values;
-    /* make your READs sychronous */
-    dispatch_sync(self.queue, ^{
-        values = [self.cacheObjects allValues];
-    });
-    
-    return values;
-}
-
-- (MSIDCredentialCacheItem *)storedCredentialForKey:(NSString *)key
-{
-    __block MSIDCredentialCacheItem *credential = nil;
-    
-    dispatch_sync(self.queue, ^{
-        credential = [self.cacheObjects objectForKey:key];
-    });
-    
-    return credential;
+    return [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
 }
 
 @end
