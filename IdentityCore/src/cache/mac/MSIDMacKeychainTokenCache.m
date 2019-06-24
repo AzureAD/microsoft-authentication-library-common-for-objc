@@ -453,6 +453,18 @@ static dispatch_queue_t s_synchronizationQueue;
     {
         [self updateLastModifiedForCredential:credential context:context];
         MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+        
+        /*
+         First step merge get latest from persistent cache and merge it with in-memory
+         Then write latest latest credential to in memory and write back to persistence
+         */
+        MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+        
+        if (savedStorageItem)
+        {
+            [storageItem mergeStorageItem:savedStorageItem];
+        }
+        
         [storageItem storeCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
         return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
     }
@@ -467,13 +479,6 @@ static dispatch_queue_t s_synchronizationQueue;
                   error:(NSError **)error
 {
     assert(storageItem);
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem];
-    }
-    
     NSData *itemData = [serializer serializeCredentialStorageItem:storageItem];
     
     if (!itemData)

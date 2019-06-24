@@ -37,7 +37,7 @@ static NSString *keyDelimiter = @"-";
 
 - (instancetype)init
 {
-    if(self = [super init])
+    if (self = [super init])
     {
         self.cacheObjects = [NSMutableDictionary dictionary];
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.universalstorage-%@", [NSUUID UUID].UUIDString];
@@ -60,13 +60,10 @@ static NSString *keyDelimiter = @"-";
     dispatch_barrier_async(self.queue, ^{
         for (NSString *key in storageItem.cacheObjects)
         {
-            if (![self.cacheObjects objectForKey:key])
+            MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
+            if (credential)
             {
-                MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
-                if (credential)
-                {
-                    [self.cacheObjects setObject:credential forKey:key];
-                }
+                [self.cacheObjects setObject:credential forKey:key];
             }
         }
     });
