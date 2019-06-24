@@ -32,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key;
 
+/*
+ This api is thread safe only if an immutable object is passed as parameter.
+ */
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem;
 
 - (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key;

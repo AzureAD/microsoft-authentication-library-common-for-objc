@@ -105,6 +105,9 @@ static NSString *keyDelimiter = @"-";
     return credentials;
 }
 
+/*
+ This api is thread safe only if an immutable object is passed as parameter.
+ */
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                                  error:(NSError * __autoreleasing *)error
 {
