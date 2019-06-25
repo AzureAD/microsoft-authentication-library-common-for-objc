@@ -469,7 +469,7 @@ static dispatch_queue_t s_synchronizationQueue;
         return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to save storage credential for key %@.", MSID_PII_LOG_MASKABLE(key));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to save stored credential for key %@.", MSID_PII_LOG_MASKABLE(key));
     return NO;
 }
 
