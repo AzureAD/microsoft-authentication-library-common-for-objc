@@ -563,31 +563,26 @@ static dispatch_queue_t s_synchronizationQueue;
     {
         /*
          Sync in memory cache with persistent cache at the time of look up.
-         For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
          */
         MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
         MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
         
-        if (key.isShared)
+        if (!key.isShared)
         {
-            [currentItem mergeStorageItem:savedItem];
-        }
-        else
-        {
-            /* For AT/ID tokens, two apps sharing the same client id can write to the same entry to the keychain. In this case, it is possible that the first app is trying to read a credential which is not currently in its own memory but is written in persistence by the second app sharing the same client id. To find this credential, it is important to merge in memory cache with persistence.
+            /*
+             For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
+             For AT/ID tokens, two apps sharing the same client id can write to the same entry to the keychain. In this case, it is possible that the first app is trying to read a credential which is not currently in its own memory but is written in persistence by the second app sharing the same client id. To find this credential, it is important to merge in memory cache with persistence.
              */
             tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
             if ([tokenList count])
             {
                 return tokenList;
             }
-            else
-            {
-                [currentItem mergeStorageItem:savedItem];
-            }
         }
         
+        [currentItem mergeStorageItem:savedItem];
         tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
+        return tokenList;
     }
     else
     {
