@@ -58,7 +58,7 @@
                                      configuration:(MSIDConfiguration *)configuration
                                     requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
                                      correlationID:(NSUUID *)correlationID
-                                             error:(NSError **)error
+                                             error:(__unused NSError **)error
 
 {
     MSIDLegacyAccessToken *accessToken = [factory legacyAccessTokenFromResponse:tokenResponse configuration:configuration];

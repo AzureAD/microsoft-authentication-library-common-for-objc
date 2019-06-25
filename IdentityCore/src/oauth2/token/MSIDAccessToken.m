@@ -46,6 +46,7 @@ static NSUInteger s_expirationBuffer = 300;
 {
     MSIDAccessToken *item = [super copyWithZone:zone];
     item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_extendedExpiresOn = [_extendedExpiresOn copyWithZone:zone];
     item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_enrollmentId = [_enrollmentId copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
@@ -75,6 +76,7 @@ static NSUInteger s_expirationBuffer = 300;
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.accessToken.hash;
     hash = hash * 31 + self.target.hash;
     hash = hash * 31 + self.cachedAt.hash;
@@ -91,6 +93,7 @@ static NSUInteger s_expirationBuffer = 300;
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
+    result &= (!self.extendedExpiresOn && !token.extendedExpiresOn) || [self.extendedExpiresOn isEqualToDate:token.extendedExpiresOn];
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
     result &= (!self.target && !token.target) || [self.target isEqualToString:token.target];
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
@@ -209,7 +212,8 @@ static NSUInteger s_expirationBuffer = 300;
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, target=%@)", [_accessToken msidSecretLoggingHash], _expiresOn, _target];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@, target=%@)",
+            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _target];
 }
 
 @end

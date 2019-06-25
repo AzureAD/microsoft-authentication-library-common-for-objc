@@ -21,20 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCredentialCacheItem.h"
-#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
+#import "MSIDAADV2TokenResponseForV1Request.h"
+#import "MSIDTokenResponse+Internal.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
-@class MSIDIdTokenClaims;
+@implementation MSIDAADV2TokenResponseForV1Request
 
-@interface MSIDLegacyTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
-
-@property (readwrite, nullable) NSString *accessToken;
-@property (readwrite, nullable) NSString *refreshToken;
-@property (readwrite, nullable) NSString *idToken;
-@property (readwrite, nullable) NSString *oauthTokenType;
-@property (readonly, nullable) MSIDIdTokenClaims *idTokenClaims;
-
-// Additional fields
-@property (readwrite, nullable) NSDictionary *additionalInfo;
+- (BOOL)initIdToken:(NSError **)error
+{
+    if (![NSString msidIsStringNilOrBlank:self.idToken])
+    {
+        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
+        return self.idTokenObj != nil;
+    }
+    
+    return YES;
+}
 
 @end

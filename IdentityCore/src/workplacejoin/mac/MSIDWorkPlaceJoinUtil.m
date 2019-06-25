@@ -88,7 +88,7 @@
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
++ (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
                            issuer:(NSString **)issuer
            certificateAuthorities:(NSArray<NSData *> *)authorities
 

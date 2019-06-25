@@ -21,20 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCredentialCacheItem.h"
-#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
+#import <Foundation/Foundation.h>
 
-@class MSIDIdTokenClaims;
+@class MSIDLegacyTokenCacheAccessor;
+@class MSIDDefaultTokenCacheAccessor;
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
+@class MSIDOauth2Factory;
 
-@interface MSIDLegacyTokenCacheItem : MSIDCredentialCacheItem <NSSecureCoding>
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readwrite, nullable) NSString *accessToken;
-@property (readwrite, nullable) NSString *refreshToken;
-@property (readwrite, nullable) NSString *idToken;
-@property (readwrite, nullable) NSString *oauthTokenType;
-@property (readonly, nullable) MSIDIdTokenClaims *idTokenClaims;
+@interface MSIDExternalAADCacheSeeder : NSObject
 
-// Additional fields
-@property (readwrite, nullable) NSDictionary *additionalInfo;
+@property (nonatomic, readonly) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
+@property (nonatomic, readonly) MSIDDefaultTokenCacheAccessor *defaultAccessor;
+
+- (instancetype _Nullable)initWithDefaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                           externalLegacyAccessor:(MSIDLegacyTokenCacheAccessor *)externalLegacyAccessor NS_DESIGNATED_INITIALIZER;
+
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
+
+- (void)seedTokenResponse:(MSIDTokenResponse *)tokenResponse
+                  factory:(MSIDOauth2Factory *)factory
+        requestParameters:(MSIDRequestParameters *)requestParameters
+          completionBlock:(void(^)(void))completionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -73,6 +73,7 @@
 
 - (void)setUp
 {
+    NSError *error;
     MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
     keychainUtil.teamId = @"FakeTeamId";
     _dataSource = [MSIDMacKeychainTokenCache new];
@@ -80,83 +81,87 @@
     _serializer = [MSIDCacheItemJsonSerializer new];
     [_cache clearWithContext:nil error:nil];
 
-    _testAccount = [MSIDAccountCacheItem new];
-    _testAccount.environment = DEFAULT_TEST_ENVIRONMENT;
-    _testAccount.realm = @"Contoso.COM";
-    _testAccount.additionalAccountFields = @{@"test": @"test2", @"test3": @"test4"};
-    _testAccount.localAccountId = @"0000004-0000004-000004";
-    _testAccount.givenName = @"First name";
-    _testAccount.familyName = @"Last name";
-    _testAccount.accountType = MSIDAccountTypeMSSTS;
-    _testAccount.homeAccountId = @"uid.utid";
-    _testAccount.username = @"username";
-    _testAccount.alternativeAccountId = @"alt";
-    _testAccount.name = @"test user";
-
+    NSDictionary *accountDictionary = @{@"authority_type": @"MSSTS",
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                         @"realm": @"contoso.com",
+                                         @"local_account_id": @"0000004-0000004-000004",
+                                         @"given_name": @"First name",
+                                         @"family_name": @"Last name",
+                                         @"test": @"test2",
+                                         @"test3": @"test4",
+                                         @"home_account_id": @"uid.utid",
+                                         @"username": @"username",
+                                         @"alternative_account_id": @"alt",
+                                         @"name": @"test user"
+                                         };
+    _testAccount = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:accountDictionary error:&error];
+    XCTAssertNil(error);
     _testAccountKey = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:_testAccount.homeAccountId
                                                                     environment:_testAccount.environment
                                                                           realm:_testAccount.realm
                                                                            type:_testAccount.accountType];
     _testAccountKey.username = _testAccount.username;
 
-    _accountA = [MSIDAccountCacheItem new];
-    _accountB = [MSIDAccountCacheItem new];
-    _accountC = [MSIDAccountCacheItem new];
-
-    _accountA.environment = DEFAULT_TEST_ENVIRONMENT;
-    _accountA.realm = @"realmA";
-    _accountA.homeAccountId = @"uidA.utidA";
-    _accountA.localAccountId = @"localAccountIdA";
-    _accountA.accountType = MSIDAccountTypeMSSTS;
-    _accountA.username = @"UsernameA";
-    _accountA.givenName = @"GivenNameA";
-    _accountA.familyName = @"FamilyNameA";
-    _accountA.middleName = @"MiddleNameA";
-    _accountA.name = @"NameA";
-    _accountA.alternativeAccountId = @"AltIdA";
-
-    _accountB.environment = _accountA.environment;
-    _accountB.realm = _accountA.realm;
-    _accountB.homeAccountId = @"uidB.utidB";
-    _accountB.localAccountId = @"localAccountIdB";
-    _accountB.accountType = _accountA.accountType;
-    _accountB.username = @"UsernameB";
-    _accountB.givenName = @"GivenNameB";
-    _accountB.familyName = @"FamilyNameB";
-    _accountB.middleName = @"MiddleNameB";
-    _accountB.name = @"NameB";
-    _accountB.alternativeAccountId = @"AltIdB";
-
-    _accountC.environment = _accountA.environment;
-    _accountC.realm = _accountA.realm;
-    _accountC.homeAccountId = @"uidC.utidC";
-    _accountC.localAccountId = @"localAccountIdC";
-    _accountC.accountType = MSIDAccountTypeMSA;
-    _accountC.username = @"UsernameC";
-    _accountC.givenName = @"GivenNameC";
-    _accountC.familyName = @"FamilyNameC";
-    _accountC.middleName = @"MiddleNameC";
-    _accountC.name = @"NameC";
-    _accountC.alternativeAccountId = @"AltIdC";
+    NSDictionary *accountDictionaryA = @{@"authority_type": @"MSSTS",
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                         @"realm": @"realmA",
+                                         @"local_account_id": @"localAccountIdA",
+                                         @"given_name": @"GivenNameA",
+                                         @"family_name": @"FamilyNameA",
+                                         @"middle_name": @"MiddleNameA",
+                                         @"home_account_id": @"uidA.utidA",
+                                         @"username": @"usernameA",
+                                         @"alternative_account_id": @"AltIdA",
+                                         @"name": @"NameA"
+                                         };
+    NSDictionary *accountDictionaryB = @{@"authority_type": accountDictionaryA[@"authority_type"],
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                         @"realm": accountDictionaryA[@"realm"],
+                                         @"local_account_id": @"localAccountIdB",
+                                         @"given_name": @"GivenNameB",
+                                         @"family_name": @"FamilyNameB",
+                                         @"middle_name": @"MiddleNameB",
+                                         @"home_account_id": @"uidB.utidB",
+                                         @"username": @"usernameB",
+                                         @"alternative_account_id": @"AltIdB",
+                                         @"name": @"NameB"
+                                         };
+    NSDictionary *accountDictionaryC = @{@"authority_type": @"MSA",
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                         @"realm": accountDictionaryA[@"realm"],
+                                         @"local_account_id": @"localAccountIdC",
+                                         @"given_name": @"GivenNameC",
+                                         @"family_name": @"FamilyNameC",
+                                         @"middle_name": @"MiddleNameC",
+                                         @"home_account_id": @"uidA.utidC",
+                                         @"username": @"usernameC",
+                                         @"alternative_account_id": @"AltIdC",
+                                         @"name": @"NameC"
+                                         };
+    _accountA = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:accountDictionaryA error:&error];
+    XCTAssertNil(error);
+    _accountB = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:accountDictionaryB error:&error];
+    XCTAssertNil(error);
+    _accountC = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:accountDictionaryC error:&error];
+    XCTAssertNil(error);
 
     _keyA = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:_accountA.homeAccountId
-                                                         environment:_accountA.environment
-                                                               realm:_accountA.realm
-                                                                type:_accountA.accountType];
+                                                          environment:_accountA.environment
+                                                                realm:_accountA.realm
+                                                                 type:_accountA.accountType];
     _keyB = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:_accountB.homeAccountId
-                                                         environment:_accountB.environment
-                                                               realm:_accountB.realm
-                                                                type:_accountB.accountType];
+                                                          environment:_accountB.environment
+                                                                realm:_accountB.realm
+                                                                 type:_accountB.accountType];
     _keyC = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:_accountC.homeAccountId
-                                                         environment:_accountC.environment
-                                                               realm:_accountC.realm
-                                                                type:_accountC.accountType];
+                                                          environment:_accountC.environment
+                                                                realm:_accountC.realm
+                                                                 type:_accountC.accountType];
     _keyA.username = _accountA.username;
     _keyB.username = _accountB.username;
     _keyC.username = _accountC.username;
 
     // Ensure these test accounts don't already exist:
-    NSError* error;
     BOOL result = [_dataSource removeAccountsWithKey:_keyA context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
@@ -235,35 +240,38 @@
 - (void)testMacKeychainCache_whenAccountOverwritten_writesMergedAccountToKeychain
 {
     NSError *error;
-    MSIDAccountCacheItem* account1 = [MSIDAccountCacheItem new];
-    MSIDAccountCacheItem* account2 = [MSIDAccountCacheItem new];
-
-    account1.environment = DEFAULT_TEST_ENVIRONMENT;
-    account1.realm = @"Contoso.COM";
-    account1.homeAccountId = @"uid.utid";
-    account1.localAccountId = @"homeAccountIdA";
-    account1.accountType = MSIDAccountTypeAADV1;
-    account1.username = @"UsernameA";
-    account1.givenName = @"GivenNameA";
-    account1.familyName = @"FamilyNameA";
-    account1.middleName = @"MiddleNameA";
-    account1.name = @"NameA";
-    account1.alternativeAccountId = @"AltIdA";
-    account1.additionalAccountFields = @{@"key1": @"value1", @"key2": @"value2"};
-
-    account2.environment = account1.environment;
-    account2.realm = account1.realm;
-    account2.homeAccountId = account1.homeAccountId;
-    account2.localAccountId = @"homeAccountIdB";
-    account2.accountType = MSIDAccountTypeMSSTS;
-    account2.username = @"UsernameB";
-    account2.givenName = @"GivenNameB";
-    account2.familyName = @"FamilyNameB";
-    account2.middleName = @"MiddleNameB";
-    account2.name = @"NameB";
-    account2.alternativeAccountId = @"AltIdB";
-    account2.additionalAccountFields = @{@"key1": @"VALUE1", @"key3": @"VALUE3"};
-    [account2 updateFieldsFromAccount:account1]; // merge the additionalAccountFields dictionaries
+    NSDictionary *accountDictionary1 = @{@"authority_type": @"MSSTS",
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                         @"realm": @"realmA",
+                                         @"local_account_id": @"localAccountIdA",
+                                         @"given_name": @"GivenNameA",
+                                         @"family_name": @"FamilyNameA",
+                                         @"middle_name": @"MiddleNameA",
+                                         @"home_account_id": @"uidA.utidA",
+                                         @"username": @"usernameA",
+                                         @"alternative_account_id": @"AltIdA",
+                                         @"name": @"NameA",
+                                         @"key1": @"value1",
+                                         @"key2": @"value2",
+                                         };
+    NSDictionary *accountDictionary2 = @{@"authority_type": @"MSSTS",
+                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                         @"realm": accountDictionary1[@"realm"],
+                                         @"local_account_id": @"localAccountIdB",
+                                         @"given_name": @"GivenNameB",
+                                         @"family_name": @"FamilyNameB",
+                                         @"middle_name": @"MiddleNameB",
+                                         @"home_account_id": accountDictionary1[@"home_account_id"],
+                                         @"username": @"usernameB",
+                                         @"alternative_account_id": @"AltIdB",
+                                         @"name": @"NameB",
+                                         @"key1": @"VALUE1",
+                                         @"key3": @"VALUE3",
+                                         };
+    MSIDAccountCacheItem* account1 = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:accountDictionary1 error:&error];
+    XCTAssertNil(error);
+    MSIDAccountCacheItem* account2 = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:accountDictionary2 error:&error];
+    XCTAssertNil(error);
 
     MSIDDefaultAccountCacheKey *key1 = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account1.homeAccountId
                                                                                      environment:account1.environment
@@ -276,30 +284,32 @@
     key1.username = account1.username;
     key2.username = account2.username;
 
-    BOOL result = [_dataSource saveAccount:account1 key:key1 serializer:_serializer context:nil error:&error];
+    BOOL result = [_cache saveAccount:account1 context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    result = [_dataSource saveAccount:account2 key:key2 serializer:_serializer context:nil error:&error];
+    result = [_cache saveAccount:account2 context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    MSIDAccountCacheItem* expectedAccount = account2;
-    [expectedAccount setAdditionalAccountFields:@{@"key1": @"VALUE1", @"key2": @"value2", @"key3": @"VALUE3"}];
+    // merge the dictionaries
+    NSMutableDictionary *expectedDictionary = [accountDictionary1 mutableCopy];
+    [expectedDictionary addEntriesFromDictionary:accountDictionary2];
+    MSIDAccountCacheItem* expectedAccount = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:expectedDictionary error:&error];
+    XCTAssertNil(error);
 
-    MSIDAccountCacheItem *actualAccount = [_dataSource accountWithKey:key2
-                                                           serializer:_serializer
-                                                              context:nil
-                                                                error:&error];
+    MSIDAccountCacheItem *actualAccount = [_cache getAccount:key2
+                                                     context:nil
+                                                       error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(actualAccount);
-    XCTAssertTrue([expectedAccount isEqual:actualAccount]);
+    XCTAssertEqualObjects(expectedAccount, actualAccount);
 
     result = [_dataSource removeAccountsWithKey:key2 context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
-    // removing with keyB should delete the same keychain item referred to by keyA since they
+    // removing with key2 should delete the same keychain item referred to by key1 since they
     // have the same primary key values
     MSIDAccountCacheItem *deletedAccountA = [_dataSource accountWithKey:key1
                                                              serializer:_serializer
@@ -610,7 +620,6 @@
     account.middleName = @"MiddleNameA";
     account.name = @"NameA";
     account.alternativeAccountId = @"AltIdA";
-    account.additionalAccountFields = @{@"key1": @"value1", @"key2": @"value2"};
     
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                     environment:account.environment

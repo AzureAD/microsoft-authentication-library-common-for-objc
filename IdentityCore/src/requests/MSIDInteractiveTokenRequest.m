@@ -32,9 +32,6 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDCBAWebAADAuthResponse.h"
-#if TARGET_OS_IPHONE
-#import "MSIDAppExtensionUtil.h"
-#endif
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDPkce.h"
@@ -42,6 +39,14 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
+
+#if TARGET_OS_IPHONE
+#import "MSIDAppExtensionUtil.h"
+#endif
+
+#if TARGET_OS_OSX
+#import "MSIDExternalAADCacheSeeder.h"
+#endif
 
 @interface MSIDInteractiveTokenRequest()
 
@@ -246,9 +251,8 @@
             completionBlock(nil, error, nil);
             return;
         }
-
-        NSError *validationError = nil;
         
+        NSError *validationError;
         MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                                     oauthFactory:self.oauthFactory
                                                                                       tokenCache:self.tokenCache
@@ -278,18 +282,36 @@
             return;
         }
         
-        BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
-                                                               tokenResult:tokenResult
-                                                             correlationID:self.requestParameters.correlationId
-                                                                     error:&validationError];
-        
-        if (!accountChecked)
+        void (^validateAccountAndCompleteBlock)(void) = ^
         {
-            completionBlock(nil, validationError, nil);
-            return;
-        }
+            NSError *validationError;
+            BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
+                                                                   tokenResult:tokenResult
+                                                                 correlationID:self.requestParameters.correlationId
+                                                                         error:&validationError];
+            
+            if (!accountChecked)
+            {
+                completionBlock(nil, validationError, nil);
+                return;
+            }
+            
+            completionBlock(tokenResult, nil, nil);
+        };
         
-        completionBlock(tokenResult, nil, nil);
+#if TARGET_OS_OSX
+        if (self.externalCacheSeeder != nil)
+        {
+            [self.externalCacheSeeder seedTokenResponse:tokenResponse
+                                                factory:self.oauthFactory
+                                      requestParameters:self.requestParameters
+                                        completionBlock:validateAccountAndCompleteBlock];
+        }
+        else
+#endif
+        {
+            validateAccountAndCompleteBlock();
+        }
     }];
 }
 

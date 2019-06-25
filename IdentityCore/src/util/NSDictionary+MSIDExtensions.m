@@ -189,7 +189,7 @@
 {
     NSMutableDictionary *normalizedDictionary = [NSMutableDictionary new];
     
-    [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+    [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
         
         if ([obj isKindOfClass:[NSDictionary class]])
         {

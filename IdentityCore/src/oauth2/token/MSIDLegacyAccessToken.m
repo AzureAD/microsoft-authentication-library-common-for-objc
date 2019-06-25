@@ -97,7 +97,7 @@
         _accessToken = tokenCacheItem.accessToken;
         _idToken = tokenCacheItem.idToken;
         _accessTokenType = tokenCacheItem.oauthTokenType;
-
+        _additionalServerInfo = tokenCacheItem.additionalInfo;
         MSIDIdTokenClaims *claims = tokenCacheItem.idTokenClaims;
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:claims.userId homeAccountId:tokenCacheItem.homeAccountId];
     }
