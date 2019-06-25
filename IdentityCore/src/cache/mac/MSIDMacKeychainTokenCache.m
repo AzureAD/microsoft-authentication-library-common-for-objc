@@ -776,17 +776,26 @@ static dispatch_queue_t s_synchronizationQueue;
 
 #pragma mark - Account metadata
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(__unused MSIDAccountMetadataCacheKey *)key
+                                                  serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
+                                                     context:(id<MSIDRequestContext>)context
+                                                       error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
     return nil;
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDAccountMetadataCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+- (BOOL)saveAccountMetadata:(__unused MSIDAccountMetadataCacheItem *)item
+                        key:(__unused MSIDAccountMetadataCacheKey *)key
+                 serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
     return NO;
 }
 
-- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error {
+- (BOOL)removeAccountMetadataForKey:(__unused MSIDCacheKey *)key
+                            context:(id<MSIDRequestContext>)context
+                              error:(NSError *__autoreleasing *)error {
     [self createUnimplementedError:error context:context];
     return NO;
 }

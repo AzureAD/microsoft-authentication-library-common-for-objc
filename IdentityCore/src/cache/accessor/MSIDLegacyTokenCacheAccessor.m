@@ -581,7 +581,7 @@
 }
 
 - (BOOL)saveRefreshToken:(MSIDLegacyRefreshToken *)refreshToken
-           configuration:(MSIDConfiguration *)configuration
+           configuration:(__unused MSIDConfiguration *)configuration
                  context:(id<MSIDRequestContext>)context
                    error:(NSError **)error
 {

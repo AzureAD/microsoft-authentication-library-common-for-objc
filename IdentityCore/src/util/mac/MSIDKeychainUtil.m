@@ -77,7 +77,7 @@
             return nil;
         }
         
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
         CFRelease(selfCode);
     }
     

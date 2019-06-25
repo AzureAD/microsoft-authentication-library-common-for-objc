@@ -81,7 +81,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error
+                                 error:(__unused NSError * __autoreleasing *)error
 {
     if (!(self = [super init]))
     {
