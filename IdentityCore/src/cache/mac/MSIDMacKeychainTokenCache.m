@@ -469,6 +469,7 @@ static dispatch_queue_t s_synchronizationQueue;
         return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
     }
     
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to save storage credential for key %@.", MSID_PII_LOG_MASKABLE(key));
     return NO;
 }
 
@@ -495,17 +496,7 @@ static dispatch_queue_t s_synchronizationQueue;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(storageItem));
     
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    if (key.isShared)
-    {
-        // Shared item attribute: <keychainGroup>
-        query[(id)kSecAttrAccount] = self.keychainGroup;
-    }
-    else
-    {
-        // Secret item attribute: <keychainGroup>-<app_bundle_id>
-        query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup,[[NSBundle mainBundle] bundleIdentifier]];
-    }
-    
+    [query addEntriesFromDictionary:[self accountAttributeForKey:key]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     NSMutableDictionary *update = [NSMutableDictionary dictionary];
     update[(id)kSecValueData] = itemData;
@@ -572,27 +563,35 @@ static dispatch_queue_t s_synchronizationQueue;
     {
         /*
          Sync in memory cache with persistent cache at the time of look up.
+         For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
          */
-        @synchronized (self)
+        MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+        MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+        
+        if (key.isShared)
         {
-            /*
-             For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
-             For AT/ID tokens, Look up in memory cache first, if no credential found, then merge it with persistent cache and perform additional look up.
-             */
-            MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-            MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-            
-            if (key.isShared)
-            {
-                [currentItem mergeStorageItem:savedItem];
-            }
-            else if (![[currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key] count])
-            {
-                [currentItem mergeStorageItem:savedItem];
-            }
-            
-            tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
+            [currentItem mergeStorageItem:savedItem];
         }
+        else
+        {
+            /* For AT/ID tokens, two apps sharing the same client id can write to the same entry to the keychain. In this case, it is possible that the first app is trying to read a credential which is not currently in its own memory but is written in persistence by the second app sharing the same client id. To find this credential, it is important to merge in memory cache with persistence.
+             */
+            tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
+            if ([tokenList count])
+            {
+                return tokenList;
+            }
+            else
+            {
+                [currentItem mergeStorageItem:savedItem];
+            }
+        }
+        
+        tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to look up stored credential as key passed is not of type [MSIDDefaultCredentialCacheKey class] - %@.", MSID_PII_LOG_MASKABLE(key));
     }
     
     return tokenList;
@@ -630,18 +629,7 @@ static dispatch_queue_t s_synchronizationQueue;
     MSID_TRACE;
     MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    
-    if (key.isShared)
-    {
-        // Shared item attribute: <keychainGroup>
-        query[(id)kSecAttrAccount] = self.keychainGroup;
-    }
-    else
-    {
-        // Secret item attribute: <keychainGroup>-<app_bundle_id>
-        query[(id)kSecAttrAccount] = [NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]];
-    }
-    
+    [query addEntriesFromDictionary:[self accountAttributeForKey:key]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     query[(id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
     query[(id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
@@ -683,6 +671,20 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     
     return storageItem;
+}
+
+- (NSDictionary *)accountAttributeForKey:(MSIDCacheKey *)key
+{
+    if (key.isShared)
+    {
+        // Secret shareable item attribute: <keychainGroup>
+        return @{ (id)(kSecAttrAccount): self.keychainGroup};
+    }
+    else
+    {
+        // Secret non-shareable item attribute: <keychainGroup>-<app_bundle_id>
+        return @{ (id)(kSecAttrAccount): [NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]]};
+    }
 }
 
 #pragma mark - App Metadata
@@ -1002,6 +1004,7 @@ static dispatch_queue_t s_synchronizationQueue;
     
 }
 
+// TODO: To improve the saving logic here (to not pollute keychain)
 - (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
                         key:(MSIDAccountMetadataCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer

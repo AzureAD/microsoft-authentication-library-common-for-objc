@@ -50,7 +50,7 @@ static NSString *keyDelimiter = @"-";
 - (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+        NSString *credentialKey = [self getCredentialKey:key];
         [self.cacheObjects setObject:credential forKey:credentialKey];
     });
 }
@@ -65,6 +65,10 @@ static NSString *keyDelimiter = @"-";
             {
                 [self.cacheObjects setObject:credential forKey:key];
             }
+            else
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Credential is nil for key %@ while merging storage credentials.", MSID_PII_LOG_MASKABLE(key));
+            }
         }
     });
 }
@@ -72,7 +76,7 @@ static NSString *keyDelimiter = @"-";
 - (void)removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+        NSString *credentialKey = [self getCredentialKey:key];
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Removing credential for key %@.", MSID_PII_LOG_MASKABLE(credentialKey));
         [self.cacheObjects removeObjectForKey:credentialKey];
     });
@@ -85,7 +89,7 @@ static NSString *keyDelimiter = @"-";
     dispatch_sync(self.queue, ^{
         if (key.account && key.service)
         {
-            NSString *credentialKey = [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
+            NSString *credentialKey = [self getCredentialKey:key];
             MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
             if (credential)
             {
@@ -114,9 +118,9 @@ static NSString *keyDelimiter = @"-";
     {
         for (NSString *credentialKey in json)
         {
-            NSDictionary *rtDict = [json objectForKey:credentialKey];
+            NSDictionary *rtDict = [json msidObjectForKey:credentialKey ofClass:[NSDictionary class]];
             
-            if (rtDict && [rtDict isKindOfClass:[NSDictionary class]])
+            if (rtDict)
             {
                 MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
                 
@@ -163,6 +167,11 @@ static NSString *keyDelimiter = @"-";
     credentialKey.target = credential.target;
     credentialKey.enrollmentId = credential.enrollmentId;
     return credentialKey;
+}
+
+- (NSString *)getCredentialKey:(MSIDDefaultCredentialCacheKey *)key
+{
+    return [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
 }
 
 - (NSPredicate *)createPredicateForKey:(MSIDDefaultCredentialCacheKey *)key
