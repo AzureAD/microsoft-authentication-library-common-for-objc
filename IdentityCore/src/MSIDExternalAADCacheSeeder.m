@@ -35,11 +35,15 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTelemetryCacheEvent.h"
 #import "MSIDTelemetry+Cache.h"
+#import "MSIDGetV1IdTokenHttpEvent.h"
+#import "MSIDTelemetryEventStrings.h"
+#import "MSIDGetV1IdTokenCacheEvent.h"
 
 @interface MSIDExternalAADCacheSeeder()
 
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
+@property (nonatomic) MSIDTelemetry *telemetry;
 
 @end
 
@@ -56,6 +60,7 @@
     {
         _defaultAccessor = defaultAccessor;
         _externalLegacyAccessor = externalLegacyAccessor;
+        _telemetry = [MSIDTelemetry sharedInstance];
     }
     
     return self;
@@ -73,7 +78,7 @@
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Beginning external cache seeding.");
     
-    [[MSIDTelemetry sharedInstance] startEvent:requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_EXTERNAL_CACHE_SEEDING];
+    [self.telemetry startEvent:requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_EXTERNAL_CACHE_SEEDING];
     
     void (^completionBlockWrapper)(BOOL success) = ^(BOOL success)
     {
@@ -81,6 +86,7 @@
         
         MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_EXTERNAL_CACHE_SEEDING
                                                                         context:requestParameters];
+        [event setExternalCacheSeedingStatus:success ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
         
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:success context:requestParameters];
         
@@ -104,10 +110,13 @@
                                                                     context:requestParameters
                                                                       error:&error];
     
-    
-    
     if (legacyIdToken)
     {
+        [self.telemetry startEvent:requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_FOUND_V1_ID_TOKEN_IN_CACHE];
+        __auto_type event = [[MSIDGetV1IdTokenCacheEvent alloc] initWithName:MSID_TELEMETRY_EVENT_FOUND_V1_ID_TOKEN_IN_CACHE
+                                                                                      context:requestParameters];
+        [self.telemetry stopEvent:requestParameters.telemetryRequestId event:event];
+        
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Found legacy id token in cache.");
         
         [self seedExternalCacheWithIdToken:legacyIdToken
@@ -132,8 +141,15 @@
     factory = [MSIDAADV2Oauth2FactoryForV1Request new];
     MSIDRefreshTokenGrantRequest *tokenRequest = [factory refreshTokenRequestWithRequestParameters:requestParameters
                                                                                       refreshToken:refreshToken.refreshToken];
+
+    [self.telemetry startEvent:requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_V1_IDTOKEN_REQUEST];
+    
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
      {
+         __auto_type event = [[MSIDGetV1IdTokenHttpEvent alloc] initWithName:MSID_TELEMETRY_EVENT_HTTP_V1_IDTOKEN_REQUEST
+                                                                                     context:requestParameters];
+         [self.telemetry stopEvent:requestParameters.telemetryRequestId event:event];
+         
          if (error)
          {
              MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Failed to acquire V1 Id Token token via Refresh token, error: %@", MSID_PII_LOG_MASKABLE(error));

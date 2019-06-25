@@ -41,16 +41,22 @@
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTestIdTokenUtil.h"
+#import "MSIDAggregatedDispatcher.h"
+#import "MSIDTestTelemetryEventsObserver.h"
+#import "MSIDTelemetry+Internal.h"
 
-@interface MSIDExternalAADCacheSeederTests : XCTestCase
+@interface MSIDExternalAADCacheSeederIntegrationTests : XCTestCase
 
 @property (nonatomic) MSIDTestCacheDataSource *externalLegacyDataSource;
 @property (nonatomic) MSIDLegacyTokenCacheAccessor *externalLegacyAccessor;
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *defaultAccessor;
+@property (nonatomic) NSArray<NSDictionary<NSString *, NSString *> *> *receivedEvents;
+@property (nonatomic) MSIDAggregatedDispatcher *dispatcher;
+@property (nonatomic) MSIDTestTelemetryEventsObserver *observer;
 
 @end
 
-@implementation MSIDExternalAADCacheSeederTests
+@implementation MSIDExternalAADCacheSeederIntegrationTests
 
 - (void)setUp
 {
@@ -59,11 +65,31 @@
     self.externalLegacyDataSource = [MSIDTestCacheDataSource new];
     self.externalLegacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:self.externalLegacyDataSource
                                                                        otherCacheAccessors:nil];
+    
+    self.receivedEvents = [NSMutableArray array];
+    
+    __auto_type observer = [MSIDTestTelemetryEventsObserver new];
+    [observer setEventsReceivedBlock:^(NSArray<NSDictionary<NSString *, NSString *> *> *events)
+     {
+         self.receivedEvents = events;
+     }];
+    self.dispatcher = [[MSIDAggregatedDispatcher alloc] initWithObserver:observer];
+    self.observer = observer;
+    
+    [[MSIDTelemetry sharedInstance] addDispatcher:self.dispatcher];
+    
+    [MSIDTelemetry sharedInstance].piiEnabled = NO;
+    MSIDTelemetry.sharedInstance.notifyOnFailureOnly = NO;
 }
 
 - (void)tearDown
 {
     [self.externalLegacyDataSource reset];
+    
+    [[MSIDTelemetry sharedInstance] removeAllDispatchers];
+    self.receivedEvents = nil;
+    self.observer = nil;
+    self.dispatcher = nil;
 }
 
 #pragma mark - Tests
@@ -142,6 +168,25 @@
     }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    [[MSIDTelemetry sharedInstance] flush:[requestParameters telemetryRequestId]];
+    
+    XCTAssertNotNil(self.receivedEvents);
+    XCTAssertEqual(self.receivedEvents.count, 1);
+    NSDictionary *eventInfo = self.receivedEvents.firstObject;
+    XCTAssertEqual(eventInfo.count, 12);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @4);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.get_v1_id_token_http_event_count"], @1);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.http_event_count"], @1);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.oauth_error_code"], @"");
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.response_code"], @"200");
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.correlation_id"]);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.external_cache_seeding_status"], @"yes");
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
 }
 
 - (void)testSeedv2TokenResponse_whenLegacyIdTokenInCache_shouldGetLecayIdTokenFromCacheAndSeedTokenResponse
@@ -206,6 +251,22 @@
     }];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    [[MSIDTelemetry sharedInstance] flush:[requestParameters telemetryRequestId]];
+    
+    XCTAssertNotNil(self.receivedEvents);
+    XCTAssertEqual(self.receivedEvents.count, 1);
+    NSDictionary *eventInfo = self.receivedEvents.firstObject;
+    XCTAssertEqual(eventInfo.count, 9);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @4);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.get_v1_id_token_cache_event_count"], @1);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.correlation_id"]);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.external_cache_seeding_status"], @"yes");
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
 }
 
 @end
