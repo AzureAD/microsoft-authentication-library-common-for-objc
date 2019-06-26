@@ -127,6 +127,18 @@
     return nil;
 }
 
+- (NSData *)serializeCredentialStorageItem:(MSIDMacCredentialStorageItem *)item
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to serialize MSIDMacCredentialStorageItem, which is unsupported");
+    return nil;
+}
+
+- (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(NSData *)data
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to deserialize MSIDMacCredentialStorageItem, which is unsupported");
+    return nil;
+}
+
 #pragma mark - Class Mapping
 
 - (void)addEncodeClassMapping:(NSDictionary *)classMap

@@ -21,19 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 #import <Foundation/Foundation.h>
+#import "MSIDCredentialCacheItem.h"
+#import "MSIDDefaultCredentialCacheKey.h"
 
-@class MSIDCredentialCacheItem;
-@class MSIDMacCredentialStorageItem;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDCacheItemSerializing <NSObject>
+@interface MSIDMacCredentialStorageItem : NSObject <MSIDJsonSerializable>
 
-- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
-- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
+- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key;
 
-#if TARGET_OS_OSX
-- (NSData *)serializeCredentialStorageItem:(MSIDMacCredentialStorageItem *)item;
-- (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(NSData *)data;
-#endif
+/*
+ This api is thread safe only if an immutable object is passed as parameter.
+ */
+- (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem;
+
+- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key;
+
+- (void)removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key;
 
 @end
+
+NS_ASSUME_NONNULL_END

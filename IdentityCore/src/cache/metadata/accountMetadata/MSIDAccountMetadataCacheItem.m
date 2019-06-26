@@ -133,7 +133,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 {
     BOOL result = YES;
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
-    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];;
+    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= ([_internalMap isEqualToDictionary:item->_internalMap]);
     
     return result;

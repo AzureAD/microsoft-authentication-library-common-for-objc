@@ -71,7 +71,7 @@
     MSIDCacheKey *key = [[self.class allocWithZone:zone] init];
     key->_account = [_account copyWithZone:zone];
     key->_service = [_service copyWithZone:zone];
-    key->_type = [_type copyWithZone:zone];;
+    key->_type = [_type copyWithZone:zone];
     key->_generic = [_generic copyWithZone:zone];
     key->_appKey = [_appKey copyWithZone:zone];
     return key;
