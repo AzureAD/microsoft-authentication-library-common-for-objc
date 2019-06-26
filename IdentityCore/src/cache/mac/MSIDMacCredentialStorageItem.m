@@ -118,11 +118,11 @@ static NSString *keyDelimiter = @"-";
     {
         for (NSString *credentialKey in json)
         {
-            NSDictionary *rtDict = [json msidObjectForKey:credentialKey ofClass:[NSDictionary class]];
+            NSDictionary *credentialDict = [json msidObjectForKey:credentialKey ofClass:[NSDictionary class]];
             
-            if (rtDict)
+            if (credentialDict)
             {
-                MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:rtDict error:error];
+                MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:credentialDict error:error];
                 
                 if (credential)
                 {
@@ -145,11 +145,11 @@ static NSString *keyDelimiter = @"-";
             MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
             if (credential)
             {
-                NSDictionary *atDict = [credential jsonDictionary];
+                NSDictionary *credentialDict = [credential jsonDictionary];
                 
-                if (atDict && [atDict isKindOfClass:[NSDictionary class]])
+                if (credentialDict && [credentialDict isKindOfClass:[NSDictionary class]])
                 {
-                    [dictionary setObject:atDict forKey:credentialKey];
+                    [dictionary setObject:credentialDict forKey:credentialKey];
                 }
             }
         }
