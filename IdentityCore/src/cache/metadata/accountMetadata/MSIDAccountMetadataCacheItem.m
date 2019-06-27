@@ -96,7 +96,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
     self->_homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
-    self->_internalMap = [[json msidObjectForKey:MSID_ACCOUNT_CACHE_KEY ofClass:NSDictionary.class] mutableCopy];
+    self->_internalMap = [[json msidObjectForKey:MSID_ACCOUNT_CACHE_KEY ofClass:NSDictionary.class] mutableDeepCopy];
     
     return self;
 }
@@ -158,7 +158,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
     item->_homeAccountId = [self.homeAccountId copyWithZone:zone];
     item->_clientId = [self.clientId copyWithZone:zone];
-    item->_internalMap = [self->_internalMap copyWithZone:zone];
+    item->_internalMap = [self->_internalMap mutableDeepCopy];
     
     return item;
 }
