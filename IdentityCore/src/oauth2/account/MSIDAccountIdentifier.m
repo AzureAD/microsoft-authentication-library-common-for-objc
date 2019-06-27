@@ -59,8 +59,8 @@
 
     _displayableId = legacyAccountId;
     _homeAccountId = homeAccountId;
-    _maskedHomeAccountId = [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_homeAccountId];
-    _maskedDisplayableId = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_displayableId];
+    _maskedHomeAccountId = MSID_PII_LOG_TRACKABLE(_homeAccountId);
+    _maskedDisplayableId = MSID_PII_LOG_EMAIL(_displayableId);
     _legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     NSArray *accountComponents = [homeAccountId componentsSeparatedByString:@"."];
