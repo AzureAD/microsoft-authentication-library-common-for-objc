@@ -104,6 +104,21 @@
     XCTAssertNil([cacheItem cachedURL:[NSURL URLWithString:@"https://contoso.com"]]);
 }
 
+- (void)testAccountMetadataCopy_withOriginalObjectChanged_shouldNotChangeCopiedObject
+{
+    MSIDAccountMetadataCacheItem *item1 = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"home_account_id" clientId:@"clientId"];
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *subDict = [[NSMutableDictionary alloc] init];
+    [subDict setObject:@"request_url_1" forKey:@"url"];
+    [dict setObject:subDict forKey:@"URLMap"];
+    [item1 setValue:dict forKey:@"internalMap"];
+    
+    MSIDAccountMetadataCacheItem *item2 = [item1 copy];
+    [subDict setObject:@"request_url_2" forKey:@"url"];
+    XCTAssertFalse([[item1 valueForKey:@"internalMap"] isEqualToDictionary:[item2 valueForKey:@"internalMap"]]);
+    XCTAssertFalse([item1 isEqual:item2]);
+}
+
 
 
 @end

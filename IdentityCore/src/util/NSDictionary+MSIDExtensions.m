@@ -239,7 +239,7 @@
     return nil;
 }
 
-- (NSMutableDictionary *) mutableDeepCopy
+- (NSMutableDictionary *)mutableDeepCopy
 {
     NSMutableDictionary *returnDict = [[NSMutableDictionary alloc] initWithCapacity:[self count]];
     NSArray *keys = [self allKeys];
@@ -248,9 +248,13 @@
         id value = [self valueForKey:key];
         id copy = nil;
         if ([value respondsToSelector:@selector(mutableDeepCopy)])
+        {
             copy = [value mutableDeepCopy];
+        }
         else if ([value respondsToSelector:@selector(mutableCopy)])
+        {
             copy = [value mutableCopy];
+        }
         if (copy == nil)
             copy = [value copy];
         
