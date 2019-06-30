@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *clientId;
 @property (nullable, nonatomic) NSString *resource;
 @property (nullable, nonatomic) NSString *legacyUserId;
+@property (nullable, nonatomic) NSString *applicationIdentifier;
 
 - (instancetype)initWithAuthority:(NSURL *)authority
                          clientId:(NSString *)clientId

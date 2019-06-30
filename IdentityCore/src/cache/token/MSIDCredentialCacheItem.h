@@ -61,6 +61,12 @@
 // Additional fields
 @property (readwrite, nullable) NSDictionary *additionalInfo;
 
+// Intune enrollment ID
+@property (readwrite, nullable) NSString *enrollmentId;
+
+// Application identifier
+@property (readwrite, nullable) NSString *applicationIdentifier;
+
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
 - (nullable MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType;

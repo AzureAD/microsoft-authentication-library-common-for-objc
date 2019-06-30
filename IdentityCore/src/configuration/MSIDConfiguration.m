@@ -35,7 +35,8 @@
     configuration.redirectUri = [_redirectUri copyWithZone:zone];
     configuration.target = [_target copyWithZone:zone];
     configuration.clientId = [_clientId copyWithZone:zone];
-    
+    configuration.enrollmentId = [_enrollmentId copyWithZone:zone];
+    configuration.applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
     return configuration;
 }
 

@@ -153,6 +153,8 @@
     NSMutableDictionary *additionalServerInfo = [accessToken.additionalServerInfo mutableCopy];
     additionalServerInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = response.extendedExpiresOnDate;
     accessToken.additionalServerInfo = additionalServerInfo;
+    accessToken.enrollmentId = configuration.enrollmentId;
+    accessToken.applicationIdentifier = configuration.applicationIdentifier;
 
     return YES;
 }
