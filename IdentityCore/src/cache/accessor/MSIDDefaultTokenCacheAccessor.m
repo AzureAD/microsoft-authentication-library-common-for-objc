@@ -607,7 +607,7 @@
     if (![NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
         MSID_LOG_VERBOSE(context, @"Saving family refresh token %@", _PII_NULLIFY(refreshToken.refreshToken));
-        MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token %@", refreshToken.refreshToken);
+        MSID_LOG_VERBOSE_PII(context, @"Saving family refresh token %@", _PII_NULLIFY(refreshToken.refreshToken));
 
         if (![self saveToken:refreshToken context:context error:error])
         {
