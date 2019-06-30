@@ -628,6 +628,8 @@
                                                                              clientId:tokenCacheItem.clientId
                                                                              resource:tokenCacheItem.target
                                                                          legacyUserId:userId];
+    
+    key.applicationIdentifier = tokenCacheItem.applicationIdentifier;
 
     BOOL result = [_dataSource saveToken:tokenCacheItem
                                      key:key
