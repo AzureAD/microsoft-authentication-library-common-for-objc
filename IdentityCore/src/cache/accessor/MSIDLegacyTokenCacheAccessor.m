@@ -358,7 +358,7 @@
                                                            lookupAliases:aliases
                                                                 clientId:configuration.clientId
                                                                 resource:configuration.target
-                                                           appIdentifier:nil
+                                                           appIdentifier:configuration.applicationIdentifier
                                                                  context:context
                                                                    error:error];
 }
@@ -692,6 +692,8 @@
                                                                              clientId:cacheItem.clientId
                                                                              resource:cacheItem.target
                                                                          legacyUserId:userId];
+    
+    key.applicationIdentifier = cacheItem.applicationIdentifier;
 
     BOOL result = [_dataSource removeItemsWithKey:key context:context error:error];
 
