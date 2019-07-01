@@ -256,7 +256,9 @@
             copy = [value mutableCopy];
         }
         if (copy == nil)
+        {
             copy = [value copy];
+        }
         
         [returnDict setObject:copy forKey:key];
     }
