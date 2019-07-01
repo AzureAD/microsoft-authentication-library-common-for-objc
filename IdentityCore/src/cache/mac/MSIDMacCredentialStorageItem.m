@@ -205,6 +205,8 @@ static NSString *keyDelimiter = @"-";
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.credentialType == %d", key.credentialType]];
     if (key.realm)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.realm == %@", key.realm]];
+    if (key.target && key.targetMatchingOptions == MSIDExactStringMatch)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.target == %@", key.target]];
     /*
      TODO: key.target is passed for look up in ios implementation which does not match the exact target for the stored credential
      key.target is not added as target can be subset , intersect , superset or exact string match and is matched later in the code.

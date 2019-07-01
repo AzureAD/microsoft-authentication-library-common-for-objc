@@ -32,8 +32,8 @@
 
     if (self)
     {
-        _targetMatchingOptions = MSIDExactStringMatch;
-        _clientIdMatchingOptions = MSIDExactStringMatch;
+        self.targetMatchingOptions = MSIDExactStringMatch;
+        self.clientIdMatchingOptions = MSIDExactStringMatch;
         _matchAnyCredentialType = NO;
     }
 

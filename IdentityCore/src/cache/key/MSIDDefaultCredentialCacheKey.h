@@ -27,6 +27,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
+    MSIDExactStringMatch,
+    MSIDSubSet,
+    MSIDIntersect,
+    MSIDSuperSet
+};
+
 @interface MSIDDefaultCredentialCacheKey : MSIDCacheKey
 
 @property (nullable, nonatomic) NSString *homeAccountId;
@@ -37,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *target;
 @property (nullable, nonatomic) NSString *enrollmentId;
 @property (nonatomic) MSIDCredentialType credentialType;
+@property (nonatomic) MSIDComparisonOptions targetMatchingOptions;
+@property (nonatomic) MSIDComparisonOptions clientIdMatchingOptions;
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
                           environment:(NSString *)environment

@@ -25,17 +25,8 @@
 #import "MSIDCredentialType.h"
 #import "MSIDDefaultCredentialCacheKey.h"
 
-typedef NS_ENUM(NSUInteger, MSIDComparisonOptions) {
-    MSIDExactStringMatch,
-    MSIDSubSet,
-    MSIDIntersect,
-    MSIDSuperSet
-};
-
 @interface MSIDDefaultCredentialCacheQuery : MSIDDefaultCredentialCacheKey
 
-@property (nonatomic) MSIDComparisonOptions targetMatchingOptions;
-@property (nonatomic) MSIDComparisonOptions clientIdMatchingOptions;
 @property (nonatomic) BOOL matchAnyCredentialType;
 @property (nonatomic, readonly) BOOL exactMatch;
 @property (nonatomic) NSArray<NSString *> *environmentAliases;
