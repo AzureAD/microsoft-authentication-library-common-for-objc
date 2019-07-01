@@ -50,4 +50,6 @@
 
 - (NSDictionary *)msidNormalizedJSONDictionary;
 
+- (NSMutableDictionary *)mutableDeepCopy;
+
 @end
