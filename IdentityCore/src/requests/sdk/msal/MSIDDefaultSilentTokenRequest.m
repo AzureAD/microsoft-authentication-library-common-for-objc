@@ -124,6 +124,12 @@
     if (!account)
     {
         MSID_LOG_ERROR(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account matching request found", nil, nil, nil, nil, nil);
+        }
+        
         return nil;
     }
 
