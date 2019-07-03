@@ -282,8 +282,8 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.homeAccountId, cacheQuery.target);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, cacheQuery.homeAccountId, cacheQuery.target);
 
     if (cacheQuery.exactMatch)
     {
@@ -303,8 +303,8 @@
 {
     assert(credential);
 
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credential %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.environment, credential.realm, credential.clientId);
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.realm, credential.clientId);
+    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"(Default cache) Removing credential %@ with environment %@, realm %@, clientID %@", [MSIDCredentialTypeHelpers credentialTypeAsString:credential.credentialType], credential.environment, credential.realm, credential.clientId);
+    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", credential, credential.homeAccountId, credential.environment, credential.realm, credential.clientId);
 
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
                                                                                          environment:credential.environment

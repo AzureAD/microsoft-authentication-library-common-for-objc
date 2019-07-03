@@ -119,7 +119,7 @@
         
         if (![self supportsCredentialType:tokenCacheItem.credentialType])
         {
-            MSID_LOG_ERROR(nil, @"Trying to initialize with a wrong token type");
+            MSID_LOG_VERBOSE(nil, @"Trying to initialize with a wrong token type, current token type %@, allowed token type %ld", [self class], (long)tokenCacheItem.credentialType);
             return nil;
         }
 
