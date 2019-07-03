@@ -374,9 +374,12 @@
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken
                                                               refreshToken:refreshToken
                                                                      error:&cacheError];
+                
+                MSID_LOG_ERROR(self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
                 tokenResult.extendedLifeTimeToken = YES;
-
-                completionBlock(tokenResult, cacheError);
+                NSError *resultError = (tokenResult ? nil : error);
+                
+                completionBlock(tokenResult, resultError);
                 return;
             }
             
