@@ -106,7 +106,14 @@
 
     if (!idToken)
     {
-        MSID_LOG_WARN(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        MSID_LOG_ERROR(self.requestParameters, @"Couldn't find an id token for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No id token matching request found", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
     }
 
     MSIDAccount *account = [self.defaultAccessor getAccountForIdentifier:self.requestParameters.accountIdentifier
@@ -116,7 +123,14 @@
 
     if (!account)
     {
-        MSID_LOG_WARN(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        MSID_LOG_ERROR(self.requestParameters, @"Couldn't find an account for clientId %@, authority %@", self.requestParameters.clientId, self.requestParameters.authority.url);
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account matching request found", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
     }
 
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
