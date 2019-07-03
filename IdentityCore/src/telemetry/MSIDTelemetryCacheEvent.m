@@ -161,6 +161,11 @@
     }
 }
 
+- (void)setExternalCacheSeedingStatus:(NSString *)status
+{
+    [self setProperty:MSID_TELEMETRY_KEY_EXTERNAL_CACHE_SEEDING_STATUS value:status];
+}
+
 #pragma mark - MSIDTelemetryBaseEvent
 
 + (NSArray<NSString *> *)propertiesToAggregate
@@ -178,7 +183,8 @@
                                      MSID_TELEMETRY_KEY_CACHE_EVENT_COUNT,
                                      MSID_TELEMETRY_KEY_SPE_INFO,
                                      MSID_TELEMETRY_KEY_WIPE_APP,
-                                     MSID_TELEMETRY_KEY_WIPE_TIME
+                                     MSID_TELEMETRY_KEY_WIPE_TIME,
+                                     MSID_TELEMETRY_KEY_EXTERNAL_CACHE_SEEDING_STATUS
                                      ]];
     });
     
