@@ -150,15 +150,14 @@
             MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
                                                           refreshToken:refreshableToken
                                                                  error:&resultError];
-
-            if (resultError)
+            
+            if (tokenResult)
             {
-                completionBlock(nil, resultError);
+                completionBlock(tokenResult, nil);
                 return;
             }
-
-            completionBlock(tokenResult, nil);
-            return;
+            
+            MSID_LOG_WARN_PII(nil, @"Couldn't create result for cached access token, error %@. Try to recover...", resultError);
         }
 
         if (accessToken && accessToken.isExtendedLifetimeValid)
@@ -372,9 +371,12 @@
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken
                                                               refreshToken:refreshToken
                                                                      error:&cacheError];
+                
+                MSID_LOG_ERROR(self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
                 tokenResult.extendedLifeTimeToken = YES;
-
-                completionBlock(tokenResult, cacheError);
+                NSError *resultError = (tokenResult ? nil : error);
+                
+                completionBlock(tokenResult, resultError);
                 return;
             }
             
