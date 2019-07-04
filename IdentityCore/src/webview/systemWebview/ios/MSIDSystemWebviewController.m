@@ -89,7 +89,14 @@
     
     if (_useAuthenticationSession)
     {
-        if (@available(iOS 11.0, *))
+        if (@available(iOS 13.0, *))
+        {
+            _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
+                                                    callbackURLScheme:self.callbackURLScheme
+                                                     parentController:self.parentController
+                                                              context:_context];
+        }
+        else if (@available(iOS 11.0, *))
         {
             _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
                                                     callbackURLScheme:self.callbackURLScheme

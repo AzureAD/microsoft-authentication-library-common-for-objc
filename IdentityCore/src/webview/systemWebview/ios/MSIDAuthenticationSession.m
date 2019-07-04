@@ -39,6 +39,23 @@
 #import <SafariServices/SafariServices.h>
 #import <AuthenticationServices/AuthenticationServices.h>
 #endif
+#import "UIApplication+MSIDExtensions.h"
+
+#if !MSID_EXCLUDE_WEBKIT
+@interface MSIDAuthenticationSession (ASWebAuth) <ASWebAuthenticationPresentationContextProviding>
+
+@end
+
+@implementation MSIDAuthenticationSession (ASWebAuth)
+
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session
+API_AVAILABLE(ios(13.0))
+{
+    return self.parentController.view.window;
+}
+
+@end
+#endif
 
 @implementation MSIDAuthenticationSession
 {
@@ -71,6 +88,20 @@
         _startURL = url;
         _context = context;
         _callbackURLScheme = callbackURLScheme;
+    }
+    
+    return self;
+}
+
+- (instancetype)initWithURL:(NSURL *)url
+          callbackURLScheme:(NSString *)callbackURLScheme
+           parentController:(UIViewController *)parentController
+                    context:(id<MSIDRequestContext>)context
+{
+    self = [self initWithURL:url callbackURLScheme:callbackURLScheme context:context];
+    if (self)
+    {
+        _parentController = parentController;
     }
     
     return self;
@@ -139,6 +170,10 @@
             _webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:_startURL
                                                             callbackURLScheme:_callbackURLScheme
                                                             completionHandler:authCompletion];
+            if (@available(iOS 13.0, *))
+            {
+                _webAuthSession.presentationContextProvider = self;
+            }
             if ([_webAuthSession start]) return;
         }
         else

@@ -27,6 +27,7 @@
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "MSIDSystemWebviewController.h"
 
 @interface MSIDAuthenticationSession : NSObject<MSIDWebviewInteracting>
@@ -35,8 +36,14 @@
           callbackURLScheme:(NSString *)callbackURLScheme
                     context:(id<MSIDRequestContext>)context;
 
+- (instancetype)initWithURL:(NSURL *)url
+          callbackURLScheme:(NSString *)callbackURLScheme
+           parentController:(UIViewController *)parentController
+                    context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0));
+
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
+@property (weak, nonatomic, readonly) UIViewController *parentController;
 
 @end
 #endif
