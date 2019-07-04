@@ -157,7 +157,7 @@
                 return;
             }
             
-            MSID_LOG_WARN_PII(nil, @"Couldn't create result for cached access token, error %@. Try to recover...", resultError);
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
         }
 
         if (accessToken && accessToken.isExtendedLifetimeValid)
@@ -372,7 +372,7 @@
                                                               refreshToken:refreshToken
                                                                      error:&cacheError];
                 
-                MSID_LOG_ERROR(self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
                 tokenResult.extendedLifeTimeToken = YES;
                 NSError *resultError = (tokenResult ? nil : error);
                 

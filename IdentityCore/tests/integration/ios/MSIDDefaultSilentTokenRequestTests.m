@@ -283,7 +283,9 @@
                                                                                                        forceRefresh:NO
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
-                                                                                                         tokenCache:tokenCache];
+                                                                                                         tokenCache:tokenCache
+                                                                                               accountMetadataCache:self.accountMetadataCache];
+
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
@@ -347,7 +349,8 @@
                                                                                                        forceRefresh:NO
                                                                                                        oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                              tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
-                                                                                                         tokenCache:tokenCache];
+                                                                                                         tokenCache:tokenCache
+                                                                                               accountMetadataCache:self.accountMetadataCache];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
