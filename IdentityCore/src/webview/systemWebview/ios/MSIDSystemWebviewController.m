@@ -33,6 +33,12 @@
 #import "MSIDOauth2Factory.h"
 #import "MSIDNotifications.h"
 
+@interface MSIDSystemWebviewController ()
+
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
+
+@end
+
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
@@ -77,6 +83,33 @@
     return self;
 }
 
+- (instancetype)initWithStartURL:(NSURL *)startURL
+               callbackURLScheme:(NSString *)callbackURLScheme
+                parentController:(UIViewController *)parentController
+                presentationType:(UIModalPresentationStyle)presentationType
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+                         context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0))
+{
+    
+    
+    self = [self initWithStartURL:startURL
+                callbackURLScheme:callbackURLScheme
+                 parentController:parentController
+                 presentationType:presentationType
+         useAuthenticationSession:useAuthenticationSession
+        allowSafariViewController:allowSafariViewController
+                          context:context];
+    
+    if (self)
+    {
+        
+        _prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
+    }
+    return self;
+}
+
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (!completionHandler)
@@ -94,6 +127,7 @@
             _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
                                                     callbackURLScheme:self.callbackURLScheme
                                                      parentController:self.parentController
+                                           ephemeralWebBrowserSession:self.prefersEphemeralWebBrowserSession
                                                               context:_context];
         }
         else if (@available(iOS 11.0, *))

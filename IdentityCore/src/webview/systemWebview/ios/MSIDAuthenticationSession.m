@@ -54,7 +54,7 @@ API_AVAILABLE(ios(13.0))
     return [self presentationAnchor];
 }
 
-- (ASPresentationAnchor)presentationAnchor
+- (ASPresentationAnchor)presentationAnchor API_AVAILABLE(ios(13.0))
 {
     if (![NSThread isMainThread])
     {
@@ -111,12 +111,14 @@ API_AVAILABLE(ios(13.0))
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
            parentController:(UIViewController *)parentController
+ ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
                     context:(id<MSIDRequestContext>)context
 {
     self = [self initWithURL:url callbackURLScheme:callbackURLScheme context:context];
     if (self)
     {
         _parentController = parentController;
+        _prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
     }
     
     return self;
@@ -188,6 +190,7 @@ API_AVAILABLE(ios(13.0))
             if (@available(iOS 13.0, *))
             {
                 _webAuthSession.presentationContextProvider = self;
+                _webAuthSession.prefersEphemeralWebBrowserSession = self.prefersEphemeralWebBrowserSession;
             }
             
             if ([_webAuthSession start]) return;

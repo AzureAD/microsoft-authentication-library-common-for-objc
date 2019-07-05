@@ -39,11 +39,13 @@
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
            parentController:(UIViewController *)parentController
+ ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
                     context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0));
 
 @property (readonly) NSURL *startURL;
 @property (readonly) NSString *callbackURLScheme;
-@property (weak, nonatomic, readonly) UIViewController *parentController;
+@property (weak, nonatomic, readonly) UIViewController *parentController API_AVAILABLE(ios(13.0));
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
 
 @end
 #endif

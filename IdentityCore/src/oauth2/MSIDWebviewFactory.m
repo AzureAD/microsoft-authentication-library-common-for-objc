@@ -84,13 +84,28 @@
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
     NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
     
-    MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
-                                                                                 callbackURLScheme:redirectURL.scheme
-                                                                                  parentController:configuration.parentController
-                                                                                  presentationType:configuration.presentationType
-                                                                          useAuthenticationSession:useAuthenticationSession
-                                                                         allowSafariViewController:allowSafariViewController
-                                                                                           context:context];
+    MSIDSystemWebviewController *systemWVC;
+    if (@available(iOS 13.0, *))
+    {
+        systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
+                                                        callbackURLScheme:redirectURL.scheme
+                                                         parentController:configuration.parentController
+                                                         presentationType:configuration.presentationType
+                                                 useAuthenticationSession:useAuthenticationSession
+                                                allowSafariViewController:allowSafariViewController
+                                               ephemeralWebBrowserSession:configuration.prefersEphemeralWebBrowserSession
+                                                                  context:context];
+    }
+    else
+    {
+        systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
+                                                        callbackURLScheme:redirectURL.scheme
+                                                         parentController:configuration.parentController
+                                                         presentationType:configuration.presentationType
+                                                 useAuthenticationSession:useAuthenticationSession
+                                                allowSafariViewController:allowSafariViewController
+                                                                  context:context];
+    }
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
                                                                                 factory:self
@@ -192,6 +207,10 @@
 #if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
     configuration.presentationType = parameters.presentationType;
+    if (@available(iOS 13.0, *))
+    {
+        configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
+    }
 #endif
 
     NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
