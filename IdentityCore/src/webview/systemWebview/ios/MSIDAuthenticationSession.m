@@ -51,6 +51,21 @@
 - (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session
 API_AVAILABLE(ios(13.0))
 {
+    return [self presentationAnchor];
+}
+
+- (ASPresentationAnchor)presentationAnchor
+{
+    if (![NSThread isMainThread])
+    {
+        __block ASPresentationAnchor anchor;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            anchor = [self presentationAnchor];
+        });
+        
+        return anchor;
+    }
+    
     return self.parentController.view.window;
 }
 
@@ -174,6 +189,7 @@ API_AVAILABLE(ios(13.0))
             {
                 _webAuthSession.presentationContextProvider = self;
             }
+            
             if ([_webAuthSession start]) return;
         }
         else
