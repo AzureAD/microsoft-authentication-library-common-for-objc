@@ -234,7 +234,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     }
     
     MSID_LOG_INFO(context, @"Found %lu items.", (unsigned long)tokenItems.count);
-    MSID_LOG_INFO_PII(context, @"Items info %@", tokenItems);
+    MSID_LOG_VERBOSE_PII(context, @"Items info %@", tokenItems);
     
     return tokenItems;
 }
@@ -321,7 +321,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.adalcache";
     }
     
     MSID_LOG_INFO(context, @"Found %lu items.", (unsigned long)accountItems.count);
-    MSID_LOG_INFO_PII(context, @"Items info %@", accountItems);
+    MSID_LOG_VERBOSE_PII(context, @"Items info %@", accountItems);
     
     return accountItems;
 }

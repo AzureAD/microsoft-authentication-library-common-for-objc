@@ -147,6 +147,9 @@
     {
         return NO;
     }
+    
+    accessToken.enrollmentId = configuration.enrollmentId;
+    accessToken.applicationIdentifier = configuration.applicationIdentifier;
 
     if (!response.extendedExpiresOnDate) return YES;
 
