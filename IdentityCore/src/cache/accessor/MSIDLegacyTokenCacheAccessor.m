@@ -102,6 +102,7 @@
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                       appIdentifier:(NSString *)appIdentifier
                     saveSSOStateOnly:(BOOL)saveSSOStateOnly
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
@@ -125,6 +126,8 @@
                                            context:context
                                              error:error];
     }
+    
+    configuration.applicationIdentifier = appIdentifier;
 
     return [self saveTokensWithConfiguration:configuration
                                     response:response.tokenResponse

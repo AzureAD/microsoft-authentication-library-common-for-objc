@@ -520,6 +520,7 @@
     XCTAssertNotNil(brokerResponse);
 
     BOOL result = [_legacyAccessor saveTokensWithBrokerResponse:brokerResponse
+                                                  appIdentifier:nil
                                                saveSSOStateOnly:NO
                                                         context:nil
                                                           error:&error];
@@ -627,6 +628,7 @@
     XCTAssertNotNil(brokerResponse);
 
     BOOL result = [_legacyAccessor saveTokensWithBrokerResponse:brokerResponse
+                                                  appIdentifier:nil
                                                saveSSOStateOnly:YES
                                                         context:nil
                                                           error:&error];

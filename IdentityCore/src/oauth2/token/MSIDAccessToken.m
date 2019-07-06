@@ -78,7 +78,6 @@ static NSUInteger s_expirationBuffer = 300;
     hash = hash * 31 + self.accessToken.hash;
     hash = hash * 31 + self.target.hash;
     hash = hash * 31 + self.cachedAt.hash;
-    hash = hash * 31 + self.enrollmentId.hash;
     hash = hash * 31 + self.applicationIdentifier.hash;
     return hash;
 }
@@ -95,7 +94,6 @@ static NSUInteger s_expirationBuffer = 300;
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
     result &= (!self.target && !token.target) || [self.target isEqualToString:token.target];
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
-    result &= (!self.enrollmentId && !token.enrollmentId) || [self.enrollmentId isEqualToString:token.enrollmentId];
     result &= (!self.applicationIdentifier && !token.applicationIdentifier) || [self.applicationIdentifier isEqualToString:token.applicationIdentifier];
     
     return result;

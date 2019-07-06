@@ -57,6 +57,7 @@
  If saveSSOStateOnly flag is passed, it only saves SSO artifacts (refresh tokens and accounts)
  */
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                       appIdentifier:(NSString *)appIdentifier
                     saveSSOStateOnly:(BOOL)saveSSOStateOnly
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error;

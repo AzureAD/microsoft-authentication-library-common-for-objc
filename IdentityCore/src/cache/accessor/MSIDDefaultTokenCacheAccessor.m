@@ -93,6 +93,7 @@
 }
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
+                       appIdentifier:(NSString *)appIdentifier
                     saveSSOStateOnly:(BOOL)saveSSOStateOnly
                              context:(id<MSIDRequestContext>)context
                                error:(NSError *__autoreleasing *)error
