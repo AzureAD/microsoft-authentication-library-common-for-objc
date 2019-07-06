@@ -105,16 +105,28 @@
 
     __block MSIDAccountMetadataCacheItem *item;
     __block NSError *localError;
+    __block BOOL updatedItem = NO;
 
     dispatch_sync(_synchronizationQueue, ^{
         item = _memoryCache[key];
         if (!item)
         {
             item = [_dataSource accountMetadataWithKey:key serializer:_jsonSerializer context:context error:&localError];
+            updatedItem = item != nil;
         }
     });
     
     if (error && localError) *error = localError;
+    
+    if (!updatedItem)
+    {
+        return item;
+    }
+    
+    dispatch_barrier_async(_synchronizationQueue, ^{
+        _memoryCache[key] = item;
+    });
+    
     return item;
 }
 
@@ -138,9 +150,11 @@
     __block NSError *localError;
     
     dispatch_sync(_synchronizationQueue, ^{
-        [_memoryCache removeObjectForKey:key];
-        
         success = [_dataSource removeAccountMetadataForKey:key context:context error:&localError];
+    });
+    
+    dispatch_barrier_async(_synchronizationQueue, ^{
+        [_memoryCache removeObjectForKey:key];
     });
     
     if (error && localError) *error = localError;
