@@ -126,7 +126,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             
             NSString *correlationIdStr = @"";
             
-            if (correlationId)
+            if (correlationId && [correlationId isKindOfClass:[NSUUID class]])
             {
                 correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
             }
