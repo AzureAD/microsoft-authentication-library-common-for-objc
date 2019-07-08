@@ -50,8 +50,7 @@ static NSString *keyDelimiter = @"-";
 - (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        MSIDCacheKey *storedCredentialKey = [self createKeyFromCredentialCacheKey:key];
-        [self.cacheObjects setObject:credential forKey:storedCredentialKey];
+        [self.cacheObjects setObject:credential forKey:key];
     });
 }
 
@@ -143,8 +142,12 @@ static NSString *keyDelimiter = @"-";
                     }
                     else
                     {
-                        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create MSIDCacheKey from MSIDCredentialCacheitem");
+                        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create MSIDDefaultCredentialCacheKey from MSIDCredentialCacheitem.");
                     }
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize credential cache item.");
                 }
             }
         }
@@ -185,13 +188,7 @@ static NSString *keyDelimiter = @"-";
     credentialCacheKey.target = credential.target;
     credentialCacheKey.enrollmentId = credential.enrollmentId;
     
-    return [self createKeyFromCredentialCacheKey:credentialCacheKey];
-}
-
-- (MSIDCacheKey *)createKeyFromCredentialCacheKey:(MSIDCacheKey *)key
-{
-    MSIDCacheKey *storedCredentialKey = [[MSIDCacheKey alloc] initWithAccount:key.account service:key.service generic:key.generic type:key.type];
-    return storedCredentialKey;
+    return credentialCacheKey;
 }
 
 - (NSString *)getCredentialKey:(MSIDCacheKey *)key
