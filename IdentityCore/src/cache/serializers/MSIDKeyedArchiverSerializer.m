@@ -127,13 +127,13 @@
     return nil;
 }
 
-- (NSData *)serializeCredentialStorageItem:(MSIDMacCredentialStorageItem *)item
+- (NSData *)serializeCredentialStorageItem:(__unused MSIDMacCredentialStorageItem *)item
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to serialize MSIDMacCredentialStorageItem, which is unsupported");
     return nil;
 }
 
-- (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(NSData *)data
+- (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(__unused NSData *)data
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to deserialize MSIDMacCredentialStorageItem, which is unsupported");
     return nil;

@@ -72,9 +72,10 @@
         
         if (!keychainTeamId)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");
+            NSString *bundleIdentifier = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoIdentifier];
             CFRelease(selfCode);
-            return nil;
+            return bundleIdentifier;
         }
         
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));

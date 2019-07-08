@@ -22,24 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDTelemetryBaseEvent.h"
-#import "MSIDCredentialCacheItem.h"
-#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 
-@interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)setTokenType:(MSIDCredentialType)tokenType;
-- (void)setStatus:(NSString *)status;
-- (void)setIsRT:(NSString *)isRT;
-- (void)setIsMRRT:(NSString *)isMRRT;
-- (void)setIsFRT:(NSString *)isFRT;
-- (void)setRTStatus:(NSString *)status;
-- (void)setMRRTStatus:(NSString *)status;
-- (void)setFRTStatus:(NSString *)status;
-- (void)setSpeInfo:(NSString  *)speInfo;
-- (void)setToken:(MSIDBaseToken *)token;
-- (void)setCacheWipeApp:(NSString *)wipeApp;
-- (void)setCacheWipeTime:(NSString *)wipeTime;
-- (void)setWipeData:(NSDictionary *)wipeData;
-- (void)setExternalCacheSeedingStatus:(NSString *)status;
+@interface MSIDGetV1IdTokenCacheEvent : MSIDTelemetryBaseEvent
 
 @end
+
+NS_ASSUME_NONNULL_END

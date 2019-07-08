@@ -33,7 +33,6 @@
 #import "MSIDKeychainTokenCache.h"
 #endif
 #import "MSIDTokenResponseValidator.h"
-#import "MSIDTelemetryBrokerEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 
