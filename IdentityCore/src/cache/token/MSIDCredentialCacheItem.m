@@ -74,7 +74,6 @@
     result &= (!self.familyId || !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId || !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.additionalInfo || !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
-    result &= (!self.enrollmentId || !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
     result &= (!self.applicationIdentifier || !item.applicationIdentifier) || [self.applicationIdentifier isEqualToString:item.applicationIdentifier];
     return result;
 }
@@ -95,7 +94,6 @@
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.additionalInfo.hash;
-    hash = hash * 31 + self.enrollmentId.hash;
     hash = hash * 31 + self.applicationIdentifier.hash;
     return hash;
 }

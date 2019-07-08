@@ -399,6 +399,7 @@
     XCTAssertNotNil(brokerResponse);
 
     BOOL result = [_defaultAccessor saveTokensWithBrokerResponse:brokerResponse
+                                                   appIdentifier:nil
                                                 saveSSOStateOnly:NO
                                                          context:nil
                                                            error:&error];
