@@ -96,7 +96,7 @@ static NSString *keyDelimiter = @"-";
         {
             NSArray *storedKeys = [self.cacheObjects allKeys];
             NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:key]];
-            for(MSIDCacheKey *key in filteredKeys)
+            for (MSIDCacheKey *key in filteredKeys)
             {
                 MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:key];
                 if (credential)
@@ -134,7 +134,7 @@ static NSString *keyDelimiter = @"-";
                 
                 if (credential)
                 {
-                    MSIDCacheKey *storedCredentialKey = [self createKeyFromCredential:credential];
+                    MSIDCacheKey *storedCredentialKey = [credential createCredentialCacheKey];
                     
                     if (storedCredentialKey)
                     {
@@ -177,18 +177,6 @@ static NSString *keyDelimiter = @"-";
     });
     
     return dictionary;
-}
-
-- (MSIDCacheKey *)createKeyFromCredential:(MSIDCredentialCacheItem *)credential
-{
-    MSIDDefaultCredentialCacheKey *credentialCacheKey = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId environment:credential.environment clientId:credential.clientId credentialType:credential.credentialType];
-    
-    credentialCacheKey.familyId = credential.familyId;
-    credentialCacheKey.realm = credential.realm;
-    credentialCacheKey.target = credential.target;
-    credentialCacheKey.enrollmentId = credential.enrollmentId;
-    
-    return credentialCacheKey;
 }
 
 - (NSString *)getCredentialKey:(MSIDCacheKey *)key

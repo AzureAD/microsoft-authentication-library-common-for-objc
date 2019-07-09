@@ -89,4 +89,6 @@
 
 - (BOOL)isTombstone;
 
+- (nullable MSIDDefaultCredentialCacheKey *)createCredentialCacheKey;
+
 @end

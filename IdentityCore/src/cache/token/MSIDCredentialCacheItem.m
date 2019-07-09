@@ -329,4 +329,18 @@
     return [self.secret isEqualToString:@"<tombstone>"];
 }
 
+- (nullable MSIDDefaultCredentialCacheKey *)createCredentialCacheKey
+{
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:self.homeAccountId
+                                                                                          environment:self.environment
+                                                                                             clientId:self.clientId
+                                                                                       credentialType:self.credentialType];
+    
+    key.familyId = self.familyId;
+    key.realm = self.realm;
+    key.target = self.target;
+    key.enrollmentId = self.enrollmentId;
+    return key;
+}
+
 @end
