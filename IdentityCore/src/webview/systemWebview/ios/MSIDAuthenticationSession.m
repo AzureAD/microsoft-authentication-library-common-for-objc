@@ -75,11 +75,15 @@ API_AVAILABLE(ios(13.0))
 @implementation MSIDAuthenticationSession
 {
 #if !MSID_EXCLUDE_WEBKIT
+    
+#if !TARGET_OS_UIKITFORMAC
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
+#endif
     
     API_AVAILABLE(ios(12.0))
     ASWebAuthenticationSession *_webAuthSession;
+    
 #endif
     
     NSURL *_startURL;
@@ -138,7 +142,9 @@ API_AVAILABLE(ios(13.0))
     }
     else if (@available(iOS 11.0, *))
     {
+#if !TARGET_OS_UIKITFORMAC
         if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
+#endif
     }
 #endif
     
@@ -197,10 +203,12 @@ API_AVAILABLE(ios(13.0))
         }
         else
         {
+#if !TARGET_OS_UIKITFORMAC
             _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
                                                       callbackURLScheme:_callbackURLScheme
                                                       completionHandler:authCompletion];
             if ([_authSession start]) return;
+#endif
         }
   
         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
@@ -228,7 +236,9 @@ API_AVAILABLE(ios(13.0))
     }
     else
     {
+#if !TARGET_OS_UIKITFORMAC
         [_authSession cancel];
+#endif
     }
     
     

@@ -518,7 +518,12 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Full wipe info: %@", MSID_PII_LOG_MASKABLE(wipeInfo));
     
-    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+    NSData *wipeData;
+#if TARGET_OS_UIKITFORMAC
+    wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo requiringSecureCoding:YES error:nil];
+#else
+    wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+#endif
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Trying to update wipe info...");
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Wipe query: %@", MSID_PII_LOG_MASKABLE(self.defaultWipeQuery));
@@ -574,7 +579,12 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         return nil;
     }
     
-    NSDictionary *wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData *)(data)];
+    NSDictionary *wipeData;
+#if TARGET_OS_UIKITFORMAC
+    wipeData = [NSKeyedUnarchiver unarchivedObjectOfClass:NSDictionary.class fromData:(__bridge NSData *)(data) error:nil];
+#else
+    wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData *)(data)];
+#endif
     CFRelease(data);
     
     return wipeData;

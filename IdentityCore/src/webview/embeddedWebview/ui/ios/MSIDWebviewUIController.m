@@ -191,7 +191,12 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
 {
-    UIActivityIndicatorView *loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    UIActivityIndicatorView *loadingIndicator;
+#if TARGET_OS_UIKITFORMAC
+    loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+#else
+    loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+#endif
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;

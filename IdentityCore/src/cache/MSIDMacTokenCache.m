@@ -92,7 +92,13 @@ return NO; \
         {
             NSMutableData *data = [NSMutableData data];
 
-            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+            NSKeyedArchiver *archiver;
+#if TARGET_OS_UIKITFORMAC
+            archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
+#else
+            archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
+#endif
+            
             // Maintain backward compatibility with ADAL.
             [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
             [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
@@ -119,7 +125,13 @@ return NO; \
     
     @try
     {
-        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+        NSKeyedUnarchiver *unarchiver;
+#if TARGET_OS_UIKITFORMAC
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];
+#else
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+#endif
+        
         // Maintain backward compatibility with ADAL.
         [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
         [unarchiver setClass:MSIDLegacyTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
