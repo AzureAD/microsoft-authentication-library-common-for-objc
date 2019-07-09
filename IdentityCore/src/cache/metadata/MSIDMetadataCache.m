@@ -74,8 +74,16 @@
     
     __block NSError *localError;
     __block BOOL saveSuccess = NO;
+    __block BOOL hasChanges = YES;
     
-    if ([item isEqual:_memoryCache[key]]) return YES;
+    dispatch_sync(_synchronizationQueue, ^{
+        hasChanges = ![item isEqual:_memoryCache[key]];
+    });
+    
+    if (!hasChanges)
+    {
+        return YES;
+    }
     
     dispatch_barrier_sync(_synchronizationQueue, ^{
         saveSuccess = [_dataSource saveAccountMetadata:item key:key serializer:_jsonSerializer context:context error:&localError];
