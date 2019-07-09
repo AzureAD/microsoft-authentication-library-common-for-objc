@@ -34,21 +34,23 @@
 // Convenience macro for obscuring PII in log macros that don't allow PII.
 #define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-null)" : @"(null)"
 
-#define MSID_LOG_WITH_CTX(_LVL, _CONTEXT, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:NO format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG_COMMON(_LVL, _CONTEXT, _CORRELATION_ID, _PII, _FMT, ...) \
+    [[MSIDLogger sharedLogger] logWithLevel:_LVL                      \
+                                        context:_CONTEXT                  \
+                                  correlationId:_CORRELATION_ID           \
+                                    containsPII:_PII                      \
+                                       filename:@__FILE__                 \
+                                     lineNumber:__LINE__                  \
+                                         format:_FMT, ##__VA_ARGS__]
 
-#define MSID_LOG_WITH_CORR(_LVL, _CORRELATION_ID, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:NO format:_FMT, ##__VA_ARGS__]
-
-#define MSID_LOG_WITH_CTX_PII(_LVL, _CONTEXT, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:_CONTEXT correlationId:nil containsPII:YES format:_FMT, ##__VA_ARGS__]
-
-#define MSID_LOG_WITH_CORR_PII(_LVL, _CORRELATION_ID, _FMT, ...) [[MSIDLogger sharedLogger] logWithLevel:_LVL context:nil correlationId:_CORRELATION_ID containsPII:YES format:_FMT, ##__VA_ARGS__]
+#define MSID_LOG_WITH_CTX(_LVL, _CONTEXT, _FMT, ...) MSID_LOG_COMMON(_LVL, _CONTEXT, nil, NO, _FMT, ##__VA_ARGS__)
+#define MSID_LOG_WITH_CORR(_LVL, _CORRELATION_ID, _FMT, ...) MSID_LOG_COMMON(_LVL, nil, _CORRELATION_ID, NO, _FMT, ##__VA_ARGS__)
+#define MSID_LOG_WITH_CTX_PII(_LVL, _CONTEXT, _FMT, ...) MSID_LOG_COMMON(_LVL, _CONTEXT, nil, YES, _FMT, ##__VA_ARGS__)
+#define MSID_LOG_WITH_CORR_PII(_LVL, _CORRELATION_ID, _FMT, ...) MSID_LOG_COMMON(_LVL, nil, _CORRELATION_ID, YES, _FMT, ##__VA_ARGS__)
 
 #define MSID_PII_LOG_MASKABLE(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER]
 #define MSID_PII_LOG_TRACKABLE(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
 #define MSID_PII_LOG_EMAIL(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
-
-#define MSID_PII_LOGGING_ENABLED [MSIDLogger sharedLogger].PiiLoggingEnabled
-
-#define MSID_TRACE // Unused
 
 @interface MSIDLogger (Internal)
 
@@ -68,7 +70,9 @@
              context:(id<MSIDRequestContext>)context
        correlationId:(NSUUID *)correlationId
          containsPII:(BOOL)containsPII
-              format:(NSString *)format, ... NS_FORMAT_FUNCTION(5, 6);
+            filename:(NSString *)filename
+          lineNumber:(NSUInteger)lineNumber
+              format:(NSString *)format, ... NS_FORMAT_FUNCTION(7, 8);
 
 - (void)logToken:(NSString *)token
        tokenType:(NSString *)tokenType
