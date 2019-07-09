@@ -47,18 +47,17 @@ static NSString *keyDelimiter = @"-";
     return self;
 }
 
-- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key
+- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        NSString *credentialKey = [self getCredentialKey:key];
-        [self.cacheObjects setObject:credential forKey:credentialKey];
+        [self.cacheObjects setObject:credential forKey:key];
     });
 }
 
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem
 {
     dispatch_barrier_async(self.queue, ^{
-        for (NSString *key in storageItem.cacheObjects)
+        for (MSIDCacheKey *key in storageItem.cacheObjects)
         {
             MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
             if (credential)
@@ -73,33 +72,42 @@ static NSString *keyDelimiter = @"-";
     });
 }
 
-- (void)removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key
+- (void)removeStoredCredentialForKey:(MSIDCacheKey *)key
 {
-    dispatch_barrier_async(self.queue, ^{
-        NSString *credentialKey = [self getCredentialKey:key];
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Removing credential for key %@.", MSID_PII_LOG_MASKABLE(credentialKey));
-        [self.cacheObjects removeObjectForKey:credentialKey];
+    dispatch_barrier_sync(self.queue, ^{
+        [self.cacheObjects removeObjectForKey:key];
     });
 }
 
-- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key
+- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDCacheKey *)key
 {
-    __block NSArray<MSIDCredentialCacheItem *> *credentials =  @[];
+    __block NSMutableArray<MSIDCredentialCacheItem *> *credentials =  [[NSMutableArray alloc] init];
     
     dispatch_sync(self.queue, ^{
         if (key.account && key.service)
         {
-            NSString *credentialKey = [self getCredentialKey:key];
-            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
+            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:key];
             if (credential)
             {
-                credentials = @[credential];
+                [credentials addObject:credential];
             }
         }
         else
         {
-            NSArray *storedCredentials = [self.cacheObjects allValues];
-            credentials = [storedCredentials filteredArrayUsingPredicate:[self createPredicateForKey:key]];
+            NSArray *storedKeys = [self.cacheObjects allKeys];
+            NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:key]];
+            for (MSIDCacheKey *key in filteredKeys)
+            {
+                MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:key];
+                if (credential)
+                {
+                    [credentials addObject:credential];
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Credential is nil for key %@.", MSID_PII_LOG_MASKABLE(key));
+                }
+            }
         }
     });
     
@@ -126,7 +134,20 @@ static NSString *keyDelimiter = @"-";
                 
                 if (credential)
                 {
-                    [instance.cacheObjects setObject:credential forKey:credentialKey];
+                    MSIDCacheKey *storedCredentialKey = [credential createCredentialCacheKey];
+                    
+                    if (storedCredentialKey)
+                    {
+                        [instance.cacheObjects setObject:credential forKey:storedCredentialKey];
+                    }
+                    else
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create MSIDDefaultCredentialCacheKey from MSIDCredentialCacheitem.");
+                    }
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize credential cache item.");
                 }
             }
         }
@@ -140,7 +161,7 @@ static NSString *keyDelimiter = @"-";
     __block NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     dispatch_sync(self.queue, ^{
-        for (NSString *credentialKey in self.cacheObjects)
+        for (MSIDCacheKey *credentialKey in self.cacheObjects)
         {
             MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
             if (credential)
@@ -149,7 +170,7 @@ static NSString *keyDelimiter = @"-";
                 
                 if (credentialDict && [credentialDict isKindOfClass:[NSDictionary class]])
                 {
-                    [dictionary setObject:credentialDict forKey:credentialKey];
+                    [dictionary setObject:credentialDict forKey:[self getCredentialKey:credentialKey]];
                 }
             }
         }
@@ -158,57 +179,23 @@ static NSString *keyDelimiter = @"-";
     return dictionary;
 }
 
-- (MSIDDefaultCredentialCacheKey *)getKeyForCredential:(MSIDCredentialCacheItem *)credential
-{
-    MSIDDefaultCredentialCacheKey *credentialKey = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId environment:credential.environment clientId:credential.clientId credentialType:credential.credentialType];
-    
-    credentialKey.familyId = credential.familyId;
-    credentialKey.realm = credential.realm;
-    credentialKey.target = credential.target;
-    credentialKey.enrollmentId = credential.enrollmentId;
-    return credentialKey;
-}
-
-- (NSString *)getCredentialKey:(MSIDDefaultCredentialCacheKey *)key
+- (NSString *)getCredentialKey:(MSIDCacheKey *)key
 {
     return [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
 }
 
-- (NSPredicate *)createPredicateForKey:(MSIDDefaultCredentialCacheKey *)key
+- (NSPredicate *)createPredicateForKey:(MSIDCacheKey *)key
 {
     NSMutableArray *subPredicates = [[NSMutableArray alloc] init];
     
-    /*
-     TODO: Investigate app metadata code to save familyId as nil for apps that are not part of family.
-     Refresh token either has family Id as 1 or nil.
-     For app refresh token, we pass family id as nil which matches both FRT and RT instead of matching just RT
-     For clients that are not part of family, family is saved as empty string and added to refresh token query.
-     */
-    NSString *familyId;
-    if ([NSString msidIsStringNilOrBlank:key.familyId])
-    {
-        familyId = nil;
-    }
-    else
-    {
-        familyId = key.familyId;
-    }
-    
-    [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.familyId == %@", familyId]];
-    if (key.clientId)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.clientId == %@", key.clientId]];
-    if (key.environment)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.environment == %@", key.environment]];
-    if (key.homeAccountId)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.homeAccountId == %@", key.homeAccountId]];
-    if (key.credentialType)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.credentialType == %d", key.credentialType]];
-    if (key.realm)
-        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.realm == %@", key.realm]];
-    /*
-     TODO: key.target is passed for look up in ios implementation which does not match the exact target for the stored credential
-     key.target is not added as target can be subset , intersect , superset or exact string match and is matched later in the code.
-     */
+    if (key.account)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.account == %@", key.account]];
+    if (key.service)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.service == %@", key.service]];
+    if (key.generic)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.generic == %@", key.generic]];
+    if (key.type)
+        [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.type == %@", key.type]];
     
     // Combine all sub-predicates with AND:
     return [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];

@@ -30,16 +30,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDMacCredentialStorageItem : NSObject <MSIDJsonSerializable>
 
-- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDDefaultCredentialCacheKey *)key;
+- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDCacheKey *)key;
 
 /*
  This api is thread safe only if an immutable object is passed as parameter.
  */
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem;
 
-- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key;
+- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDCacheKey *)key;
 
-- (void)removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key;
+- (void)removeStoredCredentialForKey:(MSIDCacheKey *)key;
 
 @end
 

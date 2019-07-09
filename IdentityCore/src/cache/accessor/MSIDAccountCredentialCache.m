@@ -222,15 +222,7 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
     
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
-                                                                                          environment:credential.environment
-                                                                                             clientId:credential.clientId
-                                                                                       credentialType:credential.credentialType];
-
-    key.familyId = credential.familyId;
-    key.realm = credential.realm;
-    key.target = credential.target;
-    key.enrollmentId = credential.enrollmentId;
+    MSIDDefaultCredentialCacheKey *key = [credential createCredentialCacheKey];
 
     return [_dataSource saveToken:credential
                               key:key
@@ -311,10 +303,7 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
 
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
-                                                                                         environment:credential.environment
-                                                                                            clientId:credential.clientId
-                                                                                      credentialType:credential.credentialType];
+    MSIDDefaultCredentialCacheKey *key = [credential createCredentialCacheKey];
 
     key.familyId = credential.familyId;
     key.realm = credential.realm;
