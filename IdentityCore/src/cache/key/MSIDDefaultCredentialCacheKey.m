@@ -157,4 +157,20 @@ static NSInteger kCredentialTypePrefix = 2000;
     return nil;
 }
 
+#pragma mark - NSObject
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDDefaultCredentialCacheKey *item = [[self.class allocWithZone:zone] init];
+    item->_homeAccountId = [_homeAccountId copyWithZone:zone];
+    item->_environment = [_environment copyWithZone:zone];
+    item->_realm = [_realm copyWithZone:zone];
+    item->_clientId = [_clientId copyWithZone:zone];
+    item->_familyId = [_familyId copyWithZone:zone];
+    item->_target = [_target copyWithZone:zone];
+    item->_enrollmentId = [_enrollmentId copyWithZone:zone];
+    item->_credentialType = _credentialType;
+    return item;
+}
+
 @end

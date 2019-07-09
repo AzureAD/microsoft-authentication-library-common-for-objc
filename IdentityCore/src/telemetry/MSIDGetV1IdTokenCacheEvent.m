@@ -21,25 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryBaseEvent.h"
-#import "MSIDCredentialCacheItem.h"
-#import "MSIDCredentialCacheItem+MSIDBaseToken.h"
+#import "MSIDGetV1IdTokenCacheEvent.h"
+#import "MSIDTelemetryEventStrings.h"
 
-@interface MSIDTelemetryCacheEvent : MSIDTelemetryBaseEvent
+@implementation MSIDGetV1IdTokenCacheEvent
 
-- (void)setTokenType:(MSIDCredentialType)tokenType;
-- (void)setStatus:(NSString *)status;
-- (void)setIsRT:(NSString *)isRT;
-- (void)setIsMRRT:(NSString *)isMRRT;
-- (void)setIsFRT:(NSString *)isFRT;
-- (void)setRTStatus:(NSString *)status;
-- (void)setMRRTStatus:(NSString *)status;
-- (void)setFRTStatus:(NSString *)status;
-- (void)setSpeInfo:(NSString  *)speInfo;
-- (void)setToken:(MSIDBaseToken *)token;
-- (void)setCacheWipeApp:(NSString *)wipeApp;
-- (void)setCacheWipeTime:(NSString *)wipeTime;
-- (void)setWipeData:(NSDictionary *)wipeData;
-- (void)setExternalCacheSeedingStatus:(NSString *)status;
+#pragma mark - MSIDTelemetryBaseEvent
+
++ (NSArray<NSString *> *)propertiesToAggregate
+{
+    static dispatch_once_t once;
+    static NSMutableArray *names = nil;
+    
+    dispatch_once(&once, ^{
+        names = [[super propertiesToAggregate] mutableCopy];
+        
+        [names addObjectsFromArray:@[
+                                     MSID_TELEMETRY_KEY_GET_V1_IDTOKEN_CACHE_EVENT_COUNT,
+                                     ]];
+    });
+    
+    return names;
+}
 
 @end
