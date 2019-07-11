@@ -30,7 +30,6 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDLogger+Internal.h"
 #import "MSIDLogger.h"
-#import "MSIDLogger+Trace.h"
 #import "MSIDMacKeychainTokenCache.h"
 #import "MSIDUserInformation.h"
 #import "NSString+MSIDExtensions.h"

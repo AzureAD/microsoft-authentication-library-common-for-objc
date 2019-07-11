@@ -52,6 +52,8 @@
 #define MSID_PII_LOG_TRACKABLE(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
 #define MSID_PII_LOG_EMAIL(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
 
+#define MSID_TRACE __unused id __TRACER = [[MSIDLogger sharedLogger] traceFile:@__FILE__ function:@(__func__)]
+
 @interface MSIDLogger (Internal)
 
 /*!
@@ -79,6 +81,9 @@
    expiresOnDate:(NSDate *)expiresOn
     additionaLog:(NSString *)additionalLog
          context:(id<MSIDRequestContext>)context;
+
+- (id)traceFile:(NSString *)filename
+       function:(NSString *)function;
 
 @end
 

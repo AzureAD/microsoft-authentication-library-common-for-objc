@@ -25,7 +25,6 @@
 #import "MSIDClientInfo.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
-#import "MSIDLogger+Trace.h"
 
 @interface MSIDAccountCacheItem()
 
