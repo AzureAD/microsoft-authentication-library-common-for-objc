@@ -22,8 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonSerializable.h"
+#import "MSIDKeyGenerator.h"
 
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying>
+@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
 @property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;

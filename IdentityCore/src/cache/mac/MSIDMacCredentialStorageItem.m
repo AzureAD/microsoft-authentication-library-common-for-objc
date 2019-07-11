@@ -294,6 +294,14 @@ static NSString *keyDelimiter = @"-";
     {
         return [[MSIDAccountCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
+    else if([bucketKey isEqualToString:MSID_APPLICATION_METADATA_CACHE_TYPE])
+    {
+        return [[MSIDAppMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if([bucketKey isEqualToString:MSID_ACCOUNT_METADATA_CACHE_TYPE])
+    {
+        return [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
     
     return nil;
 }

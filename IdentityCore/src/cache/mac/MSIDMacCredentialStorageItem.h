@@ -26,6 +26,8 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDDefaultCredentialCacheKey.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
