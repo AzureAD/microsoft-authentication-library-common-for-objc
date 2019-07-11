@@ -171,14 +171,13 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (BOOL)obtainParentController
 {
-    if (_parentController)
-    {
-        return YES;
-    }
+    if (self.parentController) return YES;
     
-    _parentController = [UIApplication msidCurrentViewController];
+    if (@available(iOS 13.0, *)) return NO;
     
-    return (_parentController != nil);
+    self.parentController = [UIApplication msidCurrentViewController:self.parentController];
+    
+    return self.parentController != nil;
 }
 
 - (void)setupCancelButton

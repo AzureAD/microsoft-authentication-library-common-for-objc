@@ -28,6 +28,9 @@
 
 + (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(UIViewController *)parentViewController
+#endif
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler;
 

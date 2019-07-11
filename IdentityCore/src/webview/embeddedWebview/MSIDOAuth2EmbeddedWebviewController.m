@@ -292,6 +292,9 @@
     
     [MSIDChallengeHandler handleChallenge:challenge
                                   webview:webView
+#if TARGET_OS_IPHONE
+                         parentController:self.parentController
+#endif
                                   context:self.context
                         completionHandler:completionHandler];
 }

@@ -30,6 +30,9 @@ static NSMutableDictionary *s_handlers = nil;
 
 + (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(UIViewController *)parentViewController
+#endif
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
@@ -50,6 +53,9 @@ static NSMutableDictionary *s_handlers = nil;
     
     handled = [handler handleChallenge:challenge
                                webview:webview
+#if TARGET_OS_IPHONE
+                      parentController:parentViewController
+#endif
                                context:context
                      completionHandler:completionHandler];
 

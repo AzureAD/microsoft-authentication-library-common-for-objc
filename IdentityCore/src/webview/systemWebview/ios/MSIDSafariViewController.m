@@ -98,8 +98,10 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController *viewController = _parentController ? _parentController :
-        [UIApplication msidCurrentViewController];
+        UIViewController *viewController;
+        
+        viewController = [UIApplication msidCurrentViewController:_parentController];
+        
         if (!viewController)
         {
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
