@@ -157,12 +157,9 @@
     __block BOOL success = NO;
     __block NSError *localError;
     
-    dispatch_sync(_synchronizationQueue, ^{
-        success = [_dataSource removeAccountMetadataForKey:key context:context error:&localError];
-    });
-    
     dispatch_barrier_async(_synchronizationQueue, ^{
         [_memoryCache removeObjectForKey:key];
+        success = [_dataSource removeAccountMetadataForKey:key context:context error:&localError];
     });
     
     if (error && localError) *error = localError;
