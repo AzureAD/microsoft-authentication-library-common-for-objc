@@ -49,7 +49,8 @@ static NSString *keyDelimiter = @"-";
 
 - (void)storeItem:(id<MSIDJsonSerializable>)item inBucket:(NSString *)bucket forKey:(MSIDCacheKey *)key
 {
-    dispatch_sync(self.queue, ^{
+    dispatch_barrier_async(self.queue, ^{
+        
         NSMutableDictionary *items = nil;
         if (bucket && ![self.cacheObjects objectForKey:bucket])
         {
@@ -67,7 +68,8 @@ static NSString *keyDelimiter = @"-";
 
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem inBucket:(NSString *)bucket
 {
-    dispatch_sync(self.queue, ^{
+    dispatch_barrier_async(self.queue, ^{
+        
         for (NSString *bucketKey in storageItem.cacheObjects)
         {
             NSMutableDictionary *bucketDict = [storageItem.cacheObjects objectForKey:bucketKey];
