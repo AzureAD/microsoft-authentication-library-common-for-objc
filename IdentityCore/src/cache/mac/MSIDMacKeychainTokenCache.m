@@ -363,25 +363,23 @@ static dispatch_queue_t s_synchronizationQueue;
 {
     assert(account);
     assert(serializer);
+    
     [self updateLastModifiedForAccount:account context:context];
-    NSData *itemData = [serializer serializeCacheItem:account];
-
-    if (!itemData)
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+    
+    /*
+     First step merge get latest from persistent cache and merge it with in-memory
+     Then write latest latest credential to in memory and write back to persistence
+     */
+    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+    
+    if (savedStorageItem)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize account item.");
-        }
-        return NO;
+        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_ACCOUNT_CACHE_TYPE];
     }
-
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(account));
-
-    return [self saveData:itemData
-                      key:key
-                  context:context
-                    error:error];
+    
+    [storageItem storeItem:account inBucket:MSID_ACCOUNT_CACHE_TYPE forKey:key];
+    return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
 }
 
 // Read a single account from the macOS keychain cache.
@@ -400,7 +398,7 @@ static dispatch_queue_t s_synchronizationQueue;
                                                         serializer:serializer
                                                            context:context
                                                              error:error];
-    
+
     if (items.count > 1)
     {
         [self createError:@"The token cache store for this resource contains more than one user."
@@ -422,7 +420,10 @@ static dispatch_queue_t s_synchronizationQueue;
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
-    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:[MSIDAccountCacheItem class] context:context error:error];
+    return [self storedAccountsWithKey:key
+                            serializer:serializer
+                               context:context
+                                 error:error];
 }
 
 // Remove one or more accounts from the keychain that match the key.
@@ -434,7 +435,25 @@ static dispatch_queue_t s_synchronizationQueue;
                       context:(id<MSIDRequestContext>)context
                         error:(NSError **)error
 {
-    return [self removeItemsWithKey:key context:context error:error];
+    MSID_TRACE;
+    
+    if (!key || !(key.account || key.service))
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Key is nil or one of the key attributes account or service is nil.");
+        [self createError:@"Key is nil or one of the key attributes account or service is nil."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInvalidDeveloperParameter error:error context:context];
+        return NO;
+    }
+    
+    MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
+    
+    if (storageItem)
+    {
+        [storageItem removeStoredItemForKey:key inBucket:MSID_ACCOUNT_CACHE_TYPE];
+        return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
+    }
+    
+    return YES;
 }
 
 #pragma mark - Credentials
@@ -457,17 +476,112 @@ static dispatch_queue_t s_synchronizationQueue;
      Then write latest latest credential to in memory and write back to persistence
      */
     MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+    NSString *bucket = [self getBucketForCredentialType:credential.credentialType];
     
-    if (savedStorageItem)
+    if (savedStorageItem && bucket)
     {
-        [storageItem mergeStorageItem:savedStorageItem];
+        [storageItem mergeStorageItem:savedStorageItem inBucket:bucket];
     }
     
-    [storageItem storeCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
-    return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
+    if (bucket)
+    {
+        [storageItem storeItem:credential inBucket:bucket forKey:key];
+        return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
+    }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to save stored credential for key %@.", MSID_PII_LOG_MASKABLE(key));
     return NO;
+}
+
+// Read a single credential from the macOS keychain cache.
+// If multiple matches are found, return nil and set an error.
+- (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
+                               serializer:(id<MSIDCacheItemSerializing>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    MSID_TRACE;
+    NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key
+                                                         serializer:serializer
+                                                            context:context
+                                                              error:error];
+    
+    if (items.count > 1)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"The token cache store for this resource contains more than one token.");
+        [self createError:@"The token cache store for this resource contains more than one token."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
+        return nil;
+    }
+    
+    return items.firstObject;
+}
+
+// Read one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
+// If not found, return an empty list without setting an error.
+- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
+                                           serializer:(id<MSIDCacheItemSerializing>)serializer
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
+{
+    return [self storedItemsWithKey:key
+                         serializer:serializer
+                            context:context
+                              error:error];
+}
+
+// Remove one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
+- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    MSID_TRACE;
+    
+    if (!key || !(key.account || key.service))
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Key is nil or one of the key attributes account or service is nil.");
+        [self createError:@"Key is nil or one of the key attributes account or service is nil."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorInvalidDeveloperParameter error:error context:context];
+        return NO;
+    }
+    
+    MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
+    
+    if (storageItem)
+    {
+        if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+        {
+            MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
+            NSString *bucket = [self getBucketForCredentialType:cacheKey.credentialType];
+            if (bucket)
+            {
+                [storageItem removeStoredItemForKey:cacheKey inBucket:bucket];
+                return [self saveStorageItem:storageItem key:cacheKey serializer:self.serializer context:context error:error];
+            }
+        }
+    }
+    
+    return YES;
+}
+
+- (NSString *)getBucketForCredentialType:(MSIDCredentialType)type
+{
+    NSString *bucket = nil;
+    
+    if (!type)
+        return bucket;
+    
+    if (type == MSIDRefreshTokenType)
+    {
+        bucket = MSID_REFRESH_TOKEN_CACHE_TYPE;
+    }
+    else if (type == MSIDAccessTokenType)
+    {
+        bucket = MSID_ACCESS_TOKEN_CACHE_TYPE;
+    }
+    else if (type == MSIDIDTokenType)
+    {
+        bucket = MSID_ID_TOKEN_CACHE_TYPE;
+    }
+    
+    return bucket;
 }
 
 - (BOOL)saveStorageItem:(MSIDMacCredentialStorageItem *)storageItem
@@ -522,89 +636,70 @@ static dispatch_queue_t s_synchronizationQueue;
     return YES;
 }
 
-
-// Read a single credential from the macOS keychain cache.
-// If multiple matches are found, return nil and set an error.
-- (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                               serializer:(id<MSIDCacheItemSerializing>)serializer
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
+- (NSArray *)storedItemsWithKey:(MSIDCacheKey *)key
+                     serializer:(id<MSIDCacheItemSerializing>)serializer
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
 {
-    MSID_TRACE;
-    NSArray<MSIDCredentialCacheItem *> *items = [self tokensWithKey:key
-                                                         serializer:serializer
-                                                            context:context
-                                                              error:error];
+    NSArray *itemList = @[];
     
-    if (items.count > 1)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"The token cache store for this resource contains more than one token.");
-        [self createError:@"The token cache store for this resource contains more than one token."
-                   domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
-        return nil;
-    }
-
-    return items.firstObject;
-}
-
-// Read one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
-// If not found, return an empty list without setting an error.
-- (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                           serializer:(id<MSIDCacheItemSerializing>)serializer
-                                              context:(id<MSIDRequestContext>)context
-                                                error:(NSError **)error
-{
-    NSArray<MSIDCredentialCacheItem *> *tokenList = @[];
-    
-
     /*
      Sync in memory cache with persistent cache at the time of look up.
      */
     MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
     MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     
-    if (!key.isShared)
+    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
     {
-        /*
-         For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
-         For AT/ID tokens, two apps sharing the same client id can write to the same entry to the keychain. In this case, it is possible that the first app is trying to read a credential which is not currently in its own memory but is written in persistence by the second app sharing the same client id. To find this credential, it is important to merge in memory cache with persistence.
-         */
-        tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
-        if ([tokenList count])
+        MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
+        NSString *bucket = [self getBucketForCredentialType:cacheKey.credentialType];
+        
+        if (bucket)
         {
-            return tokenList;
+            if (!key.isShared)
+            {
+                /*
+                 For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
+                 For AT/ID tokens, two apps sharing the same client id can write to the same entry to the keychain. In this case, it is possible that the first app is trying to read a credential which is not currently in its own memory but is written in persistence by the second app sharing the same client id. To find this credential, it is important to merge in memory cache with persistence.
+                 */
+                itemList = [currentItem storedItemsForKey:cacheKey inBucket:bucket];
+                if ([itemList count])
+                {
+                    return itemList;
+                }
+            }
+            
+            [currentItem mergeStorageItem:savedItem inBucket:bucket];
+            itemList = [currentItem storedItemsForKey:key inBucket:bucket];
         }
     }
     
-    [currentItem mergeStorageItem:savedItem];
-    tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
-    return tokenList;
-    
-    return tokenList;
+    return itemList;
 }
 
-// Remove one or more credentials from the keychain that match the key (see credentialItem:matchesKey).
-- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (NSArray *)storedAccountsWithKey:(MSIDCacheKey *)key
+                        serializer:(id<MSIDCacheItemSerializing>)serializer
+                           context:(id<MSIDRequestContext>)context
+                             error:(NSError **)error
 {
-    MSID_TRACE;
+    NSArray *itemList = @[];
     
-    if (!key || !(key.account || key.service))
+    /*
+     Sync in memory cache with persistent cache at the time of look up.
+     */
+    MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+    MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+    
+    /*
+     Since account is shared across multiple apps, always merge with persistence first before look up.
+     */
+    if ([key isKindOfClass:[MSIDDefaultAccountCacheKey class]])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Key is nil or one of the key attributes account or service is nil.");
-        [self createError:@"Key is nil or one of the key attributes account or service is nil."
-                   domain:MSIDErrorDomain errorCode:MSIDErrorInvalidDeveloperParameter error:error context:context];
-        return NO;
+        [currentItem mergeStorageItem:savedItem inBucket:MSID_ACCOUNT_CACHE_TYPE];
+        itemList = [currentItem storedItemsForKey:key inBucket:MSID_ACCOUNT_CACHE_TYPE];
     }
     
-    MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
-    
-    if (storageItem)
-    {
-        [storageItem removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key];
-        return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
-    }
-    
-    return YES;
+    return itemList;
 }
 
 - (MSIDMacCredentialStorageItem *)storageItemWithKey:(MSIDCacheKey *)key

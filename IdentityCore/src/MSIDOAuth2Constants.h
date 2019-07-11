@@ -120,6 +120,7 @@ extern NSString *const MSID_LAST_MOD_TIME_CACHE_KEY;
 extern NSString *const MSID_LAST_MOD_APP_CACHE_KEY;
 
 extern NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_ACCOUNT_CACHE_TYPE;
 extern NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_LEGACY_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_ID_TOKEN_CACHE_TYPE;

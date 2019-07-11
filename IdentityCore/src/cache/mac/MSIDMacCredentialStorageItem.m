@@ -47,71 +47,120 @@ static NSString *keyDelimiter = @"-";
     return self;
 }
 
-- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDCacheKey *)key
+- (void)storeItem:(id<MSIDJsonSerializable>)item inBucket:(NSString *)bucket forKey:(MSIDCacheKey *)key
 {
-    dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects setObject:credential forKey:key];
-    });
-}
-
-- (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem
-{
-    dispatch_barrier_async(self.queue, ^{
-        for (MSIDCacheKey *key in storageItem.cacheObjects)
-        {
-            MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
-            if (credential)
-            {
-                [self.cacheObjects setObject:credential forKey:key];
-            }
-            else
-            {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Credential is nil for key %@ while merging storage credentials.", MSID_PII_LOG_MASKABLE(key));
-            }
-        }
-    });
-}
-
-- (void)removeStoredCredentialForKey:(MSIDCacheKey *)key
-{
-    dispatch_barrier_sync(self.queue, ^{
-        [self.cacheObjects removeObjectForKey:key];
-    });
-}
-
-- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDCacheKey *)key
-{
-    __block NSMutableArray<MSIDCredentialCacheItem *> *credentials =  [[NSMutableArray alloc] init];
-    
     dispatch_sync(self.queue, ^{
-        if (key.account && key.service)
+        NSMutableDictionary *items = nil;
+        if (bucket && ![self.cacheObjects objectForKey:bucket])
         {
-            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:key];
-            if (credential)
-            {
-                [credentials addObject:credential];
-            }
+            items = [NSMutableDictionary new];
         }
         else
         {
-            NSArray *storedKeys = [self.cacheObjects allKeys];
-            NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:key]];
-            for (MSIDCacheKey *key in filteredKeys)
+            items = [self.cacheObjects objectForKey:bucket];
+        }
+        
+        [items setObject:item forKey:key];
+        [self.cacheObjects setObject:items forKey:bucket];
+    });
+}
+
+- (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem inBucket:(NSString *)bucket
+{
+    dispatch_sync(self.queue, ^{
+        for (NSString *bucketKey in storageItem.cacheObjects)
+        {
+            NSMutableDictionary *bucketDict = [storageItem.cacheObjects objectForKey:bucketKey];
+            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:bucketKey];
+            
+            if (!subDict)
             {
-                MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:key];
-                if (credential)
+                [self.cacheObjects setObject:bucketDict forKey:bucketKey];
+            }
+            else
+            {
+                for (MSIDCacheKey *key in bucketDict)
                 {
-                    [credentials addObject:credential];
+                    id<MSIDJsonSerializable> storedItem = [bucketDict objectForKey:key];
+                    if (storedItem)
+                    {
+                        [subDict setObject:storedItem forKey:key];
+                    }
+                    else
+                    {
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Item is nil for key %@ while merging storage item.", MSID_PII_LOG_MASKABLE(key));
+                    }
+                }
+                
+                [self.cacheObjects setObject:subDict forKey:bucketKey];
+            }
+        }
+    });
+}
+
+- (void)removeStoredItemForKey:(MSIDCacheKey *)key inBucket:(NSString *)bucket
+{
+    dispatch_barrier_sync(self.queue, ^{
+        if (bucket && [self.cacheObjects objectForKey:bucket])
+        {
+            NSMutableDictionary *bucketDict = [self.cacheObjects msidObjectForKey:bucket ofClass:[NSDictionary class]];
+            
+            if (bucketDict)
+            {
+                [bucketDict removeObjectForKey:key];
+                
+                //Update the bucket only if it has one or more items.
+                if ([bucketDict count])
+                {
+                    [self.cacheObjects setObject:bucketDict forKey:bucket];
                 }
                 else
                 {
-                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Credential is nil for key %@.", MSID_PII_LOG_MASKABLE(key));
+                    [self.cacheObjects removeObjectForKey:bucket];
+                }
+            }
+        }
+    });
+}
+
+- (NSArray<id<MSIDJsonSerializable>> *)storedItemsForKey:(MSIDCacheKey *)key inBucket:(NSString *)bucket;
+{
+    __block NSMutableArray *storedItems =  [[NSMutableArray alloc] init];
+    
+    dispatch_sync(self.queue, ^{
+        
+        NSMutableDictionary *bucketDict = [self.cacheObjects objectForKey:bucket];
+        if (bucket && [self.cacheObjects objectForKey:bucket])
+        {
+            if (key.account && key.service)
+            {
+                id<MSIDJsonSerializable> item = [bucketDict objectForKey:key];
+                if (item)
+                {
+                    [storedItems addObject:item];
+                }
+            }
+            else
+            {
+                NSArray *storedKeys = [bucketDict allKeys];
+                NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:key]];
+                for (MSIDCacheKey *key in filteredKeys)
+                {
+                    id<MSIDJsonSerializable> item = [bucketDict objectForKey:key];
+                    if (item)
+                    {
+                        [storedItems addObject:item];
+                    }
+                    else
+                    {
+                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Item is nil for key %@.", MSID_PII_LOG_MASKABLE(key));
+                    }
                 }
             }
         }
     });
     
-    return credentials;
+    return storedItems;
 }
 
 /*
@@ -121,38 +170,49 @@ static NSString *keyDelimiter = @"-";
                                  error:(NSError * __autoreleasing *)error
 {
     MSIDMacCredentialStorageItem *instance = [self init];
-    
+
     if (instance)
     {
-        for (NSString *credentialKey in json)
+        for (NSString *bucketKey in json)
         {
-            NSDictionary *credentialDict = [json msidObjectForKey:credentialKey ofClass:[NSDictionary class]];
+            NSMutableDictionary *bucketDict = [NSMutableDictionary dictionary];
+            NSDictionary *subDict = [json msidObjectForKey:bucketKey ofClass:[NSDictionary class]];
             
-            if (credentialDict)
+            if (subDict)
             {
-                MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:credentialDict error:error];
-                
-                if (credential)
+                for (NSString *itemKey in subDict)
                 {
-                    MSIDCacheKey *storedCredentialKey = [credential createCredentialCacheKey];
+                    NSDictionary *itemDict = [subDict msidObjectForKey:itemKey ofClass:[NSDictionary class]];
                     
-                    if (storedCredentialKey)
+                    if (itemDict)
                     {
-                        [instance.cacheObjects setObject:credential forKey:storedCredentialKey];
-                    }
-                    else
-                    {
-                        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create MSIDDefaultCredentialCacheKey from MSIDCredentialCacheitem.");
+                        id<MSIDJsonSerializable, MSIDKeyGenerator> storedItem = [self getStoredItem:itemDict forKey:bucketKey error:error];
+                        
+                        if (storedItem && [storedItem conformsToProtocol:@protocol(MSIDJsonSerializable)] && [storedItem conformsToProtocol:@protocol(MSIDKeyGenerator)])
+                        {
+                            MSIDCacheKey *storedItemKey = [storedItem generateCacheKey];
+                            
+                            if (storedItemKey)
+                            {
+                                [bucketDict setObject:storedItem forKey:storedItemKey];
+                            }
+                            else
+                            {
+                                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create MSIDDefaultCredentialCacheKey from stored item.");
+                            }
+                        }
+                        else
+                        {
+                            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize storage item.");
+                        }
                     }
                 }
-                else
-                {
-                    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize credential cache item.");
-                }
+                
+                [instance.cacheObjects setObject:bucketDict forKey:bucketKey];
             }
         }
     }
-    
+
     return instance;
 }
 
@@ -161,25 +221,38 @@ static NSString *keyDelimiter = @"-";
     __block NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     dispatch_sync(self.queue, ^{
-        for (MSIDCacheKey *credentialKey in self.cacheObjects)
+        
+        for (NSString *bucketKey in self.cacheObjects)
         {
-            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
-            if (credential)
+            NSMutableDictionary *bucketDict = [NSMutableDictionary dictionary];
+            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:bucketKey];
+            
+            for (MSIDCacheKey *cacheKey in subDict)
             {
-                NSDictionary *credentialDict = [credential jsonDictionary];
-                
-                if (credentialDict && [credentialDict isKindOfClass:[NSDictionary class]])
+                id<MSIDJsonSerializable> cacheItem = [subDict objectForKey:cacheKey];
+                if (cacheItem && [cacheItem conformsToProtocol:@protocol(MSIDJsonSerializable)])
                 {
-                    [dictionary setObject:credentialDict forKey:[self getCredentialKey:credentialKey]];
+                    NSDictionary *cacheItemDict = [cacheItem jsonDictionary];
+                    
+                    if (cacheItemDict && [cacheItemDict isKindOfClass:[NSDictionary class]])
+                    {
+                        [bucketDict setObject:cacheItemDict forKey:[self getItemKey:cacheKey]];
+                    }
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to serialize storage item.");
                 }
             }
+            
+            [dictionary setObject:bucketDict forKey:bucketKey];
         }
     });
     
     return dictionary;
 }
 
-- (NSString *)getCredentialKey:(MSIDCacheKey *)key
+- (NSString *)getItemKey:(MSIDCacheKey *)key
 {
     return [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
 }
@@ -199,6 +272,28 @@ static NSString *keyDelimiter = @"-";
     
     // Combine all sub-predicates with AND:
     return [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
+}
+
+- (id<MSIDJsonSerializable, MSIDKeyGenerator>)getStoredItem:(NSDictionary *)itemDict forKey:(NSString *)bucketKey error:(NSError * __autoreleasing *)error
+{
+    if ([bucketKey isEqualToString:MSID_ACCESS_TOKEN_CACHE_TYPE])
+    {
+        return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if ([bucketKey isEqualToString:MSID_ID_TOKEN_CACHE_TYPE])
+    {
+        return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if([bucketKey isEqualToString:MSID_REFRESH_TOKEN_CACHE_TYPE])
+    {
+         return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if([bucketKey isEqualToString:MSID_ACCOUNT_CACHE_TYPE])
+    {
+        return [[MSIDAccountCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    
+    return nil;
 }
 
 @end

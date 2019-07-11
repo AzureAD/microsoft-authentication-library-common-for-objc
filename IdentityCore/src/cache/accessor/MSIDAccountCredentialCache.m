@@ -222,13 +222,18 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
     
-    MSIDDefaultCredentialCacheKey *key = [credential createCredentialCacheKey];
-
-    return [_dataSource saveToken:credential
-                              key:key
-                       serializer:_serializer
-                          context:context
-                            error:error];
+    MSIDDefaultCredentialCacheKey *key = (MSIDDefaultCredentialCacheKey *)[credential generateCacheKey];
+    
+    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    {
+        return [_dataSource saveToken:credential
+                                  key:key
+                           serializer:_serializer
+                              context:context
+                                error:error];
+    }
+    
+    return NO;
 }
 
 // Writing accounts
@@ -240,38 +245,39 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving account %@", MSID_PII_LOG_MASKABLE(account));
 
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
-                                                                                    environment:account.environment
-                                                                                          realm:account.realm
-                                                                                           type:account.accountType];
-
-    // Get previous account, so we don't lose any fields
-    MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
-
-    if (previousAccount)
+    MSIDDefaultAccountCacheKey *key = (MSIDDefaultAccountCacheKey *)[account generateCacheKey];
+    if ([key isKindOfClass:[MSIDDefaultAccountCacheKey class]])
     {
-        // Make sure we copy over all the additional fields
-        NSMutableDictionary *mergedDictionary = [previousAccount.jsonDictionary mutableCopy];
-        [mergedDictionary addEntriesFromDictionary:account.jsonDictionary];
-        NSError *accountError;
-        account = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:mergedDictionary error:&accountError];
-        if (accountError || !account)
+        // Get previous account, so we don't lose any fields
+        MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
+        
+        if (previousAccount)
         {
-            if (error)
+            // Make sure we copy over all the additional fields
+            NSMutableDictionary *mergedDictionary = [previousAccount.jsonDictionary mutableCopy];
+            [mergedDictionary addEntriesFromDictionary:account.jsonDictionary];
+            NSError *accountError;
+            account = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:mergedDictionary error:&accountError];
+            if (accountError || !account)
             {
-                *error = accountError;
+                if (error)
+                {
+                    *error = accountError;
+                }
+                return NO;
             }
-            return NO;
         }
+        
+        key.username = account.username;
+        
+        return [_dataSource saveAccount:account
+                                    key:key
+                             serializer:_serializer
+                                context:context
+                                  error:error];
     }
-
-    key.username = account.username;
-
-    return [_dataSource saveAccount:account
-                                key:key
-                         serializer:_serializer
-                            context:context
-                              error:error];
+    
+    return NO;
 }
 
 // Remove credentials
@@ -303,22 +309,27 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
 
-    MSIDDefaultCredentialCacheKey *key = [credential createCredentialCacheKey];
-
-    key.familyId = credential.familyId;
-    key.realm = credential.realm;
-    key.target = credential.target;
-    key.enrollmentId = credential.enrollmentId;
-    key.appKey = credential.appKey;
-
-    BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
-
-    if (result && credential.credentialType == MSIDRefreshTokenType)
+    MSIDDefaultCredentialCacheKey *key = (MSIDDefaultCredentialCacheKey *)[credential generateCacheKey];
+    
+    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
     {
-        [_dataSource saveWipeInfoWithContext:context error:nil];
+        key.familyId = credential.familyId;
+        key.realm = credential.realm;
+        key.target = credential.target;
+        key.enrollmentId = credential.enrollmentId;
+        key.appKey = credential.appKey;
+        
+        BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
+        
+        if (result && credential.credentialType == MSIDRefreshTokenType)
+        {
+            [_dataSource saveWipeInfoWithContext:context error:nil];
+        }
+        
+        return result;
     }
-
-    return result;
+    
+    return NO;
 }
 
 // Remove accounts
@@ -348,12 +359,13 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, MSID_PII_LOG_MASKABLE(account.homeAccountId), MSID_PII_LOG_EMAIL(account.username));
 
-    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
-                                                                                   environment:account.environment
-                                                                                         realm:account.realm
-                                                                                          type:account.accountType];
-
-    return [_dataSource removeAccountsWithKey:key context:context error:error];
+    MSIDDefaultAccountCacheKey *key = (MSIDDefaultAccountCacheKey *)[account generateCacheKey];
+    if ([key isKindOfClass:[MSIDDefaultAccountCacheKey class]])
+    {
+        return [_dataSource removeAccountsWithKey:key context:context error:error];
+    }
+    
+    return NO;
 }
 
 // Clear all
