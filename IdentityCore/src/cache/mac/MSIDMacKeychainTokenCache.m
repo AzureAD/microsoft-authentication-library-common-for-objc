@@ -445,15 +445,18 @@ static dispatch_queue_t s_synchronizationQueue;
         return NO;
     }
     
-    MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     
-    if (storageItem)
+    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
+    
+    if (savedStorageItem)
     {
-        [storageItem removeStoredItemForKey:key inBucket:MSID_ACCOUNT_CACHE_TYPE];
-        return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
+        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_ACCOUNT_CACHE_TYPE];
     }
     
-    return YES;
+    [storageItem removeStoredItemForKey:key inBucket:MSID_ACCOUNT_CACHE_TYPE];
+    
+    return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
 }
 
 #pragma mark - Credentials
@@ -542,19 +545,23 @@ static dispatch_queue_t s_synchronizationQueue;
         return NO;
     }
     
-    MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
     
-    if (storageItem)
+    if (savedStorageItem)
     {
-        if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_ACCOUNT_CACHE_TYPE];
+    }
+    
+    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    {
+        MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
+        NSString *bucket = [self getBucketForCredentialType:cacheKey.credentialType];
+        
+        if (bucket)
         {
-            MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
-            NSString *bucket = [self getBucketForCredentialType:cacheKey.credentialType];
-            if (bucket)
-            {
-                [storageItem removeStoredItemForKey:cacheKey inBucket:bucket];
-                return [self saveStorageItem:storageItem key:cacheKey serializer:self.serializer context:context error:error];
-            }
+            [storageItem removeStoredItemForKey:key inBucket:bucket];
+            return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
         }
     }
     
