@@ -456,6 +456,15 @@ static dispatch_queue_t s_synchronizationQueue;
     
     [storageItem removeStoredItemForKey:key inBucket:MSID_ACCOUNT_CACHE_TYPE];
     
+    if ([storageItem count])
+    {
+        return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
+    }
+    else
+    {
+        return [self removeStorageItemForKey:key context:context error:error];
+    }
+    
     return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
 }
 
@@ -561,7 +570,14 @@ static dispatch_queue_t s_synchronizationQueue;
         if (bucket)
         {
             [storageItem removeStoredItemForKey:key inBucket:bucket];
-            return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
+            if ([storageItem count])
+            {
+                return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
+            }
+            else
+            {
+                return [self removeStorageItemForKey:key context:context error:error];
+            }
         }
     }
     
@@ -636,6 +652,33 @@ static dispatch_queue_t s_synchronizationQueue;
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to write item to keychain (status: %d).", (int)status);
         [self createError:@"Failed to write item to keychain."
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (BOOL)removeStorageItemForKey:(MSIDCacheKey *)key
+                        context:(id<MSIDRequestContext>)context
+                          error:(NSError **)error
+{
+    NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
+    [query addEntriesFromDictionary:[self accountAttributeForKey:key]];
+    query[(id)kSecAttrService] = s_defaultKeychainLabel;
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
+    __block OSStatus status;
+    dispatch_barrier_sync(s_synchronizationQueue, ^{
+        status = SecItemDelete((CFDictionaryRef)query);
+    });
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain delete status: %d.", (int)status);
+    
+    if (status != errSecSuccess && status != errSecItemNotFound)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to remove multiple items from keychain (status: %d).", (int)status);
+        [self createError:@"Failed to remove multiple items from keychain."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return NO;
     }
