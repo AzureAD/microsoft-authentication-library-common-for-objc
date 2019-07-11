@@ -69,7 +69,6 @@
         
 #if TARGET_OS_UIKITFORMAC
         __auto_type config = [SFSafariViewControllerConfiguration new];
-        config.entersReaderIfAvailable = NO;
         _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
 #else
         _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
