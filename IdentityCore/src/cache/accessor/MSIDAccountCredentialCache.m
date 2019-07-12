@@ -246,6 +246,7 @@
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving account %@", MSID_PII_LOG_MASKABLE(account));
 
     MSIDDefaultAccountCacheKey *key = (MSIDDefaultAccountCacheKey *)[account generateCacheKey];
+    
     if ([key isKindOfClass:[MSIDDefaultAccountCacheKey class]])
     {
         // Get previous account, so we don't lose any fields
@@ -313,12 +314,8 @@
     
     if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
     {
-        key.familyId = credential.familyId;
-        key.realm = credential.realm;
-        key.target = credential.target;
-        key.enrollmentId = credential.enrollmentId;
+        // TODO: appKey is not set in saveCredential but set here.
         key.appKey = credential.appKey;
-        
         BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
         
         if (result && credential.credentialType == MSIDRefreshTokenType)
@@ -360,6 +357,7 @@
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, MSID_PII_LOG_MASKABLE(account.homeAccountId), MSID_PII_LOG_EMAIL(account.username));
 
     MSIDDefaultAccountCacheKey *key = (MSIDDefaultAccountCacheKey *)[account generateCacheKey];
+    
     if ([key isKindOfClass:[MSIDDefaultAccountCacheKey class]])
     {
         return [_dataSource removeAccountsWithKey:key context:context error:error];
@@ -433,16 +431,18 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Saving app's metadata %@", MSID_PII_LOG_MASKABLE(metadata));
     
-    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:metadata.clientId
-                                                                         environment:metadata.environment
-                                                                            familyId:metadata.familyId
-                                                                         generalType:MSIDAppMetadataType];
-
-    return [_dataSource saveAppMetadata:metadata
-                                    key:key
-                             serializer:_serializer
-                                context:context
-                                  error:error];
+    MSIDAppMetadataCacheKey *key = (MSIDAppMetadataCacheKey *)[metadata generateCacheKey];
+    
+    if ([key isKindOfClass:[MSIDAppMetadataCacheKey class]])
+    {
+        return [_dataSource saveAppMetadata:metadata
+                                        key:key
+                                 serializer:_serializer
+                                    context:context
+                                      error:error];
+    }
+    
+    return NO;
 }
 
 - (BOOL)removeAppMetadata:(nonnull MSIDAppMetadataCacheItem *)appMetadata
@@ -453,12 +453,14 @@
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Removing app metadata with clientId %@, environment %@", appMetadata.clientId, appMetadata.environment);
     
-    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata.clientId
-                                                                         environment:appMetadata.environment
-                                                                            familyId:appMetadata.familyId
-                                                                         generalType:MSIDAppMetadataType];
+    MSIDAppMetadataCacheKey *key = (MSIDAppMetadataCacheKey *)[appMetadata generateCacheKey];
     
-    return [_dataSource removeMetadataItemsWithKey:key context:context error:error];
+    if ([key isKindOfClass:[MSIDAppMetadataCacheKey class]])
+    {
+        return [_dataSource removeMetadataItemsWithKey:key context:context error:error];
+    }
+    
+    return NO;
 }
 
 - (nullable NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntriesWithQuery:(nonnull MSIDAppMetadataCacheQuery *)cacheQuery

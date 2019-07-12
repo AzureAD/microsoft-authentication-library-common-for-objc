@@ -365,20 +365,8 @@ static dispatch_queue_t s_synchronizationQueue;
     assert(serializer);
     
     [self updateLastModifiedForAccount:account context:context];
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    
-    /*
-     First sync in-memory cache with persistence cache.
-     Then write latest latest item to in memory and write back to persistence
-     */
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_ACCOUNT_CACHE_TYPE];
-    }
-    
-    [storageItem storeItem:account inBucket:MSID_ACCOUNT_CACHE_TYPE forKey:key];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    [storageItem storeItem:account forKey:key];
     return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
 }
 
@@ -420,18 +408,8 @@ static dispatch_queue_t s_synchronizationQueue;
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
-    /*
-     Sync in memory cache with persistent cache at the time of look up.
-     */
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_ACCOUNT_CACHE_TYPE];
-    }
-    
-    NSArray *itemList = [storageItem storedItemsForKey:key inBucket:MSID_ACCOUNT_CACHE_TYPE];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    NSArray *itemList = [storageItem storedItemsForKey:key];
     return itemList;
 }
 
@@ -474,27 +452,9 @@ static dispatch_queue_t s_synchronizationQueue;
     assert(serializer);
     
     [self updateLastModifiedForCredential:credential context:context];
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    
-    /*
-     First step merge get latest from persistent cache and merge it with in-memory
-     Then write latest latest credential to in memory and write back to persistence
-     */
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    NSString *bucket = [self getBucketForCredentialType:credential.credentialType];
-    
-    if (bucket)
-    {
-        if (savedStorageItem)
-        {
-            [storageItem mergeStorageItem:savedStorageItem inBucket:bucket];
-        }
-        
-        [storageItem storeItem:credential inBucket:bucket forKey:key];
-        return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
-    }
-    
-    return NO;
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    [storageItem storeItem:credential forKey:key];
+    return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
 }
 
 // Read a single credential from the macOS keychain cache.
@@ -538,31 +498,21 @@ static dispatch_queue_t s_synchronizationQueue;
     MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
     
-    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    if (!key.isShared)
     {
-        MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
-        NSString *bucket = [self getBucketForCredentialType:cacheKey.credentialType];
-        
-        if (bucket)
+        itemList = [storageItem storedItemsForKey:key];
+        if ([itemList count])
         {
-            if (!key.isShared)
-            {
-                itemList = [storageItem storedItemsForKey:cacheKey inBucket:bucket];
-                if ([itemList count])
-                {
-                    return itemList;
-                }
-            }
-            
-            if (savedStorageItem)
-            {
-                [storageItem mergeStorageItem:savedStorageItem inBucket:bucket];
-            }
-            
-            itemList = [storageItem storedItemsForKey:key inBucket:bucket];
+            return itemList;
         }
     }
     
+    if (savedStorageItem)
+    {
+        [storageItem mergeStorageItem:savedStorageItem];
+    }
+    
+    itemList = [storageItem storedItemsForKey:key];
     return itemList;
 }
 
@@ -579,56 +529,35 @@ static dispatch_queue_t s_synchronizationQueue;
         return NO;
     }
     
-    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:self.serializer context:context error:error];
+    [storageItem removeStoredItemForKey:key];
+    
+    if ([storageItem count])
     {
-        MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-        MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
-        MSIDDefaultCredentialCacheKey *cacheKey = (MSIDDefaultCredentialCacheKey *)key;
-        NSString *bucket = [self getBucketForCredentialType:cacheKey.credentialType];
-        
-        if (bucket)
-        {
-            if (savedStorageItem)
-            {
-                [storageItem mergeStorageItem:savedStorageItem inBucket:bucket];
-            }
-            
-            [storageItem removeStoredItemForKey:key inBucket:bucket];
-            
-            if ([storageItem count])
-            {
-                return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
-            }
-            
-            //Remove keychain item if storage item is empty
-            return [self removeStorageItemForKey:key context:context error:error];
-        }
+        return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
     }
     
-    return YES;
+    //Remove keychain item if storage item is empty
+    return [self removeStorageItemForKey:key context:context error:error];
 }
 
-- (NSString *)getBucketForCredentialType:(MSIDCredentialType)type
+- (MSIDMacCredentialStorageItem *)syncStorageItem:(MSIDCacheKey *)key
+                                       serializer:(id<MSIDCacheItemSerializing>)serializer
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
 {
-    NSString *bucket = nil;
+    /*
+     Sync in memory cache with persistent cache at the time of look up.
+     */
+    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     
-    if (!type)
-        return bucket;
-    
-    if (type == MSIDRefreshTokenType)
+    if (savedStorageItem)
     {
-        bucket = MSID_REFRESH_TOKEN_CACHE_TYPE;
-    }
-    else if (type == MSIDAccessTokenType)
-    {
-        bucket = MSID_ACCESS_TOKEN_CACHE_TYPE;
-    }
-    else if (type == MSIDIDTokenType)
-    {
-        bucket = MSID_ID_TOKEN_CACHE_TYPE;
+        [storageItem mergeStorageItem:savedStorageItem];
     }
     
-    return bucket;
+    return storageItem;
 }
 
 - (BOOL)saveStorageItem:(MSIDMacCredentialStorageItem *)storageItem
@@ -777,16 +706,8 @@ static dispatch_queue_t s_synchronizationQueue;
         return NO;
     }
     
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem inBucket:bucket];
-    }
-    
-    [storageItem removeStoredItemForKey:key inBucket:bucket];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:self.serializer context:context error:error];
+    [storageItem removeStoredItemForKey:key];
     
     if ([storageItem count])
     {
@@ -822,15 +743,8 @@ static dispatch_queue_t s_synchronizationQueue;
     assert(metadata);
     assert(serializer);
     
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_APPLICATION_METADATA_CACHE_TYPE];
-    }
-    
-    [storageItem storeItem:metadata inBucket:MSID_APPLICATION_METADATA_CACHE_TYPE forKey:key];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    [storageItem storeItem:metadata forKey:key];
     return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
 }
 
@@ -840,18 +754,8 @@ static dispatch_queue_t s_synchronizationQueue;
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error
 {
-    /*
-     Sync in memory cache with persistent cache at the time of look up.
-     */
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_APPLICATION_METADATA_CACHE_TYPE];
-    }
-    
-    NSArray *itemList= [storageItem storedItemsForKey:key inBucket:MSID_APPLICATION_METADATA_CACHE_TYPE];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    NSArray *itemList = [storageItem storedItemsForKey:key];
     return itemList;
 }
 
@@ -872,15 +776,8 @@ static dispatch_queue_t s_synchronizationQueue;
                     context:(id<MSIDRequestContext>)context
                       error:(NSError *__autoreleasing *)error
 {
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_ACCOUNT_METADATA_CACHE_TYPE];
-    }
-    
-    [storageItem storeItem:item inBucket:MSID_ACCOUNT_METADATA_CACHE_TYPE forKey:key];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    [storageItem storeItem:item forKey:key];
     return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
 }
 
@@ -889,18 +786,8 @@ static dispatch_queue_t s_synchronizationQueue;
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error
 {
-    /*
-     Sync in memory cache with persistent cache at the time of look up.
-     */
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-    
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem inBucket:MSID_ACCOUNT_METADATA_CACHE_TYPE];
-    }
-    
-    NSArray *itemList = [storageItem storedItemsForKey:key inBucket:MSID_ACCOUNT_METADATA_CACHE_TYPE];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    NSArray *itemList = [storageItem storedItemsForKey:key];
     
     if (itemList.count > 1)
     {

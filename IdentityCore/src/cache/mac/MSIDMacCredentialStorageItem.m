@@ -47,122 +47,121 @@ static NSString *keyDelimiter = @"-";
     return self;
 }
 
-- (void)storeItem:(id<MSIDJsonSerializable>)item inBucket:(NSString *)bucket forKey:(MSIDCacheKey *)key
+- (void)storeItem:(id<MSIDJsonSerializable>)item forKey:(MSIDCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
+        NSString *type = [self getItemTypeFromCacheKey:key];
         
-        NSMutableDictionary *items = nil;
-        if (bucket && ![self.cacheObjects objectForKey:bucket])
+        if (type)
         {
-            items = [NSMutableDictionary new];
+            NSMutableDictionary *items = nil;
+            
+            if (![self.cacheObjects objectForKey:type])
+            {
+                items = [NSMutableDictionary new];
+            }
+            else
+            {
+                items = [self.cacheObjects objectForKey:type];
+            }
+            
+            [items setObject:item forKey:key];
+            [self.cacheObjects setObject:items forKey:type];
         }
-        else
-        {
-            items = [self.cacheObjects objectForKey:bucket];
-        }
-        
-        [items setObject:item forKey:key];
-        [self.cacheObjects setObject:items forKey:bucket];
     });
 }
 
-- (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem inBucket:(NSString *)bucket
+- (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem
 {
     dispatch_barrier_async(self.queue, ^{
         
-        for (NSString *bucketKey in storageItem.cacheObjects)
+        for (NSString *typeKey in storageItem.cacheObjects)
         {
-            NSMutableDictionary *bucketDict = [storageItem.cacheObjects objectForKey:bucketKey];
-            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:bucketKey];
+            NSMutableDictionary *typeDict = [storageItem.cacheObjects objectForKey:typeKey];
+            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:typeKey];
             
             if (!subDict)
             {
-                [self.cacheObjects setObject:bucketDict forKey:bucketKey];
+                [self.cacheObjects setObject:typeDict forKey:typeKey];
             }
             else
             {
-                for (MSIDCacheKey *key in bucketDict)
-                {
-                    id<MSIDJsonSerializable> storedItem = [bucketDict objectForKey:key];
-                    if (storedItem)
-                    {
-                        [subDict setObject:storedItem forKey:key];
-                    }
-                    else
-                    {
-                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Item is nil for key %@ while merging storage item.", MSID_PII_LOG_MASKABLE(key));
-                    }
-                }
-                
-                [self.cacheObjects setObject:subDict forKey:bucketKey];
+                [subDict addEntriesFromDictionary:typeDict];
+                [self.cacheObjects setObject:subDict forKey:typeKey];
             }
         }
     });
 }
 
-- (void)removeStoredItemForKey:(MSIDCacheKey *)key inBucket:(NSString *)bucket
+- (void)removeStoredItemForKey:(MSIDCacheKey *)key
 {
     dispatch_barrier_sync(self.queue, ^{
-        if (bucket && [self.cacheObjects objectForKey:bucket])
+        NSString *type = [self getItemTypeFromCacheKey:key];
+        
+        if (type)
         {
-            NSMutableDictionary *bucketDict = [self.cacheObjects msidObjectForKey:bucket ofClass:[NSDictionary class]];
-            
-            if (bucketDict)
+            NSMutableDictionary *typeDict = [self.cacheObjects msidObjectForKey:type ofClass:[NSDictionary class]];
+            if (typeDict)
             {
-                [bucketDict removeObjectForKey:key];
+                [typeDict removeObjectForKey:key];
                 
                 //Update the bucket only if it has one or more items.
-                if ([bucketDict count])
+                if ([typeDict count])
                 {
-                    [self.cacheObjects setObject:bucketDict forKey:bucket];
+                    [self.cacheObjects setObject:typeDict forKey:type];
                 }
                 else
                 {
-                    [self.cacheObjects removeObjectForKey:bucket];
+                    [self.cacheObjects removeObjectForKey:type];
                 }
             }
         }
     });
 }
 
-- (NSArray<id<MSIDJsonSerializable>> *)storedItemsForKey:(MSIDCacheKey *)key inBucket:(NSString *)bucket;
+- (NSArray<id<MSIDJsonSerializable>> *)storedItemsForKey:(MSIDCacheKey *)key
 {
-    __block NSMutableArray *storedItems =  [[NSMutableArray alloc] init];
+    __block NSArray *storedItems = [[NSArray alloc] init];
     
     dispatch_sync(self.queue, ^{
         
-        NSMutableDictionary *bucketDict = [self.cacheObjects objectForKey:bucket];
-        if (bucket && [self.cacheObjects objectForKey:bucket])
+        NSString *type = [self getItemTypeFromCacheKey:key];
+        
+        if (type)
         {
-            if (key.account && key.service)
+            NSMutableDictionary *typeDict = [self.cacheObjects msidObjectForKey:type ofClass:[NSDictionary class]];
+            
+            if (typeDict)
             {
-                id<MSIDJsonSerializable> item = [bucketDict objectForKey:key];
-                if (item)
+                if (key.account && key.service)
                 {
-                    [storedItems addObject:item];
-                }
-            }
-            else
-            {
-                NSArray *storedKeys = [bucketDict allKeys];
-                NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:key]];
-                for (MSIDCacheKey *key in filteredKeys)
-                {
-                    id<MSIDJsonSerializable> item = [bucketDict objectForKey:key];
+                    id<MSIDJsonSerializable> item = [typeDict objectForKey:key];
                     if (item)
                     {
-                        [storedItems addObject:item];
+                        storedItems = @[item];
                     }
-                    else
-                    {
-                        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Item is nil for key %@.", MSID_PII_LOG_MASKABLE(key));
-                    }
+                }
+                else
+                {
+                    // If passed key is not exact match, filter storage items based on given key attributes.
+                    storedItems = [self getFilteredItems:typeDict forKey:key];
                 }
             }
         }
     });
     
     return storedItems;
+}
+
+- (NSUInteger)count
+{
+    __block NSUInteger count;
+    
+    dispatch_sync(self.queue, ^{
+        count = (NSUInteger)[self.cacheObjects count];
+    });
+    
+    return count;
 }
 
 /*
@@ -175,10 +174,10 @@ static NSString *keyDelimiter = @"-";
 
     if (instance)
     {
-        for (NSString *bucketKey in json)
+        for (NSString *typeKey in json)
         {
-            NSMutableDictionary *bucketDict = [NSMutableDictionary dictionary];
-            NSDictionary *subDict = [json msidObjectForKey:bucketKey ofClass:[NSDictionary class]];
+            NSMutableDictionary *typeDict = [NSMutableDictionary dictionary];
+            NSDictionary *subDict = [json msidObjectForKey:typeKey ofClass:[NSDictionary class]];
             
             if (subDict)
             {
@@ -188,7 +187,7 @@ static NSString *keyDelimiter = @"-";
                     
                     if (itemDict)
                     {
-                        id<MSIDJsonSerializable, MSIDKeyGenerator> storedItem = [self getStoredItem:itemDict forKey:bucketKey error:error];
+                        id<MSIDJsonSerializable, MSIDKeyGenerator> storedItem = [self getItemTypeFromString:itemDict forKey:typeKey error:error];
                         
                         if (storedItem && [storedItem conformsToProtocol:@protocol(MSIDJsonSerializable)] && [storedItem conformsToProtocol:@protocol(MSIDKeyGenerator)])
                         {
@@ -196,11 +195,11 @@ static NSString *keyDelimiter = @"-";
                             
                             if (storedItemKey)
                             {
-                                [bucketDict setObject:storedItem forKey:storedItemKey];
+                                [typeDict setObject:storedItem forKey:storedItemKey];
                             }
                             else
                             {
-                                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create MSIDDefaultCredentialCacheKey from stored item.");
+                                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create cache key from stored item.");
                             }
                         }
                         else
@@ -210,7 +209,7 @@ static NSString *keyDelimiter = @"-";
                     }
                 }
                 
-                [instance.cacheObjects setObject:bucketDict forKey:bucketKey];
+                [instance.cacheObjects setObject:typeDict forKey:typeKey];
             }
         }
     }
@@ -224,10 +223,10 @@ static NSString *keyDelimiter = @"-";
     
     dispatch_sync(self.queue, ^{
         
-        for (NSString *bucketKey in self.cacheObjects)
+        for (NSString *typeKey in self.cacheObjects)
         {
-            NSMutableDictionary *bucketDict = [NSMutableDictionary dictionary];
-            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:bucketKey];
+            NSMutableDictionary *typeDict = [NSMutableDictionary dictionary];
+            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:typeKey];
             
             for (MSIDCacheKey *cacheKey in subDict)
             {
@@ -238,7 +237,7 @@ static NSString *keyDelimiter = @"-";
                     
                     if (cacheItemDict && [cacheItemDict isKindOfClass:[NSDictionary class]])
                     {
-                        [bucketDict setObject:cacheItemDict forKey:[self getItemKey:cacheKey]];
+                        [typeDict setObject:cacheItemDict forKey:[self getItemKey:cacheKey]];
                     }
                 }
                 else
@@ -247,11 +246,33 @@ static NSString *keyDelimiter = @"-";
                 }
             }
             
-            [dictionary setObject:bucketDict forKey:bucketKey];
+            [dictionary setObject:typeDict forKey:typeKey];
         }
     });
     
     return dictionary;
+}
+
+- (NSArray<id<MSIDJsonSerializable>> *)getFilteredItems:(NSMutableDictionary *)itemDict forKey:(MSIDCacheKey *)cacheKey
+{
+    NSMutableArray *storedItems =  [[NSMutableArray alloc] init];
+    
+    NSArray *storedKeys = [itemDict allKeys];
+    NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:cacheKey]];
+    for (MSIDCacheKey *key in filteredKeys)
+    {
+        id<MSIDJsonSerializable> item = [itemDict objectForKey:key];
+        if (item)
+        {
+            [storedItems addObject:item];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Item is nil for key %@.", MSID_PII_LOG_MASKABLE(key));
+        }
+    }
+    
+    return storedItems;
 }
 
 - (NSString *)getItemKey:(MSIDCacheKey *)key
@@ -276,45 +297,70 @@ static NSString *keyDelimiter = @"-";
     return [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
 }
 
-- (id<MSIDJsonSerializable, MSIDKeyGenerator>)getStoredItem:(NSDictionary *)itemDict forKey:(NSString *)bucketKey error:(NSError * __autoreleasing *)error
+- (id<MSIDJsonSerializable, MSIDKeyGenerator>)getItemTypeFromString:(NSDictionary *)itemDict forKey:(NSString *)typeKey error:(NSError * __autoreleasing *)error
 {
-    if ([bucketKey isEqualToString:MSID_ACCESS_TOKEN_CACHE_TYPE])
+    if ([typeKey isEqualToString:MSID_ACCESS_TOKEN_CACHE_TYPE])
     {
         return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
-    else if ([bucketKey isEqualToString:MSID_ID_TOKEN_CACHE_TYPE])
+    else if ([typeKey isEqualToString:MSID_ID_TOKEN_CACHE_TYPE])
     {
         return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
-    else if([bucketKey isEqualToString:MSID_REFRESH_TOKEN_CACHE_TYPE])
+    else if([typeKey isEqualToString:MSID_REFRESH_TOKEN_CACHE_TYPE])
     {
          return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
-    else if([bucketKey isEqualToString:MSID_ACCOUNT_CACHE_TYPE])
+    else if([typeKey isEqualToString:MSID_ACCOUNT_CACHE_TYPE])
     {
         return [[MSIDAccountCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
-    else if([bucketKey isEqualToString:MSID_APPLICATION_METADATA_CACHE_TYPE])
+    else if([typeKey isEqualToString:MSID_APPLICATION_METADATA_CACHE_TYPE])
     {
         return [[MSIDAppMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
-    else if([bucketKey isEqualToString:MSID_ACCOUNT_METADATA_CACHE_TYPE])
+    else if([typeKey isEqualToString:MSID_ACCOUNT_METADATA_CACHE_TYPE])
     {
         return [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
     
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Unknown key type passed %@.", MSID_PII_LOG_MASKABLE(typeKey));
     return nil;
 }
 
-- (NSUInteger)count
+- (NSString *)getItemTypeFromCacheKey:(MSIDCacheKey *)itemKey
 {
-    __block NSUInteger count;
+    if ([itemKey isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    {
+        MSIDDefaultCredentialCacheKey *key = (MSIDDefaultCredentialCacheKey *)itemKey;
+        if (key.credentialType == MSIDIDTokenType)
+        {
+            return MSID_ID_TOKEN_CACHE_TYPE;
+        }
+        else if (key.credentialType == MSIDAccessTokenType)
+        {
+            return MSID_ACCESS_TOKEN_CACHE_TYPE;
+        }
+        else if (key.credentialType == MSIDRefreshTokenType)
+        {
+            return MSID_REFRESH_TOKEN_CACHE_TYPE;
+        }
+    }
+    else if ([itemKey isKindOfClass:[MSIDDefaultAccountCacheKey class]])
+    {
+        return MSID_ACCOUNT_CACHE_TYPE;
+    }
+    else if ([itemKey isKindOfClass:[MSIDAppMetadataCacheKey class]])
+    {
+        return MSID_APPLICATION_METADATA_CACHE_TYPE;
+    }
+    else if ([itemKey isKindOfClass:[MSIDAccountMetadataCacheKey class]])
+    {
+        return MSID_ACCOUNT_METADATA_CACHE_TYPE;
+    }
     
-    dispatch_sync(self.queue, ^{
-        count = (NSUInteger)[self.cacheObjects count];
-    });
-    
-    return count;
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Unknown key type passed %@.", MSID_PII_LOG_MASKABLE(itemKey));
+    return nil;
 }
 
 @end
