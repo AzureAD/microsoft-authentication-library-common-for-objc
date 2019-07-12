@@ -126,9 +126,17 @@ static NSDateFormatter *s_dateFormatter = nil;
             
             NSString *correlationIdStr = @"";
             
-            if (correlationId && [correlationId isKindOfClass:[NSUUID class]])
+            if (correlationId)
             {
-                correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
+                if ([correlationId isKindOfClass:[NSUUID class]])
+                {
+                    correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
+                }
+                else
+                {
+                    NSAssert(NO, @"Correlation ID not of NSUUID class");
+                    correlationIdStr = @"[Invalid non-NSUUID correlationID]";
+                }
             }
             else if (context)
             {
