@@ -74,8 +74,16 @@
     
     __block NSError *localError;
     __block BOOL saveSuccess = NO;
+    __block BOOL hasChanges = YES;
     
-    if ([item isEqual:_memoryCache[key]]) return YES;
+    dispatch_sync(_synchronizationQueue, ^{
+        hasChanges = ![item isEqual:_memoryCache[key]];
+    });
+    
+    if (!hasChanges)
+    {
+        return YES;
+    }
     
     dispatch_barrier_sync(_synchronizationQueue, ^{
         saveSuccess = [_dataSource saveAccountMetadata:item key:key serializer:_jsonSerializer context:context error:&localError];
@@ -105,16 +113,28 @@
 
     __block MSIDAccountMetadataCacheItem *item;
     __block NSError *localError;
+    __block BOOL updatedItem = NO;
 
     dispatch_sync(_synchronizationQueue, ^{
         item = _memoryCache[key];
         if (!item)
         {
             item = [_dataSource accountMetadataWithKey:key serializer:_jsonSerializer context:context error:&localError];
+            updatedItem = item != nil;
         }
     });
     
     if (error && localError) *error = localError;
+    
+    if (!updatedItem)
+    {
+        return item;
+    }
+    
+    dispatch_barrier_async(_synchronizationQueue, ^{
+        _memoryCache[key] = item;
+    });
+    
     return item;
 }
 
@@ -137,9 +157,8 @@
     __block BOOL success = NO;
     __block NSError *localError;
     
-    dispatch_sync(_synchronizationQueue, ^{
+    dispatch_barrier_async(_synchronizationQueue, ^{
         [_memoryCache removeObjectForKey:key];
-        
         success = [_dataSource removeAccountMetadataForKey:key context:context error:&localError];
     });
     

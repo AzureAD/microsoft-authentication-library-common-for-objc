@@ -109,7 +109,7 @@
     
     BOOL result = YES;
     
-    result &= (!self.account && !cacheKey.account) || [self.account isEqual:cacheKey.account];
+    result &= (!self.account && !cacheKey.account) || [self.account isEqualToString:cacheKey.account];
     result &= (!self.service && !cacheKey.service) || [self.service isEqualToString:cacheKey.service];
     return result;
 }

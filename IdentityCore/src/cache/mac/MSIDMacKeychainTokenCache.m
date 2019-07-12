@@ -449,25 +449,22 @@ static dispatch_queue_t s_synchronizationQueue;
     assert(credential);
     assert(serializer);
     
-    if ([key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    [self updateLastModifiedForCredential:credential context:context];
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+    
+    /*
+     First step merge get latest from persistent cache and merge it with in-memory
+     Then write latest latest credential to in memory and write back to persistence
+     */
+    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+    
+    if (savedStorageItem)
     {
-        [self updateLastModifiedForCredential:credential context:context];
-        MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-        
-        /*
-         First step merge get latest from persistent cache and merge it with in-memory
-         Then write latest latest credential to in memory and write back to persistence
-         */
-        MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-        
-        if (savedStorageItem)
-        {
-            [storageItem mergeStorageItem:savedStorageItem];
-        }
-        
-        [storageItem storeCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
-        return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
+        [storageItem mergeStorageItem:savedStorageItem];
     }
+    
+    [storageItem storeCredential:credential forKey:(MSIDDefaultCredentialCacheKey *)key];
+    return [self saveStorageItem:storageItem key:key serializer:serializer context:context error:error];
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to save stored credential for key %@.", MSID_PII_LOG_MASKABLE(key));
     return NO;
@@ -559,35 +556,29 @@ static dispatch_queue_t s_synchronizationQueue;
 {
     NSArray<MSIDCredentialCacheItem *> *tokenList = @[];
     
-    if ([key isKindOfClass:([MSIDDefaultCredentialCacheKey class])])
+
+    /*
+     Sync in memory cache with persistent cache at the time of look up.
+     */
+    MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
+    MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+    
+    if (!key.isShared)
     {
         /*
-         Sync in memory cache with persistent cache at the time of look up.
+         For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
+         For AT/ID tokens, two apps sharing the same client id can write to the same entry to the keychain. In this case, it is possible that the first app is trying to read a credential which is not currently in its own memory but is written in persistence by the second app sharing the same client id. To find this credential, it is important to merge in memory cache with persistence.
          */
-        MSIDMacCredentialStorageItem *savedItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
-        MSIDMacCredentialStorageItem *currentItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-        
-        if (!key.isShared)
-        {
-            /*
-             For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
-             For AT/ID tokens, two apps sharing the same client id can write to the same entry to the keychain. In this case, it is possible that the first app is trying to read a credential which is not currently in its own memory but is written in persistence by the second app sharing the same client id. To find this credential, it is important to merge in memory cache with persistence.
-             */
-            tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
-            if ([tokenList count])
-            {
-                return tokenList;
-            }
-        }
-        
-        [currentItem mergeStorageItem:savedItem];
         tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
-        return tokenList;
+        if ([tokenList count])
+        {
+            return tokenList;
+        }
     }
-    else
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to look up stored credential as key passed is not of type [MSIDDefaultCredentialCacheKey class] - %@.", MSID_PII_LOG_MASKABLE(key));
-    }
+    
+    [currentItem mergeStorageItem:savedItem];
+    tokenList = [currentItem storedCredentialsForKey:(MSIDDefaultCredentialCacheKey *)key];
+    return tokenList;
     
     return tokenList;
 }
@@ -607,7 +598,7 @@ static dispatch_queue_t s_synchronizationQueue;
     
     MSIDMacCredentialStorageItem *storageItem = [self storageItemWithKey:key serializer:self.serializer context:context error:error];
     
-    if (storageItem && [key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    if (storageItem)
     {
         [storageItem removeStoredCredentialForKey:(MSIDDefaultCredentialCacheKey *)key];
         return [self saveStorageItem:storageItem key:key serializer:self.serializer context:context error:error];
