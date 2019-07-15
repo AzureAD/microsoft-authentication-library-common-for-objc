@@ -496,7 +496,6 @@ static dispatch_queue_t s_synchronizationQueue;
      */
     
     MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItemWithKey:key serializer:serializer context:context error:error];
     
     if (!key.isShared)
     {
@@ -507,11 +506,7 @@ static dispatch_queue_t s_synchronizationQueue;
         }
     }
     
-    if (savedStorageItem)
-    {
-        [storageItem mergeStorageItem:savedStorageItem];
-    }
-    
+    storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
     itemList = [storageItem storedItemsForKey:key];
     return itemList;
 }
@@ -754,8 +749,18 @@ static dispatch_queue_t s_synchronizationQueue;
                                                            context:(id<MSIDRequestContext>)context
                                                              error:(NSError **)error
 {
-    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     NSArray *itemList = [storageItem storedItemsForKey:key];
+    
+    /*
+     Merge in memory with persistence only if not found in memory to cover the case when 2 apps sharing the same clientId can modify the same entry in the keychain.
+     */
+    if (![itemList count])
+    {
+        storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+        itemList = [storageItem storedItemsForKey:key];
+    }
+    
     return itemList;
 }
 
@@ -786,8 +791,17 @@ static dispatch_queue_t s_synchronizationQueue;
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error
 {
-    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     NSArray *itemList = [storageItem storedItemsForKey:key];
+    
+    /*
+     Merge in memory with persistence only if not found in memory to cover the case when 2 apps sharing the same clientId can modify the same entry in the keychain.
+     */
+    if (![itemList count])
+    {
+        storageItem = [self syncStorageItem:key serializer:serializer context:context error:error];
+        itemList = [storageItem storedItemsForKey:key];
+    }
     
     if (itemList.count > 1)
     {

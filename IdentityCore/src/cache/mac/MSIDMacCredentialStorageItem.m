@@ -54,15 +54,11 @@ static NSString *keyDelimiter = @"-";
         
         if (type)
         {
-            NSMutableDictionary *items = nil;
+            NSMutableDictionary *items = [self.cacheObjects objectForKey:type];
             
-            if (![self.cacheObjects objectForKey:type])
+            if (!items)
             {
                 items = [NSMutableDictionary new];
-            }
-            else
-            {
-                items = [self.cacheObjects objectForKey:type];
             }
             
             [items setObject:item forKey:key];
@@ -116,6 +112,8 @@ static NSString *keyDelimiter = @"-";
                 }
             }
         }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
     });
 }
 
@@ -148,6 +146,8 @@ static NSString *keyDelimiter = @"-";
                 }
             }
         }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
     });
     
     return storedItems;
@@ -187,9 +187,9 @@ static NSString *keyDelimiter = @"-";
                     
                     if (itemDict)
                     {
-                        id<MSIDJsonSerializable, MSIDKeyGenerator> storedItem = [self getItemTypeFromString:itemDict forKey:typeKey error:error];
+                        id<MSIDJsonSerializable, MSIDKeyGenerator> storedItem = [self getItemWithType:itemDict forKey:typeKey error:error];
                         
-                        if (storedItem && [storedItem conformsToProtocol:@protocol(MSIDJsonSerializable)] && [storedItem conformsToProtocol:@protocol(MSIDKeyGenerator)])
+                        if (storedItem)
                         {
                             MSIDCacheKey *storedItemKey = [storedItem generateCacheKey];
                             
@@ -297,7 +297,7 @@ static NSString *keyDelimiter = @"-";
     return [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
 }
 
-- (id<MSIDJsonSerializable, MSIDKeyGenerator>)getItemTypeFromString:(NSDictionary *)itemDict forKey:(NSString *)typeKey error:(NSError * __autoreleasing *)error
+- (id<MSIDJsonSerializable, MSIDKeyGenerator>)getItemWithType:(NSDictionary *)itemDict forKey:(NSString *)typeKey error:(NSError * __autoreleasing *)error
 {
     if ([typeKey isEqualToString:MSID_ACCESS_TOKEN_CACHE_TYPE])
     {
@@ -309,7 +309,7 @@ static NSString *keyDelimiter = @"-";
     }
     else if([typeKey isEqualToString:MSID_REFRESH_TOKEN_CACHE_TYPE])
     {
-         return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+        return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
     else if([typeKey isEqualToString:MSID_ACCOUNT_CACHE_TYPE])
     {
