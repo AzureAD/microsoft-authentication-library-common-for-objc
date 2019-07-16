@@ -74,4 +74,9 @@ static NSInteger kAccountTypePrefix = 1000;
     return self.realm.msidTrimmedString.lowercaseString;
 }
 
+- (BOOL)isShared
+{
+    return YES;
+}
+
 @end

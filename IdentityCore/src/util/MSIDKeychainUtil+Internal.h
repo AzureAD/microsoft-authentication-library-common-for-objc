@@ -21,13 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDKeychainUtil.h"
 
-@class MSIDAccountCacheItem;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDAccountItemSerializer <NSObject>
+@interface MSIDKeychainUtil ()
 
-- (NSData *)serializeAccountCacheItem:(MSIDAccountCacheItem *)item;
-- (MSIDAccountCacheItem *)deserializeAccountCacheItem:(NSData *)data;
+@property (readwrite, nullable) NSString *teamId;
 
 @end
+
+NS_ASSUME_NONNULL_END

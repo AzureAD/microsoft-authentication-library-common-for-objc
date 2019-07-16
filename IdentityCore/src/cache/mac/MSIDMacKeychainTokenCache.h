@@ -22,10 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
 // TODO: Use a subclass or protocol: https://identitydivision.visualstudio.com/DevEx/_workitems/edit/660964
-@interface MSIDMacKeychainTokenCache : NSObject <MSIDTokenCacheDataSource>
+@interface MSIDMacKeychainTokenCache : NSObject <MSIDExtendedTokenCacheDataSource>
 
 /*!
  The name of the group to be used by default when creating an instance of MSIDKeychainTokenCache,

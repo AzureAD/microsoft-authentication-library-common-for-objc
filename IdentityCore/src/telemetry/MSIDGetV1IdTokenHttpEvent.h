@@ -20,13 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#import <Foundation/Foundation.h>
 
-@class MSIDCredentialCacheItem;
+#import "MSIDTelemetryBaseEvent.h"
 
-@protocol MSIDCredentialItemSerializer <NSObject>
+NS_ASSUME_NONNULL_BEGIN
 
-- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
-- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
+@interface MSIDGetV1IdTokenHttpEvent : MSIDTelemetryBaseEvent
 
 @end
+
+NS_ASSUME_NONNULL_END

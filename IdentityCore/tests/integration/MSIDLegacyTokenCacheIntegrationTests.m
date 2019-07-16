@@ -40,7 +40,6 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDAccountIdentifier.h"
-#import "NSString+MSIDTestUtil.h"
 #import "MSIDTestCacheAccessorHelper.h"
 
 @interface MSIDLegacyTokenCacheTests : XCTestCase
@@ -48,7 +47,7 @@
     MSIDLegacyTokenCacheAccessor *_legacyAccessor;
     MSIDLegacyTokenCacheAccessor *_nonSSOAccessor;
     MSIDDefaultTokenCacheAccessor *_otherAccessor;
-    id<MSIDTokenCacheDataSource> _dataSource;
+    id<MSIDExtendedTokenCacheDataSource> _dataSource;
 }
 
 @end
@@ -76,7 +75,7 @@
 {
     [super tearDown];
 
-    [_dataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
+    [_dataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
 }
 
 #pragma mark - Saving
@@ -211,7 +210,7 @@
     // storageAuthority is a property set by cache accessor used for latter token deletion,
     // while token directly from network response doesn't have storageAuthority
     // So here set it manually for easy comparison
-    token.storageAuthority = token.authority;
+    token.storageEnvironment = token.environment;
     XCTAssertEqualObjects(refreshTokensInCache[0], token);
 }
 
@@ -263,7 +262,7 @@
     // storageAuthority is a property set by cache accessor used for latter token deletion,
     // while token directly from network response doesn't have storageAuthority
     // So here set it manually for easy comparison
-    secondToken.storageAuthority = secondToken.authority;
+    secondToken.storageEnvironment = secondToken.environment;
     XCTAssertEqualObjects(refreshTokensInCache[0], secondToken);
 }
 
@@ -316,8 +315,9 @@
                                            error:&error];
     XCTAssertNil(error);
     
-    account.displayableId = nil;
-
+    account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
+                                                     homeAccountId:@"some id"];
+    
     MSIDLegacyAccessToken *token = [_legacyAccessor getAccessTokenForAccount:account
                                                                configuration:[MSIDTestConfiguration v1DefaultConfiguration]
                                                                      context:nil
@@ -443,7 +443,8 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority.url, [NSURL URLWithString:DEFAULT_TEST_AUTHORITY]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"common");
     NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
 }
@@ -592,7 +593,7 @@
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
-    token.storageAuthority = token.authority;
+    token.storageEnvironment = token.environment;
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:nil];
@@ -624,7 +625,7 @@
     // Save first token
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *firstToken = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
-    firstToken.storageAuthority = firstToken.authority;
+    firstToken.storageEnvironment = firstToken.environment;
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:nil];
@@ -674,7 +675,7 @@
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:[MSIDTestConfiguration v1DefaultConfiguration]];
-    token.storageAuthority = token.authority;
+    token.storageEnvironment = token.environment;
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
@@ -714,7 +715,7 @@
 
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
     MSIDRefreshToken *token = [factory legacyRefreshTokenFromResponse:[MSIDTestTokenResponse v1DefaultTokenResponse] configuration:organizationConfiguration];
-    token.storageAuthority = token.authority;
+    token.storageEnvironment = token.environment;
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                               homeAccountId:@"1.1234-5678-90abcdefg"];
@@ -743,9 +744,9 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(returnedToken);
-    token.storageAuthority = [@"https://login.microsoftonline.com/common" authority];
+    token.realm = @"common";
     XCTAssertEqualObjects(token, returnedToken);
-    XCTAssertEqualObjects(returnedToken.storageAuthority, [@"https://login.microsoftonline.com/common" authority]);
+    XCTAssertEqualObjects(returnedToken.storageEnvironment, @"login.microsoftonline.com");
 }
 
 - (void)testGetSharedRTForAccountAfterSaving_whenConsumerAuthority_shouldReturnNil
@@ -797,8 +798,9 @@
     XCTAssertNil(error);
     XCTAssertTrue(result);
     
-    account.displayableId = @"user Id 2";
-
+    account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user Id 2"
+                                                     homeAccountId:nil];
+    
     MSIDTokenResponse *response = [MSIDTestTokenResponse v1TokenResponseWithAT:@"at"
                                                                             rt:@"rt 2"
                                                                       resource:DEFAULT_TEST_RESOURCE
@@ -895,7 +897,7 @@
     // storageAuthority is a property set by cache accessor used for latter token deletion,
     // while token directly from network response doesn't have storageAuthority
     // So here set it manually for easy comparison
-    token.storageAuthority = token.authority;
+    token.storageEnvironment = token.environment;
     XCTAssertEqualObjects(allRTs[0], token);
 }
 

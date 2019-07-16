@@ -49,6 +49,7 @@
 #import "MSIDAuthority.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAADAuthority.h"
 
 @interface MSIDAADV2Oauth2FactoryTests : XCTestCase
 
@@ -203,13 +204,14 @@
     
     MSIDBaseToken *token = [factory baseTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
         
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
 }
 
 - (void)testAccessTokenFromResponse_whenAADV2TokenResponse_shouldReturnToken
@@ -221,7 +223,8 @@
     
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -246,13 +249,14 @@
     
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
     XCTAssertNil(token.familyId);
 }
@@ -266,13 +270,14 @@
     
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
 
-    XCTAssertEqualObjects(token.additionalServerInfo, [NSMutableDictionary dictionary]);
+    XCTAssertNil(token.additionalServerInfo);
     
     NSString *idToken = [MSIDTestIdTokenUtil defaultV2IdToken];
     XCTAssertEqualObjects(token.rawIdToken, idToken);
@@ -287,7 +292,8 @@
     
     MSIDLegacySingleResourceToken *token = [factory legacyTokenFromResponse:response configuration:configuration];
     
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(token.realm, @"common");
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
     
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -317,7 +323,8 @@
     NSString *scopeInResposne = @"user.read";
     
     // construct configuration
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:nil redirectUri:nil clientId:nil target:scopeInRequest];
+    MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] rawTenant:nil context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:nil target:scopeInRequest];
     
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -345,7 +352,8 @@
     NSString *scopeInResposne = @"user.read";
     
     // construct configuration
-    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:nil redirectUri:nil clientId:nil target:scopeInRequest];
+    MSIDAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] rawTenant:nil context:nil error:nil];
+    MSIDConfiguration *configuration = [[MSIDConfiguration alloc] initWithAuthority:authority redirectUri:nil clientId:nil target:scopeInRequest];
     
     // construct response
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -379,7 +387,7 @@
     
     MSIDConfiguration *configuration =
 
-    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY authority]
+    [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY aadAuthority]
                                      redirectUri:@"redirect uri"
                                         clientId:@"client id"
                                           target:@"target"];
@@ -393,7 +401,8 @@
     XCTAssertNil(account.givenName, @"Eric");
     XCTAssertNil(account.familyName, @"Cartman");
     XCTAssertEqualObjects(account.name, @"Eric Cartman");
-    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com");
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"contoso.com");
 }
 
 @end

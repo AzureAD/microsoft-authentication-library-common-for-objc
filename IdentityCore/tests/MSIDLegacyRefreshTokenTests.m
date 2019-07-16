@@ -26,7 +26,6 @@
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDTestIdTokenUtil.h"
-#import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDLegacyRefreshTokenTests : XCTestCase
@@ -139,7 +138,7 @@
     MSIDCredentialCacheItem *cacheItem = [MSIDCredentialCacheItem new];
     cacheItem.credentialType = MSIDRefreshTokenType;
     cacheItem.environment = @"login.microsoftonline.com";
-    cacheItem.additionalInfo = @{@"test": @"test2"};
+    cacheItem.speInfo = @"test";
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.clientId = @"client id";
     cacheItem.secret = @"token";
@@ -147,9 +146,11 @@
     
     MSIDLegacyRefreshToken *token = [[MSIDLegacyRefreshToken alloc] initWithTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [@"https://login.microsoftonline.com/common" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
+    XCTAssertNil(token.realm);
     XCTAssertEqualObjects(token.clientId, @"client id");
-    XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
+    XCTAssertEqualObjects(token.speInfo, @"test");
+    XCTAssertNil(token.additionalServerInfo);
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(token.familyId, @"1");
     
@@ -171,12 +172,14 @@
 
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Test" upn:@"testuser@upn.com" oid:nil tenantId:@"contoso.com"];
     cacheItem.idToken = idToken;
-    cacheItem.authority = [NSURL URLWithString:@"https://login.windows.net/contoso.com"];
+    cacheItem.realm = @"contoso.com";
+    cacheItem.environment = @"login.windows.net";
     cacheItem.familyId = @"1";
 
     MSIDLegacyRefreshToken *token = [[MSIDLegacyRefreshToken alloc] initWithLegacyTokenCacheItem:cacheItem];
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.authority, [@"https://login.windows.net/contoso.com" authority]);
+    XCTAssertEqualObjects(token.environment, @"login.windows.net");
+    XCTAssertEqualObjects(token.realm, @"contoso.com");
     XCTAssertEqualObjects(token.clientId, @"client id");
     XCTAssertEqualObjects(token.additionalServerInfo, @{@"test": @"test2"});
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"uid.utid");
@@ -195,7 +198,8 @@
 - (MSIDLegacyRefreshToken *)createToken
 {
     MSIDLegacyRefreshToken *token = [MSIDLegacyRefreshToken new];
-    token.authority = [@"https://contoso.com/common" authority];
+    token.environment = @"contoso.com";
+    token.realm = @"common";
     token.clientId = @"some clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
     token.idToken = @"idtoken";

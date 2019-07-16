@@ -21,14 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAADV2Oauth2Factory.h"
 
-@class MSIDAppMetadataCacheItem;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDAppMetadataItemSerializer <NSObject>
-
-- (NSData *)serializeAppMetadataCacheItem:(MSIDAppMetadataCacheItem *)item;
-- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data;
+@interface MSIDAADV2Oauth2FactoryForV1Request : MSIDAADV2Oauth2Factory
 
 @end
 
+NS_ASSUME_NONNULL_END
