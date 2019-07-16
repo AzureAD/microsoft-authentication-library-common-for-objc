@@ -73,17 +73,24 @@ static NSString *keyDelimiter = @"-";
         
         for (NSString *typeKey in storageItem.cacheObjects)
         {
-            NSMutableDictionary *typeDict = [storageItem.cacheObjects objectForKey:typeKey];
-            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:typeKey];
+            NSMutableDictionary *typeDict = [storageItem.cacheObjects msidObjectForKey:typeKey ofClass:[NSDictionary class]];
+            NSMutableDictionary *subDict = [self.cacheObjects msidObjectForKey:typeKey ofClass:[NSDictionary class]];
             
-            if (!subDict)
+            if (typeDict)
             {
-                [self.cacheObjects setObject:typeDict forKey:typeKey];
+                if (!subDict)
+                {
+                    [self.cacheObjects setObject:typeDict forKey:typeKey];
+                }
+                else
+                {
+                    [subDict addEntriesFromDictionary:typeDict];
+                    [self.cacheObjects setObject:subDict forKey:typeKey];
+                }
             }
             else
             {
-                [subDict addEntriesFromDictionary:typeDict];
-                [self.cacheObjects setObject:subDict forKey:typeKey];
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get type dictionary from key for stored credential.");
             }
         }
     });
@@ -112,8 +119,10 @@ static NSString *keyDelimiter = @"-";
                 }
             }
         }
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+        }
     });
 }
 
@@ -146,8 +155,10 @@ static NSString *keyDelimiter = @"-";
                 }
             }
         }
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+        }
     });
     
     return storedItems;
@@ -235,7 +246,7 @@ static NSString *keyDelimiter = @"-";
                 {
                     NSDictionary *cacheItemDict = [cacheItem jsonDictionary];
                     
-                    if (cacheItemDict && [cacheItemDict isKindOfClass:[NSDictionary class]])
+                    if (cacheItemDict)
                     {
                         [typeDict setObject:cacheItemDict forKey:[self getItemKey:cacheKey]];
                     }

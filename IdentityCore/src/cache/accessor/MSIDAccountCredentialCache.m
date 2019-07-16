@@ -249,6 +249,7 @@
     }
     
     // Get previous account, so we don't lose any fields
+    key.username = nil; //This is excluded from the key to find the account in the case the username of the account has changed.
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
     
     if (previousAccount)
