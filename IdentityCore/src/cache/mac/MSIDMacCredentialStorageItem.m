@@ -47,71 +47,132 @@ static NSString *keyDelimiter = @"-";
     return self;
 }
 
-- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDCacheKey *)key
+- (void)storeItem:(id<MSIDJsonSerializable>)item forKey:(MSIDCacheKey *)key
 {
     dispatch_barrier_async(self.queue, ^{
-        [self.cacheObjects setObject:credential forKey:key];
+        NSString *type = [self getItemTypeFromCacheKey:key];
+        
+        if (type)
+        {
+            NSMutableDictionary *items = [self.cacheObjects objectForKey:type];
+            
+            if (!items)
+            {
+                items = [NSMutableDictionary new];
+            }
+            
+            [items setObject:item forKey:key];
+            [self.cacheObjects setObject:items forKey:type];
+        }
     });
 }
 
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem
 {
     dispatch_barrier_async(self.queue, ^{
-        for (MSIDCacheKey *key in storageItem.cacheObjects)
+        
+        for (NSString *typeKey in storageItem.cacheObjects)
         {
-            MSIDCredentialCacheItem *credential = [storageItem.cacheObjects objectForKey:key];
-            if (credential)
+            NSMutableDictionary *typeDict = [storageItem.cacheObjects msidObjectForKey:typeKey ofClass:[NSDictionary class]];
+            NSMutableDictionary *subDict = [self.cacheObjects msidObjectForKey:typeKey ofClass:[NSDictionary class]];
+            
+            if (typeDict)
             {
-                [self.cacheObjects setObject:credential forKey:key];
+                if (!subDict)
+                {
+                    [self.cacheObjects setObject:typeDict forKey:typeKey];
+                }
+                else
+                {
+                    [subDict addEntriesFromDictionary:typeDict];
+                    [self.cacheObjects setObject:subDict forKey:typeKey];
+                }
             }
             else
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Credential is nil for key %@ while merging storage credentials.", MSID_PII_LOG_MASKABLE(key));
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get type dictionary from key for stored credential.");
             }
         }
     });
 }
 
-- (void)removeStoredCredentialForKey:(MSIDCacheKey *)key
+- (void)removeStoredItemForKey:(MSIDCacheKey *)key
 {
-    dispatch_barrier_sync(self.queue, ^{
-        [self.cacheObjects removeObjectForKey:key];
-    });
-}
-
-- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDCacheKey *)key
-{
-    __block NSMutableArray<MSIDCredentialCacheItem *> *credentials =  [[NSMutableArray alloc] init];
-    
-    dispatch_sync(self.queue, ^{
-        if (key.account && key.service)
+    dispatch_barrier_async(self.queue, ^{
+        NSString *type = [self getItemTypeFromCacheKey:key];
+        
+        if (type)
         {
-            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:key];
-            if (credential)
+            NSMutableDictionary *typeDict = [self.cacheObjects msidObjectForKey:type ofClass:[NSDictionary class]];
+            if (typeDict)
             {
-                [credentials addObject:credential];
+                [typeDict removeObjectForKey:key];
+                
+                //Update the bucket only if it has one or more items.
+                if ([typeDict count])
+                {
+                    [self.cacheObjects setObject:typeDict forKey:type];
+                }
+                else
+                {
+                    [self.cacheObjects removeObjectForKey:type];
+                }
             }
         }
         else
         {
-            NSArray *storedKeys = [self.cacheObjects allKeys];
-            NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:key]];
-            for (MSIDCacheKey *key in filteredKeys)
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+        }
+    });
+}
+
+- (NSArray<id<MSIDJsonSerializable>> *)storedItemsForKey:(MSIDCacheKey *)key
+{
+    __block NSArray *storedItems = [[NSArray alloc] init];
+    
+    dispatch_sync(self.queue, ^{
+        
+        NSString *type = [self getItemTypeFromCacheKey:key];
+        
+        if (type)
+        {
+            NSMutableDictionary *typeDict = [self.cacheObjects msidObjectForKey:type ofClass:[NSDictionary class]];
+            
+            if (typeDict)
             {
-                MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:key];
-                if (credential)
+                if (key.account && key.service)
                 {
-                    [credentials addObject:credential];
+                    id<MSIDJsonSerializable> item = [typeDict objectForKey:key];
+                    if (item)
+                    {
+                        storedItems = @[item];
+                    }
                 }
                 else
                 {
-                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Credential is nil for key %@.", MSID_PII_LOG_MASKABLE(key));
+                    // If passed key is not exact match, filter storage items based on given key attributes.
+                    storedItems = [self getFilteredItems:typeDict forKey:key];
                 }
             }
         }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+        }
     });
     
-    return credentials;
+    return storedItems;
+}
+
+- (NSUInteger)count
+{
+    __block NSUInteger count;
+    
+    dispatch_sync(self.queue, ^{
+        count = (NSUInteger)[self.cacheObjects count];
+    });
+    
+    return count;
 }
 
 /*
@@ -121,38 +182,49 @@ static NSString *keyDelimiter = @"-";
                                  error:(NSError * __autoreleasing *)error
 {
     MSIDMacCredentialStorageItem *instance = [self init];
-    
+
     if (instance)
     {
-        for (NSString *credentialKey in json)
+        for (NSString *typeKey in json)
         {
-            NSDictionary *credentialDict = [json msidObjectForKey:credentialKey ofClass:[NSDictionary class]];
+            NSMutableDictionary *typeDict = [NSMutableDictionary dictionary];
+            NSDictionary *subDict = [json msidObjectForKey:typeKey ofClass:[NSDictionary class]];
             
-            if (credentialDict)
+            if (subDict)
             {
-                MSIDCredentialCacheItem *credential = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:credentialDict error:error];
-                
-                if (credential)
+                for (NSString *itemKey in subDict)
                 {
-                    MSIDCacheKey *storedCredentialKey = [credential createCredentialCacheKey];
+                    NSDictionary *itemDict = [subDict msidObjectForKey:itemKey ofClass:[NSDictionary class]];
                     
-                    if (storedCredentialKey)
+                    if (itemDict)
                     {
-                        [instance.cacheObjects setObject:credential forKey:storedCredentialKey];
-                    }
-                    else
-                    {
-                        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create MSIDDefaultCredentialCacheKey from MSIDCredentialCacheitem.");
+                        id<MSIDJsonSerializable, MSIDKeyGenerator> storedItem = [self getItemWithType:itemDict forKey:typeKey error:error];
+                        
+                        if (storedItem)
+                        {
+                            MSIDCacheKey *storedItemKey = [storedItem generateCacheKey];
+                            
+                            if (storedItemKey)
+                            {
+                                [typeDict setObject:storedItem forKey:storedItemKey];
+                            }
+                            else
+                            {
+                                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create cache key from stored item.");
+                            }
+                        }
+                        else
+                        {
+                            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize storage item.");
+                        }
                     }
                 }
-                else
-                {
-                    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize credential cache item.");
-                }
+                
+                [instance.cacheObjects setObject:typeDict forKey:typeKey];
             }
         }
     }
-    
+
     return instance;
 }
 
@@ -161,25 +233,60 @@ static NSString *keyDelimiter = @"-";
     __block NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     dispatch_sync(self.queue, ^{
-        for (MSIDCacheKey *credentialKey in self.cacheObjects)
+        
+        for (NSString *typeKey in self.cacheObjects)
         {
-            MSIDCredentialCacheItem *credential = [self.cacheObjects objectForKey:credentialKey];
-            if (credential)
+            NSMutableDictionary *typeDict = [NSMutableDictionary dictionary];
+            NSMutableDictionary *subDict = [self.cacheObjects objectForKey:typeKey];
+            
+            for (MSIDCacheKey *cacheKey in subDict)
             {
-                NSDictionary *credentialDict = [credential jsonDictionary];
-                
-                if (credentialDict && [credentialDict isKindOfClass:[NSDictionary class]])
+                id<MSIDJsonSerializable> cacheItem = [subDict objectForKey:cacheKey];
+                if (cacheItem && [cacheItem conformsToProtocol:@protocol(MSIDJsonSerializable)])
                 {
-                    [dictionary setObject:credentialDict forKey:[self getCredentialKey:credentialKey]];
+                    NSDictionary *cacheItemDict = [cacheItem jsonDictionary];
+                    
+                    if (cacheItemDict)
+                    {
+                        [typeDict setObject:cacheItemDict forKey:[self getItemKey:cacheKey]];
+                    }
+                }
+                else
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to serialize storage item.");
                 }
             }
+            
+            [dictionary setObject:typeDict forKey:typeKey];
         }
     });
     
     return dictionary;
 }
 
-- (NSString *)getCredentialKey:(MSIDCacheKey *)key
+- (NSArray<id<MSIDJsonSerializable>> *)getFilteredItems:(NSMutableDictionary *)itemDict forKey:(MSIDCacheKey *)cacheKey
+{
+    NSMutableArray *storedItems =  [[NSMutableArray alloc] init];
+    
+    NSArray *storedKeys = [itemDict allKeys];
+    NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:cacheKey]];
+    for (MSIDCacheKey *key in filteredKeys)
+    {
+        id<MSIDJsonSerializable> item = [itemDict objectForKey:key];
+        if (item)
+        {
+            [storedItems addObject:item];
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Item is nil for key %@.", MSID_PII_LOG_MASKABLE(key));
+        }
+    }
+    
+    return storedItems;
+}
+
+- (NSString *)getItemKey:(MSIDCacheKey *)key
 {
     return [NSString stringWithFormat:@"%@%@%@", key.account, keyDelimiter, key.service];
 }
@@ -199,6 +306,72 @@ static NSString *keyDelimiter = @"-";
     
     // Combine all sub-predicates with AND:
     return [NSCompoundPredicate andPredicateWithSubpredicates:subPredicates];
+}
+
+- (id<MSIDJsonSerializable, MSIDKeyGenerator>)getItemWithType:(NSDictionary *)itemDict forKey:(NSString *)typeKey error:(NSError * __autoreleasing *)error
+{
+    if ([typeKey isEqualToString:MSID_ACCESS_TOKEN_CACHE_TYPE])
+    {
+        return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if ([typeKey isEqualToString:MSID_ID_TOKEN_CACHE_TYPE])
+    {
+        return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if([typeKey isEqualToString:MSID_REFRESH_TOKEN_CACHE_TYPE])
+    {
+        return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if([typeKey isEqualToString:MSID_ACCOUNT_CACHE_TYPE])
+    {
+        return [[MSIDAccountCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if([typeKey isEqualToString:MSID_APPLICATION_METADATA_CACHE_TYPE])
+    {
+        return [[MSIDAppMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    else if([typeKey isEqualToString:MSID_ACCOUNT_METADATA_CACHE_TYPE])
+    {
+        return [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Unknown key type passed %@.", MSID_PII_LOG_MASKABLE(typeKey));
+    return nil;
+}
+
+- (NSString *)getItemTypeFromCacheKey:(MSIDCacheKey *)itemKey
+{
+    if ([itemKey isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
+    {
+        MSIDDefaultCredentialCacheKey *key = (MSIDDefaultCredentialCacheKey *)itemKey;
+        if (key.credentialType == MSIDIDTokenType)
+        {
+            return MSID_ID_TOKEN_CACHE_TYPE;
+        }
+        else if (key.credentialType == MSIDAccessTokenType)
+        {
+            return MSID_ACCESS_TOKEN_CACHE_TYPE;
+        }
+        else if (key.credentialType == MSIDRefreshTokenType)
+        {
+            return MSID_REFRESH_TOKEN_CACHE_TYPE;
+        }
+    }
+    else if ([itemKey isKindOfClass:[MSIDDefaultAccountCacheKey class]])
+    {
+        return MSID_ACCOUNT_CACHE_TYPE;
+    }
+    else if ([itemKey isKindOfClass:[MSIDAppMetadataCacheKey class]])
+    {
+        return MSID_APPLICATION_METADATA_CACHE_TYPE;
+    }
+    else if ([itemKey isKindOfClass:[MSIDAccountMetadataCacheKey class]])
+    {
+        return MSID_ACCOUNT_METADATA_CACHE_TYPE;
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Unknown key type passed %@.", MSID_PII_LOG_MASKABLE(itemKey));
+    return nil;
 }
 
 @end

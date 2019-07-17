@@ -24,11 +24,12 @@
 #import "MSIDCredentialType.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDJsonSerializable.h"
+#import "MSIDKeyGenerator.h"
 
 @class MSIDBaseToken;
 @class MSIDClientInfo;
 
-@interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
+@interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
 // Client id
 @property (readwrite, nonnull) NSString *clientId;
@@ -88,7 +89,5 @@
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions;
 
 - (BOOL)isTombstone;
-
-- (nullable MSIDDefaultCredentialCacheKey *)createCredentialCacheKey;
 
 @end
