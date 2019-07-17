@@ -24,22 +24,29 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDCredentialCacheItem.h"
+#import "MSIDAccountCacheItem.h"
 #import "MSIDDefaultCredentialCacheKey.h"
+#import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDMacCredentialStorageItem : NSObject <MSIDJsonSerializable>
 
-- (void)storeCredential:(MSIDCredentialCacheItem *)credential forKey:(MSIDCacheKey *)key;
+- (void)storeItem:(id<MSIDJsonSerializable>)item forKey:(MSIDCacheKey *)key;
 
 /*
  This api is thread safe only if an immutable object is passed as parameter.
  */
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem;
 
-- (NSArray<MSIDCredentialCacheItem *> *)storedCredentialsForKey:(MSIDCacheKey *)key;
+- (NSArray<id<MSIDJsonSerializable>> *)storedItemsForKey:(MSIDCacheKey *)key;
 
-- (void)removeStoredCredentialForKey:(MSIDCacheKey *)key;
+- (void)removeStoredItemForKey:(MSIDCacheKey *)key;
+
+- (NSUInteger)count;
 
 @end
 

@@ -368,13 +368,11 @@
 
     // Verify reading multiple accounts returns the expected accounts:
     NSError *error;
-    NSArray<MSIDAccountCacheItem *> *accountList;
-    accountList = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
+    NSArray<MSIDAccountCacheItem *> *foundAccounts = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
     XCTAssertNil(error);
-    NSOrderedSet *foundAccounts = [[NSOrderedSet alloc] initWithArray:accountList];
-    NSOrderedSet *expectedAccounts = [[NSOrderedSet alloc] initWithArray:@[ _accountA, _accountB, _accountC ]];
-    XCTAssertEqualObjects(foundAccounts, expectedAccounts);
-
+    NSArray<MSIDAccountCacheItem *> *expectedAccounts = [[NSArray alloc] initWithObjects:_accountA, _accountB, _accountC, nil];
+    BOOL isAccountListSame = [self arraysContainSameObjects:foundAccounts andOtherArray:expectedAccounts];
+    XCTAssertTrue(isAccountListSame);
     [self multiAccountTestCleanup];
 }
 
@@ -384,16 +382,15 @@
 
     // Verify a smaller subset is retrieved with a different query
     NSError *error;
-    NSArray<MSIDAccountCacheItem *> *accountList;
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.realm = _accountA.realm;
     query.accountType = _accountA.accountType;
-    accountList = [_cache getAccountsWithQuery:query context:nil error:&error];
+    NSArray<MSIDAccountCacheItem *> *foundAccounts = [_cache getAccountsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
-    NSOrderedSet *foundAccounts = [[NSOrderedSet alloc] initWithArray:accountList];
-    NSOrderedSet *expectedAccounts = [[NSOrderedSet alloc] initWithArray:@[ _accountA, _accountB ]];
-    XCTAssertEqualObjects(foundAccounts, expectedAccounts);
-
+    NSArray<MSIDAccountCacheItem *> *expectedAccounts = [[NSArray alloc] initWithObjects:_accountA, _accountB, nil];
+    BOOL isAccountListSame = [self arraysContainSameObjects:foundAccounts andOtherArray:expectedAccounts];
+    XCTAssertTrue(isAccountListSame);
+    
     [self multiAccountTestCleanup];
 }
 
@@ -749,6 +746,25 @@
     item.environment = @"login.microsoftonline.com";
     item.familyId = familyId;
     return item;
+}
+
+- (BOOL)arraysContainSameObjects:(NSArray *)array1 andOtherArray:(NSArray *)array2 {
+    // quit if array count is different
+    if ([array1 count] != [array2 count]) return NO;
+    
+    BOOL bothArraysContainTheSameObjects = YES;
+    
+    for (id objectInArray1 in array1) {
+        
+        if (![array2 containsObject:objectInArray1])
+        {
+            bothArraysContainTheSameObjects = NO;
+            break;
+        }
+        
+    }
+    
+    return bothArraysContainTheSameObjects;
 }
 
 @end
