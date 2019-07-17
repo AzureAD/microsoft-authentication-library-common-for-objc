@@ -185,13 +185,6 @@ static NSDateFormatter *s_dateFormatter = nil;
     });
 }
 
-- (id)traceFile:(__unused NSString *)filename
-       function:(__unused NSString *)function
-{
-    // Unimplemented
-    return nil;
-}
-
 - (NSString*)stringForLogLevel:(MSIDLogLevel)level
 {
     switch (level)
