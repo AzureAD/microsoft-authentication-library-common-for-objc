@@ -98,7 +98,7 @@ static NSString *keyDelimiter = @"-";
 
 - (void)removeStoredItemForKey:(MSIDCacheKey *)key
 {
-    dispatch_barrier_sync(self.queue, ^{
+    dispatch_barrier_async(self.queue, ^{
         NSString *type = [self getItemTypeFromCacheKey:key];
         
         if (type)
