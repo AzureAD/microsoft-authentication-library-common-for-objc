@@ -51,6 +51,7 @@ static long s_maxQueueSize = 1000;
     // will most likely be too noisy for most usage.
     _level = MSIDLogLevelInfo;
     _PiiLoggingEnabled = NO;
+    _SourceLineLoggingEnabled = NO;
     
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlogger-%@", [NSUUID UUID].UUIDString];
     _loggerQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
@@ -151,7 +152,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             NSString *sdkVersion = [MSIDVersion sdkVersion];
             
             NSString *sourceInfo = @"";
-            if (filename.length)
+            if (self.SourceLineLoggingEnabled && filename.length)
             {
                 sourceInfo = [NSString stringWithFormat:@" %@:%lu:", filename.lastPathComponent, lineNumber];
             }
