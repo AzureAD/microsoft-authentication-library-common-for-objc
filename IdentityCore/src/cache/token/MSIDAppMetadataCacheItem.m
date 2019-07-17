@@ -23,6 +23,7 @@
 
 #import "MSIDAppMetadataCacheItem.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDAppMetadataCacheKey.h"
 
 @interface MSIDAppMetadataCacheItem()
 
@@ -144,6 +145,16 @@
     }
     
     return YES;
+}
+
+- (nullable MSIDCacheKey *)generateCacheKey
+{
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:self.clientId
+                                                                         environment:self.environment
+                                                                            familyId:self.familyId
+                                                                         generalType:MSIDAppMetadataType];
+    
+    return key;
 }
 
 #pragma mark - Description

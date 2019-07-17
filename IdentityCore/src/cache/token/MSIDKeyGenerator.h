@@ -21,23 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonSerializable.h"
-#import "MSIDKeyGenerator.h"
+#import <Foundation/Foundation.h>
+#import "MSIDCacheKey.h"
 
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readonly) NSString *homeAccountId;
-@property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic, readonly) NSDictionary *internalMap;
+@protocol MSIDKeyGenerator <NSObject>
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
-
-- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
-                             clientId:(NSString *)clientId;
-
-// Authority map caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error;
-- (NSURL *)cachedURL:(NSURL *)requestURL;
+- (nullable MSIDCacheKey *)generateCacheKey;
 
 @end
+
+NS_ASSUME_NONNULL_END

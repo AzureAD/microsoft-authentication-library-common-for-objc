@@ -191,4 +191,14 @@
     return dictionary;
 }
 
+- (nullable MSIDCacheKey *)generateCacheKey
+{
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:self.homeAccountId
+                                                                                    environment:self.environment
+                                                                                          realm:self.realm
+                                                                                           type:self.accountType];
+    key.username = self.username;
+    return key;
+}
+
 @end

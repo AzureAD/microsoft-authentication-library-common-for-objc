@@ -329,7 +329,7 @@
     return [self.secret isEqualToString:@"<tombstone>"];
 }
 
-- (nullable MSIDDefaultCredentialCacheKey *)createCredentialCacheKey
+- (nullable MSIDCacheKey *)generateCacheKey
 {
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:self.homeAccountId
                                                                                           environment:self.environment
