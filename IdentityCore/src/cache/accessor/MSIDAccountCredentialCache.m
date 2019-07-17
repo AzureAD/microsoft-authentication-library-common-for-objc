@@ -222,7 +222,15 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
     
-    MSIDCacheKey *key = [credential generateCacheKey];
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
+    
+    key.familyId = credential.familyId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+    key.enrollmentId = credential.enrollmentId;
     
     return [_dataSource saveToken:credential
                               key:key
@@ -240,16 +248,11 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving account %@", MSID_PII_LOG_MASKABLE(account));
 
-    MSIDDefaultAccountCacheKey *key = (MSIDDefaultAccountCacheKey *)[account generateCacheKey];
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
+                                                                                    environment:account.environment
+                                                                                          realm:account.realm
+                                                                                           type:account.accountType];
     
-    if (![key isKindOfClass:[MSIDDefaultAccountCacheKey class]])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Save account called for key which is not of type {MSIDDefaultAccountCacheKey}.");
-        return NO;
-    }
-    
-    // Get previous account, so we don't lose any fields
-    key.username = nil; //This is excluded from the key to find the account in the case the username of the account has changed.
     MSIDAccountCacheItem *previousAccount = [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
     
     if (previousAccount)
@@ -307,15 +310,18 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
 
-    MSIDDefaultCredentialCacheKey *key = (MSIDDefaultCredentialCacheKey *)[credential generateCacheKey];
-    if (![key isKindOfClass:[MSIDDefaultCredentialCacheKey class]])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Remove credential called for key which is not of type {MSIDDefaultCredentialCacheKey}.");
-        return NO;
-    }
-
-    // TODO: appKey is not set in saveCredential but set here.
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
+                                                                                          environment:credential.environment
+                                                                                             clientId:credential.clientId
+                                                                                       credentialType:credential.credentialType];
+    
+    
+    key.familyId = credential.familyId;
+    key.realm = credential.realm;
+    key.target = credential.target;
+    key.enrollmentId = credential.enrollmentId;
     key.appKey = credential.appKey;
+    
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
     
     if (result && credential.credentialType == MSIDRefreshTokenType)
@@ -353,7 +359,11 @@
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, MSID_PII_LOG_MASKABLE(account.homeAccountId), MSID_PII_LOG_EMAIL(account.username));
 
-    MSIDCacheKey *key = [account generateCacheKey];
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
+                                                                                    environment:account.environment
+                                                                                          realm:account.realm
+                                                                                           type:account.accountType];
+    
     return [_dataSource removeAccountsWithKey:key context:context error:error];
 }
 
@@ -422,7 +432,10 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Saving app's metadata %@", MSID_PII_LOG_MASKABLE(metadata));
     
-    MSIDCacheKey *key = [metadata generateCacheKey];
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:metadata.clientId
+                                                                         environment:metadata.environment
+                                                                            familyId:metadata.familyId
+                                                                         generalType:MSIDAppMetadataType];
     
     return [_dataSource saveAppMetadata:metadata
                                     key:key
@@ -439,7 +452,11 @@
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Removing app metadata with clientId %@, environment %@", appMetadata.clientId, appMetadata.environment);
     
-    MSIDCacheKey *key = [appMetadata generateCacheKey];
+    MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata.clientId
+                                                                         environment:appMetadata.environment
+                                                                            familyId:appMetadata.familyId
+                                                                         generalType:MSIDAppMetadataType];
+    
     return [_dataSource removeMetadataItemsWithKey:key context:context error:error];
 }
 
