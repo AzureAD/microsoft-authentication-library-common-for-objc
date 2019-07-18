@@ -425,14 +425,14 @@ static dispatch_queue_t s_synchronizationQueue;
     return [self removeItemsWithKey:key context:context inBucket:MSID_ACCOUNT_CACHE_TYPE error:error];
 }
 
-- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(__unused MSIDCacheKey *)key serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     [self createUnimplementedError:error context:context];
     return nil;
 }
 
 
-- (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject serializer:(id<MSIDExtendedCacheItemSerializing>)serializer key:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (BOOL)saveJsonObject:(__unused MSIDJsonObject *)jsonObject serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer key:(__unused MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     [self createUnimplementedError:error context:context];
     return NO;
@@ -688,7 +688,7 @@ static dispatch_queue_t s_synchronizationQueue;
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
                    context:(id<MSIDRequestContext>)context
-                  inBucket:(NSString *)bucket
+                  inBucket:(__unused NSString *)bucket
                      error:(NSError **)error
 {
     MSID_TRACE;
