@@ -26,6 +26,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDAccountMetadataCacheKey.h"
 
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
@@ -137,6 +138,12 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     result &= ([_internalMap isEqualToDictionary:item->_internalMap]);
     
     return result;
+}
+
+- (nullable MSIDCacheKey *)generateCacheKey
+{
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:self.homeAccountId clientId:self.clientId];
+    return key;
 }
 
 #pragma mark - NSObject
