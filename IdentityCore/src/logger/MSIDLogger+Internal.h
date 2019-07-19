@@ -53,8 +53,6 @@
 #define MSID_PII_LOG_TRACKABLE(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
 #define MSID_PII_LOG_EMAIL(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
 
-#define MSID_TRACE // Unused
-
 @interface MSIDLogger (Internal)
 
 /*!
