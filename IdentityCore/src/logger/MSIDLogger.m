@@ -104,6 +104,7 @@ static NSDateFormatter *s_dateFormatter = nil;
          containsPII:(BOOL)containsPII
             filename:(NSString *)filename
           lineNumber:(NSUInteger)lineNumber
+            function:(__unused NSString *)function
               format:(NSString *)format, ...
 {
     if (!format) return;
