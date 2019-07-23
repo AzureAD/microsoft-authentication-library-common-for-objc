@@ -35,12 +35,13 @@
 #define _PII_NULLIFY(_OBJ) _OBJ ? @"(not-null)" : @"(null)"
 
 #define MSID_LOG_COMMON(_LVL, _CONTEXT, _CORRELATION_ID, _PII, _FMT, ...) \
-    [[MSIDLogger sharedLogger] logWithLevel:_LVL                      \
+    [[MSIDLogger sharedLogger] logWithLevel:_LVL                          \
                                         context:_CONTEXT                  \
                                   correlationId:_CORRELATION_ID           \
                                     containsPII:_PII                      \
                                        filename:@__FILE__                 \
                                      lineNumber:__LINE__                  \
+                                       function:@(__func__)               \
                                          format:_FMT, ##__VA_ARGS__]
 
 #define MSID_LOG_WITH_CTX(_LVL, _CONTEXT, _FMT, ...) MSID_LOG_COMMON(_LVL, _CONTEXT, nil, NO, _FMT, ##__VA_ARGS__)
@@ -51,8 +52,6 @@
 #define MSID_PII_LOG_MASKABLE(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER]
 #define MSID_PII_LOG_TRACKABLE(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
 #define MSID_PII_LOG_EMAIL(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
-
-#define MSID_TRACE // Unused
 
 @interface MSIDLogger (Internal)
 
@@ -74,7 +73,8 @@
          containsPII:(BOOL)containsPII
             filename:(NSString *)filename
           lineNumber:(NSUInteger)lineNumber
-              format:(NSString *)format, ... NS_FORMAT_FUNCTION(7, 8);
+            function:(NSString *)function
+              format:(NSString *)format, ... NS_FORMAT_FUNCTION(8, 9);
 
 - (void)logToken:(NSString *)token
        tokenType:(NSString *)tokenType

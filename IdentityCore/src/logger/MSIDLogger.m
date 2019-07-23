@@ -104,6 +104,7 @@ static NSDateFormatter *s_dateFormatter = nil;
          containsPII:(BOOL)containsPII
             filename:(NSString *)filename
           lineNumber:(NSUInteger)lineNumber
+            function:(NSString *)function
               format:(NSString *)format, ...
 {
     if (!format) return;
@@ -154,7 +155,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             NSString *sourceInfo = @"";
             if (self.SourceLineLoggingEnabled && filename.length)
             {
-                sourceInfo = [NSString stringWithFormat:@" %@:%lu:", filename.lastPathComponent, lineNumber];
+                sourceInfo = [NSString stringWithFormat:@" %@:%lu: %@", filename.lastPathComponent, lineNumber, function];
             }
             
             __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
