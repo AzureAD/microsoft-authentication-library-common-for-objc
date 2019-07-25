@@ -54,7 +54,10 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 }
 
 #pragma mark - URL caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error
+- (BOOL)setCachedURL:(NSURL *)cachedURL
+       forRequestURL:(NSURL *)requestURL
+       instanceAware:(BOOL)instanceAware
+               error:(NSError **)error
 {
     if ([NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
         || [NSString msidIsStringNilOrBlank:requestURL.absoluteString])
@@ -64,20 +67,30 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         return NO;
     }
     
-    NSMutableDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
+    NSMutableDictionary *urlMaps = _internalMap[AccountMetadataURLMapKey];
+    if (!urlMaps)
+    {
+        urlMaps = [NSMutableDictionary new];
+        _internalMap[AccountMetadataURLMapKey] = urlMaps;
+    }
+    
+    NSString *instanceAwareKey = [self instanceAwareKey:instanceAware];
+    NSMutableDictionary *urlMap = urlMaps[instanceAwareKey];
     if (!urlMap)
     {
         urlMap = [NSMutableDictionary new];
-        _internalMap[AccountMetadataURLMapKey] = urlMap;
+        urlMaps[instanceAwareKey] = urlMap;
     }
     
     urlMap[requestURL.absoluteString] = cachedURL.absoluteString;
     return YES;
 }
 
-- (NSURL *)cachedURL:(NSURL *)requestURL
+- (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
 {
-    NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
+    NSString *instanceAwareKey = [self instanceAwareKey:instanceAware];
+    NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey][instanceAwareKey];
+    
     return [NSURL URLWithString:urlMap[requestURL.absoluteString]];
 }
 
@@ -111,6 +124,11 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     dictionary[MSID_ACCOUNT_CACHE_KEY] = _internalMap;
     
     return dictionary;
+}
+
+- (NSString *)instanceAwareKey:(BOOL)instanceAware
+{
+    return instanceAware ? @"instance_aware-YES" : @"instance_aware-NO";
 }
 
 #pragma mark - Equal
