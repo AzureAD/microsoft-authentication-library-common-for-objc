@@ -197,7 +197,131 @@
  * Schema:
  https://identitydivision.visualstudio.com/DevEx/_git/AuthLibrariesApiReview?path=%2FUnifiedSchema%2FSchema.md&version=GBdev
  
- */
+*/
+
+/**
+Access Control Lists
+ 
+Since MSAL has no knowledge of which applications need to access
+our keychain cache, the application developer needs to specify
+a list of SecTrustedApplicationRef.  By default, if no such
+information was specified, MSAL will assume that the token cache
+will only be accessible by the current application.  In that case,
+the access control list of Type 1 and Type 3 will be the same.
+
+As stated above, there are three types of keychain items:
+ 1) Secret shareable artifacts (SSO credentials: Refresh tokens, other global credentials)
+ 2) Non-secret shareable artifacts (account metadata)
+ 3) Secret non-shareable artifacts (access tokens, ID tokens)
+ 
+Type 1 (Secret shareable artifacts) Keychain Item Attributes
+=============================================================
+SecAccess: {
+  SecACL[0] : {
+    Description: "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationChangeACL
+    }
+    TrustedApps: {
+       <List of SecTrustedApplicationRef supplied by the caller>
+    }
+  }
+  SecACL[1] : {
+    Description "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationEncrypt
+    }
+    TrustedApps: nil // denotes all applications have access
+  }
+  SecACL[2] : {
+    Description "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationDecrypt
+      kSecACLAuthorizationDerive
+      kSecACLAuthorizationExportClear
+      kSecACLAuthorizationExportWrapped
+      kSecACLAuthorizationMAC
+      kSecACLAuthorizationSign
+    }
+    TrustedApps: {
+      <List of SecTrustedApplicationRef supplied by the caller>
+    }
+  }
+}
+
+Type 2 (Non-secret shareable artifacts) Access Control List
+============================================================
+SecAccess: {
+  SecACL[0] : {
+    Description: "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationChangeACL
+    }
+    TrustedApps: {
+      <List of SecTrustedApplicationRef supplied by the caller>
+    }
+  }
+  SecACL[1] : {
+    Description "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationEncrypt
+    }
+    TrustedApps: nil // denotes all applications have access
+  }
+  SecACL[2] : {
+    Description "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationDecrypt
+      kSecACLAuthorizationDerive
+      kSecACLAuthorizationExportClear
+      kSecACLAuthorizationExportWrapped
+      kSecACLAuthorizationMAC
+      kSecACLAuthorizationSign
+    }
+    TrustedApps: nil // denotes all applications have access
+  }
+}
+ 
+
+Type 3 (Secret non-shareable artifacts) Access Control List
+============================================================
+SecAccess: {
+  SecACL[0] : {
+    Description: "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationChangeACL
+    }
+    TrustedApps: {
+       <SecTrustedApplicationRef denoting the current application>
+    }
+  }
+  SecACL[1] : {
+    Description "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationEncrypt
+    }
+    TrustedApps: nil // denotes all applications have access
+  }
+  SecACL[2] : {
+    Description "Microsoft Credentials"
+    Operations: {
+      kSecACLAuthorizationDecrypt
+      kSecACLAuthorizationDerive
+      kSecACLAuthorizationExportClear
+      kSecACLAuthorizationExportWrapped
+      kSecACLAuthorizationMAC
+      kSecACLAuthorizationSign
+    }
+    TrustedApps: {
+      <SecTrustedApplicationRef denoting the current application>
+    }
+  }
+}
+
+References(s):
+* Apple Keychain Services Access Control Lists:
+ https://developer.apple.com/documentation/security/ksecattraccess?language=objc
+*/
 
 static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstorage";
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
@@ -212,6 +336,11 @@ static dispatch_queue_t s_synchronizationQueue;
 @property MSIDMacCredentialStorageItem *appStorageItem;
 @property MSIDMacCredentialStorageItem *sharedStorageItem;
 @property MSIDCacheItemJsonSerializer *serializer;
+@property (readwrite) NSArray *trustedApplications;
+@property (readwrite, nonnull) id accessForCredentials;
+@property (readwrite, nonnull) id accessForAccounts;
+@property (readwrite, nonnull) id accessForAppMetadata;
+
 @end
 
 @implementation MSIDMacKeychainTokenCache
@@ -270,7 +399,8 @@ static dispatch_queue_t s_synchronizationQueue;
 // Initialize with defaultKeychainGroup
 - (nonnull instancetype)init
 {
-    return [self initWithGroup:s_defaultKeychainGroup];
+    return [self initWithGroupAndTrustedApplications:s_defaultKeychainGroup
+                                 trustedApplications:nil];
 }
 
 // Initialize with a keychain group
@@ -279,7 +409,8 @@ static dispatch_queue_t s_synchronizationQueue;
 // with other applications from the same vendor, the app will need to specify the
 // shared group here. If set to 'nil' the main bundle's identifier will be used instead.
 //
-- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
+- (nullable instancetype)initWithGroupAndTrustedApplications:(nullable NSString *)keychainGroup
+                                         trustedApplications:(NSArray*)trustedApplications
 {
     MSID_TRACE;
 
@@ -307,6 +438,36 @@ static dispatch_queue_t s_synchronizationQueue;
         self.keychainGroup = keychainGroup;
 
         if (!self.keychainGroup)
+        {
+            return nil;
+        }
+        
+        self.trustedApplications = trustedApplications;
+        if (self.trustedApplications == nil)
+        {
+            SecTrustedApplicationRef trustedApplication = nil;
+            OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
+            if (status != errSecSuccess)
+            {
+                return nil;
+            }
+            NSArray *trustedApplications = @[(__bridge_transfer id)trustedApplication];
+            self.trustedApplications = trustedApplications;
+        }
+        
+        self.accessForCredentials = [self accessCreateForCredentials:nil error:nil];
+        if (!self.accessForCredentials)
+        {
+            return nil;
+        }
+        
+        self.accessForAccounts = [self accessCreateForAccounts:nil error:nil];
+        if (!self.accessForAccounts)
+        {
+            return nil;
+        }
+        self.accessForAppMetadata = [self accessCreateForAppMetadata:nil error:nil];
+        if (!self.accessForAppMetadata)
         {
             return nil;
         }
@@ -869,6 +1030,119 @@ static dispatch_queue_t s_synchronizationQueue;
 
     return YES;
 }
+
+#pragma mark - Access Control Lists
+
+- (id) accessCreateWithChanceACL:(NSArray<id>*)trustedApplications
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError**)error
+{
+    SecAccessRef access;
+    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, &access);
+    if (status != errSecSuccess)
+    {
+        [self createError:@"Failed to remove multiple accounts from keychain"
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return nil;
+    }
+    if (![self accessSetACLTrustedApplications:access
+                           aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                           trustedApplications:self->_trustedApplications
+                                       context:context
+                                         error:error])
+    {
+        CFRelease(access);
+        return nil;
+    }
+    return CFBridgingRelease(access);
+}
+
+- (BOOL) accessSetACLTrustedApplications:(SecAccessRef)access
+                     aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
+                     trustedApplications:(NSArray<id>*)trustedApplications
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError**)error
+{
+    OSStatus status;
+    NSArray* acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
+    // TODO: handle case where tag is not found?
+    for (id acl in acls)
+    {
+        CFStringRef description;
+        CFArrayRef oldtrustedAppList;
+        SecKeychainPromptSelector selector;
+        
+        status = SecACLCopyContents((__bridge SecACLRef)acl, &oldtrustedAppList, &description, &selector);
+        if (status != errSecSuccess)
+        {
+            [self createError:@"Failed to get contents from ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            return NO;
+        }
+        
+        status = SecACLSetContents((__bridge SecACLRef)acl, (__bridge CFArrayRef)trustedApplications, description, selector);
+        if (status != errSecSuccess)
+        {
+            [self createError:@"Failed to set conents for ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            return NO;
+        }
+    }
+    return YES;
+}
+
+- (id) accessCreateForCredentials:(id<MSIDRequestContext>)context
+                                      error:(NSError**)error
+{
+    return [self accessCreateWithChanceACL:self->_trustedApplications
+                                   context:context
+                                     error:error];
+}
+
+- (id) accessCreateForAccounts:(id<MSIDRequestContext>)context
+                                  error:(NSError**)error
+{
+    SecAccessRef access = nil;
+    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, nil, &access);
+    if (status != errSecSuccess)
+    {
+        [self createError:@"Failed to create default SecAccessRef" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return nil;
+    }
+    
+    if (![self accessSetACLTrustedApplications:access
+                           aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                           trustedApplications:self->_trustedApplications
+                                       context:context
+                                         error:error] ||
+        ![self accessSetACLTrustedApplications:access
+                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
+                           trustedApplications:nil
+                                       context:context
+                                         error:error])
+    {
+        CFRelease(access);
+        return nil;
+    }
+    return CFBridgingRelease(access);
+}
+
+- (id) accessCreateForAppMetadata:(id<MSIDRequestContext>)context
+                            error:(NSError**)error
+{
+    SecTrustedApplicationRef currentApp;
+    OSStatus status = SecTrustedApplicationCreateFromPath(nil, &currentApp);
+    if (status != errSecSuccess)
+    {
+        [self createError:@"Failed to create trusted application for current application path"
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        return nil;
+    }
+    
+    NSArray* trustedApps = @[(__bridge_transfer id)currentApp];
+    return [self accessCreateWithChanceACL:trustedApps
+                                   context:context
+                                     error:error];
+}
+
 
 #pragma mark - Utilities
 
