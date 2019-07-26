@@ -27,6 +27,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDRequestParameters.h"
 
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
@@ -74,12 +75,12 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         _internalMap[AccountMetadataURLMapKey] = urlMaps;
     }
     
-    NSString *instanceAwareKey = [self instanceAwareKey:instanceAware];
-    NSMutableDictionary *urlMap = urlMaps[instanceAwareKey];
+    NSString *urlMapSubkey = [self URLMapSubkey:instanceAware];
+    NSMutableDictionary *urlMap = urlMaps[urlMapSubkey];
     if (!urlMap)
     {
         urlMap = [NSMutableDictionary new];
-        urlMaps[instanceAwareKey] = urlMap;
+        urlMaps[urlMapSubkey] = urlMap;
     }
     
     urlMap[requestURL.absoluteString] = cachedURL.absoluteString;
@@ -88,8 +89,8 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
 {
-    NSString *instanceAwareKey = [self instanceAwareKey:instanceAware];
-    NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey][instanceAwareKey];
+    NSString *urlMapSubkey = [self URLMapSubkey:instanceAware];
+    NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey][urlMapSubkey];
     
     return [NSURL URLWithString:urlMap[requestURL.absoluteString]];
 }
@@ -126,9 +127,21 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     return dictionary;
 }
 
-- (NSString *)instanceAwareKey:(BOOL)instanceAware
+- (NSString *)URLMapSubkey:(BOOL)instanceAware
 {
-    return instanceAware ? @"instance_aware-YES" : @"instance_aware-NO";
+    // The subkey is in the of format of @"URLMap-key1=value1&key2=value2...",
+    // where key1, key2... are the request parameters that may affect the url mapping.
+    // Currently the only parameter that affects the mapping is instance aware flag.
+    //
+    // Example of subkeys:
+    // "URLMap-" : with all possible keys being their default value repectively. Default
+    //             value of instance_aware is NO, so "URLMap-" represents "URLMap-instance_aware=NO"
+    // "URLMap-instance_aware=YES" : with instance_aware being YES.
+    //
+    // The benefit of such a design is, if we are introducing new parameters what will affect the
+    // mapping, there will be no breaking change to existing clients who don't use the new parameters.
+    
+    return instanceAware ? @"URLMap-instance_aware=YES" : @"URLMap-";
 }
 
 #pragma mark - Equal
