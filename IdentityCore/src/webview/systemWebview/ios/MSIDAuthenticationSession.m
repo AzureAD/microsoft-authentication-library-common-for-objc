@@ -223,7 +223,6 @@ API_AVAILABLE(ios(13.0))
 #endif
 }
 
-
 - (void)cancel
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, _context, @"Authorization session was cancelled programatically");
@@ -240,7 +239,6 @@ API_AVAILABLE(ios(13.0))
         [_authSession cancel];
 #endif
     }
-    
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,

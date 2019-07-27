@@ -39,16 +39,8 @@
                 presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
-                         context:(id<MSIDRequestContext>)context;
-
-- (instancetype)initWithStartURL:(NSURL *)startURL
-               callbackURLScheme:(NSString *)callbackURLScheme
-                parentController:(UIViewController *)parentController
-                presentationType:(UIModalPresentationStyle)presentationType
-        useAuthenticationSession:(BOOL)useAuthenticationSession
-       allowSafariViewController:(BOOL)allowSafariViewController
       ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-                         context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0));
+                         context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
 

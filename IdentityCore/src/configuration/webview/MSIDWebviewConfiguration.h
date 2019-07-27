@@ -70,7 +70,7 @@
 #if TARGET_OS_IPHONE
 @property (weak) UIViewController *parentController;
 @property (readwrite) UIModalPresentationStyle presentationType;
-@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 #endif
 
 - (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint

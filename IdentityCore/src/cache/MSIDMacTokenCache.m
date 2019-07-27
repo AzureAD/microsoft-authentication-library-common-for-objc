@@ -27,6 +27,8 @@
 #import "MSIDCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
+#import "NSKeyedArchiver+MSIDExtensions.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
@@ -92,12 +94,7 @@ return NO; \
         {
             NSMutableData *data = [NSMutableData data];
 
-            NSKeyedArchiver *archiver;
-#if TARGET_OS_UIKITFORMAC
-            archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
-#else
-            archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-#endif
+            NSKeyedArchiver *archiver = [NSKeyedArchiver msidCreateForWritingWithMutableData:data];
             
             // Maintain backward compatibility with ADAL.
             [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
@@ -125,12 +122,7 @@ return NO; \
     
     @try
     {
-        NSKeyedUnarchiver *unarchiver;
-#if TARGET_OS_UIKITFORMAC
-        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];
-#else
-        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-#endif
+        NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:data error:error];
         
         // Maintain backward compatibility with ADAL.
         [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
@@ -141,7 +133,8 @@ return NO; \
     }
     @catch (id exception)
     {
-        if (error) {
+        if (error)
+        {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil);
         }
     }

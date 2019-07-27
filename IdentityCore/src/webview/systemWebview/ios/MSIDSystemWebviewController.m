@@ -54,6 +54,7 @@
                 presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
                          context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -79,32 +80,6 @@
         _presentationType = presentationType;
         _allowSafariViewController = allowSafariViewController;
         _useAuthenticationSession = useAuthenticationSession;
-    }
-    return self;
-}
-
-- (instancetype)initWithStartURL:(NSURL *)startURL
-               callbackURLScheme:(NSString *)callbackURLScheme
-                parentController:(UIViewController *)parentController
-                presentationType:(UIModalPresentationStyle)presentationType
-        useAuthenticationSession:(BOOL)useAuthenticationSession
-       allowSafariViewController:(BOOL)allowSafariViewController
-      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-                         context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0))
-{
-    
-    
-    self = [self initWithStartURL:startURL
-                callbackURLScheme:callbackURLScheme
-                 parentController:parentController
-                 presentationType:presentationType
-         useAuthenticationSession:useAuthenticationSession
-        allowSafariViewController:allowSafariViewController
-                          context:context];
-    
-    if (self)
-    {
-        
         _prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
     }
     return self;
@@ -164,7 +139,6 @@
     [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
     [_session startWithCompletionHandler:completionHandler];
 }
-
 
 - (void)cancel
 {

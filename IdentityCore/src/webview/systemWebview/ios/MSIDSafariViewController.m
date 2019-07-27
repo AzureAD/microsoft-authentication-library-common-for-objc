@@ -67,12 +67,16 @@
         _startURL = url;
         _context = context;
         
-#if TARGET_OS_UIKITFORMAC
-        __auto_type config = [SFSafariViewControllerConfiguration new];
-        _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
-#else
-        _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
-#endif
+        if (@available(iOS 11.0, *))
+        {
+            __auto_type config = [SFSafariViewControllerConfiguration new];
+            _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
+        }
+        else
+        {
+            _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
+        }
+        
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
 

@@ -29,6 +29,8 @@
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDPRTCacheItem.h"
+#import "NSKeyedArchiver+MSIDExtensions.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
 @implementation MSIDKeyedArchiverSerializer
 {
@@ -67,13 +69,7 @@
     // In order to customize the archiving process Apple recommends to create an instance of the archiver and
     // customize it (instead of using share NSKeyedArchiver).
     // See here: https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Archiving/Articles/creating.html
-    NSKeyedArchiver *archiver;
-    
-#if TARGET_OS_UIKITFORMAC
-    archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
-#else
-    archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-#endif
+    NSKeyedArchiver *archiver = [NSKeyedArchiver msidCreateForWritingWithMutableData:data];
     
     // Maintain backward compatibility with ADAL.
     for (NSString *className in _defaultEncodeClassMap)
@@ -93,13 +89,13 @@
         return nil;
     }
     
-    NSKeyedUnarchiver *unarchiver;
-    
-#if TARGET_OS_UIKITFORMAC
-    unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:nil];
-#else
-    unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
-#endif
+    NSError *error;
+    NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:data error:&error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to deserialize data, error: %@", MSID_PII_LOG_MASKABLE(error));
+        return nil;
+    }
     
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
