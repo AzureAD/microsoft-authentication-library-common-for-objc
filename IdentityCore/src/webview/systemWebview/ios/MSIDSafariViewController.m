@@ -37,6 +37,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
+#import "MSIDBackgroundTaskManager.h"
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
@@ -92,6 +93,7 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        
         UIViewController *viewController = _parentController ? _parentController :
         [UIApplication msidCurrentViewController];
         if (!viewController)
@@ -101,6 +103,8 @@
             completionHandler(nil, error);
             return;
         }
+        
+        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDInteractiveRequestType];
         
         _completionHandler = [completionHandler copy];
         
@@ -147,11 +151,16 @@
     }
     
     [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
 
     _completionHandler(url, nil);
     return YES;
 }
 
+- (void)dealloc
+{
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
+}
 
 #pragma mark - SFSafariViewControllerDelegate
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
