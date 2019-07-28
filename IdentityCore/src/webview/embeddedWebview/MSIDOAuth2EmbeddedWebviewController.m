@@ -232,7 +232,7 @@
     MSID_LOG_VERBOSE(self.context, @"-decidePolicyForNavigationAction host: %@", isKnown ? requestURL.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-decidePolicyForNavigationAction host: %@", requestURL.host);
     
-    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL];
+    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL userInfo:webView ? @{@"webview" : webView} : nil];
     
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
@@ -262,7 +262,7 @@
     MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", isKnown ? url.host : @"unknown host");
     MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
     
-    [MSIDNotifications notifyWebAuthDidFinishLoad:url];
+    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
     
     [self stopSpinner];
 }
