@@ -521,6 +521,7 @@
 
     BOOL result = [_legacyAccessor saveTokensWithBrokerResponse:brokerResponse
                                                   appIdentifier:nil
+                                                   enrollmentId:nil
                                                saveSSOStateOnly:NO
                                                         context:nil
                                                           error:&error];
@@ -629,6 +630,7 @@
 
     BOOL result = [_legacyAccessor saveTokensWithBrokerResponse:brokerResponse
                                                   appIdentifier:nil
+                                                   enrollmentId:nil
                                                saveSSOStateOnly:YES
                                                         context:nil
                                                           error:&error];

@@ -103,6 +103,7 @@
 
 - (BOOL)saveTokensWithBrokerResponse:(MSIDBrokerResponse *)response
                        appIdentifier:(NSString *)appIdentifier
+                        enrollmentId:(NSString *)enrollmentId
                     saveSSOStateOnly:(BOOL)saveSSOStateOnly
                              context:(id<MSIDRequestContext>)context
                                error:(NSError **)error
@@ -128,6 +129,7 @@
     }
     
     configuration.applicationIdentifier = appIdentifier;
+    configuration.enrollmentId = enrollmentId;
 
     return [self saveTokensWithConfiguration:configuration
                                     response:response.tokenResponse
