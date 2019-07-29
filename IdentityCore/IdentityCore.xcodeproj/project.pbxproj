@@ -1100,7 +1100,6 @@
 		C93C92642272588F00B59FC9 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF3A20A3968400A989B7 /* AppKit.framework */; };
 		C93C9265227258AC00B59FC9 /* MSIDVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB11FC4FA550029C097 /* MSIDVersion.m */; };
 		C93C926B2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */; };
-		C93C926E2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C93C926D2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m */; };
 		C93C927622779E3200B59FC9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C93C927522779E3200B59FC9 /* main.m */; };
 		C93C927A22779EE700B59FC9 /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF4220A396F700A989B7 /* SecurityInterface.framework */; };
 		C93C927B22779EEE00B59FC9 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 600E0EF02091260000BCD67D /* WebKit.framework */; };
@@ -5127,7 +5126,6 @@
 				B2544EEC21684B2B00B4C108 /* MSIDCacheSchemaValidationTests.m in Sources */,
 				B2DD5B7820461F510084313F /* MSIDCredentialCacheItemTests.m in Sources */,
 				236B7C2122B1DE3C00A6EFBB /* MSIDExternalAADCacheSeederIntegrationTests.m in Sources */,
-				C93C926E2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m in Sources */,
 				B2DD5B9F204761550084313F /* MSIDAccessTokenTests.m in Sources */,
 				B2DD5BC120479AA80084313F /* MSIDCacheItemJsonSerializerTests.m in Sources */,
 				23B3A4592187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m in Sources */,
