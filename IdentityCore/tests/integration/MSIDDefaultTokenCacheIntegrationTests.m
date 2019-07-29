@@ -127,8 +127,12 @@
     
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.enrollmentId = @"enrollmentId";
+    configuration.applicationIdentifier = @"app.bundle.id";
+    
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:configuration
                                                      response:tokenResponse
                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
@@ -556,14 +560,17 @@
     
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.enrollmentId = @"enrollmentId";
+    configuration.applicationIdentifier = @"app.bundle.id";
+    
     // Save token
-    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+    [_cacheAccessor saveTokensWithConfiguration:configuration
                                        response:tokenResponse
                                         factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
     
-    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
     configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
     
     NSError *error = nil;

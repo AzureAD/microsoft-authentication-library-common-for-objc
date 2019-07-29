@@ -32,7 +32,7 @@
 
 @implementation MSIDPkeyAuthHelper
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSString*)authorizationServer
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL*)authorizationServer
                                   challengeData:(nullable NSDictionary*)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
 {
@@ -75,7 +75,10 @@
             }
         }
         
-        authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+        NSURLComponents *authorizationServerComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
+        authorizationServerComponents.query = nil; // Strip out query parameters.
+        
+        authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
     }
     else if (!challengeData)
