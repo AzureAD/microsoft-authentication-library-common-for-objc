@@ -50,6 +50,7 @@
 - (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
+             instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
@@ -65,13 +66,14 @@
     MSIDAccountMetadataCacheItem *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
     if (!authorityMap) { return nil; }
     
-    return [authorityMap cachedURL:requestAuthorityURL];
+    return [authorityMap cachedURL:requestAuthorityURL instanceAware:instanceAware];
 }
 
 - (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
              forRequestURL:(NSURL *)requestAuthorityURL
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
+             instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
@@ -86,7 +88,7 @@
         accountMetadataItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
     
-    if (![accountMetadataItem setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL error:error])
+    if (![accountMetadataItem setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL instanceAware:instanceAware error:error])
     {
         return NO;
     }
