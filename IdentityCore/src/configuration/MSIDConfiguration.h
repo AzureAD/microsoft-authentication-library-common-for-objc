@@ -32,6 +32,9 @@
 @property (readwrite) NSString *clientId;
 @property (readonly) NSString *target;
 
+@property (readwrite) NSString *applicationIdentifier;
+@property (readwrite) NSString *enrollmentId;
+
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;
 

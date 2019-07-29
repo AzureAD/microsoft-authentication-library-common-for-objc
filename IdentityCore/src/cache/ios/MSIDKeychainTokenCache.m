@@ -220,7 +220,6 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                                  context:context];
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Found %lu items.", (unsigned long)tokenItems.count);
-
     
     return tokenItems;
 }
@@ -388,7 +387,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         return NO;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Saving metadata item info %@", item);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose,context, @"Saving metadata item info %@", MSID_PII_LOG_MASKABLE(item));
     
     return [self saveData:[serializer serializeCacheItem:item]
                       key:key

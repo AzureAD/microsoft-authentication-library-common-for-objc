@@ -164,10 +164,9 @@
         return NO;
     }
     
-    accessToken.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accessToken.accountIdentifier.homeAccountId
-                                                                                           legacyUserId:accessToken.accountIdentifier.displayableId
-                                                                                                context:nil
-                                                                                                  error:nil];
+    accessToken.enrollmentId = configuration.enrollmentId;
+    accessToken.applicationIdentifier = configuration.applicationIdentifier;
+
     accessToken.extendedExpiresOn = response.extendedExpiresOnDate;
 
     return YES;

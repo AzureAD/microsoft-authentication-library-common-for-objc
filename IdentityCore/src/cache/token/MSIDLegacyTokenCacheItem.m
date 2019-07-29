@@ -150,7 +150,9 @@
     {
         self.homeAccountId = homeAccountId;
     }
-
+    
+    self.enrollmentId = [coder decodeObjectOfClass:[NSString class] forKey:@"enrollmentId"];
+    self.applicationIdentifier = [coder decodeObjectOfClass:[NSString class] forKey:@"applicationIdentifier"];
     return self;
 }
 
@@ -189,6 +191,8 @@
     [coder encodeObject:additionalServer forKey:@"additionalServer"];
 
     [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
+    [coder encodeObject:self.enrollmentId forKey:@"enrollmentId"];
+    [coder encodeObject:self.applicationIdentifier forKey:@"applicationIdentifier"];
 }
 
 - (MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType

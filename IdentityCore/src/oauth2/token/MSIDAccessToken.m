@@ -51,7 +51,8 @@ static NSUInteger s_expirationBuffer = 300;
     item->_enrollmentId = [_enrollmentId copyWithZone:zone];
     item->_accessToken = [_accessToken copyWithZone:zone];
     item->_target = [_target copyWithZone:zone];
-
+    item->_enrollmentId = [_enrollmentId copyWithZone:zone];
+    item->_applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
     return item;
 }
 
@@ -80,7 +81,7 @@ static NSUInteger s_expirationBuffer = 300;
     hash = hash * 31 + self.accessToken.hash;
     hash = hash * 31 + self.target.hash;
     hash = hash * 31 + self.cachedAt.hash;
-    hash = hash * 31 + self.enrollmentId.hash;
+    hash = hash * 31 + self.applicationIdentifier.hash;
     return hash;
 }
 
@@ -97,8 +98,7 @@ static NSUInteger s_expirationBuffer = 300;
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
     result &= (!self.target && !token.target) || [self.target isEqualToString:token.target];
     result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
-    result &= (!self.enrollmentId && !token.enrollmentId) || [self.enrollmentId isEqualToString:token.enrollmentId];
-
+    result &= (!self.applicationIdentifier && !token.applicationIdentifier) || [self.applicationIdentifier isEqualToString:token.applicationIdentifier];
     return result;
 }
 
@@ -129,6 +129,9 @@ static NSUInteger s_expirationBuffer = 300;
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize access token when missing target field");
             return nil;
         }
+        
+        _enrollmentId = tokenCacheItem.enrollmentId;
+        _applicationIdentifier = tokenCacheItem.applicationIdentifier;
     }
     
     return self;
@@ -144,6 +147,8 @@ static NSUInteger s_expirationBuffer = 300;
     cacheItem.target = self.target;
     cacheItem.enrollmentId = self.enrollmentId;
     cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.enrollmentId = self.enrollmentId;
+    cacheItem.applicationIdentifier = self.applicationIdentifier;
     return cacheItem;
 }
 
@@ -212,8 +217,8 @@ static NSUInteger s_expirationBuffer = 300;
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@, target=%@)",
-            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _target];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@, target=%@, enrollmentId=%@, applicationIdentfier=%@)",
+            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _target, [_enrollmentId msidSecretLoggingHash], _applicationIdentifier];
 }
 
 @end

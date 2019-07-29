@@ -122,6 +122,8 @@
     cacheItem.clientId = self.clientId;
     cacheItem.additionalInfo = self.additionalServerInfo;
     cacheItem.homeAccountId = self.accountIdentifier.homeAccountId;
+    cacheItem.applicationIdentifier = self.applicationIdentifier;
+    cacheItem.enrollmentId = self.enrollmentId;
     return cacheItem;
 }
 
