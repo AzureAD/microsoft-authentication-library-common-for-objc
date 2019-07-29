@@ -64,7 +64,7 @@
                                     error:&error]);
     XCTAssertNil(error);
     
-    __auto_type *expected = @{ @"account_metadata" : @{ @"URLMap" : @{@"URLMap-" : @{ @"https://testAuthority.com" : @"https://contoso.com", @"https://testAuthority2.com" : @"https://contoso2.com"}, @"URLMap-instance_aware=YES" :  @{ @"https://testAuthority3.com" : @"https://contoso3.com"}} },
+    __auto_type *expected = @{ @"account_metadata" : @{ @"URLMap-" : @{ @"https://testAuthority.com" : @"https://contoso.com", @"https://testAuthority2.com" : @"https://contoso2.com"}, @"URLMap-instance_aware=YES" :  @{ @"https://testAuthority3.com" : @"https://contoso3.com"} },
                                @"client_id" : @"clientId",
                                @"home_account_id" : @"homeAccountId" };
     
@@ -109,13 +109,12 @@
 {
     NSDictionary *jsonDictionary = @{ @"client_id" : @"clientId",
                                       @"home_account_id" : @"homeAccountId",
-                                      @"account_metadata" : @{ @"URLMap" :
-                                                                   @{@"URLMap-" : @{
-                                                                             @"https://testAuthority1.com" : @"https://contoso1.com",
-                                                                             @"https://testAuthority2.com" : @"https://contoso2.com"},
-                                                                     @"URLMap-instance_aware=YES" : @{
-                                                                             @"https://testAuthority3.com" : @"https://contoso3.com"}
-                                                                     } }
+                                      @"account_metadata" : @{ @"URLMap-" : @{
+                                                                       @"https://testAuthority1.com" : @"https://contoso1.com",
+                                                                       @"https://testAuthority2.com" : @"https://contoso2.com"},
+                                                               @"URLMap-instance_aware=YES" : @{
+                                                                       @"https://testAuthority3.com" : @"https://contoso3.com"}
+                                                               }
                                       };
     
     NSError *error = nil;
@@ -149,9 +148,8 @@
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority2.com"]
                             instanceAware:YES
                                     error:&error]);
-    NSDictionary *expectedMap = @{ @"URLMap" :
-                                       @{ @"URLMap-" : @{ @"https://testAuthority1.com" : @"https://contoso1.com"},
-                                          @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}}
+    NSDictionary *expectedMap = @{ @"URLMap-" : @{ @"https://testAuthority1.com" : @"https://contoso1.com"},
+                                   @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}
                                    };
     XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);
 }
@@ -173,9 +171,8 @@
                             instanceAware:NO
                                     error:&error]);
     
-    NSDictionary *expectedMap = @{ @"URLMap" :
-                                       @{ @"URLMap-" : @{ @"https://testAuthority.com" : @"https://contoso3.com"},
-                                          @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}}
+    NSDictionary *expectedMap = @{ @"URLMap-" : @{ @"https://testAuthority.com" : @"https://contoso3.com"},
+                                   @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}
                                    };
     XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);
 }

@@ -68,19 +68,12 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         return NO;
     }
     
-    NSMutableDictionary *urlMaps = _internalMap[AccountMetadataURLMapKey];
-    if (!urlMaps)
-    {
-        urlMaps = [NSMutableDictionary new];
-        _internalMap[AccountMetadataURLMapKey] = urlMaps;
-    }
-    
-    NSString *urlMapSubkey = [self URLMapSubkey:instanceAware];
-    NSMutableDictionary *urlMap = urlMaps[urlMapSubkey];
+    NSString *urlMapKey = [self URLMapKey:instanceAware];
+    NSMutableDictionary *urlMap = _internalMap[urlMapKey];
     if (!urlMap)
     {
         urlMap = [NSMutableDictionary new];
-        urlMaps[urlMapSubkey] = urlMap;
+        _internalMap[urlMapKey] = urlMap;
     }
     
     urlMap[requestURL.absoluteString] = cachedURL.absoluteString;
@@ -89,8 +82,8 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
 {
-    NSString *urlMapSubkey = [self URLMapSubkey:instanceAware];
-    NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey][urlMapSubkey];
+    NSString *urlMapKey = [self URLMapKey:instanceAware];
+    NSDictionary *urlMap = _internalMap[urlMapKey];
     
     return [NSURL URLWithString:urlMap[requestURL.absoluteString]];
 }
@@ -127,9 +120,9 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     return dictionary;
 }
 
-- (NSString *)URLMapSubkey:(BOOL)instanceAware
+- (NSString *)URLMapKey:(BOOL)instanceAware
 {
-    // The subkey is in the of format of @"URLMap-key1=value1&key2=value2...",
+    // The subkey is in the format of @"URLMap-key1=value1&key2=value2...",
     // where key1, key2... are the request parameters that may affect the url mapping.
     // Currently the only parameter that affects the mapping is instance aware flag.
     //
