@@ -43,7 +43,8 @@ MSIDMacKeychainTokenCache *_dataSource;
 MSIDAccountCredentialCache *_cache;
 MSIDCacheItemJsonSerializer *_serializer;
 
-- (id)init {
+- (id)init
+{
     self = [super init];
     if (self) {
         _serializer = [MSIDCacheItemJsonSerializer new];
@@ -51,25 +52,31 @@ MSIDCacheItemJsonSerializer *_serializer;
     return [super init];
 }
 
-- (NSString*) execute:(NSString*)params {
+- (NSString*) execute:(NSString*)params
+{
     NSError *error;
     _inputParameters = [NSJSONSerialization JSONObjectWithData:[params dataUsingEncoding:NSUTF8StringEncoding]
                                                        options:0
                                                          error:&error];
-    if (error != nil) {
+    
+    if (error != nil)
+    {
         return [self setResponse:@{@"getError": [NSString stringWithFormat:@"Couldn't parse input: '%@'", error], @"text":params}];
     }
-    NSDictionary* result = [self executeInternal];
+    
+    NSDictionary *result = [self executeInternal];
     return [self setResponse:result];
 }
 
-- (NSString*)setResponse:(NSDictionary *)response {
+- (NSString *)setResponse:(NSDictionary *)response
+{
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:response options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     return jsonString;
 }
 
-- (NSDictionary*) executeInternal {
+- (NSDictionary *) executeInternal
+{
     if ([_inputParameters[@"method"] isEqualToString:@"ReadAccount"]) {
         [self setUp];
         return [self readAccount];
@@ -83,47 +90,60 @@ MSIDCacheItemJsonSerializer *_serializer;
     return @{@"status":@-1};
 }
 
-- (void) setUp {
-    NSMutableArray<id>* trustedApplications = nil;
-    NSArray<NSString*>* trustedApplicationPaths = _inputParameters[@"trustedAppPaths"];
-    if (trustedApplicationPaths) {
+- (void) setUp
+{
+    NSMutableArray<id> *trustedApplications = nil;
+    NSArray<NSString*> *trustedApplicationPaths = _inputParameters[@"trustedAppPaths"];
+    
+    if (trustedApplicationPaths)
+    {
         trustedApplications = [[NSMutableArray alloc] initWithCapacity:[trustedApplicationPaths count]];
-        for (NSString* appPaths in trustedApplicationPaths) {
+        for (NSString *appPaths in trustedApplicationPaths)
+        {
             SecTrustedApplicationRef trustedApp;
-            if (SecTrustedApplicationCreateFromPath([appPaths UTF8String], &trustedApp) == errSecSuccess) {
+            
+            if (SecTrustedApplicationCreateFromPath([appPaths UTF8String], &trustedApp) == errSecSuccess)
+            {
                 [trustedApplications addObject:(__bridge_transfer id)trustedApp];
             }
         }
     }
+    
     _dataSource = [[MSIDMacKeychainTokenCache alloc] initWithGroupAndTrustedApplications:[MSIDMacKeychainTokenCache defaultKeychainGroup]                                                                       trustedApplications:trustedApplications];
     _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
 }
 
-- (MSIDDefaultAccountCacheKey*) getKeyFromAccount:(MSIDAccountCacheItem*)account {
+- (MSIDDefaultAccountCacheKey *) getKeyFromAccount:(MSIDAccountCacheItem*)account
+{
     return [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                          environment:account.environment
                                                                realm:account.realm
                                                                 type:account.accountType];
 }
 
-- (NSString*) serializeAccountCacheItem:(MSIDAccountCacheItem*)account {
-    NSData* data = [_serializer serializeAccountCacheItem:account];
+- (NSString *) serializeAccountCacheItem:(MSIDAccountCacheItem *)account
+{
+    NSData *data = [_serializer serializeCacheItem:account];
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }
 
-- (MSIDAccountCacheItem*) deserializeAccountCacheItem:(NSString*)accountString {
-    NSData* accountData = [accountString dataUsingEncoding:NSUTF8StringEncoding];
-    MSIDAccountCacheItem* account = [_serializer deserializeAccountCacheItem:accountData];
+- (MSIDAccountCacheItem *) deserializeAccountCacheItem:(NSString*)accountString
+{
+    NSData *accountData = [accountString dataUsingEncoding:NSUTF8StringEncoding];
+    MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[_serializer deserializeCacheItem:accountData ofClass:[MSIDAccountCacheItem class]];
     return account;
 }
 
-- (NSDictionary*) readAccount {
-    MSIDAccountCacheItem* account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
-    MSIDDefaultAccountCacheKey* key = [self getKeyFromAccount:account];
+- (NSDictionary *) readAccount
+{
+    MSIDAccountCacheItem *account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
+    MSIDDefaultAccountCacheKey *key = [self getKeyFromAccount:account];
     
-    NSError* error;
-    MSIDAccountCacheItem* accountRead = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
-    if (error != nil) {
+    NSError *error;
+    MSIDAccountCacheItem *accountRead = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
+    
+    if (error != nil)
+    {
         return @{@"getError": [NSString stringWithFormat:@"Couldn't read account: '%@'", error],
                  @"status": @-1
                  };
@@ -134,13 +154,16 @@ MSIDCacheItemJsonSerializer *_serializer;
              };
 }
 
-- (NSDictionary*) writeAccount {
-    MSIDAccountCacheItem* account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
-    MSIDDefaultAccountCacheKey* key = [self getKeyFromAccount:account];
+- (NSDictionary *) writeAccount
+{
+    MSIDAccountCacheItem *account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
+    MSIDDefaultAccountCacheKey *key = [self getKeyFromAccount:account];
     
     NSError* error;
     BOOL result = [_dataSource saveAccount:account key:key serializer:_serializer context:nil error:&error];
-    if (error != nil) {
+    
+    if (error != nil)
+    {
         return @{@"getError": [NSString stringWithFormat:@"Couldn't save account: '%@'", error],
                  @"status": @-1,
                  @"result" : @(result)};
@@ -151,13 +174,16 @@ MSIDCacheItemJsonSerializer *_serializer;
              };
 }
 
-- (NSDictionary*) deleteAccount {
-    MSIDAccountCacheItem* account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
-    MSIDDefaultAccountCacheKey* key = [self getKeyFromAccount:account];
+- (NSDictionary *) deleteAccount
+{
+    MSIDAccountCacheItem *account = [self deserializeAccountCacheItem:_inputParameters[@"account"]];
+    MSIDDefaultAccountCacheKey *key = [self getKeyFromAccount:account];
     
-    NSError* error;
-    BOOL result = [_dataSource removeItemsWithAccountKey:key context:nil error:&error];
-    if (error != nil) {
+    NSError *error;
+    BOOL result = [_dataSource removeAccountsWithKey:key context:nil error:&error];
+    
+    if (error != nil)
+    {
         return @{@"getError": [NSString stringWithFormat:@"Couldn't remove account: '%@'", error],
                  @"status": @-1,
                  @"result" : @(result)};

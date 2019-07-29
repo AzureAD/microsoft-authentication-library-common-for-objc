@@ -28,9 +28,9 @@
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
         if (argc >= 2) {
-            NSString* input = [NSString stringWithUTF8String:argv[1]];
-            MSIDTestKeychainUtilDispatcher* dispatcher = [MSIDTestKeychainUtilDispatcher new];
-            NSString* result = [dispatcher execute:input];
+            NSString *input = [NSString stringWithUTF8String:argv[1]];
+            MSIDTestKeychainUtilDispatcher *dispatcher = [MSIDTestKeychainUtilDispatcher new];
+            NSString *result = [dispatcher execute:input];
             printf("%s\n", [result UTF8String]);
         }
     }

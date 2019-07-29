@@ -44,12 +44,10 @@
 #import "MSIDCacheItemJsonSerializer.h"
 
 /**
- This Mac cache stores serialized account and credential objects in the macOS "login" Keychain.
- There are three types of items stored:
- 1) Secret shareable artifacts (SSO credentials: Refresh tokens, other global credentials)
- 2) Non-secret shareable artifacts (account)
- 3) Secret non-shareable artifacts (access tokens, ID tokens)
- 4) Non-secret non-shareable artifacts (app metadata, account metadata)
+ This Mac cache stores serialized cache credentials in the macOS "login" Keychain.
+ There are two types of items stored:
+ 1) Shared Blob (SSO credentials: Refresh tokens, accounts).
+ 2) Non-Shared Blob (Access Tokens, Id Tokens, App Metadata, Account Metadata).
  
  In addition to the basic account & credential properties, the following definitions are used below:
  <account_id>    :  For account - <home_account_id>-<environment>
@@ -65,111 +63,116 @@
                     For account metadata - <nil>
  
  <credential_id> : “<credential_type>-<client_id>-<realm>”
- <access_group>  : e.g. "com.microsoft.officecache"
+ <access_group>  : e.g. "<team_id>.com.microsoft.officecache"
  <username>      : e.g. "joe@contoso.com"
  
  Below, attributes marked with "*" are primary keys for the keychain.
  For password items, the primary attributes are kSecAttrAccount and kSecAttrService.
  Other secondary attributes do not make items unique, only the primary attributes.
  
- Type 1 (Secret shareable artifacts) Keychain Item Attributes
+ Type 1 (Shared Blob) Keychain Item Attributes
  ============================================================
  ATTRIBUTE         VALUE
  ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
  *kSecClass        kSecClassGenericPassword
  *kSecAttrAccount  <access_group>
  *kSecAttrService  “Microsoft Credentials”
- kSecAttrCreator   A hash of <access_group>
- kSecAttrLabel     "Microsoft Credentials"
- kSecValueData     JSON data (UTF8 encoded) – shared credentials (multiple credentials saved in one keychain item)
+  kSecValueData    JSON data (UTF8 encoded) – shared cache items (multiple account and refresh token entries in one keychain item).
  
  Type 1 JSON Data Example:
  {
-    "<home_account_id1>-<environment1>-<credential_type1>-<client_id1>-<realm1>-<target1>": {
-    credential1 payload
-    },
-    "<home_account_id2>-<environment2>-<credential_type2>-<client_id2>-<realm2>-<target2>": {
-    credential2 payload
-    }
+    "RefreshToken": {
+                        "<home_account_id>-<environment>-<credential_type>-<client_id>-<realm>-<target>":
+                        {
+                            "secret": "secret",
+                            "environment": "login.windows.net",
+                            "credential_type": "RefreshToken",
+                            "last_modification_time": "1562842351.202",
+                            "last_modification_app": "com.microsoft.MSALMacTestApp;1493",
+                            "client_id": "client_id"
+                        }
+                    },
+    "Account":      {
+                        "<home_account_id>-<environment>-<realm>":
+                        {
+                            "client_info": "client_info",
+                            "last_modification_app": "com.microsoft.MSALMacTestApp;1493",
+                            "local_account_id": "local_account_id",
+                            "home_account_id": "home_account_id",
+                            "username": "username",
+                            "environment": "login.windows.net",
+                            "realm": "realm",
+                            "authority_type": "MSSTS",
+                            "name": "Cloud IDLAB MAM CA User",
+                            "last_modification_time": "1562842342.293"
+                        }
+                    }
  }
+
  
- Type 2 (Non-secret shareable artifacts) Keychain Item Attributes
+ Type 2 (Non-Shared Blob) Keychain Item Attributes
  ================================================================
  ATTRIBUTE         VALUE
  ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
  *kSecClass        kSecClassGenericPassword
- *kSecAttrAccount  <access_group>-<account_id>
- *kSecAttrService  <service_id>
- kSecAttrGeneric   <generic_id>
- kSecAttrCreator   A hash of <access_group>
- kSecAttrLabel     "Microsoft Credentials"
- kSecValueData     JSON data (UTF8 encoded) – account object
+ *kSecAttrAccount  <access_group>-<bundle_id>
+ *kSecAttrService  "Microsoft Credentials"
+ kSecValueData     JSON data (UTF8 encoded) – shared cache items (multiple account and refresh token entries in one keychain item).
  
  Type 2 JSON Data Example:
  {
- "home_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
- "environment": "login.microsoftonline.com",
- "realm": "f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
- "authority_type": "MSSTS",
- "username": "testuser@contoso.com",
- "given_name": "First Name",
- "family_name": "Last Name",
- "name": "Test Username",
- "local_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084",
- "alternative_account_id": "alt",
- "test": "test2",
- "test3": "test4"
- }
+ "IdToken":         {
+                        "<home_account_id>-<environment>-<credential_type>-<client_id>-<realm>-<target>":
+                        {
+                            "secret": "secret",
+                            "environment": "login.windows.net",
+                            "credential_type": "IdToken",
+                            "last_modification_time": "1562842342.243",
+                            "realm": "realm",
+                            "client_id": "client_id",
+                            "last_modification_app": "com.microsoft.MSALMacTestApp;1493"
+                        }
+                    },
  
- Type 3 (Secret non-shareable artifacts) Keychain Item Attributes
- ===============================================================
- ATTRIBUTE         VALUE
- ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
- *kSecClass        kSecClassGenericPassword
- *kSecAttrAccount  <access_group>-<app_bundle_id>
- *kSecAttrService  “Microsoft Credentials”
- kSecAttrCreator   A hash of <access_group>
- kSecAttrLabel     "Microsoft Credentials"
- kSecValueData     JSON data (UTF8 encoded) – app credentials (multiple credentials saved in one keychain item)
+ "AppMetadata":     {
+                        "<environment>-"appmetadata"-<client_id>":
+                        {
+                            "client_id": "client_id",
+                            "family_id": "1",
+                            "environment": "environment"
+                        }
+                    },
  
- Type 3 JSON Data Example:
- {
-    "<home_account_id1>-<environment1>-<credential_type1>-<client_id1>-<realm1>-<target1>": {
-    credential1 payload
-    },
-    "<home_account_id2>-<environment2>-<credential_type2>-<client_id2>-<realm2>-<target2>": {
-    credential2 payload
-    }
- }
+ "AccessToken":      {
+                        "<home_account_id>-<environment>-<credential_type>-<client_id>-<realm>-<target>":
+                        {
+                            "secret": "secret",
+                            "credential_type": "AccessToken",
+                            "last_modification_time": "1562842342.227",
+                            "expires_on": "1562845942",
+                            "target": "target",
+                            "cached_at": "1562842342",
+                            "last_modification_app": "com.microsoft.MSALMacTestApp;1493",
+                            "home_account_id": "home_account_id",
+                            "client_id": "client_id",
+                            "environment": "login.windows.net",
+                            "realm": "realm",
+                            "extended_expires_on": "1562845942"
+                        }
+                    },
  
- Type 4 (Non-secret non-shareable artifacts) Keychain Item Attributes
- ================================================================
- ATTRIBUTE         VALUE
- ~~~~~~~~~         ~~~~~~~~~~~~~~~~~~~~~~~~
- *kSecClass        kSecClassGenericPassword
- *kSecAttrAccount  <access_group>-<app_bundle_id>-<account_id>
- *kSecAttrService  <service_id>
- kSecAttrGeneric   <generic_id>
- kSecAttrCreator   A hash of <access_group>
- kSecAttrLabel     "Microsoft Credentials"
- kSecValueData     JSON data (UTF8 encoded) – app metadata / account metadata object
- 
- Type 4 JSON Data Example For App Metadata:
- {
- "client_id": "b6c69a37-df96-4db0-9088-2ab96e1d8215",
- "family_id": "",
- "environment": "login.windows.net"
- }
- 
- Type 4 JSON Data Example For Account Metadata:
- {
- "client_id": "b6c69a37-df96-4db0-9088-2ab96e1d8215",
- "account_metadata": {
-                    "URLMap": {
-                                "https:\/\/login.microsoftonline.com\/common": "https:\/\/login.microsoftonline.com\/f645ad92-e38d-4d1a-b510-d1b09a74a8ca"
-                              }
-                      },
- "home_account_id": "9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca"
+ "AccountMetadata": {
+                        "<home_account_id>-"authority_map"-<client_id>":
+                        {
+                            "client_id": "client_id",
+                            "account_metadata": {
+                            "URLMap": {
+                                         "https:\/\/login.microsoftonline.com\/common": "https:\/\/login.microsoftonline.com\/<realm>"
+                                       }
+                            },
+                            "home_account_id": "home_account_id"
+                        }
+                    }
  }
  
  Error handling:
@@ -209,12 +212,11 @@ information was specified, MSAL will assume that the token cache
 will only be accessible by the current application.  In that case,
 the access control list of Type 1 and Type 3 will be the same.
 
-As stated above, there are three types of keychain items:
- 1) Secret shareable artifacts (SSO credentials: Refresh tokens, other global credentials)
- 2) Non-secret shareable artifacts (account metadata)
- 3) Secret non-shareable artifacts (access tokens, ID tokens)
+As stated above, there are two types of keychain items:
+ 1) Shared Blob (SSO credentials: Refresh tokens, accounts)
+ 2) Non-Shared Blob (Access Tokens, Id Tokens, App Metadata, Account Metadata).
  
-Type 1 (Secret shareable artifacts) Keychain Item Attributes
+Type 1 Shared Blob (SSO credentials: Refresh tokens, accounts)
 =============================================================
 SecAccess: {
   SecACL[0] : {
@@ -249,41 +251,7 @@ SecAccess: {
   }
 }
 
-Type 2 (Non-secret shareable artifacts) Access Control List
-============================================================
-SecAccess: {
-  SecACL[0] : {
-    Description: "Microsoft Credentials"
-    Operations: {
-      kSecACLAuthorizationChangeACL
-    }
-    TrustedApps: {
-      <List of SecTrustedApplicationRef supplied by the caller>
-    }
-  }
-  SecACL[1] : {
-    Description "Microsoft Credentials"
-    Operations: {
-      kSecACLAuthorizationEncrypt
-    }
-    TrustedApps: nil // denotes all applications have access
-  }
-  SecACL[2] : {
-    Description "Microsoft Credentials"
-    Operations: {
-      kSecACLAuthorizationDecrypt
-      kSecACLAuthorizationDerive
-      kSecACLAuthorizationExportClear
-      kSecACLAuthorizationExportWrapped
-      kSecACLAuthorizationMAC
-      kSecACLAuthorizationSign
-    }
-    TrustedApps: nil // denotes all applications have access
-  }
-}
- 
-
-Type 3 (Secret non-shareable artifacts) Access Control List
+Type 2 Non-Shared Blob (Access Tokens, Id Tokens, App Metadata, Account Metadata).
 ============================================================
 SecAccess: {
   SecACL[0] : {
@@ -337,9 +305,8 @@ static dispatch_queue_t s_synchronizationQueue;
 @property MSIDMacCredentialStorageItem *sharedStorageItem;
 @property MSIDCacheItemJsonSerializer *serializer;
 @property (readwrite) NSArray *trustedApplications;
-@property (readwrite, nonnull) id accessForCredentials;
-@property (readwrite, nonnull) id accessForAccounts;
-@property (readwrite, nonnull) id accessForAppMetadata;
+@property (readwrite, nonnull) id accessForSharedBlob;
+@property (readwrite, nonnull) id accessForNonSharedBlob;
 
 @end
 
@@ -455,19 +422,14 @@ static dispatch_queue_t s_synchronizationQueue;
             self.trustedApplications = trustedApplications;
         }
         
-        self.accessForCredentials = [self accessCreateForCredentials:nil error:nil];
-        if (!self.accessForCredentials)
+        self.accessForSharedBlob = [self accessCreateForSharedBlob:nil error:nil];
+        if (!self.accessForSharedBlob)
         {
             return nil;
         }
         
-        self.accessForAccounts = [self accessCreateForAccounts:nil error:nil];
-        if (!self.accessForAccounts)
-        {
-            return nil;
-        }
-        self.accessForAppMetadata = [self accessCreateForAppMetadata:nil error:nil];
-        if (!self.accessForAppMetadata)
+        self.accessForNonSharedBlob = [self accessCreateForNonSharedBlob:nil error:nil];
+        if (!self.accessForNonSharedBlob)
         {
             return nil;
         }
@@ -739,7 +701,7 @@ static dispatch_queue_t s_synchronizationQueue;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(storageItem));
     
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    [query addEntriesFromDictionary:[self accountAttributeForKey:key]];
+    [query addEntriesFromDictionary:[self primaryAttributesForKey:key]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     NSMutableDictionary *update = [NSMutableDictionary dictionary];
     update[(id)kSecValueData] = itemData;
@@ -773,7 +735,7 @@ static dispatch_queue_t s_synchronizationQueue;
                           error:(NSError **)error
 {
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    [query addEntriesFromDictionary:[self accountAttributeForKey:key]];
+    [query addEntriesFromDictionary:[self primaryAttributesForKey:key]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
@@ -803,7 +765,7 @@ static dispatch_queue_t s_synchronizationQueue;
     MSID_TRACE;
     MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    [query addEntriesFromDictionary:[self accountAttributeForKey:key]];
+    [query addEntriesFromDictionary:[self primaryAttributesForKey:key]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     query[(id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
     query[(id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
@@ -873,18 +835,24 @@ static dispatch_queue_t s_synchronizationQueue;
     return [self removeStorageItemForKey:key context:context error:error];
 }
 
-- (NSDictionary *)accountAttributeForKey:(MSIDCacheKey *)key
+- (NSDictionary *)primaryAttributesForKey:(MSIDCacheKey *)key
 {
+    NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+    
     if (key.isShared)
     {
-        // Secret shareable item attribute: <keychainGroup>
-        return @{ (id)(kSecAttrAccount): self.keychainGroup};
+        // Shareable item attributes: <keychainGroup>
+        [attributes setObject:self.keychainGroup forKey:(id)kSecAttrAccount];
+        [attributes setObject:self.accessForSharedBlob forKey:(id)kSecAttrAccess];
     }
     else
     {
-        // Secret non-shareable item attribute: <keychainGroup>-<app_bundle_id>
-        return @{ (id)(kSecAttrAccount): [NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]]};
+        // Non-Shareable item attributes: <keychainGroup>-<app_bundle_id>
+        [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]] forKey:(id)kSecAttrAccount];
+        [attributes setObject:self.accessForNonSharedBlob forKey:(id)kSecAttrAccess];
     }
+    
+    return attributes;
 }
 
 #pragma mark - App Metadata
@@ -1033,7 +1001,7 @@ static dispatch_queue_t s_synchronizationQueue;
 
 #pragma mark - Access Control Lists
 
-- (id) accessCreateWithChanceACL:(NSArray<id>*)trustedApplications
+- (id) accessCreateWithChangeACL:(NSArray<id>*)trustedApplications
                          context:(id<MSIDRequestContext>)context
                            error:(NSError**)error
 {
@@ -1089,44 +1057,16 @@ static dispatch_queue_t s_synchronizationQueue;
     return YES;
 }
 
-- (id) accessCreateForCredentials:(id<MSIDRequestContext>)context
-                                      error:(NSError**)error
+- (id) accessCreateForSharedBlob:(id<MSIDRequestContext>)context
+                           error:(NSError**)error
 {
-    return [self accessCreateWithChanceACL:self->_trustedApplications
+    return [self accessCreateWithChangeACL:self->_trustedApplications
                                    context:context
                                      error:error];
 }
 
-- (id) accessCreateForAccounts:(id<MSIDRequestContext>)context
-                                  error:(NSError**)error
-{
-    SecAccessRef access = nil;
-    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, nil, &access);
-    if (status != errSecSuccess)
-    {
-        [self createError:@"Failed to create default SecAccessRef" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-        return nil;
-    }
-    
-    if (![self accessSetACLTrustedApplications:access
-                           aclAuthorizationTag:kSecACLAuthorizationChangeACL
-                           trustedApplications:self->_trustedApplications
-                                       context:context
-                                         error:error] ||
-        ![self accessSetACLTrustedApplications:access
-                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
-                           trustedApplications:nil
-                                       context:context
-                                         error:error])
-    {
-        CFRelease(access);
-        return nil;
-    }
-    return CFBridgingRelease(access);
-}
-
-- (id) accessCreateForAppMetadata:(id<MSIDRequestContext>)context
-                            error:(NSError**)error
+- (id) accessCreateForNonSharedBlob:(id<MSIDRequestContext>)context
+                              error:(NSError**)error
 {
     SecTrustedApplicationRef currentApp;
     OSStatus status = SecTrustedApplicationCreateFromPath(nil, &currentApp);
@@ -1138,11 +1078,10 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     
     NSArray* trustedApps = @[(__bridge_transfer id)currentApp];
-    return [self accessCreateWithChanceACL:trustedApps
+    return [self accessCreateWithChangeACL:trustedApps
                                    context:context
                                      error:error];
 }
-
 
 #pragma mark - Utilities
 

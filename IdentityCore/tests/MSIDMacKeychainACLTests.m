@@ -36,24 +36,29 @@
 #import <XCTest/XCTest.h>
 
 @interface MSIDMacKeychainTokenCacheRemote : NSObject
-    - (nullable instancetype)initWithExecutablePathAndTrustedApplicationPaths:(nonnull NSString *)executablePath
+
+- (nullable instancetype)initWithExecutablePathAndTrustedApplicationPaths:(nonnull NSString *)executablePath
                                                       trustedApplicationPaths:(nullable NSArray<NSString*> *)trustedApplicationPaths;
+
 @end
 
-@implementation MSIDMacKeychainTokenCacheRemote {
-    NSString* _executablePath;
-    NSArray<NSString*>* _trustedApplicationPaths;
+@implementation MSIDMacKeychainTokenCacheRemote
+{
+    NSString *_executablePath;
+    NSArray<NSString *> *_trustedApplicationPaths;
 }
 
 - (nullable instancetype)initWithExecutablePathAndTrustedApplicationPaths:(nonnull NSString *)executablePath
                                                   trustedApplicationPaths:(nullable NSArray<NSString*> *)trustedApplicationPaths
 {
     self = [super init];
+    
     if (self)
     {
         self->_executablePath = executablePath;
         self->_trustedApplicationPaths = trustedApplicationPaths;
     }
+    
     return self;
 }
 
@@ -62,7 +67,7 @@
     NSTask *task = [NSTask new];
     [task setLaunchPath:self->_executablePath];
     
-    NSMutableDictionary* inputWithTrustedApplicationPaths = [input mutableCopy];
+    NSMutableDictionary *inputWithTrustedApplicationPaths = [input mutableCopy];
     inputWithTrustedApplicationPaths[@"trustedAppPaths"] = self->_trustedApplicationPaths;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:inputWithTrustedApplicationPaths options:0 error:nil];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
@@ -85,13 +90,15 @@
     
     NSString *output = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     printf("%s\n", [output UTF8String]);
-    NSError* error;
-    NSDictionary* result = [NSJSONSerialization JSONObjectWithData:[output dataUsingEncoding:NSUTF8StringEncoding]
+    NSError *error;
+    NSDictionary *result = [NSJSONSerialization JSONObjectWithData:[output dataUsingEncoding:NSUTF8StringEncoding]
                                                            options:0
                                                              error:&error];
-    if (error != nil) {
+    if (error != nil)
+    {
         return @{@"getError": [NSString stringWithFormat:@"Couldn't parse input: '%@'", error]};
     }
+    
     return result;
 }
 
@@ -104,7 +111,7 @@
     MSIDMacKeychainTokenCacheRemote *_remote1;
     MSIDMacKeychainTokenCacheRemote *_remote2;
     
-    MSIDAccountCacheItem* _account;
+    MSIDAccountCacheItem *_account;
     MSIDDefaultAccountCacheKey *_key;
 }
 @end
@@ -113,10 +120,10 @@
 
 - (void)setUp
 {
-    NSString* buildDirectory = [NSString stringWithCString:BUILD_DIR encoding:NSUTF8StringEncoding];
-    NSString* executablePath1 = [buildDirectory stringByAppendingPathComponent:@"MSIDTestKeychainUtil"];
-    NSString* executablePath2 = [buildDirectory stringByAppendingPathComponent:@"MSIDTestKeychainUtil2"];
-    NSArray<NSString*>* trustedApplist = @[executablePath1, executablePath2];
+    NSString *buildDirectory = [NSString stringWithCString:BUILD_DIR encoding:NSUTF8StringEncoding];
+    NSString *executablePath1 = [buildDirectory stringByAppendingPathComponent:@"MSIDTestKeychainUtil"];
+    NSString *executablePath2 = [buildDirectory stringByAppendingPathComponent:@"MSIDTestKeychainUtil2"];
+    NSArray<NSString*> *trustedApplist = @[executablePath1, executablePath2];
     
     _remote1 = [[MSIDMacKeychainTokenCacheRemote alloc] initWithExecutablePathAndTrustedApplicationPaths:executablePath1 trustedApplicationPaths:trustedApplist];
     _remote2 = [[MSIDMacKeychainTokenCacheRemote alloc] initWithExecutablePathAndTrustedApplicationPaths:executablePath2 trustedApplicationPaths:trustedApplist];
@@ -144,56 +151,57 @@
     _key.username = _account.username;
     
     // Ensure these test accounts don't already exist:
-    NSString* accountStr = [NSString stringWithUTF8String:[[_serializer serializeAccountCacheItem:_account] bytes]];
-    NSDictionary* deleteParams =@{
+    NSString *accountStr = [NSString stringWithUTF8String:[[_serializer serializeCacheItem:_account] bytes]];
+    NSDictionary *deleteParams =@{
                                   @"method":@"DeleteAccount",
                                   @"account":accountStr
                                   };
     
-    NSDictionary* result = [self->_remote1 remoteExecute:deleteParams];
+    NSDictionary *result = [self->_remote1 remoteExecute:deleteParams];
     [self assertNumericalValue:0 actual:result[@"status"]];
 }
 
 - (void)tearDown
 {
-    NSString* accountStr = [NSString stringWithUTF8String:[[_serializer serializeAccountCacheItem:_account] bytes]];
-    NSDictionary* deleteParams =@{
+    NSString *accountStr = [NSString stringWithUTF8String:[[_serializer serializeCacheItem:_account] bytes]];
+    NSDictionary *deleteParams =@{
                                   @"method":@"DeleteAccount",
                                   @"account":accountStr
                                   };
     
-    NSDictionary* result = [self->_remote1 remoteExecute:deleteParams];
+    NSDictionary *result = [self->_remote1 remoteExecute:deleteParams];
     [self assertNumericalValue:0 actual:result[@"status"]];
 }
 
-- (void)assertNumericalValue:(NSInteger)expected actual:(id)actual {
+- (void)assertNumericalValue:(NSInteger)expected actual:(id)actual
+{
     XCTAssertTrue([actual isKindOfClass:[NSNumber class]]);
     XCTAssertEqual(expected, [actual integerValue]);
 }
 
 - (void)testMacKeychainCacheACL_readWriteAccountFromDifferentProcess
 {
-    NSString* accountStr = [NSString stringWithUTF8String:[[_serializer serializeAccountCacheItem:_account] bytes]];
+    NSString *accountStr = [NSString stringWithUTF8String:[[_serializer serializeCacheItem:_account] bytes]];
     
-    NSDictionary* writeParams =@{
+    NSDictionary *writeParams =@{
                                  @"method":@"WriteAccount",
                                  @"account":accountStr
                                  };
-    NSDictionary* result = [self->_remote1 remoteExecute:writeParams];
+    NSDictionary *result = [self->_remote1 remoteExecute:writeParams];
     XCTAssertNotNil(result[@"status"]);
     [self assertNumericalValue:0 actual:result[@"status"]];
     
-    NSDictionary* readParams =@{
+    NSDictionary *readParams =@{
                                 @"method":@"ReadAccount",
                                 @"account":accountStr
                                 };
     
     result = [self->_remote2 remoteExecute:readParams];
     [self assertNumericalValue:0 actual:result[@"status"]];
-    MSIDAccountCacheItem* accountRead = [_serializer deserializeAccountCacheItem:[result[@"result"] dataUsingEncoding:NSUTF8StringEncoding]];
+    MSIDAccountCacheItem *accountRead = (MSIDAccountCacheItem *)[_serializer deserializeCacheItem:[result[@"result"] dataUsingEncoding:NSUTF8StringEncoding] ofClass:[MSIDAccountCacheItem class]];
     XCTAssertTrue([_account isEqual:accountRead]);
     
-    NSDictionary* deleteParams =@{
+    NSDictionary *deleteParams =@{
                                   @"method":@"DeleteAccount",
                                   @"account":accountStr
                                   };
