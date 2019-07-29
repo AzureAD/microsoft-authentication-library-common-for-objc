@@ -233,12 +233,12 @@ API_AVAILABLE(ios(13.0))
     {
         [_webAuthSession cancel];
     }
+#if !TARGET_OS_UIKITFORMAC
     else
     {
-#if !TARGET_OS_UIKITFORMAC
         [_authSession cancel];
-#endif
     }
+#endif
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,

@@ -587,12 +587,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                     error:&localError];
     if (localError)
     {
-        if (error) *error = localError;
-        
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to unarchive wipeData, error: %@", MSID_PII_LOG_MASKABLE(localError));
-        
-        CFRelease(data);
-        return nil;
     }
 #else
     wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData *)(data)];
