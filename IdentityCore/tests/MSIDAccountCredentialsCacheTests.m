@@ -199,7 +199,7 @@
     XCTAssertEqual([results count], 0);
 }
 
-- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_shouldReturnSingleMatch
 {
     // First save the token
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
@@ -230,7 +230,7 @@
     NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 0);
+    XCTAssertEqual([results count], 1);
 }
 
 - (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andNoEnrollmentIdOnCachedToken_shouldReturnEmptyResult
