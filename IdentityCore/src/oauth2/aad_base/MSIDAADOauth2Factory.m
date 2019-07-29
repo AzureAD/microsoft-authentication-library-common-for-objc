@@ -164,7 +164,10 @@
         return NO;
     }
     
-    accessToken.enrollmentId = configuration.enrollmentId;
+    accessToken.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accessToken.accountIdentifier.homeAccountId
+                                                                                           legacyUserId:accessToken.accountIdentifier.displayableId
+                                                                                                context:nil
+                                                                                                  error:nil];
     accessToken.applicationIdentifier = configuration.applicationIdentifier;
 
     accessToken.extendedExpiresOn = response.extendedExpiresOnDate;

@@ -31,6 +31,8 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDIntuneApplicationStateManager.h"
 
 @implementation MSIDRequestParameters
 
@@ -192,6 +194,8 @@
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId
                                                                       target:self.target];
+    
+    config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority];
     _msidConfiguration = config;
 }
 

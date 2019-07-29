@@ -1437,7 +1437,6 @@
                                                                              redirectUri:nil
                                                                                   target:@"graph"];
     configuration.applicationIdentifier = @"myapp1";
-    configuration.enrollmentId = @"myenrollmentid1";
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:nil];
     NSError *error = nil;
@@ -1482,7 +1481,6 @@
                                                                              redirectUri:nil
                                                                                   target:@"graph"];
     configuration.applicationIdentifier = @"myapp3";
-    configuration.enrollmentId = @"myenrollmentid1";
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:nil];
     NSError *error = nil;
@@ -2254,7 +2252,6 @@
                                                                                   target:inputResource];
     
     configuration.applicationIdentifier = appIdentifier;
-    configuration.enrollmentId = enrollmentId;
 
     NSError *error = nil;
     // Save first token

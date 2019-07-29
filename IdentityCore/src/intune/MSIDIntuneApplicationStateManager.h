@@ -22,30 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthority.h"
 
-@interface MSIDConfiguration : NSObject <NSCopying>
+@class MSIDAuthority;
 
-// Commonly used or needed properties
-@property (readwrite) MSIDAuthority *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readonly) NSString *target;
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readwrite) NSString *applicationIdentifier;
+@interface MSIDIntuneApplicationStateManager : NSObject
 
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                         resource:(NSString *)resource
-                           scopes:(NSOrderedSet<NSString *> *)scopes;
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority;
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority;
 
 @end
+
+NS_ASSUME_NONNULL_END

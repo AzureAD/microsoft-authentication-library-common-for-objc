@@ -128,7 +128,6 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.enrollmentId = @"enrollmentId";
     configuration.applicationIdentifier = @"app.bundle.id";
     
     NSError *error = nil;
@@ -561,7 +560,6 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.enrollmentId = @"enrollmentId";
     configuration.applicationIdentifier = @"app.bundle.id";
     
     // Save token

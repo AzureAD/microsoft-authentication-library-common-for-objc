@@ -21,31 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDAuthority.h"
+#import "MSIDIntuneMAMResourcesCache.h"
 
-@interface MSIDConfiguration : NSObject <NSCopying>
+@implementation MSIDIntuneApplicationStateManager
 
-// Commonly used or needed properties
-@property (readwrite) MSIDAuthority *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readonly) NSString *target;
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority
+{
+#if TARGET_OS_IPHONE
+    
+    if (!authority.supportsMAMScenarios)
+    {
+        return NO;
+    }
+    
+    NSError *error = nil;
+    NSDictionary *resourceCache = [[MSIDIntuneMAMResourcesCache sharedCache] resourcesJsonDictionaryWithContext:nil error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to read Intune MAM resource cache with error %@", MSID_PII_LOG_MASKABLE(error));
+        return NO;
+    }
+    
+    return resourceCache.count > 0;
+#else
+    return NO;
+#endif
+}
 
-@property (readwrite) NSString *applicationIdentifier;
-
-@property (readonly) NSString *resource;
-@property (readonly) NSOrderedSet<NSString *> *scopes;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           target:(NSString *)target;
-
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                         resource:(NSString *)resource
-                           scopes:(NSOrderedSet<NSString *> *)scopes;
++ (NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+{
+    return [self isAppCapableForMAMCA:authority] ? [[NSBundle mainBundle] bundleIdentifier] : nil;
+}
 
 @end
