@@ -144,6 +144,7 @@
     item.clientId = @"client";
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"app.bundle.id";
     [self saveItem:item];
     
     // Now query
@@ -154,7 +155,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
-    query.enrollmentId = @"enrollmentId";
+    query.applicationIdentifier = @"app.bundle.id";
     
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
@@ -177,6 +178,7 @@
     item.clientId = @"client";
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"app.bundle.id";
     [self saveItem:item];
     
     // Now query
@@ -187,7 +189,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
-    query.enrollmentId = @"differentEnrollmentId";
+    query.applicationIdentifier = @"differentAppBundleId";
     
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
@@ -197,7 +199,7 @@
     XCTAssertEqual([results count], 0);
 }
 
-- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andIntuneUnenrolledCaller_shouldReturnEmptyResult
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery
 {
     // First save the token
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
@@ -209,6 +211,7 @@
     item.clientId = @"client";
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"my.app.bundle";
     [self saveItem:item];
     
     // Now query
@@ -219,6 +222,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
+    query.applicationIdentifier = @"my.app.bundle";
     // Don't assign enrollmentId for querying unenrolled "app".
     
     XCTAssertTrue(query.exactMatch);
@@ -250,7 +254,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
-    query.enrollmentId = @"someEnrollmentId";
+    query.applicationIdentifier = @"some.bundle.id";
     
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
@@ -1294,6 +1298,7 @@
     // First save the token
     MSIDCredentialCacheItem *item = [self createTestAccessTokenCacheItem];
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"app.bundle.id";
     [self saveItem:item];
     
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
@@ -1303,7 +1308,7 @@
     
     key.realm = @"contoso.com";
     key.target = @"user.read user.write";
-    key.enrollmentId = @"enrollmentId";
+    key.applicationIdentifier = @"app.bundle.id";
     
     NSError *error = nil;
     MSIDCredentialCacheItem *resultItem = [self.cache getCredential:key context:nil error:&error];

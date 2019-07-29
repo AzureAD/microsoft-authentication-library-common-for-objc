@@ -282,10 +282,7 @@
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
     query.credentialType = MSIDAccessTokenType;
-    query.enrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accountIdentifier.homeAccountId
-                                                                                     legacyUserId:accountIdentifier.displayableId
-                                                                                          context:context
-                                                                                            error:nil];
+    query.applicationIdentifier = configuration.applicationIdentifier;
 
     __auto_type accessToken = (MSIDAccessToken *)[self getTokenWithEnvironment:configuration.authority.environment
                                                                     cacheQuery:query
@@ -678,7 +675,7 @@
     query.target = [accessToken.scopes msidToString];
     query.targetMatchingOptions = MSIDIntersect;
     query.credentialType = MSIDAccessTokenType;
-    query.enrollmentId = accessToken.enrollmentId;
+    query.applicationIdentifier = accessToken.applicationIdentifier;
 
     BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
 

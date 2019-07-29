@@ -342,7 +342,7 @@
     key.familyId = self.familyId;
     key.realm = self.realm;
     key.target = self.target;
-    key.enrollmentId = self.enrollmentId;
+    key.applicationIdentifier = self.applicationIdentifier;
     return key;
 }
 
