@@ -1001,9 +1001,9 @@ static dispatch_queue_t s_synchronizationQueue;
 
 #pragma mark - Access Control Lists
 
-- (id) accessCreateWithChangeACL:(NSArray<id>*)trustedApplications
+- (id) accessCreateWithChangeACL:(NSArray<id> *)trustedApplications
                          context:(id<MSIDRequestContext>)context
-                           error:(NSError**)error
+                           error:(NSError **)error
 {
     SecAccessRef access;
     OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, &access);
@@ -1027,12 +1027,12 @@ static dispatch_queue_t s_synchronizationQueue;
 
 - (BOOL) accessSetACLTrustedApplications:(SecAccessRef)access
                      aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
-                     trustedApplications:(NSArray<id>*)trustedApplications
+                     trustedApplications:(NSArray<id> *)trustedApplications
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError**)error
+                                   error:(NSError **)error
 {
     OSStatus status;
-    NSArray* acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
+    NSArray *acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
     // TODO: handle case where tag is not found?
     for (id acl in acls)
     {
@@ -1041,6 +1041,7 @@ static dispatch_queue_t s_synchronizationQueue;
         SecKeychainPromptSelector selector;
         
         status = SecACLCopyContents((__bridge SecACLRef)acl, &oldtrustedAppList, &description, &selector);
+        
         if (status != errSecSuccess)
         {
             [self createError:@"Failed to get contents from ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
@@ -1048,12 +1049,14 @@ static dispatch_queue_t s_synchronizationQueue;
         }
         
         status = SecACLSetContents((__bridge SecACLRef)acl, (__bridge CFArrayRef)trustedApplications, description, selector);
+        
         if (status != errSecSuccess)
         {
             [self createError:@"Failed to set conents for ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
             return NO;
         }
     }
+    
     return YES;
 }
 
