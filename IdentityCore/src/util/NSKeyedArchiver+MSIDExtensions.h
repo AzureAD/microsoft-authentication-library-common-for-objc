@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface NSKeyedArchiver (MSIDExtensions)
 
-+ (instancetype)msidCreateForWritingWithMutableData:(NSMutableData *)data;
++ (NSData *)msidEncodeObject:(nullable id)obj usingBlock:(void (^)(NSKeyedArchiver *archiver))block;
 
 + (nullable NSData *)msidArchivedDataWithRootObject:(id)object
                               requiringSecureCoding:(BOOL)requiresSecureCoding

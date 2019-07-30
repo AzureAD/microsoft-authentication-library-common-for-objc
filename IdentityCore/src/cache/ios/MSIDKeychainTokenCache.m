@@ -577,7 +577,8 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
     
     NSError *localError;
-    NSDictionary *wipeData = [NSKeyedUnarchiver msidUnarchivedObjectOfClass:NSDictionary.class
+    __auto_type classes = [[NSSet alloc] initWithArray:@[NSDictionary.class, NSString.class, NSDate.class]];
+    NSDictionary *wipeData = [NSKeyedUnarchiver msidUnarchivedObjectOfClasses:classes
                                                                    fromData:(__bridge NSData *)(data)
                                                                       error:&localError];
     CFRelease(data);

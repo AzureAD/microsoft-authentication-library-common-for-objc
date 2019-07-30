@@ -59,27 +59,21 @@
 
 - (NSData *)serialize:(MSIDCredentialCacheItem *)item
 {
-    if (!item)
-    {
-        return nil;
-    }
-    
-    NSMutableData *data = [NSMutableData data];
+    if (!item) return nil;
     
     // In order to customize the archiving process Apple recommends to create an instance of the archiver and
     // customize it (instead of using share NSKeyedArchiver).
     // See here: https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Archiving/Articles/creating.html
-    NSKeyedArchiver *archiver = [NSKeyedArchiver msidCreateForWritingWithMutableData:data];
-    
-    // Maintain backward compatibility with ADAL.
-    for (NSString *className in _defaultEncodeClassMap)
+    NSData *result = [NSKeyedArchiver msidEncodeObject:item usingBlock:^(NSKeyedArchiver *archiver)
     {
-        [archiver setClassName:className forClass:_defaultEncodeClassMap[className]];
-    }
-    [archiver encodeObject:item forKey:NSKeyedArchiveRootObjectKey];
-    [archiver finishEncoding];
+        // Maintain backward compatibility with ADAL.
+        for (NSString *className in _defaultEncodeClassMap)
+        {
+            [archiver setClassName:className forClass:_defaultEncodeClassMap[className]];
+        }
+    }];
     
-    return data;
+    return result;
 }
 
 - (MSIDLegacyTokenCacheItem *)deserialize:(NSData *)data className:(Class)className

@@ -25,9 +25,10 @@
 
 @implementation NSKeyedArchiver (MSIDExtensions)
 
-+ (instancetype)msidCreateForWritingWithMutableData:(NSMutableData *)data
++ (NSData *)msidEncodeObject:(nullable id)obj usingBlock:(void (^)(NSKeyedArchiver *archiver))block
 {
     NSKeyedArchiver *archiver;
+    NSMutableData *data = [NSMutableData data];
     if (@available(iOS 11.0, macOS 10.13, *))
     {
         archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
@@ -39,7 +40,22 @@
     }
 #endif
     
-    return archiver;
+    if (block) block(archiver);
+    
+    [archiver encodeObject:obj forKey:NSKeyedArchiveRootObjectKey];
+    [archiver finishEncoding];
+    
+    NSData *result;
+    if (@available(iOS 10.0, *))
+    {
+        result = archiver.encodedData;
+    }
+    else
+    {
+        result = data;
+    }
+    
+    return result;
 }
 
 + (NSData *)msidArchivedDataWithRootObject:(id)object

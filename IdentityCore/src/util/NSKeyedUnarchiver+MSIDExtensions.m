@@ -42,12 +42,12 @@
     return unarchiver;
 }
 
-+ (nullable id)msidUnarchivedObjectOfClass:(Class)cls fromData:(NSData *)data error:(NSError **)error
++ (id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error
 {
     id result;
     if (@available(iOS 11.0, macOS 10.13, *))
     {
-        result = [NSKeyedUnarchiver unarchivedObjectOfClass:cls fromData:data error:error];
+        result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:error];
     }
 #if !TARGET_OS_UIKITFORMAC
     else

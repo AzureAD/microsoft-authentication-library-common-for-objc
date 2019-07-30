@@ -92,18 +92,13 @@ return NO; \
 
         @try
         {
-            NSMutableData *data = [NSMutableData data];
-
-            NSKeyedArchiver *archiver = [NSKeyedArchiver msidCreateForWritingWithMutableData:data];
-            
-            // Maintain backward compatibility with ADAL.
-            [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
-            [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
-            [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-            [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
-            [archiver finishEncoding];
-
-            result = data;
+            result = [NSKeyedArchiver msidEncodeObject:wrapper usingBlock:^(NSKeyedArchiver *archiver)
+            {
+                // Maintain backward compatibility with ADAL.
+                [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
+                [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
+                [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
+            }];
         }
         @catch (id exception)
         {
