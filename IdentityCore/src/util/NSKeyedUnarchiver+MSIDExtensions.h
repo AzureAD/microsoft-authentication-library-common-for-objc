@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (nullable instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error;
 
++ (nullable id)msidUnarchivedObjectOfClass:(Class)cls fromData:(NSData *)data error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -33,6 +33,7 @@
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
@@ -579,20 +580,16 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         return nil;
     }
     
-    NSDictionary *wipeData;
-#if TARGET_OS_UIKITFORMAC
     NSError *localError;
-    wipeData = [NSKeyedUnarchiver unarchivedObjectOfClass:NSDictionary.class
-                                                 fromData:(__bridge NSData *)(data)
-                                                    error:&localError];
+    NSDictionary *wipeData = [NSKeyedUnarchiver msidUnarchivedObjectOfClass:NSDictionary.class
+                                                                   fromData:(__bridge NSData *)(data)
+                                                                      error:&localError];
+    CFRelease(data);
+    
     if (localError)
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to unarchive wipeData, error: %@", MSID_PII_LOG_MASKABLE(localError));
     }
-#else
-    wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData *)(data)];
-#endif
-    CFRelease(data);
     
     return wipeData;
 }
