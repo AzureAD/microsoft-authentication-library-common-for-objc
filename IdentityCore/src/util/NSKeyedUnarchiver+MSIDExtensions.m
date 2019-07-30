@@ -32,10 +32,12 @@
     {
         unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
     }
+#if !TARGET_OS_UIKITFORMAC
     else
     {
         unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     }
+#endif
     
     return unarchiver;
 }
@@ -47,10 +49,12 @@
     {
         result = [NSKeyedUnarchiver unarchivedObjectOfClass:cls fromData:data error:error];
     }
+#if !TARGET_OS_UIKITFORMAC
     else
     {
         result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
     }
+#endif
 
     return result;
 }

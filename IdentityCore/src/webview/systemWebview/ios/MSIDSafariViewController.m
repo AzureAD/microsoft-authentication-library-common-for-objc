@@ -72,10 +72,12 @@
             __auto_type config = [SFSafariViewControllerConfiguration new];
             _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
         }
+#if !TARGET_OS_UIKITFORMAC
         else
         {
             _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
         }
+#endif
         
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
