@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (instancetype)msidCreateForWritingWithMutableData:(NSMutableData *)data;
 
++ (nullable NSData *)msidArchivedDataWithRootObject:(id)object
+                              requiringSecureCoding:(BOOL)requiresSecureCoding
+                                              error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

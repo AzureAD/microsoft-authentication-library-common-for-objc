@@ -40,4 +40,21 @@
     return archiver;
 }
 
++ (NSData *)msidArchivedDataWithRootObject:(id)object
+                     requiringSecureCoding:(BOOL)requiresSecureCoding
+                                     error:(NSError **)error
+{
+    NSData *result;
+    if (@available(iOS 11.0, macOS 10.13, *))
+    {
+        result = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:requiresSecureCoding error:error];
+    }
+    else
+    {
+        result = [NSKeyedArchiver archivedDataWithRootObject:object];
+    }
+    
+    return result;
+}
+
 @end
