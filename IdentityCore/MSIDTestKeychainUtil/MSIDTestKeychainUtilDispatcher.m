@@ -109,7 +109,7 @@ MSIDCacheItemJsonSerializer *_serializer;
         }
     }
     
-    _dataSource = [[MSIDMacKeychainTokenCache alloc] initWithGroupAndTrustedApplications:[MSIDMacKeychainTokenCache defaultKeychainGroup]                                                                       trustedApplications:trustedApplications];
+    _dataSource = [[MSIDMacKeychainTokenCache alloc] initWithGroup:[MSIDMacKeychainTokenCache defaultKeychainGroup]                                                                       trustedApplications:trustedApplications];
     _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
 }
 

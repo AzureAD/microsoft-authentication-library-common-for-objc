@@ -366,8 +366,7 @@ static dispatch_queue_t s_synchronizationQueue;
 // Initialize with defaultKeychainGroup
 - (nonnull instancetype)init
 {
-    return [self initWithGroupAndTrustedApplications:s_defaultKeychainGroup
-                                 trustedApplications:nil];
+    return [self initWithGroup:s_defaultKeychainGroup trustedApplications:nil];
 }
 
 // Initialize with a keychain group
@@ -376,8 +375,8 @@ static dispatch_queue_t s_synchronizationQueue;
 // with other applications from the same vendor, the app will need to specify the
 // shared group here. If set to 'nil' the main bundle's identifier will be used instead.
 //
-- (nullable instancetype)initWithGroupAndTrustedApplications:(nullable NSString *)keychainGroup
-                                         trustedApplications:(NSArray*)trustedApplications
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
+                   trustedApplications:(nullable NSArray *)trustedApplications
 {
     MSID_TRACE;
 
@@ -1007,21 +1006,27 @@ static dispatch_queue_t s_synchronizationQueue;
 {
     SecAccessRef access;
     OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, &access);
+    
     if (status != errSecSuccess)
     {
-        [self createError:@"Failed to remove multiple accounts from keychain"
+        [self createError:@"Failed to create SecAccessRef object for blob."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         return nil;
     }
+    
     if (![self accessSetACLTrustedApplications:access
                            aclAuthorizationTag:kSecACLAuthorizationChangeACL
-                           trustedApplications:self->_trustedApplications
+                           trustedApplications:self.trustedApplications
                                        context:context
                                          error:error])
     {
+        [self createError:@"Failed to update ACL with kSecACLAuthorizationChangeACL authorization tag and set trusted applications."
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        
         CFRelease(access);
         return nil;
     }
+    
     return CFBridgingRelease(access);
 }
 
@@ -1063,7 +1068,7 @@ static dispatch_queue_t s_synchronizationQueue;
 - (id) accessCreateForSharedBlob:(id<MSIDRequestContext>)context
                            error:(NSError**)error
 {
-    return [self accessCreateWithChangeACL:self->_trustedApplications
+    return [self accessCreateWithChangeACL:self.trustedApplications
                                    context:context
                                      error:error];
 }

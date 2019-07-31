@@ -74,8 +74,8 @@
 
  See Apple's keychain services documentation for details.
  */
-- (nullable instancetype)initWithGroupAndTrustedApplications:(nullable NSString *)keychainGroup
-                                         trustedApplications:(nullable NSArray *)trustedApplications;
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
+                   trustedApplications:(nullable NSArray *)trustedApplications;
 
 
 @end
