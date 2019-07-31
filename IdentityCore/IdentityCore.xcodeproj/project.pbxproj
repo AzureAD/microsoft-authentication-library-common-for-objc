@@ -2013,11 +2013,6 @@
 		B2EF14391FF2F21E005DC1C0 /* MSIDAADV2TokenResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADV2TokenResponse.h; sourceTree = "<group>"; };
 		B4A5ACCB21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAccountCacheItem+MSIDAccountMatchers.h"; sourceTree = "<group>"; };
 		B4A5ACCC21F7ED4500D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDAccountCacheItem+MSIDAccountMatchers.m"; sourceTree = "<group>"; };
-		C93C92592272572000B59FC9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestKeychainUtilDispatcher.m; sourceTree = "<group>"; };
-		C93C926C2273DA0E00B59FC9 /* MSIDTestKeychainUtilDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestKeychainUtilDispatcher.h; sourceTree = "<group>"; };
-		C93C926D2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacKeychainACLTests.m; sourceTree = "<group>"; };
-		C93C927522779E3200B59FC9 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D626000F1FBD380500EE4487 /* NSString+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+MSIDExtensions.m"; sourceTree = "<group>"; };
 		D62600101FBD380500EE4487 /* NSDictionary+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDExtensions.h"; sourceTree = "<group>"; };
 		D62600111FBD380500EE4487 /* NSDictionary+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+MSIDExtensions.m"; sourceTree = "<group>"; };
@@ -3377,24 +3372,6 @@
 			path = Matchers;
 			sourceTree = "<group>";
 		};
-		C93C92582272571F00B59FC9 /* MSIDTestKeychainUtil */ = {
-			isa = PBXGroup;
-			children = (
-				C93C92592272572000B59FC9 /* main.m */,
-				C93C926A2273D84900B59FC9 /* MSIDTestKeychainUtilDispatcher.m */,
-				C93C926C2273DA0E00B59FC9 /* MSIDTestKeychainUtilDispatcher.h */,
-			);
-			path = MSIDTestKeychainUtil;
-			sourceTree = "<group>";
-		};
-		C93C927422779E3200B59FC9 /* MSIDTestKeychainUtil2 */ = {
-			isa = PBXGroup;
-			children = (
-				C93C927522779E3200B59FC9 /* main.m */,
-			);
-			path = MSIDTestKeychainUtil2;
-			sourceTree = "<group>";
-		};
 		D62600091FBD305800EE4487 /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -3541,8 +3518,6 @@
 				D6DA89731FBA6A4E004C56C7 /* tests */,
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				231CE99E1FE86EA300E95D3E /* MSIDTestsHostApp */,
-				C93C92582272571F00B59FC9 /* MSIDTestKeychainUtil */,
-				C93C927422779E3200B59FC9 /* MSIDTestKeychainUtil2 */,
 				D68FB4881FBA698A005308BB /* Products */,
 				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
 				B214C39A1FE851F20070C4F2 /* Recovered References */,
@@ -3753,7 +3728,6 @@
 				23CA0C5E220A68D400768729 /* MSIDPkeyAuthHelperTests.m */,
 				23FB5C1F225516FA002BF1EB /* MSIDClaimsRequestTests.m */,
 				05566D142204BCF9002DBA40 /* MSIDMacKeychainTokenCacheTests.m */,
-				C93C926D2273E2B300B59FC9 /* MSIDMacKeychainACLTests.m */,
 				B281B337226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m */,
 				B27CCDD4229EF2C000CAD565 /* MSIDDictionaryExtensionsTests.m */,
 				B223B0A222ADEE4500FB8713 /* MSIDMaskedUsernameLogParameterTests.m */,
