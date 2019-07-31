@@ -28,13 +28,18 @@ static NSMutableDictionary *s_handlers = nil;
 
 @implementation MSIDChallengeHandler
 
+#if TARGET_OS_IPHONE
 + (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
-#if TARGET_OS_IPHONE
        parentController:(UIViewController *)parentViewController
-#endif
                 context:(id<MSIDRequestContext>)context
-      completionHandler:(ChallengeCompletionHandler)completionHandler
+      completionHandler:(ChallengeCompletionHandler)completionHandler;
+#else
++ (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+                webview:(WKWebView *)webview
+                context:(id<MSIDRequestContext>)context
+      completionHandler:(ChallengeCompletionHandler)completionHandler;
+#endif
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];
     
