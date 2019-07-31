@@ -37,7 +37,10 @@
                              clientId:(NSString *)clientId;
 
 // Authority map caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error;
-- (NSURL *)cachedURL:(NSURL *)requestURL;
+- (BOOL)setCachedURL:(NSURL *)cachedURL
+       forRequestURL:(NSURL *)requestURL
+       instanceAware:(BOOL)instanceAware
+               error:(NSError **)error;
+- (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware;
 
 @end
