@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "NSURL+MSIDAADUtils.h"
 
 @interface NSURLExtensionsTests : XCTestCase
 
@@ -111,59 +112,59 @@
     XCTAssertEqualObjects(url.msidHostWithPortIfNecessary, @"somehost.com:652");
 }
 
-- (void)testMsidTenant_whenNoTenant_shouldReturnNil
+- (void)testmsidAADTenant_whenNoTenant_shouldReturnNil
 {
     NSURL *url = [NSURL URLWithString:@"https://contoso.com"];
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertNil(tenant);
 }
 
-- (void)testMsidTenant_whenNilURL_shouldReturnNil
+- (void)testmsidAADTenant_whenNilURL_shouldReturnNil
 {
     NSURL *url = nil;
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertNil(tenant);
 }
 
-- (void)testMsidTenant_whenAADV1Tenant_shouldReturnTenant
+- (void)testmsidAADTenant_whenAADV1Tenant_shouldReturnTenant
 {
     NSURL *url = [NSURL URLWithString:@"https://contoso.com/contoso.com"];
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertEqualObjects(tenant, @"contoso.com");
 }
 
-- (void)testMsidTenant_whenAADV1Tenant_andURLWithPath_shouldReturnTenant
+- (void)testmsidAADTenant_whenAADV1Tenant_andURLWithPath_shouldReturnTenant
 {
     NSURL *url = [NSURL URLWithString:@"https://contoso.com/contoso.com/authorize"];
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertEqualObjects(tenant, @"contoso.com");
 }
 
-- (void)testMsidTenant_whenAADV2Tenant_shouldReturnTenant
+- (void)testmsidAADTenant_whenAADV2Tenant_shouldReturnTenant
 {
     NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/organizations"];
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertEqualObjects(tenant, @"organizations");
 }
 
-- (void)testMsidTenant_whenB2CTenant_shouldReturnTenant
+- (void)testmsidAADTenant_whenB2CTenant_shouldReturnTenant
 {
     NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.onmicrosoft.com/B2C_1_signup_signin/"];
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertEqualObjects(tenant, @"contoso.onmicrosoft.com");
 }
 
-- (void)testMsidTenant_whenB2CAuthority_andEmptyTenant_shouldReturnNil
+- (void)testmsidAADTenant_whenB2CAuthority_andEmptyTenant_shouldReturnNil
 {
     NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/"];
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertNil(tenant);
 }
 
-- (void)testMsidTenant_whenB2CTenant_andURLWithPath_shouldReturnTenant
+- (void)testmsidAADTenant_whenB2CTenant_andURLWithPath_shouldReturnTenant
 {
     NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.onmicrosoft.com/B2C_1_signup_signin/v2.0/authorize"];
-    NSString *tenant = [url msidTenant];
+    NSString *tenant = [url msidAADTenant];
     XCTAssertEqualObjects(tenant, @"contoso.onmicrosoft.com");
 }
 
@@ -258,49 +259,50 @@
 - (void)testMsidAuthorityWithCloudInstanceHostname_whenPassNil_shouldReturnOriginal
 {
     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:nil];
+    NSString *name = nil;
+    NSURL *authorityWithCloudName = [authority msidAADAuthorityWithCloudInstanceHostname:name];
     XCTAssertEqualObjects(authority, authorityWithCloudName);
 }
 
 - (void)testMsidAuthorityWithCloudInstanceHostname_whenPassInEmptyString_shouldReturnOriginal
 {
     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"  "];
+    NSURL *authorityWithCloudName = [authority msidAADAuthorityWithCloudInstanceHostname:@"  "];
     XCTAssertEqualObjects(authority, authorityWithCloudName);
 }
 
 - (void)testMsidAuthorityWithCloudInstanceHostname_whenCommon_shouldSwap
 {
     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
-    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    NSURL *authorityWithCloudName = [authority msidAADAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/common");
 }
 
 - (void)testMsidAuthorityWithCloudInstanceHostname_whenWithTenant_shouldSwap
 {
     NSURL *authority = [NSURL URLWithString:@"https://login.microsoftonline.com/b960c013-d381-403c-8d4d-939edac0d9ea"];
-    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    NSURL *authorityWithCloudName = [authority msidAADAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/b960c013-d381-403c-8d4d-939edac0d9ea");
 }
                         
 - (void)testMsidAuthorityWithCloudInstanceHostname_whenLoginWindowsNet_shouldSwap
 {
     NSURL *authority = [NSURL URLWithString:@"https://login.windows.net/common"];
-    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    NSURL *authorityWithCloudName = [authority msidAADAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/common");
 }
                         
 - (void)testMsidAuthorityWithCloudInstanceHostname_whenLoginSts_shouldSwap
 {
     NSURL *authority = [NSURL URLWithString:@"https://sts.microsoft.com/common"];
-    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    NSURL *authorityWithCloudName = [authority msidAADAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://login.microsoftonline.de/common");
 }
                         
 - (void)testMsidAuthorityWithCloudInstanceHostname_whenNoHost_shouldReturnSame
 {
     NSURL *authority = [NSURL URLWithString:@"https://"];
-    NSURL *authorityWithCloudName = [authority msidAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
+    NSURL *authorityWithCloudName = [authority msidAADAuthorityWithCloudInstanceHostname:@"login.microsoftonline.de"];
     XCTAssertEqualObjects(authorityWithCloudName.absoluteString, @"https://");
 }
 

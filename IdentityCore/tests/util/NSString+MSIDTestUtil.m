@@ -21,14 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAuthorityFactory.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDB2CAuthority.h"
+#import "MSIDADFSAuthority.h"
+#import "MSIDAuthority+Internal.h"
 
 @implementation NSString (MSIDTestUtil)
 
-- (MSIDAuthority *)authority
+- (MSIDAuthority *)aadAuthority
 {
     __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:authorityUrl context:nil error:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl rawTenant:nil context:nil error:nil];
+    
+    return authority;
+}
+
+- (MSIDAuthority *)b2cAuthority
+{
+    __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
+    __auto_type authority = [[MSIDB2CAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:nil];
+    
+    return authority;
+}
+
+- (MSIDAuthority *)adfsAuthority
+{
+    __auto_type authorityUrl = [[NSURL alloc] initWithString:self];
+    __auto_type authority = [[MSIDADFSAuthority alloc] initWithURL:authorityUrl validateFormat:NO context:nil error:nil];
     
     return authority;
 }

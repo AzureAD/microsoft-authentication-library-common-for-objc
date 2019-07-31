@@ -21,14 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTestTelemetryEventsObserver.h"
 
-@class MSIDAppMetadataCacheItem;
+@implementation MSIDTestTelemetryEventsObserver
 
-@protocol MSIDAppMetadataItemSerializer <NSObject>
-
-- (NSData *)serializeAppMetadataCacheItem:(MSIDAppMetadataCacheItem *)item;
-- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data;
+- (void)onEventsReceived:(NSArray<NSDictionary<NSString *, NSString *> *> *)events
+{
+    if (self.eventsReceivedBlock) self.eventsReceivedBlock(events);
+}
 
 @end
-

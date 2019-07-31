@@ -30,14 +30,17 @@
     _testCallback = callback;
 }
 
-- (BOOL)containsDispatcher:(id)dispatcher { 
+- (BOOL)containsObserver:(id)observer
+{
     return NO;
 }
 
-- (void)flush:(NSString *)requestId {
+- (void)flush:(NSString *)requestId
+{
 }
 
-- (void)receive:(NSString *)requestId event:(id<MSIDTelemetryEventInterface>)event { 
+- (void)receive:(NSString *)requestId event:(id<MSIDTelemetryEventInterface>)event
+{ 
     // call _testCallback when it receives telemetry event
     // this is for the purpose of unit test
     if (_testCallback)

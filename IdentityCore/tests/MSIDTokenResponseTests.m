@@ -102,7 +102,7 @@
 
 - (void)testIdTokenObj_whenIdTokenAvailable_shouldReturnIDToken
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"test" upn:@"upn" tenantId:@"tenant"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"test" upn:@"upn" oid:nil tenantId:@"tenant"];
     
     NSDictionary *jsonInput = @{@"access_token": @"at",
                                 @"token_type": @"Bearer",

@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,26 +15,26 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-#if !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+#import "MSIDDefaultDispatcher.h"
 
-@interface MSIDSFAuthenticationSession : NSObject<MSIDWebviewInteracting>
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-                    context:(id<MSIDRequestContext>)context;
+@interface MSIDDefaultDispatcher ()
 
-@property (readonly) NSURL *startURL;
-@property (readonly) NSString *callbackURLScheme;
+@property (nonatomic) NSMutableDictionary *eventsToBeDispatched;
+@property (nonatomic) id<MSIDTelemetryEventsObserving> observer;
+@property (nonatomic) BOOL setTelemetryOnFailure;
+@property (nonatomic) NSMutableSet *errorEvents;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
+
+- (NSArray *)popEventsForRequestId:(NSString *)requestId;
 
 @end
-#endif
+
+NS_ASSUME_NONNULL_END

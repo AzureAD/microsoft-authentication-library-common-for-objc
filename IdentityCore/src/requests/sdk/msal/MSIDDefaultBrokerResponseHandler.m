@@ -29,6 +29,8 @@
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDConstants.h"
+#import "MSIDBrokerResponseHandler+Internal.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -105,8 +107,7 @@
         
         if (!tokenResult)
         {
-            MSID_LOG_NO_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save additional tokens with error %ld, %@", (long)additionalTokensError.code, additionalTokensError.domain);
-            MSID_LOG_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save additional token with error %@", additionalTokensError);
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, correlationID, @"Unable to save additional token with error %@", MSID_PII_LOG_MASKABLE(additionalTokensError));
         }
     }
     
@@ -194,6 +195,15 @@
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, subError, nil, correlationId, userInfo);
     
     return brokerError;
+}
+
+- (BOOL)canHandleBrokerResponse:(NSURL *)response
+             hasCompletionBlock:(BOOL)hasCompletionBlock
+{
+    return [self canHandleBrokerResponse:response
+                      hasCompletionBlock:hasCompletionBlock
+                         protocolVersion:MSID_MSAL_BROKER_MESSAGE_VERSION
+                                 sdkName:MSID_MSAL_SDK_NAME];
 }
 
 @end
