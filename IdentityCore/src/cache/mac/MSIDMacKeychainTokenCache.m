@@ -408,31 +408,6 @@ static dispatch_queue_t s_synchronizationQueue;
             return nil;
         }
         
-        self.trustedApplications = trustedApplications;
-        if (self.trustedApplications == nil)
-        {
-            SecTrustedApplicationRef trustedApplication = nil;
-            OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
-            if (status != errSecSuccess)
-            {
-                return nil;
-            }
-            NSArray *trustedApplications = @[(__bridge_transfer id)trustedApplication];
-            self.trustedApplications = trustedApplications;
-        }
-        
-        self.accessForSharedBlob = [self accessCreateForSharedBlob:nil error:nil];
-        if (!self.accessForSharedBlob)
-        {
-            return nil;
-        }
-        
-        self.accessForNonSharedBlob = [self accessCreateForNonSharedBlob:nil error:nil];
-        if (!self.accessForNonSharedBlob)
-        {
-            return nil;
-        }
-
         self.appIdentifier = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
                               NSProcessInfo.processInfo.processIdentifier];
 
@@ -700,7 +675,7 @@ static dispatch_queue_t s_synchronizationQueue;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item, item info %@.", MSID_PII_LOG_MASKABLE(storageItem));
     
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    [query addEntriesFromDictionary:[self primaryAttributesForKey:key]];
+    [query addEntriesFromDictionary:[self primaryAttributesForKey:key context:context error:error]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     NSMutableDictionary *update = [NSMutableDictionary dictionary];
     update[(id)kSecValueData] = itemData;
@@ -734,7 +709,7 @@ static dispatch_queue_t s_synchronizationQueue;
                           error:(NSError **)error
 {
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    [query addEntriesFromDictionary:[self primaryAttributesForKey:key]];
+    [query addEntriesFromDictionary:[self primaryAttributesForKey:key context:context error:error]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
@@ -764,7 +739,7 @@ static dispatch_queue_t s_synchronizationQueue;
     MSID_TRACE;
     MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    [query addEntriesFromDictionary:[self primaryAttributesForKey:key]];
+    [query addEntriesFromDictionary:[self primaryAttributesForKey:key context:context error:error]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     query[(id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
     query[(id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
@@ -834,7 +809,7 @@ static dispatch_queue_t s_synchronizationQueue;
     return [self removeStorageItemForKey:key context:context error:error];
 }
 
-- (NSDictionary *)primaryAttributesForKey:(MSIDCacheKey *)key
+- (NSDictionary *)primaryAttributesForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError **)error
 {
     NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
     
@@ -842,13 +817,13 @@ static dispatch_queue_t s_synchronizationQueue;
     {
         // Shareable item attributes: <keychainGroup>
         [attributes setObject:self.keychainGroup forKey:(id)kSecAttrAccount];
-        [attributes setObject:self.accessForSharedBlob forKey:(id)kSecAttrAccess];
+        [attributes setObject:[self createAccess:key context:context error:error] forKey:(id)kSecAttrAccess];
     }
     else
     {
         // Non-Shareable item attributes: <keychainGroup>-<app_bundle_id>
         [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]] forKey:(id)kSecAttrAccount];
-        [attributes setObject:self.accessForNonSharedBlob forKey:(id)kSecAttrAccess];
+        [attributes setObject:[self createAccess:key context:context error:error] forKey:(id)kSecAttrAccess];
     }
     
     return attributes;
@@ -1000,7 +975,55 @@ static dispatch_queue_t s_synchronizationQueue;
 
 #pragma mark - Access Control Lists
 
-- (id) accessCreateWithChangeACL:(NSArray<id> *)trustedApplications
+- (id)createAccess:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(__unused NSError **)error
+{
+    if (key.isShared)
+    {
+        if (!self.accessForSharedBlob)
+        {
+            if (!self.trustedApplications)
+            {
+                self.trustedApplications = [self createAccessForCurrentApp:context error:error];
+            }
+            
+            self.accessForSharedBlob =  [self accessCreateWithChangeACL:self.trustedApplications
+                                                                context:context
+                                                                  error:error];
+        }
+        
+        return self.accessForSharedBlob;
+    }
+    else
+    {
+        if (!self.accessForNonSharedBlob)
+        {
+            NSArray* trustedApps = [self createAccessForCurrentApp:context error:error];
+            self.accessForNonSharedBlob = [self accessCreateWithChangeACL:trustedApps
+                                                                  context:context
+                                                                    error:error];
+        }
+        
+        return self.accessForNonSharedBlob;
+    }
+}
+
+- (NSArray *)createAccessForCurrentApp:(id<MSIDRequestContext>)context error:(__unused NSError **)error
+{
+    SecTrustedApplicationRef trustedApplication = nil;
+    OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
+    if (status != errSecSuccess)
+    {
+        [self createError:@"Failed to create trusted application for current application path"
+                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        
+        return nil;
+    }
+    
+    NSArray *trustedApplications = @[(__bridge_transfer id)trustedApplication];
+    return trustedApplications;
+}
+
+- (id)accessCreateWithChangeACL:(NSArray<id> *)trustedApplications
                          context:(id<MSIDRequestContext>)context
                            error:(NSError **)error
 {
@@ -1016,7 +1039,7 @@ static dispatch_queue_t s_synchronizationQueue;
     
     if (![self accessSetACLTrustedApplications:access
                            aclAuthorizationTag:kSecACLAuthorizationChangeACL
-                           trustedApplications:self.trustedApplications
+                           trustedApplications:trustedApplications
                                        context:context
                                          error:error])
     {
@@ -1030,7 +1053,7 @@ static dispatch_queue_t s_synchronizationQueue;
     return CFBridgingRelease(access);
 }
 
-- (BOOL) accessSetACLTrustedApplications:(SecAccessRef)access
+- (BOOL)accessSetACLTrustedApplications:(SecAccessRef)access
                      aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
                      trustedApplications:(NSArray<id> *)trustedApplications
                                  context:(id<MSIDRequestContext>)context
@@ -1063,32 +1086,6 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     
     return YES;
-}
-
-- (id) accessCreateForSharedBlob:(id<MSIDRequestContext>)context
-                           error:(NSError**)error
-{
-    return [self accessCreateWithChangeACL:self.trustedApplications
-                                   context:context
-                                     error:error];
-}
-
-- (id) accessCreateForNonSharedBlob:(id<MSIDRequestContext>)context
-                              error:(NSError**)error
-{
-    SecTrustedApplicationRef currentApp;
-    OSStatus status = SecTrustedApplicationCreateFromPath(nil, &currentApp);
-    if (status != errSecSuccess)
-    {
-        [self createError:@"Failed to create trusted application for current application path"
-                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-        return nil;
-    }
-    
-    NSArray* trustedApps = @[(__bridge_transfer id)currentApp];
-    return [self accessCreateWithChangeACL:trustedApps
-                                   context:context
-                                     error:error];
 }
 
 #pragma mark - Utilities
