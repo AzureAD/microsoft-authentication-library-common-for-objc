@@ -312,6 +312,8 @@ static dispatch_queue_t s_synchronizationQueue;
 
 @implementation MSIDMacKeychainTokenCache
 
+#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
+
 #pragma mark - Public
 
 + (NSString *)defaultKeychainGroup
@@ -812,18 +814,22 @@ static dispatch_queue_t s_synchronizationQueue;
 - (NSDictionary *)primaryAttributesForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError **)error
 {
     NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+    SecAccessRef access = (__bridge SecAccessRef)([self createAccess:key context:context error:error]);
     
     if (key.isShared)
     {
         // Shareable item attributes: <keychainGroup>
         [attributes setObject:self.keychainGroup forKey:(id)kSecAttrAccount];
-        [attributes setObject:[self createAccess:key context:context error:error] forKey:(id)kSecAttrAccess];
     }
     else
     {
         // Non-Shareable item attributes: <keychainGroup>-<app_bundle_id>
         [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]] forKey:(id)kSecAttrAccount];
-        [attributes setObject:[self createAccess:key context:context error:error] forKey:(id)kSecAttrAccess];
+    }
+    
+    if (access)
+    {
+        [attributes setObject:(__bridge id)access forKey:(id)kSecAttrAccess];
     }
     
     return attributes;
@@ -977,33 +983,36 @@ static dispatch_queue_t s_synchronizationQueue;
 
 - (id)createAccess:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(__unused NSError **)error
 {
-    if (key.isShared)
+    @synchronized (self)
     {
-        if (!self.accessForSharedBlob)
+        if (key.isShared)
         {
-            if (!self.trustedApplications)
+            if (!self.accessForSharedBlob)
             {
-                self.trustedApplications = [self createAccessForCurrentApp:context error:error];
+                if (!self.trustedApplications)
+                {
+                    self.trustedApplications = [self createAccessForCurrentApp:context error:error];
+                }
+                
+                self.accessForSharedBlob =  [self accessCreateWithChangeACL:self.trustedApplications
+                                                                    context:context
+                                                                      error:error];
             }
             
-            self.accessForSharedBlob =  [self accessCreateWithChangeACL:self.trustedApplications
-                                                                context:context
-                                                                  error:error];
+            return self.accessForSharedBlob;
         }
-        
-        return self.accessForSharedBlob;
-    }
-    else
-    {
-        if (!self.accessForNonSharedBlob)
+        else
         {
-            NSArray* trustedApps = [self createAccessForCurrentApp:context error:error];
-            self.accessForNonSharedBlob = [self accessCreateWithChangeACL:trustedApps
-                                                                  context:context
-                                                                    error:error];
+            if (!self.accessForNonSharedBlob)
+            {
+                NSArray* trustedApps = [self createAccessForCurrentApp:context error:error];
+                self.accessForNonSharedBlob = [self accessCreateWithChangeACL:trustedApps
+                                                                      context:context
+                                                                        error:error];
+            }
+            
+            return self.accessForNonSharedBlob;
         }
-        
-        return self.accessForNonSharedBlob;
     }
 }
 
@@ -1046,7 +1055,7 @@ static dispatch_queue_t s_synchronizationQueue;
         [self createError:@"Failed to update ACL with kSecACLAuthorizationChangeACL authorization tag and set trusted applications."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
         
-        CFRelease(access);
+        CFReleaseNull(access);
         return nil;
     }
     
@@ -1059,15 +1068,15 @@ static dispatch_queue_t s_synchronizationQueue;
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    OSStatus status;
     NSArray *acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
+    OSStatus status;
+    CFStringRef description = nil;
+    CFArrayRef oldtrustedAppList = nil;
+    SecKeychainPromptSelector selector;
+    
     // TODO: handle case where tag is not found?
     for (id acl in acls)
     {
-        CFStringRef description;
-        CFArrayRef oldtrustedAppList;
-        SecKeychainPromptSelector selector;
-        
         status = SecACLCopyContents((__bridge SecACLRef)acl, &oldtrustedAppList, &description, &selector);
         
         if (status != errSecSuccess)
@@ -1085,6 +1094,8 @@ static dispatch_queue_t s_synchronizationQueue;
         }
     }
     
+    CFReleaseNull(oldtrustedAppList);
+    CFReleaseNull(description);
     return YES;
 }
 
