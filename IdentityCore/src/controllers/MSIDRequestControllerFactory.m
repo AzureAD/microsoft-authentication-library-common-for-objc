@@ -158,8 +158,11 @@
     {
         MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:versionType];
         
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", brokerVersion.versionDisplayableName);
+        
         if (brokerVersion && brokerVersion.isPresentOnDevice)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", brokerVersion.versionDisplayableName);
             return brokerVersion;
         }
     }

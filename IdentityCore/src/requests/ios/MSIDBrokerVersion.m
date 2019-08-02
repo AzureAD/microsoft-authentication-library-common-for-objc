@@ -15,6 +15,7 @@
 @property (nonatomic, readwrite) MSIDBrokerVersionType versionType;
 @property (nonatomic, readwrite) NSString *registeredScheme;
 @property (nonatomic, readwrite) NSString *brokerBaseUrlString;
+@property (nonatomic, readwrite) NSString *versionDisplayableName;
 
 @end
 
@@ -44,6 +45,8 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve base broker URL for version type %ld", (long)versionType);
             return nil;
         }
+        
+        _versionDisplayableName = [self displayableNameForVersionType:versionType];
     }
     
     return self;
@@ -70,6 +73,8 @@
     }
 }
 
+#pragma mark - Helpers
+
 - (NSString *)brokerBaseUrlForType:(MSIDBrokerVersionType)versionType
 {
     switch (versionType) {
@@ -85,7 +90,22 @@
     }
 }
 
-#pragma mark - Helpers
+- (NSString *)displayableNameForVersionType:(MSIDBrokerVersionType)versionType
+{
+    switch (versionType) {
+        case MSIDBrokerVersionTypeWithADALOnly:
+            return @"V1-broker";
+            
+        case MSIDBrokerVersionTypeWithV2Support:
+            return @"V2-broker";
+            
+        case MSIDBrokerVersionTypeWithUniversalLinkSupport:
+            return @"V2-broker-universal-link";
+            
+        default:
+            break;
+    }
+}
 
 - (NSString *)schemeForVersionType:(MSIDBrokerVersionType)versionType
 {
