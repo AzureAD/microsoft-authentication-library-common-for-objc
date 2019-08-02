@@ -57,7 +57,7 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    parameters.minimumSupportedBrokerScheme = @"mybrokerscheme";
     return parameters;
 }
 

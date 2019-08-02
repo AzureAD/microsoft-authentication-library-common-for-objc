@@ -40,12 +40,14 @@
 #import "MSIDConstants.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
+#import "MSIDBrokerVersion.h"
 
 @interface MSIDBrokerInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveParameters;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
+@property (nonatomic, readwrite) MSIDBrokerVersion *brokerVersion;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
 @end
@@ -58,6 +60,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                brokerVersion:(MSIDBrokerVersion *)brokerVersion
                                                         error:(NSError * _Nullable * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters tokenRequestProvider:tokenRequestProvider error:error];
@@ -67,6 +70,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         _interactiveParameters = parameters;
         NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
         _brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+        _brokerVersion = brokerVersion;
     }
 
     return self;
@@ -77,7 +81,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
                                                         error:(NSError * _Nullable * _Nullable)error
 {
-    self = [self initWithInteractiveRequestParameters:parameters tokenRequestProvider:tokenRequestProvider error:error];
+    self = [self initWithInteractiveRequestParameters:parameters
+                                 tokenRequestProvider:tokenRequestProvider
+                                        brokerVersion:[[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeDefault]
+                                                error:error];
 
     if (self)
     {
@@ -162,6 +169,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     }
 
     MSIDBrokerTokenRequest *brokerRequest = [self.tokenRequestProvider brokerTokenRequestWithParameters:self.interactiveParameters
+                                                                                          brokerVersion:self.brokerVersion
                                                                                               brokerKey:base64UrlKey
                                                                                                   error:&brokerError];
 

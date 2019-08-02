@@ -28,14 +28,17 @@
 
 @class MSIDInteractiveRequestParameters;
 @class MSIDBrokerResponseHandler;
+@class MSIDBrokerVersion;
 
 @interface MSIDBrokerInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (class, strong, readonly, nullable) MSIDBrokerInteractiveController *currentBrokerController;
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveParameters;
+@property (nonatomic, readonly, nonnull) MSIDBrokerVersion *brokerVersion;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                brokerVersion:(nonnull MSIDBrokerVersion *)brokerVersion
                                                         error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters

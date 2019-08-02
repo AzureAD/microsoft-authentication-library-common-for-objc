@@ -71,9 +71,15 @@
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {
-        return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                        tokenRequestProvider:tokenRequestProvider
-                                                                                       error:error];
+        MSIDBrokerVersion *installedVersion = [self installedBrokerVersionWithParameters:parameters];
+        
+        if (installedVersion)
+        {
+            return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                            tokenRequestProvider:tokenRequestProvider
+                                                                                   brokerVersion:installedVersion
+                                                                                           error:error];
+        }
     }
 
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
@@ -126,13 +132,13 @@
         return NO;
     }
 
-    return [self isBrokerInstalled:parameters];
+    return YES;
 #else
     return NO;
 #endif
 }
 
-+ (BOOL)isBrokerInstalled:(__unused MSIDInteractiveRequestParameters *)parameters
++ (MSIDBrokerVersion *)installedBrokerVersionWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
 {
 #if AD_BROKER
     return YES;
@@ -140,24 +146,25 @@
 
     if (![NSThread isMainThread])
     {
-        __block BOOL result = NO;
+        __block MSIDBrokerVersion *installedVersion = nil;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            result = [self isBrokerInstalled:parameters];
+            installedVersion = [self installedBrokerVersionWithParameters:parameters];
         });
 
-        return result;
+        return installedVersion;
     }
 
-    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+    for (NSUInteger versionType = MSIDBrokerVersionTypeDefault; versionType >= parameters.minimumAllowedBrokerVersion; versionType--)
     {
-        // Verify broker app url can be opened
-        return [[MSIDAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", parameters.supportedBrokerProtocolScheme]]];
+        MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:versionType];
+        
+        if (brokerVersion.isPresentOnDevice)
+        {
+            return brokerVersion;
+        }
     }
-    else
-    {
-        // Cannot perform app switching from application extension hosts
-        return NO;
-    }
+    
+    return nil;
 #else
     return NO;
 #endif

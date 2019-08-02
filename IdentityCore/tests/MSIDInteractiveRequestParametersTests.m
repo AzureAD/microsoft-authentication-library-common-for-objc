@@ -59,7 +59,7 @@
     XCTAssertEqualObjects(parameters.extraScopesToConsent, @"extra extra2");
     XCTAssertEqualObjects(parameters.correlationId, correlationID);
     XCTAssertEqualObjects(parameters.telemetryApiId, @"100");
-    XCTAssertEqualObjects(parameters.supportedBrokerProtocolScheme, @"2");
+    XCTAssertEqualObjects(parameters.minimumSupportedBrokerScheme, @"2");
     XCTAssertEqual(parameters.requestType, MSIDInteractiveRequestBrokeredType);
     
     XCTAssertNil(error);

@@ -28,13 +28,16 @@
 @class MSIDInteractiveRequestParameters;
 @class MSIDRequestParameters;
 @class MSIDBrokerTokenRequest;
+@class MSIDBrokerVersion;
 
 @protocol MSIDTokenRequestProviding <NSObject>
 
 - (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                          forceRefresh:(BOOL)forceRefresh;
+
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                        brokerVersion:(nonnull MSIDBrokerVersion *)brokerVersion
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                                 error:(NSError * _Nullable * _Nullable)error;
 
