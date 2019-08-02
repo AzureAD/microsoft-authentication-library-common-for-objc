@@ -83,7 +83,7 @@
             return [NSString stringWithFormat:@"%@://broker", self.registeredScheme];
             
         case MSIDBrokerVersionTypeWithUniversalLinkSupport:
-            return [NSString stringWithFormat:@"%@://applebroker", MSIDTrustedAuthorityWorldWide];
+            return [NSString stringWithFormat:@"https://%@/applebroker", MSIDTrustedAuthorityWorldWide];
             
         default:
             return nil;
