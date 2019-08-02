@@ -99,7 +99,7 @@
 
     NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
-    NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", self.brokerVersion.brokerRequestURL, query]];
+    NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", self.brokerVersion.brokerBaseUrlString, query]];
 
     if (!brokerRequestURL)
     {

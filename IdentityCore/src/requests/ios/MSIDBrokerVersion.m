@@ -14,6 +14,7 @@
 
 @property (nonatomic, readwrite) MSIDBrokerVersionType versionType;
 @property (nonatomic, readwrite) NSString *registeredScheme;
+@property (nonatomic, readwrite) NSString *brokerBaseUrlString;
 
 @end
 
@@ -29,6 +30,20 @@
     {
         _versionType = versionType;
         _registeredScheme = [self schemeForVersionType:versionType];
+        
+        if (!_registeredScheme)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve expected URL scheme for version type %ld", (long)versionType);
+            return nil;
+        }
+        
+        _brokerBaseUrlString = [self brokerBaseUrlForType:versionType];
+        
+        if (!_brokerBaseUrlString)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve base broker URL for version type %ld", (long)versionType);
+            return nil;
+        }
     }
     
     return self;
@@ -52,6 +67,21 @@
     {
         // Cannot perform app switching from application extension hosts
         return NO;
+    }
+}
+
+- (NSString *)brokerBaseUrlForType:(MSIDBrokerVersionType)versionType
+{
+    switch (versionType) {
+        case MSIDBrokerVersionTypeWithADALOnly:
+        case MSIDBrokerVersionTypeWithV2Support:
+            return [NSString stringWithFormat:@"%@://broker", self.registeredScheme];
+            
+        case MSIDBrokerVersionTypeWithUniversalLinkSupport:
+            return [NSString stringWithFormat:@"%@://applebroker", MSIDTrustedAuthorityWorldWide];
+            
+        default:
+            return nil;
     }
 }
 

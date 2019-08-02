@@ -158,7 +158,7 @@
     {
         MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:versionType];
         
-        if (brokerVersion.isPresentOnDevice)
+        if (brokerVersion && brokerVersion.isPresentOnDevice)
         {
             return brokerVersion;
         }

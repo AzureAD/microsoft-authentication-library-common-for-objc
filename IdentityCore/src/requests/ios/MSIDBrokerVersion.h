@@ -23,9 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) MSIDBrokerVersionType versionType;
 @property (nonatomic, readonly) BOOL isPresentOnDevice;
-@property (nonatomic, readonly) NSURL *brokerRequestURL;
+@property (nonatomic, readonly) NSString *brokerBaseUrlString;
 
-- (instancetype)initWithVersionType:(MSIDBrokerVersionType)versionType;
+- (nullable instancetype)initWithVersionType:(MSIDBrokerVersionType)versionType;
 
 @end
 
