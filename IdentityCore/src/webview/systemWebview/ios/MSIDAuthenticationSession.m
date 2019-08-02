@@ -39,15 +39,51 @@
 #import <SafariServices/SafariServices.h>
 #import <AuthenticationServices/AuthenticationServices.h>
 #endif
+#import "UIApplication+MSIDExtensions.h"
+
+#if !MSID_EXCLUDE_WEBKIT
+@interface MSIDAuthenticationSession (ASWebAuth) <ASWebAuthenticationPresentationContextProviding>
+
+@end
+
+@implementation MSIDAuthenticationSession (ASWebAuth)
+
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session
+API_AVAILABLE(ios(13.0))
+{
+    return [self presentationAnchor];
+}
+
+- (ASPresentationAnchor)presentationAnchor API_AVAILABLE(ios(13.0))
+{
+    if (![NSThread isMainThread])
+    {
+        __block ASPresentationAnchor anchor;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            anchor = [self presentationAnchor];
+        });
+        
+        return anchor;
+    }
+    
+    return self.parentController.view.window;
+}
+
+@end
+#endif
 
 @implementation MSIDAuthenticationSession
 {
 #if !MSID_EXCLUDE_WEBKIT
+    
+#if !TARGET_OS_UIKITFORMAC
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
+#endif
     
     API_AVAILABLE(ios(12.0))
     ASWebAuthenticationSession *_webAuthSession;
+    
 #endif
     
     NSURL *_startURL;
@@ -76,6 +112,22 @@
     return self;
 }
 
+- (instancetype)initWithURL:(NSURL *)url
+          callbackURLScheme:(NSString *)callbackURLScheme
+           parentController:(UIViewController *)parentController
+ ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+                    context:(id<MSIDRequestContext>)context
+{
+    self = [self initWithURL:url callbackURLScheme:callbackURLScheme context:context];
+    if (self)
+    {
+        _parentController = parentController;
+        _prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
+    }
+    
+    return self;
+}
+
 - (BOOL)isErrorCodeCanceledLogin:(NSError *)error
 {
     if (!error)
@@ -90,7 +142,9 @@
     }
     else if (@available(iOS 11.0, *))
     {
+#if !TARGET_OS_UIKITFORMAC
         if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
+#endif
     }
 #endif
     
@@ -139,14 +193,22 @@
             _webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:_startURL
                                                             callbackURLScheme:_callbackURLScheme
                                                             completionHandler:authCompletion];
+            if (@available(iOS 13.0, *))
+            {
+                _webAuthSession.presentationContextProvider = self;
+                _webAuthSession.prefersEphemeralWebBrowserSession = self.prefersEphemeralWebBrowserSession;
+            }
+            
             if ([_webAuthSession start]) return;
         }
         else
         {
+#if !TARGET_OS_UIKITFORMAC
             _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
                                                       callbackURLScheme:_callbackURLScheme
                                                       completionHandler:authCompletion];
             if ([_authSession start]) return;
+#endif
         }
   
         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
@@ -161,7 +223,6 @@
 #endif
 }
 
-
 - (void)cancel
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, _context, @"Authorization session was cancelled programatically");
@@ -172,11 +233,12 @@
     {
         [_webAuthSession cancel];
     }
+#if !TARGET_OS_UIKITFORMAC
     else
     {
         [_authSession cancel];
     }
-    
+#endif
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,

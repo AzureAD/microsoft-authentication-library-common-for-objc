@@ -42,7 +42,8 @@ __weak static UIAlertController *_presentedPrompt = nil;
     });
 }
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))block
++ (void)presentPromptInParentController:(UIViewController *)parentViewController
+                      completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))block
 {
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension])
@@ -52,7 +53,7 @@ __weak static UIAlertController *_presentedPrompt = nil;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController *viewController = [UIApplication msidCurrentViewController];
+        UIViewController *viewController = [UIApplication msidCurrentViewController:parentViewController];
         if (!viewController)
         {
             block(nil, nil, YES);
