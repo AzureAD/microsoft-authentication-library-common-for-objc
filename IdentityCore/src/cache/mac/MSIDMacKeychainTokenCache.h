@@ -54,12 +54,6 @@
 @property (readonly, nonnull) NSString *keychainGroup;
 
 /*!
- Array of SecTrustedApplicationsRef that is allowed to access the keychain elements
- created by the keychain cache.
- */
-@property (readonly, nonnull) NSArray *trustedApplications;
-
-/*!
  Initialize with keychainGroup and trustedApplications.
  @param keychainGroup Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the
@@ -75,7 +69,8 @@
  See Apple's keychain services documentation for details.
  */
 - (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
-                   trustedApplications:(nullable NSArray *)trustedApplications;
+                   trustedApplications:(nullable NSArray *)trustedApplications
+                                 error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 
 @end
