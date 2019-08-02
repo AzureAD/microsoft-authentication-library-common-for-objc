@@ -123,7 +123,8 @@ return NO; \
         [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
         [unarchiver setClass:MSIDLegacyTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
         [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-        cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
+        __auto_type allowedClasses = [NSSet setWithObjects:NSDictionary.class, MSIDLegacyTokenCacheKey.class, MSIDLegacyTokenCacheItem.class, MSIDUserInformation.class, nil];
+        cache = [unarchiver decodeObjectOfClasses:allowedClasses forKey:NSKeyedArchiveRootObjectKey];
         [unarchiver finishDecoding];
     }
     @catch (id exception)
