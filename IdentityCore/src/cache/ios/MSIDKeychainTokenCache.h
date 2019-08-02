@@ -68,6 +68,6 @@
 
  See Apple's keychain services documentation for details.
  */
-- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup;
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

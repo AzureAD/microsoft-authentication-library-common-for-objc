@@ -395,7 +395,16 @@ static dispatch_queue_t s_synchronizationQueue;
         }
 
         MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
-        if (!keychainUtil.teamId) return nil;
+        if (!keychainUtil.teamId)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve teamId from keychain.");
+            }
+            
+            return nil;
+        }
         
         // Add team prefix to keychain group if it is missed.
         if (![keychainGroup hasPrefix:keychainUtil.teamId])
@@ -407,6 +416,12 @@ static dispatch_queue_t s_synchronizationQueue;
 
         if (!self.keychainGroup)
         {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set keychain access group.");
+            }
+            
             return nil;
         }
         
@@ -1007,9 +1022,9 @@ static dispatch_queue_t s_synchronizationQueue;
     OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
     if (status != errSecSuccess)
     {
-        [self createError:@"Failed to create SecTrustedApplicationRef for current application."
+        [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:nil];
-        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed (status: %d).", (int)status);
         return nil;
     }
     
@@ -1024,8 +1039,9 @@ static dispatch_queue_t s_synchronizationQueue;
     
     if (status != errSecSuccess)
     {
-        [self createError:@"Failed to create SecAccessRef for current application."
+        [self createError:@"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:nil];
+         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed (status: %d).", (int)status);
         return nil;
     }
     
@@ -1061,7 +1077,8 @@ static dispatch_queue_t s_synchronizationQueue;
         
         if (status != errSecSuccess)
         {
-            [self createError:@"Failed to get contents from ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            [self createError:@"Failed to get contents from ACL. Please make sure the app you're running is properly signed." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to get contents from ACL. Please make sure the app you're running is properly signed (status: %d).", (int)status);
             return NO;
         }
         
@@ -1069,7 +1086,8 @@ static dispatch_queue_t s_synchronizationQueue;
         
         if (status != errSecSuccess)
         {
-            [self createError:@"Failed to set conents for ACL" domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            [self createError:@"Failed to set contents for ACL. Please make sure the app you're running is properly signed." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to set contents for ACL. Please make sure the app you're running is properly signed (status: %d).", (int)status);
             return NO;
         }
     }
