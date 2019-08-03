@@ -173,18 +173,14 @@
 
         return installedVersion;
     }
-
-    for (NSUInteger versionType = MSIDBrokerVersionTypeDefault; versionType >= parameters.minimumAllowedBrokerVersion; versionType--)
+    
+    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:parameters.allowedBrokerVersionType];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", brokerVersion.versionDisplayableName);
+    
+    if (brokerVersion && brokerVersion.isPresentOnDevice)
     {
-        MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:versionType];
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", brokerVersion.versionDisplayableName);
-        
-        if (brokerVersion && brokerVersion.isPresentOnDevice)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", brokerVersion.versionDisplayableName);
-            return brokerVersion;
-        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", brokerVersion.versionDisplayableName);
+        return brokerVersion;
     }
     
     return nil;

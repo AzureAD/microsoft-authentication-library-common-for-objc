@@ -35,7 +35,7 @@
              extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
-                 minBrokerVersion:(MSIDBrokerVersionType)minimumAllowedBrokerVersion
+             allowedBrokerVersion:(MSIDBrokerVersionType)allowedBrokerVersion
                       requestType:(MSIDInteractiveRequestType)requestType
                             error:(NSError **)error
 {
@@ -51,7 +51,7 @@
     if (self)
     {
         _extraScopesToConsent = [extraScopesToConsent msidToString];
-        _minimumAllowedBrokerVersion = minimumAllowedBrokerVersion;
+        _allowedBrokerVersionType = allowedBrokerVersion;
         _requestType = requestType;
         _enablePkce = YES;
     }
