@@ -38,6 +38,7 @@
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                 brokerVersion:(nonnull MSIDBrokerVersion *)brokerVersion
                                                         error:(NSError * _Nullable * _Nullable)error;
 

@@ -68,6 +68,15 @@
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError * _Nullable * _Nullable)error
 {
+    id<MSIDRequestControlling> localController = [self localInteractiveController:parameters
+                                                             tokenRequestProvider:tokenRequestProvider
+                                                                            error:error];
+    
+    if (!localController)
+    {
+        return nil;
+    }
+    
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {
@@ -77,31 +86,42 @@
         {
             return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                             tokenRequestProvider:tokenRequestProvider
+                                                                              fallbackController:localController
                                                                                    brokerVersion:installedVersion
                                                                                            error:error];
         }
     }
 
+#endif
+
+    return localController;
+}
+
++ (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                             tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                            error:(NSError * _Nullable * _Nullable)error
+{
+#if TARGET_OS_IPHONE
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
         && !(parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview))
     {
         // If developer provides us an custom webview, we should be able to use it for authentication in app extension
         BOOL hasSupportedEmbeddedWebView = parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview;
         BOOL hasSupportedSystemWebView = parameters.webviewType == MSIDWebviewTypeSafariViewController && parameters.parentViewController;
-
+        
         if (!hasSupportedEmbeddedWebView && !hasSupportedSystemWebView)
         {
             if (error)
             {
                 *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUINotSupportedInExtension, @"Interaction is not supported in an app extension.", nil, nil, nil, parameters.correlationId, nil);
             }
-
+            
             return nil;
         }
     }
-
+    
 #endif
-
+    
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];

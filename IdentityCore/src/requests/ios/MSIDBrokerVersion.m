@@ -16,6 +16,7 @@
 @property (nonatomic, readwrite) NSString *registeredScheme;
 @property (nonatomic, readwrite) NSString *brokerBaseUrlString;
 @property (nonatomic, readwrite) NSString *versionDisplayableName;
+@property (nonatomic, readwrite) BOOL isUniversalLink;
 
 @end
 
@@ -47,6 +48,7 @@
         }
         
         _versionDisplayableName = [self displayableNameForVersionType:versionType];
+        _isUniversalLink = [_brokerBaseUrlString hasPrefix:@"https"];
     }
     
     return self;
