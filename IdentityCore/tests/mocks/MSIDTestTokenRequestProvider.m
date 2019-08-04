@@ -91,7 +91,9 @@
     return [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
 }
 
+
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                        brokerVersion:(nonnull MSIDBrokerVersion *)brokerVersion
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                                 error:(NSError * _Nullable * _Nullable)error
 {

@@ -43,7 +43,8 @@
     parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -65,7 +66,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -88,7 +89,8 @@
     parameters.accountIdentifier.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -111,7 +113,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -133,7 +135,8 @@
     parameters.loginHint = @"myloginhint";
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -156,7 +159,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -178,7 +181,8 @@
     parameters.uiBehaviorType = MSIDUIBehaviorForceType;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -199,7 +203,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -226,7 +230,7 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.minimumSupportedBrokerScheme = @"mybrokerscheme";
+    parameters.allowedBrokerVersionType = MSIDBrokerVersionTypeWithV2Support;
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
     return parameters;
 }

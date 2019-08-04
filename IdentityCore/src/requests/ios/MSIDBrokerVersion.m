@@ -54,6 +54,11 @@
     return self;
 }
 
+- (instancetype)init
+{
+    return [self initWithVersionType:MSIDBrokerVersionTypeDefault];
+}
+
 #pragma mark - Getters
 
 - (BOOL)isPresentOnDevice
