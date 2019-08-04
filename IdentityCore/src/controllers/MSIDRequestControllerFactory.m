@@ -185,7 +185,7 @@
     
     return nil;
 #else
-    return NO;
+    return nil;
 #endif
 }
 
