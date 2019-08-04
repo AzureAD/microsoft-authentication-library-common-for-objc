@@ -41,6 +41,7 @@
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDTestLocalInteractiveController.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -142,7 +143,7 @@
     NSError *error = nil;
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                                                                  tokenRequestProvider:provider
-                                                                                                                   fallbackController:nil brokerVersion:[MSIDBrokerVersion new]
+                                                                                                                   fallbackController:nil           brokerVersion:[MSIDBrokerVersion new]
                                                                                                                                 error:&error];
 
     XCTAssertNotNil(brokerController);
@@ -210,6 +211,87 @@
         [expectation fulfill];
     }];
 
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+- (void)testAcquireToken_whenFailedToLaunchBrokerThroughUniversalLink_andNoFallbackController_shouldReturnError
+{
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+    
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
+    
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:nil           brokerVersion:[MSIDBrokerVersion new]
+                                                                                                                                error:&error];
+    
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+    
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        return NO;
+    }];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+    
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        // Check error
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Failed to open broker and no fallback operation is available");
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
+}
+
+- (void)testAcquireToken_whenFailedToLaunchBrokerThroughUniversalLink_andFallbackController_shouldFallback
+{
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+    
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
+    
+    NSError *error = nil;
+    MSIDTestLocalInteractiveController *fallbackController = [MSIDTestLocalInteractiveController new];
+    fallbackController.acquireTokenResult = [self resultWithParameters:[self requestParameters]];
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
+                                                                                                                 tokenRequestProvider:provider
+                                                                                                                   fallbackController:fallbackController           brokerVersion:[MSIDBrokerVersion new]
+                                                                                                                                error:&error];
+    
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+    
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        return NO;
+    }];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+    
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertEqual(fallbackController.acquireTokenCalledCount, 1);
+        XCTAssertNotNil(result);
+        XCTAssertNil(error);
+        // Check error
+        [expectation fulfill];
+    }];
+    
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
