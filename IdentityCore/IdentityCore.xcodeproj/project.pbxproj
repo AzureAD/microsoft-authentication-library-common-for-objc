@@ -505,6 +505,7 @@
 		B2000C9D20EC653A0092790A /* MSIDAADV1IdTokenClaims.h in Headers */ = {isa = PBXBuildFile; fileRef = B2CDB5831FE3427F003A4B5C /* MSIDAADV1IdTokenClaims.h */; };
 		B2000C9E20EC65600092790A /* MSIDURLFormObject.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4601FDF19E9005A8F76 /* MSIDURLFormObject.m */; };
 		B2000C9F20EC65610092790A /* MSIDURLFormObject.m in Sources */ = {isa = PBXBuildFile; fileRef = B210F4601FDF19E9005A8F76 /* MSIDURLFormObject.m */; };
+		B202049122F7C55E00435957 /* MSIDBrokerOptionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B202049022F7C55E00435957 /* MSIDBrokerOptionsTests.m */; };
 		B20657A51FC91C1600412B7D /* MSIDTelemetryDispatcher.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A41FC91C1600412B7D /* MSIDTelemetryDispatcher.h */; };
 		B20657A61FC91C9A00412B7D /* MSIDTelemetryEventInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657981FC91BE000412B7D /* MSIDTelemetryEventInterface.h */; };
 		B20657A81FC91EC900412B7D /* MSIDTelemetry.h in Headers */ = {isa = PBXBuildFile; fileRef = B20657A71FC91DA900412B7D /* MSIDTelemetry.h */; };
@@ -1057,6 +1058,8 @@
 		B2DD5BC320479D9D0084313F /* MSIDKeyedArchiverSerializerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2321531D1FDA1AF100C6960D /* MSIDKeyedArchiverSerializerTests.m */; };
 		B2E7698E206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */; };
 		B2E7698F206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */; };
+		B2EB3ADF22F7C74000FA400E /* MSIDBrokerInvocationOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2968C8422F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m */; };
+		B2EB3AE022F7C74300FA400E /* MSIDBrokerInvocationOptions.h in Headers */ = {isa = PBXBuildFile; fileRef = B2968C8322F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.h */; };
 		B2ED1BBC2204D29400A24E82 /* MSIDAutomationTestRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B25A437F21C3516B000B3DD4 /* MSIDAutomationTestRequest.h */; };
 		B2ED1BBD2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */; };
 		B2ED1BBE2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B25A438021C3516B000B3DD4 /* MSIDAutomationTestRequest.m */; };
@@ -1609,6 +1612,7 @@
 		96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2EmbeddedWebviewController.m; sourceTree = "<group>"; };
 		B2000C7620EC47860092790A /* NSData+JWT.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+JWT.h"; sourceTree = "<group>"; };
 		B2000C7720EC47860092790A /* NSData+JWT.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+JWT.m"; sourceTree = "<group>"; };
+		B202049022F7C55E00435957 /* MSIDBrokerOptionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOptionsTests.m; sourceTree = "<group>"; };
 		B206578B1FC91BDF00412B7D /* MSIDTelemetryUIEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryUIEvent.m; sourceTree = "<group>"; };
 		B206578D1FC91BDF00412B7D /* MSIDTelemetryEventStrings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryEventStrings.h; sourceTree = "<group>"; };
 		B206578E1FC91BDF00412B7D /* MSIDTelemetry.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetry.m; sourceTree = "<group>"; };
@@ -2309,6 +2313,7 @@
 				B2C708DE219BC67E00D917B8 /* MSIDDefaultSilentTokenRequestTests.m */,
 				60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */,
 				B2BE926E21A2668600F5AB8C /* MSIDBrokerInteractiveControllerIntegrationTests.m */,
+				B202049022F7C55E00435957 /* MSIDBrokerOptionsTests.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -3163,15 +3168,6 @@
 			path = result;
 			sourceTree = "<group>";
 		};
-		B2968C8222F3C3D5005AFC33 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				B2968C8322F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.h */,
-				B2968C8422F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m */,
-			);
-			path = ios;
-			sourceTree = "<group>";
-		};
 		B29CB6D11FEC9B4D00F880ED /* aad_v2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -3213,7 +3209,6 @@
 		B2AF1D29218BCDEF0080C1A0 /* requests */ = {
 			isa = PBXGroup;
 			children = (
-				B2968C8222F3C3D5005AFC33 /* ios */,
 				B2C708A0219A55CB00D917B8 /* sdk */,
 				B2C7087F2198DE0000D917B8 /* broker */,
 				B28D90BC218FE9FA00E230D6 /* result */,
@@ -3231,6 +3226,8 @@
 		B2AF1D3D218BD02F0080C1A0 /* parameters */ = {
 			isa = PBXGroup;
 			children = (
+				B2968C8322F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.h */,
+				B2968C8422F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m */,
 				B2AF1D3E218BD10A0080C1A0 /* MSIDRequestParameters.h */,
 				B2AF1D3F218BD10A0080C1A0 /* MSIDRequestParameters.m */,
 				B2AF1D48218BD12D0080C1A0 /* MSIDInteractiveRequestParameters.h */,
@@ -3947,6 +3944,7 @@
 				B2C707F32192524700D917B8 /* MSIDDefaultTokenRequestProvider.h in Headers */,
 				B251CC3E2041058D005E0179 /* MSIDAccessToken.h in Headers */,
 				23AE9DB72148529A00B285F3 /* NSError+MSIDExtensions.h in Headers */,
+				B2EB3AE022F7C74300FA400E /* MSIDBrokerInvocationOptions.h in Headers */,
 				238EF042208FE88C0035ABE6 /* MSIDAADAuthorizationCodeGrantRequest.h in Headers */,
 				05566D102204BB8A002DBA40 /* MSIDMacKeychainTokenCache.h in Headers */,
 				B210F4311FDDE7EB005A8F76 /* MSIDTokenResponse.h in Headers */,
@@ -4539,6 +4537,7 @@
 				B2BE923121A0EFB100F5AB8C /* MSIDDefaultTokenRequestProviderTests.m in Sources */,
 				23FB5C20225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
 				1E65C47B2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m in Sources */,
+				B202049122F7C55E00435957 /* MSIDBrokerOptionsTests.m in Sources */,
 				B2561224217EA97000999876 /* MSIDB2COauth2FactoryTests.m in Sources */,
 				B299F74321A0AFA000F49C57 /* MSIDLegacyBrokerResponseHandlerTests.m in Sources */,
 				B2936F8A20AD47810050C585 /* MSIDKeychainTokenCacheIntegrationTests.m in Sources */,
@@ -4641,6 +4640,7 @@
 				232173ED2182B195009852C6 /* MSIDIntuneUserDefaultsCacheDataSource.m in Sources */,
 				B2AF1D4C218BD12E0080C1A0 /* MSIDInteractiveRequestParameters.m in Sources */,
 				B20657A91FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
+				B2EB3ADF22F7C74000FA400E /* MSIDBrokerInvocationOptions.m in Sources */,
 				B2000C9620EC64620092790A /* MSIDIdTokenClaims.m in Sources */,
 				B2C708192195283500D917B8 /* MSIDBrokerTokenRequest.m in Sources */,
 				B28D909C218FA97400E230D6 /* MSIDBaseRequestController.m in Sources */,

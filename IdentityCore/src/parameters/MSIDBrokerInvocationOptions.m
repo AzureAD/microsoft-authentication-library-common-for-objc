@@ -23,7 +23,9 @@
 
 #import "MSIDBrokerInvocationOptions.h"
 #import "MSIDConstants.h"
+#if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#endif
 
 @interface MSIDBrokerInvocationOptions()
 
@@ -87,6 +89,7 @@
 
 - (BOOL)isRequiredBrokerPresent
 {
+#if TARGET_OS_IPHONE
     if (!self.registeredScheme)
     {
         return NO;
@@ -102,6 +105,9 @@
         // Cannot perform app switching from application extension hosts
         return NO;
     }
+#else
+    return NO;
+#endif
 }
 
 #pragma mark - Helpers
