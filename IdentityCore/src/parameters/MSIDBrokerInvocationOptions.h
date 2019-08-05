@@ -44,9 +44,6 @@ typedef NS_ENUM(NSInteger, MSIDRequiredBrokerType)
     MSIDRequiredBrokerTypeDefault = MSIDRequiredBrokerTypeWithNonceSupport
 };
 
-// Broker capability - make sure at least X broker is installed (ADAL only, V2, universal link)
-// Broker protocol - invoke that broker through protocol X (custom schemes, universal links)
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerInvocationOptions : NSObject
