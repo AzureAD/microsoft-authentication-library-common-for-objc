@@ -80,14 +80,13 @@
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {
-        MSIDBrokerInvocationOptions *brokerOptions = [self brokerInvocationOptionsWithParameters:parameters];
+        BOOL brokerInstalled = [self brokerInstalledWithParameters:parameters];
         
-        if (brokerOptions)
+        if (brokerInstalled)
         {
             return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                             tokenRequestProvider:tokenRequestProvider
                                                                               fallbackController:localController
-                                                                         brokerInvocationOptions:brokerOptions
                                                                                            error:error];
         }
     }
@@ -158,7 +157,7 @@
 #endif
 }
 
-+ (MSIDBrokerInvocationOptions *)brokerInvocationOptionsWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
++ (BOOL)brokerInstalledWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
 {
 #if AD_BROKER
     return YES;
@@ -166,29 +165,25 @@
 
     if (![NSThread isMainThread])
     {
-        __block MSIDBrokerInvocationOptions *brokerOptions = nil;
+        __block BOOL brokerInstalled = NO;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            brokerOptions = [self brokerInvocationOptionsWithParameters:parameters];
+            brokerInstalled = [self brokerInstalledWithParameters:parameters];
         });
 
-        return brokerOptions;
+        return brokerInstalled;
     }
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", parameters.brokerInvocationOptions.versionDisplayableName);
     
-    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:parameters.minRequiredBrokerType
-                                                                                                    protocolType:parameters.preferredBrokerProtocolType];
-    
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", brokerOptions.versionDisplayableName);
-    
-    if (brokerOptions && brokerOptions.isRequiredBrokerPresent)
+    if (parameters.brokerInvocationOptions && parameters.brokerInvocationOptions.isRequiredBrokerPresent)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", brokerOptions.versionDisplayableName);
-        return brokerOptions;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", parameters.brokerInvocationOptions.versionDisplayableName);
+        return YES;
     }
     
-    return nil;
+    return NO;
 #else
-    return nil;
+    return NO;
 #endif
 }
 

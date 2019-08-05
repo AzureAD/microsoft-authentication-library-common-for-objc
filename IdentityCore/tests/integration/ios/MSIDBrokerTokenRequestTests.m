@@ -57,8 +57,9 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.minRequiredBrokerType = MSIDRequiredBrokerTypeDefault;
-    parameters.preferredBrokerProtocolType = MSIDBrokerProtocolTypeV2CustomScheme;
+    
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    parameters.brokerInvocationOptions = brokerOptions;
     return parameters;
 }
 
@@ -70,7 +71,7 @@
     parameters.authority = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:[MSIDBrokerInvocationOptions new] brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -82,7 +83,7 @@
 
     NSError *error = nil;
     NSString *brokerKey = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:[MSIDBrokerInvocationOptions new] brokerKey:brokerKey error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:brokerKey error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -94,7 +95,7 @@
     parameters.target = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:[MSIDBrokerInvocationOptions new] brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -106,7 +107,7 @@
     parameters.redirectUri = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:[MSIDBrokerInvocationOptions new] brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -118,7 +119,7 @@
     parameters.clientId = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:[MSIDBrokerInvocationOptions new] brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -132,10 +133,7 @@
 
     NSError *error = nil;
     
-    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithV2Support
-                                                                                                    protocolType:MSIDBrokerProtocolTypeV2CustomScheme];
-    
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -167,11 +165,10 @@
 - (void)testInitBrokerRequest_whenValidParameters_andUniversalLinkRequest_shouldReturnUniversalLinkPayload
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeUniversalLink aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     
     NSError *error = nil;
-    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                                    protocolType:MSIDBrokerProtocolTypeUniversalLink];
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -187,7 +184,7 @@
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"https://login.microsoftonline.com/applebroker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"https://login.microsoftonline.com/applebroker/msauthv2?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 }
@@ -202,9 +199,7 @@
     parameters.clientCapabilities = @[@"cp1", @"cp2"];
 
     NSError *error = nil;
-    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                                    protocolType:MSIDBrokerProtocolTypeV2CustomScheme];
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -276,9 +271,7 @@
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
 
     NSError *error = nil;
-    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                                    protocolType:MSIDBrokerProtocolTypeV2CustomScheme];
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 

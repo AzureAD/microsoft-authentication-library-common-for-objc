@@ -25,9 +25,14 @@
 
 typedef NS_ENUM(NSInteger, MSIDBrokerProtocolType)
 {
-    MSIDBrokerProtocolTypeV1CustomScheme,
-    MSIDBrokerProtocolTypeV2CustomScheme,
+    MSIDBrokerProtocolTypeCustomScheme,
     MSIDBrokerProtocolTypeUniversalLink
+};
+
+typedef NS_ENUM(NSInteger, MSIDBrokerAADRequestVersion)
+{
+    MSIDBrokerAADRequestVersionV1,
+    MSIDBrokerAADRequestVersionV2
 };
 
 typedef NS_ENUM(NSInteger, MSIDRequiredBrokerType)
@@ -48,13 +53,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) MSIDRequiredBrokerType minRequiredBrokerType;
 @property (nonatomic, readonly) MSIDBrokerProtocolType protocolType;
+@property (nonatomic, readonly) MSIDBrokerAADRequestVersion brokerAADRequestVersion;
 @property (nonatomic, readonly) BOOL isRequiredBrokerPresent;
 @property (nonatomic, readonly) NSString *brokerBaseUrlString;
 @property (nonatomic, readonly) NSString *versionDisplayableName;
 @property (nonatomic, readonly) BOOL isUniversalLink;
 
 - (nullable instancetype)initWithRequiredBrokerType:(MSIDRequiredBrokerType)minRequiredBrokerType
-                                       protocolType:(MSIDBrokerProtocolType)protocolType;
+                                       protocolType:(MSIDBrokerProtocolType)protocolType
+                                  aadRequestVersion:(MSIDBrokerAADRequestVersion)aadRequestVersion;
 
 
 @end

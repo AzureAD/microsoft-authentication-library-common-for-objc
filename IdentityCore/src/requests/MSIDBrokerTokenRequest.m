@@ -43,7 +43,6 @@
 @property (nonatomic, readwrite) NSDictionary *resumeDictionary;
 @property (nonatomic, readwrite) NSString *brokerKey;
 @property (nonatomic, readwrite) NSURL *brokerRequestURL;
-@property (nonatomic, readwrite) MSIDBrokerInvocationOptions *brokerOptions;
 
 @end
 
@@ -52,7 +51,6 @@
 #pragma mark - Init
 
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                            brokerOptions:(MSIDBrokerInvocationOptions *)brokerOptions
                                 brokerKey:(NSString *)brokerKey
                                     error:(NSError **)error
 {
@@ -62,7 +60,6 @@
     {
         _requestParameters = parameters;
         _brokerKey = brokerKey;
-        _brokerOptions = brokerOptions;
 
         if (![self initPayloadContentsWithError:error])
         {
@@ -99,7 +96,7 @@
 
     NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
-    NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", self.brokerOptions.brokerBaseUrlString, query]];
+    NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", self.requestParameters.brokerInvocationOptions.brokerBaseUrlString, query]];
 
     if (!brokerRequestURL)
     {

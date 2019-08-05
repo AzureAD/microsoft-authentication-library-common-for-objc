@@ -47,7 +47,6 @@
 @property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveParameters;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
-@property (nonatomic, readwrite) MSIDBrokerInvocationOptions *brokerInvocationOptions;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
 @end
@@ -61,7 +60,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                      brokerInvocationOptions:(nonnull MSIDBrokerInvocationOptions *)brokerOptions
                                                         error:(NSError * _Nullable * _Nullable)error
 {
     self = [super initWithRequestParameters:parameters
@@ -74,7 +72,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         _interactiveParameters = parameters;
         NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
         _brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-        _brokerInvocationOptions = brokerOptions;
     }
 
     return self;
@@ -85,13 +82,9 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
                                                         error:(NSError * _Nullable * _Nullable)error
 {
-    MSIDBrokerInvocationOptions *options = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                              protocolType:parameters.preferredBrokerProtocolType];
-    
     self = [self initWithInteractiveRequestParameters:parameters
                                  tokenRequestProvider:tokenRequestProvider
                                    fallbackController:nil
-                              brokerInvocationOptions:options
                                                 error:error];
 
     if (self)
@@ -177,7 +170,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     }
 
     MSIDBrokerTokenRequest *brokerRequest = [self.tokenRequestProvider brokerTokenRequestWithParameters:self.interactiveParameters
-                                                                                          brokerOptions:self.brokerInvocationOptions
                                                                                               brokerKey:base64UrlKey
                                                                                                   error:&brokerError];
 
@@ -230,7 +222,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     NSDictionary *options = nil;
     
-    if (self.brokerInvocationOptions.isUniversalLink)
+    if (self.interactiveParameters.brokerInvocationOptions.isUniversalLink)
     {
         // Option for openURL:options:CompletionHandler: only open URL if it is a valid universal link with an application configured to open it
         // If there is no application configured, or the user disabled using it to open the link, completion handler called with NO

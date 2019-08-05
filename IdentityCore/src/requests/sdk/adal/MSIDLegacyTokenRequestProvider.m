@@ -75,12 +75,10 @@
 }
 
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
-                                                        brokerOptions:(MSIDBrokerInvocationOptions *)brokerOptions
                                                             brokerKey:(NSString *)brokerKey
                                                                 error:(NSError **)error
 {
     return [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters
-                                                             brokerOptions:brokerOptions
                                                                  brokerKey:brokerKey
                                                                      error:error];
 }

@@ -38,6 +38,8 @@
     
     NSError *error = nil;
     
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    
     MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
@@ -46,8 +48,7 @@
                                                                                           extraScopesToConsent:[@"extra extra2" msidScopeSet]
                                                                                                  correlationId:correlationID
                                                                                                 telemetryApiId:@"100"
-                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
+                                                                                                 brokerOptions:brokerOptions
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:&error];
     
@@ -60,8 +61,9 @@
     XCTAssertEqualObjects(parameters.extraScopesToConsent, @"extra extra2");
     XCTAssertEqualObjects(parameters.correlationId, correlationID);
     XCTAssertEqualObjects(parameters.telemetryApiId, @"100");
-    XCTAssertEqual(parameters.minRequiredBrokerType, MSIDRequiredBrokerTypeDefault);
-    XCTAssertEqual(parameters.preferredBrokerProtocolType, MSIDBrokerProtocolTypeV2CustomScheme);
+    XCTAssertEqual(parameters.brokerInvocationOptions.minRequiredBrokerType, MSIDRequiredBrokerTypeDefault);
+    XCTAssertEqual(parameters.brokerInvocationOptions.protocolType, MSIDBrokerProtocolTypeCustomScheme);
+    XCTAssertEqual(parameters.brokerInvocationOptions.brokerAADRequestVersion, MSIDBrokerAADRequestVersionV2);
     XCTAssertEqual(parameters.requestType, MSIDInteractiveRequestBrokeredType);
     
     XCTAssertNil(error);
@@ -78,8 +80,7 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new] 
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     
@@ -99,8 +100,7 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     
@@ -119,8 +119,7 @@
                                                                                           extraScopesToConsent:[@"extra1 extra5" msidScopeSet]
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
-                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     

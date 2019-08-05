@@ -29,7 +29,7 @@
 
 @property (nonatomic, readwrite) MSIDRequiredBrokerType minRequiredBrokerType;
 @property (nonatomic, readwrite) MSIDBrokerProtocolType protocolType;
-
+@property (nonatomic, readwrite) MSIDBrokerAADRequestVersion brokerAADRequestVersion;
 @property (nonatomic, readwrite) NSString *registeredScheme;
 @property (nonatomic, readwrite) NSString *brokerBaseUrlString;
 @property (nonatomic, readwrite) NSString *versionDisplayableName;
@@ -43,6 +43,7 @@
 
 - (nullable instancetype)initWithRequiredBrokerType:(MSIDRequiredBrokerType)minRequiredBrokerType
                                        protocolType:(MSIDBrokerProtocolType)protocolType
+                                  aadRequestVersion:(MSIDBrokerAADRequestVersion)aadRequestVersion
 {
     self = [super init];
     
@@ -50,6 +51,7 @@
     {
         _minRequiredBrokerType = minRequiredBrokerType;
         _protocolType = protocolType;
+        _brokerAADRequestVersion = aadRequestVersion;
         
         _registeredScheme = [self registeredSchemeForBrokerType:minRequiredBrokerType];
         
@@ -59,7 +61,7 @@
             return nil;
         }
         
-        _brokerBaseUrlString = [self brokerBaseUrlForCommunicationProtocolType:protocolType];
+        _brokerBaseUrlString = [self brokerBaseUrlForCommunicationProtocolType:protocolType aadRequestVersion:aadRequestVersion];
         
         if (!_brokerBaseUrlString)
         {
@@ -77,7 +79,8 @@
 - (instancetype)init
 {
     return [self initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
-                               protocolType:MSIDBrokerProtocolTypeUniversalLink];
+                               protocolType:MSIDBrokerProtocolTypeUniversalLink
+                          aadRequestVersion:MSIDBrokerAADRequestVersionV2];
 }
 
 #pragma mark - Getters
@@ -104,17 +107,29 @@
 #pragma mark - Helpers
 
 - (NSString *)brokerBaseUrlForCommunicationProtocolType:(MSIDBrokerProtocolType)protocolType
+                                      aadRequestVersion:(MSIDBrokerAADRequestVersion)aadRequestVersion
 {
+    NSString *aadRequestScheme = nil;
+    
+    switch (aadRequestVersion) {
+        case MSIDBrokerAADRequestVersionV1:
+            aadRequestScheme = MSID_BROKER_ADAL_SCHEME;
+            break;
+            
+        case MSIDBrokerAADRequestVersionV2:
+            aadRequestScheme = MSID_BROKER_MSAL_SCHEME;
+            break;
+            
+        default:
+            return nil;
+    }
+    
     switch (protocolType) {
-        case MSIDBrokerProtocolTypeV1CustomScheme:
-            return [NSString stringWithFormat:@"%@://broker", MSID_BROKER_ADAL_SCHEME];
-            
-        case MSIDBrokerProtocolTypeV2CustomScheme:
-            return [NSString stringWithFormat:@"%@://broker", MSID_BROKER_MSAL_SCHEME];
-            
+        case MSIDBrokerProtocolTypeCustomScheme:
+            return [NSString stringWithFormat:@"%@://broker", aadRequestScheme];
+            break;
         case MSIDBrokerProtocolTypeUniversalLink:
-            return [NSString stringWithFormat:@"https://%@/applebroker", MSIDTrustedAuthorityWorldWide];
-            
+            return [NSString stringWithFormat:@"https://%@/applebroker/%@", MSIDTrustedAuthorityWorldWide, aadRequestScheme];
         default:
             break;
     }

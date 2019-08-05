@@ -47,8 +47,7 @@
 // Additional request parameters that will only be appended to authorize requests in addition to extraURLQueryParameters from parent class
 @property (nonatomic) NSDictionary *extraAuthorizeURLQueryParameters;
 @property (nonatomic) NSString *telemetryWebviewType;
-@property (nonatomic) MSIDRequiredBrokerType minRequiredBrokerType;
-@property (nonatomic) MSIDBrokerProtocolType preferredBrokerProtocolType;
+@property (nonatomic) MSIDBrokerInvocationOptions *brokerInvocationOptions;
 @property (nonatomic) BOOL enablePkce;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
@@ -63,8 +62,7 @@
              extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
-               requiredBrokerType:(MSIDRequiredBrokerType)requiredBrokerType
-                   brokerProtocol:(MSIDBrokerProtocolType)brokerProtocolType
+                    brokerOptions:(MSIDBrokerInvocationOptions *)brokerOptions
                       requestType:(MSIDInteractiveRequestType)requestType
                             error:(NSError **)error;
 

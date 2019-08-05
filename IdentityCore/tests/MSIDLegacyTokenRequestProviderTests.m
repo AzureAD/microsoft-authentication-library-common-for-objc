@@ -68,7 +68,6 @@
 
     NSError *error = nil;
     MSIDBrokerTokenRequest *brokerRequest = [provider brokerTokenRequestWithParameters:parameters
-                                                                         brokerOptions:[MSIDBrokerInvocationOptions new]
                                                                              brokerKey:@"brokerKey"
                                                                                  error:&error];
 

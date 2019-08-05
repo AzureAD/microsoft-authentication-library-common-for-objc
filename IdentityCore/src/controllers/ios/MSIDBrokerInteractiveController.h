@@ -34,12 +34,10 @@
 
 @property (class, strong, readonly, nullable) MSIDBrokerInteractiveController *currentBrokerController;
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveParameters;
-@property (nonatomic, readonly, nonnull) MSIDBrokerInvocationOptions *brokerInvocationOptions;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                      brokerInvocationOptions:(nonnull MSIDBrokerInvocationOptions *)brokerOptions
                                                         error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
