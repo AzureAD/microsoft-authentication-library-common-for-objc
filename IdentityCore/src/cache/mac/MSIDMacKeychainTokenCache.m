@@ -311,8 +311,6 @@ static dispatch_queue_t s_synchronizationQueue;
 
 @implementation MSIDMacKeychainTokenCache
 
-#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
-
 #pragma mark - Public
 
 + (NSString *)defaultKeychainGroup
@@ -395,14 +393,15 @@ static dispatch_queue_t s_synchronizationQueue;
         }
 
         MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+        
         if (!keychainUtil.teamId)
         {
             if (error)
             {
                 *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil);
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve teamId from keychain.");
             }
             
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve teamId from keychain.");
             return nil;
         }
         
@@ -419,9 +418,9 @@ static dispatch_queue_t s_synchronizationQueue;
             if (error)
             {
                 *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil);
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set keychain access group.");
             }
             
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set keychain access group.");
             return nil;
         }
         
@@ -1022,9 +1021,9 @@ static dispatch_queue_t s_synchronizationQueue;
     OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
     if (status != errSecSuccess)
     {
-        [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed."
+        [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:nil];
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed (status: %d).", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
         return nil;
     }
     
@@ -1039,9 +1038,9 @@ static dispatch_queue_t s_synchronizationQueue;
     
     if (status != errSecSuccess)
     {
-        [self createError:@"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed."
+        [self createError:@"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:nil];
-         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed (status: %d).", (int)status);
+         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
         return nil;
     }
     
@@ -1077,8 +1076,8 @@ static dispatch_queue_t s_synchronizationQueue;
         
         if (status != errSecSuccess)
         {
-            [self createError:@"Failed to get contents from ACL. Please make sure the app you're running is properly signed." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to get contents from ACL. Please make sure the app you're running is properly signed (status: %d).", (int)status);
+            [self createError:@"Failed to get contents from ACL. Please make sure the app you're running is properly signed and keychain access group is configured." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to get contents from ACL. Please make sure the app you're running is properly signed and keychain access group is configured(status: %d).", (int)status);
             return NO;
         }
         
@@ -1086,8 +1085,10 @@ static dispatch_queue_t s_synchronizationQueue;
         
         if (status != errSecSuccess)
         {
-            [self createError:@"Failed to set contents for ACL. Please make sure the app you're running is properly signed." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to set contents for ACL. Please make sure the app you're running is properly signed (status: %d).", (int)status);
+            [self createError:@"Failed to set contents for ACL. Please make sure the app you're running is properly signed and keychain access group is configured." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to set contents for ACL. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
+            CFReleaseNull(oldtrustedAppList);
+            CFReleaseNull(description);
             return NO;
         }
     }
