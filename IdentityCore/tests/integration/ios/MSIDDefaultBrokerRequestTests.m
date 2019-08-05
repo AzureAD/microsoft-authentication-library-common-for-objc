@@ -40,8 +40,9 @@
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
     
     NSError *error = nil;
-    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                    protocolType:MSIDBrokerProtocolTypeV2CustomScheme];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -88,8 +89,9 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user" homeAccountId:@"myHomeAccountId"];
     
     NSError *error = nil;
-    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                    protocolType:MSIDBrokerProtocolTypeV2CustomScheme];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -137,8 +139,9 @@
     parameters.loginHint = @"myuser";
     
     NSError *error = nil;
-    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                    protocolType:MSIDBrokerProtocolTypeV2CustomScheme];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -186,8 +189,9 @@
     parameters.extraScopesToConsent = @"extraScope1 extraScope2";
     
     NSError *error = nil;
-    MSIDBrokerVersion *brokerVersion = [[MSIDBrokerVersion alloc] initWithVersionType:MSIDBrokerVersionTypeWithV2Support];
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerVersion:brokerVersion  brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                    protocolType:MSIDBrokerProtocolTypeV2CustomScheme];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerOptions:brokerOptions  brokerKey:@"brokerKey" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -239,7 +243,8 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.allowedBrokerVersionType = MSIDBrokerVersionTypeWithV2Support;
+    parameters.minRequiredBrokerType = MSIDRequiredBrokerTypeWithNonceSupport;
+    parameters.preferredBrokerProtocolType = MSIDBrokerProtocolTypeV2CustomScheme;
     parameters.promptType = MSIDPromptTypeSelectAccount;
     parameters.oidcScope = @"oidcscope1 oidcscope2";
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};

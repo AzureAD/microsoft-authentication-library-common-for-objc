@@ -23,26 +23,39 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSInteger, MSIDBrokerVersionType)
+typedef NS_ENUM(NSInteger, MSIDBrokerProtocolType)
 {
-    MSIDBrokerVersionTypeWithADALOnly, // First broker version supporting ADAL only
-    MSIDBrokerVersionTypeWithV2Support, // Second broker version supporting both ADAL and MSAL
-    MSIDBrokerVersionTypeWithUniversalLinkSupport, // Third broker version supporting universal links and new secure broker protocol
-    
-    MSIDBrokerVersionTypeDefault = MSIDBrokerVersionTypeWithUniversalLinkSupport
+    MSIDBrokerProtocolTypeV1CustomScheme,
+    MSIDBrokerProtocolTypeV2CustomScheme,
+    MSIDBrokerProtocolTypeUniversalLink
 };
+
+typedef NS_ENUM(NSInteger, MSIDRequiredBrokerType)
+{
+    MSIDRequiredBrokerTypeWithADALOnly, // First broker version supporting ADAL only
+    MSIDRequiredBrokerTypeWithV2Support, // Second broker version supporting both ADAL and MSAL
+    MSIDRequiredBrokerTypeWithNonceSupport, // Third broker version supporting nonce and application key rolling
+    
+    MSIDRequiredBrokerTypeDefault = MSIDRequiredBrokerTypeWithNonceSupport
+};
+
+// Broker capability - make sure at least X broker is installed (ADAL only, V2, universal link)
+// Broker protocol - invoke that broker through protocol X (custom schemes, universal links)
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerVersion : NSObject
+@interface MSIDBrokerInvocationOptions : NSObject
 
-@property (nonatomic, readonly) MSIDBrokerVersionType versionType;
-@property (nonatomic, readonly) BOOL isPresentOnDevice;
+@property (nonatomic, readonly) MSIDRequiredBrokerType minRequiredBrokerType;
+@property (nonatomic, readonly) MSIDBrokerProtocolType protocolType;
+@property (nonatomic, readonly) BOOL isRequiredBrokerPresent;
 @property (nonatomic, readonly) NSString *brokerBaseUrlString;
 @property (nonatomic, readonly) NSString *versionDisplayableName;
 @property (nonatomic, readonly) BOOL isUniversalLink;
 
-- (nullable instancetype)initWithVersionType:(MSIDBrokerVersionType)versionType;
+- (nullable instancetype)initWithRequiredBrokerType:(MSIDRequiredBrokerType)minRequiredBrokerType
+                                       protocolType:(MSIDBrokerProtocolType)protocolType;
+
 
 @end
 

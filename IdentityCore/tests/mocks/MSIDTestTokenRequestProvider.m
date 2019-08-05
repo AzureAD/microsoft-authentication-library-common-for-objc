@@ -93,7 +93,7 @@
 
 
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                        brokerVersion:(nonnull MSIDBrokerVersion *)brokerVersion
+                                                        brokerOptions:(nonnull MSIDBrokerInvocationOptions *)brokerOptions
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                                 error:(NSError * _Nullable * _Nullable)error
 {

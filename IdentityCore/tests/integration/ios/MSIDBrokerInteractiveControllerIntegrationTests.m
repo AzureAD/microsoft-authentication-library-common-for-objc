@@ -143,7 +143,7 @@
     NSError *error = nil;
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                                                                  tokenRequestProvider:provider
-                                                                                                                   fallbackController:nil           brokerVersion:[MSIDBrokerVersion new]
+                                                                                                                   fallbackController:nil           brokerInvocationOptions:[MSIDBrokerInvocationOptions new]
                                                                                                                                 error:&error];
 
     XCTAssertNotNil(brokerController);
@@ -223,7 +223,7 @@
     NSError *error = nil;
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
                                                                                                                  tokenRequestProvider:provider
-                                                                                                                   fallbackController:nil           brokerVersion:[MSIDBrokerVersion new]
+                                                                                                                   fallbackController:nil               brokerInvocationOptions:[MSIDBrokerInvocationOptions new]
                                                                                                                                 error:&error];
     
     XCTAssertNotNil(brokerController);
@@ -266,7 +266,8 @@
     fallbackController.acquireTokenResult = [self resultWithParameters:[self requestParameters]];
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
                                                                                                                  tokenRequestProvider:provider
-                                                                                                                   fallbackController:fallbackController           brokerVersion:[MSIDBrokerVersion new]
+                                                                                                                   fallbackController:fallbackController
+                                                                                                              brokerInvocationOptions:[MSIDBrokerInvocationOptions new]  
                                                                                                                                 error:&error];
     
     XCTAssertNotNil(brokerController);
@@ -324,7 +325,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
     NSError *error = nil;
-    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerVersion:[MSIDBrokerVersion new] error:&error];
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerInvocationOptions:[MSIDBrokerInvocationOptions new] error:&error];
 
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
@@ -423,7 +424,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
     NSError *error = nil;
-    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerVersion:[MSIDBrokerVersion new] error:&error];
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerInvocationOptions:[MSIDBrokerInvocationOptions new] error:&error];
 
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
@@ -440,7 +441,7 @@
         NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
         XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
 
-        MSIDBrokerInteractiveController *secondBrokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerVersion:[MSIDBrokerVersion new] error:nil];
+        MSIDBrokerInteractiveController *secondBrokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerInvocationOptions:[MSIDBrokerInvocationOptions new] error:nil];
 
         [secondBrokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
             XCTAssertNotNil(error);
@@ -532,7 +533,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil brokerRequestURL:nil resumeDictionary:nil];
 
     NSError *error = nil;
-    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerVersion:[MSIDBrokerVersion new] error:&error];
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerInvocationOptions:[MSIDBrokerInvocationOptions new] error:&error];
 
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
@@ -604,7 +605,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
     NSError *error = nil;
-    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerVersion:[MSIDBrokerVersion new] error:&error];
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerInvocationOptions:[MSIDBrokerInvocationOptions new] error:&error];
 
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
@@ -705,7 +706,7 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
 
     NSError *error = nil;
-    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerVersion:[MSIDBrokerVersion new] error:&error];
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil brokerInvocationOptions:[MSIDBrokerInvocationOptions new] error:&error];
 
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);

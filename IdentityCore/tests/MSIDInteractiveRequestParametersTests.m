@@ -46,7 +46,8 @@
                                                                                           extraScopesToConsent:[@"extra extra2" msidScopeSet]
                                                                                                  correlationId:correlationID
                                                                                                 telemetryApiId:@"100"
-                                                                                          allowedBrokerVersion:MSIDBrokerVersionTypeWithV2Support
+                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:&error];
     
@@ -59,7 +60,8 @@
     XCTAssertEqualObjects(parameters.extraScopesToConsent, @"extra extra2");
     XCTAssertEqualObjects(parameters.correlationId, correlationID);
     XCTAssertEqualObjects(parameters.telemetryApiId, @"100");
-    XCTAssertEqual(parameters.allowedBrokerVersionType, MSIDBrokerVersionTypeWithV2Support);
+    XCTAssertEqual(parameters.minRequiredBrokerType, MSIDRequiredBrokerTypeDefault);
+    XCTAssertEqual(parameters.preferredBrokerProtocolType, MSIDBrokerProtocolTypeV2CustomScheme);
     XCTAssertEqual(parameters.requestType, MSIDInteractiveRequestBrokeredType);
     
     XCTAssertNil(error);
@@ -76,7 +78,8 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                          allowedBrokerVersion:MSIDBrokerVersionTypeWithV2Support
+                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     
@@ -96,7 +99,8 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                          allowedBrokerVersion:MSIDBrokerVersionTypeWithV2Support
+                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     
@@ -115,7 +119,8 @@
                                                                                           extraScopesToConsent:[@"extra1 extra5" msidScopeSet]
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                          allowedBrokerVersion:MSIDBrokerVersionTypeWithV2Support
+                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
                                                                                                          error:nil];
     

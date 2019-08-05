@@ -121,7 +121,8 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:nil
-                                                                                          allowedBrokerVersion:MSIDBrokerVersionTypeDefault
+                                                                                            requiredBrokerType:MSIDRequiredBrokerTypeDefault
+                                                                                                brokerProtocol:MSIDBrokerProtocolTypeV2CustomScheme
                                                                                                    requestType:MSIDInteractiveRequestLocalType
                                                                                                          error:nil];
 

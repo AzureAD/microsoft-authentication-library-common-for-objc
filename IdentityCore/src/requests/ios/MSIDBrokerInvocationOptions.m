@@ -21,13 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerVersion.h"
+#import "MSIDBrokerInvocationOptions.h"
 #import "MSIDConstants.h"
 #import "MSIDAppExtensionUtil.h"
 
-@interface MSIDBrokerVersion()
+@interface MSIDBrokerInvocationOptions()
 
-@property (nonatomic, readwrite) MSIDBrokerVersionType versionType;
+@property (nonatomic, readwrite) MSIDRequiredBrokerType minRequiredBrokerType;
+@property (nonatomic, readwrite) MSIDBrokerProtocolType protocolType;
+
 @property (nonatomic, readwrite) NSString *registeredScheme;
 @property (nonatomic, readwrite) NSString *brokerBaseUrlString;
 @property (nonatomic, readwrite) NSString *versionDisplayableName;
@@ -35,34 +37,37 @@
 
 @end
 
-@implementation MSIDBrokerVersion
+@implementation MSIDBrokerInvocationOptions
 
 #pragma mark - Init
 
-- (instancetype)initWithVersionType:(MSIDBrokerVersionType)versionType
+- (nullable instancetype)initWithRequiredBrokerType:(MSIDRequiredBrokerType)minRequiredBrokerType
+                                       protocolType:(MSIDBrokerProtocolType)protocolType
 {
     self = [super init];
     
     if (self)
     {
-        _versionType = versionType;
-        _registeredScheme = [self schemeForVersionType:versionType];
+        _minRequiredBrokerType = minRequiredBrokerType;
+        _protocolType = protocolType;
+        
+        _registeredScheme = [self registeredSchemeForBrokerType:minRequiredBrokerType];
         
         if (!_registeredScheme)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve expected URL scheme for version type %ld", (long)versionType);
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve expected URL scheme for required broker type %ld", (long)minRequiredBrokerType);
             return nil;
         }
         
-        _brokerBaseUrlString = [self brokerBaseUrlForType:versionType];
+        _brokerBaseUrlString = [self brokerBaseUrlForCommunicationProtocolType:protocolType];
         
         if (!_brokerBaseUrlString)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve base broker URL for version type %ld", (long)versionType);
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve base broker URL for protocol type %ld", (long)protocolType);
             return nil;
         }
         
-        _versionDisplayableName = [self displayableNameForVersionType:versionType];
+        _versionDisplayableName = [self displayableNameForBrokerType:minRequiredBrokerType];
         _isUniversalLink = [_brokerBaseUrlString hasPrefix:@"https"];
     }
     
@@ -71,12 +76,13 @@
 
 - (instancetype)init
 {
-    return [self initWithVersionType:MSIDBrokerVersionTypeDefault];
+    return [self initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault
+                               protocolType:MSIDBrokerProtocolTypeUniversalLink];
 }
 
 #pragma mark - Getters
 
-- (BOOL)isPresentOnDevice
+- (BOOL)isRequiredBrokerPresent
 {
     if (!self.registeredScheme)
     {
@@ -97,49 +103,53 @@
 
 #pragma mark - Helpers
 
-- (NSString *)brokerBaseUrlForType:(MSIDBrokerVersionType)versionType
+- (NSString *)brokerBaseUrlForCommunicationProtocolType:(MSIDBrokerProtocolType)protocolType
 {
-    switch (versionType) {
-        case MSIDBrokerVersionTypeWithADALOnly:
-        case MSIDBrokerVersionTypeWithV2Support:
-            return [NSString stringWithFormat:@"%@://broker", self.registeredScheme];
+    switch (protocolType) {
+        case MSIDBrokerProtocolTypeV1CustomScheme:
+            return [NSString stringWithFormat:@"%@://broker", MSID_BROKER_ADAL_SCHEME];
             
-        case MSIDBrokerVersionTypeWithUniversalLinkSupport:
+        case MSIDBrokerProtocolTypeV2CustomScheme:
+            return [NSString stringWithFormat:@"%@://broker", MSID_BROKER_MSAL_SCHEME];
+            
+        case MSIDBrokerProtocolTypeUniversalLink:
             return [NSString stringWithFormat:@"https://%@/applebroker", MSIDTrustedAuthorityWorldWide];
             
         default:
-            return nil;
+            break;
     }
+    
+    return nil;
 }
 
-- (NSString *)displayableNameForVersionType:(MSIDBrokerVersionType)versionType
+- (NSString *)displayableNameForBrokerType:(MSIDRequiredBrokerType)brokerType
 {
-    switch (versionType) {
-        case MSIDBrokerVersionTypeWithADALOnly:
+    switch (brokerType) {
+        case MSIDRequiredBrokerTypeWithADALOnly:
             return @"V1-broker";
             
-        case MSIDBrokerVersionTypeWithV2Support:
+        case MSIDRequiredBrokerTypeWithV2Support:
             return @"V2-broker";
             
-        case MSIDBrokerVersionTypeWithUniversalLinkSupport:
-            return @"V2-broker-universal-link";
+        case MSIDRequiredBrokerTypeWithNonceSupport:
+            return @"V2-broker-nonce";
             
         default:
             break;
     }
 }
 
-- (NSString *)schemeForVersionType:(MSIDBrokerVersionType)versionType
+- (NSString *)registeredSchemeForBrokerType:(MSIDRequiredBrokerType)brokerType
 {
-    switch (versionType) {
-        case MSIDBrokerVersionTypeWithADALOnly:
+    switch (brokerType) {
+        case MSIDRequiredBrokerTypeWithADALOnly:
             return MSID_BROKER_ADAL_SCHEME;
             
-        case MSIDBrokerVersionTypeWithV2Support:
+        case MSIDRequiredBrokerTypeWithV2Support:
             return MSID_BROKER_MSAL_SCHEME;
             
-        case MSIDBrokerVersionTypeWithUniversalLinkSupport:
-            return MSID_BROKER_UNIVERSAL_LINK_SCHEME;
+        case MSIDRequiredBrokerTypeWithNonceSupport:
+            return MSID_BROKER_NONCE_SCHEME;
             
         default:
             return nil;

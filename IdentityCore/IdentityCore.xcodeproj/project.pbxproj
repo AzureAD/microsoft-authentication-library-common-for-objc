@@ -818,7 +818,7 @@
 		B2964BE2205103920000BC95 /* MSIDTokenFilteringHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BE0205103920000BC95 /* MSIDTokenFilteringHelper.m */; };
 		B2964BE3205103920000BC95 /* MSIDTokenFilteringHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BE0205103920000BC95 /* MSIDTokenFilteringHelper.m */; };
 		B2964BE620521D790000BC95 /* MSIDTokenFilteringHelperTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2964BE420521D790000BC95 /* MSIDTokenFilteringHelperTests.m */; };
-		B2968C8522F3C3E8005AFC33 /* MSIDBrokerVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = B2968C8422F3C3E8005AFC33 /* MSIDBrokerVersion.m */; };
+		B2968C8522F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2968C8422F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m */; };
 		B2968CA722F67B48005AFC33 /* MSIDTestLocalInteractiveController.h in Headers */ = {isa = PBXBuildFile; fileRef = B2968CA222F67AAF005AFC33 /* MSIDTestLocalInteractiveController.h */; };
 		B2968CA822F67B4C005AFC33 /* MSIDTestLocalInteractiveController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2968CA322F67AAF005AFC33 /* MSIDTestLocalInteractiveController.m */; };
 		B2968CA922F67B4C005AFC33 /* MSIDTestLocalInteractiveController.m in Sources */ = {isa = PBXBuildFile; fileRef = B2968CA322F67AAF005AFC33 /* MSIDTestLocalInteractiveController.m */; };
@@ -1840,8 +1840,8 @@
 		B2964BDF205103920000BC95 /* MSIDTokenFilteringHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTokenFilteringHelper.h; sourceTree = "<group>"; };
 		B2964BE0205103920000BC95 /* MSIDTokenFilteringHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenFilteringHelper.m; sourceTree = "<group>"; };
 		B2964BE420521D790000BC95 /* MSIDTokenFilteringHelperTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenFilteringHelperTests.m; sourceTree = "<group>"; };
-		B2968C8322F3C3E8005AFC33 /* MSIDBrokerVersion.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerVersion.h; sourceTree = "<group>"; };
-		B2968C8422F3C3E8005AFC33 /* MSIDBrokerVersion.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerVersion.m; sourceTree = "<group>"; };
+		B2968C8322F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerInvocationOptions.h; sourceTree = "<group>"; };
+		B2968C8422F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerInvocationOptions.m; sourceTree = "<group>"; };
 		B2968CA222F67AAF005AFC33 /* MSIDTestLocalInteractiveController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestLocalInteractiveController.h; sourceTree = "<group>"; };
 		B2968CA322F67AAF005AFC33 /* MSIDTestLocalInteractiveController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestLocalInteractiveController.m; sourceTree = "<group>"; };
 		B297E1DA20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDDefaultCredentialCacheQuery.h; sourceTree = "<group>"; };
@@ -3166,8 +3166,8 @@
 		B2968C8222F3C3D5005AFC33 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				B2968C8322F3C3E8005AFC33 /* MSIDBrokerVersion.h */,
-				B2968C8422F3C3E8005AFC33 /* MSIDBrokerVersion.m */,
+				B2968C8322F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.h */,
+				B2968C8422F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -5106,7 +5106,7 @@
 				B28BDA85217E9676003E5670 /* MSIDB2CIdTokenClaims.m in Sources */,
 				B2AF1D27218BCD900080C1A0 /* MSIDBrokerInteractiveController.m in Sources */,
 				B210F4381FDDEA23005A8F76 /* MSIDAADV1TokenResponse.m in Sources */,
-				B2968C8522F3C3E8005AFC33 /* MSIDBrokerVersion.m in Sources */,
+				B2968C8522F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m in Sources */,
 				600D19B620964D2F0004CD43 /* MSIDWorkPlaceJoinConstants.m in Sources */,
 				96B8D57B20946D2600E3F4A6 /* MSIDPkce.m in Sources */,
 				B28D90A6218FD1E800E230D6 /* MSIDLegacyTokenResponseValidator.m in Sources */,

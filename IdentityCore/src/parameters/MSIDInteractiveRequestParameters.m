@@ -35,9 +35,10 @@
              extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
-             allowedBrokerVersion:(MSIDBrokerVersionType)allowedBrokerVersion
+               requiredBrokerType:(MSIDRequiredBrokerType)requiredBrokerType
+                   brokerProtocol:(MSIDBrokerProtocolType)brokerProtocolType
                       requestType:(MSIDInteractiveRequestType)requestType
-                            error:(NSError **)error
+                            error:(NSError **)error;
 {
     self = [super initWithAuthority:authority
                         redirectUri:redirectUri
@@ -51,7 +52,8 @@
     if (self)
     {
         _extraScopesToConsent = [extraScopesToConsent msidToString];
-        _allowedBrokerVersionType = allowedBrokerVersion;
+        _minRequiredBrokerType = requiredBrokerType;
+        _preferredBrokerProtocolType = brokerProtocolType;
         _requestType = requestType;
         _enablePkce = YES;
     }
