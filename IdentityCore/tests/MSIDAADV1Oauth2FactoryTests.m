@@ -143,6 +143,23 @@
     XCTAssertNil(error);
 }
 
+- (void)testVerifyResponse_whenResponseWithoutAccessToken_shouldReturnError
+{
+    MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
+    
+    NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:@{@"refresh_token":@"fake_refresh_token",
+                                                                                                @"client_info":rawClientInfo
+                                                                                                }
+                                                                                        error:nil];
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorServerOauth);
+}
+
 - (void)testVerifyResponse_whenOAuthErrorViaRefreshToken_shouldReturnError
 {
     MSIDAADV1Oauth2Factory *factory = [MSIDAADV1Oauth2Factory new];
