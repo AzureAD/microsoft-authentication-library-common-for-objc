@@ -66,12 +66,30 @@ static NSInteger kAccountTypePrefix = 1000;
     NSString *uniqueId = self.homeAccountId.msidTrimmedString.lowercaseString;
 
     return [NSString stringWithFormat:@"%@%@%@",
-            uniqueId, keyDelimiter, self.environment];
+            uniqueId, keyDelimiter, self.environment.msidTrimmedString.lowercaseString];
 }
 
 - (NSString *)service
 {
     return self.realm.msidTrimmedString.lowercaseString;
+}
+
+- (BOOL)isShared
+{
+    return YES;
+}
+
+#pragma mark - NSObject
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDDefaultAccountCacheKey *item = [[self.class allocWithZone:zone] init];
+    item->_homeAccountId = [_homeAccountId copyWithZone:zone];
+    item->_environment = [_environment copyWithZone:zone];
+    item->_realm = [_realm copyWithZone:zone];
+    item->_username = [_username copyWithZone:zone];
+    item->_accountType = _accountType;
+    return item;
 }
 
 @end

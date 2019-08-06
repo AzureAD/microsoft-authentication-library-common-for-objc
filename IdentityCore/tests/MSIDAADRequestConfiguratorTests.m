@@ -49,11 +49,6 @@
     [super tearDown];
 }
 
-- (void)testRequestConfigurator_byDefaultIntervalIs300Seconds
-{
-    XCTAssertEqual(self.requestConfigurator.timeoutInterval, 300);
-}
-
 - (void)testConfigure_shouldConfigureAADRequest
 {
     __auto_type baseUrl = [[NSURL alloc] initWithString:@"https://fake.url"];
@@ -62,7 +57,6 @@
     context.correlationId = [[NSUUID alloc] initWithUUIDString:@"E621E1F8-C36C-495A-93FC-0C247A3E6E5F"];
     httpRequest.context = context;
     httpRequest.urlRequest = [[NSURLRequest alloc] initWithURL:baseUrl];
-    self.requestConfigurator.timeoutInterval = 60;
     
     [self.requestConfigurator configure:httpRequest];
     
@@ -74,8 +68,6 @@
     }
     XCTAssertTrue([httpRequest.errorHandler isKindOfClass:MSIDAADRequestErrorHandler.class]);
     XCTAssertEqualObjects(httpRequest.urlRequest.allHTTPHeaderFields[@"Accept"], @"application/json");
-    XCTAssertEqual(httpRequest.urlRequest.timeoutInterval, 60);
-    XCTAssertEqual(httpRequest.urlRequest.cachePolicy, NSURLRequestReloadIgnoringCacheData);
     XCTAssertEqualObjects(httpRequest.urlRequest.URL.absoluteString, @"https://fake.url");
     __auto_type headers = httpRequest.urlRequest.allHTTPHeaderFields;
     XCTAssertEqualObjects(headers[MSID_OAUTH2_CORRELATION_ID_REQUEST], @"true");

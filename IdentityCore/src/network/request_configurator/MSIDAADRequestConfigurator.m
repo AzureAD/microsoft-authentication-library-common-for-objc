@@ -29,28 +29,16 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDVersion.h"
 #import "MSIDConstants.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDConstants.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDWorkPlaceJoinConstants.h"
-
-static NSTimeInterval const s_defaultTimeoutInterval = 300;
+#import "MSIDAADAuthority.h"
 
 @interface MSIDAADRequestConfigurator()
 @end
 
 @implementation MSIDAADRequestConfigurator
-
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _timeoutInterval = s_defaultTimeoutInterval;
-    }
-    return self;
-}
 
 - (void)configure:(MSIDHttpRequest *)request
 {
@@ -64,19 +52,17 @@ static NSTimeInterval const s_defaultTimeoutInterval = 300;
     
     __auto_type requestUrl = request.urlRequest.URL;
     
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:request.urlRequest.URL context:request.context error:nil];
+    MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:request.urlRequest.URL rawTenant:nil context:request.context error:nil];
     // If url is authority, then we are trying to get network url of it. Otherwise we use provided url.
-    __auto_type authorityUrl = [authority networkUrlWithContext:request.context];
+    NSURL *authorityUrl = [authority networkUrlWithContext:request.context];
     
     if (authorityUrl)
     {
-        requestUrl = [requestUrl msidURLForPreferredHost:[authorityUrl msidHostWithPortIfNecessary] context:nil error:nil];
+        requestUrl = [requestUrl msidURLForHost:[authorityUrl msidHostWithPortIfNecessary] context:nil error:nil];
     }
     
     NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
     mutableUrlRequest.URL = requestUrl;
-    mutableUrlRequest.timeoutInterval = self.timeoutInterval;
-    mutableUrlRequest.cachePolicy = NSURLRequestReloadIgnoringCacheData;
 #if TARGET_OS_IPHONE
     [mutableUrlRequest setValue:kMSIDPKeyAuthHeaderVersion forHTTPHeaderField:kMSIDPKeyAuthHeader];
 #endif

@@ -21,27 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDKeychainUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDClientCapabilitiesUtil : NSObject
+@interface MSIDKeychainUtil ()
 
-/*
- Takes a list of capabilities and returns the JSON claims.
- The result JSON is not URL encoded and caller needs to encode it if necessary
- */
-+ (nullable NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
-
-/*
- Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.
- The result JSON is not URL encoded and caller needs to encode it if necessary
- */
-
-+ (nullable NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities
-                                           developerClaims:(NSDictionary *)developerClaims;
-
-+ (nullable NSString *)jsonFromClaims:(NSDictionary *)claims;
+@property (readwrite, nullable) NSString *teamId;
 
 @end
 

@@ -25,10 +25,12 @@
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADTenant.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDB2CAuthority.h"
+#import "MSIDADFSAuthority.h"
+#import "NSURL+MSIDAADUtils.h"
 
 @interface MSIDAADAuthority()
 
@@ -62,13 +64,14 @@
     self = [self initWithURL:url context:context error:error];
     if (self)
     {
-        if (rawTenant && self.tenant.type != MSIDAADTenantTypeIdentifier)
+        if (rawTenant)
         {
             _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [_url msidHostWithPortIfNecessary], rawTenant]];
             
             if (![self.class isAuthorityFormatValid:_url context:context error:error]) return nil;
             
             _tenant = [self.class tenantFromAuthorityUrl:self.url context:context error:error];
+            _realm = _tenant.rawTenant;
         }
     }
     
@@ -83,16 +86,21 @@
 - (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:universalAuthorityURL context:context error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
 }
 
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext>)context
+{
+    return [self cacheUrlWithContext:context].msidHostWithPortIfNecessary;
+}
+
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:universalAuthorityURL context:nil error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheAliasesForAuthority:authority];
@@ -156,7 +164,7 @@
     
     __auto_type tenant = [self tenantFromAuthorityUrl:url context:context error:error];
     
-    if ([tenant.rawTenant isEqualToString:@"adfs"])
+    if ([MSIDADFSAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
         {
@@ -166,7 +174,7 @@
         return NO;
     }
     
-    if ([tenant.rawTenant isEqualToString:@"tfp"])
+    if ([MSIDB2CAuthority isAuthorityFormatValid:url context:context error:nil])
     {
         if (error)
         {
@@ -184,7 +192,7 @@
                                      context:(id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
-    __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:rawTenant];
+    __auto_type authorityUrl = [NSURL msidAADURLWithEnvironment:environment tenant:rawTenant];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
@@ -208,6 +216,11 @@
 
 - (BOOL)supportsBrokeredAuthentication
 {
+    if (self.tenant.type == MSIDAADTenantTypeConsumers)
+    {
+        return NO;
+    }
+    
     return YES;
 }
 
@@ -223,6 +236,19 @@
 
 #pragma mark - Protected
 
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    if ([self isAuthorityFormatValid:url context:context error:error])
+    {
+        return [self tenantFromAuthorityUrl:url context:context error:error].rawTenant;
+    }
+    
+    // We don't support non standard AAD authority formats
+    return nil;
+}
+
 - (id<MSIDAuthorityResolving>)resolver
 {
     return [MSIDAadAuthorityResolver new];
@@ -234,11 +260,16 @@
                           context:(id<MSIDRequestContext>)context
                             error:(NSError **)error
 {
-    if (![self isAuthorityFormatValid:url context:context error:error])
+    // Normalization requires url to have at least 1 path and a host.
+    // Return nil otherwise.
+    if (!url || url.pathComponents.count < 2)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil);
+        }
         return nil;
     }
-    
     return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [url msidHostWithPortIfNecessary], url.pathComponents[1]]];
 }
 
@@ -260,6 +291,16 @@
     
     NSString *rawTenant = [paths[1] lowercaseString];
     return [[MSIDAADTenant alloc] initWithRawTenant:rawTenant context:context error:error];
+}
+
+#pragma mark - Sovereign
+
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error
+{
+    if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
+    
+    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:cloudHostInstanceName];
+    return [[MSIDAADAuthority alloc] initWithURL:cloudAuthorityURL context:nil error:error];
 }
 
 @end

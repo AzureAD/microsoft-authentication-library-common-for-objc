@@ -30,10 +30,15 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 @class MSIDConfiguration;
+@class MSIDClaimsRequest;
 
 @interface MSIDRequestParameters : NSObject <MSIDRequestContext>
 
 @property (nonatomic) MSIDAuthority *authority;
+/*
+ Authority provided by the developer. It could be different from the `authority` property.
+ */
+@property (nonatomic) MSIDAuthority *providedAuthority;
 @property (nonatomic) MSIDAuthority *cloudAuthority;
 @property (nonatomic) NSString *redirectUri;
 @property (nonatomic) NSString *clientId;
@@ -56,7 +61,7 @@
 @property (nonatomic) NSString *telemetryApiId;
 
 #pragma mark Conditional access
-@property (nonatomic) NSDictionary *claims;
+@property (nonatomic) MSIDClaimsRequest *claimsRequest;
 @property (nonatomic) NSArray *clientCapabilities;
 
 #pragma mark Configuration
@@ -72,7 +77,6 @@
 
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
-- (BOOL)setClaimsFromJSON:(NSString *)claims error:(NSError **)error;
 - (NSString *)allTokenRequestScopes;
 
 - (BOOL)validateParametersWithError:(NSError **)error;

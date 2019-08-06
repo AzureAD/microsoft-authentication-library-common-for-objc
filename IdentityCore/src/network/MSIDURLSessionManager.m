@@ -33,7 +33,7 @@ static MSIDURLSessionManager *s_defaultManager = nil;
     if (self == [MSIDURLSessionManager self])
     {
         __auto_type configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
-        
+
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.networking.delegateQueue-%@", [NSUUID UUID].UUIDString];
         __auto_type delegateQueue = [NSOperationQueue new];
         delegateQueue.name = queueName;

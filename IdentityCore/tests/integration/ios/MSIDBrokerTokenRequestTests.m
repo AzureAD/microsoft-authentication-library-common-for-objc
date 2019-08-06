@@ -23,15 +23,16 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#import "MSIDClaimsRequest.h"
 
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
@@ -50,7 +51,7 @@
 - (MSIDInteractiveRequestParameters *)defaultTestParameters
 {
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com"] context:nil error:nil];
+    parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"mytarget mytarget2";
     parameters.correlationId = [NSUUID new];
@@ -161,7 +162,10 @@
 - (void)testInitBrokerRequest_whenParametersWithOptionalParameters_shouldReturnValidPayload
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
-    parameters.claims = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
+    parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
+    
+    NSDictionary *claimsJsonDictionary = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
+    parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
     parameters.clientCapabilities = @[@"cp1", @"cp2"];
 
     NSError *error = nil;

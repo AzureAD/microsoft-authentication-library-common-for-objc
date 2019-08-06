@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,26 +15,39 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-#if !MSID_EXCLUDE_SYSTEMWV
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+#import "MSIDCredentialCacheItem.h"
+#import "MSIDAccountCacheItem.h"
+#import "MSIDDefaultCredentialCacheKey.h"
+#import "MSIDAppMetadataCacheKey.h"
+#import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
-@interface MSIDSFAuthenticationSession : NSObject<MSIDWebviewInteracting>
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-                    context:(id<MSIDRequestContext>)context;
+@interface MSIDMacCredentialStorageItem : NSObject <MSIDJsonSerializable>
 
-@property (readonly) NSURL *startURL;
-@property (readonly) NSString *callbackURLScheme;
+- (void)storeItem:(id<MSIDJsonSerializable>)item forKey:(MSIDCacheKey *)key;
+
+/*
+ This api is thread safe only if an immutable object is passed as parameter.
+ */
+- (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem;
+
+- (NSArray<id<MSIDJsonSerializable>> *)storedItemsForKey:(MSIDCacheKey *)key;
+
+- (void)removeStoredItemForKey:(MSIDCacheKey *)key;
+
+- (NSUInteger)count;
 
 @end
-#endif
+
+NS_ASSUME_NONNULL_END

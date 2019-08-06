@@ -26,7 +26,6 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
-#import "MSIDClientCapabilitiesUtil.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 

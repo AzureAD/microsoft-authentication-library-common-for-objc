@@ -50,7 +50,7 @@
 
 - (void)setUp
 {
-    id<MSIDTokenCacheDataSource> dataSource = nil;
+    id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
 
 #if TARGET_OS_IOS
     dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
@@ -2322,7 +2322,7 @@
     item.clientId = @"client";
     item.realm = @"contoso.com";
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Name" upn:upn tenantId:@"tid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Name" upn:upn oid:nil tenantId:@"tid"];
     item.secret = idToken;
 
     return item;

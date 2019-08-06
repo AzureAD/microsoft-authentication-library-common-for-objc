@@ -31,7 +31,8 @@
                                        delegate:(nullable MSIDURLSessionDelegate *)delegate
                                   delegateQueue:(nullable NSOperationQueue *)delegateQueue NS_DESIGNATED_INITIALIZER;
 
-@property (class, nonnull) MSIDURLSessionManager *defaultManager;
+@property (nonatomic, readonly, class, nonnull) MSIDURLSessionManager *defaultManager;
+
 @property (nonatomic, readonly, nonnull) NSURLSessionConfiguration *configuration;
 @property (nonatomic, readonly, nonnull) NSURLSession *session;
 

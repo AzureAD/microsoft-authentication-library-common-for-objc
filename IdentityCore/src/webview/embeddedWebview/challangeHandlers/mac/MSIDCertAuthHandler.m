@@ -52,7 +52,7 @@
     
     if (identity != NULL)
     {
-        MSID_LOG_INFO(context, @"Using preferred identity");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Using preferred identity");
         [self respondCertAuthChallengeWithIdentity:identity context:context completionHandler:completionHandler];
     }
     else
@@ -66,7 +66,7 @@
          {
              if (identity == NULL)
              {
-                 MSID_LOG_INFO(context, @"No identity returned from cert chooser");
+                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No identity returned from cert chooser");
                  
                  // If no identity comes back then we can't handle the request
                  completionHandler(NSURLSessionAuthChallengeRejectProtectionSpace, nil);
@@ -75,7 +75,7 @@
              
              // Adding a retain count to match the retain count from SecIdentityCopyPreferred
              CFRetain(identity);
-             MSID_LOG_INFO(context, @"Using user selected certificate");
+             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Using user selected certificate");
              [self respondCertAuthChallengeWithIdentity:identity context:context completionHandler:completionHandler];
          }];
     }
@@ -87,7 +87,7 @@
                                      context:(id<MSIDRequestContext>)context
                            completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    MSID_LOG_INFO(context, @"Responding to cert auth challenge with certicate");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Responding to cert auth challenge with certicate");
     /*
      The `certificates` parameter accepts an array of /intermediate/ certificates leading from the leaf to the root.  It must not include the leaf certificate because the system gets that from the digital identity.  It should not include a root certificate because, when the server does trust evaluation on the leaf, it already has a copy of the relevant root. Therefore, we are sending "nil" to the certificates array.
      */
@@ -119,13 +119,13 @@
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, &result);
     if (status == errSecItemNotFound)
     {
-        MSID_LOG_INFO_CORR(correlationId, @"No certificate found matching challenge");
+        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationId, @"No certificate found matching challenge");
         completionHandler(nil);
         return;
     }
     else if (status != errSecSuccess)
     {
-        MSID_LOG_ERROR_CORR(correlationId, @"Failed to find identity matching issuers with %d error.", status);
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"Failed to find identity matching issuers with %d error.", status);
         completionHandler(nil);
         return;
     }

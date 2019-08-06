@@ -25,6 +25,7 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDBrokerResponse+Internal.h"
 #import "MSIDAADV2TokenResponse.h"
+#import "MSIDAADAuthority.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
 
 @implementation MSIDAADV2BrokerResponse
@@ -52,6 +53,7 @@ MSID_FORM_ACCESSOR(@"scope", scope);
 {
     self.tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:_urlForm
                                                                           error:nil];
+    self.msidAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:self.authority] rawTenant:nil context:nil error:nil];
 }
 
 - (NSString *)errorCode

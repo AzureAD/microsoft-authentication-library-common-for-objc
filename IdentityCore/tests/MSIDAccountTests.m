@@ -144,10 +144,11 @@
 
 - (void)testAccountCacheItem_shouldReturnProperCacheItem
 {
-    __auto_type authority = [@"https://login.microsoftonline.com/common" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     
     MSIDAccount *account = [MSIDAccount new];
-    account.authority = authority;
+    account.environment = authority.environment;
+    account.realm = authority.realm;
     account.username = @"eric999";
     account.givenName = @"Eric";
     account.familyName = @"Cartman";
@@ -196,15 +197,17 @@
     XCTAssertEqualObjects(account.middleName, @"Middle");
     XCTAssertEqualObjects(account.alternativeAccountId, @"AltID");
     XCTAssertEqualObjects(account.name, @"Eric Middle Cartman");
-    XCTAssertEqualObjects(account.authority.url.absoluteString, @"https://login.microsoftonline.com/contoso.com");
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"contoso.com");
     XCTAssertEqualObjects(account.clientInfo, clientInfo);
 }
 
 - (void)testSetStorageAuthority_shouldUseStorageAuthorityInCacheItem
 {
     MSIDAccount *account = [MSIDAccount new];
-    account.authority = [@"https://login.microsoftonline.com/common" authority];
-    account.storageAuthority = [@"https://login.windows.net/contoso.com" authority];
+    account.environment = @"login.microsoftonline.com";
+    account.storageEnvironment = @"login.windows.net";
+    account.realm = @"contoso.com";
 
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     XCTAssertEqualObjects(cacheItem.environment, @"login.windows.net");
@@ -222,8 +225,9 @@
     account.accountType = MSIDAccountTypeMSSTS;
     account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy id" homeAccountId:@"uid.utid"];
     account.localAccountId = @"local";
-    account.authority = [@"https://login.microsoftonline.com/common" authority];
-    account.storageAuthority = [@"https://login.windows2.net/contoso.com" authority];
+    account.environment = @"login.microsoftonline.com";
+    account.realm = @"common";
+    account.storageEnvironment = @"login.windows2.net";
     account.username = @"username";
     account.givenName = @"Eric";
     account.middleName = @"Middle";

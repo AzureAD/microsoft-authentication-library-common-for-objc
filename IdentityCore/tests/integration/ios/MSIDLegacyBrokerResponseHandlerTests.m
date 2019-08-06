@@ -54,7 +54,7 @@
     [super setUp];
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
 
-    id<MSIDTokenCacheDataSource> dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
+    id<MSIDExtendedTokenCacheDataSource> dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
     [dataSource clearWithContext:nil error:nil];
     MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     self.cacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
@@ -68,6 +68,8 @@
 
     SecItemDelete((CFDictionaryRef)query);
 
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    
     [super tearDown];
 }
 
@@ -75,7 +77,7 @@
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" tenantId:@"contoso.com-guid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
 
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
 
@@ -113,7 +115,8 @@
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
-    XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(result.accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(result.accessToken.realm, @"common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
@@ -124,7 +127,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 2);
@@ -132,7 +136,8 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
 - (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_shouldReturnNilResultAndError
@@ -217,7 +222,7 @@
 
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" tenantId:@"contoso.com-guid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
 
     NSDictionary *intuneMAMTokenDictionary = @{@"authority":@"https://login.microsoftonline.de/common",
                                                @"client_id": @"my_client_id",
@@ -271,7 +276,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"intune-mam-accesstoken");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -279,7 +285,8 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"intune-mam-refreshtoken");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
 - (void)testHandleBrokerResponse_whenBrokerErrorResponseWithHttpHeaders_shouldReturnNilResultAndErrorWithHeaders
@@ -336,7 +343,7 @@
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
 
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" tenantId:@"contoso.com-guid"];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
 
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
 
@@ -373,7 +380,8 @@
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
-    XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(result.accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(result.accessToken.realm, @"common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
@@ -384,7 +392,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -392,7 +401,64 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIntiatedByAdalAndHasCompletionBlock_shouldReturnYes
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIsNotIntiatedByAdalAndHasCompletionBlock_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertFalse(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndNoResumeDictionaryAndNoCompletionBlock_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:NO];
+    
+    XCTAssertFalse(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndNoResumeDictionaryAndHasCompletionBlock_shouldReturnYes
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIntiatedByAdalAndHasCompletionBlock_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertFalse(result);
 }
 
 #pragma mark - Helpers
@@ -402,7 +468,8 @@
     NSDictionary *resumeState = @{@"authority": authority,
                                   @"resource": @"https://graph.windows.net",
                                   @"keychain_group": @"com.microsoft.adalcache",
-                                  @"redirect_uri": @"x-msauth-test://com.microsoft.testapp"
+                                  @"redirect_uri": @"x-msauth-test://com.microsoft.testapp",
+                                  @"sdk_name": @"adal-objc"
                                   };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];

@@ -20,13 +20,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#import <Foundation/Foundation.h>
 
-@class MSIDCredentialCacheItem;
+@class MSIDRequestParameters;
+@class MSIDTokenResponse;
+@class MSIDAuthority;
+@class MSIDConfiguration;
+@protocol MSIDRequestContext;
+@protocol MSIDMetadataCacheDataSource;
 
-@protocol MSIDCredentialItemSerializer <NSObject>
+@interface MSIDAccountMetadataCacheAccessor : NSObject
 
-- (NSData *)serializeCredentialCacheItem:(MSIDCredentialCacheItem *)item;
-- (MSIDCredentialCacheItem *)deserializeCredentialCacheItem:(NSData *)data;
+- (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
+
+- (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
+             homeAccountId:(NSString *)homeAccountId
+                  clientId:(NSString *)clientId
+             instanceAware:(BOOL)instanceAware
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
+
+- (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
+             forRequestURL:(NSURL *)requestAuthorityURL
+             homeAccountId:(NSString *)homeAccountId
+                  clientId:(NSString *)clientId
+             instanceAware:(BOOL)instanceAware
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error;
+
+- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
+                     clientId:(NSString *)clientId
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error;
 
 @end

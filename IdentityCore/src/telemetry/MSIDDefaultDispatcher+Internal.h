@@ -21,14 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDDefaultDispatcher.h"
 
-@class MSIDAppMetadataCacheItem;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDAppMetadataItemSerializer <NSObject>
+@interface MSIDDefaultDispatcher ()
 
-- (NSData *)serializeAppMetadataCacheItem:(MSIDAppMetadataCacheItem *)item;
-- (MSIDAppMetadataCacheItem *)deserializeAppMetadataCacheItem:(NSData *)data;
+@property (nonatomic) NSMutableDictionary *eventsToBeDispatched;
+@property (nonatomic) id<MSIDTelemetryEventsObserving> observer;
+@property (nonatomic) BOOL setTelemetryOnFailure;
+@property (nonatomic) NSMutableSet *errorEvents;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
+
+- (NSArray *)popEventsForRequestId:(NSString *)requestId;
 
 @end
 
+NS_ASSUME_NONNULL_END

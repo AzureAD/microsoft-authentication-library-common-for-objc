@@ -55,14 +55,14 @@
         NSArray *queryElements = [query componentsSeparatedByString:@"="];
         if (queryElements.count > 2)
         {
-            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value: %@", query);
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Query parameter must be a form key=value: %@", query);
             continue;
         }
         
         NSString *key = isFormEncoded ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString].msidURLDecode;
         if ([NSString msidIsStringNilOrBlank:key])
         {
-            MSID_LOG_WARN(nil, @"Query parameter must have a key");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Query parameter must have a key");
             continue;
         }
         
@@ -115,9 +115,10 @@
                                      message,
                                      nil,
                                      nil, nil, context.correlationId, nil);
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
         }
         
-        MSID_LOG_ERROR(nil, @"%@", message);
         return NO;
     }
     
@@ -140,9 +141,10 @@
                                      message,
                                      nil,
                                      nil, nil, context.correlationId, nil);
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
         }
         
-        MSID_LOG_ERROR(nil, @"%@", message);
         return NO;
     }
     
@@ -156,8 +158,7 @@
 
     if (!serializedData)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %ld, %@", (long)serializationError.code, serializationError.domain);
-        MSID_LOG_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %@", serializationError);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to serialize data with error %@", MSID_PII_LOG_MASKABLE(serializationError));
         
         return nil;
     }
@@ -188,7 +189,7 @@
 {
     NSMutableDictionary *normalizedDictionary = [NSMutableDictionary new];
     
-    [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+    [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
         
         if ([obj isKindOfClass:[NSDictionary class]])
         {
@@ -236,6 +237,33 @@
     }
     
     return nil;
+}
+
+- (NSMutableDictionary *)mutableDeepCopy
+{
+    NSMutableDictionary *returnDict = [[NSMutableDictionary alloc] initWithCapacity:[self count]];
+    NSArray *keys = [self allKeys];
+    for (id key in keys)
+    {
+        id value = [self valueForKey:key];
+        id copy = nil;
+        if ([value respondsToSelector:@selector(mutableDeepCopy)])
+        {
+            copy = [value mutableDeepCopy];
+        }
+        else if ([value respondsToSelector:@selector(mutableCopy)])
+        {
+            copy = [value mutableCopy];
+        }
+        if (copy == nil)
+        {
+            copy = [value copy];
+        }
+        
+        [returnDict setObject:copy forKey:key];
+    }
+    
+    return returnDict;
 }
 
 @end

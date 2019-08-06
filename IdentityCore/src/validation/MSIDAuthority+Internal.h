@@ -33,12 +33,20 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (atomic, nullable) MSIDOpenIdProviderMetadata *metadata;
 @property (atomic, nullable) NSURL *openIdConfigurationEndpoint;
+@property (atomic, nullable) NSURL *url;
 
 - (nullable id<MSIDAuthorityResolving>)resolver;
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(nullable id<MSIDRequestContext>)context
-                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (nullable instancetype)initWithURL:(NSURL *)url
+                             context:(nullable id<MSIDRequestContext>)context
+                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+- (nullable instancetype)initWithURL:(NSURL *)url
+                      validateFormat:(BOOL)validateFormat
+                             context:(nullable id<MSIDRequestContext>)context
+                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error;
 
 NS_ASSUME_NONNULL_END
 @end

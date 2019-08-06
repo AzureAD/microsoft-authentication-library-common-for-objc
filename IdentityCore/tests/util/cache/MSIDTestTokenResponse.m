@@ -159,7 +159,7 @@
                                          tenantId:(NSString *)tenantId
                                  additionalFields:(NSDictionary *)additionalFields
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn tenantId:tenantId];
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:DEFAULT_TEST_ID_TOKEN_NAME upn:upn oid:nil tenantId:tenantId];
     return [self v1TokenResponseWithAT:accessToken rt:refreshToken resource:resource uid:uid utid:utid idToken:idToken additionalFields:additionalFields];
 }
 

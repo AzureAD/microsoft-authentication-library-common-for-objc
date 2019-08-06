@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
-@interface MSIDKeychainTokenCache : NSObject<MSIDTokenCacheDataSource>
+@interface MSIDKeychainTokenCache : NSObject<MSIDExtendedTokenCacheDataSource>
 
 /*!
  The name of the group to be used by default when creating an instance of MSIDKeychainTokenCache,
@@ -56,11 +56,6 @@
  */
 @property (readonly, nonnull) NSString *keychainGroup;
 
-/*! 
- Initializes with defaultKeychainGroup.
- */
-- (nonnull instancetype)init;
-
 /*!
  Initialize with keychainGroup.
  @param keychainGroup Optional. If the application needs to share the cached tokens
@@ -69,6 +64,8 @@
  
  If set to 'nil' the main bundle's identifier will be used instead.
  
+ NOTE: init: initializes with defaultKeychainGroup.
+
  See Apple's keychain services documentation for details.
  */
 - (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup;

@@ -38,6 +38,7 @@
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSDate+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
@@ -50,7 +51,9 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@ expiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, [self.secret msidSecretLoggingHash]];
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@",
+            self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
+            self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash]];
 }
 
 #pragma mark - MSIDCacheItem
@@ -80,11 +83,14 @@
     result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
     result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
     result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqual:item.expiresOn];
+    result &= (!self.extendedExpiresOn && !item.extendedExpiresOn) || [self.extendedExpiresOn isEqual:item.extendedExpiresOn];
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
-    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
+    result &= (!self.speInfo && !item.speInfo) || [self.speInfo isEqual:item.speInfo];
+    // Ignore the lastMod properties (two otherwise-identical items with different
+    // last modification informational values should be considered equal)
     return result;
 }
 
@@ -100,11 +106,12 @@
     hash = hash * 31 + self.realm.hash;
     hash = hash * 31 + self.environment.hash;
     hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.enrollmentId.hash;
-    hash = hash * 31 + self.additionalInfo.hash;
+    hash = hash * 31 + self.speInfo.hash;
     return hash;
 }
 
@@ -120,11 +127,14 @@
     item.realm = [self.realm copyWithZone:zone];
     item.environment = [self.environment copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
+    item.extendedExpiresOn = [self.extendedExpiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
-    item.additionalInfo = [self.additionalInfo copyWithZone:zone];
+    item.speInfo = [self.speInfo copyWithZone:zone];
+    item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
+    item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     return item;
 }
 
@@ -140,7 +150,7 @@
 
     if (!json)
     {
-        MSID_LOG_WARN(nil, @"Tried to decode a credential cache item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode a credential cache item from nil json");
         return nil;
     }
 
@@ -152,7 +162,7 @@
 
     if (!_secret)
     {
-        MSID_LOG_WARN(nil, @"No secret present in the credential");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No secret present in the credential");
         return nil;
     }
 
@@ -160,23 +170,17 @@
     _realm = [json msidStringObjectForKey:MSID_REALM_CACHE_KEY];
     _environment = [json msidStringObjectForKey:MSID_ENVIRONMENT_CACHE_KEY];
     _expiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXPIRES_ON_CACHE_KEY]];
+    _extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
     _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
     _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
+    _speInfo = [json msidStringObjectForKey:MSID_SPE_INFO_CACHE_KEY];
 
-    // Additional Info
-    NSString *speInfo = [json msidStringObjectForKey:MSID_SPE_INFO_CACHE_KEY];
-    NSDate *extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
-    NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
-    additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
-    additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = extendedExpiresOn;
-    
-    if ([additionalInfo count])
-    {
-        _additionalInfo = additionalInfo;
-    }
-    
+    // Last Modification info (currently used on macOS only)
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_LAST_MOD_TIME_CACHE_KEY]];
+    _lastModificationApp = [json msidStringObjectForKey:MSID_LAST_MOD_APP_CACHE_KEY];
+
     return self;
 }
 
@@ -197,12 +201,17 @@
     dictionary[MSID_REALM_CACHE_KEY] = _realm;
     dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
     dictionary[MSID_EXPIRES_ON_CACHE_KEY] = _expiresOn.msidDateToTimestamp;
+    dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = _extendedExpiresOn.msidDateToTimestamp;
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
-    dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
-    dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = [_additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] msidDateToTimestamp];
+    dictionary[MSID_SPE_INFO_CACHE_KEY] = _speInfo;
+
+    // Last Modification info (currently used on macOS only)
+    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
+    dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
+
     return dictionary;
 }
 
@@ -215,16 +224,20 @@
         return YES;
     }
     
+    if(comparisonOptions == MSIDExactStringMatch)
+    {
+        return [self.target.msidNormalizedString isEqualToString:target.msidNormalizedString];
+    }
+
     NSOrderedSet *inputSet = [NSOrderedSet msidOrderedSetFromString:target normalize:YES];
     NSOrderedSet *tokenSet = [NSOrderedSet msidOrderedSetFromString:self.target normalize:YES];
 
     switch (comparisonOptions) {
-        case MSIDExactStringMatch:
-            return [self.target.lowercaseString isEqualToString:target.lowercaseString];
         case MSIDSubSet:
             return [inputSet isSubsetOfOrderedSet:tokenSet];
         case MSIDIntersect:
             return [inputSet intersectsOrderedSet:tokenSet];
+        case MSIDExactStringMatch:
         default:
             return NO;
     }
@@ -236,7 +249,8 @@
                      environment:(nullable NSString *)environment
               environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
+    if (homeAccountId && 
+        ![self.homeAccountId.msidNormalizedString isEqualToString:homeAccountId.msidNormalizedString])
     {
         return NO;
     }
@@ -247,12 +261,14 @@
 - (BOOL)matchByEnvironment:(nullable NSString *)environment
         environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (environment && ![self.environment isEqualToString:environment])
+    if (environment && 
+        ![self.environment.msidNormalizedString isEqualToString:environment.msidNormalizedString])
     {
         return NO;
     }
 
-    if ([environmentAliases count] && ![self.environment msidIsEquivalentWithAnyAlias:environmentAliases])
+    if ([environmentAliases count] && 
+        ![self.environment.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases])
     {
         return NO;
     }
@@ -267,7 +283,7 @@
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
-    if (realm && ![self.realm isEqualToString:realm])
+    if (realm && ![self.realm.msidNormalizedString isEqualToString:realm.msidNormalizedString])
     {
         return NO;
     }
@@ -284,8 +300,8 @@
 
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
-        if ((clientId && [self.clientId isEqualToString:clientId])
-            || (familyId && [self.familyId isEqualToString:familyId]))
+        if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
+            || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
             return YES;
         }
@@ -294,12 +310,12 @@
     }
     else
     {
-        if (clientId && ![self.clientId isEqualToString:clientId])
+        if (clientId && ![self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
         {
             return NO;
         }
 
-        if (familyId && ![self.familyId isEqualToString:familyId])
+        if (familyId && ![self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString])
         {
             return NO;
         }
@@ -311,6 +327,20 @@
 - (BOOL)isTombstone
 {
     return [self.secret isEqualToString:@"<tombstone>"];
+}
+
+- (nullable MSIDCacheKey *)generateCacheKey
+{
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:self.homeAccountId
+                                                                                          environment:self.environment
+                                                                                             clientId:self.clientId
+                                                                                       credentialType:self.credentialType];
+    
+    key.familyId = self.familyId;
+    key.realm = self.realm;
+    key.target = self.target;
+    key.enrollmentId = self.enrollmentId;
+    return key;
 }
 
 @end

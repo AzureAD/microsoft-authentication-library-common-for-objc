@@ -31,6 +31,21 @@
 
 @implementation MSIDJsonSerializer
 
+#pragma mark - Init
+
+- (instancetype)init
+{
+    self = [super init];
+    
+    if (self)
+    {
+        // Normalize by default unless developer has explicitly verified that normalization is not needed
+        _normalizeJSON = YES;
+    }
+    
+    return self;
+}
+
 #pragma mark - MSIDJsonSerializing
 
 - (NSData *)toJsonData:(id<MSIDJsonSerializable>)serializable
@@ -49,9 +64,7 @@
                                                      error:&internalError];
     if (internalError)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Failed to serialize to json data.");
-        MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Failed to serialize to json data, error: %@", internalError);
-        
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to serialize to json data, error: %@", MSID_PII_LOG_MASKABLE(internalError));
         if (error) *error = internalError;
         return nil;
     }
@@ -72,8 +85,7 @@
     
     if (internalError)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Failed to deserialize json object.");
-        MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Failed to deserialize json object, error: %@", internalError);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Failed to deserialize json object, error: %@", MSID_PII_LOG_MASKABLE(internalError));
         
         if (error) *error = internalError;
         return nil;
@@ -87,6 +99,8 @@
                      error:(NSError **)error
 {
     NSData *jsonData = [self toJsonData:serializable context:context error:error];
+    if (!jsonData) return nil;
+    
     return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 }
 
@@ -117,8 +131,14 @@
         return nil;
     }
     
-    NSDictionary *json = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:data error:error];
-    return json;
+    if (self.normalizeJSON)
+    {
+        return [NSJSONSerialization msidNormalizedDictionaryFromJsonData:data error:error];
+    }
+    
+    return [NSJSONSerialization JSONObjectWithData:data
+                                           options:NSJSONReadingMutableContainers
+                                             error:error];
 }
 
 @end

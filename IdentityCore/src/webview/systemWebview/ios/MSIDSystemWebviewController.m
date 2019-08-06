@@ -31,7 +31,6 @@
 #import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
-#import "MSIDNetworkConfiguration.h"
 #import "MSIDNotifications.h"
 
 @implementation MSIDSystemWebviewController
@@ -46,19 +45,20 @@
 - (instancetype)initWithStartURL:(NSURL *)startURL
                callbackURLScheme:(NSString *)callbackURLScheme
                 parentController:(UIViewController *)parentController
+                presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
                          context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
     {
-        MSID_LOG_WARN(context, @"Attemped to start with nil URL");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with nil URL");
         return nil;
     }
     
     if (!callbackURLScheme)
     {
-        MSID_LOG_WARN(context, @"Attemped to start with invalid redirect uri");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with invalid redirect uri");
         return nil;
     }
     
@@ -70,6 +70,7 @@
         _context = context;
         _callbackURLScheme = callbackURLScheme;
         _parentController = parentController;
+        _presentationType = presentationType;
         _allowSafariViewController = allowSafariViewController;
         _useAuthenticationSession = useAuthenticationSession;
     }
@@ -80,7 +81,7 @@
 {
     if (!completionHandler)
     {
-        MSID_LOG_WARN(_context, @"CompletionHandler cannot be nil for interactive session.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,_context, @"CompletionHandler cannot be nil for interactive session.");
         return;
     }
     
@@ -104,6 +105,7 @@
     {
         _session = [[MSIDSafariViewController alloc] initWithURL:_startURL
                                                 parentController:_parentController
+                                                presentationType:_presentationType
                                                          context:_context];
     }
     

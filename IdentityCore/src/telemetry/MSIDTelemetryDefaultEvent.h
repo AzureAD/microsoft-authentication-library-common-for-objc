@@ -22,11 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTelemetryBaseEvent.h"
 
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDNetworkConfiguration : NSObject
-
-@property (class, nonatomic, readwrite) NSTimeInterval timeout;
-@property (class, nonatomic, readwrite) NSInteger retryCount;
+@interface MSIDTelemetryDefaultEvent : MSIDTelemetryBaseEvent
 
 @end
+
+NS_ASSUME_NONNULL_END
