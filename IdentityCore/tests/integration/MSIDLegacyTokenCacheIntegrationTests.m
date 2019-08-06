@@ -60,7 +60,7 @@
 {
 
 #if TARGET_OS_IOS
-    _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+    _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
     // TODO: this should be replaced with a real macOS datasource instead
     _dataSource = [[MSIDTestCacheDataSource alloc] init];
