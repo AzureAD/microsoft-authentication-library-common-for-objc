@@ -730,6 +730,7 @@
 		B27551C32081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
 		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
+		B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */; };
 		B27CCDD1229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */; };
 		B27CCDD2229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
 		B27CCDD3229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
@@ -1790,6 +1791,8 @@
 		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
 		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
 		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
+		B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskManager.h; sourceTree = "<group>"; };
+		B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskManager.m; sourceTree = "<group>"; };
 		B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSJSONSerialization+MSIDExtensions.h"; sourceTree = "<group>"; };
 		B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSJSONSerialization+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B27CCDD4229EF2C000CAD565 /* MSIDDictionaryExtensionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDictionaryExtensionsTests.m; sourceTree = "<group>"; };
@@ -2577,6 +2580,7 @@
 		96235F8F207D7128007EAB36 /* webview */ = {
 			isa = PBXGroup;
 			children = (
+				B27ACA6722EBC42E0049ACE0 /* background */,
 				96B8D57820946D1900E3F4A6 /* pkce */,
 				96F94A2420816B2F0034676C /* systemWebview */,
 				96F94A22208169380034676C /* embeddedWebview */,
@@ -3131,6 +3135,15 @@
 				B27551FD208182BE00AA7A38 /* AuthHeader.swift */,
 			);
 			path = keyvault;
+			sourceTree = "<group>";
+		};
+		B27ACA6722EBC42E0049ACE0 /* background */ = {
+			isa = PBXGroup;
+			children = (
+				B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */,
+				B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */,
+			);
+			path = background;
 			sourceTree = "<group>";
 		};
 		B28BDA77217E95D9003E5670 /* b2c */ = {
@@ -5038,6 +5051,7 @@
 				B2BE924721A2279A00F5AB8C /* MSIDTelemetryBrokerEvent.m in Sources */,
 				9641B52A1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */,
 				23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */,
+				B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */,
 				96891A972190F15E00D7F437 /* MSIDWPJChallengeHandler.m in Sources */,
 				238E19DB2086FE28004DF483 /* MSIDAuthorizationCodeGrantRequest.m in Sources */,
 				B2C7B3BB213C69C8009FFCC1 /* MSIDDefaultErrorConverter.m in Sources */,
