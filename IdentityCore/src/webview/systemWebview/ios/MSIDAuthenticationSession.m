@@ -108,7 +108,7 @@
 
 #if !MSID_EXCLUDE_WEBKIT
     
-    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 
     NSError *error = nil;
     
@@ -192,7 +192,7 @@
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
                           error:(NSError *)error
 {
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
     
     if (error)
     {
@@ -206,7 +206,7 @@
 
 - (void)dealloc
 {
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
 @end

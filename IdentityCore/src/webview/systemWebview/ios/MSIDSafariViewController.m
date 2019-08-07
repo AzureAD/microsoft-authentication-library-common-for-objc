@@ -104,7 +104,7 @@
             return;
         }
         
-        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDInteractiveRequestType];
+        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
         
         _completionHandler = [completionHandler copy];
         
@@ -151,7 +151,7 @@
     }
     
     [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 
     _completionHandler(url, nil);
     return YES;
@@ -159,7 +159,7 @@
 
 - (void)dealloc
 {
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
 #pragma mark - SFSafariViewControllerDelegate

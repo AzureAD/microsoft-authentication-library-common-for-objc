@@ -27,10 +27,11 @@
 
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDCache.h"
 
 @interface MSIDBackgroundTaskManager()
 
-@property (nonatomic) NSMutableDictionary *taskDictionary;
+@property (nonatomic) MSIDCache *taskCache;
 
 @end
 
@@ -43,7 +44,7 @@
     self = [super init];
     if (self)
     {
-        _taskDictionary = [NSMutableDictionary new];
+        _taskCache = [MSIDCache new];
     }
     return self;
 }
@@ -69,16 +70,6 @@
 
 - (void)startOperationWithType:(MSIDBackgroundTaskType)type
 {
-    if (![NSThread isMainThread])
-    {
-        // UIKit operations should be executed from main thread
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self startOperationWithType:type];
-        });
-        
-        return;
-    }
-    
     UIBackgroundTaskIdentifier backgroundTask = [self backgroundTaskWithType:type];
     
     if (backgroundTask != UIBackgroundTaskInvalid)
@@ -100,15 +91,6 @@
 
 - (void)stopOperationWithType:(MSIDBackgroundTaskType)type
 {
-    if (![NSThread isMainThread])
-    {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self stopOperationWithType:type];
-        });
-        
-        return;
-    }
-    
     UIBackgroundTaskIdentifier backgroundTask = [self backgroundTaskWithType:type];
     
     if (backgroundTask == UIBackgroundTaskInvalid)
@@ -126,12 +108,12 @@
 
 - (UIBackgroundTaskIdentifier)backgroundTaskWithType:(MSIDBackgroundTaskType)type
 {
-    return [self.taskDictionary[@(type)] integerValue];
+    return [[self.taskCache objectForKey:@(type)] integerValue];
 }
 
 - (void)setBackgroundTask:(UIBackgroundTaskIdentifier)backgroundTask forType:(MSIDBackgroundTaskType)type
 {
-    self.taskDictionary[@(type)] = @(backgroundTask);
+    [self.taskCache setObject:@(backgroundTask) forKey:@(type)];
 }
 
 @end

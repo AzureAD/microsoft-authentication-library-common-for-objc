@@ -60,14 +60,14 @@ static WKWebViewConfiguration *s_webConfig;
 
 -(void)dealloc
 {
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
 - (BOOL)loadView:(NSError **)error;
 {
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */
-    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
     
     if (_webView)
     {
@@ -119,7 +119,7 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (void)dismissWebview:(void (^)(void))completion
 {
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDInteractiveRequestType];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
     
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
