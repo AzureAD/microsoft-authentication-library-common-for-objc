@@ -161,7 +161,6 @@
 #endif
 }
 
-
 - (void)cancel
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, _context, @"Authorization session was cancelled programatically");
@@ -197,6 +196,24 @@
     {
         [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
     }
+}
+
+- (BOOL)handleURLResponse:(NSURL *)url
+{
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
+    
+    if (@available(iOS 12.0, *))
+    {
+        [_webAuthSession cancel];
+    }
+    else
+    {
+        [_authSession cancel];
+    }
+    
+    [self notifyEndWebAuthWithURL:url error:nil];
+    _completionHandler(url, nil);
+    return YES;
 }
 
 @end

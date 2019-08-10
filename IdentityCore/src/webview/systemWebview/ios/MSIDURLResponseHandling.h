@@ -26,20 +26,10 @@
 //------------------------------------------------------------------------------
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
-#import "MSIDURLResponseHandling.h"
+@protocol MSIDURLResponseHandling <NSObject>
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting, MSIDURLResponseHandling>
-
-- (instancetype)initWithURL:(NSURL *)url
-           parentController:(UIViewController *)parentController
-           presentationType:(UIModalPresentationStyle)presentationType
-                    context:(id<MSIDRequestContext>)context;
-
-@property (readonly) NSURL *startURL;
-@property (weak, nonatomic) UIViewController *parentController;
+- (BOOL)handleURLResponse:(NSURL *)url;
 
 @end
-#endif
 
+#endif
