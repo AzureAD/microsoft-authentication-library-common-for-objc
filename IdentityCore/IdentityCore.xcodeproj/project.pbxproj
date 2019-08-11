@@ -2345,6 +2345,8 @@
 				B2BE926421A25F7200F5AB8C /* MSIDTestBrokerResponseHandler.m */,
 				B2BE926A21A2620400F5AB8C /* MSIDTestBrokerTokenRequest.h */,
 				B2BE926B21A2620400F5AB8C /* MSIDTestBrokerTokenRequest.m */,
+				964E669420AE97FD00857009 /* MSIDTestWebviewInteractingViewController.h */,
+				964E669520AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m */,
 				23CA0C60220A6DF600768729 /* MSIDRegistrationInformationMock.h */,
 				23CA0C61220A6DF600768729 /* MSIDRegistrationInformationMock.m */,
 			);
@@ -3482,8 +3484,6 @@
 				D626FFEA1FBD200A00EE4487 /* network */,
 				2338ECD4208A7B3200809B9E /* MSIDTestContext.h */,
 				2338ECD5208A7B3200809B9E /* MSIDTestContext.m */,
-				964E669420AE97FD00857009 /* MSIDTestWebviewInteractingViewController.h */,
-				964E669520AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m */,
 				B28AC66221A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h */,
 				B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */,
 				B28AC66721A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.h */,

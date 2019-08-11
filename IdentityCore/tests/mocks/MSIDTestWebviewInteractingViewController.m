@@ -55,7 +55,7 @@
 - (BOOL)isKindOfClass:(Class)aClass
 {
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-    if (self.actAsSafariViewController)
+    if (self.actAsSafariViewController || self.actAsAuthenticationSession)
     {
         return (aClass == MSIDSystemWebviewController.class);
     }
@@ -63,9 +63,9 @@
     return NO;
 }
 
-- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
+- (BOOL)handleURLResponse:(NSURL *)url;
 {
-    return self.actAsSafariViewController;
+    return self.actAsSafariViewController || self.actAsAuthenticationSession;
 }
 
 @end

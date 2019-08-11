@@ -25,6 +25,16 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDSystemWebviewController.h"
+#import "MSIDURLResponseHandling.h"
+
+@interface MSIDTestSession: NSObject<MSIDURLResponseHandling>
+@end
+
+@implementation MSIDTestSession: NSObject
+- (BOOL)handleURLResponse:(NSURL *)url {
+    return YES;
+}
+@end
 
 @interface MSIDSystemWebviewControllerTests : XCTestCase
 
@@ -46,7 +56,7 @@
 - (void)testInitWithStartURL_whenURLisNil_shouldFail
 {
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil
-                                                                             callbackURLScheme:@"scheme"
+                                                                                   redirectURI:@"some://redirecturi"
                                                                               parentController:nil
                                                                               presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
@@ -56,10 +66,10 @@
 }
 
 
-- (void)testInitWithStartURL_whenCallbackURLSchemeisNil_shouldFail
+- (void)testInitWithStartURL_whenRediectUriisNil_shouldFail
 {
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
-                                                                             callbackURLScheme:nil
+                                                                                   redirectURI:nil
                                                                               parentController:nil
                                                                               presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
@@ -68,12 +78,13 @@
     XCTAssertNil(webVC);
 
 }
+
 
 
 - (void)testInitWithStartURL_whenStartURLandCallbackURLSchemeValid_shouldSucceed
 {
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
-                                                                             callbackURLScheme:@"scheme"
+                                                                                   redirectURI:@"some://redirecturi"
                                                                               parentController:nil
                                                                               presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
@@ -83,6 +94,36 @@
     
 }
 
+
+- (void)testHandleURLResponse_whenRedirectSchemeMismatch_shouldReturnNo
+{
+    MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
+    [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
+    [webVC setValue:[MSIDTestSession new] forKey:@"_session"];
+    
+    XCTAssertFalse([webVC handleURLResponse:[NSURL URLWithString:@"schemenotmatch://host"]]);
+}
+
+- (void)testHandleURLResponse_whenRedirectHostMismatch_shouldReturnNo
+{
+    MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
+    [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
+    [webVC setValue:[MSIDTestSession new] forKey:@"_session"];
+    
+    XCTAssertFalse([webVC handleURLResponse:[NSURL URLWithString:@"scheme://hostnotmatch"]]);
+}
+
+- (void)testHandleURLResponse_whenRedirectHostAndSchemeMatch_shouldReturnYes
+{
+    MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
+    [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
+    [webVC setValue:[MSIDTestSession new] forKey:@"_session"];
+    
+    XCTAssertTrue([webVC handleURLResponse:[NSURL URLWithString:@"scheme://host"]]);
+}
+
 @end
+
+
 
 #endif

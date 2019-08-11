@@ -32,6 +32,7 @@
 
 // BOOL to indicate whether or not this class will act as MSIDSafariViewController
 @property BOOL actAsSafariViewController;
+@property BOOL actAsAuthenticationSession;
 
 @property NSURL *startURL;
 
