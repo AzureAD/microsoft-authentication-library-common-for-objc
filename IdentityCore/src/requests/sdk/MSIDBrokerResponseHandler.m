@@ -43,6 +43,9 @@
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readwrite) id<MSIDCacheAccessor> tokenCache;
 
+@property (nonatomic, readwrite) BOOL sourceApplicationAvailable;
+@property (nonatomic, readwrite) NSString *brokerNonce;
+
 @end
 
 @implementation MSIDBrokerResponseHandler
@@ -65,7 +68,7 @@
 
 #pragma mark - Broker response
 
-- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response error:(NSError **)error
+- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response sourceApplication:(NSString *)sourceApplication error:(NSError **)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Handling broker response.");
     
@@ -80,6 +83,8 @@
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
     NSString *keychainGroup = resumeState[@"keychain_group"];
     NSString *oidcScope = resumeState[@"oidc_scope"];
+    self.brokerNonce = resumeState[@"broker_nonce"];
+    self.sourceApplicationAvailable = sourceApplication != nil;
 
     // Initialize broker key and cache datasource
     MSIDBrokerKeyProvider *brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:keychainGroup];
@@ -177,6 +182,13 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Resume state is missing the redirect uri!", correlationId);
         return nil;
     }
+    
+    NSString *brokerNonce = [resumeDictionary objectForKey:@"broker_nonce"];
+    if (!brokerNonce)
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Resume state is missing the broker nonce!", correlationId);
+        return nil;
+    }
 
     NSString *keychainGroup = resumeDictionary[@"keychain_group"];
 
@@ -194,6 +206,17 @@
     }
 
     return resumeDictionary;
+}
+
+- (BOOL)checkBrokerNonce:(NSDictionary *)responseDict
+{
+    // only verify nonce if sourceApplication is nil
+    if (!self.sourceApplicationAvailable)
+    {
+        return [self.brokerNonce isEqualToString:responseDict[@"broker_nonce"]];
+    }
+    
+    return YES;
 }
 
 #pragma mark - Abstract
