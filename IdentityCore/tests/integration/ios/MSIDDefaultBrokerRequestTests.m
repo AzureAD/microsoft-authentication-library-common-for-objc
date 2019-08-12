@@ -59,6 +59,7 @@
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -107,6 +108,7 @@
                                       //if account set, both of the following should be set
                                       @"home_account_id" : @"myHomeAccountId",
                                       @"username" : @"user",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -154,7 +156,7 @@
                                       @"msg_protocol_ver" : @"3",
                                       //login hint should be set
                                       @"login_hint" : @"myuser",
-                                      
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -202,6 +204,7 @@
                                       @"msg_protocol_ver" : @"3",
                                       //extra scopes should be set
                                       @"extra_consent_scopes" : @"extraScope1 extraScope2",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;

@@ -60,7 +60,8 @@
                                       @"skip_cache": @"YES",
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -106,7 +107,8 @@
                                       @"username": @"username@upn.com",
                                       @"username_type": @"RequiredDisplayableId",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -151,7 +153,8 @@
                                       @"username": @"myloginhint",
                                       @"username_type": @"OptionalDisplayableId",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -194,7 +197,8 @@
                                       @"skip_cache": @"NO",
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"YES"
+                                      @"force": @"YES",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
