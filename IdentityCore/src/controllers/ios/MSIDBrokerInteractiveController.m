@@ -260,11 +260,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 #if AD_BROKER
     return YES;
 #else
-//    if ([NSString msidIsStringNilOrBlank:sourceApplication])
-//    {
-//        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Asked to handle non broker response. Skipping request.");
-//        return NO;
-//    }
     BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];
 
 #ifdef DOGFOOD_BROKER
