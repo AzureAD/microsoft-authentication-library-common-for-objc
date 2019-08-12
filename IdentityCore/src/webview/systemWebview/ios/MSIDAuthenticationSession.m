@@ -35,6 +35,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
+#import "MSIDBackgroundTaskManager.h"
 #if !MSID_EXCLUDE_WEBKIT
 #import <SafariServices/SafariServices.h>
 #import <AuthenticationServices/AuthenticationServices.h>
@@ -106,6 +107,8 @@
     }
 
 #if !MSID_EXCLUDE_WEBKIT
+    
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 
     NSError *error = nil;
     
@@ -189,6 +192,8 @@
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
                           error:(NSError *)error
 {
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+    
     if (error)
     {
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
@@ -197,6 +202,11 @@
     {
         [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
     }
+}
+
+- (void)dealloc
+{
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
 @end
