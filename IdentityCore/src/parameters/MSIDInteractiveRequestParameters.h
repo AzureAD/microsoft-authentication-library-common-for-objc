@@ -63,6 +63,7 @@
                    telemetryApiId:(NSString *)telemetryApiId
           supportedBrokerProtocol:(NSString *)brokerProtocolScheme
                       requestType:(MSIDInteractiveRequestType)requestType
+              intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error;
 
 @end

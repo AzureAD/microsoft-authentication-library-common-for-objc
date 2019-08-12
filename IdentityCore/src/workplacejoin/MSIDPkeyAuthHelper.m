@@ -32,8 +32,8 @@
 
 @implementation MSIDPkeyAuthHelper
 
-+ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL*)authorizationServer
-                                  challengeData:(nullable NSDictionary*)challengeData
++ (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
+                                  challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
 {
     MSIDRegistrationInformation *info =

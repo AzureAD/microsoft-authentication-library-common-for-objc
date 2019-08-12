@@ -51,9 +51,10 @@
 #endif
 }
 
-+ (NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+                                                 appIdentifier:(NSString *)appIdentifier
 {
-    return [self isAppCapableForMAMCA:authority] ? [[NSBundle mainBundle] bundleIdentifier] : nil;
+    return [self isAppCapableForMAMCA:authority] ? appIdentifier : nil;
 }
 
 @end

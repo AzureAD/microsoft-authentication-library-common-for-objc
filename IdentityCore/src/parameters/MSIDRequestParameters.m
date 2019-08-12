@@ -57,6 +57,7 @@
                        oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
+              intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error
 {
     self = [super init];
@@ -70,6 +71,7 @@
         _clientId = clientId;
         _correlationId = correlationId ?: [NSUUID new];
         _telemetryApiId = telemetryApiId;
+        _intuneApplicationIdentifier = intuneApplicationIdentifier;
 
         if ([scopes intersectsOrderedSet:oidScopes])
         {
@@ -195,7 +197,8 @@
                                                                     clientId:self.clientId
                                                                       target:self.target];
     
-    config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority];
+    config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
+                                                                                                appIdentifier:self.intuneApplicationIdentifier];
     _msidConfiguration = config;
 }
 

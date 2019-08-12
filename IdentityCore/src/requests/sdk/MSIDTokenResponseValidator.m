@@ -158,7 +158,8 @@
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
     
-    configuration.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:brokerResponse.msidAuthority];
+    configuration.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:brokerResponse.msidAuthority
+                                                                                                       appIdentifier:[[NSBundle mainBundle] bundleIdentifier]];
 
     MSIDTokenResponse *tokenResponse = brokerResponse.tokenResponse;
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
