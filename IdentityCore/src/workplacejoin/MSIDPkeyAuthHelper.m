@@ -42,13 +42,21 @@
     NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
     NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
     
-    if (info && challengeData)
+    if (!info)
     {
-        if (![info isWorkPlaceJoined])
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
-        }
-        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No registration information found");
+    }
+    if (!challengeData)
+    {
+        // Error should have been logged before this where there is more information on why the challenge data was bad
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
+    }
+    else if (![info isWorkPlaceJoined])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
+    }
+    else
+    {
         NSString *certAuths = [challengeData valueForKey:@"CertAuthorities"];
         NSString *expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
         
@@ -80,15 +88,6 @@
         
         authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
-    }
-    else if (!challengeData)
-    {
-        // Error should have been logged before this where there is more information on why the challenge data was bad
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
-    }
-    else if (!info)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request but nil WPJ info.");
     }
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
