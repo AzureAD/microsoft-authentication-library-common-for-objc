@@ -122,7 +122,21 @@
         if (error) *error = brokerError;
         return nil;
     }
-
+    
+    NSString *applicationToken = brokerResponse.applicationToken;
+    
+    if (![NSString msidIsStringNilOrBlank:applicationToken])
+    {
+        NSError *appTokenError = nil;
+        BOOL saveAppToken = [brokerKeyProvider saveApplicationToken:applicationToken forClientId:brokerResponse.clientId error:&appTokenError];
+        
+        if (!saveAppToken)
+        {
+            if (error) *error = appTokenError;
+            return nil;
+        }
+    }
+    
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                             oidcScope:oidcScope
                                                          oauthFactory:self.oauthFactory

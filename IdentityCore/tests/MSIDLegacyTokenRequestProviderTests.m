@@ -65,7 +65,7 @@
     parameters.correlationId = [NSUUID UUID];
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *brokerRequest = [provider brokerTokenRequestWithParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *brokerRequest = [provider brokerTokenRequestWithParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
 
     XCTAssertNotNil(brokerRequest);
     XCTAssertTrue([brokerRequest isKindOfClass:[MSIDLegacyBrokerTokenRequest class]]);

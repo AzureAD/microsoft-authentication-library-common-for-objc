@@ -69,7 +69,7 @@
     parameters.authority = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -81,7 +81,7 @@
 
     NSError *error = nil;
     NSString *brokerKey = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:brokerKey error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:brokerKey brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -93,7 +93,7 @@
     parameters.target = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -105,7 +105,7 @@
     parameters.redirectUri = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+        MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -117,7 +117,7 @@
     parameters.clientId = nil;
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNil(request);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorInvalidDeveloperParameter);
@@ -130,7 +130,7 @@
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -169,7 +169,7 @@
     parameters.clientCapabilities = @[@"cp1", @"cp2"];
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -241,7 +241,7 @@
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 

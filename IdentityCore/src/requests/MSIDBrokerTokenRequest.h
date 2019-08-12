@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey
+                   brokerApplicationToken:(NSString *)brokerApplicationToken
                                     error:(NSError **)error;
 
 @end

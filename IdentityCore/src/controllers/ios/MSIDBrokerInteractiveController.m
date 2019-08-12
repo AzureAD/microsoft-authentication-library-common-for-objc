@@ -161,8 +161,12 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
 
+    NSError *appTokenError = nil;
+    NSString *applicationToken = [self.brokerKeyProvider getApplicationToken:self.interactiveParameters.clientId error:&appTokenError];
+    NSLog(@"%@",applicationToken);
     MSIDBrokerTokenRequest *brokerRequest = [self.tokenRequestProvider brokerTokenRequestWithParameters:self.interactiveParameters
                                                                                               brokerKey:base64UrlKey
+                                                                                 brokerApplicationToken:applicationToken
                                                                                                   error:&brokerError];
 
     if (!brokerRequest)

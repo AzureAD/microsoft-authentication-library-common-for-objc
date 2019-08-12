@@ -30,6 +30,7 @@
 
 @property (readonly) NSString *authority;
 @property (readonly) NSString *clientId;
+@property (readonly) NSString *applicationToken;
 
 @property (readonly) NSString *brokerAppVer;
 @property (readonly) NSString *validAuthority;

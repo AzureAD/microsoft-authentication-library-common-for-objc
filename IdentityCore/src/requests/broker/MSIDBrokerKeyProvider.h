@@ -42,4 +42,8 @@ enum {
 
 - (NSData *)brokerKeyWithError:(NSError **)error;
 
+- (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError **)error;
+
+- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError **)error;
+
 @end
