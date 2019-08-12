@@ -110,7 +110,7 @@
         _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                              context:_context];
         
-        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
         
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
