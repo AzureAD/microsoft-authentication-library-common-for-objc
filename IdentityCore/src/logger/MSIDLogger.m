@@ -155,7 +155,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             NSString *sourceInfo = @"";
             if (self.SourceLineLoggingEnabled && filename.length)
             {
-                sourceInfo = [NSString stringWithFormat:@" %@:%lu: %@", filename.lastPathComponent, lineNumber, function];
+                sourceInfo = [NSString stringWithFormat:@" %@:%lu: %@", filename.lastPathComponent, (unsigned long)lineNumber, function];
             }
             
             __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
