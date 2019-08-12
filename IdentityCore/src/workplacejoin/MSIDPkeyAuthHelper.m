@@ -86,6 +86,10 @@
         // Error should have been logged before this where there is more information on why the challenge data was bad
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
     }
+    else if (!info)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request but nil WPJ info.");
+    }
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
 }
