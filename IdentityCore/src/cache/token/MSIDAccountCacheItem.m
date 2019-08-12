@@ -23,6 +23,7 @@
 
 #import "MSIDAccountCacheItem.h"
 #import "MSIDClientInfo.h"
+#import "MSIDLogger+Trace.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 

@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,25 +17,33 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 
-#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
+typedef NS_ENUM(NSInteger, MSIDBackgroundTaskType)
+{
+    MSIDBackgroundTaskTypeInteractiveRequest = 0
+};
 
-@interface MSIDKeychainUtil : NSObject
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readonly, nullable) NSString *teamId;
+@interface MSIDBackgroundTaskManager : NSObject
 
-+ (nonnull MSIDKeychainUtil *)sharedInstance;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
-- (instancetype _Nullable)init NS_UNAVAILABLE;
-+ (instancetype _Nullable)new NS_UNAVAILABLE;
++ (MSIDBackgroundTaskManager *)sharedInstance;
 
-- (nullable NSString *)accessGroup:(nullable NSString *)group;
+- (void)startOperationWithType:(MSIDBackgroundTaskType)type;
+- (void)stopOperationWithType:(MSIDBackgroundTaskType)type;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -246,11 +246,13 @@
     }
     
     //save metadata
+    //TODO: update the instanceAware parameter with the instanceAware value in config
     NSError *updateMetadataError = nil;
     [accountMetadataCache updateAuthorityURL:tokenResult.authority.url
                                forRequestURL:parameters.authority.url
                                homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
                                     clientId:parameters.clientId
+                               instanceAware:NO
                                      context:parameters
                                        error:&updateMetadataError];
     

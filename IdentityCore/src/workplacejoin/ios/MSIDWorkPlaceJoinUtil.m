@@ -30,7 +30,6 @@
 @implementation MSIDWorkPlaceJoinUtil
 
 // Convenience macro to release CF objects
-#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                                urlChallenge:(NSURLAuthenticationChallenge *)challenge

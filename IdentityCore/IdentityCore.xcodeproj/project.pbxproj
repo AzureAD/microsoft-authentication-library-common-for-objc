@@ -733,6 +733,7 @@
 		B27ACAA822EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.h in Headers */ = {isa = PBXBuildFile; fileRef = B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */; };
 		B27ACAA922EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */; };
 		B27ACAAA22EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */; };
+		B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */; };
 		B27CCDD1229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */; };
 		B27CCDD2229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
 		B27CCDD3229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
@@ -1215,6 +1216,7 @@
 		05566D142204BCF9002DBA40 /* MSIDMacKeychainTokenCacheTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacKeychainTokenCacheTests.m; sourceTree = "<group>"; };
 		0570FE7C219B8C8C00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDCredentialCacheItem+MSIDBaseToken.m"; sourceTree = "<group>"; };
 		0570FE7D219B8C8C00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDCredentialCacheItem+MSIDBaseToken.h"; sourceTree = "<group>"; };
+		05B3E0C422E625A50095833E /* MSIDLogger+Trace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDLogger+Trace.h"; sourceTree = "<group>"; };
 		1E2EDFF8219125400054FAD9 /* MSIDTokenResponse+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDTokenResponse+Internal.h"; sourceTree = "<group>"; };
 		1E3590B3216C3702003D43BE /* MSIDAppMetadataCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAppMetadataCacheItem.h; sourceTree = "<group>"; };
 		1E3590B4216C3702003D43BE /* MSIDAppMetadataCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppMetadataCacheItem.m; sourceTree = "<group>"; };
@@ -1794,6 +1796,8 @@
 		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
 		B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneApplicationStateManager.h; sourceTree = "<group>"; };
 		B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneApplicationStateManager.m; sourceTree = "<group>"; };
+		B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskManager.h; sourceTree = "<group>"; };
+		B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskManager.m; sourceTree = "<group>"; };
 		B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSJSONSerialization+MSIDExtensions.h"; sourceTree = "<group>"; };
 		B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSJSONSerialization+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B27CCDD4229EF2C000CAD565 /* MSIDDictionaryExtensionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDictionaryExtensionsTests.m; sourceTree = "<group>"; };
@@ -2583,6 +2587,7 @@
 		96235F8F207D7128007EAB36 /* webview */ = {
 			isa = PBXGroup;
 			children = (
+				B27ACA6722EBC42E0049ACE0 /* background */,
 				96B8D57820946D1900E3F4A6 /* pkce */,
 				96F94A2420816B2F0034676C /* systemWebview */,
 				96F94A22208169380034676C /* embeddedWebview */,
@@ -3086,6 +3091,7 @@
 		B25A35681FC4D6B600C7FD43 /* logger */ = {
 			isa = PBXGroup;
 			children = (
+				05B3E0C422E625A50095833E /* MSIDLogger+Trace.h */,
 				B25A35691FC4D6B600C7FD43 /* MSIDLogger+Internal.h */,
 				B25A356A1FC4D6B600C7FD43 /* MSIDLogger.h */,
 				B25A356B1FC4D6B600C7FD43 /* MSIDLogger.m */,
@@ -3136,6 +3142,15 @@
 				B27551FD208182BE00AA7A38 /* AuthHeader.swift */,
 			);
 			path = keyvault;
+			sourceTree = "<group>";
+		};
+		B27ACA6722EBC42E0049ACE0 /* background */ = {
+			isa = PBXGroup;
+			children = (
+				B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */,
+				B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */,
+			);
+			path = background;
 			sourceTree = "<group>";
 		};
 		B28BDA77217E95D9003E5670 /* b2c */ = {
@@ -5045,6 +5060,7 @@
 				B2BE924721A2279A00F5AB8C /* MSIDTelemetryBrokerEvent.m in Sources */,
 				9641B52A1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */,
 				23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */,
+				B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */,
 				96891A972190F15E00D7F437 /* MSIDWPJChallengeHandler.m in Sources */,
 				238E19DB2086FE28004DF483 /* MSIDAuthorizationCodeGrantRequest.m in Sources */,
 				B2C7B3BB213C69C8009FFCC1 /* MSIDDefaultErrorConverter.m in Sources */,

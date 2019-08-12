@@ -93,10 +93,10 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 - (nonnull instancetype)init
 {
-    return [self initWithGroup:s_defaultKeychainGroup];
+    return [self initWithGroup:s_defaultKeychainGroup error:nil];
 }
 
-- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if (!(self = [super init]))
     {
@@ -109,7 +109,16 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
     
     MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
-    if (!keychainUtil.teamId) return nil;
+    if (!keychainUtil.teamId)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil);
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve teamId from keychain.");
+        return nil;
+    }
     
     // Add team prefix to keychain group if it is missed.
     if (![keychainGroup hasPrefix:keychainUtil.teamId])
@@ -121,6 +130,12 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     
     if (!_keychainGroup)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil);
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set keychain access group.");
         return nil;
     }
     
