@@ -35,6 +35,7 @@
 - (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
+             instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
@@ -42,6 +43,7 @@
              forRequestURL:(NSURL *)requestAuthorityURL
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
+             instanceAware:(BOOL)instanceAware
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 

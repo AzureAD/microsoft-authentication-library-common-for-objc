@@ -24,19 +24,7 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+// This macro is not used. It exists to allow msalcpp to integrate it's own tracing.
+#define MSID_TRACE // Unused
 
-@interface MSIDSFAuthenticationSession : NSObject<MSIDWebviewInteracting>
-
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-                    context:(id<MSIDRequestContext>)context;
-
-@property (readonly) NSURL *startURL;
-@property (readonly) NSString *callbackURLScheme;
-
-@end
-#endif

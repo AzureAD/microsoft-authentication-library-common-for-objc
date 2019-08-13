@@ -53,7 +53,7 @@
     id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
 
 #if TARGET_OS_IOS
-    dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+    dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
     // TODO: this should be replaced with a real macOS datasource instead
     dataSource = [[MSIDTestCacheDataSource alloc] init];
@@ -2099,7 +2099,7 @@
 
 - (void)testWipeInfoWithContext_whenWipeInfoPresent_shouldReturnWipeInfo
 {
-    MSIDKeychainTokenCache *keychainCache = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+    MSIDKeychainTokenCache *keychainCache = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
     NSError *error = nil;
     BOOL result = [keychainCache saveWipeInfoWithContext:nil error:&error];
     XCTAssertTrue(result);

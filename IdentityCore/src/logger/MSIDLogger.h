@@ -65,6 +65,11 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
 @property (readwrite) BOOL NSLoggingEnabled;
 
 /*!
+ Set to YES to add <file>:<line> info to log messages.
+ */
+@property (readwrite) BOOL SourceLineLoggingEnabled;
+
+/*!
  Sets the callback block to send MSID log messages to.
  
  NOTE: Once this is set this can not be unset, and it should be set early in
