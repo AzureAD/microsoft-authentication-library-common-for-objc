@@ -261,6 +261,16 @@
     return serializedResources ?: @"";
 }
 
+- (NSString *)brokerNonce
+{
+    if (!_brokerNonce)
+    {
+        _brokerNonce = [[NSUUID new] UUIDString];
+    }
+    
+    return _brokerNonce;
+}
+
 #pragma mark - Abstract
 
 // Thos parameters will be different depending on the broker protocol version
