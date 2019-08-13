@@ -211,12 +211,14 @@
 
 - (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError **)error
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Saving broker application token for clientId %@.", clientId);
     NSString *tag = [NSString stringWithFormat:@"%@-%@", MSID_BROKER_APPLICATION_TOKEN_TAG, clientId];
     
     NSMutableDictionary *applicationTokenAttributes = [NSMutableDictionary new];
     [applicationTokenAttributes setObject:(id)kSecClassKey forKey:(id)kSecClass];
     [applicationTokenAttributes setObject:[tag dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
     [applicationTokenAttributes setObject:self.keychainAccessGroup forKey:(id)kSecAttrAccessGroup];
+    [applicationTokenAttributes setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
     
     NSMutableDictionary *update = [NSMutableDictionary dictionary];
     update[(id)kSecValueData] = [appToken dataUsingEncoding:NSUTF8StringEncoding];
