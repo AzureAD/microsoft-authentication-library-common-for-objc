@@ -32,12 +32,19 @@
 @interface MSIDBrokerKeyProvider()
 
 @property (nonatomic) NSString *keychainAccessGroup;
+@property (nonatomic) NSString *keyIdentifier;
 
 @end
 
 @implementation MSIDBrokerKeyProvider
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup
+{
+    return [self initWithGroup:keychainGroup keyIdentifier:MSID_BROKER_SYMMETRIC_KEY_TAG];
+}
+
+- (instancetype)initWithGroup:(NSString *)keychainGroup
+                keyIdentifier:(NSString *)keyIdentifier
 {
     self = [super init];
 
@@ -62,6 +69,13 @@
         }
 
         _keychainAccessGroup = keychainGroup;
+        _keyIdentifier = keyIdentifier;
+        
+        if (!keyIdentifier)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Nil key identifier provided. Cannot generate broker key");
+            return nil;
+        }
     }
 
     return self;
@@ -71,7 +85,7 @@
 {
     OSStatus err = noErr;
 
-    NSData *symmetricTag = [MSID_BROKER_SYMMETRIC_KEY_TAG dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
     NSDictionary *symmetricKeyQuery =
     @{
@@ -146,7 +160,7 @@
     NSData *keyData = [[NSData alloc] initWithBytes:symmetricKey length:kChosenCipherKeySize * sizeof(uint8_t)];
     free(symmetricKey);
 
-    NSData *symmetricTag = [MSID_BROKER_SYMMETRIC_KEY_TAG dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
     NSDictionary *symmetricKeyAttr =
     @{
@@ -185,7 +199,7 @@
 {
     OSStatus err = noErr;
 
-    NSData *symmetricTag = [MSID_BROKER_SYMMETRIC_KEY_TAG dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
     NSDictionary* symmetricKeyQuery =
     @{

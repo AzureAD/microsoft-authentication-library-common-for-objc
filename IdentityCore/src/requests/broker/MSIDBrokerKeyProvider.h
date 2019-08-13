@@ -40,6 +40,12 @@ enum {
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup;
 
+- (instancetype)initWithGroup:(NSString *)keychainGroup
+                keyIdentifier:(NSString *)keyIdentifier NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
 - (NSData *)brokerKeyWithError:(NSError **)error;
 
 @end
