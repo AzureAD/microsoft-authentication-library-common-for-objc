@@ -27,6 +27,13 @@
 #import "MSIDTestBrokerKeyProviderHelper.h"
 #import "MSIDConstants.h"
 
+@interface MSIDBrokerKeyProvider()
+
+@property (nonatomic) NSString *keychainAccessGroup;
+@property (nonatomic) NSString *keyIdentifier;
+
+@end
+
 @interface MSIDBrokerKeyProviderTests : XCTestCase
 
 @end
@@ -42,6 +49,27 @@
                             (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric};
 
     SecItemDelete((CFDictionaryRef)query);
+}
+
+- (void)testInitWithGroup_whenNoKey_shouldUseDefaultKey
+{
+    MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:@"com.test.mygroup"];
+    XCTAssertEqualObjects(keyProvider.keyIdentifier, @"com.microsoft.adBrokerKey\0");
+    XCTAssertTrue([keyProvider.keychainAccessGroup hasSuffix:@"com.test.mygroup"]);
+}
+
+- (void)testInitWithGroup_whenCustomKeyAndGroupPassed_shouldSetKey
+{
+    MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:@"com.test.mygroup" keyIdentifier:@"com.test.mykey"];
+    XCTAssertEqualObjects(keyProvider.keyIdentifier, @"com.test.mykey");
+    XCTAssertTrue([keyProvider.keychainAccessGroup hasSuffix:@"com.test.mygroup"]);
+}
+
+- (void)testInitWithGroup_whenNoGroupProvided_shouldUseDefaultGroup
+{
+    MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:nil keyIdentifier:@"com.test.mykey"];
+    XCTAssertEqualObjects(keyProvider.keyIdentifier, @"com.test.mykey");
+    XCTAssertTrue([keyProvider.keychainAccessGroup hasSuffix:[[NSBundle mainBundle] bundleIdentifier]]);
 }
 
 #pragma mark - Normal scenarios
