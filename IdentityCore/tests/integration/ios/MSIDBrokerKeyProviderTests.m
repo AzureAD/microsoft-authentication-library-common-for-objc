@@ -104,6 +104,25 @@
     XCTAssertEqualObjects(brokerKey, keyData);
 }
 
+- (void)testBrokerKeyWithError_whenKeyInKeychainWithCustomIdentifier_shouldReturnKey
+{
+    // Pre-add key to the keychain
+    NSData *keyData = [@"my-random-key-data" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    [MSIDTestBrokerKeyProviderHelper addKey:keyData
+                                accessGroup:[[NSBundle mainBundle] bundleIdentifier]
+                             applicationTag:@"custom-tag-test"];
+    
+    // Read key from broker key provider
+    MSIDBrokerKeyProvider *keyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:nil keyIdentifier:@"custom-tag-test"];
+    NSError *error = nil;
+    NSData *brokerKey = [keyProvider brokerKeyWithError:&error];
+    
+    XCTAssertNotNil(brokerKey);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(brokerKey, keyData);
+}
+
 #pragma mark - Migration scenarios
 
 - (void)testBrokerKeyWithError_whenMultipleKeysPresent_shouldReturnOneFromSharedgroup
