@@ -88,7 +88,7 @@
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
+    result &= (!self.applicationIdentifier || !item.applicationIdentifier) || [self.applicationIdentifier isEqualToString:item.applicationIdentifier];
     result &= (!self.speInfo && !item.speInfo) || [self.speInfo isEqual:item.speInfo];
     // Ignore the lastMod properties (two otherwise-identical items with different
     // last modification informational values should be considered equal)
@@ -111,8 +111,8 @@
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
-    hash = hash * 31 + self.enrollmentId.hash;
     hash = hash * 31 + self.speInfo.hash;
+    hash = hash * 31 + self.applicationIdentifier.hash;
     return hash;
 }
 
@@ -132,10 +132,11 @@
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
-    item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.speInfo = [self.speInfo copyWithZone:zone];
     item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
     item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
+    item.enrollmentId = [self.enrollmentId copyWithZone:zone];
+    item.applicationIdentifier = [self.applicationIdentifier copyWithZone:zone];
     return item;
 }
 
@@ -182,6 +183,8 @@
     _lastModificationTime = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_LAST_MOD_TIME_CACHE_KEY]];
     _lastModificationApp = [json msidStringObjectForKey:MSID_LAST_MOD_APP_CACHE_KEY];
 
+    _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
+    _applicationIdentifier = [json msidStringObjectForKey:MSID_APPLICATION_IDENTIFIER_CACHE_KEY];
     return self;
 }
 
@@ -212,7 +215,7 @@
     // Last Modification info (currently used on macOS only)
     dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
-
+    dictionary[MSID_APPLICATION_IDENTIFIER_CACHE_KEY] = _applicationIdentifier;
     return dictionary;
 }
 
@@ -340,7 +343,7 @@
     key.familyId = self.familyId;
     key.realm = self.realm;
     key.target = self.target;
-    key.enrollmentId = self.enrollmentId;
+    key.applicationIdentifier = self.applicationIdentifier;
     return key;
 }
 

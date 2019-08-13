@@ -120,7 +120,7 @@
         return;
     }
     
-    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
     [_session startWithCompletionHandler:completionHandler];
 }
 

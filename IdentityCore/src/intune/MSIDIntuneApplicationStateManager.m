@@ -21,32 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
+#import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthority.h"
+#import "MSIDIntuneMAMResourcesCache.h"
 
-@interface MSIDAccessToken : MSIDBaseToken
+@implementation MSIDIntuneApplicationStateManager
+
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority
 {
-    NSString *_accessToken;
+#if TARGET_OS_IPHONE
+    
+    if (!authority.supportsMAMScenarios)
+    {
+        return NO;
+    }
+    
+    NSError *error = nil;
+    NSDictionary *resourceCache = [[MSIDIntuneMAMResourcesCache sharedCache] resourcesJsonDictionaryWithContext:nil error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to read Intune MAM resource cache with error %@", MSID_PII_LOG_MASKABLE(error));
+        return NO;
+    }
+    
+    return resourceCache.count > 0;
+#else
+    return NO;
+#endif
 }
 
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
-@property (readwrite) NSDate *cachedAt;
-@property (readwrite) NSString *accessToken;
-
-// v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource;
-
-// v2 access tokens are scoped down to resources
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
-
-// Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
-@property (readwrite) NSString *enrollmentId;
-
-// Unique app identifier used for cases when access token storage needs to be partitioned per application
-@property (readwrite) NSString *applicationIdentifier;
-
-- (BOOL)isExpired;
-- (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
-- (BOOL)isExtendedLifetimeValid;
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+                                                 appIdentifier:(NSString *)appIdentifier
+{
+    return [self isAppCapableForMAMCA:authority] ? appIdentifier : nil;
+}
 
 @end

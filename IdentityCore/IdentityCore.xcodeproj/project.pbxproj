@@ -730,6 +730,9 @@
 		B27551C32081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
 		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
+		B27ACAA822EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.h in Headers */ = {isa = PBXBuildFile; fileRef = B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */; };
+		B27ACAA922EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */; };
+		B27ACAAA22EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */; };
 		B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */; };
 		B27CCDD1229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */; };
 		B27CCDD2229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
@@ -1791,6 +1794,8 @@
 		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
 		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
 		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
+		B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneApplicationStateManager.h; sourceTree = "<group>"; };
+		B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneApplicationStateManager.m; sourceTree = "<group>"; };
 		B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskManager.h; sourceTree = "<group>"; };
 		B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskManager.m; sourceTree = "<group>"; };
 		B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSJSONSerialization+MSIDExtensions.h"; sourceTree = "<group>"; };
@@ -2362,6 +2367,8 @@
 				2370B5FA217FA5E400DEEBEA /* MSIDIntuneMAMResourcesCache.m */,
 				23B4CC6D2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.h */,
 				23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */,
+				B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */,
+				B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */,
 			);
 			path = intune;
 			sourceTree = "<group>";
@@ -3971,6 +3978,7 @@
 				B2BE924B21A2331A00F5AB8C /* MSIDTelemetryAuthorityValidationEvent.h in Headers */,
 				23B3A4512187AFD3009070B2 /* MSIDJsonSerializer.h in Headers */,
 				232173EB2182B195009852C6 /* MSIDIntuneInMemoryCacheDataSource.h in Headers */,
+				B27ACAA822EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.h in Headers */,
 				2338ECCE208A675D00809B9E /* MSIDAADRequestErrorHandler.h in Headers */,
 				B26A0B8C2071B763006BD95A /* MSIDAADV1Oauth2Factory.h in Headers */,
 				B2C708B4219A620E00D917B8 /* MSIDBrokerCryptoProvider.h in Headers */,
@@ -4823,6 +4831,7 @@
 				1E33F49E21711BE700919E9C /* MSIDAppMetadataCacheKey.m in Sources */,
 				B26A0B892071B752006BD95A /* MSIDAADV2Oauth2Factory.m in Sources */,
 				B2C7B3BC213C69C8009FFCC1 /* MSIDDefaultErrorConverter.m in Sources */,
+				B27ACAAA22EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */,
 				B20657CA1FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
 				B20657C31FC9262700412B7D /* NSString+MSIDTelemetryExtensions.m in Sources */,
 				2306D2B420AD05A700F875A3 /* MSIDURLSessionDelegate.m in Sources */,
@@ -5240,6 +5249,7 @@
 				B210F4561FDDFA7B005A8F76 /* MSIDBrokerResponse.m in Sources */,
 				23CA0C68220A7B1700768729 /* NSUUID+MSIDTestUtil.m in Sources */,
 				B2DD4B2720A7D67C0047A66E /* MSIDLegacyRefreshToken.m in Sources */,
+				B27ACAA922EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */,
 				B297E1E220A1272600F370EC /* MSIDLegacyTokenCacheQuery.m in Sources */,
 				60F7BE8B21DA4E2900F1BBA1 /* MSIDPrimaryRefreshToken.m in Sources */,
 				B214C39F1FE854FE0070C4F2 /* MSIDLegacyTokenCacheAccessor.m in Sources */,
@@ -5947,6 +5957,7 @@
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -5958,6 +5969,7 @@
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};
@@ -6000,6 +6012,7 @@
 			baseConfigurationReference = D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Debug;
 		};
@@ -6007,6 +6020,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E991FC3626A00CD70C5 /* identitycore__testlib__mac.xcconfig */;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 			};
 			name = Release;
 		};

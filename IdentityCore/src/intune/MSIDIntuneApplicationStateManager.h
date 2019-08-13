@@ -21,32 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
+#import <Foundation/Foundation.h>
 
-@interface MSIDAccessToken : MSIDBaseToken
-{
-    NSString *_accessToken;
-}
+@class MSIDAuthority;
 
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
-@property (readwrite) NSDate *cachedAt;
-@property (readwrite) NSString *accessToken;
+NS_ASSUME_NONNULL_BEGIN
 
-// v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource;
+@interface MSIDIntuneApplicationStateManager : NSObject
 
-// v2 access tokens are scoped down to resources
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
-
-// Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
-@property (readwrite) NSString *enrollmentId;
-
-// Unique app identifier used for cases when access token storage needs to be partitioned per application
-@property (readwrite) NSString *applicationIdentifier;
-
-- (BOOL)isExpired;
-- (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
-- (BOOL)isExtendedLifetimeValid;
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority;
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+                                                 appIdentifier:(NSString *)appIdentifier;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -37,6 +37,7 @@
                    telemetryApiId:(NSString *)telemetryApiId
           supportedBrokerProtocol:(NSString *)brokerProtocolScheme
                       requestType:(MSIDInteractiveRequestType)requestType
+              intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error
 {
     self = [super initWithAuthority:authority
@@ -46,6 +47,7 @@
                          oidcScopes:oidScopes
                       correlationId:correlationId
                      telemetryApiId:telemetryApiId
+                intuneAppIdentifier:intuneApplicationIdentifier
                               error:error];
 
     if (self)
