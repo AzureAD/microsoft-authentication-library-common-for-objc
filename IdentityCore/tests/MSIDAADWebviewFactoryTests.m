@@ -123,6 +123,7 @@
                                                                                                 telemetryApiId:nil
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new] 
                                                                                                    requestType:MSIDInteractiveRequestLocalType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
 
     MSIDWebviewConfiguration *configuration = [factory webViewConfigurationWithRequestParameters:parameters];

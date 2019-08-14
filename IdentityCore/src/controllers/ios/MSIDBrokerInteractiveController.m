@@ -226,7 +226,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         // Option for openURL:options:CompletionHandler: only open URL if it is a valid universal link with an application configured to open it
         // If there is no application configured, or the user disabled using it to open the link, completion handler called with NO
-        if (@available(iOS 10.0, *)) {
+        if (@available(iOS 10.0, *))
+        {
             options = @{UIApplicationOpenURLOptionUniversalLinksOnly : @YES};
         }
     }

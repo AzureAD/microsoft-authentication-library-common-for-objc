@@ -31,6 +31,8 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDIntuneApplicationStateManager.h"
 
 @implementation MSIDRequestParameters
 
@@ -55,6 +57,7 @@
                        oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
+              intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error
 {
     self = [super init];
@@ -68,6 +71,7 @@
         _clientId = clientId;
         _correlationId = correlationId ?: [NSUUID new];
         _telemetryApiId = telemetryApiId;
+        _intuneApplicationIdentifier = intuneApplicationIdentifier;
 
         if ([scopes intersectsOrderedSet:oidScopes])
         {
@@ -192,6 +196,9 @@
                                                                  redirectUri:self.redirectUri
                                                                     clientId:self.clientId
                                                                       target:self.target];
+    
+    config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
+                                                                                                appIdentifier:self.intuneApplicationIdentifier];
     _msidConfiguration = config;
 }
 

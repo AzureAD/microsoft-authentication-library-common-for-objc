@@ -46,6 +46,7 @@
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                    error:&error];
 
     XCTAssertNil(error);
@@ -59,6 +60,7 @@
     XCTAssertNotNil(parameters.telemetryRequestId);
     XCTAssertEqualObjects(parameters.logComponent, [MSIDVersion sdkName]);
     XCTAssertNotNil(parameters.appRequestMetadata);
+    XCTAssertEqualObjects(parameters.intuneApplicationIdentifier, @"com.microsoft.mytest");
 }
 
 - (void)testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil
@@ -75,6 +77,7 @@
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -96,6 +99,7 @@
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -117,6 +121,7 @@
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                    error:&error];
 
     XCTAssertNil(error);

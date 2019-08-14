@@ -21,31 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthority.h"
+#import "MSIDIntuneMAMResourcesCache.h"
 
-#define kChosenCipherKeySize    kCCKeySizeAES256
-#define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
+@implementation MSIDIntuneApplicationStateManager
 
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority
+{
 #if TARGET_OS_IPHONE
-
-enum {
-    CSSM_ALGID_NONE =                   0x00000000L,
-    CSSM_ALGID_VENDOR_DEFINED =         CSSM_ALGID_NONE + 0x80000000L,
-    CSSM_ALGID_AES
-};
-
+    
+    if (!authority.supportsMAMScenarios)
+    {
+        return NO;
+    }
+    
+    NSError *error = nil;
+    NSDictionary *resourceCache = [[MSIDIntuneMAMResourcesCache sharedCache] resourcesJsonDictionaryWithContext:nil error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to read Intune MAM resource cache with error %@", MSID_PII_LOG_MASKABLE(error));
+        return NO;
+    }
+    
+    return resourceCache.count > 0;
+#else
+    return NO;
 #endif
+}
 
-@interface MSIDBrokerKeyProvider : NSObject
-
-- (instancetype)initWithGroup:(NSString *)keychainGroup;
-
-- (instancetype)initWithGroup:(NSString *)keychainGroup
-                keyIdentifier:(NSString *)keyIdentifier NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (NSData *)brokerKeyWithError:(NSError **)error;
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+                                                 appIdentifier:(NSString *)appIdentifier
+{
+    return [self isAppCapableForMAMCA:authority] ? appIdentifier : nil;
+}
 
 @end

@@ -33,6 +33,9 @@
 #import "MSIDTokenResult.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDConfiguration.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
@@ -112,7 +115,29 @@
             return;
         }
 
-        if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer])
+        BOOL enrollmentIdMatch = YES;
+        
+        // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
+        // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
+        if ([MSIDIntuneApplicationStateManager isAppCapableForMAMCA:self.requestParameters.msidConfiguration.authority]
+            && ![NSString msidIsStringNilOrBlank:accessToken.enrollmentId])
+        {
+            NSError *error = nil;
+            
+            NSString *currentEnrollmentId = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdForHomeAccountId:accessToken.accountIdentifier.homeAccountId
+                                                                                                        legacyUserId:accessToken.accountIdentifier.displayableId
+                                                                                                             context:self.requestParameters
+                                                                                                               error:&error];
+            
+            if (error)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to read current enrollment ID with error %@", MSID_PII_LOG_MASKABLE(error));
+            }
+            
+            enrollmentIdMatch = currentEnrollmentId && [currentEnrollmentId isEqualToString:accessToken.enrollmentId];
+        }
+        
+        if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
             NSError *rtError = nil;
@@ -160,7 +185,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
         }
 
-        if (accessToken && accessToken.isExtendedLifetimeValid)
+        if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             

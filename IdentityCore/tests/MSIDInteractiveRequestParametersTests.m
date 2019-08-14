@@ -50,6 +50,7 @@
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:brokerOptions
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:&error];
     
     XCTAssertNotNil(parameters);
@@ -82,6 +83,7 @@
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new] 
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
     NSOrderedSet *allScopes = [parameters allAuthorizeRequestScopes];
@@ -102,6 +104,7 @@
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
     NSOrderedSet *allScopes = [parameters allAuthorizeRequestScopes];
@@ -121,6 +124,7 @@
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
     NSOrderedSet *allScopes = [parameters allAuthorizeRequestScopes];

@@ -45,7 +45,7 @@
     configuration.clientId = [_clientId copyWithZone:zone];
     configuration.resource = [_resource copyWithZone:zone];
     configuration.scopes = [_scopes copyWithZone:zone];
-    
+    configuration.applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
     return configuration;
 }
 

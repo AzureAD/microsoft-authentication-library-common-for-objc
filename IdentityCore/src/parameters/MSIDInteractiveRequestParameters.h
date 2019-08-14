@@ -64,6 +64,7 @@
                    telemetryApiId:(NSString *)telemetryApiId
                     brokerOptions:(MSIDBrokerInvocationOptions *)brokerOptions
                       requestType:(MSIDInteractiveRequestType)requestType
+              intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error;
 
 @end

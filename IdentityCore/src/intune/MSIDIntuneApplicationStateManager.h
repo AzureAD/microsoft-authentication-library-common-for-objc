@@ -23,29 +23,16 @@
 
 #import <Foundation/Foundation.h>
 
-#define kChosenCipherKeySize    kCCKeySizeAES256
-#define kSymmetricKeyTag        "com.microsoft.adBrokerKey"
+@class MSIDAuthority;
 
-#if TARGET_OS_IPHONE
+NS_ASSUME_NONNULL_BEGIN
 
-enum {
-    CSSM_ALGID_NONE =                   0x00000000L,
-    CSSM_ALGID_VENDOR_DEFINED =         CSSM_ALGID_NONE + 0x80000000L,
-    CSSM_ALGID_AES
-};
+@interface MSIDIntuneApplicationStateManager : NSObject
 
-#endif
-
-@interface MSIDBrokerKeyProvider : NSObject
-
-- (instancetype)initWithGroup:(NSString *)keychainGroup;
-
-- (instancetype)initWithGroup:(NSString *)keychainGroup
-                keyIdentifier:(NSString *)keyIdentifier NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-- (NSData *)brokerKeyWithError:(NSError **)error;
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority;
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+                                                 appIdentifier:(NSString *)appIdentifier;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -1,7 +1,7 @@
 #include "identitycore__common.xcconfig"
 
 MTL_ENABLE_DEBUG_INFO = NO;
-DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+DEBUG_INFORMATION_FORMAT = dwarf-with-dsym;
 GCC_DYNAMIC_NO_PIC = NO;
 VALIDATE_PRODUCT = YES;
 ENABLE_NS_ASSERTIONS = NO;
