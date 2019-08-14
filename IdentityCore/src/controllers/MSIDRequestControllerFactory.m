@@ -68,34 +68,59 @@
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError * _Nullable * _Nullable)error
 {
+    id<MSIDRequestControlling> localController = [self localInteractiveController:parameters
+                                                             tokenRequestProvider:tokenRequestProvider
+                                                                            error:error];
+    
+    if (!localController)
+    {
+        return nil;
+    }
+    
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {
-        return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                        tokenRequestProvider:tokenRequestProvider
-                                                                                       error:error];
+        BOOL brokerInstalled = [self brokerInstalledWithParameters:parameters];
+        
+        if (brokerInstalled)
+        {
+            return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                            tokenRequestProvider:tokenRequestProvider
+                                                                              fallbackController:localController
+                                                                                           error:error];
+        }
     }
 
+#endif
+
+    return localController;
+}
+
++ (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                             tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                            error:(NSError * _Nullable * _Nullable)error
+{
+#if TARGET_OS_IPHONE
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
         && !(parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview))
     {
         // If developer provides us an custom webview, we should be able to use it for authentication in app extension
         BOOL hasSupportedEmbeddedWebView = parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview;
         BOOL hasSupportedSystemWebView = parameters.webviewType == MSIDWebviewTypeSafariViewController && parameters.parentViewController;
-
+        
         if (!hasSupportedEmbeddedWebView && !hasSupportedSystemWebView)
         {
             if (error)
             {
                 *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUINotSupportedInExtension, @"Interaction is not supported in an app extension.", nil, nil, nil, parameters.correlationId, nil);
             }
-
+            
             return nil;
         }
     }
-
+    
 #endif
-
+    
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
@@ -126,13 +151,13 @@
         return NO;
     }
 
-    return [self isBrokerInstalled:parameters];
+    return YES;
 #else
     return NO;
 #endif
 }
 
-+ (BOOL)isBrokerInstalled:(__unused MSIDInteractiveRequestParameters *)parameters
++ (BOOL)brokerInstalledWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
 {
 #if AD_BROKER
     return YES;
@@ -140,24 +165,23 @@
 
     if (![NSThread isMainThread])
     {
-        __block BOOL result = NO;
+        __block BOOL brokerInstalled = NO;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            result = [self isBrokerInstalled:parameters];
+            brokerInstalled = [self brokerInstalledWithParameters:parameters];
         });
 
-        return result;
+        return brokerInstalled;
     }
 
-    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", parameters.brokerInvocationOptions.versionDisplayableName);
+    
+    if (parameters.brokerInvocationOptions && parameters.brokerInvocationOptions.isRequiredBrokerPresent)
     {
-        // Verify broker app url can be opened
-        return [[MSIDAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", parameters.supportedBrokerProtocolScheme]]];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", parameters.brokerInvocationOptions.versionDisplayableName);
+        return YES;
     }
-    else
-    {
-        // Cannot perform app switching from application extension hosts
-        return NO;
-    }
+    
+    return NO;
 #else
     return NO;
 #endif

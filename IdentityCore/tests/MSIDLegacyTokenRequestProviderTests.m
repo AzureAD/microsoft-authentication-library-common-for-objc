@@ -53,6 +53,8 @@
     XCTAssertTrue([silentRequest isKindOfClass:[MSIDLegacySilentTokenRequest class]]);
 }
 
+#if TARGET_OS_IPHONE
+
 - (void)testBrokerTokenRequestWIthParameters_whenParametersProvided_shouldReturnDefaultBrokerTokenRequest
 {
     MSIDLegacyTokenRequestProvider *provider = [[MSIDLegacyTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] legacyAccessor:[MSIDLegacyTokenCacheAccessor new]];
@@ -65,11 +67,15 @@
     parameters.correlationId = [NSUUID UUID];
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *brokerRequest = [provider brokerTokenRequestWithParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDBrokerTokenRequest *brokerRequest = [provider brokerTokenRequestWithParameters:parameters
+                                                                             brokerKey:@"brokerKey"
+                                                                                 error:&error];
 
     XCTAssertNotNil(brokerRequest);
     XCTAssertTrue([brokerRequest isKindOfClass:[MSIDLegacyBrokerTokenRequest class]]);
     XCTAssertNil(error);
 }
+
+#endif
 
 @end
