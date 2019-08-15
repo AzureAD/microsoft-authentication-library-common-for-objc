@@ -47,6 +47,7 @@ NSString *const MSID_DEFAULT_FAMILY_ID           = @"1";
 NSString *const MSID_ADAL_SDK_NAME               = @"adal-objc";
 NSString *const MSID_MSAL_SDK_NAME               = @"msal-objc";
 NSString *const MSID_SDK_NAME_KEY                = @"sdk_name";
+NSString *const MSID_BROKER_APPLICATION_TOKEN_TAG = @"com.microsoft.adBrokerAppToken";
 
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";

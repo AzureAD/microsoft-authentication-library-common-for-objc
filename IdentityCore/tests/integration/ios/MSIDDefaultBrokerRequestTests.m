@@ -40,7 +40,7 @@
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -59,6 +59,7 @@
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -87,7 +88,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user" homeAccountId:@"myHomeAccountId"];
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -107,6 +108,7 @@
                                       //if account set, both of the following should be set
                                       @"home_account_id" : @"myHomeAccountId",
                                       @"username" : @"user",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -135,7 +137,7 @@
     parameters.loginHint = @"myuser";
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -154,7 +156,7 @@
                                       @"msg_protocol_ver" : @"3",
                                       //login hint should be set
                                       @"login_hint" : @"myuser",
-                                      
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
@@ -183,7 +185,7 @@
     parameters.extraScopesToConsent = @"extraScope1 extraScope2";
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -202,6 +204,7 @@
                                       @"msg_protocol_ver" : @"3",
                                       //extra scopes should be set
                                       @"extra_consent_scopes" : @"extraScope1 extraScope2",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;

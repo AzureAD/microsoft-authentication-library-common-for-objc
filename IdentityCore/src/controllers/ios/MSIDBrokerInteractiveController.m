@@ -169,8 +169,23 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return;
     }
 
+    NSError *appTokenError = nil;
+    NSString *applicationToken = [self.brokerKeyProvider getApplicationToken:self.interactiveParameters.clientId error:&appTokenError];
+    
+    if (!applicationToken)
+    {
+        /*There can be a case for the initial call to not have an application token saved in the keychain. This is not considered an error condition.
+         appTokenError will be filled only if the item exists but there is an internal keychain error while trying to look it up.
+         */
+        if (appTokenError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read broker application token, error: %@", appTokenError);
+        }
+    }
+    
     MSIDBrokerTokenRequest *brokerRequest = [self.tokenRequestProvider brokerTokenRequestWithParameters:self.interactiveParameters
                                                                                               brokerKey:base64UrlKey
+                                                                                 brokerApplicationToken:applicationToken
                                                                                                   error:&brokerError];
 
     if (!brokerRequest)

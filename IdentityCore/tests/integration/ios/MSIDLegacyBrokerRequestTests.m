@@ -43,7 +43,7 @@
     parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -60,7 +60,8 @@
                                       @"skip_cache": @"YES",
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -88,7 +89,7 @@
     parameters.accountIdentifier.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -106,7 +107,8 @@
                                       @"username": @"username@upn.com",
                                       @"username_type": @"RequiredDisplayableId",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -133,7 +135,7 @@
     parameters.loginHint = @"myloginhint";
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -151,7 +153,8 @@
                                       @"username": @"myloginhint",
                                       @"username_type": @"OptionalDisplayableId",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
@@ -178,7 +181,7 @@
     parameters.uiBehaviorType = MSIDUIBehaviorForceType;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -194,7 +197,8 @@
                                       @"skip_cache": @"NO",
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"YES"
+                                      @"force": @"YES",
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;

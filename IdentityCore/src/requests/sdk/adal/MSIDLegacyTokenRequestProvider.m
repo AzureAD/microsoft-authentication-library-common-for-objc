@@ -74,12 +74,14 @@
                                                                 tokenCache:self.tokenCache];
 }
 
-- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
-                                                            brokerKey:(NSString *)brokerKey
-                                                                error:(NSError **)error
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                            brokerKey:(nonnull NSString *)brokerKey
+                                               brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
+                                                                error:(NSError * _Nullable * _Nullable)error
 {
     return [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters
                                                                  brokerKey:brokerKey
+                                                    brokerApplicationToken:brokerApplicationToken
                                                                      error:error];
 }
 
