@@ -28,6 +28,7 @@
 
 @class MSIDInteractiveRequestParameters;
 @class MSIDBrokerResponseHandler;
+@class MSIDBrokerInvocationOptions;
 
 @interface MSIDBrokerInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
@@ -36,6 +37,7 @@
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                         error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters

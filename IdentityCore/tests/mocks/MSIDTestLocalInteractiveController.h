@@ -21,24 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDLocalInteractiveController.h"
 
-@class MSIDInteractiveTokenRequest;
-@class MSIDSilentTokenRequest;
-@class MSIDInteractiveRequestParameters;
-@class MSIDRequestParameters;
-@class MSIDBrokerTokenRequest;
-@class MSIDBrokerInvocationOptions;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDTokenRequestProviding <NSObject>
+@interface MSIDTestLocalInteractiveController : MSIDLocalInteractiveController
 
-- (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
-- (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
-                                                         forceRefresh:(BOOL)forceRefresh;
-
-- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                            brokerKey:(nonnull NSString *)brokerKey
-                                               brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
-                                                                error:(NSError * _Nullable * _Nullable)error;
+@property (nonatomic) NSUInteger acquireTokenCalledCount;
+@property (nonatomic) MSIDTokenResult *acquireTokenResult;
+@property (nonatomic) NSError *acquireTokenError;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -38,6 +38,8 @@
     
     NSError *error = nil;
     
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    
     MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
@@ -46,8 +48,9 @@
                                                                                           extraScopesToConsent:[@"extra extra2" msidScopeSet]
                                                                                                  correlationId:correlationID
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                                 brokerOptions:brokerOptions
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:&error];
     
     XCTAssertNotNil(parameters);
@@ -59,7 +62,9 @@
     XCTAssertEqualObjects(parameters.extraScopesToConsent, @"extra extra2");
     XCTAssertEqualObjects(parameters.correlationId, correlationID);
     XCTAssertEqualObjects(parameters.telemetryApiId, @"100");
-    XCTAssertEqualObjects(parameters.supportedBrokerProtocolScheme, @"2");
+    XCTAssertEqual(parameters.brokerInvocationOptions.minRequiredBrokerType, MSIDRequiredBrokerTypeDefault);
+    XCTAssertEqual(parameters.brokerInvocationOptions.protocolType, MSIDBrokerProtocolTypeCustomScheme);
+    XCTAssertEqual(parameters.brokerInvocationOptions.brokerAADRequestVersion, MSIDBrokerAADRequestVersionV2);
     XCTAssertEqual(parameters.requestType, MSIDInteractiveRequestBrokeredType);
     
     XCTAssertNil(error);
@@ -76,8 +81,9 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new] 
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
     NSOrderedSet *allScopes = [parameters allAuthorizeRequestScopes];
@@ -96,8 +102,9 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
     NSOrderedSet *allScopes = [parameters allAuthorizeRequestScopes];
@@ -115,8 +122,9 @@
                                                                                           extraScopesToConsent:[@"extra1 extra5" msidScopeSet]
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
-                                                                                       supportedBrokerProtocol:@"2"
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new]
                                                                                                    requestType:MSIDInteractiveRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
     NSOrderedSet *allScopes = [parameters allAuthorizeRequestScopes];

@@ -146,11 +146,12 @@ static NSString *s_redirectScheme = nil;
         NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
         NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
         NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
+        NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", s_redirectScheme];
         
         for (NSURLQueryItem *item in queryItems)
         {
             if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
-                && ![item.value.lowercaseString hasPrefix:s_redirectScheme.lowercaseString])
+                && ![item.value.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString])
             {
                 newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidURLEncode];
             }

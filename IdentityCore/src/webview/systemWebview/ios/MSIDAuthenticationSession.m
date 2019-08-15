@@ -135,7 +135,7 @@
             _completionHandler(callbackURL, authError);
         };
 
-        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
         
         if (@available(iOS 12.0, *))
         {

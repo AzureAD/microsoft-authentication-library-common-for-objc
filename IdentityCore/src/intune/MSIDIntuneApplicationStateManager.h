@@ -22,29 +22,17 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDRequestParameters.h"
-#import "MSIDTokenRequestProviding.h"
 
-@class MSIDTelemetryAPIEvent;
-@protocol MSIDRequestControlling;
+@class MSIDAuthority;
 
-typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBaseRequestController : NSObject
+@interface MSIDIntuneApplicationStateManager : NSObject
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
-@property (nonatomic, readonly, nullable) id<MSIDRequestControlling> fallbackController;
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                             error:(NSError * _Nullable * _Nullable)error;
-
-- (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
-- (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
-
-- (nullable instancetype)init NS_UNAVAILABLE;
-- (nullable instancetype)new NS_UNAVAILABLE;
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority;
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+                                                 appIdentifier:(NSString *)appIdentifier;
 
 @end
+
+NS_ASSUME_NONNULL_END

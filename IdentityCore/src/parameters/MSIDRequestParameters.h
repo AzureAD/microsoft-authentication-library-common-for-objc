@@ -52,6 +52,7 @@
 @property (nonatomic) NSDictionary *extraURLQueryParameters;
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
 @property (nonatomic) BOOL extendedLifetimeEnabled;
+@property (nonatomic) NSString *intuneApplicationIdentifier;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;
@@ -89,6 +90,7 @@
                        oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
+              intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error;
 
 @end

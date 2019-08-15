@@ -57,7 +57,9 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    parameters.brokerInvocationOptions = brokerOptions;
     return parameters;
 }
 
@@ -147,7 +149,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -158,6 +160,33 @@
                                                @"keychain_group": @"com.microsoft.mygroup"};
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)testInitBrokerRequest_whenValidParameters_andUniversalLinkRequest_shouldReturnUniversalLinkPayload
+{
+    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    parameters.brokerInvocationOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeUniversalLink aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0"
+                                      };
+    
+    NSURL *actualURL = request.brokerRequestURL;
+    
+    NSString *expectedUrlString = [NSString stringWithFormat:@"https://login.microsoftonline.com/applebroker/msauthv2?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
 }
 
 - (void)testInitBrokerRequest_whenParametersWithOptionalParameters_shouldReturnValidPayload
@@ -189,7 +218,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
@@ -262,7 +291,7 @@
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
 
