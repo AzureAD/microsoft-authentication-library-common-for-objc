@@ -174,7 +174,13 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     
     if (!applicationToken)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read broker application token, error: %@", appTokenError);
+        /*There can be a case for the initial call to not have an application token saved in the keychain. This is not considered an error condition.
+         appTokenError will be filled only if the item exists but there is an internal keychain error while trying to look it up.
+         */
+        if (appTokenError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read broker application token, error: %@", appTokenError);
+        }
     }
     
     MSIDBrokerTokenRequest *brokerRequest = [self.tokenRequestProvider brokerTokenRequestWithParameters:self.interactiveParameters
