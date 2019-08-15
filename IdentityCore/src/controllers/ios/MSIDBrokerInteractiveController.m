@@ -172,7 +172,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     NSError *appTokenError = nil;
     NSString *applicationToken = [self.brokerKeyProvider getApplicationToken:self.interactiveParameters.clientId error:&appTokenError];
     
-    if (appTokenError)
+    if (!applicationToken)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read broker application token, error: %@", appTokenError);
     }
