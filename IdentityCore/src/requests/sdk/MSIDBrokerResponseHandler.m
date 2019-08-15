@@ -130,7 +130,7 @@
         NSError *appTokenError = nil;
         BOOL saveAppToken = [brokerKeyProvider saveApplicationToken:applicationToken forClientId:brokerResponse.clientId error:&appTokenError];
         
-        if (!saveAppToken && appTokenError)
+        if (!saveAppToken)
         {
             //This particular error is best case effort so we do not need to surface the error to the developer.
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to save broker application token, error: %@", appTokenError);

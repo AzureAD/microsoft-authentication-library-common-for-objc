@@ -218,7 +218,6 @@
     [applicationTokenAttributes setObject:(id)kSecClassKey forKey:(id)kSecClass];
     [applicationTokenAttributes setObject:[tag dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
     [applicationTokenAttributes setObject:self.keychainAccessGroup forKey:(id)kSecAttrAccessGroup];
-    [applicationTokenAttributes setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
     
     NSMutableDictionary *update = [NSMutableDictionary dictionary];
     update[(id)kSecValueData] = [appToken dataUsingEncoding:NSUTF8StringEncoding];
@@ -227,6 +226,7 @@
     
     if (status == errSecItemNotFound)
     {
+        [applicationTokenAttributes setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
         [applicationTokenAttributes addEntriesFromDictionary:update];
         status = SecItemAdd((CFDictionaryRef)applicationTokenAttributes, NULL);
     }
@@ -257,16 +257,16 @@
     CFDataRef applicationToken = nil;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)applicationTokenQuery, (CFTypeRef *)&applicationToken);
     
+    if (status == errSecItemNotFound)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Broker application token not found. (status: %ld).", (long)status);
+        return nil;
+    }
+    
     if (status != errSecSuccess)
     {
-        if (status != errSecItemNotFound)
-        {
-            NSString *descr = [NSString stringWithFormat:@"Failed to read broker application token. (status: %ld).", (long)status];
-            MSIDFillAndLogError(error, MSIDErrorBrokerApplicationTokenReadFailed, descr, nil);
-            return nil;
-        }
-        
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Broker application token not found. (status: %ld).", (long)status);
+        NSString *descr = [NSString stringWithFormat:@"Failed to read broker application token. (status: %ld).", (long)status];
+        MSIDFillAndLogError(error, MSIDErrorBrokerApplicationTokenReadFailed, descr, nil);
         return nil;
     }
     
