@@ -78,6 +78,12 @@
         return nil;
     }
     
+    if (![self checkBrokerNonce:decryptedResponse])
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+        return nil;
+    }
+    
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])

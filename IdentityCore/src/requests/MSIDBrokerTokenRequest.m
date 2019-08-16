@@ -43,6 +43,7 @@
 @property (nonatomic, readwrite) NSDictionary *resumeDictionary;
 @property (nonatomic, readwrite) NSString *brokerKey;
 @property (nonatomic, readwrite) NSURL *brokerRequestURL;
+@property (nonatomic, readwrite) NSString *brokerNonce;
 @property (nonatomic, readwrite) NSString *brokerApplicationToken;
 
 @end
@@ -62,6 +63,7 @@
     {
         _requestParameters = parameters;
         _brokerKey = brokerKey;
+        _brokerNonce = [[NSUUID new] UUIDString];
         _brokerApplicationToken = brokerApplicationToken;
 
         if (![self initPayloadContentsWithError:error])
@@ -155,6 +157,7 @@
     [queryDictionary msidSetNonEmptyString:self.requestParameters.correlationId.UUIDString forKey:@"correlation_id"];
 #if TARGET_OS_IPHONE
     [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
+    [queryDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
 #endif
     [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
     [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];
@@ -177,7 +180,8 @@
       @"redirect_uri"     : self.requestParameters.redirectUri,
       @"correlation_id"   : self.requestParameters.correlationId.UUIDString,
 #if TARGET_OS_IPHONE
-      @"keychain_group"   : self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup
+      @"keychain_group"   : self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup,
+      @"broker_nonce"     : self.brokerNonce
 #endif
       };
     return resumeDictionary;
@@ -258,6 +262,16 @@
 
     NSString *serializedResources = [mamResources msidJSONSerializeWithContext:self.requestParameters];
     return serializedResources ?: @"";
+}
+
+- (NSString *)brokerNonce
+{
+    if (!_brokerNonce)
+    {
+        _brokerNonce = [[NSUUID new] UUIDString];
+    }
+    
+    return _brokerNonce;
 }
 
 #pragma mark - Abstract

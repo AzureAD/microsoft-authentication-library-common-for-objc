@@ -46,7 +46,7 @@
     return self;
 }
 
-- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error
+- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication error:(NSError * _Nullable * _Nullable)error
 {
     if (self.testError && error)
     {

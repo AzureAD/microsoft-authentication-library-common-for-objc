@@ -28,6 +28,7 @@
 #import "NSURL+MSIDTestUtil.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDDefaultBrokerRequestTests : XCTestCase
 
@@ -59,6 +60,7 @@
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
     
@@ -68,6 +70,9 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+    
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
                                                @"correlation_id" : [parameters.correlationId UUIDString],
@@ -76,7 +81,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -108,6 +114,7 @@
                                       //if account set, both of the following should be set
                                       @"home_account_id" : @"myHomeAccountId",
                                       @"username" : @"user",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
     
@@ -117,6 +124,9 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+    
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
                                                @"correlation_id" : [parameters.correlationId UUIDString],
@@ -125,7 +135,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -156,6 +167,7 @@
                                       @"msg_protocol_ver" : @"3",
                                       //login hint should be set
                                       @"login_hint" : @"myuser",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
     
@@ -165,6 +177,9 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+    
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
                                                @"correlation_id" : [parameters.correlationId UUIDString],
@@ -173,7 +188,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -204,6 +220,7 @@
                                       @"msg_protocol_ver" : @"3",
                                       //extra scopes should be set
                                       @"extra_consent_scopes" : @"extraScope1 extraScope2",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
     
@@ -213,6 +230,9 @@
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+    
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
                                                @"correlation_id" : [parameters.correlationId UUIDString],
@@ -221,7 +241,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);

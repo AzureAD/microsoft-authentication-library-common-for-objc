@@ -33,6 +33,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDClaimsRequest.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
@@ -144,6 +145,7 @@
                                       @"client_version": [MSIDVersion sdkVersion],
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
 
@@ -152,12 +154,17 @@
     NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
 
     NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id": @"my_client_id",
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
-                                               @"keychain_group": @"com.microsoft.mygroup"};
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"broker_nonce": brokerNonce
+                                               };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
@@ -180,6 +187,7 @@
                                       @"client_version": [MSIDVersion sdkVersion],
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
     
@@ -214,6 +222,7 @@
                                       @"client_capabilities": @"cp1,cp2",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
 
@@ -222,12 +231,17 @@
     NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
 
     NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id": @"my_client_id",
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
-                                               @"keychain_group": @"com.microsoft.mygroup"};
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"broker_nonce": brokerNonce
+                                               };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
@@ -287,6 +301,7 @@
                                       @"intune_mam_resource": @"{\"login.windows.net\":\"https:\\/\\/www.microsoft.com\\/windowsIntune\",\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}",
                                       @"client_app_name": @"MSIDTestsHostApp",
                                       @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"
                                       };
 
@@ -295,12 +310,17 @@
     NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
 
     NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id": @"my_client_id",
                                                @"correlation_id": [parameters.correlationId UUIDString],
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
-                                               @"keychain_group": @"com.microsoft.mygroup"};
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"broker_nonce": brokerNonce
+                                               };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }

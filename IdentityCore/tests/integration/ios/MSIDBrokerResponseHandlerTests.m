@@ -56,7 +56,7 @@
 
     NSURL *testURL = [NSURL URLWithString:@"msauth://test"];
     NSError *error = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL error:&error];
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
@@ -71,7 +71,7 @@
 
     NSURL *testURL = nil;
     NSError *error = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL error:&error];
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
@@ -80,9 +80,10 @@
 
 - (void)testHandleBrokerResponse_whenNoKeychainGroupInResumeDictionary_shouldReturnNilResultAndNonNilError
 {
-    NSDictionary *resumeDictionary = @{@"redirect_uri":@"x-msauth-test://com.contoso.mytestapp",
+    NSDictionary *resumeDictionary = @{@"redirect_uri": @"x-msauth-test://com.contoso.mytestapp",
                                        @"authority": @"https://login.microsoftonline.com/contoso.com",
-                                       @"correlation_id": [[NSUUID new] UUIDString]
+                                       @"correlation_id": [[NSUUID new] UUIDString],
+                                       @"broker_nonce": @"nonce"
                                        };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -92,11 +93,12 @@
 
     NSURL *testURL = [NSURL URLWithString:@"x-msauth-test://com.contoso.mytestapp?response=test"];
     NSError *error = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL error:&error];
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorBrokerBadResumeStateFound);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Resume state is missing the keychain group!");
 
 }
 
@@ -104,7 +106,8 @@
 {
     NSDictionary *resumeDictionary = @{@"keychain_group":@"com.microsoft.adalcache",
                                        @"authority": @"https://login.microsoftonline.com/contoso.com",
-                                       @"correlation_id": [[NSUUID new] UUIDString]
+                                       @"correlation_id": [[NSUUID new] UUIDString],
+                                       @"broker_nonce": @"nonce"
                                        };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -114,11 +117,35 @@
 
     NSURL *testURL = [NSURL URLWithString:@"x-msauth-test://com.contoso.mytestapp?response=test"];
     NSError *error = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL error:&error];
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
     XCTAssertEqual(error.code, MSIDErrorBrokerBadResumeStateFound);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Resume state is missing the redirect uri!");
+}
+
+- (void)testHandleBrokerResponse_whenNoBrokerNonceInResumeDictionary_shouldReturnNilResultAndNonNilError
+{
+    NSDictionary *resumeDictionary = @{@"redirect_uri": @"x-msauth-test://com.contoso.mytestapp",
+                                       @"keychain_group":@"com.microsoft.adalcache",
+                                       @"authority": @"https://login.microsoftonline.com/contoso.com",
+                                       @"correlation_id": [[NSUUID new] UUIDString]
+                                       };
+    
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    
+    
+    MSIDBrokerResponseHandler *responseHandler = [[MSIDBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDTokenResponseValidator new]];
+    
+    NSURL *testURL = [NSURL URLWithString:@"x-msauth-test://com.contoso.mytestapp?response=test"];
+    NSError *error = nil;
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorBrokerBadResumeStateFound);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Resume state is missing the broker nonce!");
 }
 
 - (void)testHandleBrokerResponse_whenResponseUsingWrongRedirectUri_shouldReturnNilResultAndNonNilError
@@ -126,7 +153,8 @@
     NSDictionary *resumeDictionary = @{@"keychain_group":@"com.microsoft.adalcache",
                                        @"redirect_uri":@"x-msauth-test://com.contoso.mytestapp",
                                        @"authority": @"https://login.microsoftonline.com/contoso.com",
-                                       @"correlation_id": [[NSUUID new] UUIDString]
+                                       @"correlation_id": [[NSUUID new] UUIDString],
+                                       @"broker_nonce": @"nonce"
                                        };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -136,7 +164,7 @@
 
     NSURL *testURL = [NSURL URLWithString:@"x-msauth-test-wrong://com.contoso.mytestapp?response=test"];
     NSError *error = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL error:&error];
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
@@ -148,7 +176,8 @@
     NSDictionary *resumeDictionary = @{@"keychain_group":@"com.microsoft.adalcache-wrong",
                                        @"redirect_uri":@"x-msauth-test://com.contoso.mytestapp",
                                        @"authority": @"https://login.microsoftonline.com/contoso.com",
-                                       @"correlation_id": [[NSUUID new] UUIDString]
+                                       @"correlation_id": [[NSUUID new] UUIDString],
+                                       @"broker_nonce": @"nonce"
                                        };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
@@ -158,7 +187,7 @@
 
     NSURL *testURL = [NSURL URLWithString:@"x-msauth-test://com.contoso.mytestapp?response=test"];
     NSError *error = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL error:&error];
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:testURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);

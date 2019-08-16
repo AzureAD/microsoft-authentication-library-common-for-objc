@@ -86,8 +86,20 @@
         {
             return nil;
         }
+        
+        if (![self checkBrokerNonce:decryptedResponse])
+        {
+            MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+            return nil;
+        }
 
         return [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
+    }
+    
+    if (![self checkBrokerNonce:encryptedParams])
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+        return nil;
     }
 
     NSString *userDisplayableId = nil;

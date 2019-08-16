@@ -796,6 +796,73 @@
 
     XCTAssertFalse(result);
 }
+
+- (void)testAcquireToken_whenSuccessfulBrokerResponse_andNilSourceApplication_shouldStillReturnSuccess
+{
+    // setup telemetry callback
+    MSIDTelemetryTestDispatcher *dispatcher = [MSIDTelemetryTestDispatcher new];
+    
+    NSMutableArray *receivedEvents = [NSMutableArray array];
+    
+    // the dispatcher will store the telemetry events it receives
+    [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
+     {
+         [receivedEvents addObject:event];
+     }];
+    
+    // register the dispatcher
+    [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
+    [MSIDTelemetry sharedInstance].piiEnabled = YES;
+    
+    // Setup test request providers
+    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    parameters.telemetryApiId = @"api_broker_success";
+    
+    NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
+                                           @"test-resume-key2": @"test-resume-value2"};
+    
+    NSURL *brokerRequestURL = [NSURL URLWithString:@"https://contoso.com?broker=request_url&broker_key=mykey1"];
+    
+    MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:testResumeDictionary];
+    
+    NSError *error = nil;
+    MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters tokenRequestProvider:provider fallbackController:nil error:&error];
+    
+    XCTAssertNotNil(brokerController);
+    XCTAssertNil(error);
+    
+    MSIDTokenResult *testResult = [self resultWithParameters:parameters];
+    
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+        
+        XCTAssertEqualObjects(url, brokerRequestURL);
+        
+        NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+        XCTAssertEqualObjects(resumeDictionary, testResumeDictionary);
+        
+        MSIDTestBrokerResponseHandler *brokerResponseHandler = [[MSIDTestBrokerResponseHandler alloc] initWithTestResponse:testResult testError:nil];
+        
+        [MSIDBrokerInteractiveController completeAcquireToken:[NSURL URLWithString:@"https://contoso.com"]
+                                            sourceApplication:nil
+                                        brokerResponseHandler:brokerResponseHandler];
+        return YES;
+    }];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
+    
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+    
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken, testResult.accessToken);
+        
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
 #endif
 
 @end

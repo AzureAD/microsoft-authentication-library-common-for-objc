@@ -270,12 +270,11 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 }
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
-           sourceApplication:(nonnull NSString *)sourceApplication
+           sourceApplication:(nullable NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler
 {
-    BOOL isBrokerResponse = [self isResponseFromBroker:sourceApplication];
-
-    if (!isBrokerResponse)
+    // sourceApplication could be nil, we want to return early if we know for sure response is not from broker
+    if (sourceApplication && ![self isResponseFromBroker:sourceApplication])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to handle non broker response. Skipping request.");
         return NO;
@@ -289,7 +288,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     }
 
     NSError *resultError = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL error:&resultError];
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL sourceApplication:sourceApplication error:&resultError];
 
     [MSIDNotifications notifyWebAuthDidReceiveResponseFromBroker:result];
 
@@ -311,17 +310,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 #if AD_BROKER
     return YES;
 #else
-    if ([NSString msidIsStringNilOrBlank:sourceApplication])
-    {
-        // TODO: check nonce and proceed if correct nonce present
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Asked to handle non broker response. Skipping request.");
-        return NO;
-    }
-
-    BOOL isBrokerResponse = [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID];
+    BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];
 
 #ifdef DOGFOOD_BROKER
-    isBrokerResponse = isBrokerResponse || [sourceApplication isEqualToString:MSID_BROKER_APP_BUNDLE_ID_DF];
+    isBrokerResponse = isBrokerResponse || [MSID_BROKER_APP_BUNDLE_ID_DF isEqualToString:sourceApplication];
 #endif
 
     return isBrokerResponse;
