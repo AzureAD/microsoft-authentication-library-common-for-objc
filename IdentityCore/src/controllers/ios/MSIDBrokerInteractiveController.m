@@ -223,8 +223,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler
 {
     // sourceApplication could be nil, we want to return early if we know for sure response is not from broker
-    BOOL isNotFromBroker = sourceApplication && ![self isResponseFromBroker:sourceApplication];
-    if (isNotFromBroker)
+    if (sourceApplication && ![self isResponseFromBroker:sourceApplication])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to handle non broker response. Skipping request.");
         return NO;
