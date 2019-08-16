@@ -44,6 +44,7 @@
 @property (nonatomic, readwrite) NSString *brokerKey;
 @property (nonatomic, readwrite) NSURL *brokerRequestURL;
 @property (nonatomic, readwrite) NSString *brokerNonce;
+@property (nonatomic, readwrite) NSString *brokerApplicationToken;
 
 @end
 
@@ -53,6 +54,7 @@
 
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey
+                   brokerApplicationToken:(NSString *)brokerApplicationToken
                                     error:(NSError **)error
 {
     self = [super init];
@@ -62,6 +64,7 @@
         _requestParameters = parameters;
         _brokerKey = brokerKey;
         _brokerNonce = [[NSUUID new] UUIDString];
+        _brokerApplicationToken = brokerApplicationToken;
 
         if (![self initPayloadContentsWithError:error])
         {
@@ -98,7 +101,7 @@
 
     NSString *query = [NSString msidWWWFormURLEncodedStringFromDictionary:contents];
 
-    NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker?%@", self.requestParameters.supportedBrokerProtocolScheme, query]];
+    NSURL *brokerRequestURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@?%@", self.requestParameters.brokerInvocationOptions.brokerBaseUrlString, query]];
 
     if (!brokerRequestURL)
     {
@@ -156,7 +159,6 @@
     [queryDictionary msidSetNonEmptyString:self.brokerKey forKey:@"broker_key"];
     [queryDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
 #endif
-    
     [queryDictionary msidSetNonEmptyString:[MSIDVersion sdkVersion] forKey:@"client_version"];
     [queryDictionary msidSetNonEmptyString:claimsString forKey:@"claims"];
     [queryDictionary msidSetNonEmptyString:enrollmentIds forKey:@"intune_enrollment_ids"];
@@ -164,6 +166,7 @@
     [queryDictionary msidSetNonEmptyString:capabilities forKey:@"client_capabilities"];
     [queryDictionary msidSetNonEmptyString:clientAppName forKey:@"client_app_name"];
     [queryDictionary msidSetNonEmptyString:clientAppVersion forKey:@"client_app_version"];
+    [queryDictionary msidSetNonEmptyString:self.brokerApplicationToken forKey:@"application_token"];
 
     return queryDictionary;
 }

@@ -44,7 +44,7 @@
     parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -62,12 +62,13 @@
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
                                       @"force": @"NO",
-                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel]
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -94,7 +95,7 @@
     parameters.accountIdentifier.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -113,12 +114,13 @@
                                       @"username_type": @"RequiredDisplayableId",
                                       @"max_protocol_ver": @"2",
                                       @"force": @"NO",
-                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel]
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -144,7 +146,7 @@
     parameters.loginHint = @"myloginhint";
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -163,12 +165,13 @@
                                       @"username_type": @"OptionalDisplayableId",
                                       @"max_protocol_ver": @"2",
                                       @"force": @"NO",
-                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel]
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -194,7 +197,7 @@
     parameters.uiBehaviorType = MSIDUIBehaviorForceType;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -211,12 +214,13 @@
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
                                       @"force": @"YES",
-                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel]
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
     
@@ -247,7 +251,9 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    parameters.brokerInvocationOptions = brokerOptions;
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
     return parameters;
 }

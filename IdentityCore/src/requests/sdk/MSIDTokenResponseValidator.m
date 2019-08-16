@@ -32,6 +32,7 @@
 #import "MSIDBasicContext.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDIntuneApplicationStateManager.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -156,6 +157,9 @@
                                                                         redirectUri:nil
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
+    
+    configuration.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:brokerResponse.msidAuthority
+                                                                                                       appIdentifier:[[NSBundle mainBundle] bundleIdentifier]];
 
     MSIDTokenResponse *tokenResponse = brokerResponse.tokenResponse;
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse

@@ -33,6 +33,7 @@
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDRequestParameters.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"

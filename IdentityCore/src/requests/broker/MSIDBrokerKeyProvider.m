@@ -32,12 +32,19 @@
 @interface MSIDBrokerKeyProvider()
 
 @property (nonatomic) NSString *keychainAccessGroup;
+@property (nonatomic) NSString *keyIdentifier;
 
 @end
 
 @implementation MSIDBrokerKeyProvider
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup
+{
+    return [self initWithGroup:keychainGroup keyIdentifier:MSID_BROKER_SYMMETRIC_KEY_TAG];
+}
+
+- (instancetype)initWithGroup:(NSString *)keychainGroup
+                keyIdentifier:(NSString *)keyIdentifier
 {
     self = [super init];
 
@@ -62,6 +69,13 @@
         }
 
         _keychainAccessGroup = keychainGroup;
+        _keyIdentifier = keyIdentifier;
+        
+        if (!keyIdentifier)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Nil key identifier provided. Cannot generate broker key");
+            return nil;
+        }
     }
 
     return self;
@@ -71,7 +85,7 @@
 {
     OSStatus err = noErr;
 
-    NSData *symmetricTag = [MSID_BROKER_SYMMETRIC_KEY_TAG dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
     NSDictionary *symmetricKeyQuery =
     @{
@@ -146,7 +160,7 @@
     NSData *keyData = [[NSData alloc] initWithBytes:symmetricKey length:kChosenCipherKeySize * sizeof(uint8_t)];
     free(symmetricKey);
 
-    NSData *symmetricTag = [MSID_BROKER_SYMMETRIC_KEY_TAG dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
     NSDictionary *symmetricKeyAttr =
     @{
@@ -185,7 +199,7 @@
 {
     OSStatus err = noErr;
 
-    NSData *symmetricTag = [MSID_BROKER_SYMMETRIC_KEY_TAG dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
     NSDictionary* symmetricKeyQuery =
     @{
@@ -208,5 +222,71 @@
 
     return YES;
 }
+
+- (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError **)error
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Saving broker application token for clientId %@.", clientId);
+    NSString *tag = [NSString stringWithFormat:@"%@-%@", MSID_BROKER_APPLICATION_TOKEN_TAG, clientId];
+    
+    NSMutableDictionary *applicationTokenAttributes = [NSMutableDictionary new];
+    [applicationTokenAttributes setObject:(id)kSecClassKey forKey:(id)kSecClass];
+    [applicationTokenAttributes setObject:[tag dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
+    [applicationTokenAttributes setObject:self.keychainAccessGroup forKey:(id)kSecAttrAccessGroup];
+    
+    NSMutableDictionary *update = [NSMutableDictionary dictionary];
+    update[(id)kSecValueData] = [appToken dataUsingEncoding:NSUTF8StringEncoding];
+    
+    OSStatus status = SecItemUpdate((CFDictionaryRef)applicationTokenAttributes, (CFDictionaryRef)update);
+    
+    if (status == errSecItemNotFound)
+    {
+        [applicationTokenAttributes setObject:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly forKey:(id)kSecAttrAccessible];
+        [applicationTokenAttributes addEntriesFromDictionary:update];
+        status = SecItemAdd((CFDictionaryRef)applicationTokenAttributes, NULL);
+    }
+    
+    if (status != errSecSuccess)
+    {
+        NSString *descr = [NSString stringWithFormat:@"Could not write broker application token %ld.", (long)status];
+        MSIDFillAndLogError(error, MSIDErrorBrokerApplicationTokenWriteFailed, descr, nil);
+        return NO;
+    }
+    
+    return YES;
+}
+
+- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError **)error
+{
+    NSString *tag = [NSString stringWithFormat:@"%@-%@", MSID_BROKER_APPLICATION_TOKEN_TAG, clientId];
+    
+    NSDictionary *applicationTokenQuery =
+    @{
+      (id)kSecClass : (id)kSecClassKey,
+      (id)kSecAttrApplicationTag : [tag dataUsingEncoding:NSUTF8StringEncoding],
+      (id)kSecReturnData : @(YES),
+      (id)kSecAttrAccessGroup : self.keychainAccessGroup
+      };
+    
+    // Get the key bits.
+    CFDataRef applicationToken = nil;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)applicationTokenQuery, (CFTypeRef *)&applicationToken);
+    
+    if (status == errSecItemNotFound)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Broker application token not found. (status: %ld).", (long)status);
+        return nil;
+    }
+    
+    if (status != errSecSuccess)
+    {
+        NSString *descr = [NSString stringWithFormat:@"Failed to read broker application token. (status: %ld).", (long)status];
+        MSIDFillAndLogError(error, MSIDErrorBrokerApplicationTokenReadFailed, descr, nil);
+        return nil;
+    }
+    
+    NSData *result = (__bridge_transfer NSData*)applicationToken;
+    return [[NSString alloc] initWithData:result encoding:NSUTF8StringEncoding];
+}
+
 
 @end

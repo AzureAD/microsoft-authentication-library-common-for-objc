@@ -2387,6 +2387,101 @@
     XCTAssertEqualObjects(appMetadataEntries[0].familyId, @"familyId");
 }
 
+- (void)testGetAccessTokenForAccount_whenAccessTokenCachePartitionedByAppIdentifier_andTwoTokensInCache_shouldReturnToken
+{
+    // Save first token
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id1"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:@"myapp1"
+                     accessor:_nonSSOAccessor];
+    
+    // Save second token (same clientId, but different app identifier)
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id1"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:@"myapp2"
+                     accessor:_nonSSOAccessor];
+    
+    // Check cache state
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
+    XCTAssertEqual([refreshTokens count], 1);
+    
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
+    XCTAssertEqual([accessTokens count], 2);
+    
+    // Get token
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.windows.net/utid"
+                                                                                clientId:@"test_client_id1"
+                                                                             redirectUri:nil
+                                                                                  target:@"user.sing"];
+    configuration.applicationIdentifier = @"myapp1";
+    
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:@"uid.utid"];
+    NSError *error = nil;
+    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(accessToken);
+    XCTAssertEqualObjects(accessToken.accessToken, @"access token 2");
+    XCTAssertEqualObjects(accessToken.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(accessToken.clientId, @"test_client_id1");
+    XCTAssertEqualObjects(accessToken.environment, @"login.windows.net");
+    XCTAssertEqualObjects(accessToken.realm, @"utid");
+}
+
+- (void)testGetAccessTokenForAccount_whenAccessTokenCachePartitionedByAppIdentifier_whenDifferentApp_shouldReturnNil
+{
+    // Save first token
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id1"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:@"myapp1"
+                     accessor:_nonSSOAccessor];
+    
+    // Check cache state
+    NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
+    XCTAssertEqual([refreshTokens count], 1);
+    
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
+    XCTAssertEqual([accessTokens count], 1);
+    
+    // Get token
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.windows.net/utid"
+                                                                                clientId:@"test_client_id1"
+                                                                             redirectUri:nil
+                                                                                  target:@"user.sing"];
+    configuration.applicationIdentifier = @"myapp3";
+    
+    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:nil];
+    NSError *error = nil;
+    MSIDAccessToken *accessToken = [_defaultAccessor getAccessTokenForAccount:account configuration:configuration context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNil(accessToken);
+}
+
 #pragma mark - Helpers
 
 - (void)saveResponseWithUPN:(NSString *)upn
@@ -2399,6 +2494,33 @@
                 accessToken:(NSString *)accessToken
                refreshToken:(NSString *)refreshToken
                    familyId:(NSString *)familyId
+                   accessor:(id<MSIDCacheAccessor>)accessor
+{
+    [self saveResponseWithUPN:upn
+                     clientId:clientId
+                    authority:authority
+               responseScopes:responseScopes
+                  inputScopes:inputScopes
+                          uid:uid
+                         utid:utid
+                  accessToken:accessToken
+                 refreshToken:refreshToken
+                     familyId:familyId
+                appIdentifier:nil
+                     accessor:accessor];
+}
+
+- (void)saveResponseWithUPN:(NSString *)upn
+                   clientId:(NSString *)clientId
+                  authority:(NSString *)authority
+             responseScopes:(NSString *)responseScopes
+                inputScopes:(NSString *)inputScopes
+                        uid:(NSString *)uid
+                       utid:(NSString *)utid
+                accessToken:(NSString *)accessToken
+               refreshToken:(NSString *)refreshToken
+                   familyId:(NSString *)familyId
+              appIdentifier:(NSString *)appIdentifier
                    accessor:(id<MSIDCacheAccessor>)accessor
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:upn subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:utid];
@@ -2415,6 +2537,8 @@
                                                                                 clientId:clientId
                                                                              redirectUri:nil
                                                                                   target:inputScopes];
+    
+    configuration.applicationIdentifier = appIdentifier;
 
     NSError *error = nil;
     // Save first token

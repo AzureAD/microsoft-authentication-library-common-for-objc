@@ -21,50 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
-#import "MSIDAADV1TokenResponse.h"
-#import "MSIDBrokerResponse+Internal.h"
-#import "MSIDAADAuthority.h"
+#import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthority.h"
+#import "MSIDIntuneMAMResourcesCache.h"
 
-@implementation MSIDBrokerResponse
+@implementation MSIDIntuneApplicationStateManager
 
-MSID_FORM_ACCESSOR(MSID_OAUTH2_AUTHORITY, authority);
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CLIENT_ID, clientId);
-
-MSID_FORM_ACCESSOR(@"x-broker-app-ver", brokerAppVer);
-MSID_FORM_ACCESSOR(@"vt", validAuthority);
-
-MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
-MSID_FORM_ACCESSOR(@"error_code", errorCode);
-MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
-MSID_FORM_ACCESSOR(@"application_token", applicationToken);
-
-- (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
++ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority
 {
-    self = [super initWithDictionary:form error:error];
-
-    if (self)
+#if TARGET_OS_IPHONE
+    
+    if (!authority.supportsMAMScenarios)
     {
-        [self initDerivedProperties];
+        return NO;
     }
-
-    return self;
-}
-
-- (void)initDerivedProperties
-{
-    self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
-    self.msidAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:self.authority] rawTenant:nil context:nil error:nil];
-}
-
-- (NSString *)target
-{
-    return _urlForm[@"scope"];
-}
-
-- (BOOL)accessTokenInvalidForResponse
-{
+    
+    NSError *error = nil;
+    NSDictionary *resourceCache = [[MSIDIntuneMAMResourcesCache sharedCache] resourcesJsonDictionaryWithContext:nil error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to read Intune MAM resource cache with error %@", MSID_PII_LOG_MASKABLE(error));
+        return NO;
+    }
+    
+    return resourceCache.count > 0;
+#else
     return NO;
+#endif
+}
+
++ (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
+                                                 appIdentifier:(NSString *)appIdentifier
+{
+    return [self isAppCapableForMAMCA:authority] ? appIdentifier : nil;
 }
 
 @end

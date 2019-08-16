@@ -133,6 +133,7 @@
                                                                           oidcScopes:oidcScopes
                                                                        correlationId:nil
                                                                       telemetryApiId:nil
+                                                                 intuneAppIdentifier:nil
                                                                                error:nil];
     // Mock network request to token endpoint.
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -228,6 +229,7 @@
                                                                           oidcScopes:oidcScopes
                                                                        correlationId:nil
                                                                       telemetryApiId:nil
+                                                                 intuneAppIdentifier:nil
                                                                                error:nil];
     
     // Save v1 id token.

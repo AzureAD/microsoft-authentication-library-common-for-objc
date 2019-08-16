@@ -86,6 +86,9 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 // Only certain authorities support passing clientID as an allowed scope
 - (BOOL)supportsClientIDAsScope;
 
+// Only certain authorities support MAM CA scenarios
+- (BOOL)supportsMAMScenarios;
+
 /* It is used in telemetry */
 - (nonnull NSString *)telemetryAuthorityType;
 

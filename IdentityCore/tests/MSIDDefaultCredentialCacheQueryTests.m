@@ -60,13 +60,13 @@
     query.realm = @"contoso.com";
     query.target = @"user.read";
     query.clientId = @"client";
-    query.enrollmentId = @"enrollmentId";
+    query.applicationIdentifier = @"app.bundle.id";
     
     XCTAssertTrue(query.exactMatch);
     XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
-    XCTAssertEqualObjects(query.service, @"accesstoken-client-contoso.com-enrollmentid-user.read");
+    XCTAssertEqualObjects(query.service, @"accesstoken-client-contoso.com-app.bundle.id-user.read");
     XCTAssertEqualObjects(query.type, @2001);
-    XCTAssertEqualObjects(query.generic, [@"accesstoken-client-contoso.com-enrollmentid" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(query.generic, [@"accesstoken-client-contoso.com-app.bundle.id" dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 - (void)testDefaultCredentialCacheQuery_whenIDToken_allParametersSet_shouldBeExactMatch
