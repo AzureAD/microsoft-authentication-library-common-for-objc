@@ -248,10 +248,10 @@
     
     //save metadata
     NSError *updateMetadataError = nil;
-    MSIDAuthority *cacheAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
-    if (cacheAuthority && !updateMetadataError)
+    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
+    if (resultingAuthority && !updateMetadataError)
     {
-        [accountMetadataCache updateAuthorityURL:cacheAuthority.url
+        [accountMetadataCache updateAuthorityURL:resultingAuthority.url
                                    forRequestURL:parameters.authority.url
                                    homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
                                         clientId:parameters.clientId
