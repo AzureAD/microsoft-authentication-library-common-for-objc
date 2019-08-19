@@ -52,6 +52,7 @@
 @property (nonatomic) NSDictionary *extraURLQueryParameters;
 @property (nonatomic) NSUInteger tokenExpirationBuffer;
 @property (nonatomic) BOOL extendedLifetimeEnabled;
+@property (nonatomic) BOOL instanceAware;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
 
 #pragma mark MSIDRequestContext properties
