@@ -248,17 +248,21 @@
     
     //save metadata
     NSError *updateMetadataError = nil;
-    [accountMetadataCache updateAuthorityURL:tokenResult.authority.url
-                               forRequestURL:parameters.authority.url
-                               homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
-                                    clientId:parameters.clientId
-                               instanceAware:parameters.instanceAware
-                                     context:parameters
-                                       error:&updateMetadataError];
-    
-    if (updateMetadataError)
+    MSIDAuthority *cacheAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
+    if (cacheAuthority && !updateMetadataError)
     {
-       MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        [accountMetadataCache updateAuthorityURL:cacheAuthority.url
+                                   forRequestURL:parameters.authority.url
+                                   homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
+                                        clientId:parameters.clientId
+                                   instanceAware:parameters.instanceAware
+                                         context:parameters
+                                           error:&updateMetadataError];
+        
+        if (updateMetadataError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        }
     }
 
     NSError *savingError = nil;
