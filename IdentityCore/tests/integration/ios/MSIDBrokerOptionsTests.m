@@ -23,12 +23,19 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDBrokerInvocationOptions.h"
+#import "MSIDApplicationTestUtil.h"
 
 @interface MSIDBrokerOptionsTests : XCTestCase
 
 @end
 
 @implementation MSIDBrokerOptionsTests
+
+- (void)tearDown
+{
+    MSIDApplicationTestUtil.canOpenURLSchemes = nil;
+    [super tearDown];
+}
 
 - (void)testInit_whenDefaultRequiredBroker_customSchemeProtocol_andAADV2Request
 {
@@ -52,6 +59,30 @@
     XCTAssertEqual(options.brokerAADRequestVersion, MSIDBrokerAADRequestVersionV1);
     XCTAssertEqualObjects(options.brokerBaseUrlString, @"https://login.microsoftonline.com/applebroker/msauth");
     XCTAssertTrue(options.isUniversalLink);
+}
+
+- (void)testCanUseBroker_wheniOS13AndOldBrokerInstalled_andAADV2RequestVersion_shouldReturnFalse
+{
+    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauthv2"];
+    
+    MSIDBrokerInvocationOptions *options = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
+                                                                                              protocolType:MSIDBrokerProtocolTypeUniversalLink
+                                                                                         aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    
+    BOOL result = [options isRequiredBrokerPresent];
+    XCTAssertFalse(result);
+}
+
+- (void)testCanUseBroker_wheniOS13AndNewBrokerInstalled_andAADV1RequestVersion_shouldReturnFalse
+{
+    MSIDApplicationTestUtil.canOpenURLSchemes = @[@"msauth", @"msauthv3"];
+    
+    MSIDBrokerInvocationOptions *options = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeWithNonceSupport
+                                                                                              protocolType:MSIDBrokerProtocolTypeUniversalLink
+                                                                                         aadRequestVersion:MSIDBrokerAADRequestVersionV1];
+    
+    BOOL result = [options isRequiredBrokerPresent];
+    XCTAssertTrue(result);
 }
 
 @end

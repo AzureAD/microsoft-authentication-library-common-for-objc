@@ -32,7 +32,7 @@
 @property (nonatomic, readwrite) MSIDRequiredBrokerType minRequiredBrokerType;
 @property (nonatomic, readwrite) MSIDBrokerProtocolType protocolType;
 @property (nonatomic, readwrite) MSIDBrokerAADRequestVersion brokerAADRequestVersion;
-@property (nonatomic, readwrite) NSString *registeredScheme;
+@property (nonatomic, readwrite) NSArray *requiredSchemes;
 @property (nonatomic, readwrite) NSString *brokerBaseUrlString;
 @property (nonatomic, readwrite) NSString *versionDisplayableName;
 @property (nonatomic, readwrite) BOOL isUniversalLink;
@@ -55,9 +55,9 @@
         _protocolType = protocolType;
         _brokerAADRequestVersion = aadRequestVersion;
         
-        _registeredScheme = [self registeredSchemeForBrokerType:minRequiredBrokerType];
+        _requiredSchemes = [self requiredSchemesForBrokerType:minRequiredBrokerType requestType:aadRequestVersion];
         
-        if (!_registeredScheme)
+        if (!_requiredSchemes)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Unable to resolve expected URL scheme for required broker type %ld", (long)minRequiredBrokerType);
             return nil;
@@ -90,7 +90,7 @@
 - (BOOL)isRequiredBrokerPresent
 {
 #if TARGET_OS_IPHONE
-    if (!self.registeredScheme)
+    if (![self.requiredSchemes count])
     {
         return NO;
     }
@@ -98,7 +98,18 @@
     if (![MSIDAppExtensionUtil isExecutingInAppExtension])
     {
         // Verify broker app url can be opened
-        return [[MSIDAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", self.registeredScheme]]];
+        for (NSString *scheme in self.requiredSchemes)
+        {
+            BOOL schemePresent = [[MSIDAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", scheme]]];
+            
+            if (!schemePresent)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Scheme %@ for broker not present", scheme);
+                return NO;
+            }
+        }
+        
+        return YES;
     }
     else
     {
@@ -160,17 +171,24 @@
     }
 }
 
-- (NSString *)registeredSchemeForBrokerType:(MSIDRequiredBrokerType)brokerType
+- (NSArray *)requiredSchemesForBrokerType:(MSIDRequiredBrokerType)brokerType
+                              requestType:(MSIDBrokerAADRequestVersion)aadRequestVersion
 {
     switch (brokerType) {
         case MSIDRequiredBrokerTypeWithADALOnly:
-            return MSID_BROKER_ADAL_SCHEME;
+            return @[MSID_BROKER_ADAL_SCHEME];
             
         case MSIDRequiredBrokerTypeWithV2Support:
-            return MSID_BROKER_MSAL_SCHEME;
+            return @[MSID_BROKER_MSAL_SCHEME];
             
         case MSIDRequiredBrokerTypeWithNonceSupport:
-            return MSID_BROKER_NONCE_SCHEME;
+        {
+            if (aadRequestVersion == MSIDBrokerAADRequestVersionV1)
+            {
+                return @[MSID_BROKER_ADAL_SCHEME, MSID_BROKER_NONCE_SCHEME];
+            }
+            else return @[MSID_BROKER_MSAL_SCHEME, MSID_BROKER_NONCE_SCHEME];
+        }
             
         default:
             return nil;
