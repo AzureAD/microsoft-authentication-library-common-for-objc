@@ -1,6 +1,10 @@
-Version 1.0.12
+Version 1.0.13
 ------------
 * Support new iOS 13 compatible broker
+
+Version 1.0.12
+------------
+* ADAL True MAM CA support
 
 Version 1.0.11
 ------------
