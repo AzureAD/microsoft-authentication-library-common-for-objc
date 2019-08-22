@@ -87,6 +87,7 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
+                info = nil;
             }
         }
         else if (expectedThumbprint)
@@ -94,20 +95,20 @@
             if (![expectedThumbprint isEqualToString:[MSIDPkeyAuthHelper computeThumbprint:[info certificateData]]])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
+                info = nil;
             }
         }
         
-        authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
-    }
-    
-    else
-    {
-        if (!challengeData)
+        if (info)
         {
-            // Error should have been logged before this where there is more information on why the challenge data was bad
-            MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
+            authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+            MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
         }
+    }
+    else if (!challengeData)
+    {
+        // Error should have been logged before this where there is more information on why the challenge data was bad
+        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
     }
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
