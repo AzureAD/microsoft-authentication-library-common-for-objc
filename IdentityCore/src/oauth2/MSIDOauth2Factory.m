@@ -88,7 +88,7 @@
         return NO;
     }
     
-    if ([NSString msidIsStringNilOrBlank:response.accessToken])
+    if (![self verifyAccessToken:response.accessToken])
     {
         if (error)
         {
@@ -98,6 +98,11 @@
     }
     
     return YES;
+}
+
+- (BOOL)verifyAccessToken:(NSString *)accessToken
+{
+    return ![NSString msidIsStringNilOrBlank:accessToken];
 }
 
 #pragma mark - Tokens
