@@ -63,7 +63,7 @@
     return NO;
 }
 
-- (BOOL)handleURLResponse:(NSURL *)url;
+- (BOOL)handleURLResponse:(NSURL *)url
 {
     return self.actAsSafariViewController || self.actAsAuthenticationSession;
 }

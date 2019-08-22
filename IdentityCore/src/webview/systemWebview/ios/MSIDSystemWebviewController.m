@@ -58,7 +58,7 @@
     }
     
     NSURL *redirectURL = [NSURL URLWithString:redirectURI];
-    if (!redirectURL)
+    if (!redirectURL || !redirectURL.scheme)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with invalid redirect uri");
         return nil;

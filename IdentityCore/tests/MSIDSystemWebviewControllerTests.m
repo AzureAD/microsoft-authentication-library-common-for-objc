@@ -31,7 +31,8 @@
 @end
 
 @implementation MSIDTestSession: NSObject
-- (BOOL)handleURLResponse:(NSURL *)url {
+- (BOOL)handleURLResponse:(NSURL *)url
+{
     return YES;
 }
 @end
