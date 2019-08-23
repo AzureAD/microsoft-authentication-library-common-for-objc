@@ -128,10 +128,9 @@ static NSString *keyDelimiter = @"-";
 
 - (NSArray<id<MSIDJsonSerializable>> *)storedItemsForKey:(MSIDCacheKey *)key
 {
-    __block NSArray *storedItems = [[NSArray alloc] init];
+    __block NSMutableArray *storedItems = [[NSMutableArray alloc] init];
     
     dispatch_sync(self.queue, ^{
-        
         NSString *type = [self getItemTypeFromCacheKey:key];
         
         if (type)
@@ -145,7 +144,7 @@ static NSString *keyDelimiter = @"-";
                     id<MSIDJsonSerializable> item = [typeDict objectForKey:key];
                     if (item)
                     {
-                        storedItems = @[item];
+                        storedItems = [[NSMutableArray alloc] initWithObjects:item, nil];
                     }
                 }
                 else
@@ -157,7 +156,13 @@ static NSString *keyDelimiter = @"-";
         }
         else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+            //Unknown key type passed i.e. key.credentialType = MSIDCredentialTypeOther. Need to go through each key for the blob.
+            for (NSString *typeKey in self.cacheObjects)
+            {
+                NSMutableDictionary *subDict = [self.cacheObjects objectForKey:typeKey];
+                NSArray *filteredCredentials = [self getFilteredItems:subDict forKey:key];
+                [storedItems addObjectsFromArray:filteredCredentials];
+            }
         }
     });
     
@@ -264,7 +269,7 @@ static NSString *keyDelimiter = @"-";
     return dictionary;
 }
 
-- (NSArray<id<MSIDJsonSerializable>> *)getFilteredItems:(NSMutableDictionary *)itemDict forKey:(MSIDCacheKey *)cacheKey
+- (NSMutableArray<id<MSIDJsonSerializable>> *)getFilteredItems:(NSMutableDictionary *)itemDict forKey:(MSIDCacheKey *)cacheKey
 {
     NSMutableArray *storedItems =  [[NSMutableArray alloc] init];
     
