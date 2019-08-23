@@ -201,6 +201,7 @@
 		238F80A222C2BE1600437CB1 /* MSIDGetV1IdTokenHttpEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 238F80A022C2BE1600437CB1 /* MSIDGetV1IdTokenHttpEvent.m */; };
 		238F80A522C2C41000437CB1 /* MSIDGetV1IdTokenCacheEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 238F80A322C2C41000437CB1 /* MSIDGetV1IdTokenCacheEvent.h */; };
 		238F80A622C2C41000437CB1 /* MSIDGetV1IdTokenCacheEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 238F80A422C2C41000437CB1 /* MSIDGetV1IdTokenCacheEvent.m */; };
+		2393805D231099A00075B2E8 /* MSIDBrokerExtensionInteractiveController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2393805C231099A00075B2E8 /* MSIDBrokerExtensionInteractiveController.m */; };
 		239DF9AD20DED6F6002D428B /* MSIDConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 239DF9A820DED6E8002D428B /* MSIDConstants.m */; };
 		239DF9AE20DED6F7002D428B /* MSIDConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 239DF9A820DED6E8002D428B /* MSIDConstants.m */; };
 		239DF9BF20E04BC9002D428B /* MSIDAADAuthorityTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 239DF9BC20E04BC8002D428B /* MSIDAADAuthorityTests.m */; };
@@ -731,10 +732,10 @@
 		B27551C32081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
 		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
+		B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */; };
 		B27ACAA822EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.h in Headers */ = {isa = PBXBuildFile; fileRef = B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */; };
 		B27ACAA922EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */; };
 		B27ACAAA22EE9FE60049ACE0 /* MSIDIntuneApplicationStateManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */; };
-		B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */; };
 		B27CCDD1229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */; };
 		B27CCDD2229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
 		B27CCDD3229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */; };
@@ -1373,6 +1374,8 @@
 		238F80A022C2BE1600437CB1 /* MSIDGetV1IdTokenHttpEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGetV1IdTokenHttpEvent.m; sourceTree = "<group>"; };
 		238F80A322C2C41000437CB1 /* MSIDGetV1IdTokenCacheEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDGetV1IdTokenCacheEvent.h; sourceTree = "<group>"; };
 		238F80A422C2C41000437CB1 /* MSIDGetV1IdTokenCacheEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDGetV1IdTokenCacheEvent.m; sourceTree = "<group>"; };
+		2393805B231099A00075B2E8 /* MSIDBrokerExtensionInteractiveController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MSIDBrokerExtensionInteractiveController.h; path = "../../../../../../../../../../../System/Volumes/Data/Users/antrix1989/workspace/ios/microsoft-authentication-library-for-objc/MSAL/IdentityCore/IdentityCore/src/controllers/ios/MSIDBrokerExtensionInteractiveController.h"; sourceTree = "<group>"; };
+		2393805C231099A00075B2E8 /* MSIDBrokerExtensionInteractiveController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MSIDBrokerExtensionInteractiveController.m; path = "../../../../../../../../../../../System/Volumes/Data/Users/antrix1989/workspace/ios/microsoft-authentication-library-for-objc/MSAL/IdentityCore/IdentityCore/src/controllers/ios/MSIDBrokerExtensionInteractiveController.m"; sourceTree = "<group>"; };
 		239DF9A820DED6E8002D428B /* MSIDConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDConstants.m; sourceTree = "<group>"; };
 		239DF9A920DED6E9002D428B /* MSIDConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDConstants.h; sourceTree = "<group>"; };
 		239DF9BC20E04BC8002D428B /* MSIDAADAuthorityTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAADAuthorityTests.m; sourceTree = "<group>"; };
@@ -1802,10 +1805,10 @@
 		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
 		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
 		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
-		B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneApplicationStateManager.h; sourceTree = "<group>"; };
-		B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneApplicationStateManager.m; sourceTree = "<group>"; };
 		B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskManager.h; sourceTree = "<group>"; };
 		B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskManager.m; sourceTree = "<group>"; };
+		B27ACAA622EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDIntuneApplicationStateManager.h; sourceTree = "<group>"; };
+		B27ACAA722EE9FE50049ACE0 /* MSIDIntuneApplicationStateManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDIntuneApplicationStateManager.m; sourceTree = "<group>"; };
 		B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSJSONSerialization+MSIDExtensions.h"; sourceTree = "<group>"; };
 		B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSJSONSerialization+MSIDExtensions.m"; sourceTree = "<group>"; };
 		B27CCDD4229EF2C000CAD565 /* MSIDDictionaryExtensionsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDictionaryExtensionsTests.m; sourceTree = "<group>"; };
@@ -3332,6 +3335,8 @@
 			children = (
 				B2AF1D24218BCD900080C1A0 /* MSIDBrokerInteractiveController.h */,
 				B2AF1D25218BCD900080C1A0 /* MSIDBrokerInteractiveController.m */,
+				2393805B231099A00075B2E8 /* MSIDBrokerExtensionInteractiveController.h */,
+				2393805C231099A00075B2E8 /* MSIDBrokerExtensionInteractiveController.m */,
 			);
 			path = ios;
 			sourceTree = "<group>";
@@ -5204,6 +5209,7 @@
 				B20657B01FC91FD100412B7D /* MSIDTelemetryEventStrings.m in Sources */,
 				D6D9A4511FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
 				2306D2B920AD07C400F875A3 /* MSIDURLSessionManager.m in Sources */,
+				2393805D231099A00075B2E8 /* MSIDBrokerExtensionInteractiveController.m in Sources */,
 				235480D020DDF81000246F72 /* MSIDADFSAuthority.m in Sources */,
 				B26A0B882071B752006BD95A /* MSIDAADV2Oauth2Factory.m in Sources */,
 				962EA0412190D4A50049C4C8 /* MSIDCertAuthHandler.m in Sources */,
