@@ -26,6 +26,8 @@
 
 @interface MSIDApplicationTestUtil : NSObject
 
+@property (nonatomic, class) NSArray *canOpenURLSchemes;
+
 + (void)onOpenURL:(BOOL (^)(NSURL *url, NSDictionary<NSString *, id> *options))openUrlBlock;
 + (void)reset;
 
