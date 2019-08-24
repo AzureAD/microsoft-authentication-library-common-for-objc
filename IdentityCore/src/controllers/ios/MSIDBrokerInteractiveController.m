@@ -456,6 +456,14 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 - (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController
 {
+#if TARGET_OS_SIMULATOR
+    if (!shouldFallbackToLocalController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring URL open failure because of simulator target");
+        return;
+    }
+#endif
+    
     [self.class stopTrackingAppState];
     
     MSIDTelemetryBrokerEvent *brokerEvent = [[MSIDTelemetryBrokerEvent alloc] initWithName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER requestId:self.requestParameters.telemetryRequestId correlationId:self.requestParameters.correlationId];
@@ -469,11 +477,9 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     
     if (!shouldFallbackToLocalController)
     {
-#if !TARGET_OS_SIMULATOR
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL and not falling back to local interaction");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL and not falling back to local interaction", nil, nil, nil, nil, nil);
         if (completionBlock) completionBlock(nil, error);
-#endif
         return;
     }
     
