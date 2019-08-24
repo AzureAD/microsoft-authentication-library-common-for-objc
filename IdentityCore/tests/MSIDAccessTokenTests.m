@@ -157,22 +157,22 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
-- (void)testAccessTokenIsEqual_whenEnrollmentIdIsNotEqual_shouldReturnFalse
+- (void)testAccessTokenIsEqual_whenAppIdentifierIsNotEqual_shouldReturnFalse
 {
     MSIDAccessToken *lhs = [MSIDAccessToken new];
-    [lhs setValue:@"value 1" forKey:@"enrollmentId"];
+    lhs.applicationIdentifier = @"value 1";
     MSIDAccessToken *rhs = [MSIDAccessToken new];
-    [rhs setValue:@"value 2" forKey:@"enrollmentId"];
+    rhs.applicationIdentifier = @"value 2";
     
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
-- (void)testAccessTokenIsEqual_whenEnrollmentIdIsEqual_shouldReturnTrue
+- (void)testAccessTokenIsEqual_whenAppIdentifierIsEqual_shouldReturnTrue
 {
     MSIDAccessToken *lhs = [MSIDAccessToken new];
-    [lhs setValue:@"value 1" forKey:@"enrollmentId"];
+    lhs.applicationIdentifier = @"value 1";
     MSIDAccessToken *rhs = [MSIDAccessToken new];
-    [rhs setValue:@"value 1" forKey:@"enrollmentId"];
+    rhs.applicationIdentifier = @"value 1";
     
     XCTAssertEqualObjects(lhs, rhs);
 }

@@ -26,6 +26,7 @@
 #import "MSIDTokenRequestProviding.h"
 
 @class MSIDTelemetryAPIEvent;
+@protocol MSIDRequestControlling;
 
 typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
 
@@ -33,9 +34,11 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
 
 @property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
+@property (nonatomic, readonly, nullable) id<MSIDRequestControlling> fallbackController;
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                              error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;

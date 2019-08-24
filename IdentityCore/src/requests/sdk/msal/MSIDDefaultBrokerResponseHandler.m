@@ -78,6 +78,12 @@
         return nil;
     }
     
+    if (![self checkBrokerNonce:decryptedResponse])
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+        return nil;
+    }
+    
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])
@@ -140,7 +146,18 @@
                                                   error:(NSError **)error
 {
 #if TARGET_OS_IPHONE
-    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
+    
+    if (!dataSource)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
     MSIDLegacyTokenCacheAccessor *otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     MSIDDefaultTokenCacheAccessor *cache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
     return cache;

@@ -25,6 +25,8 @@
 
 @interface MSIDBrokerCryptoProvider : NSObject
 
+@property (nonatomic, readonly, nonnull) NSData *encryptionKey;
+
 - (nullable instancetype)initWithEncryptionKey:(nonnull NSData *)encryptionKey;
 
 - (nullable NSDictionary *)decryptBrokerResponse:(nonnull NSDictionary *)response

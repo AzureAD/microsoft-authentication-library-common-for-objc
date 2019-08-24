@@ -23,6 +23,7 @@
 
 #import "MSIDAccountCacheItem.h"
 #import "MSIDClientInfo.h"
+#import "MSIDLogger+Trace.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 
@@ -189,6 +190,16 @@
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
 
     return dictionary;
+}
+
+- (nullable MSIDCacheKey *)generateCacheKey
+{
+    MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:self.homeAccountId
+                                                                                    environment:self.environment
+                                                                                          realm:self.realm
+                                                                                           type:self.accountType];
+    key.username = self.username;
+    return key;
 }
 
 @end

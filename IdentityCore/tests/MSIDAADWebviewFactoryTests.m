@@ -121,8 +121,9 @@
                                                                                           extraScopesToConsent:nil
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:nil
-                                                                                       supportedBrokerProtocol:nil
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new] 
                                                                                                    requestType:MSIDInteractiveRequestLocalType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
 
     MSIDWebviewConfiguration *configuration = [factory webViewConfigurationWithRequestParameters:parameters];

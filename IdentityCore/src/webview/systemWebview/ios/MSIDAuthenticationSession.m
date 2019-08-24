@@ -35,6 +35,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
+#import "MSIDBackgroundTaskManager.h"
 #if !MSID_EXCLUDE_WEBKIT
 #import <SafariServices/SafariServices.h>
 #import <AuthenticationServices/AuthenticationServices.h>
@@ -160,6 +161,8 @@ API_AVAILABLE(ios(13.0))
     }
 
 #if !MSID_EXCLUDE_WEBKIT
+    
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 
     NSError *error = nil;
     
@@ -186,7 +189,7 @@ API_AVAILABLE(ios(13.0))
             _completionHandler(callbackURL, authError);
         };
 
-        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
         
         if (@available(iOS 12.0, *))
         {
@@ -251,6 +254,8 @@ API_AVAILABLE(ios(13.0))
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
                           error:(NSError *)error
 {
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+    
     if (error)
     {
         [MSIDNotifications notifyWebAuthDidFailWithError:error];
@@ -259,6 +264,11 @@ API_AVAILABLE(ios(13.0))
     {
         [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
     }
+}
+
+- (void)dealloc
+{
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
 @end

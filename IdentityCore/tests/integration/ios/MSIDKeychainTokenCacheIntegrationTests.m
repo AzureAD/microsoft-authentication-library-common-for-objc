@@ -74,7 +74,7 @@
 
 - (void)testInitWithGroup_shoulReturnGroupWithTeamId
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group" error:nil];
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     NSString *expected = [NSString stringWithFormat:@"%@.my.group", teamId];
     
@@ -85,7 +85,7 @@
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     NSString *group = [NSString stringWithFormat:@"%@.my.group", teamId];
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:group];
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:group error:nil];
     
     XCTAssertEqualObjects(keychainTokenCache.keychainGroup, group);
 }
@@ -632,7 +632,7 @@
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     MSIDAccountMetadataCacheItem *item = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     
-    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] error:nil];
+    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
     
     NSError *error;
     XCTAssertTrue([keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:&error]);
@@ -644,7 +644,7 @@
     XCTAssertEqualObjects(item, cachedItem);
     
     // Resave with different item
-    XCTAssertTrue([item setCachedURL:[NSURL URLWithString:@"https://internalContoso2.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] error:&error]);
+    XCTAssertTrue([item setCachedURL:[NSURL URLWithString:@"https://internalContoso2.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:&error]);
     XCTAssertNil(error);
     
     XCTAssertTrue([keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:&error]);
@@ -662,7 +662,7 @@
     
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     MSIDAccountMetadataCacheItem *item = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
-    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] error:nil];
+    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
     [keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:nil];
     
     XCTAssertNotNil([keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:nil]);

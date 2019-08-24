@@ -26,6 +26,8 @@
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDRequestParameters.h"
 
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
@@ -53,7 +55,10 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 }
 
 #pragma mark - URL caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error
+- (BOOL)setCachedURL:(NSURL *)cachedURL
+       forRequestURL:(NSURL *)requestURL
+       instanceAware:(BOOL)instanceAware
+               error:(NSError **)error
 {
     if ([NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
         || [NSString msidIsStringNilOrBlank:requestURL.absoluteString])
@@ -63,20 +68,23 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         return NO;
     }
     
-    NSMutableDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
+    NSString *urlMapKey = [self URLMapKey:instanceAware];
+    NSMutableDictionary *urlMap = _internalMap[urlMapKey];
     if (!urlMap)
     {
         urlMap = [NSMutableDictionary new];
-        _internalMap[AccountMetadataURLMapKey] = urlMap;
+        _internalMap[urlMapKey] = urlMap;
     }
     
     urlMap[requestURL.absoluteString] = cachedURL.absoluteString;
     return YES;
 }
 
-- (NSURL *)cachedURL:(NSURL *)requestURL
+- (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
 {
-    NSDictionary *urlMap = _internalMap[AccountMetadataURLMapKey];
+    NSString *urlMapKey = [self URLMapKey:instanceAware];
+    NSDictionary *urlMap = _internalMap[urlMapKey];
+    
     return [NSURL URLWithString:urlMap[requestURL.absoluteString]];
 }
 
@@ -112,6 +120,23 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     return dictionary;
 }
 
+- (NSString *)URLMapKey:(BOOL)instanceAware
+{
+    // The subkey is in the format of @"URLMap-key1=value1&key2=value2...",
+    // where key1, key2... are the request parameters that may affect the url mapping.
+    // Currently the only parameter that affects the mapping is instance aware flag.
+    //
+    // Example of subkeys:
+    // "URLMap-" : with all possible keys being their default value repectively. Default
+    //             value of instance_aware is NO, so "URLMap-" represents "URLMap-instance_aware=NO"
+    // "URLMap-instance_aware=YES" : with instance_aware being YES.
+    //
+    // The benefit of such a design is, if we are introducing new parameters what will affect the
+    // mapping, there will be no breaking change to existing clients who don't use the new parameters.
+    
+    return instanceAware ? @"URLMap-instance_aware=YES" : @"URLMap-";
+}
+
 #pragma mark - Equal
 
 - (BOOL)isEqual:(id)object
@@ -137,6 +162,12 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     result &= ([_internalMap isEqualToDictionary:item->_internalMap]);
     
     return result;
+}
+
+- (nullable MSIDCacheKey *)generateCacheKey
+{
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:self.homeAccountId clientId:self.clientId];
+    return key;
 }
 
 #pragma mark - NSObject

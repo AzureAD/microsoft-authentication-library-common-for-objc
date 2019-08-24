@@ -23,10 +23,12 @@
 
 #import "MSIDAccountType.h"
 #import "MSIDJsonSerializable.h"
+#import "MSIDKeyGenerator.h"
+#import "MSIDDefaultAccountCacheKey.h"
 
 @class MSIDClientInfo;
 
-@interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
+@interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite, nonnull) NSString *homeAccountId;

@@ -62,7 +62,7 @@
 {
 
 #if TARGET_OS_IOS
-    _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+    _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
     // TODO: this should be replaced with a real macOS datasource instead
     _dataSource = [[MSIDTestCacheDataSource alloc] init];
@@ -127,8 +127,11 @@
     
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.applicationIdentifier = @"app.bundle.id";
+    
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:configuration
                                                      response:tokenResponse
                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
@@ -556,14 +559,16 @@
     
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.applicationIdentifier = @"app.bundle.id";
+    
     // Save token
-    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+    [_cacheAccessor saveTokensWithConfiguration:configuration
                                        response:tokenResponse
                                         factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
     
-    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
     configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" aadAuthority];
     
     NSError *error = nil;

@@ -248,6 +248,7 @@
     MSIDAADTokenResponse *response = [MSIDTestTokenResponse v1DefaultTokenResponseWithAdditionalFields:@{@"ext_expires_in": @"60"}];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration v1DefaultConfiguration];
+    configuration.applicationIdentifier = @"app.bundle.id";
     
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
     

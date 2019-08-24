@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
+
 @interface MSIDKeychainUtil : NSObject
 
 @property (readonly, nullable) NSString *teamId;

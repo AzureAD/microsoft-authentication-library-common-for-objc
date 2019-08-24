@@ -237,7 +237,7 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-decidePolicyForNavigationAction host: %@", MSID_PII_LOG_TRACKABLE(requestURL.host));
     
-    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL];
+    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL userInfo:webView ? @{@"webview" : webView} : nil];
     
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
@@ -266,7 +266,7 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
     
-    [MSIDNotifications notifyWebAuthDidFinishLoad:url];
+    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
     
     [self stopSpinner];
 }

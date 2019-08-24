@@ -24,11 +24,12 @@
 #import "MSIDCredentialType.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDJsonSerializable.h"
+#import "MSIDKeyGenerator.h"
 
 @class MSIDBaseToken;
 @class MSIDClientInfo;
 
-@interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
+@interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
 // Client id
 @property (readwrite, nonnull) NSString *clientId;
@@ -67,6 +68,9 @@
 
 // Storing for latter token deletion purpose, not serialized
 @property (readwrite, nullable) NSString *appKey;
+
+// Application identifier
+@property (readwrite, nullable) NSString *applicationIdentifier;
 
 // Last Modification info (currently used on macOS only)
 @property (readwrite, nullable) NSDate *lastModificationTime;

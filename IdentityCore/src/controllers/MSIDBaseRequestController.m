@@ -33,6 +33,7 @@
 
 @property (nonatomic, readwrite) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readwrite) id<MSIDTokenRequestProviding> tokenRequestProvider;
+@property (nonatomic, readwrite) id<MSIDRequestControlling> fallbackController;
 
 @end
 
@@ -40,6 +41,7 @@
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                              error:(NSError * _Nullable * _Nullable)error
 {
     self = [super init];
@@ -63,6 +65,7 @@
         }
 
         _tokenRequestProvider = tokenRequestProvider;
+        _fallbackController = fallbackController;
     }
 
     return self;

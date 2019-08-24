@@ -22,8 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDJsonSerializable.h"
+#import "MSIDKeyGenerator.h"
 
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying>
+@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
 @property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;
@@ -36,7 +37,10 @@
                              clientId:(NSString *)clientId;
 
 // Authority map caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL forRequestURL:(NSURL *)requestURL error:(NSError **)error;
-- (NSURL *)cachedURL:(NSURL *)requestURL;
+- (BOOL)setCachedURL:(NSURL *)cachedURL
+       forRequestURL:(NSURL *)requestURL
+       instanceAware:(BOOL)instanceAware
+               error:(NSError **)error;
+- (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware;
 
 @end

@@ -68,4 +68,24 @@
 #pragma clang diagnostic pop
 }
 
++ (void)sharedApplicationOpenURL:(NSURL *)url
+                         options:(NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options
+               completionHandler:(void (^ __nullable)(BOOL success))completionHandler
+{
+    if ([self isExecutingInAppExtension])
+    {
+        // The caller should do this check but we will double check to fail safely
+        return;
+    }
+    
+    dispatch_async( dispatch_get_main_queue(), ^{
+        
+        SEL openURLSelector = @selector(openURL:options:completionHandler:);
+        UIApplication *application = [self sharedApplication];
+        id (*safeOpenURL)(id, SEL, id, id, id) = (void *)[application methodForSelector:openURLSelector];
+        
+        safeOpenURL(application, openURLSelector, url, options, completionHandler);
+    });
+}
+
 @end
