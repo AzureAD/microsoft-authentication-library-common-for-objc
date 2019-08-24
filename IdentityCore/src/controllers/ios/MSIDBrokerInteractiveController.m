@@ -475,18 +475,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     
     MSIDRequestCompletionBlock completionBlock = [self copyAndClearCompletionBlock];
     
-    if (!shouldFallbackToLocalController)
+    if (!self.fallbackController || !shouldFallbackToLocalController)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL and not falling back to local interaction");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL and not falling back to local interaction", nil, nil, nil, nil, nil);
-        if (completionBlock) completionBlock(nil, error);
-        return;
-    }
-    
-    if (!self.fallbackController)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Didn't find local interactive controller for fallback, failing request");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker and no fallback operation is available", nil, nil, nil, nil, nil);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Should fallback to local controller %d", (int)shouldFallbackToLocalController);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL.", nil, nil, nil, nil, nil);
         if (completionBlock) completionBlock(nil, error);
         return;
     }
