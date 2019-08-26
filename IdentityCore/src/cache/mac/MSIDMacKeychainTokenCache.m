@@ -720,7 +720,7 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     else
     {
-        result &= [self removeStorageItemForKey:key context:context error:error];
+        result &= [self removeStorageItem:NO context:context error:error];
     }
     
     MSIDMacCredentialStorageItem *sharedStorageItem = [self syncStorageItem:YES serializer:self.serializer context:context error:error];
@@ -732,7 +732,7 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     else
     {
-        result &= [self removeStorageItemForKey:key context:context error:error];
+        result &= [self removeStorageItem:YES context:context error:error];
     }
     
     return result;
@@ -766,7 +766,7 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     
     //Remove keychain item if storage item is empty
-    return [self removeStorageItemForKey:key context:context error:error];
+    return [self removeStorageItem:key.isShared context:context error:error];
 }
 
 - (MSIDMacCredentialStorageItem *)syncStorageItem:(BOOL)isShared
@@ -840,12 +840,12 @@ static dispatch_queue_t s_synchronizationQueue;
     return YES;
 }
 
-- (BOOL)removeStorageItemForKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)removeStorageItem:(BOOL)isShared
+                  context:(id<MSIDRequestContext>)context
+                    error:(NSError **)error
 {
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    [query addEntriesFromDictionary:[self primaryAttributesForItem:key.isShared context:context error:error]];
+    [query addEntriesFromDictionary:[self primaryAttributesForItem:isShared context:context error:error]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
@@ -942,7 +942,7 @@ static dispatch_queue_t s_synchronizationQueue;
         return [self saveStorageItem:storageItem isShared:key.isShared serializer:self.serializer context:context error:error];
     }
 
-    return [self removeStorageItemForKey:key context:context error:error];
+    return [self removeStorageItem:key.isShared context:context error:error];
 }
 
 - (NSDictionary *)primaryAttributesForItem:(BOOL)isShared context:(id<MSIDRequestContext>)context error:(NSError **)error

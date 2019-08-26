@@ -85,7 +85,6 @@ static NSString *keyDelimiter = @"-";
                 else
                 {
                     [subDict addEntriesFromDictionary:typeDict];
-                    [self.cacheObjects setObject:subDict forKey:typeKey];
                 }
             }
             else
@@ -109,11 +108,7 @@ static NSString *keyDelimiter = @"-";
                 [typeDict removeObjectForKey:key];
                 
                 //Update the bucket only if it has one or more items.
-                if ([typeDict count])
-                {
-                    [self.cacheObjects setObject:typeDict forKey:type];
-                }
-                else
+                if (![typeDict count])
                 {
                     [self.cacheObjects removeObjectForKey:type];
                 }
@@ -121,7 +116,17 @@ static NSString *keyDelimiter = @"-";
         }
         else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to get item type from key for stored credential.");
+            NSArray *keys = [self.cacheObjects allKeys];
+            for (NSString *typeKey in keys)
+            {
+                NSMutableDictionary *subDict = [self.cacheObjects objectForKey:typeKey];
+                NSArray *filteredKeys = [self getFilteredKeys:subDict forKey:key];
+                [subDict removeObjectsForKeys:filteredKeys];
+                if (![subDict count])
+                {
+                    [self.cacheObjects removeObjectForKey:typeKey];
+                }
+            }
         }
     });
 }
@@ -289,6 +294,13 @@ static NSString *keyDelimiter = @"-";
     }
     
     return storedItems;
+}
+
+- (NSArray<id<MSIDJsonSerializable>> *)getFilteredKeys:(NSMutableDictionary *)itemDict forKey:(MSIDCacheKey *)cacheKey
+{
+    NSArray *storedKeys = [itemDict allKeys];
+    NSArray *filteredKeys = [storedKeys filteredArrayUsingPredicate:[self createPredicateForKey:cacheKey]];
+    return filteredKeys;
 }
 
 - (NSString *)getItemKey:(MSIDCacheKey *)key
