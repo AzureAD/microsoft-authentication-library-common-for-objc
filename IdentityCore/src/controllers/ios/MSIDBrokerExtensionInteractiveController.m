@@ -21,24 +21,108 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerExtensionInteractiveController.h"
 #import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDBrokerExtensionInteractiveController.h"
+#import "MSIDInteractiveRequestParameters.h"
+
+@interface MSIDBrokerExtensionInteractiveController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
+
+@property (nonatomic) ASAuthorizationController *authorizationController;
+
+@end
 
 @implementation MSIDBrokerExtensionInteractiveController
 
 + (BOOL)canPerformAuthorization
 {
-    // TODO:
-    NSURL *url = [NSURL URLWithString:@"https://ios-sso-test.azurewebsites.net"];
+    return [[self sharedProvider] canPerformAuthorization];
+}
+
+- (void)openBrokerWithRequestURL:(NSURL *)requestURL
+{
+    ASAuthorizationSingleSignOnProvider *ssoProvider = [self.class sharedProvider];
+    ASAuthorizationSingleSignOnRequest *request = [ssoProvider createRequest];
+    request.requestedOperation = @"interactive_login";
     
-    if (@available(iOS 13.0, *))
-    {
-        __auto_type ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
-        
-        return [ssoProvider canPerformAuthorization];
-    }
+    self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
+    self.authorizationController.delegate = self;
+    self.authorizationController.presentationContextProvider = self;
     
-    return NO;
+    [self.authorizationController performRequests];
+    
+//    [super openBrokerWithRequestURL:requestURL];
+    
+    
+//    __auto_type ssoProvider = [self.class ssoProvider];
+//
+//    let request: ASAuthorizationSingleSignOnRequest = ssoProvider.createRequest()
+//    request.requestedOperation = ASAuthorization.OpenIDOperation(operation)
+//    request.requestedScopes = [.fullName, .email]
+//
+//    self.authorizationController = ASAuthorizationController(authorizationRequests: [request])
+//    authorizationController?.delegate = self
+//    authorizationController?.presentationContextProvider = self
+//    authorizationController?.performRequests()
+    
+//    NSDictionary *options = nil;
+//
+//    if (self.interactiveParameters.brokerInvocationOptions.isUniversalLink)
+//    {
+//        // Option for openURL:options:CompletionHandler: only open URL if it is a valid universal link with an application configured to open it
+//        // If there is no application configured, or the user disabled using it to open the link, completion handler called with NO
+//        if (@available(iOS 10.0, *))
+//        {
+//            options = @{UIApplicationOpenURLOptionUniversalLinksOnly : @YES};
+//        }
+//    }
+//
+//    [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL
+//                                           options:options
+//                                 completionHandler:^(BOOL success) {
+//
+//                                     if (!success)
+//                                     {
+//                                         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Falling back to local controller");
+//
+//                                         [self fallbackToLocalController];
+//                                     }
+//
+//    }];
+}
+
+#pragma mark - ASAuthorizationControllerDelegate
+
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+{
+    
+}
+
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
+{
+    
+}
+
+#pragma mark - ASAuthorizationControllerPresentationContextProviding
+
+- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller
+{
+    return self.interactiveParameters.parentViewController.view.window;
+}
+
+#pragma mark - Private
+
++ (ASAuthorizationSingleSignOnProvider *)sharedProvider
+{
+    static dispatch_once_t once;
+    static ASAuthorizationSingleSignOnProvider *ssoProvider;
+    
+    dispatch_once(&once, ^{
+        NSURL *url = [NSURL URLWithString:@"https://ios-sso-test.azurewebsites.net"];
+    
+        ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
+    });
+    
+    return ssoProvider;
 }
 
 @end

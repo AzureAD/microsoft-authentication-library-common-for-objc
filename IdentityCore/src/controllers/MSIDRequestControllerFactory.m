@@ -28,6 +28,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerInteractiveController.h"
+#import "MSIDBrokerExtensionInteractiveController.h"
 #endif
 #import "MSIDAuthority.h"
 
@@ -80,6 +81,17 @@
 #if TARGET_OS_IPHONE
     if ([self canUseBrokerOnDeviceWithParameters:parameters])
     {
+        if (@available(iOS 13.0, *))
+        {
+            if ([MSIDBrokerExtensionInteractiveController canPerformAuthorization])
+            {
+                return [[MSIDBrokerExtensionInteractiveController alloc] initWithRequestParameters:parameters
+                                                                              tokenRequestProvider:tokenRequestProvider
+                                                                                fallbackController:localController
+                                                                                             error:error];
+            }
+        }
+        
         BOOL brokerInstalled = [self brokerInstalledWithParameters:parameters];
         
         if (brokerInstalled)
