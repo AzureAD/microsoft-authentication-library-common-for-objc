@@ -24,6 +24,12 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDBrokerExtensionInteractiveController.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDDefaultBrokerResponseHandler.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDNotifications.h"
+#import "MSIDBrokerInteractiveController.h"
+#import "MSIDBrokerInteractiveController+Internal.h"
 
 @interface MSIDBrokerExtensionInteractiveController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
 
@@ -43,63 +49,67 @@
     ASAuthorizationSingleSignOnProvider *ssoProvider = [self.class sharedProvider];
     ASAuthorizationSingleSignOnRequest *request = [ssoProvider createRequest];
     request.requestedOperation = @"interactive_login";
+    NSURLQueryItem *queryItem = [[NSURLQueryItem alloc] initWithName:@"broker_url" value:requestURL.absoluteString];
+    request.authorizationOptions = @[queryItem];
     
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
     self.authorizationController.delegate = self;
     self.authorizationController.presentationContextProvider = self;
     
     [self.authorizationController performRequests];
-    
-//    [super openBrokerWithRequestURL:requestURL];
-    
-    
-//    __auto_type ssoProvider = [self.class ssoProvider];
-//
-//    let request: ASAuthorizationSingleSignOnRequest = ssoProvider.createRequest()
-//    request.requestedOperation = ASAuthorization.OpenIDOperation(operation)
-//    request.requestedScopes = [.fullName, .email]
-//
-//    self.authorizationController = ASAuthorizationController(authorizationRequests: [request])
-//    authorizationController?.delegate = self
-//    authorizationController?.presentationContextProvider = self
-//    authorizationController?.performRequests()
-    
-//    NSDictionary *options = nil;
-//
-//    if (self.interactiveParameters.brokerInvocationOptions.isUniversalLink)
-//    {
-//        // Option for openURL:options:CompletionHandler: only open URL if it is a valid universal link with an application configured to open it
-//        // If there is no application configured, or the user disabled using it to open the link, completion handler called with NO
-//        if (@available(iOS 10.0, *))
-//        {
-//            options = @{UIApplicationOpenURLOptionUniversalLinksOnly : @YES};
-//        }
-//    }
-//
-//    [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL
-//                                           options:options
-//                                 completionHandler:^(BOOL success) {
-//
-//                                     if (!success)
-//                                     {
-//                                         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Falling back to local controller");
-//
-//                                         [self fallbackToLocalController];
-//                                     }
-//
-//    }];
 }
 
 #pragma mark - ASAuthorizationControllerDelegate
 
 - (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
 {
+    // TODO: hack
+    ASAuthorizationSingleSignOnCredential *ssoCredential = (ASAuthorizationSingleSignOnCredential *)authorization.credential;
     
+    NSDictionary *response = ssoCredential.authenticatedResponse.allHeaderFields;
+    
+    NSString *urlString = response[@"response"];
+    NSURL *resultURL = [NSURL URLWithString:urlString];
+    
+    MSIDDefaultBrokerResponseHandler *responseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+    tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    
+    NSError *resultError = nil;
+    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL sourceApplication:@"" error:&resultError];
+
+    [MSIDNotifications notifyWebAuthDidReceiveResponseFromBroker:result];
+
+    if ([self.class currentBrokerController])
+    {
+        MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
+        [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
+    }
+
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 }
 
 - (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
 {
-    
+    if ([error.domain isEqualToString:ASAuthorizationErrorDomain])
+    {
+        if (error.code == ASAuthorizationErrorCanceled)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"User cancelled broker SSO Extension.");
+            
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled broker SSO Extension.", nil, nil, nil, self.requestParameters.correlationId, nil);
+            
+            if ([self.class currentBrokerController])
+            {
+                MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
+                [currentBrokerController completeAcquireTokenWithResult:nil error:error];
+            }
+            
+            return;
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker SSO Extension with error: %@. Falling back to local controller", error);
+        [self fallbackToLocalController];
+    }
 }
 
 #pragma mark - ASAuthorizationControllerPresentationContextProviding

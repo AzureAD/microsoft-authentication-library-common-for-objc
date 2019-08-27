@@ -85,10 +85,10 @@
         {
             if ([MSIDBrokerExtensionInteractiveController canPerformAuthorization])
             {
-                return [[MSIDBrokerExtensionInteractiveController alloc] initWithRequestParameters:parameters
-                                                                              tokenRequestProvider:tokenRequestProvider
-                                                                                fallbackController:localController
-                                                                                             error:error];
+                return [[MSIDBrokerExtensionInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                         tokenRequestProvider:tokenRequestProvider
+                                                                                           fallbackController:localController
+                                                                                                        error:error];
             }
         }
         

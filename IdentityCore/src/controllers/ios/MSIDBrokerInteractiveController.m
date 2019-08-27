@@ -26,7 +26,6 @@
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDBrokerKeyProvider.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDNotifications.h"
 #import "MSIDBrokerResponseHandler.h"
@@ -41,15 +40,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDBrokerInvocationOptions.h"
-
-@interface MSIDBrokerInteractiveController()
-
-@property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveParameters;
-@property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
-@property (nonatomic, readonly) NSURL *brokerInstallLink;
-@property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
-
-@end
+#import "MSIDBrokerInteractiveController+Internal.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
 
