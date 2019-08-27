@@ -305,6 +305,12 @@
 		23DADC1120B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DADC0F20B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.m */; };
 		23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
 		23F32F261FFDAF1A00B2905E /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
+		23F9FD4622EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9FD4422EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h */; };
+		23F9FD4722EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9FD4522EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m */; };
+		23F9FD4822EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9FD4522EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m */; };
+		23F9FD4B22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9FD4922EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.h */; };
+		23F9FD4C22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9FD4A22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m */; };
+		23F9FD4D22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23F9FD4A22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m */; };
 		23FB5C20225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FB5C1F225516FA002BF1EB /* MSIDClaimsRequestTests.m */; };
 		23FB5C21225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FB5C1F225516FA002BF1EB /* MSIDClaimsRequestTests.m */; };
 		23FB5C2A225517AA002BF1EB /* MSIDClaimsRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23FB5C24225517AA002BF1EB /* MSIDClaimsRequest.m */; };
@@ -1449,6 +1455,10 @@
 		23DADC0F20B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAadAuthorityCacheRecord.m; sourceTree = "<group>"; };
 		23F32F151FF72CE400B2905E /* MSIDMacTokenCacheIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCacheIntegrationTests.m; sourceTree = "<group>"; };
 		23F32F221FFDAB9D00B2905E /* MSIDTokenCacheDataSourceIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenCacheDataSourceIntegrationTests.m; sourceTree = "<group>"; };
+		23F9FD4422EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSKeyedUnarchiver+MSIDExtensions.h"; sourceTree = "<group>"; };
+		23F9FD4522EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSKeyedUnarchiver+MSIDExtensions.m"; sourceTree = "<group>"; };
+		23F9FD4922EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSKeyedArchiver+MSIDExtensions.h"; sourceTree = "<group>"; };
+		23F9FD4A22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSKeyedArchiver+MSIDExtensions.m"; sourceTree = "<group>"; };
 		23FB5C1F225516FA002BF1EB /* MSIDClaimsRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClaimsRequestTests.m; sourceTree = "<group>"; };
 		23FB5C24225517AA002BF1EB /* MSIDClaimsRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDClaimsRequest.m; sourceTree = "<group>"; };
 		23FB5C25225517AA002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDIndividualClaimRequestAdditionalInfo.h; sourceTree = "<group>"; };
@@ -3464,6 +3474,10 @@
 				1E5B2A852294F5CA003C579D /* MSIDKeychainUtil+Internal.h */,
 				B27CCDCF229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.h */,
 				B27CCDD0229E205B00CAD565 /* NSJSONSerialization+MSIDExtensions.m */,
+				23F9FD4422EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h */,
+				23F9FD4522EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m */,
+				23F9FD4922EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.h */,
+				23F9FD4A22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -3959,6 +3973,7 @@
 				238E19C02086FC38004DF483 /* MSIDHttpResponseSerializer.h in Headers */,
 				238E19C32086FC38004DF483 /* MSIDResponseSerialization.h in Headers */,
 				B28D90A0218FBBA200E230D6 /* MSIDTokenResponseValidator.h in Headers */,
+				23F9FD4B22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.h in Headers */,
 				B2C7B3B3213C681F009FFCC1 /* MSIDErrorConverter.h in Headers */,
 				2338ECD6208A7B3200809B9E /* MSIDTestContext.h in Headers */,
 				B2C7B3B7213C6839009FFCC1 /* MSIDErrorConverting.h in Headers */,
@@ -3989,6 +4004,7 @@
 				B2EF143A1FF2F225005DC1C0 /* MSIDAADV2TokenResponse.h in Headers */,
 				9641B5011FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h in Headers */,
 				233E96F122652B8B007FCE2A /* MSIDDefaultDispatcher+Internal.h in Headers */,
+				23F9FD4622EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h in Headers */,
 				B227035E22A367A000030ADC /* MSIDMaskedHashableLogParameter.h in Headers */,
 				235480D420DDF88200246F72 /* MSIDAADAuthority.h in Headers */,
 				238E19CC2086FC87004DF483 /* MSIDRequestSerialization.h in Headers */,
@@ -4705,6 +4721,7 @@
 				2338ECCC208A675D00809B9E /* MSIDAADRequestErrorHandler.m in Sources */,
 				96F94A2A20816B870034676C /* MSIDWebAADAuthResponse.m in Sources */,
 				B28D90AC218FD1F800E230D6 /* MSIDDefaultTokenResponseValidator.m in Sources */,
+				23F9FD4D22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m in Sources */,
 				B2C7089421991CED00D917B8 /* MSIDAADV1BrokerResponse.m in Sources */,
 				B2AF1D3A218BCF140080C1A0 /* MSIDRequestControllerFactory.m in Sources */,
 				B28BDAC1221F7F230055FFE6 /* MSIDCBAWebAADAuthResponse.m in Sources */,
@@ -4851,6 +4868,7 @@
 				B28BDA86217E9676003E5670 /* MSIDB2CIdTokenClaims.m in Sources */,
 				B2B1D57A204369D600DD81F0 /* MSIDAccountType.m in Sources */,
 				B210F4571FDDFA7B005A8F76 /* MSIDBrokerResponse.m in Sources */,
+				23F9FD4822EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m in Sources */,
 				23B39AC8209BF9F2000AA905 /* MSIDOpenIdConfigurationInfoRequest.m in Sources */,
 				23D7447A2097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m in Sources */,
 				23642AB8218805B000F97009 /* MSIDIntuneMAMResourcesCache.m in Sources */,
@@ -5125,6 +5143,7 @@
 				B2C7086E2198C41300D917B8 /* MSIDDefaultBrokerResponseHandler.m in Sources */,
 				239DF9AE20DED6F7002D428B /* MSIDConstants.m in Sources */,
 				233E96F722652D3A007FCE2A /* MSIDAggregatedDispatcher.m in Sources */,
+				23F9FD4C22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m in Sources */,
 				B20657AA1FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
 				B2C708892198DE3900D917B8 /* MSIDBrokerCryptoProvider.m in Sources */,
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
@@ -5273,6 +5292,7 @@
 				B2CDB57E1FE33EC5003A4B5C /* MSIDIdTokenClaims.m in Sources */,
 				B2000C7920EC47860092790A /* NSData+JWT.m in Sources */,
 				B27CCDD2229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */,
+				23F9FD4722EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.m in Sources */,
 				B2C708A6219A593C00D917B8 /* MSIDLegacyTokenRequestProvider.m in Sources */,
 				B2C708AB219A5A3D00D917B8 /* MSIDLegacySilentTokenRequest.m in Sources */,
 				96F21B3220A65896002B87C3 /* MSIDWebviewAuthorization.m in Sources */,

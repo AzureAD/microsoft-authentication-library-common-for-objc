@@ -44,6 +44,9 @@
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(__unused WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(UIViewController *)parentViewController
+#endif
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
@@ -52,8 +55,11 @@
         // This is the NTLM challenge: use the identity to authenticate:
         
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
-        
+#if TARGET_OS_IPHONE
+        [MSIDNTLMUIPrompt presentPromptInParentController:parentViewController completionHandler:^(NSString *username, NSString *password, BOOL cancel)
+#else
         [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password, BOOL cancel)
+#endif
          {
              if (cancel)
              {

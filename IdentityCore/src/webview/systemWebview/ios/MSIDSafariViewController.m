@@ -68,7 +68,18 @@
         _startURL = url;
         _context = context;
         
-        _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
+        if (@available(iOS 11.0, *))
+        {
+            __auto_type config = [SFSafariViewControllerConfiguration new];
+            _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
+        }
+#if !TARGET_OS_UIKITFORMAC
+        else
+        {
+            _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
+        }
+#endif
+        
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
 
@@ -93,9 +104,8 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *viewController = [UIApplication msidCurrentViewController:_parentController];
         
-        UIViewController *viewController = _parentController ? _parentController :
-        [UIApplication msidCurrentViewController];
         if (!viewController)
         {
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);

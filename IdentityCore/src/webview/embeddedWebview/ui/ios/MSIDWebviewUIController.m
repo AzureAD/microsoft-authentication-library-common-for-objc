@@ -30,10 +30,12 @@
 
 static WKWebViewConfiguration *s_webConfig;
 
-@interface MSIDWebviewUIController ( )
+@interface MSIDWebviewUIController ()
 {
     UIActivityIndicatorView *_loadingIndicator;
 }
+
+@property (nonatomic) BOOL presentInParentController;
 
 @end
 
@@ -58,9 +60,17 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+}
+
+- (void)setWebView:(WKWebView *)webView
+{
+    _webView = webView;
+    
+    // We rely on developer to show the web view.
+    self.presentInParentController = NO;
 }
 
 - (BOOL)loadView:(NSError **)error;
@@ -104,11 +114,17 @@ static WKWebViewConfiguration *s_webConfig;
     [rootView addSubview:_webView];
     [rootView addSubview:_loadingIndicator];
     
+    // WKWebView was created by MSAL, present it in parent controller.
+    // Otherwise we rely on developer to show the web view.
+    self.presentInParentController = YES;
+    
     return YES;
 }
 
 - (void)presentView
 {
+    if (!self.presentInParentController) return;
+    
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
     
@@ -123,7 +139,7 @@ static WKWebViewConfiguration *s_webConfig;
     
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
-    if (_parentController)
+    if (_parentController && self.presentInParentController)
     {
         [_parentController dismissViewControllerAnimated:YES completion:completion];
     }
@@ -149,14 +165,13 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (BOOL)obtainParentController
 {
-    if (_parentController)
-    {
-        return YES;
-    }
+    if (self.parentController) return YES;
     
-    _parentController = [UIApplication msidCurrentViewController];
+    if (@available(iOS 13.0, *)) return NO;
     
-    return (_parentController != nil);
+    self.parentController = [UIApplication msidCurrentViewController:self.parentController];
+    
+    return self.parentController != nil;
 }
 
 - (void)setupCancelButton
@@ -169,7 +184,18 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
 {
-    UIActivityIndicatorView *loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    UIActivityIndicatorView *loadingIndicator;
+    if (@available(iOS 13.0, *))
+    {
+        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    }
+#if !TARGET_OS_UIKITFORMAC
+    else
+    {
+        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    }
+#endif
+
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;

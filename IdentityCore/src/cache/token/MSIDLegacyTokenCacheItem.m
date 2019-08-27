@@ -124,7 +124,8 @@
     self.cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
 
-    NSMutableDictionary *additionalServer = [[coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"] mutableCopy];
+    // We support all bplist types in "additionalServer" property.
+    NSMutableDictionary *additionalServer = [[coder decodePropertyListForKey:@"additionalServer"] mutableCopy];
     self.extendedExpiresOn = additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
     [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
     self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];

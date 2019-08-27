@@ -27,6 +27,8 @@
 #import "MSIDCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDUserInformation.h"
+#import "NSKeyedArchiver+MSIDExtensions.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
@@ -90,17 +92,13 @@ return NO; \
 
         @try
         {
-            NSMutableData *data = [NSMutableData data];
-
-            NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-            // Maintain backward compatibility with ADAL.
-            [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
-            [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
-            [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
-            [archiver encodeObject:wrapper forKey:NSKeyedArchiveRootObjectKey];
-            [archiver finishEncoding];
-
-            result = data;
+            result = [NSKeyedArchiver msidEncodeObject:wrapper usingBlock:^(NSKeyedArchiver *archiver)
+            {
+                // Maintain backward compatibility with ADAL.
+                [archiver setClassName:@"ADTokenCacheKey" forClass:MSIDLegacyTokenCacheKey.class];
+                [archiver setClassName:@"ADTokenCacheStoreItem" forClass:MSIDLegacyTokenCacheItem.class];
+                [archiver setClassName:@"ADUserInformation" forClass:MSIDUserInformation.class];
+            }];
         }
         @catch (id exception)
         {
@@ -119,17 +117,20 @@ return NO; \
     
     @try
     {
-        NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+        NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:data error:error];
+        
         // Maintain backward compatibility with ADAL.
         [unarchiver setClass:MSIDLegacyTokenCacheKey.class forClassName:@"ADTokenCacheKey"];
         [unarchiver setClass:MSIDLegacyTokenCacheItem.class forClassName:@"ADTokenCacheStoreItem"];
         [unarchiver setClass:MSIDUserInformation.class forClassName:@"ADUserInformation"];
-        cache = [unarchiver decodeObjectOfClass:NSDictionary.class forKey:NSKeyedArchiveRootObjectKey];
+        __auto_type allowedClasses = [NSSet setWithObjects:NSDictionary.class, MSIDLegacyTokenCacheKey.class, MSIDLegacyTokenCacheItem.class, MSIDUserInformation.class, nil];
+        cache = [unarchiver decodeObjectOfClasses:allowedClasses forKey:NSKeyedArchiveRootObjectKey];
         [unarchiver finishDecoding];
     }
     @catch (id exception)
     {
-        if (error) {
+        if (error)
+        {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil);
         }
     }
