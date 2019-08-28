@@ -1127,7 +1127,7 @@ static dispatch_queue_t s_synchronizationQueue;
     }
     
     if (![self accessSetACLTrustedApplications:access
-                           aclAuthorizationTag:kSecACLAuthorizationChangeACL
+                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
                            trustedApplications:trustedApplications
                                        context:nil
                                          error:error])
