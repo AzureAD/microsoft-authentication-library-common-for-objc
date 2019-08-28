@@ -708,31 +708,20 @@ static dispatch_queue_t s_synchronizationQueue;
 - (BOOL)removeAllMatchingTokens:(MSIDCacheKey *)key
                         context:(id<MSIDRequestContext>)context
                      serializer:(id<MSIDCacheItemSerializing>)serializer
+                       isShared:(BOOL)isShared
                           error:(NSError * _Nullable * _Nullable)error
 {
-    MSIDMacCredentialStorageItem *appStorageItem = [self syncStorageItem:NO serializer:self.serializer context:context error:error];
     BOOL result = YES;
-    [appStorageItem removeStoredItemForKey:key];
+    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:isShared serializer:self.serializer context:context error:error];
+    [storageItem removeStoredItemForKey:key];
     
-    if ([appStorageItem count])
+    if ([storageItem count])
     {
-        result &= [self saveStorageItem:appStorageItem isShared:NO serializer:self.serializer context:context error:error];
+        result &= [self saveStorageItem:storageItem isShared:isShared serializer:self.serializer context:context error:error];
     }
     else
     {
-        result &= [self removeStorageItem:NO context:context error:error];
-    }
-    
-    MSIDMacCredentialStorageItem *sharedStorageItem = [self syncStorageItem:YES serializer:self.serializer context:context error:error];
-    [sharedStorageItem removeStoredItemForKey:key];
-    
-    if ([sharedStorageItem count])
-    {
-        result &= [self saveStorageItem:sharedStorageItem isShared:YES serializer:self.serializer context:context error:error];
-    }
-    else
-    {
-        result &= [self removeStorageItem:YES context:context error:error];
+        result &= [self removeStorageItem:isShared context:context error:error];
     }
     
     return result;
@@ -754,19 +743,16 @@ static dispatch_queue_t s_synchronizationQueue;
     MSIDDefaultCredentialCacheQuery *query = (MSIDDefaultCredentialCacheQuery *)key;
     if ([query isKindOfClass:[MSIDDefaultCredentialCacheQuery class]] && query.matchAnyCredentialType)
     {
-        return [self removeAllMatchingTokens:key context:context serializer:self.serializer error:error];
+        /*
+         For this particular case, we need to remove tokens from both shared and non-shared blob
+         */
+        BOOL result = YES;
+        result &= [self removeAllMatchingTokens:key context:context serializer:self.serializer isShared:YES error:error];
+        result &= [self removeAllMatchingTokens:key context:context serializer:self.serializer isShared:NO error:error];
+        return result;
     }
     
-    MSIDMacCredentialStorageItem *storageItem = [self syncStorageItem:key.isShared serializer:self.serializer context:context error:error];
-    [storageItem removeStoredItemForKey:key];
-    
-    if ([storageItem count])
-    {
-        return [self saveStorageItem:storageItem isShared:key.isShared serializer:self.serializer context:context error:error];
-    }
-    
-    //Remove keychain item if storage item is empty
-    return [self removeStorageItem:key.isShared context:context error:error];
+    return [self removeAllMatchingTokens:key context:context serializer:self.serializer isShared:key.isShared error:error];
 }
 
 - (MSIDMacCredentialStorageItem *)syncStorageItem:(BOOL)isShared
@@ -777,7 +763,7 @@ static dispatch_queue_t s_synchronizationQueue;
     /*
      Sync in memory cache with persistent cache at the time of look up.
      */
-    MSIDMacCredentialStorageItem *savedStorageItem = [self storageItem:isShared serializer:serializer context:context error:error];
+    MSIDMacCredentialStorageItem *savedStorageItem = [self queryStorageItem:isShared serializer:serializer context:context error:error];
     MSIDMacCredentialStorageItem *storageItem = isShared ? self.sharedStorageItem : self.appStorageItem;
     
     if (savedStorageItem)
@@ -867,10 +853,10 @@ static dispatch_queue_t s_synchronizationQueue;
     return YES;
 }
 
-- (MSIDMacCredentialStorageItem *)storageItem:(BOOL)isShared
-                                   serializer:(id<MSIDCacheItemSerializing>)serializer
-                                      context:(id<MSIDRequestContext>)context
-                                        error:(NSError **)error
+- (MSIDMacCredentialStorageItem *)queryStorageItem:(BOOL)isShared
+                                        serializer:(id<MSIDCacheItemSerializing>)serializer
+                                           context:(id<MSIDRequestContext>)context
+                                             error:(NSError **)error
 {
     MSID_TRACE;
     MSIDMacCredentialStorageItem *storageItem = nil;
