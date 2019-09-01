@@ -87,11 +87,6 @@
         authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
     }
-    else if (!challengeData)
-    {
-        // Error should have been logged before this where there is more information on why the challenge data was bad
-        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
-    }
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
 }
