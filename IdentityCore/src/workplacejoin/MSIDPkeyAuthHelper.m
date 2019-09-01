@@ -65,8 +65,12 @@
             NSString *issuerOU = [MSIDPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
+<<<<<<< HEAD
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
                 
+=======
+                MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
+>>>>>>> origin/release/1.0.13
                 info = nil;
             }
         }
@@ -77,17 +81,34 @@
 
             if (![expectedThumbprint isEqualToString:thumbprint])
             {
+<<<<<<< HEAD
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
                 
+=======
+                MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
+>>>>>>> origin/release/1.0.13
                 info = nil;
             }
         }
         
+<<<<<<< HEAD
         NSURLComponents *authorizationServerComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
         authorizationServerComponents.query = nil; // Strip out query parameters.
         
         authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
+=======
+        if (info)
+        {
+            authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServer nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+            MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
+        }
+>>>>>>> origin/release/1.0.13
+    }
+    else if (!challengeData)
+    {
+        // Error should have been logged before this where there is more information on why the challenge data was bad
+        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
     }
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
