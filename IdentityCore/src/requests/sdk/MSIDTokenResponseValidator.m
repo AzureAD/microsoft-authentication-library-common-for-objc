@@ -253,7 +253,7 @@
     {
         [accountMetadataCache updateAuthorityURL:resultingAuthority.url
                                    forRequestURL:parameters.authority.url
-                                   homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
+                                   homeAccountId:tokenResult.account.accountIdentifier.homeAccountId
                                         clientId:parameters.clientId
                                    instanceAware:parameters.instanceAware
                                          context:parameters

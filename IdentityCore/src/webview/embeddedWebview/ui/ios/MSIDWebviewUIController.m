@@ -35,6 +35,8 @@ static WKWebViewConfiguration *s_webConfig;
     UIActivityIndicatorView *_loadingIndicator;
 }
 
+@property (nonatomic) BOOL presentInParentController;
+
 @end
 
 @implementation MSIDWebviewUIController
@@ -63,7 +65,7 @@ static WKWebViewConfiguration *s_webConfig;
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
-- (BOOL)loadView:(NSError **)error;
+- (BOOL)loadView:(NSError **)error
 {
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */
@@ -71,6 +73,7 @@ static WKWebViewConfiguration *s_webConfig;
     
     if (_webView)
     {
+        self.presentInParentController = NO;
         return YES;
     }
     
@@ -104,11 +107,17 @@ static WKWebViewConfiguration *s_webConfig;
     [rootView addSubview:_webView];
     [rootView addSubview:_loadingIndicator];
     
+    // WKWebView was created by MSAL, present it in parent controller.
+    // Otherwise we rely on developer to show the web view.
+    self.presentInParentController = YES;
+    
     return YES;
 }
 
 - (void)presentView
 {
+    if (!self.presentInParentController) return;
+    
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
     
@@ -123,7 +132,7 @@ static WKWebViewConfiguration *s_webConfig;
     
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
-    if (_parentController)
+    if (_parentController && self.presentInParentController)
     {
         [_parentController dismissViewControllerAnimated:YES completion:completion];
     }
