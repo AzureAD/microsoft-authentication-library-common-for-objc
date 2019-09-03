@@ -442,7 +442,9 @@
     else
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) No accounts found in default accessor.");
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+        NSError *wipeError = nil;
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:&wipeError] context:context];
+        if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
 
     for (id<MSIDCacheAccessor> accessor in _otherAccessors)
@@ -489,7 +491,9 @@
     if (!accountCacheItems)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"(Default accessor) Failed to retrieve account with authority %@", authority.url);
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+        NSError *wipeError = nil;
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:&wipeError] context:context];
+        if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
         return nil;
     }
 
@@ -839,7 +843,9 @@
     
     if (cacheQuery.credentialType == MSIDRefreshTokenType)
     {
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:error] context:context];
+        NSError *wipeError = nil;
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_accountCredentialCache wipeInfoWithContext:context error:&wipeError] context:context];
+        if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {
