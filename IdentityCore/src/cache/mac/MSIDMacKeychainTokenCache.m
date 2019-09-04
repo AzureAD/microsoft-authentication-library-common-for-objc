@@ -386,6 +386,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
     self = [super init];
     if (self)
     {
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         if (@available(macOS 10.15, *)) {
             
             if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmpty])
@@ -399,6 +400,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
                 return nil;
             }
         }
+#endif
         
         self.appStorageItem = [MSIDMacCredentialStorageItem new];
         self.sharedStorageItem = [MSIDMacCredentialStorageItem new];
@@ -875,6 +877,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
 {
     MSID_TRACE;
     
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
         if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmpty])
         {
@@ -882,6 +885,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
             return nil;
         }
     }
+#endif
     
     MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
@@ -933,6 +937,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
     }
     
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
         
         // Performance optimization on 10.15. If we've read shared item once and we didn't find it, or it was empty, save a flag into user defaults such as we stop looking into the login keychain altogether
@@ -942,6 +947,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmpty];
         }
     }
+#endif
     
     return storageItem;
 }
