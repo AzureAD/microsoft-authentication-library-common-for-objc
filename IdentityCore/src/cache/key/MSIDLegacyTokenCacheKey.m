@@ -55,9 +55,16 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     NSString *authorityString = authority.absoluteString.msidTrimmedString.lowercaseString;
     resource = resource.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
+    
+    NSString *adalCachePrefix = s_adalLibraryString;
+    
+    if (![NSString msidIsStringNilOrBlank:self.applicationIdentifier])
+    {
+        adalCachePrefix = [adalCachePrefix stringByAppendingFormat:@"-%@", self.applicationIdentifier.msidBase64UrlEncode];
+    }
 
     NSString *service = [NSString stringWithFormat:s_adalServiceFormat,
-                         s_adalLibraryString,
+                         adalCachePrefix,
                          authorityString.msidBase64UrlEncode,
                          [self getAttributeName:resource],
                          clientId.msidBase64UrlEncode];

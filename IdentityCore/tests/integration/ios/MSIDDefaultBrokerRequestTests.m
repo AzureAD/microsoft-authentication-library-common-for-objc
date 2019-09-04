@@ -28,6 +28,7 @@
 #import "NSURL+MSIDTestUtil.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDDefaultBrokerRequestTests : XCTestCase
 
@@ -40,7 +41,7 @@
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -59,13 +60,18 @@
                                       @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
     
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
@@ -75,7 +81,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -87,7 +94,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user" homeAccountId:@"myHomeAccountId"];
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -107,13 +114,18 @@
                                       //if account set, both of the following should be set
                                       @"home_account_id" : @"myHomeAccountId",
                                       @"username" : @"user",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
     
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
@@ -123,7 +135,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -135,7 +148,7 @@
     parameters.loginHint = @"myuser";
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -154,14 +167,18 @@
                                       @"msg_protocol_ver" : @"3",
                                       //login hint should be set
                                       @"login_hint" : @"myuser",
-                                      
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
     
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
@@ -171,7 +188,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -183,7 +201,7 @@
     parameters.extraScopesToConsent = @"extraScope1 extraScope2";
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -202,13 +220,18 @@
                                       @"msg_protocol_ver" : @"3",
                                       //extra scopes should be set
                                       @"extra_consent_scopes" : @"extraScope1 extraScope2",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
     
     NSURL *actualURL = request.brokerRequestURL;
     
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidWWWFormURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
     
     NSDictionary *expectedResumeDictionary = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id" : @"my_client_id",
@@ -218,7 +241,8 @@
                                                //V2 broker protocol specific
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
-                                               @"sdk_name" : @"msal-objc"
+                                               @"sdk_name" : @"msal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -235,7 +259,9 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    parameters.brokerInvocationOptions = brokerOptions;
     parameters.promptType = MSIDPromptTypeSelectAccount;
     parameters.oidcScope = @"oidcscope1 oidcscope2";
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};

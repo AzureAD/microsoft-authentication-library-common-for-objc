@@ -168,6 +168,8 @@
                                                                                            legacyUserId:accessToken.accountIdentifier.displayableId
                                                                                                 context:nil
                                                                                                   error:nil];
+    accessToken.applicationIdentifier = configuration.applicationIdentifier;
+
     accessToken.extendedExpiresOn = response.extendedExpiresOnDate;
 
     return YES;

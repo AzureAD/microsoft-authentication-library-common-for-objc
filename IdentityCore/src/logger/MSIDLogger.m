@@ -51,6 +51,7 @@ static long s_maxQueueSize = 1000;
     // will most likely be too noisy for most usage.
     _level = MSIDLogLevelInfo;
     _PiiLoggingEnabled = NO;
+    _SourceLineLoggingEnabled = NO;
     
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlogger-%@", [NSUUID UUID].UUIDString];
     _loggerQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
@@ -101,6 +102,9 @@ static NSDateFormatter *s_dateFormatter = nil;
              context:(id<MSIDRequestContext>)context
        correlationId:(NSUUID *)correlationId
          containsPII:(BOOL)containsPII
+            filename:(NSString *)filename
+          lineNumber:(NSUInteger)lineNumber
+            function:(NSString *)function
               format:(NSString *)format, ...
 {
     if (!format) return;
@@ -148,6 +152,12 @@ static NSDateFormatter *s_dateFormatter = nil;
             NSString *sdkName = [MSIDVersion sdkName];
             NSString *sdkVersion = [MSIDVersion sdkVersion];
             
+            NSString *sourceInfo = @"";
+            if (self.SourceLineLoggingEnabled && filename.length)
+            {
+                sourceInfo = [NSString stringWithFormat:@" %@:%lu: %@", filename.lastPathComponent, (unsigned long)lineNumber, function];
+            }
+            
             __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
             if (!threadName) {
                 threadName = [NSThread currentThread].name ?: @"";
@@ -159,14 +169,14 @@ static NSDateFormatter *s_dateFormatter = nil;
             {
                 NSString *logLevelStr = [self stringForLogLevel:_level];
                 
-                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@: %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, logLevelStr, message];
+                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@:%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, logLevelStr, sourceInfo, message];
                 
                 NSLog(@"%@", log);
             }
             
             if (self.callback)
             {
-                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, message];
+                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
                 
                 BOOL lineContainsPII = self.PiiLoggingEnabled ? containsPII : NO;
                 self.callback(level, log, lineContainsPII);

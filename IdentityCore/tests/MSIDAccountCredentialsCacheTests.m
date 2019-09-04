@@ -53,7 +53,7 @@
     id<MSIDExtendedTokenCacheDataSource> dataSource = nil;
 
 #if TARGET_OS_IOS
-    dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+    dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
     // TODO: this should be replaced with a real macOS datasource instead
     dataSource = [[MSIDTestCacheDataSource alloc] init];
@@ -144,6 +144,7 @@
     item.clientId = @"client";
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"app.bundle.id";
     [self saveItem:item];
     
     // Now query
@@ -154,7 +155,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
-    query.enrollmentId = @"enrollmentId";
+    query.applicationIdentifier = @"app.bundle.id";
     
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
@@ -177,6 +178,7 @@
     item.clientId = @"client";
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"app.bundle.id";
     [self saveItem:item];
     
     // Now query
@@ -187,7 +189,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
-    query.enrollmentId = @"differentEnrollmentId";
+    query.applicationIdentifier = @"differentAppBundleId";
     
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
@@ -197,7 +199,7 @@
     XCTAssertEqual([results count], 0);
 }
 
-- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andIntuneUnenrolledCaller_shouldReturnEmptyResult
+- (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_shouldReturnSingleMatch
 {
     // First save the token
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
@@ -209,6 +211,7 @@
     item.clientId = @"client";
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"my.app.bundle";
     [self saveItem:item];
     
     // Now query
@@ -219,6 +222,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
+    query.applicationIdentifier = @"my.app.bundle";
     // Don't assign enrollmentId for querying unenrolled "app".
     
     XCTAssertTrue(query.exactMatch);
@@ -226,7 +230,7 @@
     NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 0);
+    XCTAssertEqual([results count], 1);
 }
 
 - (void)testGetCredentialsWithQuery_whenExactMatch_andAccessTokenQuery_andNoEnrollmentIdOnCachedToken_shouldReturnEmptyResult
@@ -250,7 +254,7 @@
     query.clientId = @"client";
     query.realm = @"contoso.com";
     query.target = @"user.read user.write";
-    query.enrollmentId = @"someEnrollmentId";
+    query.applicationIdentifier = @"some.bundle.id";
     
     XCTAssertTrue(query.exactMatch);
     NSError *error = nil;
@@ -1294,6 +1298,7 @@
     // First save the token
     MSIDCredentialCacheItem *item = [self createTestAccessTokenCacheItem];
     item.enrollmentId = @"enrollmentId";
+    item.applicationIdentifier = @"app.bundle.id";
     [self saveItem:item];
     
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
@@ -1303,7 +1308,7 @@
     
     key.realm = @"contoso.com";
     key.target = @"user.read user.write";
-    key.enrollmentId = @"enrollmentId";
+    key.applicationIdentifier = @"app.bundle.id";
     
     NSError *error = nil;
     MSIDCredentialCacheItem *resultItem = [self.cache getCredential:key context:nil error:&error];
@@ -2099,7 +2104,7 @@
 
 - (void)testWipeInfoWithContext_whenWipeInfoPresent_shouldReturnWipeInfo
 {
-    MSIDKeychainTokenCache *keychainCache = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+    MSIDKeychainTokenCache *keychainCache = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
     NSError *error = nil;
     BOOL result = [keychainCache saveWipeInfoWithContext:nil error:&error];
     XCTAssertTrue(result);

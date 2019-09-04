@@ -228,6 +228,11 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
 
     // Unknown broker error returned
     MSIDErrorBrokerUnknown  =   -51811,
+    
+    // Failed to save broker application token
+    MSIDErrorBrokerApplicationTokenWriteFailed     =   -51812,
+    
+    MSIDErrorBrokerApplicationTokenReadFailed      =   -51813
 };
 
 extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo);

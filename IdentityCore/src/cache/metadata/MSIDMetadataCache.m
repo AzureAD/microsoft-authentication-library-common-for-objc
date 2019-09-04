@@ -128,14 +128,16 @@
     
     if (!updatedItem)
     {
-        return item;
+        // return a copy because we don't want external change on the cache status
+        return [item copy];
     }
     
     dispatch_barrier_async(_synchronizationQueue, ^{
         _memoryCache[key] = item;
     });
     
-    return item;
+    // return a copy because we don't want external change on the cache status
+    return [item copy];
 }
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key

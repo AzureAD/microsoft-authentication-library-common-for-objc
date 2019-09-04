@@ -36,15 +36,16 @@
                                   challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
 {
-    NSError *localError = nil;
     MSIDRegistrationInformation *info =
     [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil];
+    NSString *authToken = @"";
+    NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
+    NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
     
-    if (!info && localError)
+    if (!info)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to create PKeyAuth request");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No registration information found");
     }
-    
     if (!challengeData)
     {
         // Error should have been logged before this where there is more information on why the challenge data was bad
@@ -81,21 +82,17 @@
                 info = nil;
             }
         }
-    }
-    
-    NSString *pKeyAuthHeader = @"";
-    if (info)
-    {
-        NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
-        urlComponents.query = nil; // Strip out query parameters.
-        __auto_type audience = urlComponents.string;
         
-        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:audience nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
-        info = nil;
+        NSURLComponents *authorizationServerComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
+        authorizationServerComponents.query = nil; // Strip out query parameters.
+        if (info)
+        {
+            authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
+        }
     }
     
-    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
+    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
 }
 
 

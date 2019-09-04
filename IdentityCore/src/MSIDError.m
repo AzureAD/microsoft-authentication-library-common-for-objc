@@ -127,7 +127,9 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorBrokerKeyFailedToCreate),
                       @(MSIDErrorBrokerKeyNotFound),
                       @(MSIDErrorWorkplaceJoinRequired),
-                      @(MSIDErrorBrokerUnknown)
+                      @(MSIDErrorBrokerUnknown),
+                      @(MSIDErrorBrokerApplicationTokenWriteFailed),
+                      @(MSIDErrorBrokerApplicationTokenReadFailed),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors

@@ -58,14 +58,14 @@
 
 - (MSIDDefaultTokenCacheAccessor *)tokenCache
 {
-    id<MSIDExtendedTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
+    id<MSIDExtendedTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
     MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     return tokenCache;
 }
 
 - (MSIDAccountMetadataCacheAccessor *)metadataCache
 {
-    id<MSIDMetadataCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
+    id<MSIDMetadataCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
     MSIDAccountMetadataCacheAccessor *metadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
     return metadataCache;
 }
@@ -74,7 +74,7 @@
 {
     [super setUp];
     MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
-    MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache"];
+    MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
     [cache clearWithContext:nil error:nil];
 }
 

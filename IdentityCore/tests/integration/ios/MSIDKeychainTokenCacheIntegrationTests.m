@@ -74,7 +74,7 @@
 
 - (void)testInitWithGroup_shoulReturnGroupWithTeamId
 {
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group"];
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"my.group" error:nil];
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     NSString *expected = [NSString stringWithFormat:@"%@.my.group", teamId];
     
@@ -85,7 +85,7 @@
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     NSString *group = [NSString stringWithFormat:@"%@.my.group", teamId];
-    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:group];
+    MSIDKeychainTokenCache *keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:group error:nil];
     
     XCTAssertEqualObjects(keychainTokenCache.keychainGroup, group);
 }

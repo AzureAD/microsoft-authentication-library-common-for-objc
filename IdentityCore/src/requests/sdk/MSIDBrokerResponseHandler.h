@@ -39,13 +39,18 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readonly, nullable) id<MSIDCacheAccessor> tokenCache;
 
+@property (nonatomic, readonly) BOOL sourceApplicationAvailable;
+@property (nonatomic, readonly) NSString *brokerNonce;
+
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)factory
                        tokenResponseValidator:(MSIDTokenResponseValidator *)responseValidator;
 
-- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url error:(NSError * _Nullable * _Nullable)error;
+- (nullable MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)url sourceApplication:(nullable NSString *)sourceApplication error:(NSError * _Nullable * _Nullable)error;
 
 - (BOOL)canHandleBrokerResponse:(NSURL *)response
              hasCompletionBlock:(BOOL)hasCompletionBlock;
+
+- (BOOL)checkBrokerNonce:(NSDictionary *)responseDict;
 
 @end
 

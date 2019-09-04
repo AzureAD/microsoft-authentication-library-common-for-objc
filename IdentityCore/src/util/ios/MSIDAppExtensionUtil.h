@@ -29,8 +29,13 @@
 /// Determine whether or not the host app is an application extension based on the main bundle path
 + (BOOL)isExecutingInAppExtension;
 /// Application extension safe replacement for `[UIApplication sharedApplication]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
-+ (UIApplication *)sharedApplication;
++ (nullable UIApplication *)sharedApplication;
 /// Application extension safe replacement for `[[UIApplication sharedApplication] openURL:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
-+ (void)sharedApplicationOpenURL:(NSURL *)url;
++ (void)sharedApplicationOpenURL:(nonnull NSURL *)url;
+
+/// Application extension safe replacement for `[[UIApplication sharedApplication] openURL:options:completionHandler:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
++ (void)sharedApplicationOpenURL:(nonnull NSURL *)url
+                         options:(nullable NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options
+               completionHandler:(void (^ __nullable)(BOOL success))completionHandler;
 
 @end

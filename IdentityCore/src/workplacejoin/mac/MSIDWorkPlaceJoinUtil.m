@@ -27,7 +27,6 @@
 #import "MSIDRegistrationInformation.h"
 
 // Convenience macro to release CF objects
-#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
 
 @implementation MSIDWorkPlaceJoinUtil
 

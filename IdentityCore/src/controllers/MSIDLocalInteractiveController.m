@@ -52,6 +52,7 @@
 {
     self = [super initWithRequestParameters:parameters
                        tokenRequestProvider:tokenRequestProvider
+                         fallbackController:nil
                                       error:error];
 
     if (self)

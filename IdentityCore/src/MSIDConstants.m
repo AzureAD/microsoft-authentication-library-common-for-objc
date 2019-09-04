@@ -35,6 +35,7 @@ NSString *const MSID_BROKER_RESUME_DICTIONARY_KEY   =   @"adal-broker-resume-dic
 NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG   = @"com.microsoft.adBrokerKey\0";
 NSString *const MSID_BROKER_ADAL_SCHEME         = @"msauth";
 NSString *const MSID_BROKER_MSAL_SCHEME         = @"msauthv2";
+NSString *const MSID_BROKER_NONCE_SCHEME        = @"msauthv3";
 NSString *const MSID_BROKER_APP_BUNDLE_ID        = @"com.microsoft.azureauthenticator";
 NSString *const MSID_BROKER_APP_BUNDLE_ID_DF     = @"com.microsoft.azureauthenticator-df";
 NSString *const MSID_BROKER_MAX_PROTOCOL_VERSION = @"max_protocol_ver";
@@ -46,6 +47,7 @@ NSString *const MSID_DEFAULT_FAMILY_ID           = @"1";
 NSString *const MSID_ADAL_SDK_NAME               = @"adal-objc";
 NSString *const MSID_MSAL_SDK_NAME               = @"msal-objc";
 NSString *const MSID_SDK_NAME_KEY                = @"sdk_name";
+NSString *const MSID_BROKER_APPLICATION_TOKEN_TAG = @"com.microsoft.adBrokerAppToken";
 
 
 NSString *const MSIDTrustedAuthority             = @"login.windows.net";
