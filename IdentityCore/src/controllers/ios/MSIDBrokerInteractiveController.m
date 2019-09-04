@@ -213,8 +213,9 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     NSURL *brokerRequestURL = brokerRequest.brokerRequestURL;
 
     NSURL *launchURL = _brokerInstallLink ? _brokerInstallLink : brokerRequestURL;
+    BOOL firstTimeInstall = _brokerInstallLink != nil;
 
-    if (_brokerInstallLink)
+    if (firstTimeInstall)
     {
         [self saveToPasteBoard:brokerRequestURL];
     }
@@ -222,18 +223,19 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     if ([NSThread isMainThread])
     {
         [MSIDNotifications notifyWebAuthWillSwitchToBroker];
-        [self openBrokerWithRequestURL:launchURL];
+        [self openBrokerWithRequestURL:launchURL fallbackToLocalController:!firstTimeInstall];
     }
     else
     {
         dispatch_async(dispatch_get_main_queue(), ^{
             [MSIDNotifications notifyWebAuthWillSwitchToBroker];
-            [self openBrokerWithRequestURL:launchURL];
+            [self openBrokerWithRequestURL:launchURL fallbackToLocalController:!firstTimeInstall];
         });
     }
 }
 
 - (void)openBrokerWithRequestURL:(NSURL *)requestURL
+       fallbackToLocalController:(BOOL)shouldFallbackToLocalController
 {
     NSDictionary *options = nil;
     
@@ -255,9 +257,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
                                      {
                                          MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Falling back to local controller");
                                          
-                                         [self fallbackToLocalController];
+                                         [self handleFailedOpenURL:shouldFallbackToLocalController];
                                      }
-                                     
     }];
 }
 
@@ -453,8 +454,16 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 #pragma mark - Fallback
 
-- (void)fallbackToLocalController
+- (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController
 {
+#if TARGET_OS_SIMULATOR
+    if (!shouldFallbackToLocalController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Ignoring URL open failure because of simulator target");
+        return;
+    }
+#endif
+    
     [self.class stopTrackingAppState];
     
     MSIDTelemetryBrokerEvent *brokerEvent = [[MSIDTelemetryBrokerEvent alloc] initWithName:MSID_TELEMETRY_EVENT_LAUNCH_BROKER requestId:self.requestParameters.telemetryRequestId correlationId:self.requestParameters.correlationId];
@@ -466,10 +475,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     
     MSIDRequestCompletionBlock completionBlock = [self copyAndClearCompletionBlock];
     
-    if (!self.fallbackController)
+    if (!self.fallbackController || !shouldFallbackToLocalController)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Didn't find local interactive controller for fallback, failing request");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker and no fallback operation is available", nil, nil, nil, nil, nil);
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Should fallback to local controller %d", (int)shouldFallbackToLocalController);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL.", nil, nil, nil, nil, nil);
         if (completionBlock) completionBlock(nil, error);
         return;
     }

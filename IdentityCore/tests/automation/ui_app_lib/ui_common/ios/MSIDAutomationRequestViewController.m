@@ -54,6 +54,7 @@
     }
 
     MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    request.parentController = self;
     
     self.completionBlock(request);
 }

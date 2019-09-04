@@ -247,7 +247,7 @@
         // Check error
         XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
         XCTAssertEqual(error.code, MSIDErrorInternal);
-        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Failed to open broker and no fallback operation is available");
+        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Failed to open broker URL.");
         [expectation fulfill];
     }];
     
