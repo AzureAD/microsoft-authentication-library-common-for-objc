@@ -25,9 +25,6 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 
-const unichar fragmentSeparator = '#';
-const unichar queryStringSeparator = '?';
-
 @implementation NSURL (MSIDExtensions)      
 
 // Decodes configuration contained in a URL fragment
