@@ -141,11 +141,13 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     
     NSMutableDictionary *defaultKeychainQuery = [@{(id)kSecClass : (id)kSecClassGenericPassword,
                                                   (id)kSecAttrAccessGroup : self.keychainGroup} mutableCopy];
-
-#if !TARGET_OS_IPHONE
+    
+#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
         defaultKeychainQuery[(id)kSecUseDataProtectionKeychain] = @YES;
     }
+#endif
 #endif
     
     self.defaultKeychainQuery = defaultKeychainQuery;
