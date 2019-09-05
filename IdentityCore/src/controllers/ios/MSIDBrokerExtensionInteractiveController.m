@@ -45,6 +45,7 @@
 }
 
 - (void)openBrokerWithRequestURL:(NSURL *)requestURL
+       fallbackToLocalController:(BOOL)shouldFallbackToLocalController
 {
     ASAuthorizationSingleSignOnProvider *ssoProvider = [self.class sharedProvider];
     ASAuthorizationSingleSignOnRequest *request = [ssoProvider createRequest];
@@ -108,7 +109,7 @@
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker SSO Extension with error: %@. Falling back to local controller", error);
-        [self fallbackToLocalController];
+        [self handleFailedOpenURL:YES];
     }
 }
 

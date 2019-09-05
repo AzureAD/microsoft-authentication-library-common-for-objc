@@ -31,6 +31,6 @@
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
-- (void)fallbackToLocalController;
+- (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController;
 
 @end
