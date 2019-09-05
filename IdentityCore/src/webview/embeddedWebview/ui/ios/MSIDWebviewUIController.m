@@ -65,15 +65,7 @@ static WKWebViewConfiguration *s_webConfig;
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
 
-- (void)setWebView:(WKWebView *)webView
-{
-    _webView = webView;
-    
-    // We rely on developer to show the web view.
-    self.presentInParentController = NO;
-}
-
-- (BOOL)loadView:(NSError **)error;
+- (BOOL)loadView:(NSError **)error
 {
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */
@@ -81,6 +73,7 @@ static WKWebViewConfiguration *s_webConfig;
     
     if (_webView)
     {
+        self.presentInParentController = NO;
         return YES;
     }
     
