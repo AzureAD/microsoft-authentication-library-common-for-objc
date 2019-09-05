@@ -3176,8 +3176,7 @@
 		B27ACA6722EBC42E0049ACE0 /* background */ = {
 			isa = PBXGroup;
 			children = (
-				B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */,
-				B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */,
+				B2DFA50B231B7815006F9EF8 /* ios */,
 			);
 			path = background;
 			sourceTree = "<group>";
@@ -3417,6 +3416,15 @@
 				B2D8583E21C1DD990043035A /* MSIDAutomationResultViewController.m */,
 			);
 			path = macos;
+			sourceTree = "<group>";
+		};
+		B2DFA50B231B7815006F9EF8 /* ios */ = {
+			isa = PBXGroup;
+			children = (
+				B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */,
+				B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */,
+			);
+			path = ios;
 			sourceTree = "<group>";
 		};
 		B4A5ACD021F7F1DF00D2A780 /* Matchers */ = {

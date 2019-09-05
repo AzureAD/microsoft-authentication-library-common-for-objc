@@ -66,7 +66,6 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
-                
                 info = nil;
             }
         }
@@ -78,16 +77,17 @@
             if (![expectedThumbprint isEqualToString:thumbprint])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
-                
                 info = nil;
             }
         }
         
         NSURLComponents *authorizationServerComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
         authorizationServerComponents.query = nil; // Strip out query parameters.
-        
-        authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
+        if (info)
+        {
+            authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
+        }
     }
     
     return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];

@@ -307,7 +307,10 @@
     if ([allRefreshTokens count] == 0)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found no refresh tokens");
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+        NSError *wipeError = nil;
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:&wipeError] context:context];
+        
+        if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to read wipe data with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {
@@ -816,7 +819,9 @@
 
     if (type == MSIDRefreshTokenType)
     {
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+        NSError *wipeError = nil;
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:&wipeError] context:context];
+        if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to read wipe data with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {
