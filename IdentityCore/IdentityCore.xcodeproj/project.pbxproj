@@ -2691,6 +2691,9 @@
 				232153191FDA101900C6960D /* MSIDUserInformation.m */,
 				9641B5221FCF3EEF00AFA0EC /* MSIDMacTokenCache.h */,
 				9641B5231FCF3EEF00AFA0EC /* MSIDMacTokenCache.m */,
+				9641B51E1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.h */,
+				9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m */,
+				2353747E22140466002436FC /* MSIDKeychainTokenCache+Internal.h */,
 				B220AC1D22680D6000423359 /* mac */,
 				B211580B202B84B2005CE586 /* key */,
 				9641B5261FCF3F2600AFA0EC /* serializers */,
@@ -2702,9 +2705,6 @@
 		9641B51D1FCF3EB800AFA0EC /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				9641B51E1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.h */,
-				9641B51F1FCF3ECE00AFA0EC /* MSIDKeychainTokenCache.m */,
-				2353747E22140466002436FC /* MSIDKeychainTokenCache+Internal.h */,
 			);
 			path = ios;
 			sourceTree = "<group>";
