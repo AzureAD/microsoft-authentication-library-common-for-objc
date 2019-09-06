@@ -24,8 +24,19 @@
 #import "MSIDApplicationTestUtil.h"
 
 BOOL (^s_onOpenUrl)(NSURL *url, NSDictionary<NSString *, id> *options) = nil;
+static NSArray *s_canOpenURLSchemes = nil;
 
 @implementation MSIDApplicationTestUtil
+
++ (void)setCanOpenURLSchemes:(NSArray *)canOpenURLSchemes
+{
+    s_canOpenURLSchemes = canOpenURLSchemes;
+}
+
++ (NSArray *)canOpenURLSchemes
+{
+    return s_canOpenURLSchemes;
+}
 
 + (void)onOpenURL:(BOOL (^)(NSURL *url, NSDictionary<NSString *, id> *options))openUrlBlock
 {
@@ -61,7 +72,11 @@ BOOL (^s_onOpenUrl)(NSURL *url, NSDictionary<NSString *, id> *options) = nil;
 
 - (BOOL)canOpenURL:(NSURL *)url
 {
-    (void)url;
+    if (s_canOpenURLSchemes)
+    {
+        return [s_canOpenURLSchemes containsObject:url.scheme];
+    }
+    
     return YES;
 }
 

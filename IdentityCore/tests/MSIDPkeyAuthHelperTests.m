@@ -127,6 +127,30 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     }
 }
 
+- (void)testCreateDeviceAuthResponse_whenCertDoesnotMatch_shouldCreateProperResponse
+{
+    if (@available(iOS 10.0, *))
+    {
+        __auto_type challengeData = @{@"Context": @"some context",
+                                      @"Version": @"1.0",
+                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                      @"CertAuthorities": @"OU=82dbaca4-3e81-46ca-9c73-0950c1eaca97,CN=MS-Organization-Access,DC=windows,DC=net"};
+        __auto_type regInfo = [MSIDRegistrationInformationMock new];
+        regInfo.isWorkPlaceJoinedFlag = YES;
+        [regInfo setPrivateKey:[self privateKey]];
+        [regInfo setCertificateIssuer:@"XXXXXX"];
+        s_registrationInformationToReturn = regInfo;
+        __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+        
+        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+        
+        __auto_type expectedResponse = @"PKeyAuth  Context=\"some context\", Version=\"1.0\"";
+        
+        XCTAssertEqualObjects(expectedResponse, response);
+    }
+}
+
+
 #pragma mark - Private
 
 - (SecKeyRef)privateKey
