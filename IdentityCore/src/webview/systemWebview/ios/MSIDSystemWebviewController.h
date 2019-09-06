@@ -39,6 +39,7 @@
                 presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
                          context:(id<MSIDRequestContext>)context;
 
 - (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
