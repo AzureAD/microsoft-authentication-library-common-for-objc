@@ -44,6 +44,7 @@
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
+#import "MSIDConstants.h"
 
 /**
  This Mac cache stores serialized cache credentials in the macOS "login" Keychain.
@@ -1126,8 +1127,19 @@ static dispatch_queue_t s_synchronizationQueue;
         return nil;
     }
     
+    CFStringRef authorizationTag;
+    
+    if (@available(macOS 10.13.4, *))
+    {
+        authorizationTag = kSecACLAuthorizationChangeACL;
+    } else
+    {
+        // code for earlier than 10.13.4
+        authorizationTag = (__bridge CFStringRef)MSID_ACL_OWNER_AUTHORIZATION_TAG;
+    }
+    
     if (![self accessSetACLTrustedApplications:access
-                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
+                           aclAuthorizationTag:authorizationTag
                            trustedApplications:trustedApplications
                                        context:nil
                                          error:error])
