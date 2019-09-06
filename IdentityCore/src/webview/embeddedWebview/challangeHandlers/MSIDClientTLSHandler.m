@@ -37,6 +37,9 @@
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(UIViewController *)parentViewController
+#endif
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
@@ -47,6 +50,9 @@
     // See if this is a challenge for the WPJ cert.
     if ([MSIDWPJChallengeHandler handleChallenge:challenge
                                          webview:webview
+#if TARGET_OS_IPHONE
+                                parentController:parentViewController
+#endif
                                          context:context
                                completionHandler:completionHandler])
     {
@@ -56,6 +62,9 @@
     // If it is not WPJ challenge, it has to be CBA.
     return [MSIDCertAuthHandler handleChallenge:challenge
                                         webview:webview
+#if TARGET_OS_IPHONE
+                               parentController:parentViewController
+#endif
                                         context:context
                               completionHandler:completionHandler];
 }

@@ -21,37 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
-@class MSIDTestURLResponse;
+@implementation NSKeyedUnarchiver (MSIDExtensions)
 
-@interface MSIDTestURLSession : NSObject
++ (instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error
+{
+    NSKeyedUnarchiver *unarchiver;
+    if (@available(iOS 11.0, macOS 10.13, *))
+    {
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
+    }
+#if !TARGET_OS_UIKITFORMAC
+    else
+    {
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+    }
+#endif
+    
+    return unarchiver;
+}
 
-@property id delegate;
-@property NSOperationQueue* delegateQueue;
++ (id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error
+{
+    id result;
+    if (@available(iOS 11.0, macOS 10.13, *))
+    {
+        result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:error];
+    }
+#if !TARGET_OS_UIKITFORMAC
+    else
+    {
+        result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
+#endif
 
-- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
-
-// This adds an expected request, and response to it.
-+ (void)addResponse:(MSIDTestURLResponse *)response;
-
-// If you need to test a series of requests and responses use this API
-+ (void)addResponses:(NSArray *)responses;
-
-// Helper methods for common responses
-+ (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (BOOL)noResponsesLeft;
-+ (void)clearResponses;
-
-// Helper method to retrieve a response for a request
-+ (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
-
-+ (NSURLSession *)createMockSession;
-
-// Helper dispatch method that URLSessionTask can utilize
-- (void)dispatchIfNeed:(void (^)(void))block;
-
-// Required method to mock NSURLSession on iOS 13.
-- (void)defaultTaskGroup;
+    return result;
+}
 
 @end

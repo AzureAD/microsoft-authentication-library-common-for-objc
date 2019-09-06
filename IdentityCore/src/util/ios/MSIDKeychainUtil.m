@@ -98,7 +98,11 @@
             || readStatus == errSecInteractionNotAllowed)
         {
             NSMutableDictionary* addQuery = [query mutableCopy];
+#if TARGET_OS_UIKITFORMAC
+            [addQuery setObject:(id)kSecAttrAccessibleAfterFirstUnlock forKey:(id)kSecAttrAccessible];
+#else
             [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
+#endif
             status = SecItemAdd((__bridge CFDictionaryRef)addQuery, (CFTypeRef *)&result);
         }
         

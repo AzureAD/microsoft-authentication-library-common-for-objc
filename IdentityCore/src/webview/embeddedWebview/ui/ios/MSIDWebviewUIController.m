@@ -30,7 +30,7 @@
 
 static WKWebViewConfiguration *s_webConfig;
 
-@interface MSIDWebviewUIController ( )
+@interface MSIDWebviewUIController ()
 {
     UIActivityIndicatorView *_loadingIndicator;
 }
@@ -60,7 +60,7 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
--(void)dealloc
+- (void)dealloc
 {
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 }
@@ -158,14 +158,13 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (BOOL)obtainParentController
 {
-    if (_parentController)
-    {
-        return YES;
-    }
+    if (self.parentController) return YES;
     
-    _parentController = [UIApplication msidCurrentViewController];
+    if (@available(iOS 13.0, *)) return NO;
     
-    return (_parentController != nil);
+    self.parentController = [UIApplication msidCurrentViewController:self.parentController];
+    
+    return self.parentController != nil;
 }
 
 - (void)setupCancelButton
@@ -178,7 +177,18 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
 {
-    UIActivityIndicatorView *loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    UIActivityIndicatorView *loadingIndicator;
+    if (@available(iOS 13.0, *))
+    {
+        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    }
+#if !TARGET_OS_UIKITFORMAC
+    else
+    {
+        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    }
+#endif
+
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;

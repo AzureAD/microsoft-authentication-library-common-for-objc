@@ -82,7 +82,7 @@
                       error:(NSError **)error
 {
     if (accountIdentifier.uid != nil
-        && ![accountIdentifier.uid isEqualToString:tokenResult.accessToken.accountIdentifier.uid])
+        && ![accountIdentifier.uid isEqualToString:tokenResult.account.accountIdentifier.uid])
     {
         if (error)
         {
