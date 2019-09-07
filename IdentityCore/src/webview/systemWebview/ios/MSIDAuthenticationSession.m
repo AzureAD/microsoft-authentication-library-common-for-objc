@@ -42,7 +42,7 @@
 #endif
 #import "UIApplication+MSIDExtensions.h"
 
-#if !MSID_EXCLUDE_WEBKIT
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 @interface MSIDAuthenticationSession (ASWebAuth) <ASWebAuthenticationPresentationContextProviding>
 
 @end
@@ -196,12 +196,14 @@ API_AVAILABLE(ios(13.0))
             _webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:_startURL
                                                             callbackURLScheme:_callbackURLScheme
                                                             completionHandler:authCompletion];
+            
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
             if (@available(iOS 13.0, *))
             {
                 _webAuthSession.presentationContextProvider = self;
                 _webAuthSession.prefersEphemeralWebBrowserSession = self.prefersEphemeralWebBrowserSession;
             }
-            
+#endif
             if ([_webAuthSession start]) return;
         }
         else
