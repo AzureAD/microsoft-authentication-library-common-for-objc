@@ -41,6 +41,7 @@
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentViewController;
 @property (nonatomic) UIModalPresentationStyle presentationType;
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
 #endif
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) MSIDPromptType promptType;

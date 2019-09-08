@@ -328,6 +328,8 @@ static NSMutableArray* s_responses = nil;
     self.delegateQueue = nil;
 }
 
-
+- (void)defaultTaskGroup
+{
+}
 
 @end

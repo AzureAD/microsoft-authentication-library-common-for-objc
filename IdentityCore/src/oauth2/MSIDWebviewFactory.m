@@ -90,6 +90,7 @@
                                                                                   presentationType:configuration.presentationType
                                                                           useAuthenticationSession:useAuthenticationSession
                                                                          allowSafariViewController:allowSafariViewController
+                                                                        ephemeralWebBrowserSession:configuration.prefersEphemeralWebBrowserSession
                                                                                            context:context];
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
@@ -192,6 +193,10 @@
 #if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
     configuration.presentationType = parameters.presentationType;
+    if (@available(iOS 13.0, *))
+    {
+        configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
+    }
 #endif
 
     NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
