@@ -104,13 +104,24 @@
                 MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
                 [currentBrokerController completeAcquireTokenWithResult:nil error:error];
             }
-            
             return;
         }
         
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker SSO Extension with error: %@. Falling back to local controller", error);
-        [self handleFailedOpenURL:YES];
+        if (error.code == ASAuthorizationErrorFailed)
+        {
+            // Try to get Broker Error.
+            NSError *brokerError = error.userInfo[NSUnderlyingErrorKey];
+            if (brokerError && [self.class currentBrokerController])
+            {
+                MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
+                [currentBrokerController completeAcquireTokenWithResult:nil error:brokerError];
+            }
+            return;
+        }
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker SSO Extension with error: %@. Falling back to local controller", error);
+    [self handleFailedOpenURL:YES];
 }
 
 #pragma mark - ASAuthorizationControllerPresentationContextProviding
