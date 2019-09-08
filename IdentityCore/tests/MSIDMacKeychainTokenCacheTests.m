@@ -219,6 +219,40 @@
     [_dataSource removeAccountsWithKey:_testAccountKey context:nil error:nil];
     [_cache clearWithContext:nil error:nil];
     _dataSource = nil;
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"LoginKeychainEmpty"];
+}
+
+- (void)testInitWithGroup_whenNoLoginKeychainEmptyKeySet_shouldReturnNonNil
+{
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"LoginKeychainEmpty"];
+    
+    NSError *error = nil;
+    MSIDMacKeychainTokenCache *keychainTokenCache = [[MSIDMacKeychainTokenCache alloc] initWithGroup:nil trustedApplications:nil error:&error];
+    
+    XCTAssertNotNil(keychainTokenCache);
+    XCTAssertNil(error);
+}
+
+- (void)testInitWithGroup_whenLoginKeychainEmptyKeySet_shouldReturnNilFillError
+{
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"LoginKeychainEmpty"];
+    
+    NSError *error = nil;
+    MSIDMacKeychainTokenCache *keychainTokenCache = [[MSIDMacKeychainTokenCache alloc] initWithGroup:nil trustedApplications:nil error:&error];
+    
+    if (@available(macOS 10.15, *)) {
+        
+        XCTAssertNil(keychainTokenCache);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
+    }
+    else
+    {
+        XCTAssertNotNil(keychainTokenCache);
+        XCTAssertNil(error);
+    }
 }
 
 - (void)testMacKeychainCache_whenAccountWritten_writesAccountToKeychain
@@ -343,6 +377,8 @@
 
 - (void)testAccountsWithKey_whenAccountMissing_shouldNotReturnError
 {
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"LoginKeychainEmpty"];
+    
     NSError *error;
     NSString* accountId = @"AnotherTestAccountId";
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:accountId
@@ -360,6 +396,32 @@
     MSIDAccountCacheItem *account2 = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
     XCTAssertNil(error); // "not found" isn't an error
     XCTAssertNil(account2);
+    
+    BOOL loginKeychainEmptyKeySet = [[NSUserDefaults standardUserDefaults] boolForKey:@"LoginKeychainEmpty"];
+    
+    if (@available(macOS 10.15, *)) {
+        XCTAssertEqual(loginKeychainEmptyKeySet, YES);
+    }
+    else
+    {
+        XCTAssertEqual(loginKeychainEmptyKeySet, NO);
+    }
+}
+
+- (void)testAccountsWithKey_whenLoginKeychainEmptyKeySet_andAccountPresent_shouldNotReturnAccounts
+{
+    if (@available(macOS 10.15, *)) {
+        
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"LoginKeychainEmpty"];
+        
+        [self multiAccountTestSetup];
+        
+        NSError *error;
+        NSArray<MSIDAccountCacheItem *> *foundAccounts = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
+        XCTAssertNil(error);
+        XCTAssertEqual([foundAccounts count], 0);
+        
+    }
 }
 
 - (void)testAccountsWithQuery_whenMultipleAccountsPresent_shouldReturnExpectedAccounts

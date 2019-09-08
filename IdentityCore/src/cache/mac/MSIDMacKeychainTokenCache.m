@@ -297,7 +297,7 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstor
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 static dispatch_queue_t s_synchronizationQueue;
-static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
+static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 @interface MSIDMacKeychainTokenCache ()
 
@@ -389,7 +389,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         if (@available(macOS 10.15, *)) {
             
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmpty])
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
             {
                 if (error)
                 {
@@ -879,7 +879,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
     
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     if (@available(macOS 10.15, *)) {
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmpty])
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Skipping login keychain read because it has been previously marked as empty on 10.15");
             return nil;
@@ -944,7 +944,7 @@ static NSString *kLoginKeychainEmpty = @"LoginKeychainEmpty";
         if (isShared && storageItemIsEmpty)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Saving a flag to stop looking into login keychain, as it doesn't contain any items");
-            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmpty];
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmptyKey];
         }
     }
 #endif
