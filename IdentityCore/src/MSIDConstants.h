@@ -106,5 +106,3 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
 
 extern NSString * _Nonnull const MSID_DEFAULT_AAD_AUTHORITY;
 extern NSString * _Nonnull const MSID_DEFAULT_MSA_TENANTID;
-
-extern NSString * _Nonnull const MSID_ACL_OWNER_AUTHORIZATION_TAG;
