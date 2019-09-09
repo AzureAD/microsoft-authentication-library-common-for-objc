@@ -1,3 +1,8 @@
+Version 1.3.2
+-----------
+* iOS 13 support for ASWebAuthenticationSession
+* Support keychain access groups on macOS 10.15
+
 Version 1.3.1
 -----------
 * Enable iOS 13 compatible broker
