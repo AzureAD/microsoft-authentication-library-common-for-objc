@@ -23,35 +23,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDTestURLResponse;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDTestURLSession : NSObject
+@interface NSKeyedUnarchiver (MSIDExtensions)
 
-@property id delegate;
-@property NSOperationQueue* delegateQueue;
++ (nullable instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error;
 
-- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
-
-// This adds an expected request, and response to it.
-+ (void)addResponse:(MSIDTestURLResponse *)response;
-
-// If you need to test a series of requests and responses use this API
-+ (void)addResponses:(NSArray *)responses;
-
-// Helper methods for common responses
-+ (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (BOOL)noResponsesLeft;
-+ (void)clearResponses;
-
-// Helper method to retrieve a response for a request
-+ (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
-
-+ (NSURLSession *)createMockSession;
-
-// Helper dispatch method that URLSessionTask can utilize
-- (void)dispatchIfNeed:(void (^)(void))block;
-
-// Required method to mock NSURLSession on iOS 13.
-- (void)defaultTaskGroup;
++ (nullable id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

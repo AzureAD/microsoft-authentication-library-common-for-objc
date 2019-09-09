@@ -296,6 +296,8 @@
     }
 
     NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
+    
+    if (!matchedCredentials) return NO;
 
     return [self removeAllCredentials:matchedCredentials
                               context:context

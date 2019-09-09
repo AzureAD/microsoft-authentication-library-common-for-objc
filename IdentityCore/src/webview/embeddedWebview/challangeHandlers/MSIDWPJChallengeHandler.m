@@ -30,7 +30,13 @@
 
 + (void)resetHandler { }
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge webview:(__unused WKWebView *)webview context:(id<MSIDRequestContext>)context completionHandler:(ChallengeCompletionHandler)completionHandler
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+                webview:(__unused WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(__unused UIViewController *)parentViewController
+#endif
+                context:(id<MSIDRequestContext>)context
+      completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     // See if this is a challenge for the WPJ cert.
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
