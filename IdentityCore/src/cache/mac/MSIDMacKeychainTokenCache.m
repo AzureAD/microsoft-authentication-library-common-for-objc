@@ -298,7 +298,6 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstor
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 static dispatch_queue_t s_synchronizationQueue;
-static NSString *s_AclOwnerAuthorizationTag = @"ACLAuthorizationChangeACL";
 static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 @interface MSIDMacKeychainTokenCache ()
@@ -1175,20 +1174,8 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         return nil;
     }
     
-    CFStringRef authorizationTag;
-    
-    if (@available(macOS 10.13.4, *))
-    {
-        authorizationTag = kSecACLAuthorizationChangeACL;
-    }
-    else
-    {
-        // code for earlier than 10.13.4
-        authorizationTag = (__bridge CFStringRef)s_AclOwnerAuthorizationTag;
-    }
-    
     if (![self accessSetACLTrustedApplications:access
-                           aclAuthorizationTag:authorizationTag
+                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
                            trustedApplications:trustedApplications
                                        context:nil
                                          error:error])
