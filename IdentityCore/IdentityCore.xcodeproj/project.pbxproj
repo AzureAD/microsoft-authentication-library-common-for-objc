@@ -2663,8 +2663,6 @@
 				96891A942190F15E00D7F437 /* MSIDWPJChallengeHandler.h */,
 				96891A952190F15E00D7F437 /* MSIDWPJChallengeHandler.m */,
 				962EA0442190D7F50049C4C8 /* MSIDCertAuthHandler.h */,
-				606830032098ACC100CCA6AB /* MSIDNegotiateHandler.h */,
-				606830042098ACED00CCA6AB /* MSIDNegotiateHandler.m */,
 				6068303720A33A7400CCA6AB /* MSIDPKeyAuthHandler.h */,
 				6068303820A33A9000CCA6AB /* MSIDPKeyAuthHandler.m */,
 			);
@@ -2684,6 +2682,8 @@
 			isa = PBXGroup;
 			children = (
 				962EA03C2190D4930049C4C8 /* MSIDCertAuthHandler.m */,
+				606830032098ACC100CCA6AB /* MSIDNegotiateHandler.h */,
+				606830042098ACED00CCA6AB /* MSIDNegotiateHandler.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
