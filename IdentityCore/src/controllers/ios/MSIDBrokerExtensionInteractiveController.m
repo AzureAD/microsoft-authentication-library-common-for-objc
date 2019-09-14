@@ -30,6 +30,8 @@
 #import "MSIDNotifications.h"
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDBrokerInteractiveController+Internal.h"
+#import "MSIDBrokerOperationSilentTokenRequest.h"
+#import "MSIDJsonSerializer.h"
 
 @interface MSIDBrokerExtensionInteractiveController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
 
@@ -47,10 +49,21 @@
 - (void)openBrokerWithRequestURL:(NSURL *)requestURL
        fallbackToLocalController:(BOOL)shouldFallbackToLocalController
 {
+    // TODO: hack silent request with interactive params.
+    MSIDBrokerOperationSilentTokenRequest *operationRequest = [MSIDBrokerOperationSilentTokenRequest new];
+    operationRequest.configuration = self.interactiveParameters.msidConfiguration;
+    operationRequest.accountIdentifier = self.interactiveParameters.accountIdentifier;
+    
+    NSString *jsonString = [[MSIDJsonSerializer new] toJsonString:operationRequest context:nil error:nil];
+    
+    if (!jsonString)
+    {
+        // TODO: Fail with error
+    }
+    
     ASAuthorizationSingleSignOnProvider *ssoProvider = [self.class sharedProvider];
     ASAuthorizationSingleSignOnRequest *request = [ssoProvider createRequest];
-    request.requestedOperation = @"interactive_login";
-    NSURLQueryItem *queryItem = [[NSURLQueryItem alloc] initWithName:@"broker_url" value:requestURL.absoluteString];
+    NSURLQueryItem *queryItem = [[NSURLQueryItem alloc] initWithName:@"request" value:jsonString];
     request.authorizationOptions = @[queryItem];
     
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
