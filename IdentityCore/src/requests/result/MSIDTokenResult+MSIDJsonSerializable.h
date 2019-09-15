@@ -21,31 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenResponse.h"
-#import "MSIDTokenResult+MSIDJsonSerializable.h"
+#import "MSIDTokenResult.h"
+#import "MSIDJsonSerializable.h"
 
-@implementation MSIDBrokerOperationTokenResponse
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    self = [super init];
-    
-    if (self)
-    {
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    
-    json[@"response_data"] = [self.result jsonDictionary];
-    
-    return json;
-}
+@interface MSIDTokenResult (MSIDJsonSerializable) <MSIDJsonSerializable>
 
 @end
+
+NS_ASSUME_NONNULL_END

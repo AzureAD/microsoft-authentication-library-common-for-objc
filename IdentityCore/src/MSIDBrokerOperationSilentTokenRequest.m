@@ -54,7 +54,7 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableDeepCopy];
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
     NSMutableDictionary *requestParametersJson = [NSMutableDictionary new];
     

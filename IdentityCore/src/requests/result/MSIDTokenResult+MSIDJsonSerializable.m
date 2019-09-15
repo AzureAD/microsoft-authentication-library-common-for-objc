@@ -21,10 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDTokenResult+MSIDJsonSerializable.h"
 
-@implementation MSIDBrokerOperationTokenResponse
+@implementation MSIDTokenResult (MSIDJsonSerializable)
 
 #pragma mark - MSIDJsonSerializable
 
@@ -34,6 +33,7 @@
     
     if (self)
     {
+        // TODO: implement
     }
     
     return self;
@@ -41,9 +41,9 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    NSMutableDictionary *json = [NSMutableDictionary new];
     
-    json[@"response_data"] = [self.result jsonDictionary];
+    // TODO: implement
     
     return json;
 }
