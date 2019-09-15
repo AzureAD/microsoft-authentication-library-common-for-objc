@@ -114,7 +114,7 @@
     json[MSID_OAUTH2_CLIENT_ID] = self.clientId;
     json[MSID_OAUTH2_REDIRECT_URI] = self.redirectUri;
     json[MSID_OAUTH2_SCOPE] = self.target;
-    json[MSID_OAUTH2_AUTHORITY] = self.authority.url.absoluteURL;
+    json[MSID_OAUTH2_AUTHORITY] = self.authority.url.absoluteString;
     
     return json;
 }
