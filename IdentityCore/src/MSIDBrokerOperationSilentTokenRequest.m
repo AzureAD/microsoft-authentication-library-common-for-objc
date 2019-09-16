@@ -42,11 +42,14 @@
     
     if (self)
     {
-        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:json error:error];
+        if (![json msidAssertType:NSDictionary.class ofField:@"request_parameters" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
+        NSDictionary *requestParameters = json[@"request_parameters"];
+        
+        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:requestParameters error:error];
         if (!_configuration) return nil;
         
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
-        if (!_configuration) return nil;
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters error:error];
+        if (!_accountIdentifier) return nil;
     }
     
     return self;
@@ -64,7 +67,7 @@
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
     if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];
     
-    json[@"request_parameters"] = configurationJson;
+    json[@"request_parameters"] = requestParametersJson;
     
     return json;
 }
