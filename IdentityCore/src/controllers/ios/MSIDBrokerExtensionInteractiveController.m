@@ -32,6 +32,8 @@
 #import "MSIDBrokerInteractiveController+Internal.h"
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDVersion.h"
 
 @interface MSIDBrokerExtensionInteractiveController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
 
@@ -49,10 +51,49 @@
 - (void)openBrokerWithRequestURL:(NSURL *)requestURL
        fallbackToLocalController:(BOOL)shouldFallbackToLocalController
 {
+    NSString *accessGroup = self.interactiveParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
+    __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+    
+    // TODO: move this logic to MSIDBrokerKeyProvider (broker key as string)
+    NSError *error;
+    NSData *brokerKey = [brokerKeyProvider brokerKeyWithError:&error];
+
+    if (!brokerKey)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve broker key with error %@", MSID_PII_LOG_MASKABLE(error));
+
+        // TODO: Fail with error
+        return;
+    }
+    
+    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
+
+    if (!base64UrlKey)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Unable to base64 encode broker key");
+
+        // TODO: Fail with error
+        
+        return;
+    }
+    
+    NSDictionary *clientMetadata = self.requestParameters.appRequestMetadata;
+//    NSString *claimsString = [self claimsParameter];
+    NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
+    NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
+    
     // TODO: hack silent request with interactive params.
     MSIDBrokerOperationSilentTokenRequest *operationRequest = [MSIDBrokerOperationSilentTokenRequest new];
+    operationRequest.brokerKey = base64UrlKey;
+    operationRequest.clientVersion = [MSIDVersion sdkVersion];
+    operationRequest.protocolVersion = 4;
+    operationRequest.clientAppVersion = clientAppVersion;
+    operationRequest.clientAppName = clientAppName;
+    operationRequest.correlationId = self.interactiveParameters.correlationId;
     operationRequest.configuration = self.interactiveParameters.msidConfiguration;
     operationRequest.accountIdentifier = self.interactiveParameters.accountIdentifier;
+    
+    
     
     NSString *jsonString = [[MSIDJsonSerializer new] toJsonString:operationRequest context:nil error:nil];
     
