@@ -59,7 +59,7 @@
                         errorCode:MSIDErrorInvalidInternalParameter
                             error:error])
         {
-            
+            // TODO: log error.
         }
         _clientAppVersion = json[@"client_app_version"];
         
@@ -69,7 +69,7 @@
                         errorCode:MSIDErrorInvalidInternalParameter
                             error:error])
         {
-            return nil;
+            // TODO: log error.
         }
         _clientAppName = json[@"client_app_name"];
         
