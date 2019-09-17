@@ -82,8 +82,8 @@ API_AVAILABLE(ios(13.0))
     SFAuthenticationSession *_authSession;
 #endif
     
-    API_AVAILABLE(ios(12.0))
-    ASWebAuthenticationSession *_webAuthSession;
+    // API_AVAILABLE(ios(12.0))
+    // ASWebAuthenticationSession *_webAuthSession;
     
 #endif
     
@@ -137,11 +137,12 @@ API_AVAILABLE(ios(13.0))
     }
 
 #if !MSID_EXCLUDE_WEBKIT
-    if (@available(iOS 12.0, *))
+    /* if (@available(iOS 12.0, *))
     {
         if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin) return YES;
     }
-    else if (@available(iOS 11.0, *))
+    else */
+    if (@available(iOS 11.0, *))
     {
 #if !TARGET_OS_UIKITFORMAC
         if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
@@ -191,7 +192,7 @@ API_AVAILABLE(ios(13.0))
 
         [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
         
-        if (@available(iOS 12.0, *))
+        /* if (@available(iOS 12.0, *))
         {
             _webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:_startURL
                                                             callbackURLScheme:_callbackURLScheme
@@ -207,14 +208,14 @@ API_AVAILABLE(ios(13.0))
             if ([_webAuthSession start]) return;
         }
         else
-        {
+        { */
 #if !TARGET_OS_UIKITFORMAC
             _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
                                                       callbackURLScheme:_callbackURLScheme
                                                       completionHandler:authCompletion];
             if ([_authSession start]) return;
 #endif
-        }
+        // }
   
         error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
     }
@@ -234,16 +235,17 @@ API_AVAILABLE(ios(13.0))
     [_telemetryEvent setIsCancelled:YES];
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
-    if (@available(iOS 12.0, *))
+    /* if (@available(iOS 12.0, *))
     {
-        [_webAuthSession cancel];
+         [_webAuthSession cancel];
     }
-#if !TARGET_OS_UIKITFORMAC
     else
-    {
-        [_authSession cancel];
-    }
+    { */
+#if !TARGET_OS_UIKITFORMAC
+    [_authSession cancel];
 #endif
+    // }
+
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,
