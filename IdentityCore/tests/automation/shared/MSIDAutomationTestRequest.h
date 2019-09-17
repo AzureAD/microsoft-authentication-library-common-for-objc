@@ -58,6 +58,7 @@
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentController;
 #endif
+@property (nonatomic) BOOL isIntuneMAMCACapable;
 
 - (BOOL)usesEmbeddedWebView;
 
