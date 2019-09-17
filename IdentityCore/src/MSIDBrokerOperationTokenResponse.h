@@ -24,12 +24,15 @@
 #import "MSIDBrokerOperationResponse.h"
 
 @class MSIDTokenResult;
+@class MSIDConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationTokenResponse : MSIDBrokerOperationResponse
 
 @property (nonatomic, nullable) MSIDTokenResult *result;
+// TODO: can we remove configuration?
+@property (nonatomic, nullable) MSIDConfiguration *configuration;
 
 @end
 
