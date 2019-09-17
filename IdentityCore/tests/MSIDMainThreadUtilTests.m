@@ -32,22 +32,32 @@
 
 - (void)testExecuteOnMainThread_whenInvokedFromMainThread_shouldInvokeOnMainThread
 {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Main thread test"];
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         
         [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
             XCTAssertTrue([NSThread isMainThread]);
+            [expectation fulfill];
         }];
         
     });
+    
+    [self waitForExpectations:@[expectation] timeout:1];
 }
 
 - (void)testExecuteOnMainThread_whenInvokedFromBgThread_shouldInvokeOnMainThread
 {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Main thread test"];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
             XCTAssertTrue([NSThread isMainThread]);
+            [expectation fulfill];
         }];
     });
+    
+    [self waitForExpectations:@[expectation] timeout:1];
 }
 
 @end
