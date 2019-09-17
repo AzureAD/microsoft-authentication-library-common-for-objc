@@ -25,13 +25,14 @@
 #import "MSIDAADRequestErrorHandler.h"
 #import "MSIDJsonResponseSerializer.h"
 #import "MSIDAADTokenResponse.h"
+#import "MSIDMainThreadUtil.h"
 
 @implementation MSIDAADRequestErrorHandler
 
 - (void)handleError:(NSError * )error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
-        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock
 {
@@ -52,9 +53,9 @@
         
         MSID_LOG_VERBOSE(context, @"Retrying network request, retryCounter: %ld", (long)httpRequest.retryCounter);
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(httpRequest.retryInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [httpRequest sendWithBlock:completionBlock];
-        });
+        [httpRequest performSelector:@selector(sendWithBlock:)
+                          withObject:completionBlock
+                          afterDelay:(int64_t)httpRequest.retryInterval];
         
         return;
     }

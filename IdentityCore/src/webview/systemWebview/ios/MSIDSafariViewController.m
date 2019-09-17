@@ -37,6 +37,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
+#import "MSIDMainThreadUtil.h"
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
@@ -89,7 +90,7 @@
         return;
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         UIViewController *viewController = _parentController ? _parentController :
         [UIApplication msidCurrentViewController];
         if (!viewController)
@@ -111,7 +112,7 @@
         [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
         
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
-    });
+    }];
 }
 
 
@@ -129,11 +130,11 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError *)error
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [_safariViewController dismissViewControllerAnimated:YES completion:^{
             _safariViewController = nil;
         }];
-    });
+    }];
     
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
