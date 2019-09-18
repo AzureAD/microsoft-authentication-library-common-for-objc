@@ -58,7 +58,7 @@
         [self initIdTokenObjectIfPossible];
     }
     
-    return nil;
+    return self;
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
@@ -185,7 +185,7 @@
                         errorDescription:oauthErrorDescription];
     }
     
-    return nil;
+    return self;
 }
 
 - (NSDictionary *)jsonDictionary

@@ -66,7 +66,7 @@
         _resource = json[MSID_OAUTH2_RESOURCE];
     }
     
-    return nil;
+    return self;
 }
 
 - (NSDictionary *)jsonDictionary

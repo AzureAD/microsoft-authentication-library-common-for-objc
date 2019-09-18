@@ -154,7 +154,7 @@
         [self initExtendedExpiresOnDate:[extendedExpiresOn integerValue] extendedExpiresIn:_extendedExpiresIn];
     }
     
-    return nil;
+    return self;
 }
 
 - (NSDictionary *)jsonDictionary
