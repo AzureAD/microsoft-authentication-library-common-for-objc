@@ -27,20 +27,40 @@
 @interface MSIDAADTokenResponse : MSIDTokenResponse
 
 // Default properties for an AAD error response
-@property (readonly) NSString *correlationId;
+@property (nonatomic, readonly, nullable) NSString *correlationId;
 
 // Default properties for an AAD successful response
-@property (readonly) NSInteger expiresOn;
-@property (readonly) NSInteger extendedExpiresIn;
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSString *familyId;
-@property (readonly) NSString *suberror;
-@property (readonly) NSString *additionalUserId;
+@property (nonatomic, readonly) NSInteger expiresOn;
+@property (nonatomic, readonly) NSInteger extendedExpiresIn;
+@property (nonatomic, readonly, nullable) MSIDClientInfo *clientInfo;
+@property (nonatomic, readonly, nullable) NSString *familyId;
+@property (nonatomic, readonly, nullable) NSString *suberror;
+@property (nonatomic, readonly, nullable) NSString *additionalUserId;
 
 // Custom properties that ADAL/MSAL handles
-@property (readonly) NSString *speInfo;
+@property (nonatomic, readonly, nullable) NSString *speInfo;
 
 // Derived properties
-@property (readonly) NSDate *extendedExpiresOnDate;
+@property (nonatomic, readonly, nullable) NSDate *extendedExpiresOnDate;
+
+- (nullable instancetype)initWithAccessToken:(nonnull NSString *)accessToken
+                                refreshToken:(nullable NSString *)refreshToken
+                                   expiresIn:(NSInteger)expiresIn
+                                   expiresOn:(NSInteger)expiresOn
+                           extendedExpiresIn:(NSInteger)extendedExpiresIn
+                           extendedExpiresOn:(NSInteger)extendedExpiresOn
+                                   tokenType:(nonnull NSString *)tokenType
+                                       scope:(nullable NSString *)scope
+                                       state:(nullable NSString *)state
+                                     idToken:(nullable NSString *)idToken
+                        additionalServerInfo:(nullable NSDictionary *)additionalServerInfo
+                                       error:(nullable NSString *)error
+                                    suberror:(nullable NSString *)suberror
+                            errorDescription:(nullable NSString *)errorDescription
+                                  clientInfo:(nullable MSIDClientInfo *)clientInfo
+                                    familyId:(nullable NSString *)familyId
+                            additionalUserId:(nullable NSString *)additionalUserId
+                                     speInfo:(nullable NSString *)speInfo
+                               correlationId:(nullable NSString *)correlationId;
 
 @end

@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonObject.h"
+#import "MSIDJsonSerializable.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountType.h"
 #import "MSIDConfiguration.h"
@@ -30,46 +30,55 @@
 @protocol MSIDRefreshableToken;
 @class MSIDBaseToken;
 
-@interface MSIDTokenResponse : MSIDJsonObject
+@interface MSIDTokenResponse : NSObject <MSIDJsonSerializable>
 
 // Default properties for an openid error response
-@property (readonly) NSString *error;
-@property (readonly) NSString *errorDescription;
-
+@property (nonatomic, readonly, nullable) NSString *error;
+@property (nonatomic, readonly, nullable) NSString *errorDescription;
 // Default properties for a successful openid response
-@property (readonly) NSInteger expiresIn;
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *tokenType;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *scope;
-@property (readonly) NSString *state;
-@property (readonly) NSString *idToken;
+@property (nonatomic, readonly) NSInteger expiresIn;
+@property (nonatomic, readonly, nonnull) NSString *accessToken;
+@property (nonatomic, readonly, nonnull) NSString *tokenType;
+@property (nonatomic, readonly, nullable) NSString *refreshToken;
+@property (nonatomic, readonly, nullable) NSString *scope;
+@property (nonatomic, readonly, nullable) NSString *state;
+@property (nonatomic, readonly, nullable) NSString *idToken;
+// Additional properties that server sends
+@property (nonatomic, readonly, nullable) NSDictionary *additionalServerInfo;
 
 /* Derived properties */
 
 // Error code based on oauth error response
-@property (readonly) MSIDErrorCode oauthErrorCode;
+@property (nonatomic, readonly) MSIDErrorCode oauthErrorCode;
 
 // NSDate derived from expiresIn property and time received
-@property (readonly) NSDate *expiryDate;
+@property (nonatomic, readonly, nullable) NSDate *expiryDate;
 
 // Specifies if token in the token response is multi resource
-@property (readonly) BOOL isMultiResource;
+@property (nonatomic, readonly) BOOL isMultiResource;
 
 // Wrapper object around ID token
-@property (readonly) MSIDIdTokenClaims *idTokenObj;
+@property (nonatomic, readonly, nullable) MSIDIdTokenClaims *idTokenObj;
 
 // Generic target of the access token, scope for base token response, resource for AAD v1
-@property (readonly) NSString *target;
+@property (nonatomic, readonly, nullable) NSString *target;
 
 // Account type for an account generated from this response
-@property (readonly) MSIDAccountType accountType;
+@property (nonatomic, readonly) MSIDAccountType accountType;
 
-// Additional properties that server sends
-@property (readonly) NSDictionary *additionalServerInfo;
+- (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
+                                   refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
+                                          error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                          refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                 error:(NSError * __autoreleasing *)error;
+- (nullable instancetype)initWithAccessToken:(nonnull NSString *)accessToken
+                                refreshToken:(nullable NSString *)refreshToken
+                                   expiresIn:(NSInteger)expiresIn
+                                   tokenType:(nonnull NSString *)tokenType
+                                       scope:(nullable NSString *)scope
+                                       state:(nullable NSString *)state
+                                     idToken:(nullable NSString *)idToken
+                        additionalServerInfo:(nullable NSDictionary *)additionalServerInfo
+                                       error:(nullable NSString *)error
+                            errorDescription:(nullable NSString *)errorDescription;
 
 @end

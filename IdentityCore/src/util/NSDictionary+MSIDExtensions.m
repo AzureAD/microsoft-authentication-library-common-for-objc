@@ -96,6 +96,33 @@
     return mutableDict;
 }
 
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
+{
+    id obj = self[key];
+    if (!obj && !required) return YES;
+    
+    NSString *message;
+    if (!obj)
+    {
+        message = [NSString stringWithFormat:@"%@ key is missed in dictionary.", key];
+    }
+    else if (![obj isKindOfClass:type])
+    {
+        message = [NSString stringWithFormat:@"%@ key in dictionary is not a %@.", key, type];
+    }
+    
+    if (message)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil);
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
+        
+        return NO;
+    }
+    
+    return YES;
+}
+
 
 - (BOOL)msidAssertType:(Class)type
                ofField:(NSString *)field

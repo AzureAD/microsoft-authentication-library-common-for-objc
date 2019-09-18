@@ -27,8 +27,6 @@
 
 @implementation MSIDAADV1TokenResponse
 
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-
 - (BOOL)initIdToken:(NSError *__autoreleasing *)error
 {
     if (![NSString msidIsStringNilOrBlank:self.idToken])
@@ -55,6 +53,28 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 - (MSIDAccountType)accountType
 {
     return MSIDAccountTypeAADV1;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    if (self)
+    {
+        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_RESOURCE required:NO error:error]) return nil;
+        _resource = json[MSID_OAUTH2_RESOURCE];
+    }
+    
+    return nil;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableDeepCopy];
+    json[MSID_OAUTH2_RESOURCE] = self.resource;
+    
+    return json;
 }
 
 @end
