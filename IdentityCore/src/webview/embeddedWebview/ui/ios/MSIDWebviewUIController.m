@@ -26,6 +26,7 @@
 #import "MSIDWebviewUIController.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDMainThreadUtil.h"
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -118,9 +119,9 @@ static WKWebViewConfiguration *s_webConfig;
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [_parentController presentViewController:navController animated:YES completion:nil];
-    });
+    }];
 }
 
 - (void)dismissWebview:(void (^)(void))completion
