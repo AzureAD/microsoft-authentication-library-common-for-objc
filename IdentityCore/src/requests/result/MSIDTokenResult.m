@@ -25,16 +25,17 @@
 #import "MSIDAccessToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAuthority.h"
+#import "MSIDTokenResponse.h"
 
 @implementation MSIDTokenResult
 
-- (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
-                                refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
-                                     idToken:(nonnull NSString *)rawIdToken
-                                     account:(nonnull MSIDAccount *)account
-                                   authority:(nonnull MSIDAuthority *)authority
-                               correlationId:(nonnull NSUUID *)correlationId
-                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse
+- (instancetype)initWithAccessToken:(MSIDAccessToken *)accessToken
+                       refreshToken:(id<MSIDRefreshableToken>)refreshToken
+                            idToken:(NSString *)rawIdToken
+                            account:(MSIDAccount *)account
+                          authority:(MSIDAuthority *)authority
+                      correlationId:(NSUUID *)correlationId
+                      tokenResponse:(MSIDTokenResponse *)tokenResponse
 {
     self = [super init];
 

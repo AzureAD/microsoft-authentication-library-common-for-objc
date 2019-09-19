@@ -27,6 +27,8 @@
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDConfiguration+MSIDJsonSerializable.h"
+#import "MSIDAccessToken.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
 @implementation MSIDBrokerOperationTokenResponse
 
@@ -75,7 +77,33 @@
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
-    NSMutableDictionary *responseJson = [[self.result.tokenResponse jsonDictionary] mutableDeepCopy];
+    NSString *accessToken = self.result.accessToken.accessToken;
+    NSString *scope = [self.result.accessToken.scopes msidToString];
+    NSString *refreshToken = self.result.refreshToken.refreshToken;
+    NSInteger expiresIn = [self.result.accessToken.expiresOn timeIntervalSinceNow];
+    NSString *tokenType = MSID_OAUTH2_BEARER; // TODO:?
+    NSString *idToken = self.result.rawIdToken;
+    
+    NSError *localError;
+    MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithAccessToken:accessToken
+                                                                         refreshToken:refreshToken
+                                                                            expiresIn:expiresIn
+                                                                            tokenType:tokenType
+                                                                                scope:scope
+                                                                                state:nil
+                                                                              idToken:idToken
+                                                                 additionalServerInfo:nil
+                                                                                error:nil
+                                                                     errorDescription:nil
+                                                                            initError:&localError];
+    
+    if (localError)
+    {
+        // TODO: log error.
+        return nil;
+    }
+    
+    NSMutableDictionary *responseJson = [[tokenResponse jsonDictionary] mutableDeepCopy];
     
     NSDictionary *configurationJson = [self.configuration jsonDictionary];
     if (!configurationJson) return nil;
