@@ -40,6 +40,7 @@
                additionalServerInfo:(NSDictionary *)additionalServerInfo
                               error:(NSString *)error
                    errorDescription:(NSString *)errorDescription
+                          initError:(NSError **)initError
 {
     self = [super init];
     if (self)
@@ -55,7 +56,13 @@
         _error = error;
         _errorDescription = errorDescription;
         
-        [self initIdTokenObjectIfPossible];
+        NSError *localError;
+        [self initIdToken:&localError];
+        if (localError)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init id token wrapper, error: %@", MSID_PII_LOG_MASKABLE(localError));
+            if (initError) *initError = localError;
+        }
     }
     
     return self;
@@ -146,32 +153,22 @@
     self = [super init];
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_ACCESS_TOKEN required:YES error:error]) return nil;
-        NSString *accessToken = json[MSID_OAUTH2_ACCESS_TOKEN];
+        if (!json)
+        {
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Attempt to initialize JSON object with nil dictionary", nil, nil, nil, nil, nil);
+            
+            return nil;
+        }
         
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_REFRESH_TOKEN required:NO error:error]) return nil;
-        NSString *refreshToken = json[MSID_OAUTH2_REFRESH_TOKEN];
-        
-        if (![json msidAssertType:NSNumber.class ofKey:MSID_OAUTH2_EXPIRES_IN required:NO error:error]) return nil;
-        NSInteger expiresIn = json[MSID_OAUTH2_EXPIRES_IN] ? [json[MSID_OAUTH2_EXPIRES_IN] integerValue] : 0;
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_TOKEN_TYPE required:YES error:error]) return nil;
-        NSString *tokenType = json[MSID_OAUTH2_TOKEN_TYPE];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_SCOPE required:NO error:error]) return nil;
-        NSString *scope = json[MSID_OAUTH2_SCOPE];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_STATE required:NO error:error]) return nil;
-        NSString *state = json[MSID_OAUTH2_STATE];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_ID_TOKEN required:NO error:error]) return nil;
-        NSString *idToken = json[MSID_OAUTH2_ID_TOKEN];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_ERROR required:NO error:error]) return nil;
-        NSString *oauthError = json[MSID_OAUTH2_ERROR];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_ERROR_DESCRIPTION required:NO error:error]) return nil;
-        NSString *oauthErrorDescription = json[MSID_OAUTH2_ERROR_DESCRIPTION];
+        NSString *accessToken = [json msidStringObjectForKey:MSID_OAUTH2_ACCESS_TOKEN];
+        NSString *refreshToken = [json msidStringObjectForKey:MSID_OAUTH2_REFRESH_TOKEN];
+        NSInteger expiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_IN];
+        NSString *tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
+        NSString *scope = [json msidStringObjectForKey:MSID_OAUTH2_SCOPE];
+        NSString *state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
+        NSString *idToken = [json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN];
+        NSString *oauthError = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
+        NSString *oauthErrorDescription = [json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
         
         return [self initWithAccessToken:accessToken
                             refreshToken:refreshToken
@@ -182,7 +179,8 @@
                                  idToken:idToken
                     additionalServerInfo:json
                                    error:oauthError
-                        errorDescription:oauthErrorDescription];
+                        errorDescription:oauthErrorDescription
+                               initError:error];
     }
     
     return self;
@@ -195,7 +193,7 @@
     
     json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
     json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
-    json[MSID_OAUTH2_EXPIRES_IN] = @(self.expiresIn);
+    json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
     json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
     json[MSID_OAUTH2_SCOPE] = self.scope;
     json[MSID_OAUTH2_STATE] = self.state;
@@ -204,19 +202,6 @@
     json[MSID_OAUTH2_ERROR_DESCRIPTION] = self.errorDescription;
     
     return json;
-}
-
-#pragma mark - Private
-
-- (void)initIdTokenObjectIfPossible
-{
-    NSError *localError;
-    [self initIdToken:&localError];
-    
-    if (localError)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init id token wrapper, error: %@", MSID_PII_LOG_MASKABLE(localError));
-    }
 }
 
 @end

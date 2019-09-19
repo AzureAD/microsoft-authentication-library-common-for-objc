@@ -46,6 +46,7 @@
                    additionalUserId:(NSString *)additionalUserId
                             speInfo:(NSString *)speInfo
                       correlationId:(NSString *)correlationId
+                          initError:(NSError **)initError
 {
     self = [super initWithAccessToken:accessToken
                          refreshToken:refreshToken
@@ -56,7 +57,8 @@
                               idToken:idToken
                  additionalServerInfo:additionalServerInfo
                                 error:error
-                     errorDescription:errorDescription];
+                     errorDescription:errorDescription
+                            initError:initError];
     
     if (self)
     {
@@ -117,41 +119,22 @@
     self = [super initWithJSONDictionary:json error:error];
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE required:NO error:error]) return nil;
-        _correlationId = json[MSID_OAUTH2_CORRELATION_ID_RESPONSE];
+        _correlationId = [json msidStringObjectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
+        _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID];
+        _speInfo = [json msidStringObjectForKey:MSID_TELEMETRY_KEY_SPE_INFO];
+        _suberror = [json msidStringObjectForKey:MSID_OAUTH2_SUB_ERROR];
+        _additionalUserId = [json msidStringObjectForKey:@"adi"];
         
-        if (![json msidAssertType:NSString.class ofKey:MSID_FAMILY_ID required:NO error:error]) return nil;
-        _familyId = json[MSID_FAMILY_ID];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_TELEMETRY_KEY_SPE_INFO required:NO error:error]) return nil;
-        _speInfo = json[MSID_TELEMETRY_KEY_SPE_INFO];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_SUB_ERROR required:NO error:error]) return nil;
-        _suberror = json[MSID_OAUTH2_SUB_ERROR];
-        
-        if (![json msidAssertType:NSString.class ofKey:@"adi" required:NO error:error]) return nil;
-        _additionalUserId = json[@"adi"];
-        
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_CLIENT_INFO required:NO error:error]) return nil;
-        NSString *rawClientInfo = json[MSID_OAUTH2_CLIENT_INFO];
-        
+        NSString *rawClientInfo = [json msidStringObjectForKey:MSID_OAUTH2_CLIENT_INFO];
         NSError *localError;
         _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:&localError];
-        if (localError)
-        {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init client info, error: %@", MSID_PII_LOG_MASKABLE(localError));
-        }
+        if (localError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init client info, error: %@", MSID_PII_LOG_MASKABLE(localError));
         
-        if (![json msidAssertType:NSNumber.class ofKey:MSID_OAUTH2_EXT_EXPIRES_IN required:NO error:error]) return nil;
-        _extendedExpiresIn = [json[MSID_OAUTH2_EXT_EXPIRES_IN] integerValue];
+        _extendedExpiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXT_EXPIRES_IN];
+        NSInteger extendedExpiresOn = [json msidIntegerObjectForKey:@"ext_expires_on"];
+        _expiresOn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_ON];
         
-        if (![json msidAssertType:NSNumber.class ofKey:@"ext_expires_on" required:NO error:error]) return nil;
-        NSNumber *extendedExpiresOn = json[@"ext_expires_on"];
-        
-        if (![json msidAssertType:NSNumber.class ofKey:MSID_OAUTH2_EXPIRES_ON required:NO error:error]) return nil;
-        _expiresOn = [json[MSID_OAUTH2_EXPIRES_ON] integerValue];
-        
-        [self initExtendedExpiresOnDate:[extendedExpiresOn integerValue] extendedExpiresIn:_extendedExpiresIn];
+        [self initExtendedExpiresOnDate:extendedExpiresOn extendedExpiresIn:_extendedExpiresIn];
     }
     
     return self;
@@ -166,9 +149,8 @@
     json[MSID_OAUTH2_SUB_ERROR] = self.suberror;
     json[@"adi"] = self.additionalUserId;
     json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;
-    json[MSID_OAUTH2_EXT_EXPIRES_IN] = @(self.extendedExpiresIn);
-    json[@"ext_expires_on"] = @([self.extendedExpiresOnDate timeIntervalSince1970]);
-    json[MSID_OAUTH2_EXPIRES_ON] = @(self.expiresOn);
+    json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
+    json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
     
     return json;
 }

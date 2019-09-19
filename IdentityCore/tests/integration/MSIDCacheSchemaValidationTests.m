@@ -470,8 +470,8 @@
 
     NSError *responseError = nil;
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
-    MSIDAADV2TokenResponse *response = [serializer fromJsonData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding]
-                                                         ofType:MSIDAADV2TokenResponse.class
+    MSIDB2CTokenResponse *response = [serializer fromJsonData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding]
+                                                         ofType:MSIDB2CTokenResponse.class
                                                         context:nil
                                                           error:&responseError];
 
@@ -684,8 +684,8 @@
 
     NSError *responseError = nil;
     MSIDJsonSerializer *serializer = [MSIDJsonSerializer new];
-    MSIDAADV2TokenResponse *response = [serializer fromJsonData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding]
-                                                         ofType:MSIDAADV2TokenResponse.class
+    MSIDB2CTokenResponse *response = [serializer fromJsonData:[jsonResponse dataUsingEncoding:NSUTF8StringEncoding]
+                                                         ofType:MSIDB2CTokenResponse.class
                                                         context:nil
                                                           error:&responseError];
 

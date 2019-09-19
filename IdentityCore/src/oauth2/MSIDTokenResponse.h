@@ -37,8 +37,8 @@
 @property (nonatomic, readonly, nullable) NSString *errorDescription;
 // Default properties for a successful openid response
 @property (nonatomic, readonly) NSInteger expiresIn;
-@property (nonatomic, readonly, nonnull) NSString *accessToken;
-@property (nonatomic, readonly, nonnull) NSString *tokenType;
+@property (nonatomic, readonly, nullable) NSString *accessToken;
+@property (nonatomic, readonly, nullable) NSString *tokenType;
 @property (nonatomic, readonly, nullable) NSString *refreshToken;
 @property (nonatomic, readonly, nullable) NSString *scope;
 @property (nonatomic, readonly, nullable) NSString *state;
@@ -70,7 +70,7 @@
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
                                           error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 
-- (nullable instancetype)initWithAccessToken:(nonnull NSString *)accessToken
+- (nullable instancetype)initWithAccessToken:(nullable NSString *)accessToken
                                 refreshToken:(nullable NSString *)refreshToken
                                    expiresIn:(NSInteger)expiresIn
                                    tokenType:(nonnull NSString *)tokenType
@@ -79,6 +79,7 @@
                                      idToken:(nullable NSString *)idToken
                         additionalServerInfo:(nullable NSDictionary *)additionalServerInfo
                                        error:(nullable NSString *)error
-                            errorDescription:(nullable NSString *)errorDescription;
+                            errorDescription:(nullable NSString *)errorDescription
+                                   initError:(NSError *_Nullable *_Nullable)initError;
 
 @end

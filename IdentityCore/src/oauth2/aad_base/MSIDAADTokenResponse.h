@@ -43,13 +43,13 @@
 // Derived properties
 @property (nonatomic, readonly, nullable) NSDate *extendedExpiresOnDate;
 
-- (nullable instancetype)initWithAccessToken:(nonnull NSString *)accessToken
+- (nullable instancetype)initWithAccessToken:(nullable NSString *)accessToken
                                 refreshToken:(nullable NSString *)refreshToken
                                    expiresIn:(NSInteger)expiresIn
                                    expiresOn:(NSInteger)expiresOn
                            extendedExpiresIn:(NSInteger)extendedExpiresIn
                            extendedExpiresOn:(NSInteger)extendedExpiresOn
-                                   tokenType:(nonnull NSString *)tokenType
+                                   tokenType:(nullable NSString *)tokenType
                                        scope:(nullable NSString *)scope
                                        state:(nullable NSString *)state
                                      idToken:(nullable NSString *)idToken
@@ -61,6 +61,7 @@
                                     familyId:(nullable NSString *)familyId
                             additionalUserId:(nullable NSString *)additionalUserId
                                      speInfo:(nullable NSString *)speInfo
-                               correlationId:(nullable NSString *)correlationId;
+                               correlationId:(nullable NSString *)correlationId
+                                   initError:(NSError *_Nullable *_Nullable)initError;
 
 @end
