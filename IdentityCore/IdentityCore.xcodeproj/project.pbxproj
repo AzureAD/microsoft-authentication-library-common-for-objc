@@ -1548,6 +1548,7 @@
 		960F915620CB4ABC0055A162 /* MSIDAADWebviewFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADWebviewFactory.h; sourceTree = "<group>"; };
 		960F915720CB4ABC0055A162 /* MSIDAADWebviewFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADWebviewFactory.m; sourceTree = "<group>"; };
 		960F918920CBECAE0055A162 /* MSIDAADWebviewFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADWebviewFactoryTests.m; sourceTree = "<group>"; };
+		9621605322FF4FCD00DF5D9A /* MSIDURLResponseHandling.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDURLResponseHandling.h; sourceTree = "<group>"; };
 		96235F94207D7286007EAB36 /* MSIDWebOAuth2Response.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebOAuth2Response.h; sourceTree = "<group>"; };
 		96235F95207D7286007EAB36 /* MSIDWebOAuth2Response.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebOAuth2Response.m; sourceTree = "<group>"; };
 		96235F97207D72A6007EAB36 /* MSIDWebAADAuthResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebAADAuthResponse.h; sourceTree = "<group>"; };
@@ -2379,6 +2380,8 @@
 				B2BE926421A25F7200F5AB8C /* MSIDTestBrokerResponseHandler.m */,
 				B2BE926A21A2620400F5AB8C /* MSIDTestBrokerTokenRequest.h */,
 				B2BE926B21A2620400F5AB8C /* MSIDTestBrokerTokenRequest.m */,
+				964E669420AE97FD00857009 /* MSIDTestWebviewInteractingViewController.h */,
+				964E669520AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m */,
 				23CA0C60220A6DF600768729 /* MSIDRegistrationInformationMock.h */,
 				23CA0C61220A6DF600768729 /* MSIDRegistrationInformationMock.m */,
 				B2968CA222F67AAF005AFC33 /* MSIDTestLocalInteractiveController.h */,
@@ -3053,6 +3056,7 @@
 			children = (
 				96A3E9B7208941D700BE5262 /* MSIDSystemWebviewController.h */,
 				96A3E9B8208941D700BE5262 /* MSIDSystemWebviewController.m */,
+				9621605322FF4FCD00DF5D9A /* MSIDURLResponseHandling.h */,
 				960196F7208E578900D962D3 /* MSIDAuthenticationSession.h */,
 				960196F8208E578900D962D3 /* MSIDAuthenticationSession.m */,
 				960196FA208E579600D962D3 /* MSIDSafariViewController.h */,
@@ -3544,8 +3548,6 @@
 				D626FFEA1FBD200A00EE4487 /* network */,
 				2338ECD4208A7B3200809B9E /* MSIDTestContext.h */,
 				2338ECD5208A7B3200809B9E /* MSIDTestContext.m */,
-				964E669420AE97FD00857009 /* MSIDTestWebviewInteractingViewController.h */,
-				964E669520AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m */,
 				B28AC66221A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h */,
 				B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */,
 				B28AC66721A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.h */,

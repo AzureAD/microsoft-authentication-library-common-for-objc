@@ -26,31 +26,10 @@
 //------------------------------------------------------------------------------
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
-
-@class MSIDOauth2Factory;
-
-@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
-
-- (instancetype)initWithStartURL:(NSURL *)startURL
-                     redirectURI:(NSString *)redirectURI
-                parentController:(UIViewController *)parentController
-                presentationType:(UIModalPresentationStyle)presentationType
-        useAuthenticationSession:(BOOL)useAuthenticationSession
-       allowSafariViewController:(BOOL)allowSafariViewController
-      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-                         context:(id<MSIDRequestContext>)context;
+@protocol MSIDURLResponseHandling <NSObject>
 
 - (BOOL)handleURLResponse:(NSURL *)url;
 
-@property (readonly) NSURL *startURL;
-@property (readonly) NSURL *redirectURL;
-
-@property (weak, nonatomic) UIViewController *parentController;
-@property (nonatomic) UIModalPresentationStyle presentationType;
-
-
 @end
-#endif
 
+#endif

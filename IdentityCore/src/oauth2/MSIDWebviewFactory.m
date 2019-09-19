@@ -82,10 +82,8 @@
 {
     NSString *state = [self generateStateValue];
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
-    NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
-    
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
-                                                                                 callbackURLScheme:redirectURL.scheme
+                                                                                       redirectURI:configuration.redirectUri
                                                                                   parentController:configuration.parentController
                                                                                   presentationType:configuration.presentationType
                                                                           useAuthenticationSession:useAuthenticationSession
