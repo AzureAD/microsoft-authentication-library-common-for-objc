@@ -23,6 +23,7 @@
 
 #import <SecurityInterface/SFChooseIdentityPanel.h>
 #import "MSIDCertificateChooser.h"
+#import "MSIDMainThreadUtil.h"
 #import <MSIDNotifications.h>
 
 @implementation MSIDCertificateChooserHelper
@@ -70,9 +71,9 @@
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, _correlationId, @"Displaying Cert Selection Sheet");
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [self beginSheet:identities message:message];
-    });
+    }];
 }
 
 - (void)sheetDidEnd:(__unused NSWindow *)window

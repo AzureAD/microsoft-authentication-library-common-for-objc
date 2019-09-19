@@ -36,6 +36,7 @@
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDMainThreadUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -114,8 +115,8 @@
     // Save the completion block
     _completionHandler = [completionHandler copy];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        
         NSError *error = nil;
         [self loadView:&error];
         if (error)
@@ -129,7 +130,8 @@
             [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
         
         [self startRequest:request];
-    });
+        
+    }];
 }
 
 - (void)cancel
@@ -190,10 +192,10 @@
     
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Dismissed web view contoller.");
         [self dismissWebview:^{[self dispatchCompletionBlock:endURL error:error];}];
-    });
+    }];
     
     return;
 }

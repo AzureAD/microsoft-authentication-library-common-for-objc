@@ -47,6 +47,16 @@
 
 - (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
 {
+    if (![NSThread isMainThread])
+    {
+        __block MSIDWebviewSession *session;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            session = [self embeddedWebviewSessionFromConfiguration:configuration customWebview:webview context:context];
+        });
+        
+        return session;
+    }
+    
     NSString *state = [self generateStateValue];
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
     NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
@@ -80,6 +90,19 @@
                                     allowSafariViewController:(BOOL)allowSafariViewController
                                                       context:(id<MSIDRequestContext>)context
 {
+    if (![NSThread isMainThread])
+    {
+        __block MSIDWebviewSession *session;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            session = [self systemWebviewSessionFromConfiguration:configuration
+                                         useAuthenticationSession:useAuthenticationSession
+                                        allowSafariViewController:allowSafariViewController
+                                                          context:context];
+        });
+        
+        return session;
+    }
+    
     NSString *state = [self generateStateValue];
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
