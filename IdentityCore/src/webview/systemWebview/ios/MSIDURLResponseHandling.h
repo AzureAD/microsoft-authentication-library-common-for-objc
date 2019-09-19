@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,43 +17,19 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
+@protocol MSIDURLResponseHandling <NSObject>
 
-@class MSIDTestURLResponse;
-
-@interface MSIDTestURLSession : NSObject
-
-@property id delegate;
-@property NSOperationQueue* delegateQueue;
-
-- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
-
-// This adds an expected request, and response to it.
-+ (void)addResponse:(MSIDTestURLResponse *)response;
-
-// If you need to test a series of requests and responses use this API
-+ (void)addResponses:(NSArray *)responses;
-
-// Helper methods for common responses
-+ (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (BOOL)noResponsesLeft;
-+ (void)clearResponses;
-
-// Helper method to retrieve a response for a request
-+ (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
-
-+ (NSURLSession *)createMockSession;
-
-// Helper dispatch method that URLSessionTask can utilize
-- (void)dispatchIfNeed:(void (^)(void))block;
-
-// Required method to mock NSURLSession on iOS 13.
-- (void)defaultTaskGroup;
+- (BOOL)handleURLResponse:(NSURL *)url;
 
 @end
+
+#endif

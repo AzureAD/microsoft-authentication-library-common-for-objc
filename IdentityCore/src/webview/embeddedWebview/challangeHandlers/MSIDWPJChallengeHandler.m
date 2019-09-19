@@ -30,14 +30,25 @@
 
 + (void)resetHandler { }
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge webview:(__unused WKWebView *)webview context:(id<MSIDRequestContext>)context completionHandler:(ChallengeCompletionHandler)completionHandler
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+                webview:(__unused WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(__unused UIViewController *)parentViewController
+#endif
+                context:(id<MSIDRequestContext>)context
+      completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     // See if this is a challenge for the WPJ cert.
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
     
     if ([self isWPJChallenge:distinguishedNames])
     {
+#if TARGET_OS_IPHONE
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Ignoring WPJ challenge on iOS");
+        return NO;
+#else
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
+#endif
     }
     
     return NO;

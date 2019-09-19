@@ -21,52 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTestWebviewInteractingViewController.h"
-#import "MSIDWebviewAuthorization.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
-#if TARGET_OS_IPHONE
-#import "MSIDSystemWebviewController.h"
-#endif
+@implementation NSKeyedUnarchiver (MSIDExtensions)
 
-@implementation MSIDTestWebviewInteractingViewController
-
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
++ (instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error
 {
-    if (self.successAfterInterval == 0)
+    NSKeyedUnarchiver *unarchiver;
+    if (@available(iOS 11.0, macOS 10.13, *))
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, nil, nil);
-        completionHandler(nil, error);
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
     }
+#if !TARGET_OS_UIKITFORMAC
     else
     {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.successAfterInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            
-            completionHandler([NSURL URLWithString:@"https://contoso.microsoft.com?code=SOMECODE&cloud_instance_host_name=SOME_HOST_NAME"], nil);
-        });
-    }
-}
-
-- (void)cancel
-{
-    
-}
-
-
-- (BOOL)isKindOfClass:(Class)aClass
-{
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-    if (self.actAsSafariViewController)
-    {
-        return (aClass == MSIDSystemWebviewController.class);
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
     }
 #endif
-    return NO;
+    
+    return unarchiver;
 }
 
-- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
++ (id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error
 {
-    return self.actAsSafariViewController;
+    id result;
+    if (@available(iOS 11.0, macOS 10.13, *))
+    {
+        result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:error];
+    }
+#if !TARGET_OS_UIKITFORMAC
+    else
+    {
+        result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
+#endif
+
+    return result;
 }
 
 @end
-

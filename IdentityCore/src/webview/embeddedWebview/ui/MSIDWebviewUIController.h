@@ -34,12 +34,12 @@ NSWindowController
 #endif
 
 @property (nonatomic) WKWebView *webView;
-@property id<MSIDRequestContext> context;
-@property BOOL loading;
-@property BOOL complete;
+@property (nonatomic) id<MSIDRequestContext> context;
+@property (nonatomic) BOOL loading;
+@property (nonatomic) BOOL complete;
 #if TARGET_OS_IPHONE
-@property (weak) UIViewController *parentController;
-@property UIModalPresentationStyle presentationType;
+@property (nonatomic, weak) UIViewController *parentController;
+@property (nonatomic) UIModalPresentationStyle presentationType;
 #endif
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;

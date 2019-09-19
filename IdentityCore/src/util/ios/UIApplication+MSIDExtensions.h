@@ -23,6 +23,6 @@
 
 @interface UIApplication (internal)
 
-+ (UIViewController *)msidCurrentViewController;
++ (UIViewController *)msidCurrentViewController:(UIViewController *)parentController;
 
 @end
