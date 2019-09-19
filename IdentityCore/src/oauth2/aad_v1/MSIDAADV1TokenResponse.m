@@ -62,8 +62,7 @@
     self = [super initWithJSONDictionary:json error:error];
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_OAUTH2_RESOURCE required:NO error:error]) return nil;
-        _resource = json[MSID_OAUTH2_RESOURCE];
+        _resource = [json msidStringObjectForKey:MSID_OAUTH2_RESOURCE];
     }
     
     return self;
