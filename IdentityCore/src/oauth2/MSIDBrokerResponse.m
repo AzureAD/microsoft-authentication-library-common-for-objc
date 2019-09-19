@@ -37,6 +37,7 @@ MSID_FORM_ACCESSOR(@"vt", validAuthority);
 MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
 MSID_FORM_ACCESSOR(@"error_code", errorCode);
 MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+MSID_FORM_ACCESSOR(@"application_token", applicationToken);
 
 - (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
 {

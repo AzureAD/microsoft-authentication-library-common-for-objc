@@ -33,7 +33,6 @@
 @interface MSIDSilentController()
 
 @property (nonatomic, readwrite) BOOL forceRefresh;
-@property (nonatomic, readwrite) id<MSIDRequestControlling> interactiveController;
 
 @end
 
@@ -46,16 +45,11 @@
                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                              error:(NSError * _Nullable * _Nullable)error
 {
-    self = [super initWithRequestParameters:parameters
-                       tokenRequestProvider:tokenRequestProvider
-                                      error:error];
-
-    if (self)
-    {
-        _forceRefresh = forceRefresh;
-    }
-
-    return self;
+    return [self initWithRequestParameters:parameters
+                              forceRefresh:forceRefresh
+                      tokenRequestProvider:tokenRequestProvider
+             fallbackInteractiveController:nil
+                                     error:error];
 }
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
@@ -64,13 +58,16 @@
                      fallbackInteractiveController:(nullable id<MSIDRequestControlling>)fallbackController
                                              error:(NSError * _Nullable * _Nullable)error
 {
-    self = [self initWithRequestParameters:parameters forceRefresh:forceRefresh tokenRequestProvider:tokenRequestProvider error:error];
-
+    self = [super initWithRequestParameters:parameters
+                       tokenRequestProvider:tokenRequestProvider
+                         fallbackController:fallbackController
+                                      error:error];
+    
     if (self)
     {
-        _interactiveController = fallbackController;
+        _forceRefresh = forceRefresh;
     }
-
+    
     return self;
 }
 
@@ -99,7 +96,7 @@
             completionBlock(result, error);
         };
         
-        if (result || !self.interactiveController)
+        if (result || !self.fallbackController)
         {
             MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
             [telemetryEvent setUserInformation:result.account];
@@ -109,7 +106,7 @@
             return;
         }
 
-        [self.interactiveController acquireToken:completionBlockWrapper];
+        [self.fallbackController acquireToken:completionBlockWrapper];
     }];
 }
 

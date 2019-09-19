@@ -69,6 +69,9 @@
 // Storing for latter token deletion purpose, not serialized
 @property (readwrite, nullable) NSString *appKey;
 
+// Application identifier
+@property (readwrite, nullable) NSString *applicationIdentifier;
+
 // Last Modification info (currently used on macOS only)
 @property (readwrite, nullable) NSDate *lastModificationTime;
 @property (readwrite, nullable) NSString *lastModificationApp;

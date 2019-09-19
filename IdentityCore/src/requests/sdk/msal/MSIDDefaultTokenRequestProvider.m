@@ -82,10 +82,12 @@
 
 - (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                             brokerKey:(nonnull NSString *)brokerKey
-                                                                error:(NSError **)error
+                                               brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
+                                                                error:(NSError * _Nullable * _Nullable)error
 {
     return [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
                                                                   brokerKey:brokerKey
+                                                     brokerApplicationToken:brokerApplicationToken
                                                                       error:error];
 }
 

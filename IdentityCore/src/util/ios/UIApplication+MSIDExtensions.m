@@ -27,19 +27,21 @@
 
 @implementation UIApplication ( internal )
 
-+ (UIViewController*)msidCurrentViewController
++ (UIViewController *)msidCurrentViewController:(UIViewController *)parentController
 {
-    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
-    {
-        return [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
-    }
-    else
-    {
-        return nil;
-    }
+    if (@available(iOS 13.0, *)) return [self msidCurrentViewControllerWithRootViewController:parentController];
+    
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
+    
+#if !TARGET_OS_UIKITFORMAC
+    __auto_type controller = parentController ? parentController : [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
+    return controller;
+#endif
+    
+    return [self msidCurrentViewControllerWithRootViewController:parentController];
 }
 
-+ (UIViewController*)msidCurrentViewControllerWithRootViewController:(UIViewController*)rootViewController
++ (UIViewController*)msidCurrentViewControllerWithRootViewController:(UIViewController *)rootViewController
 {
     if ([rootViewController isKindOfClass:[UITabBarController class]])
     {

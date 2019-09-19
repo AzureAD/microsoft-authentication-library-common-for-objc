@@ -140,6 +140,16 @@
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
     
     [_telemetryEvent setIsCancelled:YES];
+    
+    if ([self.webView.navigationDelegate isEqual:self])
+    {
+        /*
+         There's an edge case scenario, where application cancels one of the requests and starts another one immediately after.
+         We want to make sure that second request doesn't get first response, so we cancel loading of webview when cancel method is called         
+         */
+        [self.webView stopLoading];
+    }
+    
     [self endWebAuthWithURL:nil error:error];
 }
 
@@ -237,7 +247,7 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-decidePolicyForNavigationAction host: %@", MSID_PII_LOG_TRACKABLE(requestURL.host));
     
-    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL];
+    [MSIDNotifications notifyWebAuthDidStartLoad:requestURL userInfo:webView ? @{@"webview" : webView} : nil];
     
     [self decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
@@ -266,7 +276,7 @@
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
     
-    [MSIDNotifications notifyWebAuthDidFinishLoad:url];
+    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
     
     [self stopSpinner];
 }
@@ -292,6 +302,9 @@
     
     [MSIDChallengeHandler handleChallenge:challenge
                                   webview:webView
+#if TARGET_OS_IPHONE
+                         parentController:self.parentController
+#endif
                                   context:self.context
                         completionHandler:completionHandler];
 }

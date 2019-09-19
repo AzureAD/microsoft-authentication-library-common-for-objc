@@ -230,7 +230,7 @@
     key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
-    key.enrollmentId = credential.enrollmentId;
+    key.applicationIdentifier = credential.applicationIdentifier;
     
     return [_dataSource saveToken:credential
                               key:key
@@ -296,6 +296,8 @@
     }
 
     NSArray<MSIDCredentialCacheItem *> *matchedCredentials = [self getCredentialsWithQuery:cacheQuery context:context error:error];
+    
+    if (!matchedCredentials) return NO;
 
     return [self removeAllCredentials:matchedCredentials
                               context:context
@@ -319,7 +321,7 @@
     key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
-    key.enrollmentId = credential.enrollmentId;
+    key.applicationIdentifier = credential.applicationIdentifier;
     key.appKey = credential.appKey;
     
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];

@@ -57,13 +57,13 @@
     
     key.realm = @"contoso.com";
     key.target = @"user.read user.write";
-    key.enrollmentId = @"enrollmentId";
+    key.applicationIdentifier = @"app.bundle.id";
     
     XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
-    XCTAssertEqualObjects(key.service, @"accesstoken-client-contoso.com-enrollmentid-user.read user.write");
+    XCTAssertEqualObjects(key.service, @"accesstoken-client-contoso.com-app.bundle.id-user.read user.write");
     XCTAssertEqualObjects(key.type, @2001);
     
-    NSData *genericData = [@"accesstoken-client-contoso.com-enrollmentid" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *genericData = [@"accesstoken-client-contoso.com-app.bundle.id" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
 }
 

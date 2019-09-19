@@ -60,7 +60,7 @@
     {
         id myVal = self[key];
         id otherVal = dictionary[key];
-        if ([myVal isKindOfClass:[MSIDTestIgnoreSentinel class]] || [otherVal isKindOfClass:[MSIDTestIgnoreSentinel class]])
+        if ([self isIgnoreSentinel:myVal] || [self isIgnoreSentinel:otherVal])
         {
             continue;
         }
@@ -79,7 +79,7 @@
     
     for (NSString *key in dictionary)
     {
-        if ([dictionary[key] isKindOfClass:[MSIDTestIgnoreSentinel class]])
+        if ([self isIgnoreSentinel:dictionary[key]])
         {
             continue;
         }
@@ -98,6 +98,14 @@
 {
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:0 error:nil];
     return [NSString msidBase64UrlEncodedStringFromData:jsonData];
+}
+
+- (BOOL)isIgnoreSentinel:(id)value
+{
+    BOOL isIgnoreSentinel = [value isKindOfClass:[MSIDTestIgnoreSentinel class]] ||
+    ([value isKindOfClass:[NSString class]] && [@"<MSIDTestIgnoreSentinel>" isEqualToString:value]);
+    
+    return isIgnoreSentinel;
 }
 
 @end

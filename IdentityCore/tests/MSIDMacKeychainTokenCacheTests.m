@@ -219,6 +219,40 @@
     [_dataSource removeAccountsWithKey:_testAccountKey context:nil error:nil];
     [_cache clearWithContext:nil error:nil];
     _dataSource = nil;
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"LoginKeychainEmpty"];
+}
+
+- (void)testInitWithGroup_whenNoLoginKeychainEmptyKeySet_shouldReturnNonNil
+{
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"LoginKeychainEmpty"];
+    
+    NSError *error = nil;
+    MSIDMacKeychainTokenCache *keychainTokenCache = [[MSIDMacKeychainTokenCache alloc] initWithGroup:nil trustedApplications:nil error:&error];
+    
+    XCTAssertNotNil(keychainTokenCache);
+    XCTAssertNil(error);
+}
+
+- (void)testInitWithGroup_whenLoginKeychainEmptyKeySet_shouldReturnNilFillError
+{
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"LoginKeychainEmpty"];
+    
+    NSError *error = nil;
+    MSIDMacKeychainTokenCache *keychainTokenCache = [[MSIDMacKeychainTokenCache alloc] initWithGroup:nil trustedApplications:nil error:&error];
+    
+    if (@available(macOS 10.15, *)) {
+        
+        XCTAssertNil(keychainTokenCache);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
+    }
+    else
+    {
+        XCTAssertNotNil(keychainTokenCache);
+        XCTAssertNil(error);
+    }
 }
 
 - (void)testMacKeychainCache_whenAccountWritten_writesAccountToKeychain
@@ -343,6 +377,8 @@
 
 - (void)testAccountsWithKey_whenAccountMissing_shouldNotReturnError
 {
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"LoginKeychainEmpty"];
+    
     NSError *error;
     NSString* accountId = @"AnotherTestAccountId";
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:accountId
@@ -360,6 +396,32 @@
     MSIDAccountCacheItem *account2 = [_dataSource accountWithKey:key serializer:_serializer context:nil error:&error];
     XCTAssertNil(error); // "not found" isn't an error
     XCTAssertNil(account2);
+    
+    BOOL loginKeychainEmptyKeySet = [[NSUserDefaults standardUserDefaults] boolForKey:@"LoginKeychainEmpty"];
+    
+    if (@available(macOS 10.15, *)) {
+        XCTAssertEqual(loginKeychainEmptyKeySet, YES);
+    }
+    else
+    {
+        XCTAssertEqual(loginKeychainEmptyKeySet, NO);
+    }
+}
+
+- (void)testAccountsWithKey_whenLoginKeychainEmptyKeySet_andAccountPresent_shouldNotReturnAccounts
+{
+    if (@available(macOS 10.15, *)) {
+        
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"LoginKeychainEmpty"];
+        
+        [self multiAccountTestSetup];
+        
+        NSError *error;
+        NSArray<MSIDAccountCacheItem *> *foundAccounts = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
+        XCTAssertNil(error);
+        XCTAssertEqual([foundAccounts count], 0);
+        
+    }
 }
 
 - (void)testAccountsWithQuery_whenMultipleAccountsPresent_shouldReturnExpectedAccounts
@@ -467,7 +529,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
     
-    // Verify that the account was written to the keychain by reading it back and comparing:
+    // Verify that the idtoken was written to the keychain by reading it back and comparing:
     MSIDCredentialCacheItem *token2 = [_dataSource tokenWithKey:key
                                                      serializer:_serializer
                                                         context:nil
@@ -489,7 +551,7 @@
     XCTAssertTrue(result);
     XCTAssertNil(error);
     
-    // Verify that the account was written to the keychain by reading it back and comparing:
+    // Verify that the appmetadata was written to the keychain by reading it back and comparing:
     NSArray<MSIDAppMetadataCacheItem *> *appMetadataItems = [_dataSource appMetadataEntriesWithKey:key serializer:_serializer context:nil error:&error];
     XCTAssertTrue([appMetadataItems count] == 1);
     XCTAssertEqualObjects(appMetadataItems[0], appMetadata1);
@@ -704,6 +766,137 @@
     XCTAssertFalse(result); // no longer "recent" due to the above delay
 }
 
+- (void)testTokensWithKey_whenQueryMatchesAnyCredentialType_shouldReturnAllTokens
+{
+    // Item 1.
+    MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
+    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                           environment:@"login.microsoftonline.com"
+                                                                                              clientId:@"client"
+                                                                                        credentialType:MSIDAccessTokenType];
+    key1.target = @"user.read user.write";
+    key1.realm = @"contoso.com";
+    [_dataSource saveToken:accessToken key:key1 serializer:_serializer context:nil error:nil];
+    
+    // Item 2.
+    MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
+    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                           environment:@"login.microsoftonline.com"
+                                                                                              clientId:@"client"
+                                                                                        credentialType:MSIDIDTokenType];
+    key2.realm = @"contoso.com";
+    
+    [_dataSource saveToken:idToken key:key2 serializer:_serializer context:nil error:nil];
+    
+    // Item 3.
+    MSIDCredentialCacheItem *refreshToken = [self createTestRefreshToken:nil];
+    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                           environment:@"login.microsoftonline.com"
+                                                                                              clientId:@"client"
+                                                                                        credentialType:MSIDRefreshTokenType];
+    
+    [_dataSource saveToken:refreshToken key:key3 serializer:_serializer context:nil error:nil];
+    
+    //Item 4
+    MSIDAppMetadataCacheItem *appMetadata1 = [self createAppMetadataCacheItem:nil];
+    MSIDAppMetadataCacheKey *key4 = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata1.clientId
+                                                                         environment:appMetadata1.environment
+                                                                            familyId:appMetadata1.familyId
+                                                                         generalType:MSIDAppMetadataType];
+    
+    [_dataSource saveAppMetadata:appMetadata1 key:key4 serializer:_serializer context:nil error:nil];
+    
+    //Item 5
+    MSIDDefaultAccountCacheKey *key5 = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"login.microsoftonline.com" realm:@"realm" type:MSIDAccountTypeMSSTS];
+    
+    MSIDAccountCacheItem *account = [MSIDAccountCacheItem new];
+    account.homeAccountId = @"uid.utid";
+    account.environment = @"login.microsoftonline.com";
+    account.accountType = MSIDAccountTypeMSSTS;
+    [_dataSource saveAccount:account key:key5 serializer:_serializer context:nil error:nil];
+    
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.matchAnyCredentialType = YES;
+    NSError *error = nil;
+    NSArray<MSIDCredentialCacheItem *> *items = [_dataSource tokensWithKey:query serializer:_serializer context:nil error:&error];
+    
+    XCTAssertEqual(items.count, 3);
+    XCTAssertTrue([items containsObject:accessToken]);
+    XCTAssertTrue([items containsObject:idToken]);
+    XCTAssertTrue([items containsObject:refreshToken]);
+    XCTAssertNil(error);
+}
+
+- (void)testRemoveCredentialsWithQuery_whenQueryMatchesAnyCredentialType_shouldDeleteAllTokensWhichMatchesQuery
+{
+    // Item 1.
+    MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
+    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                           environment:@"login.microsoftonline.com"
+                                                                                              clientId:@"client"
+                                                                                        credentialType:MSIDAccessTokenType];
+    key1.target = @"user.read user.write";
+    key1.realm = @"contoso.com";
+    [_dataSource saveToken:accessToken key:key1 serializer:_serializer context:nil error:nil];
+    
+    // Item 2.
+    MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
+    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                           environment:@"login.microsoftonline.com"
+                                                                                              clientId:@"client"
+                                                                                        credentialType:MSIDIDTokenType];
+    key2.realm = @"contoso.com";
+    
+    [_dataSource saveToken:idToken key:key2 serializer:_serializer context:nil error:nil];
+    
+    // Item 3.
+    MSIDCredentialCacheItem *refreshToken = [self createTestRefreshToken:nil];
+    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                           environment:@"login.microsoftonline.com"
+                                                                                              clientId:@"client"
+                                                                                        credentialType:MSIDRefreshTokenType];
+    
+    [_dataSource saveToken:refreshToken key:key3 serializer:_serializer context:nil error:nil];
+    
+    //Item 4
+    MSIDAppMetadataCacheItem *appMetadata1 = [self createAppMetadataCacheItem:nil];
+    MSIDAppMetadataCacheKey *key4 = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata1.clientId
+                                                                          environment:appMetadata1.environment
+                                                                             familyId:appMetadata1.familyId
+                                                                          generalType:MSIDAppMetadataType];
+    
+    [_dataSource saveAppMetadata:appMetadata1 key:key4 serializer:_serializer context:nil error:nil];
+    
+    //Item 5
+    MSIDDefaultAccountCacheKey *key5 = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"login.microsoftonline.com" realm:@"realm" type:MSIDAccountTypeMSSTS];
+    
+    MSIDAccountCacheItem *account = [MSIDAccountCacheItem new];
+    account.homeAccountId = @"uid.utid";
+    account.environment = @"login.microsoftonline.com";
+    account.accountType = MSIDAccountTypeMSSTS;
+    [_dataSource saveAccount:account key:key5 serializer:_serializer context:nil error:nil];
+    
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.matchAnyCredentialType = YES;
+    NSArray<MSIDCredentialCacheItem *> *items = [_dataSource tokensWithKey:query serializer:_serializer context:nil error:nil];
+    
+    XCTAssertEqual(items.count, 3);
+    XCTAssertTrue([items containsObject:accessToken]);
+    XCTAssertTrue([items containsObject:idToken]);
+    XCTAssertTrue([items containsObject:refreshToken]);
+    
+    [_dataSource removeTokensWithKey:query context:nil error:nil];
+    
+    items = [_dataSource tokensWithKey:query serializer:_serializer context:nil error:nil];
+    XCTAssertEqual(items.count, 0);
+
+    // Verify that the appmetadata was written to the keychain by reading it back and comparing:
+    NSArray<MSIDAppMetadataCacheItem *> *appMetadataItems = [_dataSource appMetadataEntriesWithKey:key4 serializer:_serializer context:nil error:nil];
+    XCTAssertTrue([appMetadataItems count] == 1);
+    XCTAssertEqualObjects(appMetadataItems[0], appMetadata1);
+}
 #pragma mark - Helpers
 
 - (MSIDCredentialCacheItem *)createTestAccessTokenCacheItem
@@ -744,6 +937,17 @@
     MSIDAppMetadataCacheItem *item = [MSIDAppMetadataCacheItem new];
     item.clientId = @"client";
     item.environment = @"login.microsoftonline.com";
+    item.familyId = familyId;
+    return item;
+}
+
+- (MSIDCredentialCacheItem *)createTestRefreshToken:(NSString *)familyId
+{
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDRefreshTokenType;
+    item.homeAccountId = @"uid.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.clientId = @"client";
     item.familyId = familyId;
     return item;
 }

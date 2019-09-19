@@ -83,6 +83,7 @@
         _extraScopes = json[@"extra_scopes"];
         _usePassedWebView = [json[@"use_passed_in_webview"] boolValue];
         _forceRefresh = [json[@"force_refresh"] boolValue];
+        _isIntuneMAMCACapable = [json[@"intune_mam_ca_capable"] boolValue];
     }
 
     return self;
@@ -105,6 +106,7 @@
     json[@"claims"] = _claims;
     json[@"use_passed_in_webview"] = @(_usePassedWebView);
     json[@"refresh_token"] = _refreshToken;
+    json[@"intune_mam_ca_capable"] = @(_isIntuneMAMCACapable);
 
     NSString *webviewType = nil;
 

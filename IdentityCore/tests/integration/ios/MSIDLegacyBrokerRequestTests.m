@@ -29,6 +29,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDClaimsRequest.h"
 #import "NSString+MSIDTestUtil.h"
+#import "NSDictionary+MSIDTestUtil.h"
 
 @interface MSIDLegacyBrokerRequestTests : XCTestCase
 
@@ -43,7 +44,7 @@
     parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -60,14 +61,19 @@
                                       @"skip_cache": @"YES",
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
 
     NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id": @"my_client_id",
@@ -75,7 +81,8 @@
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
-                                               @"sdk_name" : @"adal-objc"
+                                               @"sdk_name" : @"adal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -88,7 +95,7 @@
     parameters.accountIdentifier.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -106,14 +113,19 @@
                                       @"username": @"username@upn.com",
                                       @"username_type": @"RequiredDisplayableId",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
 
     NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id": @"my_client_id",
@@ -121,7 +133,8 @@
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
-                                               @"sdk_name" : @"adal-objc"
+                                               @"sdk_name" : @"adal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -133,7 +146,7 @@
     parameters.loginHint = @"myloginhint";
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -151,14 +164,19 @@
                                       @"username": @"myloginhint",
                                       @"username_type": @"OptionalDisplayableId",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"NO"
+                                      @"force": @"NO",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
 
     NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id": @"my_client_id",
@@ -166,7 +184,8 @@
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
-                                               @"sdk_name" : @"adal-objc"
+                                               @"sdk_name" : @"adal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -178,7 +197,7 @@
     parameters.uiBehaviorType = MSIDUIBehaviorForceType;
 
     NSError *error = nil;
-    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" error:&error];
+    MSIDLegacyBrokerTokenRequest *request = [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
 
@@ -194,14 +213,19 @@
                                       @"skip_cache": @"NO",
                                       @"resource": @"myresource",
                                       @"max_protocol_ver": @"2",
-                                      @"force": @"YES"
+                                      @"force": @"YES",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
                                       };
 
     NSURL *actualURL = request.brokerRequestURL;
 
-    NSString *expectedUrlString = [NSString stringWithFormat:@"mybrokerscheme://broker?%@", [expectedRequest msidURLEncode]];
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
     NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
     XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
 
     NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
                                                @"client_id": @"my_client_id",
@@ -209,7 +233,8 @@
                                                @"redirect_uri": @"my-redirect://com.microsoft.test",
                                                @"keychain_group": @"com.microsoft.mygroup",
                                                @"resource": @"myresource",
-                                               @"sdk_name" : @"adal-objc"
+                                               @"sdk_name" : @"adal-objc",
+                                               @"broker_nonce": brokerNonce
                                                };
 
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -226,7 +251,9 @@
     parameters.correlationId = [NSUUID new];
     parameters.redirectUri = @"my-redirect://com.microsoft.test";
     parameters.keychainAccessGroup = @"com.microsoft.mygroup";
-    parameters.supportedBrokerProtocolScheme = @"mybrokerscheme";
+    
+    MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
+    parameters.brokerInvocationOptions = brokerOptions;
     parameters.extraAuthorizeURLQueryParameters = @{@"my_eqp1, ,": @"my_eqp2", @"my_eqp3": @"my_eqp4"};
     return parameters;
 }

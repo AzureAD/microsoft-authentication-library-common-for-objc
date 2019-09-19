@@ -43,16 +43,17 @@
 
 @implementation MSIDSystemWebviewControllerTests
 
-- (void)setUp {
+- (void)setUp
+{
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [super tearDown];
 }
-
 
 - (void)testInitWithStartURL_whenURLisNil_shouldFail
 {
@@ -62,6 +63,7 @@
                                                                               presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
+                                                                    ephemeralWebBrowserSession:NO
                                                                                        context:nil];
     XCTAssertNil(webVC);
 }
@@ -75,6 +77,7 @@
                                                                               presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
+                                                                    ephemeralWebBrowserSession:NO
                                                                                        context:nil];
     XCTAssertNil(webVC);
 
@@ -90,6 +93,7 @@
                                                                               presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
+                                                                    ephemeralWebBrowserSession:NO
                                                                                        context:nil];
     XCTAssertNotNil(webVC);
     

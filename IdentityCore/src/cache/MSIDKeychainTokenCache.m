@@ -33,6 +33,8 @@
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
+#import "NSKeyedArchiver+MSIDExtensions.h"
 
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
@@ -93,10 +95,10 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 - (nonnull instancetype)init
 {
-    return [self initWithGroup:s_defaultKeychainGroup];
+    return [self initWithGroup:s_defaultKeychainGroup error:nil];
 }
 
-- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if (!(self = [super init]))
     {
@@ -109,7 +111,16 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
     
     MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
-    if (!keychainUtil.teamId) return nil;
+    if (!keychainUtil.teamId)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil);
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve teamId from keychain.");
+        return nil;
+    }
     
     // Add team prefix to keychain group if it is missed.
     if (![keychainGroup hasPrefix:keychainUtil.teamId])
@@ -121,12 +132,28 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     
     if (!_keychainGroup)
     {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil);
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set keychain access group.");
         return nil;
     }
     
-    self.defaultKeychainQuery = [@{(id)kSecClass : (id)kSecClassGenericPassword,
-                                   (id)kSecAttrAccessGroup : self.keychainGroup} mutableCopy];
+    NSMutableDictionary *defaultKeychainQuery = [@{(id)kSecClass : (id)kSecClassGenericPassword,
+                                                  (id)kSecAttrAccessGroup : self.keychainGroup} mutableCopy];
     
+#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+    if (@available(macOS 10.15, *)) {
+        defaultKeychainQuery[(id)kSecUseDataProtectionKeychain] = @YES;
+    }
+#endif
+#endif
+    
+    self.defaultKeychainQuery = defaultKeychainQuery;
+        
     self.defaultWipeQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
                               (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
                               (id)kSecAttrAccessGroup : self.keychainGroup,
@@ -220,7 +247,6 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                                  context:context];
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Found %lu items.", (unsigned long)tokenItems.count);
-
     
     return tokenItems;
 }
@@ -388,7 +414,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         return NO;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Saving metadata item info %@", item);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose,context, @"Saving metadata item info %@", MSID_PII_LOG_MASKABLE(item));
     
     return [self saveData:[serializer serializeCacheItem:item]
                       key:key
@@ -518,7 +544,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Full wipe info: %@", MSID_PII_LOG_MASKABLE(wipeInfo));
     
-    NSData *wipeData = [NSKeyedArchiver archivedDataWithRootObject:wipeInfo];
+    NSData *wipeData = [NSKeyedArchiver msidArchivedDataWithRootObject:wipeInfo requiringSecureCoding:YES error:nil];
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Trying to update wipe info...");
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Wipe query: %@", MSID_PII_LOG_MASKABLE(self.defaultWipeQuery));
@@ -574,8 +600,17 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         return nil;
     }
     
-    NSDictionary *wipeData = [NSKeyedUnarchiver unarchiveObjectWithData:(__bridge NSData *)(data)];
+    NSError *localError;
+    __auto_type classes = [[NSSet alloc] initWithArray:@[NSDictionary.class, NSString.class, NSDate.class]];
+    NSDictionary *wipeData = [NSKeyedUnarchiver msidUnarchivedObjectOfClasses:classes
+                                                                   fromData:(__bridge NSData *)(data)
+                                                                      error:&localError];
     CFRelease(data);
+    
+    if (localError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to unarchive wipeData, error: %@", MSID_PII_LOG_MASKABLE(localError));
+    }
     
     return wipeData;
 }

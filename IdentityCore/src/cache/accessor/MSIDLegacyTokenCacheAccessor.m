@@ -307,7 +307,10 @@
     if ([allRefreshTokens count] == 0)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context,@"(Legacy accessor) Found no refresh tokens");
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+        NSError *wipeError = nil;
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:&wipeError] context:context];
+        
+        if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to read wipe data with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {
@@ -359,6 +362,7 @@
                                                    lookupAliases:aliases
                                                         clientId:configuration.clientId
                                                         resource:configuration.target
+                                                   appIdentifier:configuration.applicationIdentifier
                                                          context:context
                                                            error:error];
 }
@@ -376,6 +380,7 @@
                                                            lookupAliases:aliases
                                                                 clientId:configuration.clientId
                                                                 resource:configuration.target
+                                                           appIdentifier:configuration.applicationIdentifier
                                                                  context:context
                                                                    error:error];
 }
@@ -419,6 +424,7 @@
                                                                                     lookupAliases:lookupAliases
                                                                                          clientId:cacheItem.clientId
                                                                                          resource:cacheItem.target
+                                                                                    appIdentifier:nil
                                                                                           context:context
                                                                                             error:error];
 
@@ -433,6 +439,7 @@
                                      userId:tokenInCache.accountIdentifier.displayableId
                              credentialType:cacheItem.credentialType
                                      appKey:cacheItem.appKey
+                      applicationIdentifier:nil
                                     context:context
                                       error:error];
     }
@@ -451,6 +458,7 @@
                                  userId:token.accountIdentifier.displayableId
                          credentialType:token.credentialType
                                  appKey:nil
+                  applicationIdentifier:token.applicationIdentifier
                                 context:context
                                   error:error];
 }
@@ -507,6 +515,7 @@
                                                     userId:cacheItem.idTokenClaims.userId
                                             credentialType:cacheItem.credentialType
                                                     appKey:cacheItem.appKey
+                                     applicationIdentifier:cacheItem.applicationIdentifier
                                                    context:context
                                                      error:error];
                 }
@@ -555,6 +564,7 @@
                                                     lookupAliases:aliases
                                                          clientId:clientId
                                                          resource:nil
+                                                    appIdentifier:nil
                                                           context:context
                                                             error:error];
 }
@@ -668,6 +678,9 @@
                                                                                clientId:tokenCacheItem.clientId
                                                                                resource:tokenCacheItem.target
                                                                            legacyUserId:token.accountIdentifier.displayableId];
+    
+    key.applicationIdentifier = tokenCacheItem.applicationIdentifier;
+
     BOOL result = [_dataSource saveToken:tokenCacheItem
                                      key:key
                               serializer:_serializer
@@ -716,6 +729,7 @@
                         userId:(NSString *)userId
                 credentialType:(MSIDCredentialType)credentialType
                         appKey:(NSString *)appKey
+         applicationIdentifier:(NSString *)applicationIdentifier
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
 {
@@ -739,6 +753,7 @@
                                                                                resource:target
                                                                            legacyUserId:userId];
     key.appKey = appKey;
+    key.applicationIdentifier = applicationIdentifier;
 
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
 
@@ -759,6 +774,7 @@
                             lookupAliases:(NSArray<NSURL *> *)aliases
                                  clientId:(NSString *)clientId
                                  resource:(NSString *)resource
+                            appIdentifier:(NSString *)appIdentifier
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
@@ -777,6 +793,8 @@
         {
             return nil;
         }
+        
+        key.applicationIdentifier = appIdentifier;
         
         NSError *cacheError = nil;
         MSIDLegacyTokenCacheItem *cacheItem = (MSIDLegacyTokenCacheItem *) [_dataSource tokenWithKey:key serializer:_serializer context:context error:&cacheError];
@@ -801,7 +819,9 @@
 
     if (type == MSIDRefreshTokenType)
     {
-        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:error] context:context];
+        NSError *wipeError = nil;
+        [MSIDTelemetry stopFailedCacheEvent:event wipeData:[_dataSource wipeInfo:context error:&wipeError] context:context];
+        if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to read wipe data with error %@", MSID_PII_LOG_MASKABLE(wipeError));
     }
     else
     {

@@ -224,6 +224,11 @@
     return YES;
 }
 
+- (BOOL)supportsMAMScenarios
+{
+    return YES;
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone

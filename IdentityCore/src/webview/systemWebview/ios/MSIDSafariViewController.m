@@ -37,6 +37,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
+#import "MSIDBackgroundTaskManager.h"
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
@@ -67,7 +68,18 @@
         _startURL = url;
         _context = context;
         
-        _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
+        if (@available(iOS 11.0, *))
+        {
+            __auto_type config = [SFSafariViewControllerConfiguration new];
+            _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
+        }
+#if !TARGET_OS_UIKITFORMAC
+        else
+        {
+            _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
+        }
+#endif
+        
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
 
@@ -92,8 +104,8 @@
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController *viewController = _parentController ? _parentController :
-        [UIApplication msidCurrentViewController];
+        UIViewController *viewController = [UIApplication msidCurrentViewController:_parentController];
+        
         if (!viewController)
         {
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
@@ -101,6 +113,8 @@
             completionHandler(nil, error);
             return;
         }
+        
+        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
         
         _completionHandler = [completionHandler copy];
         
@@ -110,7 +124,7 @@
         _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
                                                              context:_context];
         
-        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
         
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
     });
@@ -147,11 +161,16 @@
     }
     
     [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 
     _completionHandler(url, nil);
     return YES;
 }
 
+- (void)dealloc
+{
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+}
 
 #pragma mark - SFSafariViewControllerDelegate
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller

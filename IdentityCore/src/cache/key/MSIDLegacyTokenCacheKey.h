@@ -33,6 +33,7 @@ extern NSString *const MSID_LEGACY_CACHE_NIL_KEY;
 @property (nullable, nonatomic) NSString *clientId;
 @property (nullable, nonatomic) NSString *resource;
 @property (nullable, nonatomic) NSString *legacyUserId;
+@property (nullable, nonatomic) NSString *applicationIdentifier;
 
 - (instancetype)initWithEnvironment:(NSString *)environment
                               realm:(NSString *)realm

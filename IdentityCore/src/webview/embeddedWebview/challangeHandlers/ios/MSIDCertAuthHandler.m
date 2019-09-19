@@ -125,6 +125,9 @@ static NSString *s_redirectScheme = nil;
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(UIViewController *)parentViewController
+#endif
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
@@ -146,11 +149,12 @@ static NSString *s_redirectScheme = nil;
         NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
         NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
         NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
+        NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", s_redirectScheme];
         
         for (NSURLQueryItem *item in queryItems)
         {
             if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
-                && ![item.value.lowercaseString hasPrefix:s_redirectScheme.lowercaseString])
+                && ![item.value.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString])
             {
                 newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidURLEncode];
             }
@@ -173,7 +177,7 @@ static NSString *s_redirectScheme = nil;
         s_safariController = [[SFSafariViewController alloc] initWithURL:requestURL];
         s_safariController.delegate = s_safariDelegate;
         
-        UIViewController *currentViewController = [UIApplication msidCurrentViewController];
+        UIViewController *currentViewController = [UIApplication msidCurrentViewController:parentViewController];
         [currentViewController presentViewController:s_safariController animated:YES completion:nil];
     });
     

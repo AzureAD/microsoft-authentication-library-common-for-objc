@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,26 +15,48 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-#if !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import "MSIDSystemWebviewController.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
-@interface MSIDSFAuthenticationSession : NSObject<MSIDWebviewInteracting>
+@implementation NSKeyedUnarchiver (MSIDExtensions)
 
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-                    context:(id<MSIDRequestContext>)context;
++ (instancetype)msidCreateForReadingFromData:(NSData *)data error:(NSError **)error
+{
+    NSKeyedUnarchiver *unarchiver;
+    if (@available(iOS 11.0, macOS 10.13, *))
+    {
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:data error:error];
+    }
+#if !TARGET_OS_UIKITFORMAC
+    else
+    {
+        unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+    }
+#endif
+    
+    return unarchiver;
+}
 
-@property (readonly) NSURL *startURL;
-@property (readonly) NSString *callbackURLScheme;
++ (id)msidUnarchivedObjectOfClasses:(NSSet<Class> *)classes fromData:(NSData *)data error:(NSError **)error
+{
+    id result;
+    if (@available(iOS 11.0, macOS 10.13, *))
+    {
+        result = [NSKeyedUnarchiver unarchivedObjectOfClasses:classes fromData:data error:error];
+    }
+#if !TARGET_OS_UIKITFORMAC
+    else
+    {
+        result = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    }
+#endif
+
+    return result;
+}
 
 @end
-#endif

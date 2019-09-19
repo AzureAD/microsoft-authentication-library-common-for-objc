@@ -33,6 +33,7 @@
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDRequestParameters.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -44,7 +45,18 @@
                                                   error:(NSError **)error
 {
 #if TARGET_OS_IPHONE
-    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
+    
+    if (!dataSource)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil);
+        }
+        
+        return nil;
+    }
+    
     MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
     return cache;
@@ -74,8 +86,20 @@
         {
             return nil;
         }
+        
+        if (![self checkBrokerNonce:decryptedResponse])
+        {
+            MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+            return nil;
+        }
 
         return [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
+    }
+    
+    if (![self checkBrokerNonce:encryptedParams])
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+        return nil;
     }
 
     NSString *userDisplayableId = nil;

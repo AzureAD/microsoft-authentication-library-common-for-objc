@@ -34,6 +34,12 @@
 #import "MSIDNotifications.h"
 #import "MSIDURLResponseHandling.h"
 
+@interface MSIDSystemWebviewController ()
+
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
+
+@end
+
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
@@ -49,6 +55,7 @@
                 presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
        allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
                          context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -75,6 +82,7 @@
         _presentationType = presentationType;
         _allowSafariViewController = allowSafariViewController;
         _useAuthenticationSession = useAuthenticationSession;
+        _prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
     }
     return self;
 }
@@ -91,7 +99,15 @@
     
     if (_useAuthenticationSession)
     {
-        if (@available(iOS 11.0, *))
+        if (@available(iOS 13.0, *))
+        {
+            _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
+                                                    callbackURLScheme:self.redirectURL.scheme
+                                                     parentController:self.parentController
+                                           ephemeralWebBrowserSession:self.prefersEphemeralWebBrowserSession
+                                                              context:_context];
+        }
+        else if (@available(iOS 11.0, *))
         {
             _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
                                                     callbackURLScheme:_redirectURL.scheme
@@ -122,10 +138,9 @@
         return;
     }
     
-    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL];
+    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
     [_session startWithCompletionHandler:completionHandler];
 }
-
 
 - (void)cancel
 {

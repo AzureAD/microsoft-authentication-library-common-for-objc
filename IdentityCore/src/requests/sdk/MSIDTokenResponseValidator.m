@@ -32,6 +32,7 @@
 #import "MSIDBasicContext.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDIntuneApplicationStateManager.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -156,6 +157,9 @@
                                                                         redirectUri:nil
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
+    
+    configuration.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:brokerResponse.msidAuthority
+                                                                                                       appIdentifier:[[NSBundle mainBundle] bundleIdentifier]];
 
     MSIDTokenResponse *tokenResponse = brokerResponse.tokenResponse;
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
@@ -244,16 +248,21 @@
     
     //save metadata
     NSError *updateMetadataError = nil;
-    [accountMetadataCache updateAuthorityURL:tokenResult.authority.url
-                               forRequestURL:parameters.authority.url
-                               homeAccountId:tokenResult.accessToken.accountIdentifier.homeAccountId
-                                    clientId:parameters.clientId
-                                     context:parameters
-                                       error:&updateMetadataError];
-    
-    if (updateMetadataError)
+    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
+    if (resultingAuthority && !updateMetadataError)
     {
-       MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        [accountMetadataCache updateAuthorityURL:resultingAuthority.url
+                                   forRequestURL:parameters.authority.url
+                                   homeAccountId:tokenResult.account.accountIdentifier.homeAccountId
+                                        clientId:parameters.clientId
+                                   instanceAware:parameters.instanceAware
+                                         context:parameters
+                                           error:&updateMetadataError];
+        
+        if (updateMetadataError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        }
     }
 
     NSError *savingError = nil;
