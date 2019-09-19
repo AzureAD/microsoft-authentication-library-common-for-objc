@@ -80,14 +80,14 @@
         return;
     }
     
-    dispatch_async( dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         
         SEL openURLSelector = @selector(openURL:options:completionHandler:);
         UIApplication *application = [self sharedApplication];
         id (*safeOpenURL)(id, SEL, id, id, id) = (void *)[application methodForSelector:openURLSelector];
         
         safeOpenURL(application, openURLSelector, url, options, completionHandler);
-    });
+    }];
 }
 
 @end
