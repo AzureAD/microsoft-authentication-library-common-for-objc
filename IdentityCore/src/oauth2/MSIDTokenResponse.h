@@ -73,7 +73,7 @@
 - (nullable instancetype)initWithAccessToken:(nullable NSString *)accessToken
                                 refreshToken:(nullable NSString *)refreshToken
                                    expiresIn:(NSInteger)expiresIn
-                                   tokenType:(nonnull NSString *)tokenType
+                                   tokenType:(nullable NSString *)tokenType
                                        scope:(nullable NSString *)scope
                                        state:(nullable NSString *)state
                                      idToken:(nullable NSString *)idToken
