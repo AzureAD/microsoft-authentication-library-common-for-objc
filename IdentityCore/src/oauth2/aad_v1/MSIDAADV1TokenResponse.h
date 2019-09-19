@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDAADTokenResponse.h"
-#import "MSIDClientInfo.h"
 
 @interface MSIDAADV1TokenResponse : MSIDAADTokenResponse
 

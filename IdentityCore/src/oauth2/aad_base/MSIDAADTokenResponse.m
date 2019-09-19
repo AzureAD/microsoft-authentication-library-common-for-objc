@@ -22,136 +22,82 @@
 // THE SOFTWARE.
 
 #import "MSIDAADTokenResponse.h"
+#import "MSIDTokenResponse+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDAADV1IdTokenClaims.h"
-#import "MSIDHelpers.h"
-#import "MSIDRefreshableToken.h"
-#import "MSIDBaseToken.h"
-
-@interface MSIDAADTokenResponse ()
-
-@property (readonly) NSString *rawClientInfo;
-
-@end
 
 @implementation MSIDAADTokenResponse
 
-// Default properties for an error response
-MSID_JSON_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId)
-
-// Default properties for a successful response
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-MSID_JSON_RW(MSID_OAUTH2_CLIENT_INFO, rawClientInfo, setRawClientInfo)
-MSID_JSON_ACCESSOR(MSID_FAMILY_ID, familyId)
-MSID_JSON_ACCESSOR(MSID_TELEMETRY_KEY_SPE_INFO, speInfo)
-MSID_JSON_ACCESSOR(MSID_OAUTH2_SUB_ERROR, suberror)
-MSID_JSON_ACCESSOR(@"adi", additionalUserId)
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                          refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                 error:(NSError **)error
+- (instancetype)initWithAccessToken:(NSString *)accessToken
+                       refreshToken:(NSString *)refreshToken
+                          expiresIn:(NSInteger)expiresIn
+                          expiresOn:(NSInteger)expiresOn
+                  extendedExpiresIn:(NSInteger)extendedExpiresIn
+                  extendedExpiresOn:(NSInteger)extendedExpiresOn
+                          tokenType:(NSString *)tokenType
+                              scope:(NSString *)scope
+                              state:(NSString *)state
+                            idToken:(NSString *)idToken
+               additionalServerInfo:(NSDictionary *)additionalServerInfo
+                              error:(NSString *)error
+                           suberror:(NSString *)suberror
+                   errorDescription:(NSString *)errorDescription
+                         clientInfo:(MSIDClientInfo *)clientInfo
+                           familyId:(NSString *)familyId
+                   additionalUserId:(NSString *)additionalUserId
+                            speInfo:(NSString *)speInfo
+                      correlationId:(NSString *)correlationId
+                          initError:(NSError **)initError
 {
-    self = [super initWithJSONDictionary:json refreshToken:token error:error];
+    self = [super initWithAccessToken:accessToken
+                         refreshToken:refreshToken
+                            expiresIn:expiresIn
+                            tokenType:tokenType
+                                scope:scope
+                                state:state
+                              idToken:idToken
+                 additionalServerInfo:additionalServerInfo
+                                error:error
+                     errorDescription:errorDescription
+                            initError:initError];
     
     if (self)
     {
-        [self initDerivedProperties];
+        _expiresOn = expiresOn;
+        _extendedExpiresIn = extendedExpiresIn;
+        _suberror = suberror;
+        _clientInfo = clientInfo;
+        _familyId = familyId;
+        _additionalUserId = additionalUserId;
+        _speInfo = speInfo;
+        _correlationId = correlationId;
+        
+        [self initExtendedExpiresOnDate:extendedExpiresOn extendedExpiresIn:_extendedExpiresIn];
     }
     
     return self;
 }
 
-- (id)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+- (NSString *)description
 {
-    if (!(self = [super initWithJSONDictionary:json error:error]))
-    {
-        return nil;
-    }
-    
-    [self initDerivedProperties];
-    return self;
-}
-
-- (void)initDerivedProperties
-{
-    if (self.extendedExpiresIn)
-    {
-        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:self.extendedExpiresIn];
-    }
-    else if (_json[@"ext_expires_on"] && [MSIDHelpers msidIntegerValue:_json[@"ext_expires_on"]])
-    {
-        //Broker could send ext_expires_on rather than ext_expires_in
-        NSInteger extExpiresOn = [MSIDHelpers msidIntegerValue:_json[@"ext_expires_on"]];
-        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSince1970:extExpiresOn];
-    }
-    
-    if (self.rawClientInfo && !_clientInfo)
-    {
-        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:self.rawClientInfo error:nil];
-    }
-}
-
-- (NSInteger)expiresOn
-{
-    id expiresOnObj = _json[MSID_OAUTH2_EXPIRES_ON];
-    NSInteger expiresOn = [MSIDHelpers msidIntegerValue:expiresOnObj];
-    
-    if (!expiresOn && expiresOnObj)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Unparsable time - The response value for the access token expiration (expiresOn) cannot be parsed: %@", expiresOnObj);
-    }
-    
-    return expiresOn;
-}
-
-- (void)setExpiresOn:(NSInteger)expiresOn
-{
-    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)expiresOn];
-    _json[MSID_OAUTH2_EXPIRES_ON] = expiresOnString;
-}
-
-- (NSInteger)extendedExpiresIn
-{
-    id extExpiresInObj = _json[MSID_OAUTH2_EXT_EXPIRES_IN];
-    NSInteger extExpiresIn = [MSIDHelpers msidIntegerValue:extExpiresInObj];
-    
-    if (!extExpiresIn && extExpiresInObj)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Unparsable time - The response value for the access token expiration (extended expires IN) cannot be parsed: %@", extExpiresInObj);
-    }
-    
-    return extExpiresIn;
-}
-
-- (void)setExtendedExpiresIn:(NSInteger)extendedExpiresIn
-{
-    NSString *extExpiresInString = [NSString stringWithFormat:@"%ld", (long)extendedExpiresIn];
-    _json[MSID_OAUTH2_EXT_EXPIRES_IN] = extExpiresInString;
+    NSString *descr = [super description];
+    return [NSString stringWithFormat:@"%@, familyID %@, suberror %@, additional user ID %@, clientInfo %@", descr, self.familyId, self.suberror, self.additionalUserId, self.clientInfo.rawClientInfo];
 }
 
 - (NSDate *)expiryDate
 {
     NSDate *date = [super expiryDate];
-    
-    if (date)
-    {
-        return date;
-    }
-    
+
+    if (date) return date;
+
     NSInteger expiresOn = self.expiresOn;
-    
-    if (!expiresOn)
-    {
-        return nil;
-    }
-    
+
+    if (!expiresOn) return nil;
+
     return [NSDate dateWithTimeIntervalSince1970:expiresOn];
 }
 
-- (NSDictionary *)additionalServerInfo
+- (void)setAdditionalServerInfo:(NSDictionary *)additionalServerInfo
 {
-    NSDictionary *additionalInfo = [super additionalServerInfo];
-    
     NSArray *knownFields = @[MSID_OAUTH2_CORRELATION_ID_RESPONSE,
                              MSID_OAUTH2_RESOURCE,
                              MSID_OAUTH2_CLIENT_INFO,
@@ -161,18 +107,67 @@ MSID_JSON_ACCESSOR(@"adi", additionalUserId)
                              MSID_OAUTH2_EXT_EXPIRES_IN, @"url",
                              MSID_OAUTH2_SUB_ERROR];
     
-    additionalInfo = [additionalInfo dictionaryByRemovingFields:knownFields];
-    if (additionalInfo.count > 0)
-    {
-        return additionalInfo;
-    }
-    return nil;
+    NSDictionary *additionalInfo = [additionalServerInfo dictionaryByRemovingFields:knownFields];
+    
+    [super setAdditionalServerInfo:additionalInfo];
 }
 
-- (NSString *)description
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    NSString *descr = [super description];
-    return [NSString stringWithFormat:@"%@, familyID %@, suberror %@, additional user ID %@, clientInfo %@", descr, self.familyId, self.suberror, self.additionalUserId, self.clientInfo.rawClientInfo];
+    self = [super initWithJSONDictionary:json error:error];
+    if (self)
+    {
+        _correlationId = [json msidStringObjectForKey:MSID_OAUTH2_CORRELATION_ID_RESPONSE];
+        _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID];
+        _speInfo = [json msidStringObjectForKey:MSID_TELEMETRY_KEY_SPE_INFO];
+        _suberror = [json msidStringObjectForKey:MSID_OAUTH2_SUB_ERROR];
+        _additionalUserId = [json msidStringObjectForKey:@"adi"];
+        
+        NSString *rawClientInfo = [json msidStringObjectForKey:MSID_OAUTH2_CLIENT_INFO];
+        NSError *localError;
+        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:&localError];
+        if (localError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init client info, error: %@", MSID_PII_LOG_MASKABLE(localError));
+        
+        _extendedExpiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXT_EXPIRES_IN];
+        NSInteger extendedExpiresOn = [json msidIntegerObjectForKey:@"ext_expires_on"];
+        _expiresOn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_ON];
+        
+        [self initExtendedExpiresOnDate:extendedExpiresOn extendedExpiresIn:_extendedExpiresIn];
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableDeepCopy];
+    json[MSID_OAUTH2_CORRELATION_ID_RESPONSE] = self.correlationId;
+    json[MSID_FAMILY_ID] = self.familyId;
+    json[MSID_TELEMETRY_KEY_SPE_INFO] = self.speInfo;
+    json[MSID_OAUTH2_SUB_ERROR] = self.suberror;
+    json[@"adi"] = self.additionalUserId;
+    json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;
+    json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
+    json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
+    
+    return json;
+}
+
+#pragma mark - Private
+
+- (void)initExtendedExpiresOnDate:(NSInteger)extendedExpiresOn extendedExpiresIn:(NSInteger)extendedExpiresIn
+{
+    if (extendedExpiresIn)
+    {
+        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSinceNow:extendedExpiresIn];
+    }
+    else if (extendedExpiresOn)
+    {
+        // Broker could send ext_expires_on rather than ext_expires_in.
+        _extendedExpiresOnDate = [NSDate dateWithTimeIntervalSince1970:extendedExpiresOn];
+    }
 }
 
 @end

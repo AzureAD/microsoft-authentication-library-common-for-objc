@@ -37,6 +37,9 @@
 - (NSDictionary *)msidDictionaryWithoutNulls;
 - (NSString *)msidStringObjectForKey:(NSString *)key;
 - (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass;
+- (NSInteger)msidIntegerObjectForKey:(NSString *)key;
+
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error;
 
 - (BOOL)msidAssertType:(Class)type
                ofField:(NSString *)field

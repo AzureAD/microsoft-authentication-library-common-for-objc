@@ -44,6 +44,7 @@
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
+#import "MSIDConstants.h"
 
 /**
  This Mac cache stores serialized cache credentials in the macOS "login" Keychain.
@@ -297,6 +298,8 @@ static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstor
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
 static dispatch_queue_t s_synchronizationQueue;
+static NSString *s_AclOwnerAuthorizationTag = @"ACLAuthorizationChangeACL";
+static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 @interface MSIDMacKeychainTokenCache ()
 
@@ -385,6 +388,22 @@ static dispatch_queue_t s_synchronizationQueue;
     self = [super init];
     if (self)
     {
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+        if (@available(macOS 10.15, *)) {
+            
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
+            {
+                if (error)
+                {
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it", nil, nil, nil, nil, nil);
+                }
+                
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
+                return nil;
+            }
+        }
+#endif
+        
         self.appStorageItem = [MSIDMacCredentialStorageItem new];
         self.sharedStorageItem = [MSIDMacCredentialStorageItem new];
         self.serializer = [MSIDCacheItemJsonSerializer new];
@@ -859,6 +878,17 @@ static dispatch_queue_t s_synchronizationQueue;
                                              error:(NSError **)error
 {
     MSID_TRACE;
+    
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+    if (@available(macOS 10.15, *)) {
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Skipping login keychain read because it has been previously marked as empty on 10.15");
+            return nil;
+        }
+    }
+#endif
+    
     MSIDMacCredentialStorageItem *storageItem = nil;
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     [query addEntriesFromDictionary:[self primaryAttributesForItem:isShared context:context error:error]];
@@ -877,6 +907,8 @@ static dispatch_queue_t s_synchronizationQueue;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Keychain find status: %d.", (int)status);
     
+    BOOL storageItemIsEmpty = NO;
+    
     if (status == errSecSuccess)
     {
         NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
@@ -893,14 +925,31 @@ static dispatch_queue_t s_synchronizationQueue;
             
             return nil;
         }
+        
+        storageItemIsEmpty = !storageItem.count;
     }
-    
-    else if (status != errSecItemNotFound)
+    else if (status == errSecItemNotFound)
+    {
+        storageItemIsEmpty = YES;
+    }
+    else
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to read stored item from keychain (status: %d).", (int)status);
         [self createError:@"Failed to read stored item from keychain."
                    domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
     }
+    
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+    if (@available(macOS 10.15, *)) {
+        
+        // Performance optimization on 10.15. If we've read shared item once and we didn't find it, or it was empty, save a flag into user defaults such as we stop looking into the login keychain altogether
+        if (isShared && storageItemIsEmpty)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Saving a flag to stop looking into login keychain, as it doesn't contain any items");
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:kLoginKeychainEmptyKey];
+        }
+    }
+#endif
     
     return storageItem;
 }
@@ -1126,8 +1175,20 @@ static dispatch_queue_t s_synchronizationQueue;
         return nil;
     }
     
+    CFStringRef authorizationTag;
+    
+    if (@available(macOS 10.13.4, *))
+    {
+        authorizationTag = kSecACLAuthorizationChangeACL;
+    }
+    else
+    {
+        // code for earlier than 10.13.4
+        authorizationTag = (__bridge CFStringRef)s_AclOwnerAuthorizationTag;
+    }
+    
     if (![self accessSetACLTrustedApplications:access
-                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
+                           aclAuthorizationTag:authorizationTag
                            trustedApplications:trustedApplications
                                        context:nil
                                          error:error])

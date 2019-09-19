@@ -29,7 +29,8 @@
 
 @interface MSIDTokenResponse ()
 
-@property MSIDIdTokenClaims *idTokenObj;
+@property (nonatomic) MSIDIdTokenClaims *idTokenObj;
+@property (nonatomic) NSDictionary *additionalServerInfo;
 
 - (BOOL)initIdToken:(NSError *__autoreleasing *)error;
 
