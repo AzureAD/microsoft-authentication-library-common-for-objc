@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,24 +17,28 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
-#import "MSIDHttpRequestProtocol.h"
-#import "MSIDResponseSerialization.h"
+#import "MSIDMainThreadUtil.h"
 
-@protocol MSIDHttpRequestErrorHandling <NSObject>
+@implementation MSIDMainThreadUtil
 
-- (void)handleError:(NSError * )error
-       httpResponse:(NSHTTPURLResponse *)httpResponse
-               data:(NSData *)data
-        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
- responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
-            context:(id<MSIDRequestContext>)context
-    completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
++ (void)executeOnMainThreadIfNeeded:(void (^)(void))block
+{
+    if ([NSThread isMainThread])
+    {
+        if (block) block();
+    }
+    else
+    {
+        dispatch_async(dispatch_get_main_queue(), block);
+    }
+}
 
 @end

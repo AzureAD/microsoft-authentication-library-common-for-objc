@@ -27,6 +27,7 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDMainThreadUtil.h"
 
 #if !MSID_EXCLUDE_SYSTEMWV
 
@@ -99,7 +100,7 @@ static NSString *s_redirectScheme = nil;
         MSIDWebviewSession *currentSession = [MSIDWebviewAuthorization currentSession];
         MSIDOAuth2EmbeddedWebviewController *embeddedViewController = (MSIDOAuth2EmbeddedWebviewController  *)currentSession.webviewController;
         
-        dispatch_async(dispatch_get_main_queue(), ^{
+        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
             [s_safariController dismissViewControllerAnimated:YES completion:nil];
             
             if (endUrl || error)
@@ -111,7 +112,7 @@ static NSString *s_redirectScheme = nil;
                 NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected Cert Auth response received.", nil, nil, nil, nil, nil);
                 [embeddedViewController endWebAuthWithURL:nil error:error];
             }
-        });
+        }];
         
         return YES;
     }
@@ -171,7 +172,7 @@ static NSString *s_redirectScheme = nil;
     s_challengeCompletionHandler = completionHandler;
     s_certAuthInProgress = YES;
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         // This will launch a Safari view within the current Application, removing the app flip. Our control of this
         // view is extremely limited. Safari is still running in a separate sandbox almost completely isolated from us.
         s_safariController = [[SFSafariViewController alloc] initWithURL:requestURL];
@@ -179,7 +180,7 @@ static NSString *s_redirectScheme = nil;
         
         UIViewController *currentViewController = [UIApplication msidCurrentViewController:parentViewController];
         [currentViewController presentViewController:s_safariController animated:YES completion:nil];
-    });
+    }];
     
     // Cancel the Cert Auth Challenge happened in UIWebview, as we have already handled it in SFSafariViewController
     completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
