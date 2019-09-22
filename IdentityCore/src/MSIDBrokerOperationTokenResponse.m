@@ -23,7 +23,7 @@
 
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDTokenResult+MSIDJsonSerializable.h"
-#import "MSIDTokenResponse.h"
+#import "MSIDAADV2TokenResponse.h"
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDConfiguration+MSIDJsonSerializable.h"
@@ -53,17 +53,21 @@
         MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithJSONDictionary:responseJson error:error];
         if (!tokenResponse) return nil;
 
-        __auto_type configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:responseJson error:error];
-        if (!configuration) return nil;
+        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:responseJson error:error];
+        if (!_configuration) return nil;
         
-        __auto_type responseValidator = [MSIDDefaultTokenResponseValidator new];
-        __auto_type oauthFactory = [MSIDAADV2Oauth2Factory new];
+//        __auto_type responseValidator = [MSIDDefaultTokenResponseValidator new];
+//        __auto_type oauthFactory = [MSIDAADV2Oauth2Factory new];
+        
+        __auto_type responseValidator = [MSIDTokenResponseValidator new];
+        __auto_type oauthFactory = [MSIDOauth2Factory new];
+        
         // TODO: fix.
         NSUUID *correlationID = [NSUUID new];
         
         _result = [responseValidator validateTokenResponse:tokenResponse
                                               oauthFactory:oauthFactory
-                                             configuration:configuration
+                                             configuration:_configuration
                                             requestAccount:nil
                                              correlationID:correlationID
                                                      error:error];

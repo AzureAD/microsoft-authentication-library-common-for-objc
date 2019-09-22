@@ -34,6 +34,8 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDVersion.h"
+#import "MSIDBrokerOperationTokenResponse.h"
+#import "NSDictionary+MSIDJsonSerializable.h"
 
 @interface MSIDBrokerExtensionInteractiveController () <ASAuthorizationControllerDelegate, ASAuthorizationControllerPresentationContextProviding>
 
@@ -123,24 +125,35 @@
     
     NSDictionary *response = ssoCredential.authenticatedResponse.allHeaderFields;
     
-    NSString *urlString = response[@"response"];
-    NSURL *resultURL = [NSURL URLWithString:urlString];
+    NSString *jsonString = response[@"response"];
+    NSDictionary *json = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:jsonString ofType:NSDictionary.class context:nil error:nil];
     
-    MSIDDefaultBrokerResponseHandler *responseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
-    tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    __unused NSString *operation = json[@"operation"];
     
-    NSError *resultError = nil;
-    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL sourceApplication:@"" error:&resultError];
-
-    [MSIDNotifications notifyWebAuthDidReceiveResponseFromBroker:result];
-
-    if ([self.class currentBrokerController])
+    NSError *localError;
+    __unused MSIDBrokerOperationTokenResponse *operationResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:json error:&localError];
+    
+    if (localError)
     {
-        MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
-        [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
+        // TODO: handle error;
     }
-
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    
+    
+//    MSIDDefaultBrokerResponseHandler *responseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
+//    tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+//
+//    NSError *resultError = nil;
+//    MSIDTokenResult *result = [responseHandler handleBrokerResponseWithURL:resultURL sourceApplication:@"" error:&resultError];
+//
+//    [MSIDNotifications notifyWebAuthDidReceiveResponseFromBroker:result];
+//
+//    if ([self.class currentBrokerController])
+//    {
+//        MSIDBrokerInteractiveController *currentBrokerController = [self.class currentBrokerController];
+//        [currentBrokerController completeAcquireTokenWithResult:result error:resultError];
+//    }
+//
+//    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 }
 
 - (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error

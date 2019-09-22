@@ -116,6 +116,12 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
      }];
 }
 
++ (BOOL)canPerformRequest
+{
+    // TODO: verify broker is available here.
+    return YES;
+}
+
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)

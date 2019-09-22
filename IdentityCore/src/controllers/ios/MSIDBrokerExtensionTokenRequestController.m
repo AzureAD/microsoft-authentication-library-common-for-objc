@@ -21,19 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDBrokerExtensionTokenRequestController.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDBrokerExtensionTokenRequestController
 
-@class MSIDTelemetryAPIEvent;
+#pragma mark - MSIDRequestControlling
 
-@protocol MSIDRequestControlling <NSObject>
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+{
+    
+}
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
++ (BOOL)canPerformRequest
+{
+    // TODO: check for extension.
+    return YES;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

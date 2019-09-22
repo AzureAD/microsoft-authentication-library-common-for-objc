@@ -31,18 +31,37 @@
 #import "MSIDBrokerExtensionInteractiveController.h"
 #endif
 #import "MSIDAuthority.h"
+#import "MSIDBrokerExtensionSilentTokenRequestController.h"
 
 @implementation MSIDRequestControllerFactory
 
-+ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
-                                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError * _Nullable * _Nullable)error
+                                                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                               error:(NSError **)error
 {
-    return [[MSIDSilentController alloc] initWithRequestParameters:parameters
-                                                      forceRefresh:forceRefresh
-                                              tokenRequestProvider:tokenRequestProvider
-                                                             error:error];
+    __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                             forceRefresh:forceRefresh
+                                                                     tokenRequestProvider:tokenRequestProvider
+                                                                                    error:error];
+    if (!localController)
+    {
+        return nil;
+    }
+    
+    // TODO: canUseBrokerOnDeviceWithParameters ???
+    if (@available(iOS 13.0, *))
+    {
+        if ([MSIDBrokerExtensionSilentTokenRequestController canPerformRequest])
+        {
+            return [[MSIDBrokerExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                 tokenRequestProvider:tokenRequestProvider
+                                                                                   fallbackController:localController
+                                                                                                error:error];
+        }
+    }
+    
+    return localController;
 }
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
@@ -137,7 +156,6 @@
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
 }
-
 
 + (BOOL)canUseBrokerOnDeviceWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
 {
