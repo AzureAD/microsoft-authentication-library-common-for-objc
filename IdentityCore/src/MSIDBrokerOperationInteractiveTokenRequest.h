@@ -21,14 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDRequestControlling.h"
+#import "MSIDBrokerOperationSilentTokenRequest.h"
+#import "MSIDConstants.h"
 
+@class WKWebView;
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0))
-@interface MSIDBrokerExtensionTokenRequestController : MSIDBaseRequestController <MSIDRequestControlling>
+@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationSilentTokenRequest
+
+@property (nonatomic) NSString *loginHint;
+@property (nonatomic) WKWebView *customWebview;
+@property (nonatomic) MSIDPromptType promptType;
 
 @end
 

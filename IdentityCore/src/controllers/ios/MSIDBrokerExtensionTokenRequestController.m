@@ -21,7 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerExtensionTokenRequestController.h"
+#import "MSIDBrokerExtensionTokenRequestController+Internal.h"
+#import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDJsonSerializer.h"
 
 @implementation MSIDBrokerExtensionTokenRequestController
 
@@ -36,6 +38,54 @@
 {
     // TODO: check for extension.
     return YES;
+}
+
+#pragma mark - ASAuthorizationControllerDelegate
+
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+{
+    // TODO: hack
+    ASAuthorizationSingleSignOnCredential *ssoCredential = (ASAuthorizationSingleSignOnCredential *)authorization.credential;
+    
+    NSDictionary *response = ssoCredential.authenticatedResponse.allHeaderFields;
+    
+    NSString *jsonString = response[@"response"];
+    NSDictionary *json = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:jsonString ofType:NSDictionary.class context:nil error:nil];
+    
+    __unused NSString *operation = json[@"operation"];
+    
+    NSError *localError;
+    __unused MSIDBrokerOperationTokenResponse *operationResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:json error:&localError];
+    
+    if (localError)
+    {
+        // TODO: handle error;
+    }
+    
+    assert(self.requestCompletionBlock);
+    self.requestCompletionBlock(operationResponse.result, operationResponse.error);
+}
+
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
+{
+    // TODO: handle error
+}
+
+#pragma mark - Private
+
++ (ASAuthorizationSingleSignOnProvider *)sharedProvider
+{
+    static dispatch_once_t once;
+    static ASAuthorizationSingleSignOnProvider *ssoProvider;
+    
+    dispatch_once(&once, ^{
+        // TODO: use authority.
+        NSURL *url = [NSURL URLWithString:@"https://ios-sso-test.azurewebsites.net"];
+    
+        ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
+    });
+    
+    return ssoProvider;
 }
 
 @end

@@ -21,14 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDRequestControlling.h"
+#import "MSIDBrokerExtensionTokenRequestController.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0))
-@interface MSIDBrokerExtensionTokenRequestController : MSIDBaseRequestController <MSIDRequestControlling>
+@interface MSIDBrokerExtensionTokenRequestController () <ASAuthorizationControllerDelegate>
+
+@property (nonatomic) ASAuthorizationController *authorizationController;
+@property (nonatomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
+
++ (BOOL)canPerformRequest;
+
++ (ASAuthorizationSingleSignOnProvider *)sharedProvider;
 
 @end
 

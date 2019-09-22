@@ -28,10 +28,10 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerInteractiveController.h"
-#import "MSIDBrokerExtensionInteractiveController.h"
+#import "MSIDBrokerExtensionInteractiveTokenRequestController.h"
+#import "MSIDBrokerExtensionSilentTokenRequestController.h"
 #endif
 #import "MSIDAuthority.h"
-#import "MSIDBrokerExtensionSilentTokenRequestController.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -102,9 +102,9 @@
     {
         if (@available(iOS 13.0, *))
         {
-            if ([MSIDBrokerExtensionInteractiveController canPerformAuthorization])
+            if ([MSIDBrokerExtensionInteractiveTokenRequestController canPerformRequest])
             {
-                return [[MSIDBrokerExtensionInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                return [[MSIDBrokerExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                                          tokenRequestProvider:tokenRequestProvider
                                                                                            fallbackController:localController
                                                                                                         error:error];
