@@ -184,7 +184,7 @@ static WKWebViewConfiguration *s_webConfig;
     {
         loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
     }
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
     else
     {
         loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
