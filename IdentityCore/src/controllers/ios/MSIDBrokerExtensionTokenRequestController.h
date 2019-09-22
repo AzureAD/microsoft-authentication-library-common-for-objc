@@ -22,17 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDBaseRequestController.h"
+#import "MSIDRequestControlling.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDTelemetryAPIEvent;
-
-@protocol MSIDRequestControlling <NSObject>
-
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
+@interface MSIDBrokerExtensionTokenRequestController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @end
 
