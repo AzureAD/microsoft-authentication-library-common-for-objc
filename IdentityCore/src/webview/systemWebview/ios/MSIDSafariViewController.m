@@ -38,6 +38,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
 #import "MSIDBackgroundTaskManager.h"
+#import "MSIDMainThreadUtil.h"
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
@@ -73,7 +74,7 @@
             __auto_type config = [SFSafariViewControllerConfiguration new];
             _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
         }
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
         else
         {
             _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
@@ -103,9 +104,9 @@
         return;
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController *viewController = [UIApplication msidCurrentViewController:_parentController];
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         
+        UIViewController *viewController = [UIApplication msidCurrentViewController:_parentController];
         if (!viewController)
         {
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
@@ -127,7 +128,7 @@
         [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
         
         [viewController presentViewController:_safariViewController animated:YES completion:nil];
-    });
+    }];
 }
 
 
@@ -145,11 +146,11 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError *)error
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [_safariViewController dismissViewControllerAnimated:YES completion:^{
             _safariViewController = nil;
         }];
-    });
+    }];
     
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     

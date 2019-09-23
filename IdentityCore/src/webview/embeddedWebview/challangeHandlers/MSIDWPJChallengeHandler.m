@@ -43,15 +43,24 @@
     
     if ([self isWPJChallenge:distinguishedNames])
     {
+#if TARGET_OS_IPHONE
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Ignoring WPJ challenge on iOS");
+        return NO;
+#else
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
+#endif
     }
     
     return NO;
 }
 
++ (BOOL)shouldHandleChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    return [self isWPJChallenge:challenge.protectionSpace.distinguishedNames];
+}
+
 + (BOOL)isWPJChallenge:(NSArray *)distinguishedNames
 {
-    
     for (NSData *distinguishedName in distinguishedNames)
     {
         NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];

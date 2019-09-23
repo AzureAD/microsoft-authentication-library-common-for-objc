@@ -34,7 +34,7 @@
 @interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
-               callbackURLScheme:(NSString *)callbackURLScheme
+                     redirectURI:(NSString *)redirectURI
                 parentController:(UIViewController *)parentController
                 presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
@@ -42,10 +42,10 @@
       ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
                          context:(id<MSIDRequestContext>)context;
 
-- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url;
+- (BOOL)handleURLResponse:(NSURL *)url;
 
 @property (readonly) NSURL *startURL;
-@property (readonly) NSString *callbackURLScheme;
+@property (readonly) NSURL *redirectURL;
 
 @property (weak, nonatomic) UIViewController *parentController;
 @property (nonatomic) UIModalPresentationStyle presentationType;

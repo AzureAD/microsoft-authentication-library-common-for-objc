@@ -30,7 +30,7 @@
 - (void)handleError:(NSError * )error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
-        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
  responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
