@@ -54,9 +54,13 @@
     return NO;
 }
 
++ (BOOL)shouldHandleChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    return [self isWPJChallenge:challenge.protectionSpace.distinguishedNames];
+}
+
 + (BOOL)isWPJChallenge:(NSArray *)distinguishedNames
 {
-    
     for (NSData *distinguishedName in distinguishedNames)
     {
         NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];
