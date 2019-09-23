@@ -24,12 +24,18 @@
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDConfiguration+MSIDJsonSerializable.h"
 #import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
+#import "MSIDBrokerOperationRequestFactory.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 
++ (void)load
+{
+    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+}
+
 #pragma mark - MSIDBrokerOperationRequest
 
-- (NSString *)operation
++ (NSString *)operation
 {
     return @"acquire_token_silent";
 }
@@ -45,9 +51,6 @@
         if (![json msidAssertType:NSDictionary.class ofField:@"request_parameters" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
         NSDictionary *requestParameters = json[@"request_parameters"];
         
-        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:requestParameters error:error];
-        if (!_configuration) return nil;
-        
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters error:error];
         if (!_accountIdentifier) return nil;
     }
@@ -60,9 +63,6 @@
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
     NSMutableDictionary *requestParametersJson = [NSMutableDictionary new];
-    
-    NSDictionary *configurationJson = [self.configuration jsonDictionary];
-    if (configurationJson) [requestParametersJson addEntriesFromDictionary:configurationJson];
     
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
     if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];

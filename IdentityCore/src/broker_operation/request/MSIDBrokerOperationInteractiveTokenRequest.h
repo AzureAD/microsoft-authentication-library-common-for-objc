@@ -21,16 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationSilentTokenRequest.h"
+#import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConstants.h"
 
 @class WKWebView;
+@class MSIDAccountIdentifier;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationSilentTokenRequest
+@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
 
-@property (nonatomic) NSString *loginHint;
-@property (nonatomic) WKWebView *customWebview;
+@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic, nullable) NSString *loginHint;
+@property (nonatomic, nullable) WKWebView *customWebview;
 @property (nonatomic) MSIDPromptType promptType;
 
 @end

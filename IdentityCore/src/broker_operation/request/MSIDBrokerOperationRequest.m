@@ -25,7 +25,7 @@
 
 @implementation MSIDBrokerOperationRequest
 
-- (NSString *)operation
++ (NSString *)operation
 {
     NSAssert(NO, @"Abstract method.");
     return @"";
@@ -95,7 +95,7 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    json[@"operation"] = self.operation;
+    json[@"operation"] = self.class.operation;
     json[@"broker_key"] = self.brokerKey;
     json[@"client_version"] = self.clientVersion;
     json[@"msg_protocol_ver"] = [@(self.protocolVersion) stringValue];

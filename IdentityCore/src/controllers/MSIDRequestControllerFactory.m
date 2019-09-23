@@ -50,6 +50,10 @@
     }
     
     // TODO: canUseBrokerOnDeviceWithParameters ???
+    // TODO: move MSIDInteractiveRequestLocalType to silent params (other operations too ???).
+    // TODO: hack, remove macro.
+    
+#if !AD_BROKER
     if (@available(iOS 13.0, *))
     {
         if ([MSIDBrokerExtensionSilentTokenRequestController canPerformRequest])
@@ -60,6 +64,7 @@
                                                                                                 error:error];
         }
     }
+#endif
     
     return localController;
 }

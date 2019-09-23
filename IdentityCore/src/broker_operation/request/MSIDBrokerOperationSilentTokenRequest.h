@@ -21,17 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationRequest.h"
+#import "MSIDBrokerOperationTokenRequest.h"
 
 @class MSIDConfiguration;
 @class MSIDAccountIdentifier;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationRequest
+@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest
 
-@property (nonatomic) MSIDConfiguration *configuration;
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 
 @property (nonatomic, nullable) NSOrderedSet<NSString *> *extraScopesToConsent;
 @property (nonatomic, nullable) NSOrderedSet<NSString *> *extraOIDCScopes;

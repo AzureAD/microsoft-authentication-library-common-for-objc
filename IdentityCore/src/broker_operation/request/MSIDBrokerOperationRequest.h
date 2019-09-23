@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
 
-@property (nonatomic, readonly) NSString *operation;
+@property (nonatomic, class, readonly) NSString *operation;
 @property (nonatomic) NSString *brokerKey;
 //TODO: add apptoken
 @property (nonatomic) NSString *clientVersion;

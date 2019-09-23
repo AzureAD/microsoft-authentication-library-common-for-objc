@@ -24,10 +24,14 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDBrokerOperationRequest;
+@protocol MSIDJsonSerializable;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationRequestFactory : NSObject
+
++ (void)registerOperationRequestClass:(Class<MSIDJsonSerializable>)operationRequestClass
+                            operation:(NSString *)operation;
 
 - (MSIDBrokerOperationRequest *)operationRequestFromJSONDictionary:(NSDictionary *)json
                                                              error:(NSError * _Nullable * _Nullable)error;

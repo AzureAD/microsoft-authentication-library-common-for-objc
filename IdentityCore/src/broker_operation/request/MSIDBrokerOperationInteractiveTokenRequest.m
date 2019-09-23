@@ -23,12 +23,19 @@
 
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDPromptType_Internal.h"
+#import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
++ (void)load
+{
+    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+}
+
 #pragma mark - MSIDBrokerOperationRequest
 
-- (NSString *)operation
++ (NSString *)operation
 {
     return @"acquire_token_interactive";
 }
@@ -44,9 +51,7 @@
         if (![json msidAssertType:NSDictionary.class ofField:@"request_parameters" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
         NSDictionary *requestParameters = json[@"request_parameters"];
         
-        // TODO: fix json parsing.
-        _loginHint = requestParameters[MSID_OAUTH2_LOGIN_HINT];
-        _promptType = MSIDPromptTypeFromString(requestParameters[MSID_OAUTH2_PROMPT]);
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters error:error];
     }
     
     return self;
@@ -56,11 +61,10 @@
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
-    NSMutableDictionary *requestParametersJson = [json[@"request_parameters"] mutableCopy];
-    // TODO: assert requestParametersJson
+    NSMutableDictionary *requestParametersJson = [NSMutableDictionary new];
     
-    requestParametersJson[MSID_OAUTH2_LOGIN_HINT] = self.loginHint;
-    requestParametersJson[MSID_OAUTH2_PROMPT] = MSIDPromptParamFromType(self.promptType);
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];
     
     json[@"request_parameters"] = requestParametersJson;
     
