@@ -126,9 +126,7 @@
         _additionalUserId = [json msidStringObjectForKey:@"adi"];
         
         NSString *rawClientInfo = [json msidStringObjectForKey:MSID_OAUTH2_CLIENT_INFO];
-        NSError *localError;
-        _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:&localError];
-        if (localError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init client info, error: %@", MSID_PII_LOG_MASKABLE(localError));
+        if (rawClientInfo) _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
         
         _extendedExpiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXT_EXPIRES_IN];
         NSInteger extendedExpiresOn = [json msidIntegerObjectForKey:@"ext_expires_on"];
