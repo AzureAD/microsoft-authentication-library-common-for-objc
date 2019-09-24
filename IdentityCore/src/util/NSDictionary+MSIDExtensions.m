@@ -104,7 +104,7 @@
     NSString *message;
     if (!obj)
     {
-        message = [NSString stringWithFormat:@"%@ key is missed in dictionary.", key];
+        message = [NSString stringWithFormat:@"%@ key is missing in dictionary.", key];
     }
     else
     {
