@@ -57,11 +57,10 @@
         _errorDescription = errorDescription;
         
         NSError *localError;
-        [self initIdToken:&localError];
-        if (localError)
+        BOOL result = [self initIdToken:&localError];
+        if (!result)
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init id token wrapper, error: %@", MSID_PII_LOG_MASKABLE(localError));
-            if (initError) *initError = localError;
         }
     }
     
@@ -127,6 +126,9 @@
         self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
         return self.idTokenObj != nil;
     }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Id token is missing in token response!");
+    
     return YES;
 }
 
