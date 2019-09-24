@@ -157,7 +157,7 @@
     {
         if (!json)
         {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Attempt to initialize JSON object with nil dictionary", nil, nil, nil, nil, nil);
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Attempt to initialize token response with nil json", nil, nil, nil, nil, nil);
             
             return nil;
         }
