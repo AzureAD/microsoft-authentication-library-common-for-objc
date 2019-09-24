@@ -88,12 +88,16 @@
     return [NSString msidWWWFormURLEncodedStringFromDictionary:self];
 }
 
-
 - (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
 {
     NSMutableDictionary *mutableDict = [self mutableCopy];
     [mutableDict removeObjectsForKeys:fieldsToRemove];
     return mutableDict;
+}
+
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
+{
+    return [self msidAssertTypeIsOneOf:@[type] ofKey:key required:required error:error];
 }
 
 - (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error

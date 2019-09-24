@@ -24,33 +24,12 @@
 #import "MSIDBrokerOperationRequestFactory.h"
 #import "MSIDBrokerOperationRequest.h"
 #import "MSIDJsonSerializable.h"
+#import "NSDictionary+MSIDExtensions.h"
+#import "MSIDConstants.h"
 
 static NSMutableDictionary *s_operationRequestClasses = nil;
 
 @implementation MSIDBrokerOperationRequestFactory
-
-- (MSIDBrokerOperationRequest *)operationRequestFromJSONDictionary:(NSDictionary *)json
-                                                             error:(NSError **)error
-{
-    // TODO: assert type.
-    NSString *operation = json[@"operation"];
-    
-    if (!operation)
-    {
-        // TODO: create error.
-        return nil;
-    }
-    
-    Class operationRequestClass = s_operationRequestClasses[operation];
-    
-    if (!operationRequestClass)
-    {
-        // TODO: create error.
-        return nil;
-    }
-    
-    return [[(Class)operationRequestClass alloc] initWithJSONDictionary:json error:error];
-}
 
 + (void)registerOperationRequestClass:(Class<MSIDJsonSerializable>)operationRequestClass
                             operation:(NSString *)operation
@@ -67,6 +46,40 @@ static NSMutableDictionary *s_operationRequestClasses = nil;
         
         s_operationRequestClasses[operation] = operationRequestClass;
     }
+}
+
++ (void)unregisterAll
+{
+    @synchronized(self)
+    {
+        [s_operationRequestClasses removeAllObjects];
+    }
+}
+
+- (MSIDBrokerOperationRequest *)operationRequestFromJSONDictionary:(NSDictionary *)json
+                                                             error:(NSError **)error
+{
+    if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_KEY required:YES error:error]) return nil;
+    NSString *operation = json[MSID_BROKER_OPERATION_KEY];
+    
+    Class operationRequestClass = s_operationRequestClasses[operation];
+    
+    if (!operationRequestClass)
+    {
+        NSString *errorMessage = [NSString stringWithFormat:@"Unknown broker operation: %@", operation];
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorInvalidDeveloperParameter,
+                                     errorMessage,
+                                     nil, nil, nil, nil, nil);
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        return nil;
+    }
+    
+    return [[(Class)operationRequestClass alloc] initWithJSONDictionary:json error:error];
 }
 
 @end

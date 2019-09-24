@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationRequest.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDBrokerOperationRequest
 
@@ -39,54 +40,18 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofField:@"broker_key" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
-        _brokerKey = json[@"broker_key"];
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_KEY required:YES error:error]) return nil;
+        _brokerKey = json[MSID_BROKER_KEY];
         
-        if (![json msidAssertType:NSString.class ofField:@"client_version" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
-        _clientVersion = json[@"client_version"];
+        if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_PROTOCOL_VERSION_KEY required:YES error:error]) return nil;
+        _protocolVersion = [json[MSID_BROKER_PROTOCOL_VERSION_KEY] integerValue];
         
-        if (![json msidAssertType:NSString.class ofField:@"msg_protocol_ver" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
-        _protocolVersion = [json[@"msg_protocol_ver"] integerValue];
-        if (!_protocolVersion)
-        {
-            // TODO: create error or change Int to String.
-            return nil;
-        }
+        _clientVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_VERSION_KEY];
+        _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
+        _clientAppName = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_NAME_KEY];
         
-        if (![json msidAssertType:NSString.class
-                          ofField:@"client_app_version"
-                          context:nil
-                        errorCode:MSIDErrorInvalidInternalParameter
-                            error:error])
-        {
-            // TODO: log error.
-        }
-        _clientAppVersion = json[@"client_app_version"];
-        
-        if (![json msidAssertType:NSString.class
-                          ofField:@"client_app_name"
-                          context:nil
-                        errorCode:MSIDErrorInvalidInternalParameter
-                            error:error])
-        {
-            // TODO: log error.
-        }
-        _clientAppName = json[@"client_app_name"];
-        
-        if (![json msidAssertType:NSString.class
-                          ofField:@"correlation_id"
-                          context:nil
-                        errorCode:MSIDErrorInvalidInternalParameter
-                            error:error])
-        {
-            return nil;
-        }
-        // TODO: verify for crash when string is nil.
-        _correlationId = [[NSUUID alloc] initWithUUIDString:json[@"correlation_id"]];
-        if (!_correlationId)
-        {
-            // TODO: log error.
-        }
+        NSString *uuidString = [json msidStringObjectForKey:MSID_BROKER_CORRELATION_ID_KEY];
+        _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
     }
     
     return self;
@@ -95,13 +60,13 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    json[@"operation"] = self.class.operation;
-    json[@"broker_key"] = self.brokerKey;
-    json[@"client_version"] = self.clientVersion;
-    json[@"msg_protocol_ver"] = [@(self.protocolVersion) stringValue];
-    json[@"client_app_version"] = self.clientAppVersion;
-    json[@"client_app_name"] = self.clientAppName;
-    json[@"correlation_id"] = self.correlationId.UUIDString;
+    json[MSID_BROKER_OPERATION_KEY] = self.class.operation;
+    json[MSID_BROKER_KEY] = self.brokerKey;
+    json[MSID_BROKER_CLIENT_VERSION_KEY] = self.clientVersion;
+    json[MSID_BROKER_PROTOCOL_VERSION_KEY] = [@(self.protocolVersion) stringValue];
+    json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
+    json[MSID_BROKER_CLIENT_APP_NAME_KEY] = self.clientAppName;
+    json[MSID_BROKER_CORRELATION_ID_KEY] = self.correlationId.UUIDString;
     
     return json;
 }

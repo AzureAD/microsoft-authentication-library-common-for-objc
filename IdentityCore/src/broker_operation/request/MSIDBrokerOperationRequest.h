@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, class, readonly) NSString *operation;
 @property (nonatomic) NSString *brokerKey;
 //TODO: add apptoken
-@property (nonatomic) NSString *clientVersion;
 @property (nonatomic) NSInteger protocolVersion;
+@property (nonatomic, nullable) NSString *clientVersion;
 @property (nonatomic, nullable) NSString *clientAppVersion;
 @property (nonatomic, nullable) NSString *clientAppName;
 @property (nonatomic, nullable) NSUUID *correlationId;

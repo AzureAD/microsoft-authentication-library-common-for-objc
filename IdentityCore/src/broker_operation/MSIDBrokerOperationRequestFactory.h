@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)registerOperationRequestClass:(Class<MSIDJsonSerializable>)operationRequestClass
                             operation:(NSString *)operation;
 
++ (void)unregisterAll;
+
 - (MSIDBrokerOperationRequest *)operationRequestFromJSONDictionary:(NSDictionary *)json
                                                              error:(NSError * _Nullable * _Nullable)error;
 

@@ -8,6 +8,7 @@
 
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConfiguration+MSIDJsonSerializable.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDBrokerOperationTokenRequest
 
@@ -19,8 +20,8 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSDictionary.class ofField:@"request_parameters" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
-        NSDictionary *requestParameters = json[@"request_parameters"];
+        if (![json msidAssertType:NSDictionary.class ofKey:MSID_BROKER_REQUEST_PARAMETERS_KEY required:YES error:error]) return nil;
+        NSDictionary *requestParameters = json[MSID_BROKER_REQUEST_PARAMETERS_KEY];
         
         _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:requestParameters error:error];
         if (!_configuration) return nil;
