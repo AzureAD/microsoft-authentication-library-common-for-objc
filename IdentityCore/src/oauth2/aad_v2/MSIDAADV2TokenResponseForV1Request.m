@@ -27,17 +27,9 @@
 
 @implementation MSIDAADV2TokenResponseForV1Request
 
-- (BOOL)initIdToken:(NSError **)error
+- (Class)tokenClaimsClass
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Id token is missing in add v2 for v1 token response!");
-    
-    return YES;
+    return MSIDAADV1IdTokenClaims.class;
 }
 
 @end

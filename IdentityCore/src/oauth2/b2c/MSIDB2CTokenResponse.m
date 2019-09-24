@@ -31,17 +31,9 @@
 
 @implementation MSIDB2CTokenResponse
 
-- (BOOL)initIdToken:(NSError *__autoreleasing *)error
+- (Class)tokenClaimsClass
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Id token is missing in b2c token response!");
-    
-    return YES;
+    return MSIDB2CIdTokenClaims.class;
 }
 
 @end

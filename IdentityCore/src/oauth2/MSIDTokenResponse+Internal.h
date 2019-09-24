@@ -22,18 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenResponse.h"
-@class MSIDIdTokenClaims;
-
-#ifndef MSIDTokenResponse_Internal_h
-#define MSIDTokenResponse_Internal_h
 
 @interface MSIDTokenResponse ()
 
-@property (nonatomic) MSIDIdTokenClaims *idTokenObj;
-@property (nonatomic) NSDictionary *additionalServerInfo;
-
-- (BOOL)initIdToken:(NSError *__autoreleasing *)error;
+- (Class)tokenClaimsClass;
 
 @end
-
-#endif /* MSIDTokenResponse_Internal_h */

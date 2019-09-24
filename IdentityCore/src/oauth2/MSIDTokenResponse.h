@@ -33,18 +33,23 @@
 @interface MSIDTokenResponse : NSObject <MSIDJsonSerializable>
 
 // Default properties for an openid error response
-@property (nonatomic, readonly, nullable) NSString *error;
-@property (nonatomic, readonly, nullable) NSString *errorDescription;
+@property (nonatomic, nullable) NSString *error;
+@property (nonatomic, nullable) NSString *errorDescription;
 // Default properties for a successful openid response
-@property (nonatomic, readonly) NSInteger expiresIn;
-@property (nonatomic, readonly, nullable) NSString *accessToken;
-@property (nonatomic, readonly, nullable) NSString *tokenType;
-@property (nonatomic, readonly, nullable) NSString *refreshToken;
-@property (nonatomic, readonly, nullable) NSString *scope;
-@property (nonatomic, readonly, nullable) NSString *state;
-@property (nonatomic, readonly, nullable) NSString *idToken;
+@property (nonatomic) NSInteger expiresIn;
+/*!
+ expiresOn isn't part of the spec, but we use it when we need to serialize/deserialize token reponse to/from JSON,
+ because it contains more precise time then expiresIn.
+ */
+@property (nonatomic) NSInteger expiresOn;
+@property (nonatomic, nullable) NSString *accessToken;
+@property (nonatomic, nullable) NSString *tokenType;
+@property (nonatomic, nullable) NSString *refreshToken;
+@property (nonatomic, nullable) NSString *scope;
+@property (nonatomic, nullable) NSString *state;
+@property (nonatomic, nullable) NSString *idToken;
 // Additional properties that server sends
-@property (nonatomic, readonly, nullable) NSDictionary *additionalServerInfo;
+@property (nonatomic, nullable) NSDictionary *additionalServerInfo;
 
 /* Derived properties */
 
@@ -69,17 +74,5 @@
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
                                           error:(NSError * _Nullable __autoreleasing *_Nullable)error;
-
-- (nullable instancetype)initWithAccessToken:(nullable NSString *)accessToken
-                                refreshToken:(nullable NSString *)refreshToken
-                                   expiresIn:(NSInteger)expiresIn
-                                   tokenType:(nullable NSString *)tokenType
-                                       scope:(nullable NSString *)scope
-                                       state:(nullable NSString *)state
-                                     idToken:(nullable NSString *)idToken
-                        additionalServerInfo:(nullable NSDictionary *)additionalServerInfo
-                                       error:(nullable NSString *)error
-                            errorDescription:(nullable NSString *)errorDescription
-                                   initError:(NSError *_Nullable *_Nullable)initError;
 
 @end
