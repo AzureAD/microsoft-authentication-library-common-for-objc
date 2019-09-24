@@ -35,6 +35,8 @@
         return self.idTokenObj != nil;
     }
     
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Id token is missing in aad v1 token response!");
+    
     return YES;
 }
 

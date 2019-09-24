@@ -36,6 +36,9 @@
         self.idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
         return self.idTokenObj != nil;
     }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Id token is missing in aad v2 token response!");
+    
     return YES;
 }
 

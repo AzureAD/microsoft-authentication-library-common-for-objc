@@ -39,6 +39,8 @@
         return self.idTokenObj != nil;
     }
     
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Id token is missing in b2c token response!");
+    
     return YES;
 }
 
