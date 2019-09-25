@@ -98,7 +98,7 @@
             || readStatus == errSecInteractionNotAllowed)
         {
             NSMutableDictionary* addQuery = [query mutableCopy];
-#if TARGET_OS_UIKITFORMAC
+#if TARGET_OS_MACCATALYST
             [addQuery setObject:(id)kSecAttrAccessibleAfterFirstUnlock forKey:(id)kSecAttrAccessible];
 #else
             [addQuery setObject:(id)kSecAttrAccessibleAlways forKey:(id)kSecAttrAccessible];
