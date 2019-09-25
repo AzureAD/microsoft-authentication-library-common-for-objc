@@ -51,41 +51,32 @@
         return nil;
     }
     
-    if ([jsonObject msidAssertContainsField:@"error" context:context error:nil]
-        && [jsonObject msidAssertType:NSString.class ofField:@"error" context:context errorCode:MSIDErrorServerInvalidResponse error:nil])
+    NSString *oauthError = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR];
+    
+    if (oauthError)
     {
-        NSError *oauthError = MSIDCreateError(MSIDErrorDomain,
+        NSString *oauthErrorDescription = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+        
+        NSError *localError = MSIDCreateError(MSIDErrorDomain,
                                               MSIDErrorAuthorityValidation,
-                                              jsonObject[MSID_OAUTH2_ERROR_DESCRIPTION],
-                                              jsonObject[MSID_OAUTH2_ERROR],
+                                              oauthErrorDescription,
+                                              oauthError,
                                               nil,
                                               nil,
                                               context.correlationId,
                                               nil);
-        if (error)
-        {
-            *error = oauthError;
-        }
+        
+        if (error) *error = localError;
+        
         return nil;
     }
     
     __auto_type reponse = [MSIDAADAuthorityMetadataResponse new];
+    
+    if (![jsonObject msidAssertType:NSArray.class ofKey:@"metadata" required:NO error:error]) return nil;
     reponse.metadata = jsonObject[@"metadata"];
     
-    if (![jsonObject msidAssertContainsField:@"tenant_discovery_endpoint" context:context error:error])
-    {
-        return nil;
-    }
-    
-    if (![jsonObject msidAssertType:NSString.class
-                            ofField:@"tenant_discovery_endpoint"
-                            context:context
-                          errorCode:MSIDErrorServerInvalidResponse
-                              error:error])
-    {
-        return nil;
-    }
-    
+    if (![jsonObject msidAssertType:NSString.class ofKey:@"tenant_discovery_endpoint" required:YES error:error]) return nil;
     __auto_type endpoint = (NSString *)jsonObject[@"tenant_discovery_endpoint"];
     
     reponse.openIdConfigurationEndpoint = [NSURL URLWithString:endpoint];

@@ -96,6 +96,11 @@
     return mutableDict;
 }
 
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
+{
+    return [self msidAssertTypeIsOneOf:@[type] ofKey:key required:required error:error];
+}
+
 - (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
 {
     id obj = self[key];
@@ -121,7 +126,8 @@
         
         if (!matched)
         {
-            message = [NSString stringWithFormat:@"%@ key in dictionary is not of expected type. Allowed types: %@.", key, types];
+            NSString *allowedTypesString = [types componentsJoinedByString:@","];
+            message = [NSString stringWithFormat:@"%@ key in dictionary is not of expected type. Allowed types: %@.", key, allowedTypesString];
         }
     }
     
@@ -130,60 +136,6 @@
         if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil);
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
-        
-        return NO;
-    }
-    
-    return YES;
-}
-
-- (BOOL)msidAssertType:(Class)type
-               ofField:(NSString *)field
-               context:(id <MSIDRequestContext>)context
-             errorCode:(NSInteger)errorCode
-                 error:(NSError **)error
-{
-    id fieldValue = self[field];
-    if (![fieldValue isKindOfClass:type])
-    {
-        __auto_type message = [NSString stringWithFormat:@"%@ is not a %@.", field, type];
-        
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     errorCode,
-                                     message,
-                                     nil,
-                                     nil, nil, context.correlationId, nil);
-            
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
-        }
-        
-        return NO;
-    }
-    
-    return YES;
-}
-
-- (BOOL)msidAssertContainsField:(NSString *)field
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
-{
-    id fieldValue = self[field];
-    if (!fieldValue)
-    {
-        __auto_type message = [NSString stringWithFormat:@"%@ is missing.", field];
-        
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorServerInvalidResponse,
-                                     message,
-                                     nil,
-                                     nil, nil, context.correlationId, nil);
-            
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
-        }
         
         return NO;
     }

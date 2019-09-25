@@ -75,14 +75,7 @@
         
         if (![json[claimName] isKindOfClass:NSNull.class])
         {
-            if (![json msidAssertType:NSDictionary.class
-                              ofField:claimName
-                              context:nil
-                            errorCode:MSIDErrorInvalidDeveloperParameter
-                                error:error])
-            {
-                return nil;
-            }
+            if (![json msidAssertType:NSDictionary.class ofKey:claimName required:YES error:error]) return nil;
             
             NSError *localError;
             __auto_type additinalInfo = [[MSIDIndividualClaimRequestAdditionalInfo alloc] initWithJSONDictionary:json[claimName] error:&localError];
