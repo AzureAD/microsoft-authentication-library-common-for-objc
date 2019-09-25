@@ -30,44 +30,6 @@
 
 @implementation MSIDTokenResponse
 
-- (instancetype)initWithAccessToken:(NSString *)accessToken
-                       refreshToken:(NSString *)refreshToken
-                          expiresIn:(NSInteger)expiresIn
-                          tokenType:(NSString *)tokenType
-                              scope:(NSString *)scope
-                              state:(NSString *)state
-                            idToken:(NSString *)idToken
-               additionalServerInfo:(NSDictionary *)additionalServerInfo
-                              error:(NSString *)error
-                   errorDescription:(NSString *)errorDescription
-                          initError:(NSError **)initError
-{
-    self = [super init];
-    if (self)
-    {
-        _accessToken = accessToken;
-        _refreshToken = refreshToken;
-        _expiresIn = expiresIn;
-        _tokenType = tokenType;
-        _scope = scope;
-        _state = state;
-        _idToken = idToken;
-        self.additionalServerInfo = additionalServerInfo;
-        _error = error;
-        _errorDescription = errorDescription;
-        
-        NSError *localError;
-        [self initIdToken:&localError];
-        if (localError)
-        {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init id token wrapper, error: %@", MSID_PII_LOG_MASKABLE(localError));
-            if (initError) *initError = localError;
-        }
-    }
-    
-    return self;
-}
-
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
                           refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
                                  error:(NSError **)error
@@ -84,13 +46,54 @@
     return self;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"Token response: access token %@, refresh token %@, scope %@, state %@, id token %@, error %@, error description %@", _PII_NULLIFY(self.accessToken), _PII_NULLIFY(self.refreshToken), self.scope, self.state, _PII_NULLIFY(self.idToken), self.error, self.errorDescription];
+}
+
+- (void)setAdditionalServerInfo:(NSDictionary *)additionalServerInfo
+{
+    NSArray *knownFields = @[MSID_OAUTH2_ERROR,
+                             MSID_OAUTH2_ERROR_DESCRIPTION,
+                             MSID_OAUTH2_ACCESS_TOKEN,
+                             MSID_OAUTH2_TOKEN_TYPE,
+                             MSID_OAUTH2_REFRESH_TOKEN,
+                             MSID_OAUTH2_SCOPE,
+                             MSID_OAUTH2_STATE,
+                             MSID_OAUTH2_ID_TOKEN,
+                             MSID_OAUTH2_EXPIRES_IN,
+                             MSID_OAUTH2_EXPIRES_ON];
+    
+    NSDictionary *additionalInfo = [additionalServerInfo dictionaryByRemovingFields:knownFields];
+    _additionalServerInfo = additionalInfo.count > 0 ? additionalInfo : nil;
+}
+
+- (void)setIdToken:(NSString *)idToken
+{
+    if (![NSString msidIsStringNilOrBlank:idToken])
+    {
+        _idToken = idToken;
+        
+        NSError *localError;
+        _idTokenObj = [[[self tokenClaimsClass] alloc] initWithRawIdToken:idToken error:&localError];
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init %@, error: %@", [self tokenClaimsClass], MSID_PII_LOG_MASKABLE(localError));
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Id token was set to nil in token response!");
+        _idToken = nil;
+        _idTokenObj = nil;
+    }
+}
+
+#pragma mark - Derived properties
+
 - (NSDate *)expiryDate
 {
-    NSInteger expiresIn = self.expiresIn;
+    if (self.expiresOn) return [NSDate dateWithTimeIntervalSince1970:self.expiresOn];
+    if (self.expiresIn) return [NSDate dateWithTimeIntervalSinceNow:self.expiresIn];
 
-    if (!expiresIn) return nil;
-
-    return [NSDate dateWithTimeIntervalSinceNow:expiresIn];
+    return nil;
 }
 
 - (BOOL)isMultiResource
@@ -113,37 +116,11 @@
     return MSIDErrorCodeForOAuthError(self.error, MSIDErrorServerOauth);
 }
 
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"Token response: access token %@, refresh token %@, scope %@, state %@, id token %@, error %@, error description %@", _PII_NULLIFY(self.accessToken), _PII_NULLIFY(self.refreshToken), self.scope, self.state, _PII_NULLIFY(self.idToken), self.error, self.errorDescription];
-}
-
 #pragma mark - Protected
 
-- (BOOL)initIdToken:(NSError **)error
+- (Class)tokenClaimsClass
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDIdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    return YES;
-}
-
-- (void)setAdditionalServerInfo:(NSDictionary *)additionalServerInfo
-{
-    NSArray *knownFields = @[MSID_OAUTH2_ERROR,
-                             MSID_OAUTH2_ERROR_DESCRIPTION,
-                             MSID_OAUTH2_ACCESS_TOKEN,
-                             MSID_OAUTH2_TOKEN_TYPE,
-                             MSID_OAUTH2_REFRESH_TOKEN,
-                             MSID_OAUTH2_SCOPE,
-                             MSID_OAUTH2_STATE,
-                             MSID_OAUTH2_ID_TOKEN,
-                             MSID_OAUTH2_EXPIRES_IN];
-    
-    NSDictionary *additionalInfo = [additionalServerInfo dictionaryByRemovingFields:knownFields];
-    _additionalServerInfo = additionalInfo.count > 0 ? additionalInfo : nil;
+    return MSIDIdTokenClaims.class;
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -155,32 +132,22 @@
     {
         if (!json)
         {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Attempt to initialize JSON object with nil dictionary", nil, nil, nil, nil, nil);
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Attempt to initialize token response with nil json", nil, nil, nil, nil, nil);
             
             return nil;
         }
         
-        NSString *accessToken = [json msidStringObjectForKey:MSID_OAUTH2_ACCESS_TOKEN];
-        NSString *refreshToken = [json msidStringObjectForKey:MSID_OAUTH2_REFRESH_TOKEN];
-        NSInteger expiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_IN];
-        NSString *tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
-        NSString *scope = [json msidStringObjectForKey:MSID_OAUTH2_SCOPE];
-        NSString *state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
-        NSString *idToken = [json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN];
-        NSString *oauthError = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
-        NSString *oauthErrorDescription = [json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
-        
-        return [self initWithAccessToken:accessToken
-                            refreshToken:refreshToken
-                               expiresIn:expiresIn
-                               tokenType:tokenType
-                                   scope:scope
-                                   state:state
-                                 idToken:idToken
-                    additionalServerInfo:json
-                                   error:oauthError
-                        errorDescription:oauthErrorDescription
-                               initError:error];
+        _accessToken = [json msidStringObjectForKey:MSID_OAUTH2_ACCESS_TOKEN];
+        _refreshToken = [json msidStringObjectForKey:MSID_OAUTH2_REFRESH_TOKEN];
+        _expiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_IN];
+        _expiresOn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_ON];
+        _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
+        _scope = [json msidStringObjectForKey:MSID_OAUTH2_SCOPE];
+        _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
+        self.idToken = [json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN];
+        _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
+        _errorDescription = [json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+        self.additionalServerInfo = json;
     }
     
     return self;
@@ -194,6 +161,7 @@
     json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
     json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
     json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
+    json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
     json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
     json[MSID_OAUTH2_SCOPE] = self.scope;
     json[MSID_OAUTH2_STATE] = self.state;

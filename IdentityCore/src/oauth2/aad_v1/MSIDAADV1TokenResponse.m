@@ -27,15 +27,9 @@
 
 @implementation MSIDAADV1TokenResponse
 
-- (BOOL)initIdToken:(NSError *__autoreleasing *)error
+- (Class)tokenClaimsClass
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    
-    return YES;
+    return MSIDAADV1IdTokenClaims.class;
 }
 
 - (BOOL)isMultiResource
