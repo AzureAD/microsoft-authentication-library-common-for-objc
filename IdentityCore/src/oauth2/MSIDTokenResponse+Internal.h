@@ -23,8 +23,10 @@
 
 #import "MSIDTokenResponse.h"
 
+@class MSIDIdTokenClaims;
+
 @interface MSIDTokenResponse ()
 
-- (Class)tokenClaimsClass;
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error;
 
 @end
