@@ -2930,6 +2930,7 @@
 				96CE53E720C73E3A002E24C9 /* MSIDWebviewFactory.h */,
 				96CE53E820C73E3A002E24C9 /* MSIDWebviewFactory.m */,
 				B210F42F1FDDE7EB005A8F76 /* MSIDTokenResponse.h */,
+				1E2EDFF8219125400054FAD9 /* MSIDTokenResponse+Internal.h */,
 				B210F4301FDDE7EB005A8F76 /* MSIDTokenResponse.m */,
 				B2C7089A219926C200D917B8 /* MSIDBrokerResponse+Internal.h */,
 				B210F4531FDDFA7B005A8F76 /* MSIDBrokerResponse.h */,
@@ -2942,7 +2943,6 @@
 				B23ECEE71FF2F3F30015FC1D /* aad_base */,
 				B29CB6D11FEC9B4D00F880ED /* aad_v2 */,
 				B210F4341FDDEA0D005A8F76 /* aad_v1 */,
-				1E2EDFF8219125400054FAD9 /* MSIDTokenResponse+Internal.h */,
 			);
 			path = oauth2;
 			sourceTree = "<group>";

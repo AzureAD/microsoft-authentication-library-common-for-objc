@@ -75,8 +75,8 @@
         _idToken = idToken;
         
         NSError *localError;
-        _idTokenObj = [[[self tokenClaimsClass] alloc] initWithRawIdToken:idToken error:&localError];
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init %@, error: %@", [self tokenClaimsClass], MSID_PII_LOG_MASKABLE(localError));
+        _idTokenObj = [self tokenClaimsFromRawIdToken:idToken error:&localError];
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init id token claims in %@, error: %@", self.class, MSID_PII_LOG_MASKABLE(localError));
     }
     else
     {
@@ -118,9 +118,9 @@
 
 #pragma mark - Protected
 
-- (Class)tokenClaimsClass
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
-    return MSIDIdTokenClaims.class;
+    return [[MSIDIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 #pragma mark - MSIDJsonSerializable

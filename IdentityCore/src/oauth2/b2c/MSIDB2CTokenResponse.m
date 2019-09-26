@@ -31,9 +31,9 @@
 
 @implementation MSIDB2CTokenResponse
 
-- (Class)tokenClaimsClass
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
-    return MSIDB2CIdTokenClaims.class;
+    return [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 @end
