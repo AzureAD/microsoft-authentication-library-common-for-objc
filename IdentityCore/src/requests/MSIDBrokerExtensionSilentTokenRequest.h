@@ -21,14 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerInteractiveController.h"
+#import "MSIDSilentTokenRequest.h"
+
+@class MSIDTokenResponseValidator;
+@class MSIDOauth2Factory;
+@protocol MSIDCacheAccessor;
+@class MSIDAccountMetadataCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0))
-@interface MSIDBrokerExtensionInteractiveController : MSIDBrokerInteractiveController
+@interface MSIDBrokerExtensionSilentTokenRequest : MSIDSilentTokenRequest
 
-+ (BOOL)canPerformAuthorization;
+@property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+          forceRefresh:(BOOL)forceRefresh
+          oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache NS_DESIGNATED_INITIALIZER;
 
 @end
 

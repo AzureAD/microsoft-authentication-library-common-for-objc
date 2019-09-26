@@ -21,16 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerInteractiveController.h"
-#import "MSIDBrokerKeyProvider.h"
+#import "MSIDInteractiveTokenRequest.h"
 
-@interface MSIDBrokerInteractiveController()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveParameters;
-@property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
-@property (nonatomic, readonly) NSURL *brokerInstallLink;
-@property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
-
-- (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController;
+API_AVAILABLE(ios(13.0))
+@interface MSIDBrokerExtensionInteractiveTokenRequest : MSIDInteractiveTokenRequest
 
 @end
+
+NS_ASSUME_NONNULL_END

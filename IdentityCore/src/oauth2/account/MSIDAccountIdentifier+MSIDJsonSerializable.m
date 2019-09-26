@@ -29,24 +29,24 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    if (![json msidAssertType:NSString.class
-                      ofField:@"username"
-                      context:nil
-                    errorCode:MSIDErrorInvalidInternalParameter
-                        error:error])
-    {
-        return nil;
-    }
+//    if (![json msidAssertType:NSString.class
+//                      ofField:@"username"
+//                      context:nil
+//                    errorCode:MSIDErrorInvalidInternalParameter
+//                        error:error])
+//    {
+//        return nil;
+//    }
     NSString *displayableId = json[@"username"];
     
-    if (![json msidAssertType:NSString.class
-                      ofField:@"home_account_id"
-                      context:nil
-                    errorCode:MSIDErrorInvalidInternalParameter
-                        error:error])
-    {
-        return nil;
-    }
+//    if (![json msidAssertType:NSString.class
+//                      ofField:@"home_account_id"
+//                      context:nil
+//                    errorCode:MSIDErrorInvalidInternalParameter
+//                        error:error])
+//    {
+//        return nil;
+//    }
     NSString *homeAccountId = json[@"home_account_id"];
     
     return [self initWithDisplayableId:displayableId homeAccountId:homeAccountId];

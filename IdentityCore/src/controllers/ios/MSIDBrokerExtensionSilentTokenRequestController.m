@@ -31,11 +31,11 @@
 #import "MSIDVersion.h"
 #import "MSIDJsonSerializer.h"
 #import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDSilentTokenRequest.h"
 
 @interface MSIDBrokerExtensionSilentTokenRequestController () <ASAuthorizationControllerDelegate>
 
-@property (nonatomic) ASAuthorizationController *authorizationController;
-@property (nonatomic, copy) MSIDRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic) MSIDSilentTokenRequest *currentRequest;
 
 @end
 
@@ -54,132 +54,41 @@
     
     if (!completionBlock)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End silent broker flow.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Passed nil completionBlock");
         return;
     }
-    
-    NSString *upn = self.requestParameters.accountIdentifier.displayableId;
-    
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                           userPrincipalName:upn
-                                                     context:self.requestParameters
-                                             completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                                               __unused BOOL validated, NSError *error)
-     {
-         if (error)
-         {
-             completionBlock(nil, error);
-             return;
-         }
-        
-        NSString *accessGroup = self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
-        __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-        
-        // TODO: move this logic to MSIDBrokerKeyProvider (broker key as string)
-        NSError *localError;
-        NSData *brokerKey = [brokerKeyProvider brokerKeyWithError:&localError];
-        
-        if (!brokerKey)
-        {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve broker key with error %@", MSID_PII_LOG_MASKABLE(localError));
-            
-            // TODO: Fail with error
-            return;
-        }
-        
-        NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
-        
-        if (!base64UrlKey)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Unable to base64 encode broker key");
-            
-            // TODO: Fail with error
-            
-            return;
-        }
-        
-        NSDictionary *clientMetadata = self.requestParameters.appRequestMetadata;
-        //    NSString *claimsString = [self claimsParameter];
-        NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
-        NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-        
-        // TODO: hack silent request with interactive params.
-        MSIDBrokerOperationSilentTokenRequest *operationRequest = [MSIDBrokerOperationSilentTokenRequest new];
-        operationRequest.brokerKey = base64UrlKey;
-        operationRequest.clientVersion = [MSIDVersion sdkVersion];
-        operationRequest.protocolVersion = 4;
-        operationRequest.clientAppVersion = clientAppVersion;
-        operationRequest.clientAppName = clientAppName;
-        operationRequest.correlationId = self.requestParameters.correlationId;
-        operationRequest.configuration = self.requestParameters.msidConfiguration;
-        operationRequest.accountIdentifier = self.requestParameters.accountIdentifier;
-        
-        NSString *jsonString = [[MSIDJsonSerializer new] toJsonString:operationRequest context:nil error:nil];
-        
-        if (!jsonString)
-        {
-            // TODO: Fail with error
-        }
-        
-        ASAuthorizationSingleSignOnProvider *ssoProvider = [self.class sharedProvider];
-        ASAuthorizationSingleSignOnRequest *request = [ssoProvider createRequest];
-        NSURLQueryItem *queryItem = [[NSURLQueryItem alloc] initWithName:@"request" value:jsonString];
-        request.authorizationOptions = @[queryItem];
-        
-        self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
-        self.authorizationController.delegate = self;
-        
-        [self.authorizationController performRequests];
-        self.requestCompletionBlock = completionBlock;
-     }];
-}
 
-#pragma mark - ASAuthorizationControllerDelegate
+    self.currentRequest = [self.tokenRequestProvider silentBrokerExtensionTokenRequestWithParameters:self.requestParameters
+                                                                                           forceRefresh:self.forceRefresh];
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
-{
-    // TODO: hack
-    ASAuthorizationSingleSignOnCredential *ssoCredential = (ASAuthorizationSingleSignOnCredential *)authorization.credential;
-    
-    NSDictionary *response = ssoCredential.authenticatedResponse.allHeaderFields;
-    
-    NSString *jsonString = response[@"response"];
-    NSDictionary *json = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:jsonString ofType:NSDictionary.class context:nil error:nil];
-    
-    __unused NSString *operation = json[@"operation"];
-    
-    NSError *localError;
-    __unused MSIDBrokerOperationTokenResponse *operationResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:json error:&localError];
-    
-    if (localError)
+    [self.currentRequest executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {
-        // TODO: handle error;
-    }
-    
-    assert(self.requestCompletionBlock);
-    self.requestCompletionBlock(operationResponse.result, operationResponse.error);
+        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            completionBlock(result, error);
+        };
+        
+        if (result || !self.fallbackController)
+        {
+//            MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+//            [telemetryEvent setUserInformation:result.account];
+//            [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
+//            [self stopTelemetryEvent:telemetryEvent error:error];
+            completionBlockWrapper(result, error);
+            return;
+        }
+
+        [self.fallbackController acquireToken:completionBlockWrapper];
+        
+        self.currentRequest = nil;
+    }];
 }
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
++ (BOOL)canPerformRequest
 {
-    // TODO: handle error
-}
-
-#pragma mark - Private
-
-+ (ASAuthorizationSingleSignOnProvider *)sharedProvider
-{
-    static dispatch_once_t once;
-    static ASAuthorizationSingleSignOnProvider *ssoProvider;
-    
-    dispatch_once(&once, ^{
-        // TODO: use authority.
-        NSURL *url = [NSURL URLWithString:@"https://ios-sso-test.azurewebsites.net"];
-    
-        ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
-    });
-    
-    return ssoProvider;
+    // TODO: implement.
+    return YES;
 }
 
 @end

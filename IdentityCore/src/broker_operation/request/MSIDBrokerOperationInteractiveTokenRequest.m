@@ -48,7 +48,7 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSDictionary.class ofField:@"request_parameters" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
+//        if (![json msidAssertType:NSDictionary.class ofField:@"request_parameters" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
         NSDictionary *requestParameters = json[@"request_parameters"];
         
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters error:error];
@@ -61,7 +61,10 @@
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
-    NSMutableDictionary *requestParametersJson = [NSMutableDictionary new];
+// TODO:    assert json[@"request_parameters"]
+    NSMutableDictionary *requestParametersJson = [json[@"request_parameters"] mutableCopy];
+    
+    if (!requestParametersJson) return nil;
     
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
     if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];

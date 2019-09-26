@@ -28,6 +28,8 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDBrokerExtensionInteractiveTokenRequest.h"
+#import "MSIDBrokerExtensionSilentTokenRequest.h"
 
 @implementation MSIDDefaultTokenRequestProvider
 
@@ -89,6 +91,38 @@
                                                                   brokerKey:brokerKey
                                                      brokerApplicationToken:brokerApplicationToken
                                                                       error:error];
+}
+
+- (MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    if (@available(iOS 13.0, *))
+    {
+        __auto_type request = [[MSIDBrokerExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                               oauthFactory:self.oauthFactory
+                                                                                     tokenResponseValidator:self.tokenResponseValidator
+                                                                                                 tokenCache:self.tokenCache
+                                                                                       accountMetadataCache:self.accountMetadataCache];
+        return request;
+    }
+    
+    return nil;
+}
+
+- (MSIDSilentTokenRequest *)silentBrokerExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                                               forceRefresh:(BOOL)forceRefresh
+{
+    if (@available(iOS 13.0, *))
+    {
+        __auto_type request = [[MSIDBrokerExtensionSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                          forceRefresh:forceRefresh
+                                                                                          oauthFactory:self.oauthFactory
+                                                                                tokenResponseValidator:self.tokenResponseValidator
+                                                                                            tokenCache:self.tokenCache];
+        
+        return request;
+    }
+    
+    return nil;
 }
 
 @end

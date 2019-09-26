@@ -30,44 +30,45 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    if (![json msidAssertType:NSString.class
-                      ofField:MSID_OAUTH2_CLIENT_ID
-                      context:nil
-                    errorCode:MSIDErrorInvalidInternalParameter
-                        error:error])
-    {
-        return nil;
-    }
+    // TODO: fix json parsing
+//    if (![json msidAssertType:NSString.class
+//                      ofField:MSID_OAUTH2_CLIENT_ID
+//                      context:nil
+//                    errorCode:MSIDErrorInvalidInternalParameter
+//                        error:error])
+//    {
+//        return nil;
+//    }
     NSString *clientId = json[MSID_OAUTH2_CLIENT_ID];
     
-    if (![json msidAssertType:NSString.class
-                      ofField:MSID_OAUTH2_REDIRECT_URI
-                      context:nil
-                    errorCode:MSIDErrorInvalidInternalParameter
-                        error:error])
-    {
-        return nil;
-    }
+//    if (![json msidAssertType:NSString.class
+//                      ofField:MSID_OAUTH2_REDIRECT_URI
+//                      context:nil
+//                    errorCode:MSIDErrorInvalidInternalParameter
+//                        error:error])
+//    {
+//        return nil;
+//    }
     NSString *redirectUri = json[MSID_OAUTH2_REDIRECT_URI];
     
-    if (![json msidAssertType:NSString.class
-                      ofField:MSID_OAUTH2_SCOPE
-                      context:nil
-                    errorCode:MSIDErrorInvalidInternalParameter
-                        error:error])
-    {
-        return nil;
-    }
+//    if (![json msidAssertType:NSString.class
+//                      ofField:MSID_OAUTH2_SCOPE
+//                      context:nil
+//                    errorCode:MSIDErrorInvalidInternalParameter
+//                        error:error])
+//    {
+//        return nil;
+//    }
     NSString *scopeString = json[MSID_OAUTH2_SCOPE];
     
-    if (![json msidAssertType:NSString.class
-                      ofField:MSID_OAUTH2_AUTHORITY
-                      context:nil
-                    errorCode:MSIDErrorInvalidInternalParameter
-                        error:error])
-    {
-        return nil;
-    }
+//    if (![json msidAssertType:NSString.class
+//                      ofField:MSID_OAUTH2_AUTHORITY
+//                      context:nil
+//                    errorCode:MSIDErrorInvalidInternalParameter
+//                        error:error])
+//    {
+//        return nil;
+//    }
     NSString *authorityString = json[MSID_OAUTH2_AUTHORITY];
     
     if ([NSString msidIsStringNilOrBlank:authorityString])

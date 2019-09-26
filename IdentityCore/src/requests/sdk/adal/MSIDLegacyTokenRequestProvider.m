@@ -85,5 +85,17 @@
                                                                      error:error];
 }
 
+- (MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    // TODO: not implemented yet.
+    return nil;
+}
+
+- (MSIDSilentTokenRequest *)silentBrokerExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                                               forceRefresh:(BOOL)forceRefresh
+{
+    // TODO: not implemented yet.
+    return nil;
+}
 
 @end

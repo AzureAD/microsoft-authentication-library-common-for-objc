@@ -40,17 +40,17 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSDictionary.class
-                          ofField:@"response_data"
-                          context:nil
-                        errorCode:MSIDErrorInvalidInternalParameter
-                            error:error])
-        {
-            return nil;
-        }
+//        if (![json msidAssertType:NSDictionary.class
+//                          ofField:@"response_data"
+//                          context:nil
+//                        errorCode:MSIDErrorInvalidInternalParameter
+//                            error:error])
+//        {
+//            return nil;
+//        }
         
         NSDictionary *responseJson = json[@"response_data"];
-        MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithJSONDictionary:responseJson error:error];
+        MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:responseJson error:error];
         if (!tokenResponse) return nil;
 
         _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:responseJson error:error];
@@ -59,8 +59,8 @@
 //        __auto_type responseValidator = [MSIDDefaultTokenResponseValidator new];
 //        __auto_type oauthFactory = [MSIDAADV2Oauth2Factory new];
         
-        __auto_type responseValidator = [MSIDTokenResponseValidator new];
-        __auto_type oauthFactory = [MSIDOauth2Factory new];
+        __auto_type responseValidator = [MSIDDefaultTokenResponseValidator new];
+        __auto_type oauthFactory = [MSIDAADV2Oauth2Factory new];
         
         // TODO: fix.
         NSUUID *correlationID = [NSUUID new];
@@ -81,31 +81,14 @@
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
-    NSString *accessToken = self.result.accessToken.accessToken;
-    NSString *scope = [self.result.accessToken.scopes msidToString];
-    NSString *refreshToken = self.result.refreshToken.refreshToken;
-    NSInteger expiresIn = [self.result.accessToken.expiresOn timeIntervalSinceNow];
-    NSString *tokenType = MSID_OAUTH2_BEARER; // TODO:?
-    NSString *idToken = self.result.rawIdToken;
-    
-    NSError *localError;
-    MSIDTokenResponse *tokenResponse = [[MSIDTokenResponse alloc] initWithAccessToken:accessToken
-                                                                         refreshToken:refreshToken
-                                                                            expiresIn:expiresIn
-                                                                            tokenType:tokenType
-                                                                                scope:scope
-                                                                                state:nil
-                                                                              idToken:idToken
-                                                                 additionalServerInfo:nil
-                                                                                error:nil
-                                                                     errorDescription:nil
-                                                                            initError:&localError];
-    
-    if (localError)
-    {
-        // TODO: log error.
-        return nil;
-    }
+    MSIDAADV2TokenResponse *tokenResponse = [MSIDAADV2TokenResponse new];
+    tokenResponse.accessToken = self.result.accessToken.accessToken;
+    tokenResponse.scope = [self.result.accessToken.scopes msidToString];
+    tokenResponse.refreshToken = self.result.refreshToken.refreshToken;
+    tokenResponse.expiresIn = [self.result.accessToken.expiresOn timeIntervalSinceNow];
+    tokenResponse.expiresOn = [self.result.accessToken.expiresOn timeIntervalSince1970];
+    tokenResponse.tokenType = MSID_OAUTH2_BEARER; // TODO:?
+    tokenResponse.idToken = self.result.rawIdToken;
     
     NSMutableDictionary *responseJson = [[tokenResponse jsonDictionary] mutableDeepCopy];
     

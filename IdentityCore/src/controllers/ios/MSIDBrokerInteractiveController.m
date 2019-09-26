@@ -40,9 +40,20 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDBrokerInvocationOptions.h"
-#import "MSIDBrokerInteractiveController+Internal.h"
+#import "MSIDBrokerKeyProvider.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
+
+@interface MSIDBrokerInteractiveController()
+
+@property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveParameters;
+@property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
+@property (nonatomic, readonly) NSURL *brokerInstallLink;
+@property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
+
+- (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController;
+
+@end
 
 @implementation MSIDBrokerInteractiveController
 
