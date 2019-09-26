@@ -40,6 +40,7 @@
     [super encodeWithCoder:coder];
     
     [coder encodeObject:self.sessionKey forKey:@"sessionKey"];
+    [coder encodeObject:self.deviceID forKey:@"deviceID"];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder
@@ -48,6 +49,7 @@
     if (self)
     {
         self.sessionKey = [decoder decodeObjectOfClass:[NSString class] forKey:@"sessionKey"];
+        self.deviceID = [decoder decodeObjectOfClass:[NSString class] forKey:@"deviceID"];
         self.credentialType = MSIDPrimaryRefreshTokenType;
     }
     return self;
@@ -65,6 +67,7 @@
     if ([json msidStringObjectForKey:MSID_SESSION_KEY_CACHE_KEY])
     {
         _sessionKey = [NSData msidDataFromBase64UrlEncodedString:[json msidStringObjectForKey:MSID_SESSION_KEY_CACHE_KEY]];
+        _deviceID = [json msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
     }
     
     return self;
@@ -80,6 +83,7 @@
     }
     
     dictionary[MSID_SESSION_KEY_CACHE_KEY] = [self.sessionKey msidBase64UrlEncodedString];
+    dictionary[MSID_DEVICE_ID_CACHE_KEY] = self.deviceID;
     return dictionary;
 }
 
@@ -104,6 +108,7 @@
 {
     BOOL result = [super isEqualToItem:item];
     result &= (!self.sessionKey && !item.sessionKey) || [self.sessionKey isEqualToData:item.sessionKey];
+    result &= (!self.deviceID && !item.deviceID) || [self.deviceID isEqualToString:item.deviceID];
     return result;
 }
 
@@ -111,6 +116,7 @@
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.sessionKey.hash;
+    hash = hash * 31 + self.deviceID.hash;
     return hash;
 }
 
