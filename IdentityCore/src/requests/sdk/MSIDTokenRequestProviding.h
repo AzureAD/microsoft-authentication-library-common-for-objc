@@ -41,4 +41,6 @@
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                                 error:(NSError * _Nullable * _Nullable)error;
 
+- (nullable MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
+
 @end

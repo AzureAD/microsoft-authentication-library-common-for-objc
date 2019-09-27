@@ -24,6 +24,9 @@
 #import "MSIDBrokerExtensionTokenRequestController+Internal.h"
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDAADV2Oauth2Factory.h"
+#import "MSIDTokenResult.h"
 
 @implementation MSIDBrokerExtensionTokenRequestController
 
@@ -61,6 +64,14 @@
     {
         // TODO: handle error;
     }
+    
+//    __auto_type responseValidator = [MSIDDefaultTokenResponseValidator new];
+//    __auto_type oauthFactory = [MSIDAADV2Oauth2Factory new];
+    
+//    self.tokenRequestProvider.
+//    operationResponse.result.tokenResponse
+//
+//    responseValidator validateAndSaveTokenResponse:operationResponse.result.tokenResponse oauthFactory:oauthFactory tokenCache:<#(nonnull id<MSIDCacheAccessor>)#> accountMetadataCache:<#(nullable MSIDAccountMetadataCacheAccessor *)#> requestParameters:<#(nonnull MSIDRequestParameters *)#> error:<#(NSError * _Nullable __autoreleasing * _Nullable)#>
     
     assert(self.requestCompletionBlock);
     self.requestCompletionBlock(operationResponse.result, operationResponse.error);

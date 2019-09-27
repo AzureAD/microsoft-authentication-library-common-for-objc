@@ -21,14 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerInteractiveController.h"
+#import "MSIDInteractiveTokenRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0))
-@interface MSIDBrokerExtensionInteractiveController : MSIDBrokerInteractiveController
-
-+ (BOOL)canPerformAuthorization;
+@interface MSIDBrokerExtensionInteractiveTokenRequest : MSIDInteractiveTokenRequest
 
 @end
 

@@ -85,5 +85,11 @@
                                                                      error:error];
 }
 
+- (MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    // TODO: not implemented yet.
+    return nil;
+}
+
 
 @end

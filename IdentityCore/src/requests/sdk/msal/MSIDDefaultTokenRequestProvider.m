@@ -28,6 +28,7 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDBrokerExtensionInteractiveTokenRequest.h"
 
 @implementation MSIDDefaultTokenRequestProvider
 
@@ -89,6 +90,21 @@
                                                                   brokerKey:brokerKey
                                                      brokerApplicationToken:brokerApplicationToken
                                                                       error:error];
+}
+
+- (MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    if (@available(iOS 13.0, *))
+    {
+        __auto_type request = [[MSIDBrokerExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                               oauthFactory:self.oauthFactory
+                                                                                     tokenResponseValidator:self.tokenResponseValidator
+                                                                                                 tokenCache:self.tokenCache
+                                                                                       accountMetadataCache:self.accountMetadataCache];
+        return request;
+    }
+    
+    return nil;
 }
 
 @end

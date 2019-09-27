@@ -31,6 +31,7 @@
 #import "MSIDBrokerExtensionTokenRequestController+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequest.h"
 
 @interface MSIDBrokerExtensionInteractiveTokenRequestController () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -63,87 +64,31 @@
     
     if (!completionBlock)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End silent broker flow.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End interactive broker flow.");
         return;
     }
     
-    NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.interactiveRequestParameters.loginHint;
-    
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                           userPrincipalName:upn
-                                                     context:self.requestParameters
-                                             completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                                               __unused BOOL validated, NSError *error)
-     {
-         if (error)
-         {
-             completionBlock(nil, error);
-             return;
-         }
-        
-        NSString *accessGroup = self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
-        __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-        
-        // TODO: move this logic to MSIDBrokerKeyProvider (broker key as string)
-        NSError *localError;
-        NSData *brokerKey = [brokerKeyProvider brokerKeyWithError:&localError];
-        
-        if (!brokerKey)
+    MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveBrokerExtensionTokenRequestWithParameters:self.interactiveRequestParameters];
+
+    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable msauthResponse)
+    {
+        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve broker key with error %@", MSID_PII_LOG_MASKABLE(localError));
-            
-            // TODO: Fail with error
-            return;
-        }
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            completionBlock(result, error);
+        };
         
-        NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
-        
-        if (!base64UrlKey)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Unable to base64 encode broker key");
-            
-            // TODO: Fail with error
-            
-            return;
-        }
-        
-        NSDictionary *clientMetadata = self.requestParameters.appRequestMetadata;
-        //    NSString *claimsString = [self claimsParameter];
-        NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
-        NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-        
-        // TODO: hack silent request with interactive params.
-        MSIDBrokerOperationInteractiveTokenRequest *operationRequest = [MSIDBrokerOperationInteractiveTokenRequest new];
-        operationRequest.brokerKey = base64UrlKey;
-        operationRequest.clientVersion = [MSIDVersion sdkVersion];
-        operationRequest.protocolVersion = 4;
-        operationRequest.clientAppVersion = clientAppVersion;
-        operationRequest.clientAppName = clientAppName;
-        operationRequest.correlationId = self.requestParameters.correlationId;
-        operationRequest.configuration = self.requestParameters.msidConfiguration;
-        operationRequest.accountIdentifier = self.requestParameters.accountIdentifier;
-        
-        operationRequest.loginHint = self.interactiveRequestParameters.loginHint;
-        operationRequest.promptType = self.interactiveRequestParameters.promptType;
-        
-        NSString *jsonString = [[MSIDJsonSerializer new] toJsonString:operationRequest context:nil error:nil];
-        
-        if (!jsonString)
-        {
-            // TODO: Fail with error
-        }
-        
-        ASAuthorizationSingleSignOnProvider *ssoProvider = [self.class sharedProvider];
-        ASAuthorizationSingleSignOnRequest *request = [ssoProvider createRequest];
-        NSURLQueryItem *queryItem = [[NSURLQueryItem alloc] initWithName:@"request" value:jsonString];
-        request.authorizationOptions = @[queryItem];
-        
-        self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[request]];
-        self.authorizationController.delegate = self;
-        self.authorizationController.presentationContextProvider = self;
-        [self.authorizationController performRequests];
-        self.requestCompletionBlock = completionBlock;
-     }];
+//        if (msauthResponse)
+//        {
+//            [self handleWebMSAuthResponse:msauthResponse completion:completionBlockWrapper];
+//            return;
+//        }
+
+//        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+//        [telemetryEvent setUserInformation:result.account];
+//        [self stopTelemetryEvent:telemetryEvent error:error];
+        completionBlockWrapper(result, error);
+    }];
 }
 
 #pragma mark - ASAuthorizationControllerPresentationContextProviding
