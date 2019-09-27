@@ -21,18 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDWebviewInteracting.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
-@interface MSIDTestWebviewInteractingViewController : NSObject<MSIDWebviewInteracting>
+NS_ASSUME_NONNULL_BEGIN
 
-// Time after which the start call will return a successful response.
-// If set to zero, will indicate unsuccessful response.
-@property NSTimeInterval successAfterInterval;
+struct MSIDAccountMetadataCacheMockUpdateAuthorityParameters
+{
+    NSURL * _Nullable cacheAuthorityURL;
+    NSURL * _Nullable requestAuthorityURL;
+    NSString * _Nullable homeAccountId;
+    NSString *_Nullable clientId;
+    BOOL instanceAware;
+};
 
-// BOOL to indicate whether or not this class will act as MSIDSafariViewController
-@property BOOL actAsSafariViewController;
+struct MSIDAccountMetadataCacheMockGetAuthorityParameters
+{
+    NSURL * _Nullable requestAuthorityURL;
+    NSString * _Nullable homeAccountId;
+    NSString *_Nullable clientId;
+    BOOL instanceAware;
+};
 
-@property NSURL *startURL;
+@interface MSIDAccountMetadataCacheAccessorMock : MSIDAccountMetadataCacheAccessor
+
+@property (nonatomic) NSInteger updateAuthorityURLInvokedCount;
+@property (nonatomic) struct MSIDAccountMetadataCacheMockUpdateAuthorityParameters updateAuthorityProvidedParams;
+
+@property (nonatomic) NSInteger getAuthorityURLInvokedCount;
+@property (nonatomic) struct MSIDAccountMetadataCacheMockGetAuthorityParameters getAuthorityProvidedParams;
+@property (nonatomic) NSURL *authorityURLToReturn;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -21,15 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#import <XCTest/XCTest.h>
+#import "MSIDMainThreadUtil.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDWPJChallengeHandler : NSObject<MSIDChallengeHandling>
-
-+ (BOOL)shouldHandleChallenge:(NSURLAuthenticationChallenge *)challenge;
+@interface MSIDMainThreadUtilTests : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDMainThreadUtilTests
+
+- (void)testExecuteOnMainThread_whenInvokedFromMainThread_shouldInvokeOnMainThread
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Main thread test"];
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        
+        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+            XCTAssertTrue([NSThread isMainThread]);
+            [expectation fulfill];
+        }];
+        
+    });
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+- (void)testExecuteOnMainThread_whenInvokedFromBgThread_shouldInvokeOnMainThread
+{
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Main thread test"];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+            XCTAssertTrue([NSThread isMainThread]);
+            [expectation fulfill];
+        }];
+    });
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+}
+
+@end

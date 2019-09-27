@@ -251,8 +251,9 @@
     MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
     if (resultingAuthority && !updateMetadataError)
     {
+        MSIDAuthority *providedAuthority = parameters.providedAuthority ?: parameters.authority;
         [accountMetadataCache updateAuthorityURL:resultingAuthority.url
-                                   forRequestURL:parameters.authority.url
+                                   forRequestURL:providedAuthority.url
                                    homeAccountId:tokenResult.account.accountIdentifier.homeAccountId
                                         clientId:parameters.clientId
                                    instanceAware:parameters.instanceAware

@@ -215,7 +215,29 @@
                              [expectation fulfill];
                          }];
 
-    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
+    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"some://urlhere"]]);
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
+}
+
+- (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsAuthenticationSession_shouldHandleURL
+{
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0.5;
+    testWebviewController.actAsAuthenticationSession = YES;
+    
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
+                                                                                factory:[MSIDWebviewFactory new]
+                                                                           requestState:nil
+                                                                     ignoreInvalidState:YES];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startSession:session
+                                   context:nil
+                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                             [expectation fulfill];
+                         }];
+    
+    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"some://urlhere"]]);
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 

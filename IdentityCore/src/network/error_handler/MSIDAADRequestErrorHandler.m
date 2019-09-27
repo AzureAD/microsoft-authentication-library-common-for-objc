@@ -28,13 +28,14 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
+#import "MSIDMainThreadUtil.h"
 
 @implementation MSIDAADRequestErrorHandler
 
 - (void)handleError:(NSError *)error
        httpResponse:(NSHTTPURLResponse *)httpResponse
                data:(NSData *)data
-        httpRequest:(id<MSIDHttpRequestProtocol>)httpRequest
+        httpRequest:(NSObject<MSIDHttpRequestProtocol> *)httpRequest
  responseSerializer:(id<MSIDResponseSerialization>)responseSerializer
             context:(id<MSIDRequestContext>)context
     completionBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock

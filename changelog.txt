@@ -1,3 +1,11 @@
+Version 1.3.4
+-----------
+* Fix threading issues when coming from the main thread
+
+Version 1.3.3
+-----------
+* Update ACL authorization tag to kSecACLAuthorizationDecrypt for adding trusted applications to keychain items on OSX.
+
 Version 1.3.2
 -----------
 * iOS 13 support for ASWebAuthenticationSession
