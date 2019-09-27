@@ -53,6 +53,11 @@
     
     NSString *oauthError = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR];
     
+    if (jsonObject[MSID_OAUTH2_ERROR] && !oauthError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"oauth error is not a string, ignoring it.");
+    }
+    
     if (oauthError)
     {
         NSString *oauthErrorDescription = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];

@@ -41,6 +41,12 @@
 
 - (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error;
 - (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error;
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types
+                        ofKey:(NSString *)key
+                     required:(BOOL)required
+                      context:(id<MSIDRequestContext>)context
+                    errorCode:(NSInteger)errorCode
+                        error:(NSError **)error;
 
 - (NSDictionary *)msidNormalizedJSONDictionary;
 
