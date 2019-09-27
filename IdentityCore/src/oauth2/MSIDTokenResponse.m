@@ -144,10 +144,10 @@
         _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
         _scope = [json msidStringObjectForKey:MSID_OAUTH2_SCOPE];
         _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
-        self.idToken = [json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN];
+        [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
         _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
         _errorDescription = [json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
-        self.additionalServerInfo = json;
+        [self setAdditionalServerInfo:json];
     }
     
     return self;
