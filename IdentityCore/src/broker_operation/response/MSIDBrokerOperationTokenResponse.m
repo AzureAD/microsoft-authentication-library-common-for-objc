@@ -89,6 +89,7 @@
     tokenResponse.expiresOn = [self.result.accessToken.expiresOn timeIntervalSince1970];
     tokenResponse.tokenType = MSID_OAUTH2_BEARER; // TODO:?
     tokenResponse.idToken = self.result.rawIdToken;
+    tokenResponse.clientInfo = self.result.account.clientInfo;
     
     NSMutableDictionary *responseJson = [[tokenResponse jsonDictionary] mutableDeepCopy];
     

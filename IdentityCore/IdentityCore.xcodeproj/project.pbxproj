@@ -226,7 +226,6 @@
 		239DF9C920E05847002D428B /* MSIDAADRequestConfigurator.m in Sources */ = {isa = PBXBuildFile; fileRef = 238EF02A208FD0200035ABE6 /* MSIDAADRequestConfigurator.m */; };
 		239DF9CA20E05873002D428B /* MSIDConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 239DF9A920DED6E9002D428B /* MSIDConstants.h */; };
 		239E8F72233D446D00251373 /* MSIDBrokerExtensionInteractiveTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 239E8F71233D446D00251373 /* MSIDBrokerExtensionInteractiveTokenRequest.m */; };
-		239E8F75233D6DA400251373 /* MSIDBrokerExtensionSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 239E8F74233D6DA400251373 /* MSIDBrokerExtensionSilentTokenRequest.m */; };
 		23A7F46F233579A400788257 /* MSIDBrokerExtensionTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A7F46E233579A400788257 /* MSIDBrokerExtensionTokenRequestController.m */; };
 		23A7F47223357DA200788257 /* MSIDBrokerExtensionSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A7F47123357DA200788257 /* MSIDBrokerExtensionSilentTokenRequestController.m */; };
 		23AE9D9D213A06EF00B285F3 /* MSIDAadAuthorityCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23AE9D9B213A06EF00B285F3 /* MSIDAadAuthorityCacheTests.m */; };
