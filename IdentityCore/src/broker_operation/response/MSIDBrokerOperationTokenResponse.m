@@ -50,28 +50,8 @@
 //        }
         
         NSDictionary *responseJson = json[@"response_data"];
-        MSIDAADV2TokenResponse *tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:responseJson error:error];
-        if (!tokenResponse) return nil;
-
-        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:responseJson error:error];
-        if (!_configuration) return nil;
-        
-//        __auto_type responseValidator = [MSIDDefaultTokenResponseValidator new];
-//        __auto_type oauthFactory = [MSIDAADV2Oauth2Factory new];
-        
-        __auto_type responseValidator = [MSIDDefaultTokenResponseValidator new];
-        __auto_type oauthFactory = [MSIDAADV2Oauth2Factory new];
-        
-        // TODO: fix.
-        NSUUID *correlationID = [NSUUID new];
-        
-        _result = [responseValidator validateTokenResponse:tokenResponse
-                                              oauthFactory:oauthFactory
-                                             configuration:_configuration
-                                            requestAccount:nil
-                                             correlationID:correlationID
-                                                     error:error];
-        if (!_result) return nil;
+        _tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:responseJson error:error];
+        if (!_tokenResponse) return nil;
     }
     
     return self;
@@ -81,22 +61,7 @@
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
-    MSIDAADV2TokenResponse *tokenResponse = [MSIDAADV2TokenResponse new];
-    tokenResponse.accessToken = self.result.accessToken.accessToken;
-    tokenResponse.scope = [self.result.accessToken.scopes msidToString];
-    tokenResponse.refreshToken = self.result.refreshToken.refreshToken;
-    tokenResponse.expiresIn = [self.result.accessToken.expiresOn timeIntervalSinceNow];
-    tokenResponse.expiresOn = [self.result.accessToken.expiresOn timeIntervalSince1970];
-    tokenResponse.tokenType = MSID_OAUTH2_BEARER; // TODO:?
-    tokenResponse.idToken = self.result.rawIdToken;
-    tokenResponse.clientInfo = self.result.account.clientInfo;
-    
-    NSMutableDictionary *responseJson = [[tokenResponse jsonDictionary] mutableDeepCopy];
-    
-    NSDictionary *configurationJson = [self.configuration jsonDictionary];
-    if (!configurationJson) return nil;
-    
-    [responseJson addEntriesFromDictionary:configurationJson];
+    NSMutableDictionary *responseJson = [[_tokenResponse jsonDictionary] mutableDeepCopy];
     
     json[@"response_data"] = responseJson;
     

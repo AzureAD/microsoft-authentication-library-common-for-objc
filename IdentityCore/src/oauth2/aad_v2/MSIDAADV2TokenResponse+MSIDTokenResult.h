@@ -21,15 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDAADV2TokenResponse.h"
 
-@class MSIDTokenResponse;
+@class MSIDTokenResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerOperationResponse
+@interface MSIDAADV2TokenResponse (MSIDTokenResult)
 
-@property (nonatomic) MSIDTokenResponse *tokenResponse;
++ (MSIDAADV2TokenResponse *)tokenResponseFromTokenResult:(MSIDTokenResult *)result
+                                                   error:(NSError * _Nullable *_Nullable)error;
 
 @end
 

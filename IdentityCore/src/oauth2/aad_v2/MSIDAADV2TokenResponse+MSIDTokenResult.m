@@ -21,16 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDAADV2TokenResponse+MSIDTokenResult.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccessToken.h"
+#import "NSOrderedSet+MSIDExtensions.h"
 
-@class MSIDTokenResponse;
+@implementation MSIDAADV2TokenResponse (MSIDTokenResult)
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerOperationResponse
-
-@property (nonatomic) MSIDTokenResponse *tokenResponse;
++ (MSIDAADV2TokenResponse *)tokenResponseFromTokenResult:(MSIDTokenResult *)result
+                                                   error:(NSError **)error
+{
+    // TODO: implement.
+    
+    MSIDAADV2TokenResponse *tokenResponse = [MSIDAADV2TokenResponse new];
+    tokenResponse.accessToken = result.accessToken.accessToken;
+    tokenResponse.scope = [result.accessToken.scopes msidToString];
+    tokenResponse.refreshToken = result.refreshToken.refreshToken;
+    tokenResponse.expiresIn = [result.accessToken.expiresOn timeIntervalSinceNow];
+    tokenResponse.expiresOn = [result.accessToken.expiresOn timeIntervalSince1970];
+    tokenResponse.tokenType = MSID_OAUTH2_BEARER; // TODO:?
+    tokenResponse.idToken = result.rawIdToken;
+    tokenResponse.clientInfo = result.account.clientInfo;
+    
+    return tokenResponse;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

@@ -179,7 +179,7 @@
     
     // TODO: reuse MSIDInteractiveTokenRequest code here.
     NSError *validationError;
-    MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:operationResponse.result.tokenResponse
+    MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:operationResponse.tokenResponse
                                                                                 oauthFactory:self.oauthFactory
                                                                                   tokenCache:self.tokenCache
                                                                         accountMetadataCache:self.accountMetadataCache
