@@ -220,4 +220,54 @@
     XCTAssertEqualObjects(expectedResult, result);
 }
 
+- (void)testMSIDAssertTypeIsOneOf_whenTypeIsWrong_shouldReturnError
+{
+    NSDictionary *json = @{@"some_key": @4};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:YES context:nil errorCode:5 error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 5);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"some_key key in dictionary is not of expected type. Allowed types: NSString.");
+}
+
+- (void)testMSIDAssertTypeIsOneOf_whenTypeCorrect_shouldReturnTrue
+{
+    NSDictionary *json = @{@"some_key": @"4"};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:YES context:nil errorCode:5 error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testMSIDAssertTypeIsOneOf_whenFieldIsOptionalAndMissed_shouldReturnTrue
+{
+    NSDictionary *json = @{@"some_key_2": @"4"};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:NO context:nil errorCode:5 error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testMSIDAssertTypeIsOneOf_whenFieldIsRequiredAndMissed_shouldReturnTrue
+{
+    NSDictionary *json = @{@"some_key_2": @"4"};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:YES context:nil errorCode:5 error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 5);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"some_key key is missing in dictionary.");
+}
+
 @end
