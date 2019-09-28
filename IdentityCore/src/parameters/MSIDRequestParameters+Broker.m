@@ -21,19 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDRequestParameters+Broker.h"
+#import "MSIDAppExtensionUtil.h"
+#import "MSIDAuthority.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDRequestParameters (Broker)
 
-@class MSIDTelemetryAPIEvent;
+- (BOOL)canUseBroker
+{
+#if TARGET_OS_IPHONE
+    if (self.requestType != MSIDRequestBrokeredType) return NO;
+    
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return NO;
 
-@protocol MSIDRequestControlling <NSObject>
+    if (!self.authority.supportsBrokeredAuthentication) return NO;
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
+    if (!self.validateAuthority) return NO;
 
-- (BOOL)canPerformRequest;
+    return YES;
+#else
+    return NO;
+#endif
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

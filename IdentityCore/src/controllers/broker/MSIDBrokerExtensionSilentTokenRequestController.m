@@ -22,18 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerExtensionSilentTokenRequestController.h"
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDAuthority.h"
-#import "MSIDAccountIdentifier.h"
-#import "MSIDBrokerKeyProvider.h"
-#import "MSIDKeychainTokenCache.h"
-#import "MSIDBrokerOperationSilentTokenRequest.h"
-#import "MSIDVersion.h"
-#import "MSIDJsonSerializer.h"
-#import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDSilentTokenRequest.h"
 
-@interface MSIDBrokerExtensionSilentTokenRequestController () <ASAuthorizationControllerDelegate>
+@interface MSIDBrokerExtensionSilentTokenRequestController ()
 
 @property (nonatomic) MSIDSilentTokenRequest *currentRequest;
 
@@ -45,11 +36,11 @@
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker flow.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker extension flow.");
     
     if (!completionBlock)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Passed nil completionBlock");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End silent broker extension flow.");
         return;
     }
 
@@ -60,27 +51,23 @@
     {
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            
+            self.currentRequest = nil;
             completionBlock(result, error);
         };
         
         if (result || !self.fallbackController)
         {
-//            MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-//            [telemetryEvent setUserInformation:result.account];
-//            [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
-//            [self stopTelemetryEvent:telemetryEvent error:error];
             completionBlockWrapper(result, error);
             return;
         }
 
         [self.fallbackController acquireToken:completionBlockWrapper];
-        
-        self.currentRequest = nil;
     }];
 }
 
-+ (BOOL)canPerformRequest
+- (BOOL)canPerformRequest
 {
     // TODO: implement.
     return YES;

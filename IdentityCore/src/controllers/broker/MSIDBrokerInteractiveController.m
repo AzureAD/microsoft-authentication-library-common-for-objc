@@ -52,8 +52,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
-- (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController;
-
 @end
 
 @implementation MSIDBrokerInteractiveController
@@ -128,10 +126,34 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
      }];
 }
 
-+ (BOOL)canPerformRequest
+- (BOOL)canPerformRequest
 {
-    // TODO: verify broker is available here.
+#if AD_BROKER
     return YES;
+#elif TARGET_OS_IPHONE
+    
+    if (![NSThread isMainThread])
+    {
+        __block BOOL brokerInstalled = NO;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            brokerInstalled = [self canPerformRequest];
+        });
+        
+        return brokerInstalled;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Checking broker install state for version %@", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+    
+    if (self.interactiveParameters.brokerInvocationOptions && self.interactiveParameters.brokerInvocationOptions.isRequiredBrokerPresent)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Broker version %@ found installed on device", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+        return YES;
+    }
+    
+    return NO;
+#else
+    return NO;
+#endif
 }
 
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock

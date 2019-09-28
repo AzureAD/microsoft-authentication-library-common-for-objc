@@ -110,7 +110,7 @@
     }];
 }
 
-+ (BOOL)canPerformRequest
+- (BOOL)canPerformRequest
 {
     return YES;
 }

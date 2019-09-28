@@ -122,7 +122,7 @@
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:nil
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new] 
-                                                                                                   requestType:MSIDInteractiveRequestLocalType
+                                                                                                   requestType:MSIDRequestLocalType
                                                                                            intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
 

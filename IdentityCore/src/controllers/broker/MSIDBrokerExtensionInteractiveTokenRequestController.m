@@ -22,13 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerExtensionInteractiveTokenRequestController.h"
-#import "MSIDAccountIdentifier.h"
-#import "MSIDBrokerKeyProvider.h"
-#import "MSIDKeychainTokenCache.h"
-#import "MSIDBrokerOperationInteractiveTokenRequest.h"
-#import "MSIDVersion.h"
-#import "MSIDJsonSerializer.h"
-#import "MSIDAuthority.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDInteractiveTokenRequest.h"
 
@@ -61,41 +54,31 @@
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker flow.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
     if (!completionBlock)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End interactive broker flow.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End interactive broker extension flow.");
         return;
     }
     
-    // TODO: check for current request and cancel it?
-    
     self.currentRequest = [self.tokenRequestProvider interactiveBrokerExtensionTokenRequestWithParameters:self.interactiveRequestParameters];
 
-    [self.currentRequest executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse * msauthResponse)
+    [self.currentRequest executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, __unused MSIDWebWPJResponse * msauthResponse)
     {
         MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+            
+            self.currentRequest = nil;
             completionBlock(result, error);
         };
         
-//        if (msauthResponse)
-//        {
-//            [self handleWebMSAuthResponse:msauthResponse completion:completionBlockWrapper];
-//            return;
-//        }
-
-//        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-//        [telemetryEvent setUserInformation:result.account];
-//        [self stopTelemetryEvent:telemetryEvent error:error];
         completionBlockWrapper(result, error);
-        self.currentRequest = nil;
     }];
 }
 
-+ (BOOL)canPerformRequest
+- (BOOL)canPerformRequest
 {
     // TODO: check for extension.
     return YES;

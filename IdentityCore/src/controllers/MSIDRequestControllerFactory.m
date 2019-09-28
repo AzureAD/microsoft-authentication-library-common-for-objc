@@ -32,6 +32,7 @@
 #import "MSIDBrokerExtensionSilentTokenRequestController.h"
 #endif
 #import "MSIDAuthority.h"
+#import "MSIDRequestParameters+Broker.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -40,31 +41,29 @@
                                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError **)error
 {
+    MSIDSilentController *brokerController;
+    
+    if ([parameters canUseBroker])
+    {
+        if (@available(iOS 13.0, *))
+        {
+            __auto_type controller = [[MSIDBrokerExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                  forceRefresh:forceRefresh
+                                                                          tokenRequestProvider:tokenRequestProvider
+                                                                                         error:error];
+            if ([controller canPerformRequest]) brokerController = controller;
+        }
+    }
+    
+    // TODO: Performance optimization: check account source.
+    // if (parameters.accountIdentifier.source == BROKER) return brokerController;
+    
     __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
                                                                              forceRefresh:forceRefresh
                                                                      tokenRequestProvider:tokenRequestProvider
+                                                            fallbackInteractiveController:brokerController
                                                                                     error:error];
-    if (!localController)
-    {
-        return nil;
-    }
-    
-    // TODO: canUseBrokerOnDeviceWithParameters ???
-    // TODO: move MSIDInteractiveRequestLocalType to silent params (other operations too ???).
-    // TODO: hack, remove macro.
-    
-#if !AD_BROKER
-    if (@available(iOS 13.0, *))
-    {
-        if ([MSIDBrokerExtensionSilentTokenRequestController canPerformRequest])
-        {
-            return [[MSIDBrokerExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-                                                                                 tokenRequestProvider:tokenRequestProvider
-                                                                                   fallbackController:localController
-                                                                                                error:error];
-        }
-    }
-#endif
+    if (!localController) return nil;
     
     return localController;
 }
@@ -103,30 +102,23 @@
     }
     
 #if TARGET_OS_IPHONE
-    if ([self canUseBrokerOnDeviceWithParameters:parameters])
+    if ([parameters canUseBroker])
     {
         if (@available(iOS 13.0, *))
         {
-            if ([MSIDBrokerExtensionInteractiveTokenRequestController canPerformRequest])
-            {
-                return [[MSIDBrokerExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                         tokenRequestProvider:tokenRequestProvider
-                                                                                           fallbackController:localController
-                                                                                                        error:error];
-            }
+            __auto_type controller = [[MSIDBrokerExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                                   tokenRequestProvider:tokenRequestProvider
+                                                                                                                     fallbackController:localController
+                                                                                                                                  error:error];
+            if ([controller canPerformRequest]) return controller;
         }
         
-        BOOL brokerInstalled = [self brokerInstalledWithParameters:parameters];
-        
-        if (brokerInstalled)
-        {
-            return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                            tokenRequestProvider:tokenRequestProvider
-                                                                              fallbackController:localController
-                                                                                           error:error];
-        }
+        __auto_type controller = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                          tokenRequestProvider:tokenRequestProvider
+                                                                                            fallbackController:localController
+                                                                                                         error:error];
+        if ([controller canPerformRequest]) return controller;
     }
-
 #endif
 
     return localController;
@@ -154,72 +146,11 @@
             return nil;
         }
     }
-    
 #endif
     
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
-}
-
-+ (BOOL)canUseBrokerOnDeviceWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
-{
-#if TARGET_OS_IPHONE
-
-    if (parameters.requestType != MSIDInteractiveRequestBrokeredType)
-    {
-        return NO;
-    }
-
-    if ([MSIDAppExtensionUtil isExecutingInAppExtension])
-    {
-        return NO;
-    }
-
-    if (!parameters.authority.supportsBrokeredAuthentication)
-    {
-        return NO;
-    }
-
-    if (!parameters.validateAuthority)
-    {
-        return NO;
-    }
-
-    return YES;
-#else
-    return NO;
-#endif
-}
-
-+ (BOOL)brokerInstalledWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
-{
-#if AD_BROKER
-    return YES;
-#elif TARGET_OS_IPHONE
-
-    if (![NSThread isMainThread])
-    {
-        __block BOOL brokerInstalled = NO;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            brokerInstalled = [self brokerInstalledWithParameters:parameters];
-        });
-
-        return brokerInstalled;
-    }
-
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", parameters.brokerInvocationOptions.versionDisplayableName);
-    
-    if (parameters.brokerInvocationOptions && parameters.brokerInvocationOptions.isRequiredBrokerPresent)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", parameters.brokerInvocationOptions.versionDisplayableName);
-        return YES;
-    }
-    
-    return NO;
-#else
-    return NO;
-#endif
 }
 
 @end

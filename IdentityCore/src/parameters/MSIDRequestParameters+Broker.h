@@ -21,18 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDRequestParameters.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDTelemetryAPIEvent;
+@interface MSIDRequestParameters (Broker)
 
-@protocol MSIDRequestControlling <NSObject>
-
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
-
-- (BOOL)canPerformRequest;
+- (BOOL)canUseBroker;
 
 @end
 
