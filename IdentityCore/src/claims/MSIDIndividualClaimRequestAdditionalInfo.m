@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDIndividualClaimRequestAdditionalInfo.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 static NSString *const kEssentialJsonParam = @"essential";
 static NSString *const kValueJsonParam = @"value";
@@ -42,37 +43,13 @@ static NSString *const kValuesJsonParam = @"values";
     self = [super init];
     if (self)
     {
-        if (json[kEssentialJsonParam])
-        {
-            if (![json msidAssertType:NSNumber.class
-                              ofField:kEssentialJsonParam
-                              context:nil
-                            errorCode:MSIDErrorInvalidDeveloperParameter
-                                error:error])
-            {
-                return nil;
-            }
-            _essential = json[kEssentialJsonParam];
-        }
+        if (![json msidAssertTypeIsOneOf:@[NSNumber.class] ofKey:kEssentialJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
+        _essential = json[kEssentialJsonParam];
 
         _value = json[kValueJsonParam];
-        NSArray *values = json[kValuesJsonParam];
         
-        if (values)
-        {
-            if (![values isKindOfClass:NSArray.class])
-            {
-                if (error) *error = MSIDCreateError(MSIDErrorDomain,
-                                                    MSIDErrorInvalidDeveloperParameter,
-                                                    @"values is not an NSArray.",
-                                                    nil, nil, nil, nil, nil);
-                
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDIndividualClaimRequestAdditionalInfo with json: values is not an NSArray.");
-                return nil;
-            }
-            
-            _values = values;
-        }
+        if (![json msidAssertTypeIsOneOf:@[NSArray.class] ofKey:kValuesJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
+        _values = json[kValuesJsonParam];
 
         BOOL isJsonValid = _essential != nil || _value != nil || _values != nil;
         

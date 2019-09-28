@@ -302,6 +302,7 @@
 		23D7447A2097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23D744772097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m */; };
 		23DADC1020B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = 23DADC0E20B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.h */; };
 		23DADC1120B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 23DADC0F20B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.m */; };
+		23E2580A233E7BD1007A38D9 /* MSIDAADV2TokenResponseForV1RequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23E25808233E7BD1007A38D9 /* MSIDAADV2TokenResponseForV1RequestTests.m */; };
 		23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
 		23F32F261FFDAF1A00B2905E /* MSIDTestBrokerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = B2D81BBD1FF5C7460093859A /* MSIDTestBrokerResponse.m */; };
 		23F9FD4622EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = 23F9FD4422EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h */; };
@@ -1460,6 +1461,7 @@
 		23D744772097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV1AuthorizationCodeRequest.m; sourceTree = "<group>"; };
 		23DADC0E20B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAadAuthorityCacheRecord.h; sourceTree = "<group>"; };
 		23DADC0F20B8BF4F005D7389 /* MSIDAadAuthorityCacheRecord.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAadAuthorityCacheRecord.m; sourceTree = "<group>"; };
+		23E25808233E7BD1007A38D9 /* MSIDAADV2TokenResponseForV1RequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV2TokenResponseForV1RequestTests.m; sourceTree = "<group>"; };
 		23F32F151FF72CE400B2905E /* MSIDMacTokenCacheIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDMacTokenCacheIntegrationTests.m; sourceTree = "<group>"; };
 		23F32F221FFDAB9D00B2905E /* MSIDTokenCacheDataSourceIntegrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenCacheDataSourceIntegrationTests.m; sourceTree = "<group>"; };
 		23F9FD4422EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSKeyedUnarchiver+MSIDExtensions.h"; sourceTree = "<group>"; };
@@ -2866,6 +2868,7 @@
 				96CE53E720C73E3A002E24C9 /* MSIDWebviewFactory.h */,
 				96CE53E820C73E3A002E24C9 /* MSIDWebviewFactory.m */,
 				B210F42F1FDDE7EB005A8F76 /* MSIDTokenResponse.h */,
+				1E2EDFF8219125400054FAD9 /* MSIDTokenResponse+Internal.h */,
 				B210F4301FDDE7EB005A8F76 /* MSIDTokenResponse.m */,
 				B2C7089A219926C200D917B8 /* MSIDBrokerResponse+Internal.h */,
 				B210F4531FDDFA7B005A8F76 /* MSIDBrokerResponse.h */,
@@ -2878,7 +2881,6 @@
 				B23ECEE71FF2F3F30015FC1D /* aad_base */,
 				B29CB6D11FEC9B4D00F880ED /* aad_v2 */,
 				B210F4341FDDEA0D005A8F76 /* aad_v1 */,
-				1E2EDFF8219125400054FAD9 /* MSIDTokenResponse+Internal.h */,
 			);
 			path = oauth2;
 			sourceTree = "<group>";
@@ -3754,6 +3756,7 @@
 				B2807FFD204CB25E00944D89 /* MSIDTokenResponseTests.m */,
 				B2808000204CB29900944D89 /* MSIDAADTokenResponseTests.m */,
 				B2808003204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m */,
+				23E25808233E7BD1007A38D9 /* MSIDAADV2TokenResponseForV1RequestTests.m */,
 				B2DD4B2D20A8D7DE0047A66E /* MSIDCacheKeyTests.m */,
 				B2808009204CD81400944D89 /* MSIDLegacyCacheKeyTests.m */,
 				B2DD4B3020A8DA0B0047A66E /* MSIDLegacyCacheQueryTests.m */,
@@ -5033,6 +5036,7 @@
 				2361DE8C2048B6F8005FD48A /* MSIDAccountTests.m in Sources */,
 				B2DD5BA5204761720084313F /* MSIDRefreshTokenTests.m in Sources */,
 				23AE9DBC2148574F00B285F3 /* MSIDErrorExtensionsTests.m in Sources */,
+				23E2580A233E7BD1007A38D9 /* MSIDAADV2TokenResponseForV1RequestTests.m in Sources */,
 				B274DEC821FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m in Sources */,
 				9686C72E21192C65001FFF51 /* MSIDWebOpenBrowserResponseTests.m in Sources */,
 				B280800B204CD81400944D89 /* MSIDLegacyCacheKeyTests.m in Sources */,
