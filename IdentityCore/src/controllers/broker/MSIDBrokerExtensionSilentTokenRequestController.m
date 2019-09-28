@@ -41,11 +41,6 @@
 
 @implementation MSIDBrokerExtensionSilentTokenRequestController
 
-- (void)dealloc
-{
-    NSLog(@"dealloc");
-}
-
 #pragma mark - MSIDRequestControlling
 
 - (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock

@@ -28,7 +28,6 @@
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDVersion.h"
 #import "MSIDJsonSerializer.h"
-#import "MSIDBrokerExtensionTokenRequestController+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDInteractiveTokenRequest.h"
@@ -94,6 +93,12 @@
         completionBlockWrapper(result, error);
         self.currentRequest = nil;
     }];
+}
+
++ (BOOL)canPerformRequest
+{
+    // TODO: check for extension.
+    return YES;
 }
 
 @end
