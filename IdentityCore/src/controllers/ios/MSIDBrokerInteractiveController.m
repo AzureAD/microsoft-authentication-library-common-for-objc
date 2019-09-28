@@ -43,6 +43,7 @@
 #import "MSIDBrokerKeyProvider.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
+#import "MSIDMainThreadUtil.h"
 
 @interface MSIDBrokerInteractiveController()
 
@@ -235,10 +236,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     }
     else
     {
-        dispatch_async(dispatch_get_main_queue(), ^{
+        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
             [MSIDNotifications notifyWebAuthWillSwitchToBroker];
             [self openBrokerWithRequestURL:launchURL fallbackToLocalController:!firstTimeInstall];
-        });
+        }];
     }
 }
 

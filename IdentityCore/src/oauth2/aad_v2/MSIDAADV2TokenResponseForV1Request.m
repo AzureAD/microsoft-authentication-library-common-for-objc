@@ -27,9 +27,9 @@
 
 @implementation MSIDAADV2TokenResponseForV1Request
 
-- (Class)tokenClaimsClass
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
-    return MSIDAADV1IdTokenClaims.class;
+    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 @end

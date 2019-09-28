@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDMainThreadUtil.h"
 
 @implementation MSIDAppExtensionUtil
 
@@ -62,9 +63,10 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    dispatch_async( dispatch_get_main_queue(), ^{
+    
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
-    });
+    }];
 #pragma clang diagnostic pop
 }
 
@@ -78,14 +80,14 @@
         return;
     }
     
-    dispatch_async( dispatch_get_main_queue(), ^{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         
         SEL openURLSelector = @selector(openURL:options:completionHandler:);
         UIApplication *application = [self sharedApplication];
         id (*safeOpenURL)(id, SEL, id, id, id) = (void *)[application methodForSelector:openURLSelector];
         
         safeOpenURL(application, openURLSelector, url, options, completionHandler);
-    });
+    }];
 }
 
 @end

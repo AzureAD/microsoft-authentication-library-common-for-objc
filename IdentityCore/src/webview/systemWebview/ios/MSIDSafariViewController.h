@@ -28,15 +28,14 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
+#import "MSIDURLResponseHandling.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting, MSIDURLResponseHandling>
 
 - (instancetype)initWithURL:(NSURL *)url
            parentController:(UIViewController *)parentController
            presentationType:(UIModalPresentationStyle)presentationType
                     context:(id<MSIDRequestContext>)context;
-
-- (BOOL)handleURLResponse:(NSURL *)url;
 
 @property (readonly) NSURL *startURL;
 @property (weak, nonatomic) UIViewController *parentController;

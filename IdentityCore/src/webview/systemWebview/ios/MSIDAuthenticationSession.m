@@ -77,7 +77,7 @@ API_AVAILABLE(ios(13.0))
 {
 #if !MSID_EXCLUDE_WEBKIT
     
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
     API_AVAILABLE(ios(11.0))
     SFAuthenticationSession *_authSession;
 #endif
@@ -143,7 +143,7 @@ API_AVAILABLE(ios(13.0))
     }
     else if (@available(iOS 11.0, *))
     {
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
         if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
 #endif
     }
@@ -208,7 +208,7 @@ API_AVAILABLE(ios(13.0))
         }
         else
         {
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
             _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
                                                       callbackURLScheme:_callbackURLScheme
                                                       completionHandler:authCompletion];
@@ -238,7 +238,7 @@ API_AVAILABLE(ios(13.0))
     {
         [_webAuthSession cancel];
     }
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
     else
     {
         [_authSession cancel];
@@ -266,6 +266,24 @@ API_AVAILABLE(ios(13.0))
     {
         [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
     }
+}
+
+- (BOOL)handleURLResponse:(NSURL *)url
+{
+    [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
+    
+    if (@available(iOS 12.0, *))
+    {
+        [_webAuthSession cancel];
+    }
+    else
+    {
+        [_authSession cancel];
+    }
+    
+    [self notifyEndWebAuthWithURL:url error:nil];
+    _completionHandler(url, nil);
+    return YES;
 }
 
 - (void)dealloc

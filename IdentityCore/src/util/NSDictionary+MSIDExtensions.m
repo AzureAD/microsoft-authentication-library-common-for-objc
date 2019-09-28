@@ -102,6 +102,16 @@
 
 - (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
 {
+    return [self msidAssertTypeIsOneOf:types ofKey:key required:required context:nil errorCode:MSIDErrorInvalidInternalParameter error:error];
+}
+
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types
+                        ofKey:(NSString *)key
+                     required:(BOOL)required
+                      context:(id<MSIDRequestContext>)context
+                    errorCode:(NSInteger)errorCode
+                        error:(NSError **)error
+{
     id obj = self[key];
     if (!obj && !required) return YES;
     
@@ -132,9 +142,9 @@
     
     if (message)
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, errorCode, message, nil, nil, nil, context.correlationId, nil);
         
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@", message);
         
         return NO;
     }
