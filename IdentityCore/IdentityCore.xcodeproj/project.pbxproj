@@ -282,7 +282,6 @@
 		23B4CC712181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B4CC6E2181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m */; };
 		23B5DF76234030B2002C530F /* MSIDRequestParameters+Broker.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B5DF74234030B2002C530F /* MSIDRequestParameters+Broker.h */; };
 		23B5DF77234030B2002C530F /* MSIDRequestParameters+Broker.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B5DF75234030B2002C530F /* MSIDRequestParameters+Broker.m */; };
-		23B5DF78234030B2002C530F /* MSIDRequestParameters+Broker.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B5DF75234030B2002C530F /* MSIDRequestParameters+Broker.m */; };
 		23B5DF7D234031EE002C530F /* MSIDBrokerExtensionSilentTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B5DF79234031ED002C530F /* MSIDBrokerExtensionSilentTokenRequestController.h */; };
 		23B5DF7E234031EE002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B5DF7A234031ED002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.h */; };
 		23B5DF7F234031EE002C530F /* MSIDBrokerExtensionSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B5DF7B234031ED002C530F /* MSIDBrokerExtensionSilentTokenRequestController.m */; };
@@ -4872,7 +4871,6 @@
 				238E19CE2086FC87004DF483 /* MSIDUrlRequestSerializer.m in Sources */,
 				232C658A2138BDC5002A41FE /* MSIDAADAuthorityMetadataResponse.m in Sources */,
 				96CD695E1FE84A0300D41938 /* MSIDJsonObject.m in Sources */,
-				23B5DF78234030B2002C530F /* MSIDRequestParameters+Broker.m in Sources */,
 				23B39A92209A85EB000AA905 /* MSIDWebFingerRequest.m in Sources */,
 				B297E1DE20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.m in Sources */,
 				232173EF2182B195009852C6 /* MSIDIntuneInMemoryCacheDataSource.m in Sources */,

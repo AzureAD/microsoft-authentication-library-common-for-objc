@@ -30,9 +30,9 @@
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDBrokerExtensionInteractiveTokenRequestController.h"
 #import "MSIDBrokerExtensionSilentTokenRequestController.h"
+#import "MSIDRequestParameters+Broker.h"
 #endif
 #import "MSIDAuthority.h"
-#import "MSIDRequestParameters+Broker.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -43,6 +43,7 @@
 {
     MSIDSilentController *brokerController;
     
+#if TARGET_OS_IPHONE
     if ([parameters canUseBroker])
     {
         if (@available(iOS 13.0, *))
@@ -54,6 +55,7 @@
             if ([controller canPerformRequest]) brokerController = controller;
         }
     }
+#endif
     
     // TODO: Performance optimization: check account source.
     // if (parameters.accountIdentifier.source == BROKER) return brokerController;
