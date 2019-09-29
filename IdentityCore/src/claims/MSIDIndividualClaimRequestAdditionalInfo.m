@@ -43,12 +43,12 @@ static NSString *const kValuesJsonParam = @"values";
     self = [super init];
     if (self)
     {
-        if (![json msidAssertType:NSNumber.class ofKey:kEssentialJsonParam required:NO error:error]) return nil;
+        if (![json msidAssertTypeIsOneOf:@[NSNumber.class] ofKey:kEssentialJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
         _essential = json[kEssentialJsonParam];
 
         _value = json[kValueJsonParam];
         
-        if (![json msidAssertType:NSArray.class ofKey:kValuesJsonParam required:NO error:error]) return nil;
+        if (![json msidAssertTypeIsOneOf:@[NSArray.class] ofKey:kValuesJsonParam required:NO context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
         _values = json[kValuesJsonParam];
 
         BOOL isJsonValid = _essential != nil || _value != nil || _values != nil;

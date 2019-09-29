@@ -29,16 +29,29 @@
 
 + (UIViewController *)msidCurrentViewController:(UIViewController *)parentController
 {
-    if (@available(iOS 13.0, *)) return [self msidCurrentViewControllerWithRootViewController:parentController];
+    if (parentController)
+    {
+        return [self msidCurrentViewControllerWithRootViewController:parentController];
+    }
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
     
-#if !TARGET_OS_UIKITFORMAC
-    __auto_type controller = parentController ? parentController : [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
+#if !TARGET_OS_MACCATALYST
+    __auto_type controller = [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
     return controller;
-#endif
+#else
     
-    return [self msidCurrentViewControllerWithRootViewController:parentController];
+    for (UIWindow *window in [MSIDAppExtensionUtil sharedApplication].windows)
+    {
+        if (window.isKeyWindow)
+        {
+            return [self msidCurrentViewControllerWithRootViewController:window.rootViewController];
+        }
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Couldn't find key window");
+    return nil;
+#endif
 }
 
 + (UIViewController*)msidCurrentViewControllerWithRootViewController:(UIViewController *)rootViewController

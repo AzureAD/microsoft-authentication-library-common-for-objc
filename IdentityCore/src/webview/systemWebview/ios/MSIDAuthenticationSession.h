@@ -29,8 +29,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "MSIDSystemWebviewController.h"
+#import "MSIDURLResponseHandling.h"
 
-@interface MSIDAuthenticationSession : NSObject<MSIDWebviewInteracting>
+@interface MSIDAuthenticationSession : NSObject<MSIDWebviewInteracting, MSIDURLResponseHandling>
 
 - (instancetype)initWithURL:(NSURL *)url
           callbackURLScheme:(NSString *)callbackURLScheme
@@ -43,7 +44,8 @@
                     context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0));
 
 @property (readonly) NSURL *startURL;
-@property (readonly) NSString *callbackURLScheme;
+@property (readonly) NSURL *redirectURL;
+
 @property (weak, nonatomic, readonly) UIViewController *parentController API_AVAILABLE(ios(13.0));
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
 

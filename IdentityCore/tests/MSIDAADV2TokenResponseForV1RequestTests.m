@@ -21,15 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#import <XCTest/XCTest.h>
+#import "MSIDAADV2TokenResponseForV1Request.h"
+#import "MSIDTestIdTokenUtil.h"
+#import "MSIDAADV1IdTokenClaims.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDWPJChallengeHandler : NSObject<MSIDChallengeHandling>
-
-+ (BOOL)shouldHandleChallenge:(NSURLAuthenticationChallenge *)challenge;
+@interface MSIDAADV2TokenResponseForV1RequestTests : XCTestCase
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDAADV2TokenResponseForV1RequestTests
+
+- (void)testInitWithJson_whenRawIdTokenIsPresent_shouldCreateIdTokenClaims
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"test" upn:@"upn" oid:nil tenantId:@"tenant"];
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"id_token": idToken,
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    __auto_type response = [[MSIDAADV2TokenResponseForV1Request alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response.idTokenObj);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.idTokenObj.class , MSIDAADV1IdTokenClaims.class);
+}
+
+@end

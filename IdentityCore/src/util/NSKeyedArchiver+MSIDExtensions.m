@@ -33,7 +33,7 @@
     {
         archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:YES];
     }
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
     else
     {
         archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
@@ -67,7 +67,7 @@
     {
         result = [NSKeyedArchiver archivedDataWithRootObject:object requiringSecureCoding:requiresSecureCoding error:error];
     }
-#if !TARGET_OS_UIKITFORMAC
+#if !TARGET_OS_MACCATALYST
     else
     {
         result = [NSKeyedArchiver archivedDataWithRootObject:object];

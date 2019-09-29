@@ -22,14 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDChallengeHandling.h"
+#import "MSIDWebviewInteracting.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDTestWebviewInteractingViewController : NSObject<MSIDWebviewInteracting>
 
-@interface MSIDWPJChallengeHandler : NSObject<MSIDChallengeHandling>
+// Time after which the start call will return a successful response.
+// If set to zero, will indicate unsuccessful response.
+@property NSTimeInterval successAfterInterval;
 
-+ (BOOL)shouldHandleChallenge:(NSURLAuthenticationChallenge *)challenge;
+// BOOL to indicate whether or not this class will act as MSIDSafariViewController
+@property BOOL actAsSafariViewController;
+@property BOOL actAsAuthenticationSession;
+
+@property NSURL *startURL;
 
 @end
-
-NS_ASSUME_NONNULL_END

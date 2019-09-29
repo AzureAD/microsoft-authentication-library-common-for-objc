@@ -32,6 +32,7 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDNotifications.h"
+#import "MSIDURLResponseHandling.h"
 
 @interface MSIDSystemWebviewController ()
 
@@ -42,14 +43,14 @@
 @implementation MSIDSystemWebviewController
 {
     id<MSIDRequestContext> _context;
-    NSObject<MSIDWebviewInteracting> *_session;
+    NSObject<MSIDWebviewInteracting, MSIDURLResponseHandling> *_session;
     
     BOOL _allowSafariViewController;
     BOOL _useAuthenticationSession;
 }
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
-               callbackURLScheme:(NSString *)callbackURLScheme
+                     redirectURI:(NSString *)redirectURI
                 parentController:(UIViewController *)parentController
                 presentationType:(UIModalPresentationStyle)presentationType
         useAuthenticationSession:(BOOL)useAuthenticationSession
@@ -63,7 +64,8 @@
         return nil;
     }
     
-    if (!callbackURLScheme)
+    NSURL *redirectURL = [NSURL URLWithString:redirectURI];
+    if (!redirectURL || !redirectURL.scheme)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Attemped to start with invalid redirect uri");
         return nil;
@@ -75,7 +77,7 @@
     {
         _startURL = startURL;
         _context = context;
-        _callbackURLScheme = callbackURLScheme;
+        _redirectURL = redirectURL;
         _parentController = parentController;
         _presentationType = presentationType;
         _allowSafariViewController = allowSafariViewController;
@@ -100,7 +102,7 @@
         if (@available(iOS 13.0, *))
         {
             _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
-                                                    callbackURLScheme:self.callbackURLScheme
+                                                    callbackURLScheme:self.redirectURL.scheme
                                                      parentController:self.parentController
                                            ephemeralWebBrowserSession:self.prefersEphemeralWebBrowserSession
                                                               context:_context];
@@ -108,7 +110,7 @@
         else if (@available(iOS 11.0, *))
         {
             _session = [[MSIDAuthenticationSession alloc] initWithURL:self.startURL
-                                                    callbackURLScheme:self.callbackURLScheme
+                                                    callbackURLScheme:_redirectURL.scheme
                                                               context:_context];
         }
         else
@@ -145,13 +147,16 @@
     [_session cancel];
 }
 
-- (BOOL)handleURLResponseForSafariViewController:(NSURL *)url
+- (BOOL)handleURLResponse:(NSURL *)url
 {
-    if ([_session isKindOfClass:MSIDSafariViewController.class])
+    if (_session)
     {
-        return [((MSIDSafariViewController *)_session) handleURLResponse:url];
+        if (([_redirectURL.scheme caseInsensitiveCompare:url.scheme] == NSOrderedSame)
+            && ([_redirectURL.host caseInsensitiveCompare:url.host] == NSOrderedSame))
+        {
+            return [_session handleURLResponse:url];
+        }
     }
-    
     return NO;
 }
 

@@ -24,6 +24,7 @@
 #import "MSIDNTLMUIPrompt.h"
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDMainThreadUtil.h"
 
 @implementation MSIDNTLMUIPrompt
 
@@ -31,15 +32,14 @@ __weak static UIAlertController *_presentedPrompt = nil;
 
 + (void)dismissPrompt
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         if (_presentedPrompt.presentingViewController)
         {
             [_presentedPrompt.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
         
         _presentedPrompt = nil;
-    });
+    }];
 }
 
 + (void)presentPromptInParentController:(UIViewController *)parentViewController
@@ -52,8 +52,10 @@ __weak static UIAlertController *_presentedPrompt = nil;
         return;
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+         
         UIViewController *viewController = [UIApplication msidCurrentViewController:parentViewController];
+         
         if (!viewController)
         {
             block(nil, nil, YES);
@@ -97,7 +99,7 @@ __weak static UIAlertController *_presentedPrompt = nil;
         [viewController presentViewController:alert animated:YES completion:^{}];
         
         _presentedPrompt = alert;
-    });
+    }];
 }
 
 @end
