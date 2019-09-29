@@ -100,6 +100,11 @@
     }];
 }
 
+- (BOOL)canPerformRequest
+{
+    return YES;
+}
+
 - (void)handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Handling msauth response.");

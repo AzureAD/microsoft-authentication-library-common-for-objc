@@ -26,7 +26,6 @@
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDBrokerKeyProvider.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDNotifications.h"
 #import "MSIDBrokerResponseHandler.h"
@@ -41,7 +40,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDBrokerInvocationOptions.h"
+#import "MSIDBrokerKeyProvider.h"
 #import "MSIDMainThreadUtil.h"
+
+static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 @interface MSIDBrokerInteractiveController()
 
@@ -50,9 +52,9 @@
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
-@end
+- (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController;
 
-static MSIDBrokerInteractiveController *s_currentExecutingController;
+@end
 
 @implementation MSIDBrokerInteractiveController
 
@@ -124,6 +126,36 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
          
          [self acquireTokenImpl:completionBlock];
      }];
+}
+
+- (BOOL)canPerformRequest
+{
+#if AD_BROKER
+    return YES;
+#elif TARGET_OS_IPHONE
+    
+    if (![NSThread isMainThread])
+    {
+        __block BOOL brokerInstalled = NO;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            brokerInstalled = [self canPerformRequest];
+        });
+        
+        return brokerInstalled;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Checking broker install state for version %@", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+    
+    if (self.interactiveParameters.brokerInvocationOptions && self.interactiveParameters.brokerInvocationOptions.isRequiredBrokerPresent)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Broker version %@ found installed on device", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+        return YES;
+    }
+    
+    return NO;
+#else
+    return NO;
+#endif
 }
 
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock

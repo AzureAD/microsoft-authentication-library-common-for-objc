@@ -21,18 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDBaseRequestController.h"
+#import "MSIDRequestControlling.h"
 
+@class MSIDInteractiveRequestParameters;
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDTelemetryAPIEvent;
+API_AVAILABLE(ios(13.0))
+@interface MSIDBrokerExtensionInteractiveTokenRequestController : MSIDBaseRequestController <MSIDRequestControlling>
 
-@protocol MSIDRequestControlling <NSObject>
+@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParameters;
 
-- (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
-
-- (BOOL)canPerformRequest;
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                        error:(NSError * _Nullable * _Nullable)error;
 
 @end
 

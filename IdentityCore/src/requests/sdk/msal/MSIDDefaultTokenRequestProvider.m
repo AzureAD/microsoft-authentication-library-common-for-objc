@@ -91,4 +91,19 @@
                                                                       error:error];
 }
 
+- (MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    // TODO: implement
+    
+    return nil;
+}
+
+- (MSIDSilentTokenRequest *)silentBrokerExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                                               forceRefresh:(BOOL)forceRefresh
+{
+    // TODO: implement
+    
+    return nil;
+}
+
 @end
