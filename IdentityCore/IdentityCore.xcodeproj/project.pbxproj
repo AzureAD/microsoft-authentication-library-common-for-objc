@@ -286,9 +286,7 @@
 		23B5DF7D234031EE002C530F /* MSIDBrokerExtensionSilentTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B5DF79234031ED002C530F /* MSIDBrokerExtensionSilentTokenRequestController.h */; };
 		23B5DF7E234031EE002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B5DF7A234031ED002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.h */; };
 		23B5DF7F234031EE002C530F /* MSIDBrokerExtensionSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B5DF7B234031ED002C530F /* MSIDBrokerExtensionSilentTokenRequestController.m */; };
-		23B5DF80234031EE002C530F /* MSIDBrokerExtensionSilentTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B5DF7B234031ED002C530F /* MSIDBrokerExtensionSilentTokenRequestController.m */; };
 		23B5DF81234031EE002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B5DF7C234031EE002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.m */; };
-		23B5DF82234031EE002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B5DF7C234031EE002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.m */; };
 		23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */; };
 		23BDA67A1FCE693800FE14BE /* MSIDKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA6791FCE693800FE14BE /* MSIDKeychainUtil.m */; };
 		23CA0C4A220A3B6900768729 /* MSIDPKeyAuthHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C49220A3B6900768729 /* MSIDPKeyAuthHandlerTests.m */; };
@@ -4840,7 +4838,6 @@
 				B2C7089421991CED00D917B8 /* MSIDAADV1BrokerResponse.m in Sources */,
 				B2AF1D3A218BCF140080C1A0 /* MSIDRequestControllerFactory.m in Sources */,
 				B28BDAC1221F7F230055FFE6 /* MSIDCBAWebAADAuthResponse.m in Sources */,
-				23B5DF82234031EE002C530F /* MSIDBrokerExtensionInteractiveTokenRequestController.m in Sources */,
 				607123C2210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m in Sources */,
 				23B3A44E21868766009070B2 /* MSIDCacheItemJsonSerializer.m in Sources */,
 				23D2046421CF1F60009B5975 /* MSIDAADTokenResponseSerializer.m in Sources */,
@@ -4932,7 +4929,6 @@
 				B20657BF1FC9254900412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				B2000C9E20EC65600092790A /* MSIDURLFormObject.m in Sources */,
 				B2115827202BD5F3005CE586 /* MSIDCacheKey.m in Sources */,
-				23B5DF80234031EE002C530F /* MSIDBrokerExtensionSilentTokenRequestController.m in Sources */,
 				B2908C091FCA29EB00AFE98E /* MSIDTelemetryBaseEvent.m in Sources */,
 				239DF9AD20DED6F6002D428B /* MSIDConstants.m in Sources */,
 				2348C313221B4EFF00498D56 /* MSIDBasicContext.m in Sources */,

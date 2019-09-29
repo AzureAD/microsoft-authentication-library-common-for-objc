@@ -52,8 +52,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
-- (void)handleFailedOpenURL:(BOOL)shouldFallbackToLocalController;
-
 @end
 
 @implementation MSIDBrokerInteractiveController
