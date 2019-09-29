@@ -131,7 +131,7 @@
 {
 #if TARGET_OS_IPHONE
 
-    if (parameters.requestType != MSIDInteractiveRequestBrokeredType)
+    if (parameters.requestType != MSIDRequestBrokeredType)
     {
         return NO;
     }

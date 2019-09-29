@@ -58,6 +58,7 @@
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
+                      requestType:(MSIDRequestType)requestType
                             error:(NSError **)error
 {
     self = [super init];
@@ -72,6 +73,7 @@
         _correlationId = correlationId ?: [NSUUID new];
         _telemetryApiId = telemetryApiId;
         _intuneApplicationIdentifier = intuneApplicationIdentifier;
+        _requestType = requestType;
 
         if ([scopes intersectsOrderedSet:oidScopes])
         {

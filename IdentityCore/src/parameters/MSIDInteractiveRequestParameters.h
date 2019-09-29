@@ -32,7 +32,6 @@
 
 @interface MSIDInteractiveRequestParameters : MSIDRequestParameters
 
-@property (nonatomic) MSIDInteractiveRequestType requestType;
 @property (nonatomic) MSIDUIBehaviorType uiBehaviorType;
 @property (nonatomic) NSString *loginHint;
 @property (nonatomic) MSIDWebviewType webviewType;
@@ -64,7 +63,7 @@
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
                     brokerOptions:(MSIDBrokerInvocationOptions *)brokerOptions
-                      requestType:(MSIDInteractiveRequestType)requestType
+                      requestType:(MSIDRequestType)requestType
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error;
 

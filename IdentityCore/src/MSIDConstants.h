@@ -43,10 +43,10 @@ typedef NS_ENUM(NSInteger, MSIDWebviewType)
     MSIDWebviewTypeWKWebView,
 };
 
-typedef NS_ENUM(NSInteger, MSIDInteractiveRequestType)
+typedef NS_ENUM(NSInteger, MSIDRequestType)
 {
-    MSIDInteractiveRequestBrokeredType = 0,
-    MSIDInteractiveRequestLocalType
+    MSIDRequestBrokeredType = 0,
+    MSIDRequestLocalType
 };
 
 typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
