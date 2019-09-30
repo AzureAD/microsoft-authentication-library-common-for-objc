@@ -44,7 +44,7 @@
     MSIDSilentController *brokerController;
     
 #if TARGET_OS_IPHONE
-    if ([parameters canUseBroker])
+    if ([parameters shouldUseBroker])
     {
         if (@available(iOS 13.0, *))
         {
@@ -104,7 +104,7 @@
     }
     
 #if TARGET_OS_IPHONE
-    if ([parameters canUseBroker])
+    if ([parameters shouldUseBroker])
     {
         if (@available(iOS 13.0, *))
         {

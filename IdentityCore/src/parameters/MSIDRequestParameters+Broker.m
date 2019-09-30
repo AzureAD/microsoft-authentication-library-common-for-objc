@@ -27,7 +27,7 @@
 
 @implementation MSIDRequestParameters (Broker)
 
-- (BOOL)canUseBroker
+- (BOOL)shouldUseBroker
 {
 #if TARGET_OS_IPHONE
     if (self.requestType != MSIDRequestBrokeredType) return NO;
