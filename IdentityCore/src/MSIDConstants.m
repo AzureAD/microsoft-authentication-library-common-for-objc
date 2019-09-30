@@ -40,6 +40,7 @@ NSString *const MSID_BROKER_APP_BUNDLE_ID        = @"com.microsoft.azureauthenti
 NSString *const MSID_BROKER_APP_BUNDLE_ID_DF     = @"com.microsoft.azureauthenticator-df";
 NSString *const MSID_BROKER_MAX_PROTOCOL_VERSION = @"max_protocol_ver";
 NSString *const MSID_BROKER_PROTOCOL_VERSION_KEY = @"msg_protocol_ver";
+NSString *const MSID_BROKER_OPERATION_KEY       = @"operation";
 NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION = @"2";
 NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION = @"3";
 NSString *const MSID_AUTHENTICATOR_REDIRECT_URI  = @"urn:ietf:wg:oauth:2.0:oob";
