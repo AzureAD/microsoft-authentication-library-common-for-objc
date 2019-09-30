@@ -142,6 +142,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         return brokerInstalled;
     }
     
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return NO;
+    
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Checking broker install state for version %@", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
     
     if (self.interactiveParameters.brokerInvocationOptions && self.interactiveParameters.brokerInvocationOptions.isRequiredBrokerPresent)
