@@ -33,7 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic, nullable) WKWebView *customWebview;
 @property (nonatomic) MSIDPromptType promptType;
 
 @end
