@@ -21,17 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerExtensionInteractiveTokenRequestController.h"
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDInteractiveTokenRequest.h"
 
-@interface MSIDBrokerExtensionInteractiveTokenRequestController ()
+@interface MSIDSSOExtensionInteractiveTokenRequestController ()
 
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
 
 @end
 
-@implementation MSIDBrokerExtensionInteractiveTokenRequestController
+@implementation MSIDSSOExtensionInteractiveTokenRequestController
 
 - (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider

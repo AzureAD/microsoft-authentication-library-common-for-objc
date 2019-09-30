@@ -28,8 +28,8 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerInteractiveController.h"
-#import "MSIDBrokerExtensionInteractiveTokenRequestController.h"
-#import "MSIDBrokerExtensionSilentTokenRequestController.h"
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDRequestParameters+Broker.h"
 #endif
 #import "MSIDAuthority.h"
@@ -48,7 +48,7 @@
     {
         if (@available(iOS 13.0, *))
         {
-            __auto_type controller = [[MSIDBrokerExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+            __auto_type controller = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
                                                                                   forceRefresh:forceRefresh
                                                                           tokenRequestProvider:tokenRequestProvider
                                                                                          error:error];
@@ -108,7 +108,7 @@
     {
         if (@available(iOS 13.0, *))
         {
-            __auto_type controller = [[MSIDBrokerExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+            __auto_type controller = [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                                                      fallbackController:localController
                                                                                                                                   error:error];

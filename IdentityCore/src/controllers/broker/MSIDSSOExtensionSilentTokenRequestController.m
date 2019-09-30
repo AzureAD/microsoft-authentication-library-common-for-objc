@@ -21,16 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerExtensionSilentTokenRequestController.h"
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDSilentTokenRequest.h"
 
-@interface MSIDBrokerExtensionSilentTokenRequestController ()
+@interface MSIDSSOExtensionSilentTokenRequestController ()
 
 @property (nonatomic) MSIDSilentTokenRequest *currentRequest;
 
 @end
 
-@implementation MSIDBrokerExtensionSilentTokenRequestController
+@implementation MSIDSSOExtensionSilentTokenRequestController
 
 #pragma mark - MSIDRequestControlling
 
