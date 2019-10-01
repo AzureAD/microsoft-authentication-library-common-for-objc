@@ -29,5 +29,6 @@
 @interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken <MSIDLegacyCredentialCacheCompatible>
 
 @property (nonatomic) NSData *sessionKey;
+@property (nonatomic) NSString *deviceID;
 
 @end
