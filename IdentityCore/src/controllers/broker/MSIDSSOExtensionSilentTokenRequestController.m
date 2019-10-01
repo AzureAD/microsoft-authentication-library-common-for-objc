@@ -22,13 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
-#import "MSIDSilentTokenRequest.h"
-
-@interface MSIDSSOExtensionSilentTokenRequestController ()
-
-@property (nonatomic) MSIDSilentTokenRequest *currentRequest;
-
-@end
+#import "MSIDSilentController+Internal.h"
 
 @implementation MSIDSSOExtensionSilentTokenRequestController
 
@@ -38,39 +32,21 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker extension flow.");
     
-    if (!completionBlock)
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End silent broker extension flow.");
-        return;
-    }
-
-    self.currentRequest = [self.tokenRequestProvider silentBrokerExtensionTokenRequestWithParameters:self.requestParameters
-                                                                                           forceRefresh:self.forceRefresh];
-
-    [self.currentRequest executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
-    {
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
-            
-            self.currentRequest = nil;
-            completionBlock(result, error);
-        };
-        
-        if (result || !self.fallbackController)
-        {
-            completionBlockWrapper(result, error);
-            return;
-        }
-
-        [self.fallbackController acquireToken:completionBlockWrapper];
-    }];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        completionBlock(result, error);
+    };
+    
+    __auto_type request = [self.tokenRequestProvider silentSSOExtensionTokenRequestWithParameters:self.requestParameters
+                                                                                        forceRefresh:self.forceRefresh];
+    
+    [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
 + (BOOL)canPerformRequest
 {
     // TODO: implement.
-    
     return YES;
 }
 

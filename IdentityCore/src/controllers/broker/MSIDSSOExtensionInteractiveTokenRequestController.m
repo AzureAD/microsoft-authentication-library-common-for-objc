@@ -22,14 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
-#import "MSIDInteractiveRequestParameters.h"
-#import "MSIDInteractiveTokenRequest.h"
-
-@interface MSIDSSOExtensionInteractiveTokenRequestController ()
-
-@property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
-
-@end
+#import "MSIDLocalInteractiveController+Internal.h"
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
@@ -38,13 +31,12 @@
                                   fallbackController:(id<MSIDRequestControlling>)fallbackController
                                                error:(NSError **)error
 {
-    self = [super initWithRequestParameters:parameters
-                       tokenRequestProvider:tokenRequestProvider
-                         fallbackController:fallbackController
-                                      error:error];
+    self = [super initWithInteractiveRequestParameters:parameters
+                                  tokenRequestProvider:tokenRequestProvider
+                                                 error:error];
     if (self)
     {
-        _interactiveRequestParameters = parameters;
+        _fallbackController = fallbackController;
     }
     
     return self;
@@ -56,32 +48,21 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
-    if (!completionBlock)
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. End interactive broker extension flow.");
-        return;
-    }
-    
-    self.currentRequest = [self.tokenRequestProvider interactiveBrokerExtensionTokenRequestWithParameters:self.interactiveRequestParameters];
-
-    [self.currentRequest executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, __unused MSIDWebWPJResponse * msauthResponse)
-    {
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
-            
-            self.currentRequest = nil;
-            completionBlock(result, error);
-        };
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         
-        completionBlockWrapper(result, error);
-    }];
+        completionBlock(result, error);
+    };
+    
+    __auto_type request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParameters];
+
+    [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
 + (BOOL)canPerformRequest
 {
     // TODO: implement.
-    
     return YES;
 }
 

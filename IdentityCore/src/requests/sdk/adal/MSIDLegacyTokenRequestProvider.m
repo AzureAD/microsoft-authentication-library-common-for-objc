@@ -85,13 +85,13 @@
                                                                      error:error];
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
 {
     // TODO: not implemented yet.
     return nil;
 }
 
-- (MSIDSilentTokenRequest *)silentBrokerExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
+- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
                                                                forceRefresh:(BOOL)forceRefresh
 {
     // TODO: not implemented yet.

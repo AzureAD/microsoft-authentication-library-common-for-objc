@@ -21,21 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLocalInteractiveController.h"
+#import "MSIDSilentController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0))
-@interface MSIDSSOExtensionInteractiveTokenRequestController : MSIDLocalInteractiveController
+@interface MSIDSilentController ()
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParameters;
-
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                        error:(NSError * _Nullable * _Nullable)error NS_DESIGNATED_INITIALIZER;
-
-+ (BOOL)canPerformRequest;
+- (void)acquireTokenWithRequest:(MSIDSilentTokenRequest *)request
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 
