@@ -49,4 +49,6 @@
            sourceApplication:(nullable NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler;
 
++ (BOOL)canPerformRequest:(nonnull MSIDInteractiveRequestParameters *)requestParameters;
+
 @end

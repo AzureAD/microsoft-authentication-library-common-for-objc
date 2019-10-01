@@ -126,7 +126,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
      }];
 }
 
-- (BOOL)canPerformRequest
++ (BOOL)canPerformRequest:(MSIDInteractiveRequestParameters *)requestParameters
 {
 #if AD_BROKER
     return YES;
@@ -136,7 +136,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         __block BOOL brokerInstalled = NO;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            brokerInstalled = [self canPerformRequest];
+            brokerInstalled = [self canPerformRequest:requestParameters];
         });
         
         return brokerInstalled;
@@ -144,11 +144,11 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return NO;
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Checking broker install state for version %@", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Checking broker install state for version %@", requestParameters.brokerInvocationOptions.versionDisplayableName);
     
-    if (self.interactiveParameters.brokerInvocationOptions && self.interactiveParameters.brokerInvocationOptions.isRequiredBrokerPresent)
+    if (requestParameters.brokerInvocationOptions && requestParameters.brokerInvocationOptions.isRequiredBrokerPresent)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Broker version %@ found installed on device", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Broker version %@ found installed on device", requestParameters.brokerInvocationOptions.versionDisplayableName);
         return YES;
     }
     

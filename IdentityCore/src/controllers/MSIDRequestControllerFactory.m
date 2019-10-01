@@ -48,11 +48,13 @@
     {
         if (@available(iOS 13.0, *))
         {
-            __auto_type controller = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-                                                                                  forceRefresh:forceRefresh
-                                                                          tokenRequestProvider:tokenRequestProvider
-                                                                                         error:error];
-            if ([controller canPerformRequest]) brokerController = controller;
+            if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                          forceRefresh:forceRefresh
+                                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                                                 error:error];
+            }
         }
     }
 #endif
@@ -108,18 +110,22 @@
     {
         if (@available(iOS 13.0, *))
         {
-            __auto_type controller = [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                                                   tokenRequestProvider:tokenRequestProvider
-                                                                                                                     fallbackController:localController
-                                                                                                                                  error:error];
-            if ([controller canPerformRequest]) return controller;
+            if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                                                    fallbackController:localController
+                                                                                                                 error:error];
+            }
         }
         
-        __auto_type controller = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                          tokenRequestProvider:tokenRequestProvider
-                                                                                            fallbackController:localController
-                                                                                                         error:error];
-        if ([controller canPerformRequest]) return controller;
+        if ([MSIDBrokerInteractiveController canPerformRequest:parameters])
+        {
+            return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                            tokenRequestProvider:tokenRequestProvider
+                                                                              fallbackController:localController
+                                                                                           error:error];
+        }
     }
 #endif
 

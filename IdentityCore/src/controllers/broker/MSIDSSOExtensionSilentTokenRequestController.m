@@ -67,9 +67,10 @@
     }];
 }
 
-- (BOOL)canPerformRequest
++ (BOOL)canPerformRequest
 {
     // TODO: implement.
+    
     return YES;
 }
 

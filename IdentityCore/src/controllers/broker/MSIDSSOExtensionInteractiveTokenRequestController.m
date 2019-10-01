@@ -78,9 +78,10 @@
     }];
 }
 
-- (BOOL)canPerformRequest
++ (BOOL)canPerformRequest
 {
-    // TODO: check for extension.
+    // TODO: implement.
+    
     return YES;
 }
 

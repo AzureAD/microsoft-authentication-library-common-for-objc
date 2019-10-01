@@ -37,6 +37,8 @@ API_AVAILABLE(ios(13.0))
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                         error:(NSError * _Nullable * _Nullable)error;
 
++ (BOOL)canPerformRequest;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -110,9 +110,4 @@
     }];
 }
 
-- (BOOL)canPerformRequest
-{
-    return YES;
-}
-
 @end
