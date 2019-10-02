@@ -24,6 +24,8 @@
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
+#import "MSIDPromptType_Internal.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
@@ -47,7 +49,15 @@
     
     if (self)
     {
-        /// TODO: implement.
+        NSDictionary *requestParameters = json[MSID_BROKER_REQUEST_PARAMETERS_KEY];
+        assert(requestParameters);
+        if (!requestParameters) return nil;
+        
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters error:error];
+        _loginHint = [json msidStringObjectForKey:MSID_BROKER_LOGIN_HINT_KEY];
+        
+        NSString *promptString = [json msidStringObjectForKey:MSID_BROKER_PROMPT_KEY];
+        _promptType = MSIDPromptTypeFromString(promptString);
     }
     
     return self;
@@ -55,9 +65,22 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    // TODO: implement.
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    NSMutableDictionary *requestParametersJson = [json[MSID_BROKER_REQUEST_PARAMETERS_KEY] mutableCopy];
+    assert(requestParametersJson);
+    if (!requestParametersJson) return nil;
     
-    return nil;
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];
+    
+    requestParametersJson[MSID_BROKER_LOGIN_HINT_KEY] = self.loginHint;
+    
+    NSString *promptString = MSIDPromptParamFromType(self.promptType);
+    requestParametersJson[MSID_BROKER_PROMPT_KEY] = promptString;
+    
+    json[MSID_BROKER_REQUEST_PARAMETERS_KEY] = requestParametersJson;
+    
+    return json;
 }
 
 @end

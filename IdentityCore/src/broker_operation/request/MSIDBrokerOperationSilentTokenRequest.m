@@ -67,7 +67,9 @@
     if (!requestParametersJson) return nil;
     
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
-    if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];
+    if (!accountIdentifierJson) return nil;
+    
+    [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];
     
     json[MSID_BROKER_REQUEST_PARAMETERS_KEY] = requestParametersJson;
     
