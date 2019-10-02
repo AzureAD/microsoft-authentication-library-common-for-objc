@@ -21,42 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConfiguration+MSIDJsonSerializable.h"
-#import "MSIDConstants.h"
+#import "MSIDAADAuthority.h"
 
-@implementation MSIDBrokerOperationTokenRequest
+@implementation MSIDConfiguration (MSIDJsonSerializable)
 
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super initWithJSONDictionary:json error:error];
+    // TODO: implement
     
-    if (self)
-    {
-        if (![json msidAssertType:NSDictionary.class ofKey:MSID_BROKER_REQUEST_PARAMETERS_KEY required:YES error:error]) return nil;
-        NSDictionary *requestParameters = json[MSID_BROKER_REQUEST_PARAMETERS_KEY];
-        
-        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:requestParameters error:error];
-        if (!_configuration) return nil;
-    }
-    
-    return self;
+    return nil;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    // TODO: implement
     
-    NSMutableDictionary *requestParametersJson = [NSMutableDictionary new];
-    
-    NSDictionary *configurationJson = [self.configuration jsonDictionary];
-    if (configurationJson) [requestParametersJson addEntriesFromDictionary:configurationJson];
-    
-    json[MSID_BROKER_REQUEST_PARAMETERS_KEY] = requestParametersJson;
-    
-    return json;
+    return nil;
 }
 
 @end
