@@ -222,6 +222,7 @@
 		239E8F8D233D951D00251373 /* MSIDBrokerOperationSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 239E8F84233D951D00251373 /* MSIDBrokerOperationSilentTokenRequest.m */; };
 		239E8F8E233D951D00251373 /* MSIDBrokerOperationRequestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 239E8F87233D951D00251373 /* MSIDBrokerOperationRequestFactory.m */; };
 		23A1DADF234473DA004FB84A /* MSIDConfiguration+MSIDJsonSerializable.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A1DADE234473DA004FB84A /* MSIDConfiguration+MSIDJsonSerializable.m */; };
+		23A1DAE2234477E4004FB84A /* MSIDAccountIdentifier+MSIDJsonSerializable.m in Sources */ = {isa = PBXBuildFile; fileRef = 23A1DAE0234477E4004FB84A /* MSIDAccountIdentifier+MSIDJsonSerializable.m */; };
 		23AE20982342D3BF00108F76 /* MSIDSilentController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 23AE20972342D3BF00108F76 /* MSIDSilentController+Internal.h */; };
 		23AE209A2342DD3F00108F76 /* MSIDLocalInteractiveController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 23AE20992342DD3F00108F76 /* MSIDLocalInteractiveController+Internal.h */; };
 		23AE9D9D213A06EF00B285F3 /* MSIDAadAuthorityCacheTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 23AE9D9B213A06EF00B285F3 /* MSIDAadAuthorityCacheTests.m */; };
@@ -1428,6 +1429,8 @@
 		239E8F87233D951D00251373 /* MSIDBrokerOperationRequestFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationRequestFactory.m; sourceTree = "<group>"; };
 		23A1DADD234473DA004FB84A /* MSIDConfiguration+MSIDJsonSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDConfiguration+MSIDJsonSerializable.h"; sourceTree = "<group>"; };
 		23A1DADE234473DA004FB84A /* MSIDConfiguration+MSIDJsonSerializable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDConfiguration+MSIDJsonSerializable.m"; sourceTree = "<group>"; };
+		23A1DAE0234477E4004FB84A /* MSIDAccountIdentifier+MSIDJsonSerializable.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDAccountIdentifier+MSIDJsonSerializable.m"; sourceTree = "<group>"; };
+		23A1DAE1234477E4004FB84A /* MSIDAccountIdentifier+MSIDJsonSerializable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAccountIdentifier+MSIDJsonSerializable.h"; sourceTree = "<group>"; };
 		23AE20972342D3BF00108F76 /* MSIDSilentController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDSilentController+Internal.h"; sourceTree = "<group>"; };
 		23AE20992342DD3F00108F76 /* MSIDLocalInteractiveController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLocalInteractiveController+Internal.h"; sourceTree = "<group>"; };
 		23AE9D9B213A06EF00B285F3 /* MSIDAadAuthorityCacheTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAadAuthorityCacheTests.m; sourceTree = "<group>"; };
@@ -3385,6 +3388,8 @@
 				B2B1D577204369D600DD81F0 /* MSIDAccountType.m */,
 				B29A36BD20B1289D00427B63 /* MSIDAccountIdentifier.h */,
 				B29A36BE20B1289D00427B63 /* MSIDAccountIdentifier.m */,
+				23A1DAE1234477E4004FB84A /* MSIDAccountIdentifier+MSIDJsonSerializable.h */,
+				23A1DAE0234477E4004FB84A /* MSIDAccountIdentifier+MSIDJsonSerializable.m */,
 			);
 			path = account;
 			sourceTree = "<group>";
@@ -5320,6 +5325,7 @@
 				238EF039208FDBA20035ABE6 /* MSIDAADV1RefreshTokenGrantRequest.m in Sources */,
 				23B3A4522187AFD3009070B2 /* MSIDJsonSerializer.m in Sources */,
 				23FB5C2A225517AA002BF1EB /* MSIDClaimsRequest.m in Sources */,
+				23A1DAE2234477E4004FB84A /* MSIDAccountIdentifier+MSIDJsonSerializable.m in Sources */,
 				B4A5ACD221F7F25400D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */,
 				232C65892138BDC5002A41FE /* MSIDAADAuthorityMetadataResponse.m in Sources */,
 				238E19C42086FC38004DF483 /* MSIDHttpResponseSerializer.m in Sources */,

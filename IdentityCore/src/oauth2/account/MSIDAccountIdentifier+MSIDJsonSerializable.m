@@ -21,57 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationSilentTokenRequest.h"
-#import "MSIDBrokerOperationRequestFactory.h"
-#import "MSIDConstants.h"
 #import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
 
-@implementation MSIDBrokerOperationSilentTokenRequest
-
-+ (void)load
-{
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
-}
-
-#pragma mark - MSIDBrokerOperationRequest
-
-+ (NSString *)operation
-{
-    return @"acquire_token_silent";
-}
+@implementation MSIDAccountIdentifier (MSIDJsonSerializable)
 
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super initWithJSONDictionary:json error:error];
-    
-    if (self)
-    {
-        NSDictionary *requestParameters = json[MSID_BROKER_REQUEST_PARAMETERS_KEY];
-        assert(requestParameters);
-        if (!requestParameters) return nil;
-        
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters error:error];
-        if (!_accountIdentifier) return nil;
-    }
-    
-    return self;
+    // TODO: implement
+    return nil;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    NSMutableDictionary *requestParametersJson = [json[MSID_BROKER_REQUEST_PARAMETERS_KEY] mutableCopy];
-    assert(requestParametersJson);
-    if (!requestParametersJson) return nil;
-    
-    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
-    if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];
-    
-    json[MSID_BROKER_REQUEST_PARAMETERS_KEY] = requestParametersJson;
-    
-    return json;
+    // TODO: implement
+    return nil;
 }
 
 @end
