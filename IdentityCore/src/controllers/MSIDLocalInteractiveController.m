@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLocalInteractiveController.h"
+#import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
@@ -39,6 +39,7 @@
 @interface MSIDLocalInteractiveController()
 
 @property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
+@property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
 
 @end
 
@@ -69,35 +70,15 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive flow.");
     
-    if (!completionBlock)
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock. Interactive flow finished.");
-        return;
-    }
-
-    [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
-
-    MSIDInteractiveTokenRequest *interactiveRequest = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
-
-    [interactiveRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable msauthResponse)
-    {
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
-            completionBlock(result, error);
-        };
-        
-        if (msauthResponse)
-        {
-            [self handleWebMSAuthResponse:msauthResponse completion:completionBlockWrapper];
-            return;
-        }
-
-        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
-        [telemetryEvent setUserInformation:result.account];
-        [self stopTelemetryEvent:telemetryEvent error:error];
-        completionBlockWrapper(result, error);
-    }];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        completionBlock(result, error);
+    };
+    
+    __auto_type request = [self.tokenRequestProvider interactiveTokenRequestWithParameters:self.interactiveRequestParamaters];
+    
+    [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
 - (void)handleWebMSAuthResponse:(MSIDWebWPJResponse *)response completion:(MSIDRequestCompletionBlock)completionBlock
@@ -177,6 +158,35 @@
     [event setPromptType:self.interactiveRequestParamaters.promptType];
 
     return event;
+}
+
+#pragma mark - Protected
+
+- (void)acquireTokenWithRequest:(MSIDInteractiveTokenRequest *)request
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock
+{
+    if (!completionBlock)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Passed nil completionBlock.");
+        return;
+    }
+
+    [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
+
+    self.currentRequest = request;
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
+    {
+        if (msauthResponse)
+        {
+            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
+            return;
+        }
+
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        [telemetryEvent setUserInformation:result.account];
+        [self stopTelemetryEvent:telemetryEvent error:error];
+        completionBlock(result, error);
+    }];
 }
 
 @end

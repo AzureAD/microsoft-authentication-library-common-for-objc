@@ -91,4 +91,19 @@
                                                                       error:error];
 }
 
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    // TODO: implement
+    
+    return nil;
+}
+
+- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                                               forceRefresh:(BOOL)forceRefresh
+{
+    // TODO: implement
+    
+    return nil;
+}
+
 @end

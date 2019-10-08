@@ -28,20 +28,48 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerInteractiveController.h"
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
+#import "MSIDRequestParameters+Broker.h"
 #endif
 #import "MSIDAuthority.h"
 
 @implementation MSIDRequestControllerFactory
 
-+ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
-                                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError * _Nullable * _Nullable)error
+                                                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                               error:(NSError **)error
 {
-    return [[MSIDSilentController alloc] initWithRequestParameters:parameters
-                                                      forceRefresh:forceRefresh
-                                              tokenRequestProvider:tokenRequestProvider
-                                                             error:error];
+    MSIDSilentController *brokerController;
+    
+#if TARGET_OS_IPHONE
+    if ([parameters shouldUseBroker])
+    {
+        if (@available(iOS 13.0, *))
+        {
+            if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                          forceRefresh:forceRefresh
+                                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                                                 error:error];
+            }
+        }
+    }
+#endif
+    
+    // TODO: Performance optimization: check account source.
+    // if (parameters.accountIdentifier.source == BROKER) return brokerController;
+    
+    __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                             forceRefresh:forceRefresh
+                                                                     tokenRequestProvider:tokenRequestProvider
+                                                            fallbackInteractiveController:brokerController
+                                                                                    error:error];
+    if (!localController) return nil;
+    
+    return localController;
 }
 
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
@@ -78,11 +106,20 @@
     }
     
 #if TARGET_OS_IPHONE
-    if ([self canUseBrokerOnDeviceWithParameters:parameters])
+    if ([parameters shouldUseBroker])
     {
-        BOOL brokerInstalled = [self brokerInstalledWithParameters:parameters];
+        if (@available(iOS 13.0, *))
+        {
+            if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                                                    fallbackController:localController
+                                                                                                                 error:error];
+            }
+        }
         
-        if (brokerInstalled)
+        if ([MSIDBrokerInteractiveController canPerformRequest:parameters])
         {
             return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                             tokenRequestProvider:tokenRequestProvider
@@ -90,7 +127,6 @@
                                                                                            error:error];
         }
     }
-
 #endif
 
     return localController;
@@ -118,73 +154,11 @@
             return nil;
         }
     }
-    
 #endif
     
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
-}
-
-
-+ (BOOL)canUseBrokerOnDeviceWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
-{
-#if TARGET_OS_IPHONE
-
-    if (parameters.requestType != MSIDInteractiveRequestBrokeredType)
-    {
-        return NO;
-    }
-
-    if ([MSIDAppExtensionUtil isExecutingInAppExtension])
-    {
-        return NO;
-    }
-
-    if (!parameters.authority.supportsBrokeredAuthentication)
-    {
-        return NO;
-    }
-
-    if (!parameters.validateAuthority)
-    {
-        return NO;
-    }
-
-    return YES;
-#else
-    return NO;
-#endif
-}
-
-+ (BOOL)brokerInstalledWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
-{
-#if AD_BROKER
-    return YES;
-#elif TARGET_OS_IPHONE
-
-    if (![NSThread isMainThread])
-    {
-        __block BOOL brokerInstalled = NO;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            brokerInstalled = [self brokerInstalledWithParameters:parameters];
-        });
-
-        return brokerInstalled;
-    }
-
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Checking broker install state for version %@", parameters.brokerInvocationOptions.versionDisplayableName);
-    
-    if (parameters.brokerInvocationOptions && parameters.brokerInvocationOptions.isRequiredBrokerPresent)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, parameters, @"Broker version %@ found installed on device", parameters.brokerInvocationOptions.versionDisplayableName);
-        return YES;
-    }
-    
-    return NO;
-#else
-    return NO;
-#endif
 }
 
 @end

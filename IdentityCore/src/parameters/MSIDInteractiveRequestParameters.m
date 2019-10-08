@@ -36,7 +36,7 @@
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
                     brokerOptions:(MSIDBrokerInvocationOptions *)brokerOptions
-                      requestType:(MSIDInteractiveRequestType)requestType
+                      requestType:(MSIDRequestType)requestType
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
                             error:(NSError **)error
 {
@@ -48,13 +48,13 @@
                       correlationId:correlationId
                      telemetryApiId:telemetryApiId
                 intuneAppIdentifier:intuneApplicationIdentifier
+                        requestType:requestType
                               error:error];
 
     if (self)
     {
         _extraScopesToConsent = [extraScopesToConsent msidToString];
         _brokerInvocationOptions = brokerOptions;
-        _requestType = requestType;
         _enablePkce = YES;
     }
 
