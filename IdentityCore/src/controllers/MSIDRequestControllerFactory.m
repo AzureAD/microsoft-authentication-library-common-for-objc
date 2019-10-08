@@ -50,10 +50,10 @@
         {
             if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
             {
-                return [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-                                                                                          forceRefresh:forceRefresh
-                                                                                  tokenRequestProvider:tokenRequestProvider
-                                                                                                 error:error];
+                brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                                      forceRefresh:forceRefresh
+                                                                                              tokenRequestProvider:tokenRequestProvider
+                                                                                                             error:error];
             }
         }
     }
