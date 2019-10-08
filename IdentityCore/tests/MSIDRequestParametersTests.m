@@ -47,6 +47,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNil(error);
@@ -78,6 +79,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -100,6 +102,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -122,6 +125,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNil(error);

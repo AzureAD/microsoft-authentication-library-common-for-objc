@@ -49,7 +49,7 @@
                                                                                                  correlationId:correlationID
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:brokerOptions
-                                                                                                   requestType:MSIDInteractiveRequestBrokeredType
+                                                                                                   requestType:MSIDRequestBrokeredType
                                                                                            intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:&error];
     

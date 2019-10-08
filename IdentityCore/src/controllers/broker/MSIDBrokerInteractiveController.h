@@ -49,7 +49,6 @@
            sourceApplication:(nullable NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler;
 
-// TODO:
-- (BOOL)completeAcquireTokenWithResult:(nullable MSIDTokenResult *)tokenResult error:(nullable NSError *)error;
++ (BOOL)canPerformRequest:(nonnull MSIDInteractiveRequestParameters *)requestParameters;
 
 @end

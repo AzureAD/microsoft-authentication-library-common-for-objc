@@ -21,21 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
+#import "MSIDSilentController+Internal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDSSOExtensionSilentTokenRequestController
 
-@interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
+#pragma mark - MSIDRequestControlling
 
-@property (nonatomic, class, readonly) NSString *operation;
-@property (nonatomic) NSString *brokerKey;
-@property (nonatomic) NSInteger protocolVersion;
-@property (nonatomic, nullable) NSString *clientVersion;
-@property (nonatomic, nullable) NSString *clientAppVersion;
-@property (nonatomic, nullable) NSString *clientAppName;
-@property (nonatomic, nullable) NSUUID *correlationId;
+- (void)acquireToken:(MSIDRequestCompletionBlock)completionBlock
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent broker extension flow.");
+    
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        completionBlock(result, error);
+    };
+    
+    __auto_type request = [self.tokenRequestProvider silentSSOExtensionTokenRequestWithParameters:self.requestParameters
+                                                                                        forceRefresh:self.forceRefresh];
+    
+    [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
+}
+
++ (BOOL)canPerformRequest
+{
+    // TODO: implement.
+    return YES;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

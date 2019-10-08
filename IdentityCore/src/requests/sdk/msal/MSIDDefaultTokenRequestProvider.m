@@ -93,7 +93,7 @@
                                                                       error:error];
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveBrokerExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
 {
     if (@available(iOS 13.0, *))
     {
@@ -108,8 +108,8 @@
     return nil;
 }
 
-- (MSIDSilentTokenRequest *)silentBrokerExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
-                                                               forceRefresh:(BOOL)forceRefresh
+- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                                            forceRefresh:(BOOL)forceRefresh
 {
     if (@available(iOS 13.0, *))
     {

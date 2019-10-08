@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock;
 
-- (BOOL)canPerformRequest;
-
 @end
 
 NS_ASSUME_NONNULL_END

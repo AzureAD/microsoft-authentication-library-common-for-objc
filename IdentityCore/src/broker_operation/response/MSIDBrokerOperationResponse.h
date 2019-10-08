@@ -29,11 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic) NSString *operation;
-@property (nonatomic) NSString *applicationToken;
 @property (nonatomic) BOOL success;
 @property (nonatomic) NSError *error;
 
-// TODO: add other properties.
+// TODO: add device_info
 
 @end
 

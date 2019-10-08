@@ -28,8 +28,9 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerInteractiveController.h"
-#import "MSIDBrokerExtensionInteractiveTokenRequestController.h"
-#import "MSIDBrokerExtensionSilentTokenRequestController.h"
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
+#import "MSIDRequestParameters+Broker.h"
 #endif
 #import "MSIDAuthority.h"
 #import "MSIDRequestParameters+Broker.h"
@@ -43,17 +44,21 @@
 {
     MSIDSilentController *brokerController;
     
-    if ([parameters canUseBroker])
+#if TARGET_OS_IPHONE
+    if ([parameters shouldUseBroker])
     {
         if (@available(iOS 13.0, *))
         {
-            __auto_type controller = [[MSIDBrokerExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
-                                                                                  forceRefresh:forceRefresh
-                                                                          tokenRequestProvider:tokenRequestProvider
-                                                                                         error:error];
-            if ([controller canPerformRequest]) brokerController = controller;
+            if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                          forceRefresh:forceRefresh
+                                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                                                 error:error];
+            }
         }
     }
+#endif
     
     // TODO: Performance optimization: check account source.
     // if (parameters.accountIdentifier.source == BROKER) return brokerController;
@@ -102,22 +107,26 @@
     }
     
 #if TARGET_OS_IPHONE
-    if ([parameters canUseBroker])
+    if ([parameters shouldUseBroker])
     {
         if (@available(iOS 13.0, *))
         {
-            __auto_type controller = [[MSIDBrokerExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                                                   tokenRequestProvider:tokenRequestProvider
-                                                                                                                     fallbackController:localController
-                                                                                                                                  error:error];
-            if ([controller canPerformRequest]) return controller;
+            if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                                  tokenRequestProvider:tokenRequestProvider
+                                                                                                    fallbackController:localController
+                                                                                                                 error:error];
+            }
         }
         
-        __auto_type controller = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                                          tokenRequestProvider:tokenRequestProvider
-                                                                                            fallbackController:localController
-                                                                                                         error:error];
-        if ([controller canPerformRequest]) return controller;
+        if ([MSIDBrokerInteractiveController canPerformRequest:parameters])
+        {
+            return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                            tokenRequestProvider:tokenRequestProvider
+                                                                              fallbackController:localController
+                                                                                           error:error];
+        }
     }
 #endif
 

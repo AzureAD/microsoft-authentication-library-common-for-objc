@@ -21,20 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDLocalInteractiveController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
+@interface MSIDLocalInteractiveController ()
 
-@property (nonatomic, class, readonly) NSString *operation;
-@property (nonatomic) NSString *brokerKey;
-@property (nonatomic) NSInteger protocolVersion;
-@property (nonatomic, nullable) NSString *clientVersion;
-@property (nonatomic, nullable) NSString *clientAppVersion;
-@property (nonatomic, nullable) NSString *clientAppName;
-@property (nonatomic, nullable) NSUUID *correlationId;
+- (void)acquireTokenWithRequest:(MSIDInteractiveTokenRequest *)request
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 

@@ -21,20 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDLocalInteractiveController.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
+API_AVAILABLE(ios(13.0))
+@interface MSIDSSOExtensionInteractiveTokenRequestController : MSIDLocalInteractiveController
 
-@property (nonatomic, class, readonly) NSString *operation;
-@property (nonatomic) NSString *brokerKey;
-@property (nonatomic) NSInteger protocolVersion;
-@property (nonatomic, nullable) NSString *clientVersion;
-@property (nonatomic, nullable) NSString *clientAppVersion;
-@property (nonatomic, nullable) NSString *clientAppName;
-@property (nonatomic, nullable) NSUUID *correlationId;
+@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParameters;
+
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                           fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                        error:(NSError * _Nullable * _Nullable)error NS_DESIGNATED_INITIALIZER;
+
++ (BOOL)canPerformRequest;
 
 @end
 

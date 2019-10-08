@@ -41,9 +41,9 @@
 #import "MSIDAuthority.h"
 #import "MSIDBrokerInvocationOptions.h"
 #import "MSIDBrokerKeyProvider.h"
+#import "MSIDMainThreadUtil.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
-#import "MSIDMainThreadUtil.h"
 
 @interface MSIDBrokerInteractiveController()
 
@@ -126,7 +126,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
      }];
 }
 
-- (BOOL)canPerformRequest
++ (BOOL)canPerformRequest:(MSIDInteractiveRequestParameters *)requestParameters
 {
 #if AD_BROKER
     return YES;
@@ -136,17 +136,19 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         __block BOOL brokerInstalled = NO;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            brokerInstalled = [self canPerformRequest];
+            brokerInstalled = [self canPerformRequest:requestParameters];
         });
         
         return brokerInstalled;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Checking broker install state for version %@", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return NO;
     
-    if (self.interactiveParameters.brokerInvocationOptions && self.interactiveParameters.brokerInvocationOptions.isRequiredBrokerPresent)
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Checking broker install state for version %@", requestParameters.brokerInvocationOptions.versionDisplayableName);
+    
+    if (requestParameters.brokerInvocationOptions && requestParameters.brokerInvocationOptions.isRequiredBrokerPresent)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.interactiveParameters, @"Broker version %@ found installed on device", self.interactiveParameters.brokerInvocationOptions.versionDisplayableName);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Broker version %@ found installed on device", requestParameters.brokerInvocationOptions.versionDisplayableName);
         return YES;
     }
     

@@ -24,7 +24,6 @@
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDBrokerOperationRequestFactory.h"
-#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
@@ -48,10 +47,7 @@
     
     if (self)
     {
-//        if (![json msidAssertType:NSDictionary.class ofField:@"request_parameters" context:nil errorCode:MSIDErrorInvalidInternalParameter error:error]) return nil;
-        NSDictionary *requestParameters = json[@"request_parameters"];
-        
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters error:error];
+        /// TODO: implement.
     }
     
     return self;
@@ -59,19 +55,9 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    // TODO: implement.
     
-// TODO:    assert json[@"request_parameters"]
-    NSMutableDictionary *requestParametersJson = [json[@"request_parameters"] mutableCopy];
-    
-    if (!requestParametersJson) return nil;
-    
-    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
-    if (accountIdentifierJson) [requestParametersJson addEntriesFromDictionary:accountIdentifierJson];
-    
-    json[@"request_parameters"] = requestParametersJson;
-    
-    return json;
+    return nil;
 }
 
 @end

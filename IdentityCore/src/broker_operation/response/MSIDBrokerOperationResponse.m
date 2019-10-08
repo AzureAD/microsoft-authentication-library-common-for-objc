@@ -43,16 +43,6 @@
 //        }
         _operation = json[@"operation"];
         
-//        if (![json msidAssertType:NSString.class
-//                          ofField:@"application_token"
-//                          context:nil
-//                        errorCode:MSIDErrorInvalidInternalParameter
-//                            error:error])
-//        {
-//            return nil;
-//        }
-        _applicationToken = json[@"application_token"];
-        
 //        if (![json msidAssertType:NSNumber.class
 //                          ofField:@"success"
 //                          context:nil
@@ -71,7 +61,6 @@
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
     json[@"operation"] = self.operation;
-    json[@"application_token"] = self.applicationToken;
     json[@"success"] = @(self.success);
     
     return json;

@@ -1,10 +1,25 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  MSIDBrokerOperationTokenRequest.h
-//  IdentityCore iOS
+// This code is licensed under the MIT License.
 //
-//  Created by Serhii Demchenko on 2019-09-23.
-//  Copyright © 2019 Microsoft. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "MSIDBrokerOperationRequest.h"
 
@@ -16,13 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) MSIDConfiguration *configuration;
 
-// TODO: uncomment.
-//@property (nonatomic, nullable) NSOrderedSet<NSString *> *extraScopesToConsent;
-//@property (nonatomic, nullable) NSOrderedSet<NSString *> *extraOIDCScopes;
-//@property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *extraAuthorizeURLQueryParameters;
-//@property (nonatomic, nullable) NSArray<NSString *> *clientCapabilities;
-///*! Claims is a json dictionary. It is not url encoded. */
-//@property (nonatomic, nullable) NSDictionary *claims;
+// TODO: add other properties.
 
 @end
 
