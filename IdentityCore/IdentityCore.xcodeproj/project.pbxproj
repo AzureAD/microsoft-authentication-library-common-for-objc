@@ -384,6 +384,7 @@
 		606B108F20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 606B108D20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m */; };
 		607123C1210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 607123C0210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m */; };
 		607123C2210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 607123C0210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m */; };
+		60740EEF23722502006D418B /* MSIDBrokerOperationRemoveAccountRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 60740EEE23722502006D418B /* MSIDBrokerOperationRemoveAccountRequest.m */; };
 		6078EB50226DA97100235498 /* MSIDTestCacheUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6078EB4D226DA73600235498 /* MSIDTestCacheUtil.m */; };
 		6078EB51226DA97200235498 /* MSIDTestCacheUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6078EB4D226DA73600235498 /* MSIDTestCacheUtil.m */; };
 		607A788D23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */; };
@@ -1582,10 +1583,13 @@
 		606B108D20D08C9500B34224 /* MSIDOAuth2EmbeddedWebviewControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2EmbeddedWebviewControllerTests.m; sourceTree = "<group>"; };
 		607123BF210FCA7400B91068 /* MSIDAADAuthorityValidationRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADAuthorityValidationRequest.h; sourceTree = "<group>"; };
 		607123C0210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADAuthorityValidationRequest.m; sourceTree = "<group>"; };
+		60740EED23722502006D418B /* MSIDBrokerOperationRemoveAccountRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationRemoveAccountRequest.h; sourceTree = "<group>"; };
+		60740EEE23722502006D418B /* MSIDBrokerOperationRemoveAccountRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationRemoveAccountRequest.m; sourceTree = "<group>"; };
 		6078EB4C226DA71100235498 /* MSIDTestCacheUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestCacheUtil.h; sourceTree = "<group>"; };
 		6078EB4D226DA73600235498 /* MSIDTestCacheUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestCacheUtil.m; sourceTree = "<group>"; };
 		607A788B23294D2400A1F74D /* MSIDAccountMetadataCacheAccessorMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheAccessorMock.h; sourceTree = "<group>"; };
 		607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheAccessorMock.m; sourceTree = "<group>"; };
+		608709D3234E86D3004CFB9C /* MSIDBrokerOperationRemoveAccountRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationRemoveAccountRequest.m; sourceTree = "<group>"; };
 		609E74BB228CA5A8005E3FED /* MSIDAccountMetadataCacheAccessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheAccessor.h; sourceTree = "<group>"; };
 		609E74BC228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheAccessor.m; sourceTree = "<group>"; };
 		609E74BF228CC501005E3FED /* MSIDMetadataCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMetadataCache.h; sourceTree = "<group>"; };
@@ -2606,6 +2610,7 @@
 				23B0188F23554B2B00207FEC /* token_request */,
 				23B0188823554B2B00207FEC /* interactive_token_request */,
 				23B0189423554B2B00207FEC /* silent_token_request */,
+				60740EEC237224B6006D418B /* account_request */,
 			);
 			path = request;
 			sourceTree = "<group>";
@@ -2723,6 +2728,15 @@
 				600D19BD20964D9E0004CD43 /* MSIDWorkPlaceJoinUtil.m */,
 			);
 			path = mac;
+			sourceTree = "<group>";
+		};
+		60740EEC237224B6006D418B /* account_request */ = {
+			isa = PBXGroup;
+			children = (
+				60740EED23722502006D418B /* MSIDBrokerOperationRemoveAccountRequest.h */,
+				60740EEE23722502006D418B /* MSIDBrokerOperationRemoveAccountRequest.m */,
+			);
+			path = account_request;
 			sourceTree = "<group>";
 		};
 		609E74BA228CA3C2005E3FED /* metadata */ = {
@@ -3059,6 +3073,7 @@
 		B214C39A1FE851F20070C4F2 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
+				608709D3234E86D3004CFB9C /* MSIDBrokerOperationRemoveAccountRequest.m */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -5354,6 +5369,7 @@
 				B28BDA7B217E961F003E5670 /* MSIDB2COauth2Factory.m in Sources */,
 				2370B5FB217FA5E400DEEBEA /* MSIDIntuneMAMResourcesCache.m in Sources */,
 				23D2046321CF1F60009B5975 /* MSIDAADTokenResponseSerializer.m in Sources */,
+				60740EEF23722502006D418B /* MSIDBrokerOperationRemoveAccountRequest.m in Sources */,
 				B2C7086E2198C41300D917B8 /* MSIDDefaultBrokerResponseHandler.m in Sources */,
 				239DF9AE20DED6F7002D428B /* MSIDConstants.m in Sources */,
 				233E96F722652D3A007FCE2A /* MSIDAggregatedDispatcher.m in Sources */,
