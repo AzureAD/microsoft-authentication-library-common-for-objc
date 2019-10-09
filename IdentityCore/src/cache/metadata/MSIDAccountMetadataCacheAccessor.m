@@ -98,13 +98,44 @@
                                        context:context error:error];
 }
 
-- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
-                     clientId:(NSString *)clientId
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (BOOL)signedOutStateForHomeAccountId:(NSString *)homeAccountId
+                              clientId:(NSString *)clientId
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error
 {
+    if ([NSString msidIsStringNilOrBlank:homeAccountId]
+        || [NSString msidIsStringNilOrBlank:clientId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to query signed out state!", nil, nil, nil, nil, nil);
+        return NO;
+    }
+    
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    return [_metadataCache removeAccountMetadataForKey:key context:context error:error];
+    MSIDAccountMetadataCacheItem *acountMetadata = [_metadataCache accountMetadataWithKey:key context:context error:error];
+    if (!acountMetadata) { return NO; }
+    
+    return acountMetadata.isSignedOut;
+}
+
+- (BOOL)markSignedOutStateForHomeAccountId:(NSString *)homeAccountId
+                                  clientId:(NSString *)clientId
+                                   context:(id<MSIDRequestContext>)context
+                                     error:(NSError **)error
+{
+    if ([NSString msidIsStringNilOrBlank:homeAccountId]
+        || [NSString msidIsStringNilOrBlank:clientId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to mark signed out state!", nil, nil, nil, nil, nil);
+        return NO;
+    }
+    
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
+    MSIDAccountMetadataCacheItem *accountMetadataItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+    [accountMetadataItem markSignedOut];
+    
+    return [_metadataCache saveAccountMetadata:accountMetadataItem
+                                           key:key
+                                       context:context error:error];
 }
 
 @end

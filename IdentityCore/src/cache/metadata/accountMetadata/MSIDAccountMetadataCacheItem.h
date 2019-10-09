@@ -30,6 +30,8 @@
 @property (nonatomic, readonly) NSString *clientId;
 @property (nonatomic, readonly) NSDictionary *internalMap;
 
+@property (nonatomic, readonly) BOOL isSignedOut;
+
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)init NS_UNAVAILABLE;
 
@@ -42,5 +44,8 @@
        instanceAware:(BOOL)instanceAware
                error:(NSError **)error;
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware;
+
+// Signed out state
+- (void)markSignedOut;
 
 @end

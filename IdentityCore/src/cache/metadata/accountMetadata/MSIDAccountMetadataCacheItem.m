@@ -60,6 +60,8 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
        instanceAware:(BOOL)instanceAware
                error:(NSError **)error
 {
+    _isSignedOut = NO;
+    
     if ([NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
         || [NSString msidIsStringNilOrBlank:requestURL.absoluteString])
     {
@@ -82,10 +84,20 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
 {
+    if (self.isSignedOut) return nil;
+    
     NSString *urlMapKey = [self URLMapKey:instanceAware];
     NSDictionary *urlMap = _internalMap[urlMapKey];
     
     return [NSURL URLWithString:urlMap[requestURL.absoluteString]];
+}
+
+#pragma - Mark Signed out
+- (void)markSignedOut
+{
+    _isSignedOut = YES;
+    _internalMap = [NSMutableDictionary new];
+    
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
@@ -105,6 +117,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
     self->_homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
     self->_internalMap = [[json msidObjectForKey:MSID_ACCOUNT_CACHE_KEY ofClass:NSDictionary.class] mutableDeepCopy];
+    self->_isSignedOut = [[json msidStringObjectForKey:MSID_IS_SIGNED_OUT_CACHE_KEY] isEqualToString:@"YES"];
     
     return self;
 }
@@ -116,6 +129,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.homeAccountId;
     dictionary[MSID_ACCOUNT_CACHE_KEY] = _internalMap;
+    dictionary[MSID_IS_SIGNED_OUT_CACHE_KEY] = self.isSignedOut ? @"YES" : @"NO";
     
     return dictionary;
 }
@@ -160,6 +174,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= ([_internalMap isEqualToDictionary:item->_internalMap]);
+    result &= (self.isSignedOut == item.isSignedOut);
     
     return result;
 }
@@ -178,6 +193,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + _internalMap.hash;
+    hash = hash * 31 + [NSNumber numberWithBool:self.isSignedOut].hash;
     
     return hash;
 }
@@ -190,6 +206,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     item->_homeAccountId = [self.homeAccountId copyWithZone:zone];
     item->_clientId = [self.clientId copyWithZone:zone];
     item->_internalMap = [self->_internalMap mutableDeepCopy];
+    item->_isSignedOut = self.isSignedOut;
     
     return item;
 }
