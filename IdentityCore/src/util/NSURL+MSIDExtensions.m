@@ -153,7 +153,7 @@
     }
     @catch (NSException *ex)
     {
-        NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Failed to replace a host in url.", nil, nil, nil, context.correlationId, nil);
+        NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Failed to replace a host in url.", nil, nil, nil, context.correlationId, nil, NO);
         
         if (error) *error = msidError;
         

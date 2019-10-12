@@ -71,7 +71,7 @@
                 *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                          MSIDErrorServerInvalidResponse,
                                          @"Unexpected error has occured. There is no auth code nor an error",
-                                         nil, nil, nil, context.correlationId, nil);
+                                         nil, nil, nil, context.correlationId, nil, YES);
             }
             return nil;
         }
@@ -99,7 +99,9 @@
         NSString *subError = parameters[MSID_OAUTH2_SUB_ERROR];
         MSIDErrorCode errorCode = MSIDErrorCodeForOAuthError(serverOAuth2Error, MSIDErrorAuthorizationFailed);
         
-        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil);
+        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Failed authorization code response with error %@, sub error %@, description %@", serverOAuth2Error, subError, MSID_PII_LOG_MASKABLE(errorDescription));
+        
+        return MSIDCreateError(MSIDOAuthErrorDomain, errorCode, errorDescription, serverOAuth2Error, subError, nil, correlationId, nil, NO);
     }
     
     return nil;
@@ -129,7 +131,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidState,
                                      [NSString stringWithFormat:@"Missing or invalid state returned state: %@", stateReceived],
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, NO);
         }
     }
     

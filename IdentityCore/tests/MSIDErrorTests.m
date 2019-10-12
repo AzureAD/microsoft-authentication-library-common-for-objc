@@ -84,7 +84,7 @@
 {
     NSError *underlyingError = [NSError errorWithDomain:@"UnderlyingDomain" code:-5556 userInfo:@{@"underlying": @"error"}];
     NSUUID *correlationId = [NSUUID UUID];
-    NSError *result = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"oauth_error", @"suberror", underlyingError, correlationId, nil);
+    NSError *result = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"oauth_error", @"suberror", underlyingError, correlationId, nil, NO);
 
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result.domain, @"TestDomain");
@@ -101,7 +101,7 @@
     NSError *underlyingError = [NSError errorWithDomain:@"UnderlyingDomain" code:-5556 userInfo:@{@"underlying": @"error"}];
     NSUUID *correlationId = [NSUUID UUID];
     NSDictionary *additionalUserInfo = @{@"userinfo": @"userinfo2", @"additional2": @"additional3"};
-    NSError *result = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"oauth_error", @"suberror", underlyingError, correlationId, additionalUserInfo);
+    NSError *result = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"oauth_error", @"suberror", underlyingError, correlationId, additionalUserInfo, NO);
 
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result.domain, @"TestDomain");
@@ -122,7 +122,7 @@
     NSError *underlyingError = [NSError errorWithDomain:@"UnderlyingDomain" code:-5556 userInfo:@{@"underlying": @"error"}];
     NSUUID *correlationId = [NSUUID UUID];
     NSDictionary *additionalUserInfo = @{@"userinfo": @"userinfo2", @"additional2": @"additional3"};
-    NSError *result = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"oauth_error", @"suberror", underlyingError, correlationId, additionalUserInfo);
+    NSError *result = MSIDCreateError(@"TestDomain", -5555, @"Test description", @"oauth_error", @"suberror", underlyingError, correlationId, additionalUserInfo, NO);
 
     XCTAssertNotNil(result);
     XCTAssertEqualObjects(result.domain, @"custom_TestDomain");
@@ -138,7 +138,7 @@
 
 - (void)testMSIDCreateError_withNilDomain_shouldReturnNil
 {
-    NSError *result = MSIDCreateError(nil, 0, nil, nil, nil, nil, nil, nil);
+    NSError *result = MSIDCreateError(nil, 0, nil, nil, nil, nil, nil, nil, NO);
     XCTAssertNil(result);
 }
 
