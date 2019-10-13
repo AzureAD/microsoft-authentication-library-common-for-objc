@@ -95,6 +95,43 @@
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
 
+- (void)testAuthorizationParametersFromConfiguration_whenInstanceAwareTrue_shouldContainAADV1ConfigurationWithInstanceAwareParameter
+{
+    __block NSUUID *correlationId = [NSUUID new];
+    
+    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
+                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
+                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
+                                                                                              resource:DEFAULT_TEST_RESOURCE
+                                                                                                scopes:nil
+                                                                                         correlationId:correlationId
+                                                                                            enablePkce:NO];
+    config.instanceAware = YES;
+    
+    NSString *requestState = @"state";
+    
+    MSIDAADV1WebviewFactory *factory = [MSIDAADV1WebviewFactory new];
+    
+    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
+    
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"resource" : DEFAULT_TEST_RESOURCE,
+                                          @"response_type" : @"code",
+                                          @"return-client-request-id" : @"true",
+                                          @"client-request-id" : correlationId.UUIDString,
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"haschrome" : @"1",
+                                          @"instance_aware": @"true"
+                                          }];
+    
+    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+    
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
+}
+
 - (void)testAuthorizationParametersFromConfiguration_withValidParamsWithScopes_shouldContainAADV1ConfigurationWithScopes
 {
     __block NSUUID *correlationId = [NSUUID new];
