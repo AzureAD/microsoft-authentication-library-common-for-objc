@@ -455,6 +455,17 @@
 
         return [self removeToken:tokenInCache context:context error:error];
     }
+    
+    // Clear RT from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor validateAndRemoveRefreshToken:token context:context error:error])
+        {
+            MSID_LOG_WARN(context, @"Failed to remove RT from other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to remove RT from other accessor:  %@, error %@", accessor.class, *error);
+            return NO;
+        }
+    }
 
     return YES;
 }
