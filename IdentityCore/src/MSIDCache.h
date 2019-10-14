@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithDictionary:(nullable NSDictionary *)dictionary;
 
 - (nullable ObjectType)objectForKey:(KeyType)key;
+- (nullable ObjectType)copyAndCleanObjectForKey:(KeyType)key;
 
 - (void)setObject:(nullable ObjectType)obj forKey:(KeyType)key;
 

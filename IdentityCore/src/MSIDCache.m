@@ -62,6 +62,16 @@
     return object;
 }
 
+- (id)copyAndCleanObjectForKey:(id)key
+{
+    __block id object;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        object = self.container[key];
+        [self.container removeObjectForKey:key];
+    });
+    return object;
+}
+
 - (void)setObject:(id)obj forKey:(id)key
 {
     dispatch_barrier_async(self.synchronizationQueue, ^{
