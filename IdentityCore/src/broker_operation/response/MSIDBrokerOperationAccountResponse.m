@@ -15,7 +15,7 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
     
     if (self)
     {
@@ -30,7 +30,7 @@
         
         NSMutableArray *accounts = [NSMutableArray new];
         
-        NSArray *accountsJson = json[@"response_data"];
+        NSArray *accountsJson = json[@"response_data"][@"accounts"];
         for (NSDictionary *accountJson in accountsJson)
         {
             MSIDAccount *account = [[MSIDAccount alloc] initWithJSONDictionary:accountJson error:error];
@@ -57,7 +57,7 @@
         if (accountJson) [accountsJson addObject:accountJson];
     }
     
-    json[@"response_data"] = accountsJson;
+    json[@"response_data"] = @{@"accounts" : accountsJson};
     
     return json;
 }
