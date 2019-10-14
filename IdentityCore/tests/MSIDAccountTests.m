@@ -36,6 +36,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAADAuthority.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAccount+MSIDJsonSerializable.h"
 
 @interface MSIDAccountTests : XCTestCase
 
@@ -211,6 +212,73 @@
 
     MSIDAccountCacheItem *cacheItem = [account accountCacheItem];
     XCTAssertEqualObjects(cacheItem.environment, @"login.windows.net");
+}
+
+#pragma serialization/deserialization
+
+- (void)testJsonDictionary {
+    MSIDAccount *account = [self createAccount];
+    
+    NSDictionary *expectedJson = @{
+        @"account_identifier" : @{
+                @"home_account_id" : @"uid.utid",
+                @"username" : @"legacy id"
+        },
+        @"account_type" : @"MSSTS",
+        @"alternative_account_id" : @"AltID",
+        @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+        @"environment" : @"login.microsoftonline.com",
+        @"family_name" : @"Last",
+        @"given_name" : @"Eric",
+        @"name" : @"Eric Middle Last",
+        @"local_account_id" : @"local",
+        @"middle_name" : @"Middle",
+        @"realm" : @"common",
+        @"storage_environment" : @"login.windows2.net",
+        @"username" : @"username"
+    };
+    
+    XCTAssertEqualObjects(expectedJson, [account jsonDictionary]);
+}
+
+- (void)testInitWithJSONDictionary {
+    NSDictionary *json = @{
+        @"account_identifier" : @{
+                @"home_account_id" : @"uid.utid",
+                @"username" : @"legacy id"
+        },
+        @"account_type" : @"MSSTS",
+        @"alternative_account_id" : @"AltID",
+        @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+        @"environment" : @"login.microsoftonline.com",
+        @"family_name" : @"Last",
+        @"given_name" : @"Eric",
+        @"name" : @"Eric Middle Last",
+        @"local_account_id" : @"local",
+        @"middle_name" : @"Middle",
+        @"realm" : @"common",
+        @"storage_environment" : @"login.windows2.net",
+        @"username" : @"username"
+    };
+    
+    NSError *error;
+    MSIDAccount *account = [[MSIDAccount alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account.localAccountId, @"local");
+    XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account.realm, @"common");
+    XCTAssertEqualObjects(account.storageEnvironment, @"login.windows2.net");
+    XCTAssertEqualObjects(account.username, @"username");
+    XCTAssertEqualObjects(account.givenName, @"Eric");
+    XCTAssertEqualObjects(account.middleName, @"Middle");
+    XCTAssertEqualObjects(account.familyName, @"Last");
+    XCTAssertEqualObjects(account.name, @"Eric Middle Last");
+    XCTAssertEqualObjects(account.clientInfo.rawClientInfo, [@{@"key" : @"value"} msidBase64UrlJson]);
+    XCTAssertEqualObjects(account.alternativeAccountId, @"AltID");
 }
 
 - (MSIDClientInfo *)createClientInfo:(NSDictionary *)clientInfoDict

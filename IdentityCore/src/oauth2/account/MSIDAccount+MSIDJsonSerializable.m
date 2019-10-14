@@ -58,6 +58,7 @@
     self.givenName = [json msidStringObjectForKey:@"given_name"];
     self.middleName = [json msidStringObjectForKey:@"middle_name"];
     self.familyName = [json msidStringObjectForKey:@"family_name"];
+    self.name = [json msidStringObjectForKey:@"name"];
     self.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:[json msidStringObjectForKey:@"client_info"] error:nil];
     self.alternativeAccountId = [json msidStringObjectForKey:@"alternative_account_id"];
     
@@ -77,6 +78,7 @@
     json[@"given_name"] = self.givenName;
     json[@"middle_name"] = self.middleName;
     json[@"family_name"] = self.familyName;
+    json[@"name"] = self.name;
     json[@"client_info"] = self.clientInfo.rawClientInfo;
     json[@"alternative_account_id"] = self.alternativeAccountId;
     
