@@ -21,30 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
+#import "MSIDSSOExtensionTokenRequestDelegate.h"
+#import "MSIDSSOExtensionRequestDelegate+Internal.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 
-@implementation MSIDBrokerOperationTokenRequest
+@implementation MSIDSSOExtensionTokenRequestDelegate
 
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
 {
-    self = [super initWithJSONDictionary:json error:error];
+    if (!self.completionBlock) return;
     
-    if (self)
-    {
-        // TODO: implement.
-    }
+    NSError *error;
+    __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
+    if (!ssoCredential) self.completionBlock(nil, error);
     
-    return self;
-}
+    __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
+    if (!json) self.completionBlock(nil, error);
 
-- (NSDictionary *)jsonDictionary
-{
-    // TODO: implement.
+    MSIDBrokerOperationTokenResponse *operationResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:json error:&error];
+    if (!operationResponse) self.completionBlock(nil, error);
     
-    return nil;
+    self.completionBlock(operationResponse.tokenResponse, nil);
 }
 
 @end

@@ -21,26 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDInteractiveTokenRequesting.h"
-
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+#import "MSIDBrokerOperationSilentTokenRequest.h"
+#import "MSIDSSORequestProviding.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDInteractiveTokenRequest : NSObject <MSIDInteractiveTokenRequesting>
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+@interface MSIDBrokerOperationSilentTokenRequest (SSORequest) <MSIDSSORequestProviding>
 
 @end
 

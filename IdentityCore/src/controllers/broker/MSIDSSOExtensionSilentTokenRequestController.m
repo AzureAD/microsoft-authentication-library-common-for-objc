@@ -23,6 +23,7 @@
 
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDSilentController+Internal.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 
 @implementation MSIDSSOExtensionSilentTokenRequestController
 
@@ -46,8 +47,7 @@
 
 + (BOOL)canPerformRequest
 {
-    // TODO: implement.
-    return YES;
+    return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
 }
 
 @end

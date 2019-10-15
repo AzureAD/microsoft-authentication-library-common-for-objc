@@ -21,27 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDInteractiveTokenRequesting.h"
+#import "MSIDBrokerOperationSilentTokenRequest+Parameters.h"
+#import "MSIDBrokerOperationTokenRequest+Parameteres.h"
+#import "MSIDRequestParameters.h"
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@implementation MSIDBrokerOperationSilentTokenRequest (Parameters)
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDInteractiveTokenRequest : NSObject <MSIDInteractiveTokenRequesting>
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
++ (instancetype)tokenRequestWithParameteres:(MSIDRequestParameters *)parameters
+                                      error:(NSError **)error
+{
+    __auto_type request = [MSIDBrokerOperationSilentTokenRequest new];
+    BOOL result = [self fillRequest:request withParameteres:parameters error:error];
+    if (!result) return nil;
+    
+    request.accountIdentifier = parameters.accountIdentifier;
+    
+    return request;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

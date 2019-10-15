@@ -136,6 +136,36 @@
     return [self createBrokerKeyWithError:error];
 }
 
+- (NSString *)base64BrokerKeyWithContext:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
+{
+    NSError *localError;
+    NSData *brokerKey = [self brokerKeyWithError:&localError];
+    
+    if (!brokerKey)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to retrieve broker key with error %@", MSID_PII_LOG_MASKABLE(localError));
+        
+        if (error) *error = localError;
+        return nil;
+    }
+    
+    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
+    
+    if (!base64UrlKey)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Unable to base64 encode broker key");
+
+        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, context.correlationId, nil);
+        
+        if (error) *error = localError;
+        
+        return nil;
+    }
+    
+    return base64UrlKey;
+}
+
 - (NSData *)createBrokerKeyWithError:(NSError **)error
 {
     uint8_t *symmetricKey = NULL;

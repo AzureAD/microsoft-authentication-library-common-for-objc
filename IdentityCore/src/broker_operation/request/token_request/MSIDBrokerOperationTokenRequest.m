@@ -21,27 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDInteractiveTokenRequesting.h"
+#import "MSIDBrokerOperationTokenRequest.h"
+#import "MSIDConstants.h"
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@implementation MSIDBrokerOperationTokenRequest
 
-NS_ASSUME_NONNULL_BEGIN
+#pragma mark - MSIDJsonSerializable
 
-@interface MSIDInteractiveTokenRequest : NSObject <MSIDInteractiveTokenRequesting>
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    if (self)
+    {
+        // TODO: implement
+    }
+    
+    return self;
+}
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    
+    // TODO: implement
+    
+    return json;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

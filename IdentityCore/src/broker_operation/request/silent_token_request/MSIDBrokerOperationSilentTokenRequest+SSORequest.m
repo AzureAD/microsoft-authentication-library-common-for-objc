@@ -21,27 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDInteractiveTokenRequesting.h"
+#import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDBrokerOperationSilentTokenRequest+SSORequest.h"
+#import "MSIDJsonSerializer.h"
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@implementation MSIDBrokerOperationSilentTokenRequest (SSORequest)
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDInteractiveTokenRequest : NSObject <MSIDInteractiveTokenRequesting>
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+- (ASAuthorizationSingleSignOnRequest *)ssoRequestWithProvider:(ASAuthorizationSingleSignOnProvider *)provider
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError **)error API_AVAILABLE(ios(13.0))
+{
+    // TODO: implement
+    
+    return nil;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

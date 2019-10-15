@@ -23,6 +23,7 @@
 
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDLocalInteractiveController+Internal.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
@@ -52,18 +53,45 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         
+        if ([self shouldFallback:error])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Falling back to local controller.");
+            
+            [self.fallbackController acquireToken:completionBlock];
+        }
+        
         completionBlock(result, error);
     };
     
-    __auto_type request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParameters];
+    __auto_type request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParamaters];
 
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
 + (BOOL)canPerformRequest
 {
-    // TODO: implement.
-    return YES;
+    return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
+}
+
+#pragma mark - Private
+
+- (BOOL)shouldFallback:(NSError *)error
+{
+    if (!self.fallbackController) return NO;
+    
+    if (![error.domain isEqualToString:ASAuthorizationErrorDomain]) return NO;
+    
+    // TODO: verify this logic.
+    BOOL shouldFallback = NO;
+    switch (error.code)
+    {
+        case ASAuthorizationErrorNotHandled:
+        case ASAuthorizationErrorUnknown:
+        case ASAuthorizationErrorFailed:
+            shouldFallback = YES;
+    }
+    
+    return shouldFallback;
 }
 
 @end

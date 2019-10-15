@@ -21,42 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationSilentTokenRequest.h"
-#import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDBrokerOperationTokenRequest.h"
 
-@implementation MSIDBrokerOperationSilentTokenRequest
+@class MSIDRequestParameters;
 
-+ (void)load
-{
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
-}
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - MSIDBrokerOperationRequest
+@interface MSIDBrokerOperationTokenRequest (Parameteres)
 
-+ (NSString *)operation
-{
-    return @"acquire_token_silent";
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    self = [super initWithJSONDictionary:json error:error];
-    
-    if (self)
-    {
-        // TODO: implement.
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    // TODO: implement.
-    
-    return nil;
-}
++ (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
+    withParameteres:(MSIDRequestParameters *)parameters
+              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

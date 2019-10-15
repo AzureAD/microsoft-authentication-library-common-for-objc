@@ -21,27 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDInteractiveTokenRequesting.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@implementation ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDInteractiveTokenRequest : NSObject <MSIDInteractiveTokenRequesting>
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
++ (ASAuthorizationSingleSignOnProvider *)msidSharedProvider
+{
+    static dispatch_once_t once;
+    static ASAuthorizationSingleSignOnProvider *ssoProvider;
+    
+    dispatch_once(&once, ^{
+        // TODO: replace url.
+        NSURL *url = [NSURL URLWithString:@"https://ios-sso-test.azurewebsites.net"];
+    
+        ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
+    });
+    
+    return ssoProvider;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

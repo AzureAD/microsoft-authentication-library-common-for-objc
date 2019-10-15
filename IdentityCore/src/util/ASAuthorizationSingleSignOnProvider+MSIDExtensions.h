@@ -21,43 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationInteractiveTokenRequest.h"
-#import "MSIDPromptType_Internal.h"
-#import "MSIDBrokerOperationRequestFactory.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-@implementation MSIDBrokerOperationInteractiveTokenRequest
+NS_ASSUME_NONNULL_BEGIN
 
-+ (void)load
-{
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
-}
+@interface ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 
-#pragma mark - MSIDBrokerOperationRequest
-
-+ (NSString *)operation
-{
-    return @"acquire_token_interactive";
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    self = [super initWithJSONDictionary:json error:error];
-    
-    if (self)
-    {
-        /// TODO: implement.
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    // TODO: implement.
-    
-    return nil;
-}
++ (ASAuthorizationSingleSignOnProvider *)msidSharedProvider;
 
 @end
+
+NS_ASSUME_NONNULL_END

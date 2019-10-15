@@ -21,26 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDInteractiveTokenRequesting.h"
+#import "MSIDSilentTokenRequest.h"
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@class MSIDAccountMetadataCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDInteractiveTokenRequest : NSObject <MSIDInteractiveTokenRequesting>
+API_AVAILABLE(ios(13.0))
+@interface MSIDSSOExtensionSilentTokenRequest : MSIDSilentTokenRequest
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
+@property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
 
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache NS_DESIGNATED_INITIALIZER;
 
 @end
 

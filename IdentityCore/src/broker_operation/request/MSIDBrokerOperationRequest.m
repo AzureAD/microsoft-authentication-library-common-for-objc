@@ -40,7 +40,7 @@
     
     if (self)
     {
-        // TODO: implement.
+        // TODO: implement
     }
     
     return self;
@@ -48,9 +48,11 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    // TODO: implement.
+    NSMutableDictionary *json = [NSMutableDictionary new];
     
-    return nil;
+    // TODO: implement
+    
+    return json;
 }
 
 @end

@@ -22,25 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDInteractiveTokenRequesting.h"
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@class ASAuthorizationSingleSignOnRequest;
+@class ASAuthorizationSingleSignOnProvider;
+@protocol MSIDRequestContext;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDInteractiveTokenRequest : NSObject <MSIDInteractiveTokenRequesting>
+@protocol MSIDSSORequestProviding <NSObject>
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+- (ASAuthorizationSingleSignOnRequest *)ssoRequestWithProvider:(ASAuthorizationSingleSignOnProvider *)provider
+                                                       context:(id<MSIDRequestContext>)context
+                                                         error:(NSError * _Nullable __autoreleasing * _Nullable)error API_AVAILABLE(ios(13.0));
 
 @end
 
