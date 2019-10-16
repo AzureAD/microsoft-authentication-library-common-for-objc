@@ -46,6 +46,7 @@
 @property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
 @property (readwrite) NSString *promptBehavior;
 @property (readwrite) NSString *claims;
+@property (readwrite) BOOL instanceAware;
 
 // Embedded webview
 @property (readwrite) NSMutableDictionary<NSString *, NSString *> *customHeaders;

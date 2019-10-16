@@ -59,6 +59,11 @@
     parameters[@"haschrome"] = @"1";
     parameters[MSID_OAUTH2_CLAIMS] = configuration.claims;
     [parameters addEntriesFromDictionary:MSIDDeviceId.deviceId];
+    
+    if (configuration.instanceAware)
+    {
+        parameters[@"instance_aware"] = @"true";
+    }
 
     return parameters;
 }
@@ -145,6 +150,12 @@
 
     NSURL *authorizationEndpoint = configuration.authorizationEndpoint;
     NSURL *networkURL = [parameters.authority networkUrlWithContext:parameters];
+    
+    if (!authorizationEndpoint)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Nil authorization endpoint provided");
+        return nil;
+    }
 
     NSURLComponents *authorizationComponents = [NSURLComponents componentsWithURL:authorizationEndpoint resolvingAgainstBaseURL:NO];
     authorizationComponents.host = networkURL.host;
@@ -156,6 +167,7 @@
     NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
 
     configuration.claims = claims;
+    configuration.instanceAware = parameters.instanceAware;
 
     return configuration;
 }
