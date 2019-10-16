@@ -21,21 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h"
-#import "MSIDBrokerOperationInteractiveTokenRequest+MSIDQueryItem.h"
+#import "MSIDBrokerOperationSilentTokenRequest+MSIDQueryItem.h"
 
-@implementation MSIDBrokerOperationInteractiveTokenRequest (SSORequest)
+@implementation MSIDBrokerOperationSilentTokenRequest (MSIDQueryItem)
 
-- (ASAuthorizationSingleSignOnRequest *)ssoRequestWithProvider:(ASAuthorizationSingleSignOnProvider *)provider
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error API_AVAILABLE(ios(13.0))
+#pragma mark - MSIDQueryItemSerializable
+
+- (instancetype)initWithQueryItems:(NSArray<NSURLQueryItem *> *)queryItems error:(NSError **)error
 {
-    ASAuthorizationSingleSignOnRequest *request = [provider createRequest];
-    request.requestedOperation = ASAuthorizationOperationLogin;
-    request.authorizationOptions = [self queryItems];
+    self = [super init];
     
-    return request;
+    if (self)
+    {
+        // TODO: implement
+    }
+    
+    return self;
+}
+
+- (NSArray<NSURLQueryItem *> *)queryItems
+{
+    NSMutableArray *items = [NSMutableArray new];
+    
+    // TODO: implement
+    
+    return items;
 }
 
 @end

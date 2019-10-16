@@ -21,21 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h"
-#import "MSIDBrokerOperationInteractiveTokenRequest+MSIDQueryItem.h"
+#import "MSIDBrokerOperationSilentTokenRequest.h"
+#import "MSIDQueryItemSerializable.h"
 
-@implementation MSIDBrokerOperationInteractiveTokenRequest (SSORequest)
+NS_ASSUME_NONNULL_BEGIN
 
-- (ASAuthorizationSingleSignOnRequest *)ssoRequestWithProvider:(ASAuthorizationSingleSignOnProvider *)provider
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error API_AVAILABLE(ios(13.0))
-{
-    ASAuthorizationSingleSignOnRequest *request = [provider createRequest];
-    request.requestedOperation = ASAuthorizationOperationLogin;
-    request.authorizationOptions = [self queryItems];
-    
-    return request;
-}
+@interface MSIDBrokerOperationSilentTokenRequest (MSIDQueryItem) <MSIDQueryItemSerializable>
 
 @end
+
+NS_ASSUME_NONNULL_END

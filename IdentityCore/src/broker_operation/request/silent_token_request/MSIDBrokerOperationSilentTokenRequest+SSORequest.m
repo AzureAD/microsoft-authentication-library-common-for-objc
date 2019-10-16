@@ -23,7 +23,7 @@
 
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDBrokerOperationSilentTokenRequest+SSORequest.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDBrokerOperationSilentTokenRequest+MSIDQueryItem.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest (SSORequest)
 
@@ -31,9 +31,11 @@
                                                        context:(id<MSIDRequestContext>)context
                                                          error:(NSError **)error API_AVAILABLE(ios(13.0))
 {
-    // TODO: implement
+    ASAuthorizationSingleSignOnRequest *request = [provider createRequest];
+    request.requestedOperation = ASAuthorizationOperationRefresh;
+    request.authorizationOptions = [self queryItems];
     
-    return nil;
+    return request;
 }
 
 @end
