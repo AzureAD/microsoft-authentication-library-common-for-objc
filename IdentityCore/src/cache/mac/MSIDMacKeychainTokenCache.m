@@ -645,7 +645,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-    NSArray *itemList = @[];
+    NSArray *itemList;
     
     /*
      For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
@@ -1231,14 +1231,18 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 #pragma mark - Utilities
 
 // Allocate a "Not Implemented" NSError object.
-- (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error
+- (BOOL)createUnimplementedError:(NSError *_Nullable *_Nullable)error
                          context:(id<MSIDRequestContext>)context
 {
-    [self createError:@"Not Implemented." domain:MSIDErrorDomain errorCode:MSIDErrorUnsupportedFunctionality error:error context:context];
+    return [self createError:@"Not Implemented."
+                      domain:MSIDErrorDomain
+                   errorCode:MSIDErrorUnsupportedFunctionality
+                       error:error
+                     context:context];
 }
 
 // Allocate an NEError, logging a warning.
-- (void) createError:(NSString*)message
+- (BOOL) createError:(NSString*)message
               domain:(NSErrorDomain)domain
            errorCode:(NSInteger)code
                error:(NSError *_Nullable *_Nullable)error
@@ -1249,6 +1253,8 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     {
         *error = MSIDCreateError(domain, code, message, nil, nil, nil, context.correlationId, nil, NO);
     }
+    
+    return YES;
 }
 
 - (NSString *)keychainGroupLoggingName
