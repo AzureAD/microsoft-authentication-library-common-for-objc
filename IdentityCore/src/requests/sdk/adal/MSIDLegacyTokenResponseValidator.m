@@ -44,7 +44,7 @@
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account identifier returned from server.", nil, nil, nil, correlationID, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account identifier returned from server.", nil, nil, nil, correlationID, nil, NO);
         }
         
         return NO;
@@ -115,9 +115,11 @@
         
     }
     
+    MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationID, @"Different user was returned by the server. Original account %@, %@, returned account %@, %@", MSID_PII_LOG_EMAIL(accountIdentifier.displayableId), MSID_PII_LOG_TRACKABLE(accountIdentifier.localAccountId), MSID_PII_LOG_EMAIL(tokenResult.account.accountIdentifier.displayableId), MSID_PII_LOG_TRACKABLE(tokenResult.account.localAccountId));
+    
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil, NO);
     }
     
     return NO;

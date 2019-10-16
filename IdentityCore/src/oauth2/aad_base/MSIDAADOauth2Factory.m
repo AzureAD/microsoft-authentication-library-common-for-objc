@@ -58,7 +58,7 @@
         {
             NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDAADTokenResponse, passed %@", response.class];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
 
         return NO;
@@ -112,6 +112,8 @@
                 additionalUserInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
             }
             
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Processing an AAD error with error code %ld, error %@, suberror %@, description %@", (long)errorCode, response.error, response.suberror, MSID_PII_LOG_MASKABLE(response.errorDescription));
+            
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      errorCode,
                                      response.errorDescription,
@@ -119,7 +121,7 @@
                                      response.suberror,
                                      nil,
                                      context.correlationId,
-                                     additionalUserInfo);
+                                     additionalUserInfo, NO);
         }
         
         return result;

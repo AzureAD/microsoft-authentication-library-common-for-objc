@@ -34,7 +34,7 @@
 {
     if (self.successAfterInterval == 0)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, nil, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, nil, nil, YES);
         completionHandler(nil, error);
     }
     else

@@ -114,7 +114,7 @@
                                      errorCode,
                                      message,
                                      nil,
-                                     nil, nil, context.correlationId, nil);
+                                     nil, nil, context.correlationId, nil, NO);
             
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
         }
@@ -140,7 +140,7 @@
                                      MSIDErrorServerInvalidResponse,
                                      message,
                                      nil,
-                                     nil, nil, context.correlationId, nil);
+                                     nil, nil, context.correlationId, nil, NO);
             
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
         }
