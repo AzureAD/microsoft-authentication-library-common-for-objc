@@ -55,7 +55,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Nil id_token passed", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Nil id_token passed", nil, nil, nil, nil, nil, YES);
         }
 
         return nil;
@@ -76,7 +76,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned empty id token", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned empty id token", nil, nil, nil, nil, nil, NO);
         }
 
         return nil;
@@ -108,7 +108,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
                 if (error)
                 {
-                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned invalid id token", nil, nil, nil, nil, nil);
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned invalid id token", nil, nil, nil, nil, nil, YES);
                 }
 
                 return nil;
@@ -124,7 +124,7 @@ MSID_JSON_ACCESSOR(ID_TOKEN_ISSUER, issuer)
 
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned id token without any claims", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Server returned id token without any claims", nil, nil, nil, nil, nil, YES);
         }
 
         return nil;
