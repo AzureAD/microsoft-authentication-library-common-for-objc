@@ -43,7 +43,7 @@ NSString *const MSIDAADTenantTypeConsumersRawValue = @"consumers";
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Tenant value should not be nil.", nil, nil, nil, context.correlationId, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Tenant value should not be nil.", nil, nil, nil, context.correlationId, nil, YES);
             }
             return nil;
         }

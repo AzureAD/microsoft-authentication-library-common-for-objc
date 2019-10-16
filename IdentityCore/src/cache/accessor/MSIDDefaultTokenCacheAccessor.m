@@ -313,7 +313,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Wrong id token type passed: %@.", [MSIDCredentialTypeHelpers credentialTypeAsString:idTokenType]);
@@ -642,7 +642,7 @@
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }

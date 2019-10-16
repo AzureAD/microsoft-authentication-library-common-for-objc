@@ -48,7 +48,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      @"MSAuth CBA response should have msauth as a scheme and code as a host",
-                                     nil, nil, nil, context.correlationId, nil);
+                                     nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
     }

@@ -63,7 +63,7 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
                                               nil,
                                               nil,
                                               context.correlationId,
-                                              nil);
+                                              nil, YES);
         if (error)
         {
             *error = oauthError;

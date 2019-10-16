@@ -394,7 +394,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
             {
                 if (error)
                 {
-                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it", nil, nil, nil, nil, nil);
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it", nil, nil, nil, nil, nil, NO);
                 }
                 
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
@@ -418,7 +418,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil, NO);
             }
             
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve teamId from keychain.");
@@ -437,7 +437,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil, NO);
             }
             
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set keychain access group.");
@@ -645,7 +645,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                                               context:(id<MSIDRequestContext>)context
                                                 error:(NSError **)error
 {
-    NSArray *itemList = @[];
+    NSArray *itemList;
     
     /*
      For refresh tokens, always merge with persistence to get the most recent refresh token as it is shared across apps from same publisher.
@@ -805,7 +805,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize stored item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize stored item.", nil, nil, nil, context.correlationId, nil, NO);
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize stored item.");
         }
         
@@ -918,7 +918,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to deserialize stored item.", nil, nil, nil, context.correlationId, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to deserialize stored item.", nil, nil, nil, context.correlationId, nil, NO);
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to deserialize stored item.");
             }
             
@@ -1134,7 +1134,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d).", (int)status);
         }
         return NO;
@@ -1231,14 +1231,18 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 #pragma mark - Utilities
 
 // Allocate a "Not Implemented" NSError object.
-- (void)createUnimplementedError:(NSError *_Nullable *_Nullable)error
+- (BOOL)createUnimplementedError:(NSError *_Nullable *_Nullable)error
                          context:(id<MSIDRequestContext>)context
 {
-    [self createError:@"Not Implemented." domain:MSIDErrorDomain errorCode:MSIDErrorUnsupportedFunctionality error:error context:context];
+    return [self createError:@"Not Implemented."
+                      domain:MSIDErrorDomain
+                   errorCode:MSIDErrorUnsupportedFunctionality
+                       error:error
+                     context:context];
 }
 
 // Allocate an NEError, logging a warning.
-- (void) createError:(NSString*)message
+- (BOOL) createError:(NSString*)message
               domain:(NSErrorDomain)domain
            errorCode:(NSInteger)code
                error:(NSError *_Nullable *_Nullable)error
@@ -1247,8 +1251,10 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"%@", message);
     if (error)
     {
-        *error = MSIDCreateError(domain, code, message, nil, nil, nil, context.correlationId, nil);
+        *error = MSIDCreateError(domain, code, message, nil, nil, nil, context.correlationId, nil, NO);
     }
+    
+    return YES;
 }
 
 - (NSString *)keychainGroupLoggingName

@@ -30,7 +30,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Response is not of the expected type: NSDictionary.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidResponse, @"Response is not of the expected type: NSDictionary.", nil, nil, nil, context.correlationId, nil, NO);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Response is not of the expected type: NSDictionary.");

@@ -46,7 +46,7 @@ static NSString *s_redirectScheme = nil;
 /*! @abstract Delegate callback called when the user taps the Done button. Upon this call, the view controller is dismissed modally. */
 - (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
 {
-    NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"Certificate based authentication got cancelled", nil, nil, nil, nil, nil);
+    NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"Certificate based authentication got cancelled", nil, nil, nil, nil, nil, YES);
     [MSIDCertAuthHandler completeCertAuthChallenge:nil error:cancelledError];
 }
 
@@ -109,7 +109,7 @@ static NSString *s_redirectScheme = nil;
             }
             else
             {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected Cert Auth response received.", nil, nil, nil, nil, nil);
+                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected Cert Auth response received.", nil, nil, nil, nil, nil, YES);
                 [embeddedViewController endWebAuthWithURL:nil error:error];
             }
         }];
