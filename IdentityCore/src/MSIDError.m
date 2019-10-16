@@ -53,7 +53,7 @@ NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescri
     
     if (logErrorDescription)
     {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"%@", errorDescription);
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"Creating Error with description: %@", errorDescription);
     }
 
     return [errorConverter errorWithDomain:domain
