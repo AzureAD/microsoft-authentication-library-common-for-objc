@@ -83,6 +83,11 @@
         
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+        if (@available(iOS 13.0, *)) {
+            _safariViewController.modalInPresentation = YES;
+        }
+#endif
 
         _parentController = parentController;
     }
