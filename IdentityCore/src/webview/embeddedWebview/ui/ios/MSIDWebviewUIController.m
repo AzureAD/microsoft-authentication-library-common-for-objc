@@ -119,6 +119,13 @@ static WKWebViewConfiguration *s_webConfig;
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
     
+    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *))
+    {
+        [navController setModalInPresentation:YES];
+    }
+    #endif
+    
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [_parentController presentViewController:navController animated:YES completion:nil];
     }];
