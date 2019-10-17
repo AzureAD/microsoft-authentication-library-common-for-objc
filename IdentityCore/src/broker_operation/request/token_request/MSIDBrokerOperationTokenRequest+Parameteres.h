@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrokerOperationTokenRequest (Parameteres)
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
-    withParameteres:(MSIDRequestParameters *)parameters
+     withParameters:(MSIDRequestParameters *)parameters
               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

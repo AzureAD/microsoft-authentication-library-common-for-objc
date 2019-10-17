@@ -30,7 +30,7 @@
 @implementation MSIDBrokerOperationTokenRequest (Parameteres)
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
-    withParameteres:(MSIDRequestParameters *)parameters
+     withParameters:(MSIDRequestParameters *)parameters
               error:(NSError **)error
 {
     NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;

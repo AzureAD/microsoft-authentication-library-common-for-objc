@@ -27,11 +27,11 @@
 
 @implementation MSIDBrokerOperationSilentTokenRequest (Parameters)
 
-+ (instancetype)tokenRequestWithParameteres:(MSIDRequestParameters *)parameters
-                                      error:(NSError **)error
++ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                     error:(NSError **)error
 {
     __auto_type request = [MSIDBrokerOperationSilentTokenRequest new];
-    BOOL result = [self fillRequest:request withParameteres:parameters error:error];
+    BOOL result = [self fillRequest:request withParameters:parameters error:error];
     if (!result) return nil;
     
     request.accountIdentifier = parameters.accountIdentifier;
