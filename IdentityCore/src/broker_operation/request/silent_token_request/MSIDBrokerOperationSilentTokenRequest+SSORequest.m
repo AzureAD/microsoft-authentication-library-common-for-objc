@@ -23,7 +23,7 @@
 
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDBrokerOperationSilentTokenRequest+SSORequest.h"
-#import "MSIDBrokerOperationSilentTokenRequest+MSIDQueryItem.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest (SSORequest)
 
@@ -33,7 +33,7 @@
 {
     ASAuthorizationSingleSignOnRequest *request = [provider createRequest];
     request.requestedOperation = ASAuthorizationOperationRefresh;
-    request.authorizationOptions = [self queryItems];
+    request.authorizationOptions = [[self jsonDictionary] msidQueryItems];
     
     return request;
 }

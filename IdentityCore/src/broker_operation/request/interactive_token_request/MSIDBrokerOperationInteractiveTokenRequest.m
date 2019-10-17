@@ -24,6 +24,8 @@
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDPromptType_Internal.h"
+#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
@@ -47,7 +49,14 @@
     
     if (self)
     {
-        // TODO: implement
+        NSError *localError;
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:&localError];
+        if (localError) MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to parse MSIDAccountIdentifier %@", MSID_PII_LOG_MASKABLE(localError));
+        
+        _loginHint = [json msidStringObjectForKey:MSID_BROKER_LOGIN_HINT_KEY];
+        
+        NSString *promptString = [json msidStringObjectForKey:MSID_BROKER_PROMPT_KEY];
+        _promptType = MSIDPromptTypeFromString(promptString);
     }
     
     return self;
@@ -56,8 +65,15 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    // TODO: implement
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (accountIdentifierJson) [json addEntriesFromDictionary:accountIdentifierJson];
+    
+    json[MSID_BROKER_LOGIN_HINT_KEY] = self.loginHint;
+    
+    NSString *promptString = MSIDPromptParamFromType(self.promptType);
+    json[MSID_BROKER_PROMPT_KEY] = promptString;
     
     return json;
 }

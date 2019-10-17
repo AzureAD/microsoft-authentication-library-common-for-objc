@@ -21,21 +21,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 
-@implementation MSIDBrokerOperationInteractiveTokenRequest (SSORequest)
+@implementation NSDictionary (MSIDQueryItems)
 
-- (ASAuthorizationSingleSignOnRequest *)ssoRequestWithProvider:(ASAuthorizationSingleSignOnProvider *)provider
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error API_AVAILABLE(ios(13.0))
++ (instancetype)msidDictionaryFromQueryItems:(NSArray<NSURLQueryItem *> *)queryItems
 {
-    ASAuthorizationSingleSignOnRequest *request = [provider createRequest];
-    request.requestedOperation = ASAuthorizationOperationLogin;
-    request.authorizationOptions = [[self jsonDictionary] msidQueryItems];
+    NSMutableDictionary *dictionary = [NSMutableDictionary new];
+    for (NSURLQueryItem *item in queryItems) dictionary[item.name] = item.value;
     
-    return request;
+    return dictionary;
+}
+
+- (NSArray<NSURLQueryItem *> *)msidQueryItems
+{
+    NSMutableArray *items = [NSMutableArray new];
+    [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop)
+    {
+        if (![[key class] isEqual:NSString.class])
+        {
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: key '%@' is not a string.", key);
+            
+            [items removeAllObjects];
+
+            return;
+        }
+        
+        if (![[value class] isEqual:NSString.class])
+        {
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: value '%@' is not a string.", value);
+            
+            [items removeAllObjects];
+
+            return;
+        }
+        
+        NSURLQueryItem *item = [[NSURLQueryItem alloc] initWithName:key value:value];
+        [items addObject:item];
+    }];
+    
+    return items;
 }
 
 @end

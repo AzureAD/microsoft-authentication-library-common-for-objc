@@ -21,31 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationInteractiveTokenRequest+MSIDQueryItem.h"
+#import "MSIDConfiguration+MSIDJsonSerializable.h"
+#import "MSIDAADAuthority.h"
 
-@implementation MSIDBrokerOperationInteractiveTokenRequest (MSIDQueryItem)
+@implementation MSIDConfiguration (MSIDJsonSerializable)
 
-#pragma mark - MSIDQueryItemSerializable
+#pragma mark - MSIDJsonSerializable
 
-- (instancetype)initWithQueryItems:(NSArray<NSURLQueryItem *> *)queryItems error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
-    
-    if (self)
-    {
-        // TODO: implement
-    }
-    
-    return self;
-}
-
-- (NSArray<NSURLQueryItem *> *)queryItems
-{
-    NSMutableArray *items = [NSMutableArray new];
-    
     // TODO: implement
     
-    return items;
+    return nil;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    // TODO: implement
+    
+    return nil;
 }
 
 @end

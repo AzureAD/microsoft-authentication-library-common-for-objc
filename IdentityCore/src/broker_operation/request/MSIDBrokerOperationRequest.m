@@ -40,7 +40,18 @@
     
     if (self)
     {
-        // TODO: implement
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_KEY required:YES error:error]) return nil;
+        _brokerKey = json[MSID_BROKER_KEY];
+        
+        if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_PROTOCOL_VERSION_KEY required:YES error:error]) return nil;
+        _protocolVersion = [json[MSID_BROKER_PROTOCOL_VERSION_KEY] integerValue];
+        
+        _clientVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_VERSION_KEY];
+        _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
+        _clientAppName = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_NAME_KEY];
+        
+        NSString *uuidString = [json msidStringObjectForKey:MSID_BROKER_CORRELATION_ID_KEY];
+        _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
     }
     
     return self;
@@ -49,8 +60,12 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    
-    // TODO: implement
+    json[MSID_BROKER_KEY] = self.brokerKey;
+    json[MSID_BROKER_PROTOCOL_VERSION_KEY] = [@(self.protocolVersion) stringValue];
+    json[MSID_BROKER_CLIENT_VERSION_KEY] = self.clientVersion;
+    json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
+    json[MSID_BROKER_CLIENT_APP_NAME_KEY] = self.clientAppName;
+    json[MSID_BROKER_CORRELATION_ID_KEY] = self.correlationId.UUIDString;
     
     return json;
 }

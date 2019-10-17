@@ -23,6 +23,8 @@
 
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDConstants.h"
+#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 
@@ -46,7 +48,8 @@
     
     if (self)
     {
-        // TODO: implement
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
+        if (!_accountIdentifier) return nil;
     }
     
     return self;
@@ -55,8 +58,12 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    // TODO: implement
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (!accountIdentifierJson) return nil;
+    
+    [json addEntriesFromDictionary:accountIdentifierJson];
     
     return json;
 }
