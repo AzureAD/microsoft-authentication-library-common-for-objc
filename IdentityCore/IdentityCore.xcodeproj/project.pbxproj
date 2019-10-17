@@ -1478,7 +1478,6 @@
 		23B0189B23554B2B00207FEC /* MSIDSSORequestProviding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDSSORequestProviding.h; sourceTree = "<group>"; };
 		23B018A423554B8700207FEC /* MSIDBrokerOperationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationRequest.m; sourceTree = "<group>"; };
 		23B018A523554B8700207FEC /* MSIDBrokerOperationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationRequest.h; sourceTree = "<group>"; };
-		23B018B02356BC8B00207FEC /* MSIDQueryItemSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDQueryItemSerializable.h; sourceTree = "<group>"; };
 		23B018BD2356D45900207FEC /* MSIDConfiguration+MSIDJsonSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDConfiguration+MSIDJsonSerializable.h"; sourceTree = "<group>"; };
 		23B018BE2356D45900207FEC /* MSIDConfiguration+MSIDJsonSerializable.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDConfiguration+MSIDJsonSerializable.m"; sourceTree = "<group>"; };
 		23B018C02356D51200207FEC /* NSDictionary+MSIDQueryItems.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+MSIDQueryItems.h"; sourceTree = "<group>"; };
@@ -3851,7 +3850,6 @@
 		D6DA89721FBA6A4E004C56C7 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				23B018B02356BC8B00207FEC /* MSIDQueryItemSerializable.h */,
 				2309391A2189301600EAC95D /* MSIDJsonSerializing.h */,
 				23B3A44F2187AFD2009070B2 /* MSIDJsonSerializer.h */,
 				23B3A4502187AFD3009070B2 /* MSIDJsonSerializer.m */,
