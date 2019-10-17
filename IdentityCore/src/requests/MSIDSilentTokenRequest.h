@@ -22,8 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDSilentTokenRequesting.h"
 #import "MSIDCacheAccessor.h"
+#import "MSIDConstants.h"
 
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
@@ -33,7 +33,7 @@
 @class MSIDExternalAADCacheSeeder;
 #endif
 
-@interface MSIDSilentTokenRequest : NSObject <MSIDSilentTokenRequesting>
+@interface MSIDSilentTokenRequest : NSObject
 
 @property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;

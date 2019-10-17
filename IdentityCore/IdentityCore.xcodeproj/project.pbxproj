@@ -1450,7 +1450,6 @@
 		23B0187E2355481800207FEC /* MSIDSSOExtensionSilentTokenRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDSSOExtensionSilentTokenRequest.h; sourceTree = "<group>"; };
 		23B01883235548BF00207FEC /* MSIDSilentTokenRequest+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDSilentTokenRequest+Internal.h"; sourceTree = "<group>"; };
 		23B01884235548C000207FEC /* MSIDInteractiveTokenRequest+Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDInteractiveTokenRequest+Internal.h"; sourceTree = "<group>"; };
-		23B018862355492F00207FEC /* MSIDSilentTokenRequesting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDSilentTokenRequesting.h; sourceTree = "<group>"; };
 		23B0188923554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationInteractiveTokenRequest.h; sourceTree = "<group>"; };
 		23B0188A23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h"; sourceTree = "<group>"; };
 		23B0188B23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h"; sourceTree = "<group>"; };
@@ -3418,7 +3417,6 @@
 				B2AF1D2C218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.h */,
 				23B01884235548C000207FEC /* MSIDInteractiveTokenRequest+Internal.h */,
 				B2AF1D2D218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.m */,
-				23B018862355492F00207FEC /* MSIDSilentTokenRequesting.h */,
 				B2AF1D31218BCEEB0080C1A0 /* MSIDSilentTokenRequest.h */,
 				23B01883235548BF00207FEC /* MSIDSilentTokenRequest+Internal.h */,
 				B2AF1D32218BCEEB0080C1A0 /* MSIDSilentTokenRequest.m */,
