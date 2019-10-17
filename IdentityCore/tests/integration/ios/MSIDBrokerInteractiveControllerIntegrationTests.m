@@ -329,7 +329,7 @@
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, 123456789, @"Test broker error", @"broker_error", @"broker_sub_error", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, 123456789, @"Test broker error", @"broker_error", @"broker_sub_error", nil, parameters.correlationId, nil, YES);
 
     [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
 
@@ -527,7 +527,7 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_failure";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, 1234567, @"Failed to create broker request", nil, nil, nil, nil, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, 1234567, @"Failed to create broker request", nil, nil, nil, nil, nil, YES);
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil brokerRequestURL:nil resumeDictionary:nil];
 

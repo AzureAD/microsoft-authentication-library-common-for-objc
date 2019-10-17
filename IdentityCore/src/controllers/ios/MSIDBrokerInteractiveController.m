@@ -136,7 +136,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if ([self.class currentBrokerController])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         completionBlockWrapper(nil, error);
         return;
     }
@@ -164,7 +164,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Unable to base64 encode broker key");
 
-        NSError *brokerKeyError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, self.requestParameters.correlationId, nil);
+        NSError *brokerKeyError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerKeyError];
         completionBlockWrapper(nil, brokerKeyError);
         return;
@@ -368,7 +368,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if ([self.class currentBrokerController])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"application did not receive response from broker.", nil, nil, nil, nil, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"application did not receive response from broker.", nil, nil, nil, nil, nil, YES);
 
         MSIDBrokerInteractiveController *brokerController = [self.class currentBrokerController];
         [brokerController completeAcquireTokenWithResult:nil error:error];
@@ -479,7 +479,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     if (!self.fallbackController || !shouldFallbackToLocalController)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Should fallback to local controller %d", (int)shouldFallbackToLocalController);
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL.", nil, nil, nil, nil, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL.", nil, nil, nil, nil, nil, NO);
         if (completionBlock) completionBlock(nil, error);
         return;
     }

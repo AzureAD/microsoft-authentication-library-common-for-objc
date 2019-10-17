@@ -65,7 +65,7 @@ static NSString *const kValuesJsonParam = @"values";
                 if (error) *error = MSIDCreateError(MSIDErrorDomain,
                                                     MSIDErrorInvalidDeveloperParameter,
                                                     @"values is not an NSArray.",
-                                                    nil, nil, nil, nil, nil);
+                                                    nil, nil, nil, nil, nil, NO);
                 
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDIndividualClaimRequestAdditionalInfo with json: values is not an NSArray.");
                 return nil;
@@ -81,7 +81,7 @@ static NSString *const kValuesJsonParam = @"values";
             if (error) *error = MSIDCreateError(MSIDErrorDomain,
                                                 MSIDErrorInvalidDeveloperParameter,
                                                 @"Failed to init claim additional info from json.",
-                                                nil, nil, nil, nil, nil);
+                                                nil, nil, nil, nil, nil, NO);
             
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDIndividualClaimRequestAdditionalInfo with json: json is invalid.");
             return nil;
@@ -94,7 +94,7 @@ static NSString *const kValuesJsonParam = @"values";
 {
     NSMutableDictionary *dictionary = [NSMutableDictionary new];
     NSNumber *essential = self.essential;
-    if (essential) essential = [[NSNumber alloc] initWithBool:self.essential.boolValue];
+    if (essential != nil) essential = [[NSNumber alloc] initWithBool:self.essential.boolValue];
     dictionary[kEssentialJsonParam] = essential;
     dictionary[kValueJsonParam] = self.value;
     dictionary[kValuesJsonParam] = self.values;

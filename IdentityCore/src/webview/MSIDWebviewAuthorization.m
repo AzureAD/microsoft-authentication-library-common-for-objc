@@ -101,14 +101,14 @@ static MSIDWebviewSession *s_currentSession = nil;
     // check session nil
     if (!session)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Interactive session failed to create.", nil, nil, nil, context.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Interactive session failed to create.", nil, nil, nil, context.correlationId, nil, YES);
         completionHandler(nil, error);
         return;
     }
     
     if (![self setCurrentSession:session])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Only one interactive session is allowed at a time.", nil, nil, nil, context.correlationId, nil, YES);
         completionHandler(nil, error);
         return;
     }

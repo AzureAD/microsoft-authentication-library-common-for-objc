@@ -51,7 +51,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -63,7 +63,7 @@
 #else
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil, YES);
     }
 
     return nil;
@@ -189,8 +189,10 @@
         NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
     }
+    
+    MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Broker returned error with domain %@, code %@, oauth error %@, suberror %@, broker version %@, description %@", errorDomain, errorCodeString, oauthErrorCode, errorResponse.subError, errorResponse.brokerAppVer, MSID_PII_LOG_MASKABLE(errorDescription));
 
-    NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, errorResponse.subError, nil, correlationId, userInfo);
+    NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, errorResponse.subError, nil, correlationId, userInfo, NO);
 
     return brokerError;
 }
