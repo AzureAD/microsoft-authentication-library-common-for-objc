@@ -2109,7 +2109,7 @@
     XCTAssertEqual([remaininRefreshTokens count], 0);
 }
 
-- (void)testValidateAndRemoveRefreshToken_whenTokenProvided_butTokenFromSecondaryCache_shouldReturnError
+- (void)testValidateAndRemoveRefreshToken_whenTokenProvided_butTokenFromSecondaryCache_shouldRemoveTokens
 {
     // Save first token
     [self saveResponseWithUPN:@"upn@test.com"
@@ -2135,7 +2135,7 @@
     XCTAssertNil(error);
 
     NSArray *remaininRefreshTokens = [self getAllRefreshTokens];
-    XCTAssertEqual([remaininRefreshTokens count], 1);
+    XCTAssertEqual([remaininRefreshTokens count], 0);
 }
 
 - (void)testRemoveAccessToken_whenTokenProvided_shouldRemoveToken
