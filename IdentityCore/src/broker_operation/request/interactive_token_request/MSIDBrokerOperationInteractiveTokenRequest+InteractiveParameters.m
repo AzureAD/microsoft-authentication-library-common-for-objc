@@ -28,11 +28,11 @@
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest (InteractiveParameters)
 
-+ (instancetype)tokenRequestWithParameteres:(MSIDInteractiveRequestParameters *)parameters
-                                      error:(NSError **)error
++ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+                                     error:(NSError **)error
 {
     __auto_type request = [MSIDBrokerOperationInteractiveTokenRequest new];
-    BOOL result = [self fillRequest:request withParameteres:parameters error:error];
+    BOOL result = [self fillRequest:request withParameters:parameters error:error];
     if (!result) return nil;
     
     request.accountIdentifier = parameters.accountIdentifier;

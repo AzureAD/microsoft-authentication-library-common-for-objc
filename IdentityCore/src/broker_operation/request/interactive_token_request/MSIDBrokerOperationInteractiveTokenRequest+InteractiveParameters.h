@@ -29,8 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationInteractiveTokenRequest (InteractiveParameters)
 
-+ (instancetype)tokenRequestWithParameteres:(MSIDInteractiveRequestParameters *)parameters
-                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
++ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

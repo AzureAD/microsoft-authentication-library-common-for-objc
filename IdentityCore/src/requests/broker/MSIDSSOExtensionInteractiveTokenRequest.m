@@ -99,7 +99,7 @@
          }
         
         NSError *localError;
-        __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameteres:self.requestParameters
+        __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                                          error:&localError];
         
         if (!operationRequest)
