@@ -53,9 +53,12 @@
     if (self)
         {
             if (![json msidAssertType:NSDictionary.class ofKey:@"request_parameters" required:YES error:error]) return nil;
-            
             NSDictionary *requestParameters = json[@"request_parameters"];
             
+            if (![requestParameters msidAssertType:NSDictionary.class ofKey:@"account_identifier" required:YES error:error])
+            {
+                return nil;
+            }
             _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters[@"account_identifier"] error:error];
             if (!_accountIdentifier || !_accountIdentifier.homeAccountId)
             {
@@ -63,7 +66,7 @@
                 return nil;
             }
             
-            _clientId = requestParameters[@"client_id"];
+            _clientId = [requestParameters msidStringObjectForKey:@"client_id"];
             if (!_clientId)
             {
                 if (error)
