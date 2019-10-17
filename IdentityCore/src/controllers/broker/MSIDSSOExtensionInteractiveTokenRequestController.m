@@ -77,7 +77,13 @@
 
 - (BOOL)shouldFallback:(NSError *)error
 {
-    if (!self.fallbackController) return NO;
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking if we should fallback to fallbackController, error: %ld error domain: %@.", (long)error.code, error.domain);
+    
+    if (!self.fallbackController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"fallbackController is nil, shouldFallback: NO");
+        return NO;
+    }
     
     if (![error.domain isEqualToString:ASAuthorizationErrorDomain]) return NO;
     
@@ -90,6 +96,8 @@
         case ASAuthorizationErrorFailed:
             shouldFallback = YES;
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"shouldFallback: %@", shouldFallback ? @"YES" : @"NO");
     
     return shouldFallback;
 }

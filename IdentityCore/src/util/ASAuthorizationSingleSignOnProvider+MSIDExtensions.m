@@ -31,8 +31,7 @@
     static ASAuthorizationSingleSignOnProvider *ssoProvider;
     
     dispatch_once(&once, ^{
-        // TODO: replace url.
-        NSURL *url = [NSURL URLWithString:@"https://ios-sso-test.azurewebsites.net"];
+        NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com"];
     
         ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
     });
