@@ -36,6 +36,11 @@
         return nil;
     }
     
+    if (![json msidAssertType:NSDictionary.class ofKey:@"account_identifier" required:YES error:error])
+    {
+        return nil;
+    }
+    
     self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json[@"account_identifier"] error:error];
     if (!self.accountIdentifier)
     {
@@ -44,12 +49,6 @@
     }
     
     self.accountType = [MSIDAccountTypeHelpers accountTypeFromString:[json msidStringObjectForKey:@"account_type"]];
-    if (!self.accountType)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No valid account type present in the JSON");
-        return nil;
-    }
-    
     self.localAccountId = [json msidStringObjectForKey:@"local_account_id"];
     self.environment = [json msidStringObjectForKey:@"environment"];
     self.storageEnvironment = [json msidStringObjectForKey:@"storage_environment"];
@@ -70,7 +69,7 @@
     NSMutableDictionary *json = [NSMutableDictionary new];
     json[@"account_identifier"] = [self.accountIdentifier jsonDictionary];
     json[@"local_account_id"] = self.localAccountId;
-    json[@"account_type"] = [MSIDAccountTypeHelpers accountTypeAsString:self.accountType];;
+    json[@"account_type"] = [MSIDAccountTypeHelpers accountTypeAsString:self.accountType];
     json[@"environment"] = self.environment;
     json[@"storage_environment"] = self.storageEnvironment;
     json[@"realm"] = self.realm;
