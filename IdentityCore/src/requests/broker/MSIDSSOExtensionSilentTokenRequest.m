@@ -32,7 +32,7 @@
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationSilentTokenRequest+Parameters.h"
-#import "MSIDBrokerOperationSilentTokenRequest+SSORequest.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -114,9 +114,9 @@
             return;
         }
         
-        ASAuthorizationSingleSignOnRequest *ssoRequest = [operationRequest ssoRequestWithProvider:self.ssoProvider
-                                                                                          context:self.requestParameters
-                                                                                            error:&localError];
+        ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
+        [operationRequest.class operation];
+        ssoRequest.authorizationOptions = [[operationRequest jsonDictionary] msidQueryItems];
         
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
         self.authorizationController.delegate = self.extensionDelegate;

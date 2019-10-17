@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDBrokerOperationRequestFactory.h"
 #import "MSIDConstants.h"
@@ -30,14 +31,17 @@
 
 + (void)load
 {
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    }
 }
 
 #pragma mark - MSIDBrokerOperationRequest
 
 + (NSString *)operation
 {
-    return @"acquire_token_silent";
+    return ASAuthorizationOperationRefresh;
 }
 
 #pragma mark - MSIDJsonSerializable

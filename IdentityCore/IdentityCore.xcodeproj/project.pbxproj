@@ -239,12 +239,10 @@
 		23B018812355481800207FEC /* MSIDSSOExtensionSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0187A2355481800207FEC /* MSIDSSOExtensionSilentTokenRequest.m */; };
 		23B018822355481800207FEC /* MSIDSSOExtensionInteractiveTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0187B2355481800207FEC /* MSIDSSOExtensionInteractiveTokenRequest.m */; };
 		23B0189C23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0188C23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest.m */; };
-		23B0189D23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0188D23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.m */; };
 		23B0189E23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0188E23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.m */; };
 		23B0189F23554B2B00207FEC /* MSIDBrokerOperationTokenRequest+Parameteres.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0189023554B2B00207FEC /* MSIDBrokerOperationTokenRequest+Parameteres.m */; };
 		23B018A023554B2B00207FEC /* MSIDBrokerOperationTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0189123554B2B00207FEC /* MSIDBrokerOperationTokenRequest.m */; };
 		23B018A123554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0189823554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest.m */; };
-		23B018A223554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+SSORequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0189923554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+SSORequest.m */; };
 		23B018A323554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+Parameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B0189A23554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+Parameters.m */; };
 		23B018A623554B8700207FEC /* MSIDBrokerOperationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B018A423554B8700207FEC /* MSIDBrokerOperationRequest.m */; };
 		23B018BF2356D45900207FEC /* MSIDConfiguration+MSIDJsonSerializable.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B018BE2356D45900207FEC /* MSIDConfiguration+MSIDJsonSerializable.m */; };
@@ -1461,21 +1459,16 @@
 		23B018862355492F00207FEC /* MSIDSilentTokenRequesting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDSilentTokenRequesting.h; sourceTree = "<group>"; };
 		23B0188923554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationInteractiveTokenRequest.h; sourceTree = "<group>"; };
 		23B0188A23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h"; sourceTree = "<group>"; };
-		23B0188B23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h"; sourceTree = "<group>"; };
 		23B0188C23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationInteractiveTokenRequest.m; sourceTree = "<group>"; };
-		23B0188D23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.m"; sourceTree = "<group>"; };
 		23B0188E23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.m"; sourceTree = "<group>"; };
 		23B0189023554B2B00207FEC /* MSIDBrokerOperationTokenRequest+Parameteres.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDBrokerOperationTokenRequest+Parameteres.m"; sourceTree = "<group>"; };
 		23B0189123554B2B00207FEC /* MSIDBrokerOperationTokenRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationTokenRequest.m; sourceTree = "<group>"; };
 		23B0189223554B2B00207FEC /* MSIDBrokerOperationTokenRequest+Parameteres.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerOperationTokenRequest+Parameteres.h"; sourceTree = "<group>"; };
 		23B0189323554B2B00207FEC /* MSIDBrokerOperationTokenRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationTokenRequest.h; sourceTree = "<group>"; };
 		23B0189523554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationSilentTokenRequest.h; sourceTree = "<group>"; };
-		23B0189623554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+SSORequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerOperationSilentTokenRequest+SSORequest.h"; sourceTree = "<group>"; };
 		23B0189723554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDBrokerOperationSilentTokenRequest+Parameters.h"; sourceTree = "<group>"; };
 		23B0189823554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationSilentTokenRequest.m; sourceTree = "<group>"; };
-		23B0189923554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+SSORequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDBrokerOperationSilentTokenRequest+SSORequest.m"; sourceTree = "<group>"; };
 		23B0189A23554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+Parameters.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "MSIDBrokerOperationSilentTokenRequest+Parameters.m"; sourceTree = "<group>"; };
-		23B0189B23554B2B00207FEC /* MSIDSSORequestProviding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDSSORequestProviding.h; sourceTree = "<group>"; };
 		23B018A423554B8700207FEC /* MSIDBrokerOperationRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationRequest.m; sourceTree = "<group>"; };
 		23B018A523554B8700207FEC /* MSIDBrokerOperationRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationRequest.h; sourceTree = "<group>"; };
 		23B018BD2356D45900207FEC /* MSIDConfiguration+MSIDJsonSerializable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDConfiguration+MSIDJsonSerializable.h"; sourceTree = "<group>"; };
@@ -2619,7 +2612,6 @@
 		23B0188723554B2B00207FEC /* request */ = {
 			isa = PBXGroup;
 			children = (
-				23B0189B23554B2B00207FEC /* MSIDSSORequestProviding.h */,
 				23B018A523554B8700207FEC /* MSIDBrokerOperationRequest.h */,
 				23B018A423554B8700207FEC /* MSIDBrokerOperationRequest.m */,
 				23B0188F23554B2B00207FEC /* token_request */,
@@ -2636,8 +2628,6 @@
 				23B0188C23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest.m */,
 				23B0188A23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h */,
 				23B0188E23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.m */,
-				23B0188B23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h */,
-				23B0188D23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.m */,
 			);
 			path = interactive_token_request;
 			sourceTree = "<group>";
@@ -2660,8 +2650,6 @@
 				23B0189823554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest.m */,
 				23B0189723554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+Parameters.h */,
 				23B0189A23554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+Parameters.m */,
-				23B0189623554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+SSORequest.h */,
-				23B0189923554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+SSORequest.m */,
 			);
 			path = silent_token_request;
 			sourceTree = "<group>";
@@ -5360,7 +5348,6 @@
 				96CE53EA20C73E3A002E24C9 /* MSIDWebviewFactory.m in Sources */,
 				60F7BE8E21DA504900F1BBA1 /* MSIDPRTCacheItem.m in Sources */,
 				96235F99207D72A6007EAB36 /* MSIDWebAADAuthResponse.m in Sources */,
-				23B018A223554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest+SSORequest.m in Sources */,
 				23B018812355481800207FEC /* MSIDSSOExtensionSilentTokenRequest.m in Sources */,
 				0570FE81219E33FB00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.m in Sources */,
 				1E3C0ED5217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m in Sources */,
@@ -5505,7 +5492,6 @@
 				239E8F8E233D951D00251373 /* MSIDBrokerOperationRequestFactory.m in Sources */,
 				232173E22182A998009852C6 /* NSDictionary+MSIDJsonSerializable.m in Sources */,
 				B2C707F42192524700D917B8 /* MSIDDefaultTokenRequestProvider.m in Sources */,
-				23B0189D23554B2B00207FEC /* MSIDBrokerOperationInteractiveTokenRequest+SSORequest.m in Sources */,
 				B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */,
 				23CA0C65220A79DD00768729 /* NSDate+MSIDTestUtil.m in Sources */,
