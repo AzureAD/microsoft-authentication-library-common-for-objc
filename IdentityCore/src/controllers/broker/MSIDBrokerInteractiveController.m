@@ -176,29 +176,15 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
     self.requestCompletionBlock = completionBlockWrapper;
-
-    NSError *brokerError = nil;
-
-    NSData *brokerKey = [self.brokerKeyProvider brokerKeyWithError:&brokerError];
-
-    if (!brokerKey)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve broker key with error %@", MSID_PII_LOG_MASKABLE(brokerError));
-
-        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
-        completionBlockWrapper(nil, brokerError);
-        return;
-    }
-
-    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
-
+    
+    NSError *brokerError;
+    NSString *base64UrlKey = [self.brokerKeyProvider base64BrokerKeyWithContext:self.requestParameters
+                                                                          error:&brokerError];
+    
     if (!base64UrlKey)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Unable to base64 encode broker key");
-
-        NSError *brokerKeyError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, self.requestParameters.correlationId, nil);
-        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerKeyError];
-        completionBlockWrapper(nil, brokerKeyError);
+        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
+        completionBlockWrapper(nil, brokerError);
         return;
     }
 
