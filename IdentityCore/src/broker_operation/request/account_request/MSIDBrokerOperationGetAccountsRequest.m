@@ -22,13 +22,13 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationGetAccountsRequest.h"
-#import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDBrokerOperationGetAccountsRequest
 
 + (void)load
 {
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 #pragma mark - MSIDBrokerOperationRequest
