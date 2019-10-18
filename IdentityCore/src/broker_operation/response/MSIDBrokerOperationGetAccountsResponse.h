@@ -27,7 +27,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationAccountResponse : MSIDBrokerOperationResponse
+@interface MSIDBrokerOperationGetAccountsResponse : MSIDBrokerOperationResponse
 
 @property (nonatomic, nullable) NSArray<MSIDAccount *> *accounts;
 

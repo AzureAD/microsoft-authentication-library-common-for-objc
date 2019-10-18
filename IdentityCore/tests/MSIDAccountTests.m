@@ -36,7 +36,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAADAuthority.h"
 #import "NSString+MSIDTestUtil.h"
-#import "MSIDAccount+MSIDJsonSerializable.h"
+#import "MSIDIdTokenClaims.h"
 
 @interface MSIDAccountTests : XCTestCase
 
@@ -218,6 +218,11 @@
 
 - (void)testJsonDictionary_whenDeserialize_shouldGenerateCorrectJson {
     MSIDAccount *account = [self createAccount];
+    NSError *error;
+    account.idTokenClaims = [[MSIDIdTokenClaims alloc] initWithJSONDictionary:@{ @"sub" : @"abc",
+                                                                                 @"middle_name" : @"Middle" }
+                                                                        error:&error];
+    XCTAssertNil(error);
     
     NSDictionary *expectedJson = @{
         @"account_identifier" : @{
@@ -235,13 +240,17 @@
         @"middle_name" : @"Middle",
         @"realm" : @"common",
         @"storage_environment" : @"login.windows2.net",
-        @"username" : @"username"
+        @"username" : @"username",
+        @"id_token_claims" : @{ @"sub" : @"abc",
+                                @"middle_name" : @"Middle" }
     };
     
     XCTAssertEqualObjects(expectedJson, [account jsonDictionary]);
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValid_shouldInitWithJson {
+    NSDictionary *idTokenClaims = @{ @"sub" : @"abc",
+                                     @"middle_name" : @"Middle" };
     NSDictionary *json = @{
         @"account_identifier" : @{
                 @"home_account_id" : @"uid.utid",
@@ -258,7 +267,8 @@
         @"middle_name" : @"Middle",
         @"realm" : @"common",
         @"storage_environment" : @"login.windows2.net",
-        @"username" : @"username"
+        @"username" : @"username",
+        @"id_token_claims" : idTokenClaims
     };
     
     NSError *error;
@@ -279,6 +289,9 @@
     XCTAssertEqualObjects(account.name, @"Eric Middle Last");
     XCTAssertEqualObjects(account.clientInfo.rawClientInfo, [@{@"key" : @"value"} msidBase64UrlJson]);
     XCTAssertEqualObjects(account.alternativeAccountId, @"AltID");
+    XCTAssertEqualObjects(account.idTokenClaims.jsonDictionary, idTokenClaims);
+    XCTAssertEqualObjects(account.idTokenClaims.subject, @"abc");
+    XCTAssertEqualObjects(account.idTokenClaims.middleName, @"Middle");
 }
 
 - (void)testInitWithJSONDictionary_whenAccountIdentifierNotDictionary_shouldReturnNil {

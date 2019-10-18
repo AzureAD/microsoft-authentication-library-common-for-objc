@@ -22,17 +22,17 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDBrokerOperationAccountResponse.h"
-#import "MSIDAccount+MSIDJsonSerializable.h"
+#import "MSIDBrokerOperationGetAccountsResponse.h"
+#import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDClientInfo.h"
 
-@interface MSIDBrokerOperationAccountResponseTests : XCTestCase
+@interface MSIDBrokerOperationGetAccountsResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDBrokerOperationAccountResponseTests
+@implementation MSIDBrokerOperationGetAccountsResponseTests
 
 - (void)setUp {
 }
@@ -89,7 +89,7 @@
     };
 
     NSError *error;
-    MSIDBrokerOperationAccountResponse *response = [[MSIDBrokerOperationAccountResponse alloc] initWithJSONDictionary:json error:&error];
+    MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithJSONDictionary:json error:&error];
 
     XCTAssertNil(error);
     XCTAssertEqualObjects(response.applicationToken, @"app_token");
@@ -153,7 +153,7 @@
     MSIDAccount *account2 = [account copy];
     account2.realm = @"tenant";
     
-    MSIDBrokerOperationAccountResponse *response = [MSIDBrokerOperationAccountResponse new];
+    MSIDBrokerOperationGetAccountsResponse *response = [MSIDBrokerOperationGetAccountsResponse new];
     response.accounts = @[account, account2];
     response.operation = @"get_accounts";
     response.applicationToken = @"app_token";

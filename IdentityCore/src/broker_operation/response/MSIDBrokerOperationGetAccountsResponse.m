@@ -21,10 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationAccountResponse.h"
-#import "MSIDAccount+MSIDJsonSerializable.h"
+#import "MSIDBrokerOperationGetAccountsResponse.h"
+#import "MSIDAccount.h"
 
-@implementation MSIDBrokerOperationAccountResponse
+@implementation MSIDBrokerOperationGetAccountsResponse
 
 #pragma mark - MSIDJsonSerializable
 
