@@ -54,6 +54,7 @@
     if (self)
     {
         NSError *localError;
+        // We have flat json dictionary, that is why we are passing the whole json to the MSIDAccountIdentifier.
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:&localError];
         if (localError) MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to parse MSIDAccountIdentifier %@", MSID_PII_LOG_MASKABLE(localError));
         

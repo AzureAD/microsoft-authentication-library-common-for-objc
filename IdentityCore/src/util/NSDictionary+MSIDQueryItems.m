@@ -40,18 +40,13 @@
     {
         if (![[key class] isEqual:NSString.class])
         {
-            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: key '%@' is not a string.", key);
-            
-            [items removeAllObjects];
-
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: key '%@' is not a string.", [key class]);
             return;
         }
         
         if (![[value class] isEqual:NSString.class])
         {
-            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: value '%@' is not a string.", value);
-            
-            [items removeAllObjects];
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: value '%@' is not a string.", [value class]);
 
             return;
         }
