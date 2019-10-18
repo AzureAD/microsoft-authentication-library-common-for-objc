@@ -45,9 +45,11 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
     NSDictionary *configurationJson = [self.configuration jsonDictionary];
-    if (configurationJson) [json addEntriesFromDictionary:configurationJson];
+    if (!configurationJson) return nil;
+    [json addEntriesFromDictionary:configurationJson]
     
     return json;
 }

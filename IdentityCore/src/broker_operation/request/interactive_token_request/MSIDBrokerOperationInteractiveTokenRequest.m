@@ -78,6 +78,7 @@
     json[MSID_BROKER_LOGIN_HINT_KEY] = self.loginHint;
     
     NSString *promptString = MSIDPromptParamFromType(self.promptType);
+    if (!promptString) return nil;
     json[MSID_BROKER_PROMPT_KEY] = promptString;
     
     return json;

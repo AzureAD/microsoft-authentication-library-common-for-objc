@@ -60,8 +60,10 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
+    if (!self.brokerKey) return nil;
     json[MSID_BROKER_KEY] = self.brokerKey;
     json[MSID_BROKER_PROTOCOL_VERSION_KEY] = [@(self.protocolVersion) stringValue];
+    if (!self.protocolVersion) return nil;
     json[MSID_BROKER_CLIENT_VERSION_KEY] = self.clientVersion;
     json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
     json[MSID_BROKER_CLIENT_APP_NAME_KEY] = self.clientAppName;
