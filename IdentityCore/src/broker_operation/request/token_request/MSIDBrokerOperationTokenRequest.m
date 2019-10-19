@@ -49,7 +49,7 @@
     
     NSDictionary *configurationJson = [self.configuration jsonDictionary];
     if (!configurationJson) return nil;
-    [json addEntriesFromDictionary:configurationJson]
+    [json addEntriesFromDictionary:configurationJson];
     
     return json;
 }
