@@ -1,3 +1,9 @@
+Version 1.0.15
+-------------
+* Support removing RTs from other accessors
+* Fix UI thread warnings
+* Prevent auth controller from being swiped down
+
 Version 1.0.13
 ------------
 * Support new iOS 13 compatible broker
