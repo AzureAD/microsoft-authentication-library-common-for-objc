@@ -35,6 +35,7 @@
 #import "MSIDTelemetry.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDMainThreadUtil.h"
 
 @implementation MSIDWebviewAuthorization
 
@@ -63,7 +64,9 @@ static MSIDWebviewSession *s_currentSession = nil;
     MSIDWebviewFactory *webviewFactory = [oauth2Factory webviewFactory];
     MSIDWebviewSession *session = [webviewFactory embeddedWebviewSessionFromConfiguration:configuration customWebview:webview context:context];
     
-    [self startSession:session context:context completionHandler:completionHandler];
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        [self startSession:session context:context completionHandler:completionHandler];
+    }];
 }
 
 #endif
@@ -82,7 +85,9 @@ static MSIDWebviewSession *s_currentSession = nil;
                                                               allowSafariViewController:allowSafariViewController
                                                                                 context:context];
     
-    [self startSession:session context:context completionHandler:completionHandler];
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        [self startSession:session context:context completionHandler:completionHandler];
+    }];
 }
 #endif
 
