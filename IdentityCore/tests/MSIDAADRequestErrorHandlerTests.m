@@ -59,8 +59,8 @@
 
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock _Nullable)completionBlock
 {
-    self.sendWithBlockCounter++;
     self.passedBlock = completionBlock;
+    self.sendWithBlockCounter++;
 }
 
 @end
