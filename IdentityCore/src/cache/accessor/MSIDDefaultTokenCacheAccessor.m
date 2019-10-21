@@ -626,6 +626,17 @@
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_PII_LOG_MASKABLE(tokenInCache));
         return [self removeToken:tokenInCache context:context error:error];
     }
+    
+    // Clear RT from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor validateAndRemoveRefreshToken:token context:context error:error])
+        {
+            MSID_LOG_WARN(context, @"Failed to remove RT from other accessor: %@", accessor.class);
+            MSID_LOG_WARN(context, @"Failed to remove RT from other accessor:  %@, error %@", accessor.class, *error);
+            return NO;
+        }
+    }
 
     return YES;
 }

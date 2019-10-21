@@ -82,7 +82,6 @@
         return session;
     }
     
-    
     NSString *state = [self generateStateValue];
     NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
     NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
