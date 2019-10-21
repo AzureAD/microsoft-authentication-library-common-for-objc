@@ -449,8 +449,7 @@
     {
         if (![accessor validateAndRemoveRefreshToken:token context:context error:error])
         {
-            MSID_LOG_WARN(context, @"Failed to remove RT from other accessor: %@", accessor.class);
-            MSID_LOG_WARN(context, @"Failed to remove RT from other accessor:  %@, error %@", accessor.class, *error);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove RT from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(*error));
             return NO;
         }
     }
