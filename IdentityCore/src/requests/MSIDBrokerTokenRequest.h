@@ -26,6 +26,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDInteractiveRequestParameters;
+@class MSIDServersideTelemetry;
 
 @interface MSIDBrokerTokenRequest : NSObject
 
@@ -33,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
 @property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
 @property (nonatomic, readonly, nullable) NSString *brokerNonce;
+@property (nonatomic, nullable) MSIDServersideTelemetry *serversideTelemetry;
 
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey

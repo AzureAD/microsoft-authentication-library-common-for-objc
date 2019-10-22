@@ -22,32 +22,20 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
-#import "MSIDCacheAccessor.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDServersideTelemetry;
+NS_ASSUME_NONNULL_BEGIN
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@class MSIDTelemetry;
 
-@interface MSIDSilentTokenRequest : NSObject
+@interface MSIDServersideTelemetry : NSObject
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, nullable) MSIDServersideTelemetry *serversideTelemetry;
+@property NSDictionary *additionalTelemetry;
+// should this be MSIDTelemetryBaseEvent? do we really need/want to reuse the property?
+@property MSIDTelemetry *telemetryEvent;
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+// retrieve payload in key value pair
+@property (readonly) NSDictionary *payload;
 
 @end
+
+NS_ASSUME_NONNULL_END

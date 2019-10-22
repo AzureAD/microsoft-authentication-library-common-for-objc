@@ -30,6 +30,7 @@
 @class MSIDTokenResponseValidator;
 @class MSIDWebWPJResponse;
 @class MSIDAccountMetadataCacheAccessor;
+@class MSIDServersideTelemetry;
 
 #if TARGET_OS_OSX
 @class MSIDExternalAADCacheSeeder;
@@ -44,6 +45,8 @@ typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullabl
 @property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic, readonly, nonnull) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
+
+@property (nonatomic, nullable) MSIDServersideTelemetry *serversideTelemetry;
 
 #if TARGET_OS_OSX
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;

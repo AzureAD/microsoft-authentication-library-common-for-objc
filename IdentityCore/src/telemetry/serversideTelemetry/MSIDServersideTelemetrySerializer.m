@@ -21,33 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
-#import "MSIDCacheAccessor.h"
+#import "MSIDServersideTelemetrySerializer.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
-@class MSIDServersideTelemetry;
+@implementation MSIDServersideTelemetrySerializer
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
-
-@interface MSIDSilentTokenRequest : NSObject
-
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
-@property (nonatomic, nullable) MSIDServersideTelemetry *serversideTelemetry;
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
++ (NSString *)format:(NSDictionary *)payloadDict
+{
+    // make it conform to the format
+    return @"";
+}
 
 @end

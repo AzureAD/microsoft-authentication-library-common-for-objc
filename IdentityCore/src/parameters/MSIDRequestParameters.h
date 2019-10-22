@@ -77,6 +77,10 @@
 
 - (NSURL *)tokenEndpoint;
 
+#pragma mark - Additional serverside telemetry from ADAL/MSAL
+// These are SDK specific and most likely be static
+@property (nonatomic) NSDictionary *additionalTelemetry;
+
 #pragma mark Methods
 - (void)setCloudAuthorityWithCloudHostName:(NSString *)cloudHostName;
 - (NSString *)allTokenRequestScopes;

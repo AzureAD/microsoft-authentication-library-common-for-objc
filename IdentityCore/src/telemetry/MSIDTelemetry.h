@@ -23,6 +23,8 @@
 
 #import "MSIDTelemetryDispatcher.h"
 
+@class MSIDServersideTelemetryLast;
+
 /*!
     @class ADTelemetry
  
@@ -65,5 +67,10 @@
  Remove all telemetry dispatchers added to the dispatchers collection.
  */
 - (void)removeAllDispatchers;
+
+/*!
+ Last server side telemetry data
+*/
+@property (nullable) MSIDServersideTelemetryLast *lastTelemetry;
 
 @end

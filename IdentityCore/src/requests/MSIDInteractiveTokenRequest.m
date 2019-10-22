@@ -83,6 +83,8 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
+    // TODO: Serverside telemetry handling in resolve and/or loadOpenIdMetadata depending on
+    // whether or not we should send telemetry to all endpoints.
     NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.requestParameters.loginHint;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
@@ -244,8 +246,12 @@
                                                                                                                authCode:authCode
                                                                                                           homeAccountId:self.authCodeClientInfo.accountIdentifier];
 
+    // TODO:
+    //   add serverside telemetry to the tokenrequest
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {
+        
+        // TODO: handle serverside telemetry response and set last telemetry  in MSIDTelemetry
         if (error)
         {
             completionBlock(nil, error, nil);
