@@ -36,6 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *clientAppName;
 @property (nonatomic, nullable) NSUUID *correlationId;
 
++ (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
+keychainAccessGroup:(nullable NSString *)keychainAccessGroup
+     clientMetadata:(nullable NSDictionary *)clientMetadata
+            context:(nullable id<MSIDRequestContext>)context
+              error:(NSError * _Nullable * _Nullable)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

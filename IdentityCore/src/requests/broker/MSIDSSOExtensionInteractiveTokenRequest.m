@@ -31,7 +31,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
-#import "MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h"
+#import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>

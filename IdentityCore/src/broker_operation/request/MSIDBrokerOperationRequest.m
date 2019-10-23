@@ -23,6 +23,10 @@
 
 #import "MSIDBrokerOperationRequest.h"
 #import "MSIDConstants.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDBrokerKeyProvider.h"
+#import "MSIDVersion.h"
 
 @implementation MSIDBrokerOperationRequest
 
@@ -30,6 +34,34 @@
 {
     NSAssert(NO, @"Abstract method.");
     return @"";
+}
+
++ (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
+keychainAccessGroup:(NSString *)keychainAccessGroup
+     clientMetadata:(NSDictionary *)clientMetadata
+            context:(id<MSIDRequestContext>)context
+              error:(NSError **)error
+{
+    NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
+    __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+    NSError *brokerError = nil;
+    NSString *base64UrlKey = [brokerKeyProvider base64BrokerKeyWithContext:context
+                                                                     error:&brokerError];
+    
+    if (!base64UrlKey)
+    {
+        if (error) *error = brokerError;
+        return NO;
+    }
+    
+    request.brokerKey = base64UrlKey;
+    request.clientVersion = [MSIDVersion sdkVersion];
+    request.protocolVersion = MSID_BROKER_PROTOCOL_VERSION_4;
+    request.clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
+    request.clientAppName = clientMetadata[MSID_APP_NAME_KEY];
+    request.correlationId = context.correlationId;
+    
+    return YES;
 }
 
 #pragma mark - MSIDJsonSerializable

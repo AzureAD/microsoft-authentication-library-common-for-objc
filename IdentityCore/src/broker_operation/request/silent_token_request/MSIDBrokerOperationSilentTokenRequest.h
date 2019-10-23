@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 #import "MSIDBrokerOperationTokenRequest.h"
 
 @class MSIDConfiguration;
@@ -33,6 +33,9 @@ API_AVAILABLE(ios(13.0))
 @interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest
 
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+
++ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

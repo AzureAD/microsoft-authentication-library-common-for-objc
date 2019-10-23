@@ -22,10 +22,31 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationTokenRequest.h"
+#import "MSIDBrokerOperationRequest.h"
 #import "MSIDConfiguration+MSIDJsonSerializable.h"
 #import "MSIDConstants.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDBrokerKeyProvider.h"
+#import "MSIDVersion.h"
 
 @implementation MSIDBrokerOperationTokenRequest
+
++ (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
+     withParameters:(MSIDRequestParameters *)parameters
+              error:(NSError **)error
+{
+    BOOL result = [self fillRequest:request
+                keychainAccessGroup:parameters.keychainAccessGroup
+                     clientMetadata:parameters.appRequestMetadata
+                            context:parameters
+                              error:error];
+    if (!result) return NO;
+    
+    request.configuration = parameters.msidConfiguration;
+    
+    return YES;
+}
 
 #pragma mark - MSIDJsonSerializable
 

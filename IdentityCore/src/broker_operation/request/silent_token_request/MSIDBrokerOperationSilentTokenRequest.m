@@ -27,6 +27,7 @@
 #import "MSIDBrokerOperationRequestFactory.h"
 #import "MSIDConstants.h"
 #import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
+#import "MSIDRequestParameters.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 
@@ -36,6 +37,18 @@
     {
         [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
     }
+}
+
++ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                     error:(NSError **)error
+{
+    __auto_type request = [MSIDBrokerOperationSilentTokenRequest new];
+    BOOL result = [self fillRequest:request withParameters:parameters error:error];
+    if (!result) return nil;
+    
+    request.accountIdentifier = parameters.accountIdentifier;
+    
+    return request;
 }
 
 #pragma mark - MSIDBrokerOperationRequest

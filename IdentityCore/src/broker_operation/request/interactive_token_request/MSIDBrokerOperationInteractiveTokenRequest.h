@@ -21,12 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConstants.h"
 
 @class WKWebView;
 @class MSIDAccountIdentifier;
+@class MSIDInteractiveRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -36,6 +37,9 @@ API_AVAILABLE(ios(13.0))
 @property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic, nullable) NSString *loginHint;
 @property (nonatomic) MSIDPromptType promptType;
+
++ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

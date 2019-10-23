@@ -32,7 +32,7 @@
 #import "MSIDJsonSerializer.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
-#import "MSIDBrokerOperationSilentTokenRequest+Parameters.h"
+#import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>

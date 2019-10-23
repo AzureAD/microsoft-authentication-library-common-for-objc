@@ -23,6 +23,7 @@
 
 #import "MSIDBrokerOperationRequest.h"
 
+@class MSIDRequestParameters;
 @class MSIDConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -32,6 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDConfiguration *configuration;
 
 // TODO: add other properties.
+
++ (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
+     withParameters:(MSIDRequestParameters *)parameters
+              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 
