@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 #import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDBrokerOperationRequestFactory.h"
