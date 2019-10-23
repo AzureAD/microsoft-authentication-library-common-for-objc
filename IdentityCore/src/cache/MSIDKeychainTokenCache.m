@@ -427,16 +427,38 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
+    NSArray *metadataItems = [self accountsMetadataWithKey:key serializer:serializer context:context error:error];
+    if (!metadataItems) return nil;
     
-    if (!items || items.count < 1)
+    if (metadataItems.count < 1)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Found no metadata item.");
         return nil;
     }
     
-    NSData *itemData = [items[0] objectForKey:(id)kSecValueData];
-    return (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountMetadataCacheItem class]];
+    return metadataItems[0];
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                                                             context:(id<MSIDRequestContext>)context
+                                                               error:(NSError **)error
+{
+    NSArray *items = [self itemsWithKey:key context:context error:error];
+    if (!items) return nil;
+    
+    NSMutableArray *metadataItems = [NSMutableArray new];
+    for (NSDictionary *item in items)
+    {
+        NSData *itemData = [item objectForKey:(id)kSecValueData];
+        MSIDAccountMetadataCacheItem *metadata = (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountMetadataCacheItem class]];
+        if (metadata)
+        {
+            [metadataItems addObject:metadata];
+        }
+    }
+    
+    return metadataItems;
 }
 
 #pragma mark - Removal

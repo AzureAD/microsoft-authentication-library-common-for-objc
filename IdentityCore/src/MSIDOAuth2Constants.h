@@ -92,7 +92,7 @@ extern NSString *const MSID_ENVIRONMENT_CACHE_KEY;
 extern NSString *const MSID_REALM_CACHE_KEY;
 extern NSString *const MSID_AUTHORITY_CACHE_KEY;
 extern NSString *const MSID_HOME_ACCOUNT_ID_CACHE_KEY;
-extern NSString *const MSID_IS_SIGNED_OUT_CACHE_KEY;
+extern NSString *const MSID_SIGN_IN_STATE_CACHE_KEY;
 extern NSString *const MSID_ENROLLMENT_ID_CACHE_KEY;
 extern NSString *const MSID_CLIENT_ID_CACHE_KEY;
 extern NSString *const MSID_FAMILY_ID_CACHE_KEY;

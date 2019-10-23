@@ -47,27 +47,27 @@
 - (void)tearDown {
 }
 
-- (void)testSignedOutStateForHomeAccountId_whenHomeAccountIdNil_shouldReturnNil {
+- (void)testSignInStateForHomeAccountId_whenHomeAccountIdNil_shouldReturnErrorAndUnknown {
     NSError *error;
-    BOOL isSignedOut = [self.accountMetadataCache signedOutStateForHomeAccountId:nil clientId:@"client_id" context:nil error:&error];
+    MSIDAccountMetadataState signInState = [self.accountMetadataCache signInStateForHomeAccountId:nil clientId:@"client_id" context:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-    XCTAssertFalse(isSignedOut);
+    XCTAssertEqual(signInState, MSIDAccountMetadataStateUnknown);
 }
 
-- (void)testSignedOutStateForHomeAccountId_whenClientIdNil_shouldReturnNil {
+- (void)testSigneInStateForHomeAccountId_whenClientIdNil_shouldReturnNil {
     NSError *error;
-    BOOL isSignedOut = [self.accountMetadataCache signedOutStateForHomeAccountId:@"uid.utid" clientId:nil context:nil error:&error];
+    MSIDAccountMetadataState signInState = [self.accountMetadataCache signInStateForHomeAccountId:@"uid.utid" clientId:nil context:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
-    XCTAssertFalse(isSignedOut);
+    XCTAssertEqual(signInState, MSIDAccountMetadataStateUnknown);
 }
 
-- (void)testSignedOutStateForHomeAccountId_whenAllParametersPassed_shouldReturnState {
+- (void)testSignInStateForHomeAccountId_whenAllParametersPassed_shouldReturnState {
     //Save account metadata
     NSError *error;
     [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
@@ -79,10 +79,10 @@
                                             error:&error];
     XCTAssertNil(error);
     
-    BOOL isSignedOut = [self.accountMetadataCache signedOutStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" context:nil error:&error];
+    MSIDAccountMetadataState signInState = [self.accountMetadataCache signInStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" context:nil error:&error];
     
     XCTAssertNil(error);
-    XCTAssertFalse(isSignedOut);
+    XCTAssertEqual(signInState, MSIDAccountMetadataStateSignedIn);
 }
 
 - (void)testMarkSignedOutStateForHomeAccountId_whenHomeAccountIdNil_shouldReturnNil {
@@ -121,10 +121,10 @@
     XCTAssertNil(error);
     XCTAssertTrue(success);
     
-    BOOL isSignedOut = [self.accountMetadataCache signedOutStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" context:nil error:&error];
+    MSIDAccountMetadataState signInState = [self.accountMetadataCache signInStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" context:nil error:&error];
     
     XCTAssertNil(error);
-    XCTAssertTrue(isSignedOut);
+    XCTAssertEqual(signInState, MSIDAccountMetadataStateSignedOut);
 }
 
 @end

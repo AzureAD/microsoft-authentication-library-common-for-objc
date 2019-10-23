@@ -24,13 +24,20 @@
 #import "MSIDJsonSerializable.h"
 #import "MSIDKeyGenerator.h"
 
+typedef NS_ENUM(NSInteger, MSIDAccountMetadataState)
+{
+    MSIDAccountMetadataStateSignedIn = 0,
+    MSIDAccountMetadataStateSignedOut,
+    MSIDAccountMetadataStateUnknown
+};
+
 @interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
 @property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;
 @property (nonatomic, readonly) NSDictionary *internalMap;
 
-@property (nonatomic, readonly) BOOL isSignedOut;
+@property (nonatomic, readonly) MSIDAccountMetadataState signInState;
 
 + (instancetype)new NS_UNAVAILABLE;
 - (instancetype)init NS_UNAVAILABLE;
