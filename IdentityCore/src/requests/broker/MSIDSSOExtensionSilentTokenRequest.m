@@ -115,7 +115,7 @@
         }
         
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
-        [operationRequest.class operation];
+        ssoRequest.requestedOperation = [operationRequest.class operation];
         ssoRequest.authorizationOptions = [[operationRequest jsonDictionary] msidQueryItems];
         
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
