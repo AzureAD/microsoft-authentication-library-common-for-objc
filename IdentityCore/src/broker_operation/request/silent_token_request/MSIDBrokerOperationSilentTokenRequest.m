@@ -21,21 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDConstants.h"
+#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 
 + (void)load
 {
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    }
 }
 
 #pragma mark - MSIDBrokerOperationRequest
 
 + (NSString *)operation
 {
-    return @"acquire_token_silent";
+    return ASAuthorizationOperationRefresh;
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -46,7 +53,8 @@
     
     if (self)
     {
-        // TODO: implement
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
+        if (!_accountIdentifier) return nil;
     }
     
     return self;
@@ -55,10 +63,15 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    // TODO: implement
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (!accountIdentifierJson) return nil;
+    
+    [json addEntriesFromDictionary:accountIdentifierJson];
     
     return json;
 }
 
 @end
+#endif

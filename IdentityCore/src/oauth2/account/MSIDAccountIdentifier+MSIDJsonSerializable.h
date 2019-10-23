@@ -21,12 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationSilentTokenRequest.h"
-#import "MSIDSSORequestProviding.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationSilentTokenRequest (SSORequest) <MSIDSSORequestProviding>
+@interface MSIDAccountIdentifier (MSIDJsonSerializable) <MSIDJsonSerializable>
 
 @end
 

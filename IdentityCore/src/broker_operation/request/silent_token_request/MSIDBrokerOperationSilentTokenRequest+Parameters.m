@@ -21,8 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 #import "MSIDBrokerOperationSilentTokenRequest+Parameters.h"
-#import "MSIDBrokerOperationTokenRequest+Parameteres.h"
+#import "MSIDBrokerOperationTokenRequest+Parameters.h"
 #import "MSIDRequestParameters.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest (Parameters)
@@ -40,3 +41,4 @@
 }
 
 @end
+#endif

@@ -58,6 +58,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Falling back to local controller.");
             
             [self.fallbackController acquireToken:completionBlock];
+            return;
         }
         
         completionBlock(result, error);
@@ -77,11 +78,11 @@
 
 - (BOOL)shouldFallback:(NSError *)error
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking if we should fallback to fallbackController, error: %ld error domain: %@.", (long)error.code, error.domain);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking if we should fallback to fallback controller, error: %ld error domain: %@.", (long)error.code, error.domain);
     
     if (!self.fallbackController)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"fallbackController is nil, shouldFallback: NO");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"fallback controller is nil, SSO extension controller should fallback: NO");
         return NO;
     }
     
@@ -97,7 +98,7 @@
             shouldFallback = YES;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"shouldFallback: %@", shouldFallback ? @"YES" : @"NO");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"SSO extension controller should fallback: %@", shouldFallback ? @"YES" : @"NO");
     
     return shouldFallback;
 }

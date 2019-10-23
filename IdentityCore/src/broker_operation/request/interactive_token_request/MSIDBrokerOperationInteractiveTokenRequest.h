@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConstants.h"
 
@@ -29,6 +30,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+API_AVAILABLE(ios(13.0))
 @interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
 
 @property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
@@ -38,3 +40,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

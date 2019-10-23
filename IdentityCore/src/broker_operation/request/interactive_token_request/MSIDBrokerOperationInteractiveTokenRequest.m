@@ -21,22 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDPromptType_Internal.h"
+#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
 + (void)load
 {
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    }
 }
 
 #pragma mark - MSIDBrokerOperationRequest
 
 + (NSString *)operation
 {
-    return @"acquire_token_interactive";
+    return ASAuthorizationOperationLogin;
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -47,7 +54,15 @@
     
     if (self)
     {
-        // TODO: implement
+        NSError *localError;
+        // We have flat json dictionary, that is why we are passing the whole json to the MSIDAccountIdentifier.
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:&localError];
+        if (localError) MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to parse MSIDAccountIdentifier %@", MSID_PII_LOG_MASKABLE(localError));
+        
+        _loginHint = [json msidStringObjectForKey:MSID_BROKER_LOGIN_HINT_KEY];
+        
+        NSString *promptString = [json msidStringObjectForKey:MSID_BROKER_PROMPT_KEY];
+        _promptType = MSIDPromptTypeFromString(promptString);
     }
     
     return self;
@@ -56,10 +71,19 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    // TODO: implement
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (accountIdentifierJson) [json addEntriesFromDictionary:accountIdentifierJson];
+    
+    json[MSID_BROKER_LOGIN_HINT_KEY] = self.loginHint;
+    
+    NSString *promptString = MSIDPromptParamFromType(self.promptType);
+    if (!promptString) return nil;
+    json[MSID_BROKER_PROMPT_KEY] = promptString;
     
     return json;
 }
 
 @end
+#endif

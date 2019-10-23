@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationTokenRequest.h"
+#import "MSIDConfiguration+MSIDJsonSerializable.h"
 #import "MSIDConstants.h"
 
 @implementation MSIDBrokerOperationTokenRequest
@@ -34,7 +35,8 @@
     
     if (self)
     {
-        // TODO: implement
+        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:json error:error];
+        if (!_configuration) return nil;
     }
     
     return self;
@@ -43,8 +45,11 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    // TODO: implement
+    NSDictionary *configurationJson = [self.configuration jsonDictionary];
+    if (!configurationJson) return nil;
+    [json addEntriesFromDictionary:configurationJson];
     
     return json;
 }

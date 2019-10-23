@@ -21,7 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 #import <AuthenticationServices/AuthenticationServices.h>
+#endif
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
@@ -31,7 +33,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h"
-#import "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -108,9 +110,9 @@
             return;
         }
         
-        ASAuthorizationSingleSignOnRequest *ssoRequest = [operationRequest ssoRequestWithProvider:self.ssoProvider
-                                                                                          context:self.requestParameters
-                                                                                            error:&localError];
+        ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
+        ssoRequest.requestedOperation = [operationRequest.class operation];
+        ssoRequest.authorizationOptions = [[operationRequest jsonDictionary] msidQueryItems];
         
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
         self.authorizationController.delegate = self.extensionDelegate;

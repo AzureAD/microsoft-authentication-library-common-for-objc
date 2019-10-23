@@ -21,18 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenRequest.h"
+#import "MSIDBrokerOperationTokenRequest+Parameters.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDBrokerKeyProvider.h"
+#import "MSIDVersion.h"
 
-@class MSIDRequestParameters;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrokerOperationTokenRequest (Parameteres)
+@implementation MSIDBrokerOperationTokenRequest (Parameters)
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
-              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+              error:(NSError **)error
+{
+    NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
+    __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
+    NSError *brokerError = nil;
+    NSString *base64UrlKey = [brokerKeyProvider base64BrokerKeyWithContext:parameters
+                                                                     error:&brokerError];
+    
+    if (!base64UrlKey)
+    {
+        if (error) *error = brokerError;
+        return NO;
+    }
+    
+    request.brokerKey = base64UrlKey;
+    request.clientVersion = [MSIDVersion sdkVersion];
+    request.protocolVersion = MSID_BROKER_PROTOCOL_VERSION_4;
+    NSDictionary *clientMetadata = parameters.appRequestMetadata;
+    request.clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
+    request.clientAppName = clientMetadata[MSID_APP_NAME_KEY];
+    request.correlationId = parameters.correlationId;
+    request.configuration = parameters.msidConfiguration;
+    
+    return YES;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

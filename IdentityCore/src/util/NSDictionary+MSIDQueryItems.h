@@ -21,12 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationInteractiveTokenRequest.h"
-#import "MSIDSSORequestProviding.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationInteractiveTokenRequest (SSORequest) <MSIDSSORequestProviding>
+@interface NSDictionary (MSIDQueryItems)
+
++ (instancetype)msidDictionaryFromQueryItems:(NSArray<NSURLQueryItem *> *)queryItems;
+
+- (NSArray<NSURLQueryItem *> *)msidQueryItems;
 
 @end
 

@@ -21,24 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-#import "MSIDSSOExtensionRequestDelegate.h"
-
-@class MSIDJsonSerializer;
+#import "MSIDConfiguration.h"
+#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSOExtensionRequestDelegate ()
-
-@property (nonatomic, readonly) MSIDJsonSerializer *jsonSerializer;
-
-- (ASAuthorizationSingleSignOnCredential *)ssoCredentialFromCredential:(id <ASAuthorizationCredential>)credential
-                                                                 error:(NSError **)error;
-
-- (NSDictionary *)jsonPayloadFromSSOCredential:(ASAuthorizationSingleSignOnCredential *)ssoCredential
-                                         error:(NSError **)error;
+@interface MSIDConfiguration (MSIDJsonSerializable) <MSIDJsonSerializable>
 
 @end
 
 NS_ASSUME_NONNULL_END
-#endif

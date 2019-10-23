@@ -21,18 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDBrokerOperationInteractiveTokenRequest+SSORequest.h"
+#import "MSIDBrokerOperationTokenRequest.h"
 
-@implementation MSIDBrokerOperationInteractiveTokenRequest (SSORequest)
+@class MSIDRequestParameters;
 
-- (ASAuthorizationSingleSignOnRequest *)ssoRequestWithProvider:(ASAuthorizationSingleSignOnProvider *)provider
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error API_AVAILABLE(ios(13.0))
-{
-    // TODO: implement
-    
-    return nil;
-}
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDBrokerOperationTokenRequest (Parameters)
+
++ (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
+     withParameters:(MSIDRequestParameters *)parameters
+              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

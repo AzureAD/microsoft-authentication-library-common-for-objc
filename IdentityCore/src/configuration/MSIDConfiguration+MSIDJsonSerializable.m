@@ -21,15 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDBrokerOperationSilentTokenRequest+SSORequest.h"
-#import "MSIDJsonSerializer.h"
+#import "MSIDConfiguration+MSIDJsonSerializable.h"
+#import "MSIDAADAuthority.h"
 
-@implementation MSIDBrokerOperationSilentTokenRequest (SSORequest)
+@implementation MSIDConfiguration (MSIDJsonSerializable)
 
-- (ASAuthorizationSingleSignOnRequest *)ssoRequestWithProvider:(ASAuthorizationSingleSignOnProvider *)provider
-                                                       context:(id<MSIDRequestContext>)context
-                                                         error:(NSError **)error API_AVAILABLE(ios(13.0))
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    // TODO: implement
+    
+    return nil;
+}
+
+- (NSDictionary *)jsonDictionary
 {
     // TODO: implement
     

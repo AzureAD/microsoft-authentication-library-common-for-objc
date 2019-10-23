@@ -47,7 +47,7 @@
     [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
     NSString *promptParam = MSIDPromptParamFromType(self.requestParameters.promptType);
     [contents msidSetNonEmptyString:promptParam forKey:@"prompt"];
-    [contents setValue:@"3" forKey:MSID_BROKER_PROTOCOL_VERSION_KEY];
+    [contents setValue:@(MSID_BROKER_PROTOCOL_VERSION_3) forKey:MSID_BROKER_PROTOCOL_VERSION_KEY];
     
     return contents;
 }

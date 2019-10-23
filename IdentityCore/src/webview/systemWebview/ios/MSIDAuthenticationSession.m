@@ -38,7 +38,9 @@
 #import "MSIDBackgroundTaskManager.h"
 #if !MSID_EXCLUDE_WEBKIT
 #import <SafariServices/SafariServices.h>
-#import <AuthenticationServices/AuthenticationServices.h>
+    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+        #import <AuthenticationServices/AuthenticationServices.h>
+    #endif
 #endif
 #import "UIApplication+MSIDExtensions.h"
 
