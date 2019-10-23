@@ -58,6 +58,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Falling back to local controller.");
             
             [self.fallbackController acquireToken:completionBlock];
+            return;
         }
         
         completionBlock(result, error);
