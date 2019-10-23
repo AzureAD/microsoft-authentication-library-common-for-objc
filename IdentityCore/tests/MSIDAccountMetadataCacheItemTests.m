@@ -67,7 +67,7 @@
     __auto_type *expected = @{ @"account_metadata" : @{ @"URLMap-" : @{ @"https://testAuthority.com" : @"https://contoso.com", @"https://testAuthority2.com" : @"https://contoso2.com"}, @"URLMap-instance_aware=YES" :  @{ @"https://testAuthority3.com" : @"https://contoso3.com"} },
                                @"client_id" : @"clientId",
                                @"home_account_id" : @"homeAccountId",
-                               @"is_signed_out" : @"NO"
+                               @"sign_in_state" : @"0"
     };
     
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expected);
@@ -87,7 +87,7 @@
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"homeAccountId");
     XCTAssertEqualObjects(cacheItem.clientId, @"clientId");
-    XCTAssertEqual(cacheItem.isSignedOut, NO);
+    XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedIn);
     XCTAssertNil([cacheItem cachedURL:[NSURL URLWithString:@"https://testAuthority.com"] instanceAware:NO]);
 }
 
@@ -180,7 +180,7 @@
     XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);
 }
 
-- (void)testSetCachedURL_whenSetCacheURL_shouldSetSignedOutStateNo
+- (void)testSetCachedURL_whenSetCacheURL_shouldSetSignInStateSignedIn
 {
     NSError *error = nil;
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
@@ -188,11 +188,11 @@
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
                             instanceAware:NO
                                     error:&error]);
-    XCTAssertEqual(cacheItem.isSignedOut, NO);
+    XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedIn);
     
     // Mark signed out
     [cacheItem markSignedOut];
-    XCTAssertEqual(cacheItem.isSignedOut, YES);
+    XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedOut);
     
     // Set URL again
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso2.com"]
@@ -204,7 +204,7 @@
     NSDictionary *expectedMap = @{ @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}
                                    };
     XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);
-    XCTAssertEqual(cacheItem.isSignedOut, NO);
+    XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedIn);
 }
 
 - (void)testCachedURL_withCachedRequestURLNotMapped_shouldReturnNil
@@ -223,7 +223,7 @@
                                                                @"URLMap-instance_aware=YES" : @{
                                                                        @"https://testAuthority3.com" : @"https://contoso3.com"}
                                       },
-                                      @"is_signed_out" : @"YES"
+                                      @"sign_in_state" : @"1"
     };
     
     NSError *error = nil;
@@ -276,7 +276,7 @@
                                                                @"URLMap-instance_aware=YES" : @{
                                                                        @"https://testAuthority3.com" : @"https://contoso3.com"}
                                       },
-                                      @"is_signed_out" : @"YES"
+                                      @"sign_in_state" : @"1"
     };
     
     NSDictionary *jsonDictionary2 = @{ @"client_id" : @"clientId",
@@ -287,7 +287,7 @@
                                                                @"URLMap-instance_aware=YES" : @{
                                                                        @"https://testAuthority3.com" : @"https://contoso3.com"}
                                       },
-                                      @"is_signed_out" : @"NO"
+                                      @"sign_in_state" : @"0"
     };
     
     NSError *error = nil;
@@ -319,7 +319,7 @@
     
     NSDictionary *expectedMap = @{};
     XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);
-    XCTAssertEqual(cacheItem.isSignedOut, YES);
+    XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedOut);
 }
 
 @end

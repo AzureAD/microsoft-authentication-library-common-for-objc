@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDAccountMetadataCacheItem.h"
+
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
 @class MSIDAuthority;
@@ -47,14 +49,19 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-- (BOOL)signedOutStateForHomeAccountId:(NSString *)homeAccountId
-                              clientId:(NSString *)clientId
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error;
+- (MSIDAccountMetadataState)signInStateForHomeAccountId:(NSString *)homeAccountId
+                                               clientId:(NSString *)clientId
+                                                context:(id<MSIDRequestContext>)context
+                                                  error:(NSError **)error;
 
 - (BOOL)markSignedOutStateForHomeAccountId:(NSString *)homeAccountId
                                   clientId:(NSString *)clientId
                                    context:(id<MSIDRequestContext>)context
                                      error:(NSError **)error;
+
+// Load account metadata to memory
+- (BOOL)loadAccountMetadataForClientId:(NSString *)clientId
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error;
 
 @end
