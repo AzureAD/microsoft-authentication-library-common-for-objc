@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "MSIDConstants.h"
 
 @implementation ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 
@@ -31,7 +32,7 @@
     static ASAuthorizationSingleSignOnProvider *ssoProvider;
     
     dispatch_once(&once, ^{
-        NSURL *url = [NSURL URLWithString:@"https://login.microsoftonline.com"];
+        NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
     
         ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
     });
