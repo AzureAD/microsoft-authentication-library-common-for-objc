@@ -86,8 +86,17 @@ extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID;
 extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID_DF;
 extern NSString * _Nonnull const MSID_BROKER_MAX_PROTOCOL_VERSION;
 extern NSString * _Nonnull const MSID_BROKER_PROTOCOL_VERSION_KEY;
+/**
+ This protocol is being used in ADAL for URL scheme requests to broker.
+ */
 extern NSInteger const MSID_BROKER_PROTOCOL_VERSION_2;
+/**
+This protocol is being used in MSAL for URL scheme requests to broker.
+*/
 extern NSInteger const MSID_BROKER_PROTOCOL_VERSION_3;
+/**
+This protocol is being used in MSAL for XPC requests to SSO extension.
+*/
 extern NSInteger const MSID_BROKER_PROTOCOL_VERSION_4;
 extern NSString * _Nonnull const MSID_BROKER_OPERATION_KEY;
 extern NSString * _Nonnull const MSID_BROKER_KEY;
