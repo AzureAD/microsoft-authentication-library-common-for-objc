@@ -60,7 +60,11 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    if (!self.brokerKey) return nil;
+    if (!self.brokerKey)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, brokerKey is nil.", self.class);
+        return nil;
+    }
     json[MSID_BROKER_KEY] = self.brokerKey;
     json[MSID_BROKER_PROTOCOL_VERSION_KEY] = [@(self.protocolVersion) stringValue];
     if (!self.protocolVersion) return nil;
