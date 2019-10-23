@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 
 @class MSIDInteractiveRequestParameters;
@@ -35,3 +36,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
