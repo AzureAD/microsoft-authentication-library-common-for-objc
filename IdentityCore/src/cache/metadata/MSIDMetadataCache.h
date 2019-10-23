@@ -46,4 +46,9 @@
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error;
 
+// Load account metadata to memory
+- (BOOL)loadAccountMetadataForKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error;
+
 @end
