@@ -59,6 +59,44 @@
     XCTAssertNil(result);
 }
 
+- (void)testCopyAndGetObject_whenKeyIsNil_shouldReturnNil
+{
+    MSIDCache *cache = [MSIDCache new];
+    id key = nil;
+    
+    id result = [cache copyAndCleanObjectForKey:key];
+    
+    XCTAssertNil(result);
+}
+
+- (void)testCopyAndGetObject_whenObjectDoesNotExist_shouldReturnNil
+{
+    MSIDCache *cache = [MSIDCache new];
+    [cache setObject:@"v1" forKey:@"k1"];
+    id key = @"v2";
+    
+    id result = [cache copyAndCleanObjectForKey:key];
+    
+    XCTAssertNil(result);
+    XCTAssertEqual([cache count], 1);
+}
+
+- (void)testCopyAndGetObject_whenObjectExists_shouldReturnObject
+{
+    MSIDCache *cache = [MSIDCache new];
+    [cache setObject:@"v1" forKey:@"k1"];
+    [cache setObject:@"v2" forKey:@"k2"];
+    id key = @"k2";
+    
+    id result = [cache copyAndCleanObjectForKey:key];
+    
+    XCTAssertEqualObjects(result, @"v2");
+    XCTAssertEqual([cache count], 1);
+    
+    id remainingObject = [cache objectForKey:@"k1"];
+    XCTAssertEqualObjects(remainingObject, @"v1");
+}
+
 - (void)testSetObject_whenSetSuccessfully_shouldReturnSameOnObjectForKey
 {
     __auto_type cache = [MSIDCache new];

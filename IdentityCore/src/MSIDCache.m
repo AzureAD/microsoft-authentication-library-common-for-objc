@@ -64,6 +64,11 @@
 
 - (id)copyAndCleanObjectForKey:(id)key
 {
+    if (!key)
+    {
+        return nil;
+    }
+    
     __block id object;
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         object = self.container[key];
