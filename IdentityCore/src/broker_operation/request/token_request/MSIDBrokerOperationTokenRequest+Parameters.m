@@ -48,7 +48,7 @@
     
     request.brokerKey = base64UrlKey;
     request.clientVersion = [MSIDVersion sdkVersion];
-    request.protocolVersion = 4;
+    request.protocolVersion = MSID_BROKER_PROTOCOL_VERSION_4;
     NSDictionary *clientMetadata = parameters.appRequestMetadata;
     request.clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
     request.clientAppName = clientMetadata[MSID_APP_NAME_KEY];
