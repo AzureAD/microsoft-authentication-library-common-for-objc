@@ -41,7 +41,6 @@
     
     if (!base64UrlKey)
     {
-        // TODO: add telemetry.
         if (error) *error = brokerError;
         return NO;
     }
