@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenRequest+Parameteres.h"
+#import "MSIDBrokerOperationTokenRequest+Parameters.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
 
-@implementation MSIDBrokerOperationTokenRequest (Parameteres)
+@implementation MSIDBrokerOperationTokenRequest (Parameters)
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
@@ -35,7 +35,7 @@
 {
     NSString *accessGroup = parameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
     __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-        NSError *brokerError = nil;
+    NSError *brokerError = nil;
     NSString *base64UrlKey = [brokerKeyProvider base64BrokerKeyWithContext:parameters
                                                                      error:&brokerError];
     

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationInteractiveTokenRequest+InteractiveParameters.h"
-#import "MSIDBrokerOperationTokenRequest+Parameteres.h"
+#import "MSIDBrokerOperationTokenRequest+Parameters.h"
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
 

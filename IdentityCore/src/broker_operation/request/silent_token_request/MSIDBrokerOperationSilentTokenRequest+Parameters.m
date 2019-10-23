@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationSilentTokenRequest+Parameters.h"
-#import "MSIDBrokerOperationTokenRequest+Parameteres.h"
+#import "MSIDBrokerOperationTokenRequest+Parameters.h"
 #import "MSIDRequestParameters.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest (Parameters)
