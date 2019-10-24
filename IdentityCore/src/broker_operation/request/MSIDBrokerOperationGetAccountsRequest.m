@@ -27,7 +27,22 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super initWithJSONDictionary:json error:error];
+    if (self)
+    {
+        if (![json msidAssertType:NSDictionary.class ofKey:@"request_parameters" required:YES error:error]) return nil;
+        
+        NSDictionary *requestParameters = json[@"request_parameters"];
+        
+        _clientId = requestParameters[@"client_id"];
+        if (!_clientId)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"client id is missing in get accounts operation call!", nil, nil, nil, nil, nil);
+            }
+            return nil;
+        }
+    }
     
     return self;
 }
@@ -35,6 +50,12 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    
+    NSMutableDictionary *requestParametersJson = [json[@"request_parameters"] mutableCopy];
+    if (!requestParametersJson) return nil;
+    [requestParametersJson setValue:self.clientId forKey:@"client_id"];
+    
+    json[@"request_parameters"] = requestParametersJson;
     
     return json;
 }
