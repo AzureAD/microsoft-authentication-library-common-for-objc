@@ -23,7 +23,7 @@
 
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDBrokerOperationRequest.h"
-#import "MSIDConfiguration+MSIDJsonSerializable.h"
+#import "MSIDConfiguration.h"
 #import "MSIDConstants.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDKeychainTokenCache.h"

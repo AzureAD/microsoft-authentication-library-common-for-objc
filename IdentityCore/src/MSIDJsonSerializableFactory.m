@@ -21,30 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationRequestFactory.h"
-#import "MSIDBrokerOperationRequest.h"
+#import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializable.h"
-#import "NSDictionary+MSIDExtensions.h"
-#import "MSIDConstants.h"
 
-static NSMutableDictionary *s_operationRequestClasses = nil;
+static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container = nil;
 
-@implementation MSIDBrokerOperationRequestFactory
+@implementation MSIDJsonSerializableFactory
 
-+ (void)registerOperationRequestClass:(Class<MSIDJsonSerializable>)operationRequestClass
-                            operation:(NSString *)operation
++ (void)registertClass:(Class<MSIDJsonSerializable>)class forKey:(NSString *)key
 {
-    if (!operationRequestClass || !operation) return;
-    if ([operationRequestClass isKindOfClass:MSIDBrokerOperationRequest.class]) return;
+    if (!class || !key) return;
+    if (![key isKindOfClass:NSString.class]) return;
+    if (![class conformsToProtocol:@protocol(MSIDJsonSerializable)]) return;
     
     @synchronized(self)
     {
         static dispatch_once_t once;
         dispatch_once(&once, ^{
-            s_operationRequestClasses = [NSMutableDictionary new];
+            s_container = [NSMutableDictionary new];
         });
         
-        s_operationRequestClasses[operation] = operationRequestClass;
+        s_container[key] = class;
     }
 }
 
@@ -52,21 +49,22 @@ static NSMutableDictionary *s_operationRequestClasses = nil;
 {
     @synchronized(self)
     {
-        [s_operationRequestClasses removeAllObjects];
+        [s_container removeAllObjects];
     }
 }
 
-- (MSIDBrokerOperationRequest *)operationRequestFromJSONDictionary:(NSDictionary *)json
-                                                             error:(NSError **)error
++ (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
+                                        classTypeKey:(NSString *)classTypeKey
+                                               error:(NSError **)error
 {
-    if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_KEY required:YES error:error]) return nil;
-    NSString *operation = json[MSID_BROKER_OPERATION_KEY];
+    if (![json msidAssertType:NSString.class ofKey:classTypeKey required:YES error:error]) return nil;
+    NSString *containerKey = json[classTypeKey];
     
-    Class operationRequestClass = s_operationRequestClasses[operation];
+    Class class = (Class<MSIDJsonSerializable>)s_container[containerKey];
     
-    if (!operationRequestClass)
+    if (!class)
     {
-        NSString *errorMessage = [NSString stringWithFormat:@"Unknown broker operation: %@", operation];
+        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, class: %@ wasn't registered in factory under %@ key.", class, classTypeKey];
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain,
@@ -79,7 +77,7 @@ static NSMutableDictionary *s_operationRequestClasses = nil;
         return nil;
     }
     
-    return [[(Class)operationRequestClass alloc] initWithJSONDictionary:json error:error];
+    return [[(Class)class alloc] initWithJSONDictionary:json error:error];
 }
 
 @end

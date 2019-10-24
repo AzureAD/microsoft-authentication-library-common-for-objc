@@ -31,6 +31,7 @@
 #import "MSIDB2CAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSURL+MSIDAADUtils.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @interface MSIDAADAuthority()
 
@@ -39,6 +40,11 @@
 @end
 
 @implementation MSIDAADAuthority
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registertClass:self forKey:self.authorityType];
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -240,6 +246,11 @@
 }
 
 #pragma mark - Protected
+
++ (NSString *)authorityType
+{
+    return @"aad";
+}
 
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(id<MSIDRequestContext>)context

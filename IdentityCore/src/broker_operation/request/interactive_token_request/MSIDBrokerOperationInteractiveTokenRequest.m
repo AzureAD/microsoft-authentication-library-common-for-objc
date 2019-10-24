@@ -25,9 +25,9 @@
 #import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDPromptType_Internal.h"
-#import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDJsonSerializableFactory.h"
 #import "MSIDPromptType_Internal.h"
-#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
+#import "MSIDAccountIdentifier.h"
 #import "MSIDInteractiveRequestParameters.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
@@ -36,7 +36,7 @@
 {
     if (@available(iOS 13.0, *))
     {
-        [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+        [MSIDJsonSerializableFactory registertClass:self forKey:self.operation];
     }
 }
 

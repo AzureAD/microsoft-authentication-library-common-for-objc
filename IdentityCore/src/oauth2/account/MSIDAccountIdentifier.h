@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
 @class MSIDClientInfo;
 @class MSIDMaskedHashableLogParameter;
@@ -34,7 +35,7 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
     MSIDLegacyIdentifierTypeUniqueNonDisplayableId
 };
 
-@interface MSIDAccountIdentifier : NSObject <NSCopying>
+@interface MSIDAccountIdentifier : NSObject <NSCopying, MSIDJsonSerializable>
 
 @property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *displayableId;
@@ -47,10 +48,10 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
 @property (nonatomic, readonly) MSIDMaskedUsernameLogParameter *maskedDisplayableId;
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                        clientInfo:(MSIDClientInfo *)clientInfo;
+                           clientInfo:(MSIDClientInfo *)clientInfo;
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                          homeAccountId:(NSString *)homeAccountId;
+                        homeAccountId:(NSString *)homeAccountId;
 
 + (NSString *)legacyAccountIdentifierTypeAsString:(MSIDLegacyAccountIdentifierType)type;
 + (MSIDLegacyAccountIdentifierType)legacyAccountIdentifierTypeFromString:(NSString *)typeString;

@@ -38,13 +38,13 @@
     NSMutableArray *items = [NSMutableArray new];
     [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop)
     {
-        if (![[key class] isEqual:NSString.class])
+        if (![key isKindOfClass:NSString.class])
         {
             MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: key '%@' is not a string.", [key class]);
             return;
         }
         
-        if (![[value class] isEqual:NSString.class])
+        if (![value isKindOfClass:NSString.class])
         {
             MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: value '%@' is not a string.", [value class]);
 

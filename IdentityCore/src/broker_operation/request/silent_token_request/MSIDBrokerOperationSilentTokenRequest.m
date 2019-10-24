@@ -24,9 +24,9 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 #import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
 #import "MSIDBrokerOperationSilentTokenRequest.h"
-#import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDJsonSerializableFactory.h"
 #import "MSIDConstants.h"
-#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
+#import "MSIDAccountIdentifier.h"
 #import "MSIDRequestParameters.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest
@@ -35,7 +35,7 @@
 {
     if (@available(iOS 13.0, *))
     {
-        [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+        [MSIDJsonSerializableFactory registertClass:self forKey:self.operation];
     }
 }
 

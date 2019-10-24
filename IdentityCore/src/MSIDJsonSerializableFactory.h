@@ -21,12 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountIdentifier.h"
-#import "MSIDJsonSerializable.h"
+#import <Foundation/Foundation.h>
+
+@protocol MSIDJsonSerializable;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAccountIdentifier (MSIDJsonSerializable) <MSIDJsonSerializable>
+@interface MSIDJsonSerializableFactory : NSObject
+
++ (void)registertClass:(Class<MSIDJsonSerializable>)value forKey:(NSString *)key;
+
++ (void)unregisterAll;
+
++ (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
+                                        classTypeKey:(NSString *)classTypeKey
+                                               error:(NSError **)error;
 
 @end
 
