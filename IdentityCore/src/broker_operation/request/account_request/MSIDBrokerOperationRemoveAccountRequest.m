@@ -51,33 +51,31 @@
     self = [super initWithJSONDictionary:json error:error];
     
     if (self)
+    {
+        if (![json msidAssertType:NSDictionary.class ofKey:@"request_parameters" required:YES error:error]) return nil;
+        NSDictionary *requestParameters = json[@"request_parameters"];
+        
+        if (![requestParameters msidAssertType:NSDictionary.class ofKey:@"account_identifier" required:YES error:error])
         {
-            if (![json msidAssertType:NSDictionary.class ofKey:@"request_parameters" required:YES error:error]) return nil;
-            NSDictionary *requestParameters = json[@"request_parameters"];
-            
-            if (![requestParameters msidAssertType:NSDictionary.class ofKey:@"account_identifier" required:YES error:error])
-            {
-                return nil;
-            }
-            _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters[@"account_identifier"] error:error];
-            if (!_accountIdentifier || !_accountIdentifier.homeAccountId)
-            {
-                if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"At least homeAccountId is required for remove account operation!", nil, nil, nil, nil, nil);
-                return nil;
-            }
-            
-            _clientId = [requestParameters msidStringObjectForKey:@"client_id"];
-            if (!_clientId)
-            {
-                if (error)
-                {
-                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"client id is missing in remove account operation call!", nil, nil, nil, nil, nil);
-                }
-                return nil;
-            }
+            return nil;
+        }
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters[@"account_identifier"] error:error];
+        if (!_accountIdentifier || !_accountIdentifier.homeAccountId)
+        {
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"At least homeAccountId is required for remove account operation!", nil, nil, nil, nil, nil);
+            return nil;
         }
         
-        return self;
+        _clientId = [requestParameters msidStringObjectForKey:@"client_id"];
+        if (!_clientId)
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"client id is missing in remove account operation call!", nil, nil, nil, nil, nil);
+            }
+            return nil;
+        }
+    }
     
     return self;
 }
