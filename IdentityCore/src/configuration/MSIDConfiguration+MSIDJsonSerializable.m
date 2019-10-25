@@ -21,33 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
-#import "MSIDConstants.h"
+#import "MSIDConfiguration+MSIDJsonSerializable.h"
+#import "MSIDAADAuthority.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@implementation MSIDConfiguration (MSIDJsonSerializable)
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+#pragma mark - MSIDJsonSerializable
 
-@interface MSIDSilentTokenRequest : NSObject
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    // TODO: implement
+    
+    return nil;
+}
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (NSDictionary *)jsonDictionary
+{
+    // TODO: implement
+    
+    return nil;
+}
 
 @end

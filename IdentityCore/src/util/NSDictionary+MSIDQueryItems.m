@@ -21,30 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
-@implementation MSIDBrokerOperationTokenRequest
+@implementation NSDictionary (MSIDQueryItems)
 
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
++ (instancetype)msidDictionaryFromQueryItems:(NSArray<NSURLQueryItem *> *)queryItems
 {
-    self = [super initWithJSONDictionary:json error:error];
+    NSMutableDictionary *dictionary = [NSMutableDictionary new];
+    for (NSURLQueryItem *item in queryItems) dictionary[item.name] = item.value;
     
-    if (self)
-    {
-        // TODO: implement.
-    }
-    
-    return self;
+    return dictionary;
 }
 
-- (NSDictionary *)jsonDictionary
+- (NSArray<NSURLQueryItem *> *)msidQueryItems
 {
-    // TODO: implement.
+    NSMutableArray *items = [NSMutableArray new];
+    [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop)
+    {
+        if (![[key class] isEqual:NSString.class])
+        {
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: key '%@' is not a string.", [key class]);
+            return;
+        }
+        
+        if (![[value class] isEqual:NSString.class])
+        {
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to create NSURLQueryItem from dictionary: value '%@' is not a string.", [value class]);
+
+            return;
+        }
+        
+        NSURLQueryItem *item = [[NSURLQueryItem alloc] initWithName:key value:value];
+        [items addObject:item];
+    }];
     
-    return nil;
+    return items;
 }
 
 @end

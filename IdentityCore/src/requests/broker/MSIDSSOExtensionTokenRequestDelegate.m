@@ -21,18 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationRequest.h"
+#import "MSIDSSOExtensionTokenRequestDelegate.h"
+#import "MSIDSSOExtensionRequestDelegate+Internal.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 
-@class MSIDConfiguration;
+@implementation MSIDSSOExtensionTokenRequestDelegate
 
-NS_ASSUME_NONNULL_BEGIN
+- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+{
+    if (!self.completionBlock) return;
+    
+    NSError *error;
+    __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
+    if (!ssoCredential) self.completionBlock(nil, error);
+    
+    __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
+    if (!json) self.completionBlock(nil, error);
 
-@interface MSIDBrokerOperationTokenRequest : MSIDBrokerOperationRequest
-
-@property (nonatomic) MSIDConfiguration *configuration;
-
-// TODO: add other properties.
+    MSIDBrokerOperationTokenResponse *operationResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:json error:&error];
+    if (!operationResponse) self.completionBlock(nil, error);
+    
+    self.completionBlock(operationResponse.tokenResponse, nil);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

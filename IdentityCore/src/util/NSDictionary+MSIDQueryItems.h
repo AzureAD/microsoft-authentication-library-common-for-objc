@@ -22,32 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
-#import "MSIDConstants.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+NS_ASSUME_NONNULL_BEGIN
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@interface NSDictionary (MSIDQueryItems)
 
-@interface MSIDSilentTokenRequest : NSObject
++ (instancetype)msidDictionaryFromQueryItems:(NSArray<NSURLQueryItem *> *)queryItems;
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (NSArray<NSURLQueryItem *> *)msidQueryItems;
 
 @end
+
+NS_ASSUME_NONNULL_END

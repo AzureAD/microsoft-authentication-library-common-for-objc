@@ -21,33 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDConstants.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@implementation ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
-
-@interface MSIDSilentTokenRequest : NSObject
-
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
++ (ASAuthorizationSingleSignOnProvider *)msidSharedProvider
+{
+    NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
+    return [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
+}
 
 @end
+#endif

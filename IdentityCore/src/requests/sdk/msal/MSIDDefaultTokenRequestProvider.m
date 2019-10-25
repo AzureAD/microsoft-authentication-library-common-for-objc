@@ -28,6 +28,10 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
+#if TARGET_OS_IOS
+#import "MSIDSSOExtensionSilentTokenRequest.h"
+#import "MSIDSSOExtensionInteractiveTokenRequest.h"
+#endif
 
 @implementation MSIDDefaultTokenRequestProvider
 
@@ -93,7 +97,17 @@
 
 - (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
 {
-    // TODO: implement
+#if TARGET_OS_IOS
+    if (@available(iOS 13.0, *))
+    {
+        __auto_type request = [[MSIDSSOExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                            oauthFactory:self.oauthFactory
+                                                                                  tokenResponseValidator:self.tokenResponseValidator
+                                                                                              tokenCache:self.tokenCache
+                                                                                    accountMetadataCache:self.accountMetadataCache];
+        return request;
+    }
+#endif
     
     return nil;
 }
@@ -101,7 +115,19 @@
 - (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
                                                                forceRefresh:(BOOL)forceRefresh
 {
-    // TODO: implement
+#if TARGET_OS_IOS
+    if (@available(iOS 13.0, *))
+    {
+        __auto_type request = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                       forceRefresh:forceRefresh
+                                                                                       oauthFactory:self.oauthFactory
+                                                                             tokenResponseValidator:self.tokenResponseValidator
+                                                                                         tokenCache:self.tokenCache
+                                                                               accountMetadataCache:self.accountMetadataCache];
+        
+        return request;
+    }
+#endif
     
     return nil;
 }

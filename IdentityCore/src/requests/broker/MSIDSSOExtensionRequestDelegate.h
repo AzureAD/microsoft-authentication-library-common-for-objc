@@ -21,33 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 #import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
-#import "MSIDConstants.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+typedef void (^MSIDSSOExtensionRequestDelegateCompletionBlock)(_Nullable id response, NSError  * _Nullable error);
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSilentTokenRequest : NSObject
+API_AVAILABLE(ios(13.0))
+@interface MSIDSSOExtensionRequestDelegate : NSObject <ASAuthorizationControllerDelegate>
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
-
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+@property (nonatomic) id<MSIDRequestContext> context;
+@property (nonatomic, copy) MSIDSSOExtensionRequestDelegateCompletionBlock completionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END
+#endif

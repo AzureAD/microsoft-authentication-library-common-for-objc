@@ -21,33 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
-#import "MSIDConstants.h"
+#import "MSIDBrokerOperationRequest.h"
 
 @class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@class MSIDConfiguration;
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSilentTokenRequest : NSObject
+@interface MSIDBrokerOperationTokenRequest : MSIDBrokerOperationRequest
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic) MSIDConfiguration *configuration;
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
+// TODO: add other properties.
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
++ (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
+     withParameters:(MSIDRequestParameters *)parameters
+              error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

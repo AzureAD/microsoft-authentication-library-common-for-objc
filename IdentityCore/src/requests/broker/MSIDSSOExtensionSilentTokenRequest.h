@@ -21,33 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
-#import "MSIDConstants.h"
+#import "MSIDSilentTokenRequest.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@class MSIDAccountMetadataCacheAccessor;
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSilentTokenRequest : NSObject
+API_AVAILABLE(ios(13.0))
+@interface MSIDSSOExtensionSilentTokenRequest : MSIDSilentTokenRequest
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator NS_UNAVAILABLE;
 
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)parameters
+                                      forceRefresh:(BOOL)forceRefresh
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache NS_DESIGNATED_INITIALIZER;
 
 @end
+
+NS_ASSUME_NONNULL_END

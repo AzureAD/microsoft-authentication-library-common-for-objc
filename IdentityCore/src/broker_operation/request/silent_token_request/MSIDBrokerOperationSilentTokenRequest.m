@@ -21,22 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationInteractiveTokenRequest.h"
-#import "MSIDPromptType_Internal.h"
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
+#import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
+#import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDConstants.h"
+#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
+#import "MSIDRequestParameters.h"
 
-@implementation MSIDBrokerOperationInteractiveTokenRequest
+@implementation MSIDBrokerOperationSilentTokenRequest
 
 + (void)load
 {
-    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+    }
+}
+
++ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                                     error:(NSError **)error
+{
+    __auto_type request = [MSIDBrokerOperationSilentTokenRequest new];
+    BOOL result = [self fillRequest:request withParameters:parameters error:error];
+    if (!result) return nil;
+    
+    request.accountIdentifier = parameters.accountIdentifier;
+    
+    return request;
 }
 
 #pragma mark - MSIDBrokerOperationRequest
 
 + (NSString *)operation
 {
-    return @"acquire_token_interactive";
+    return ASAuthorizationOperationRefresh;
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -47,7 +66,12 @@
     
     if (self)
     {
-        /// TODO: implement.
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
+        if (!_accountIdentifier)
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, accountIdentifier is nil.", self.class);
+            return nil;
+        }
     }
     
     return self;
@@ -55,9 +79,16 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    // TODO: implement.
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    return nil;
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (!accountIdentifierJson) return nil;
+    
+    [json addEntriesFromDictionary:accountIdentifierJson];
+    
+    return json;
 }
 
 @end
+#endif

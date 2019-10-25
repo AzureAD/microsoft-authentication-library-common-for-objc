@@ -21,17 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationTokenRequest.h"
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+#import "MSIDSSOExtensionRequestDelegate.h"
 
-@class MSIDConfiguration;
-@class MSIDAccountIdentifier;
+@class MSIDJsonSerializer;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest
+@interface MSIDSSOExtensionRequestDelegate ()
 
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic, readonly) MSIDJsonSerializer *jsonSerializer;
+
+- (ASAuthorizationSingleSignOnCredential *)ssoCredentialFromCredential:(id <ASAuthorizationCredential>)credential
+                                                                 error:(NSError **)error;
+
+- (NSDictionary *)jsonPayloadFromSSOCredential:(ASAuthorizationSingleSignOnCredential *)ssoCredential
+                                         error:(NSError **)error;
 
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

@@ -21,33 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
-#import "MSIDConstants.h"
+#import "MSIDInteractiveTokenRequest.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@class MSIDTokenResponse;
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSilentTokenRequest : NSObject
+@interface MSIDInteractiveTokenRequest()
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
+- (void)handleTokenResponse:(nullable MSIDTokenResponse *)tokenResponse
+                      error:(nullable NSError *)error
+            completionBlock:(MSIDInteractiveRequestCompletionBlock)completionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END

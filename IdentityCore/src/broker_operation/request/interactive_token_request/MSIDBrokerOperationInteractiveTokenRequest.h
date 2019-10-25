@@ -21,33 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDCacheAccessor.h"
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
+#import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConstants.h"
 
-@class MSIDRequestParameters;
-@class MSIDOauth2Factory;
-@class MSIDTokenResponseValidator;
+@class WKWebView;
+@class MSIDAccountIdentifier;
+@class MSIDInteractiveRequestParameters;
 
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSilentTokenRequest : NSObject
+API_AVAILABLE(ios(13.0))
+@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
 
-@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
-@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic, nullable) NSString *loginHint;
+@property (nonatomic) MSIDPromptType promptType;
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
-
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
-                                      forceRefresh:(BOOL)forceRefresh
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDRequestCompletionBlock)completionBlock;
++ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END
+#endif

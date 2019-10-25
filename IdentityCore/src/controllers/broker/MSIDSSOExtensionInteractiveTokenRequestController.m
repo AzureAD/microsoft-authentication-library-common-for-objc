@@ -23,6 +23,7 @@
 
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDLocalInteractiveController+Internal.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
@@ -48,22 +49,57 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
-    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        
+        if (error && [self shouldFallback:error])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Falling back to local controller.");
+            
+            [self.fallbackController acquireToken:completionBlock];
+            return;
+        }
         
         completionBlock(result, error);
     };
     
-    __auto_type request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParameters];
+    __auto_type request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParamaters];
 
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }
 
 + (BOOL)canPerformRequest
 {
-    // TODO: implement.
-    return YES;
+    return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
+}
+
+#pragma mark - Private
+
+- (BOOL)shouldFallback:(NSError *)error
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking if we should fallback to fallback controller, error: %ld error domain: %@.", (long)error.code, error.domain);
+    
+    if (!self.fallbackController)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"fallback controller is nil, SSO extension controller should fallback: NO");
+        return NO;
+    }
+    
+    if (![error.domain isEqualToString:ASAuthorizationErrorDomain]) return NO;
+    
+    BOOL shouldFallback = NO;
+    switch (error.code)
+    {
+        case ASAuthorizationErrorNotHandled:
+        case ASAuthorizationErrorUnknown:
+        case ASAuthorizationErrorFailed:
+            shouldFallback = YES;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"SSO extension controller should fallback: %@", shouldFallback ? @"YES" : @"NO");
+    
+    return shouldFallback;
 }
 
 @end
