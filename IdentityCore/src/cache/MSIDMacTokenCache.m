@@ -34,7 +34,7 @@
 
 #define RETURN_ERROR_IF_CONDITION_FALSE(_cond, _code, _details) { \
 if (!(_cond)) { \
-NSError* _MSID_ERROR = MSIDCreateError(MSIDErrorDomain, _code, _details, nil, nil, nil, nil, nil); \
+NSError* _MSID_ERROR = MSIDCreateError(MSIDErrorDomain, _code, _details, nil, nil, nil, nil, nil, NO); \
 if (error) { *error = _MSID_ERROR; } \
 return NO; \
 } \
@@ -131,7 +131,7 @@ return NO; \
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheBadFormat, @"Failed to unarchive data blob from -deserialize!", nil, nil, nil, nil, nil, YES);
         }
     }
     
@@ -204,7 +204,7 @@ return NO; \
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return nil;
@@ -361,7 +361,7 @@ return NO; \
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return NO;
@@ -421,7 +421,7 @@ return NO; \
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Item is nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Item is nil.", nil, nil, nil, context.correlationId, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set nil item.");
         
@@ -443,7 +443,7 @@ return NO; \
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service is not nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service is not nil.", nil, nil, nil, context.correlationId, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return NO;

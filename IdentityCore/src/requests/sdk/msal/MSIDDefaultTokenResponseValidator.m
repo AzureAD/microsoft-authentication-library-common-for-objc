@@ -67,7 +67,7 @@
             additionalUserInfo[MSIDDeclinedScopesKey] = [declinedScopeSet array];
             additionalUserInfo[MSIDInvalidTokenResultKey] = tokenResult;
 
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo, NO);
         }
 
         return NO;
@@ -84,10 +84,12 @@
     if (accountIdentifier.uid != nil
         && ![accountIdentifier.uid isEqualToString:tokenResult.account.accountIdentifier.uid])
     {
+        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationID, @"Different account was returned from the server. Original account %@, returned account %@", MSID_PII_LOG_TRACKABLE(accountIdentifier.uid), MSID_PII_LOG_TRACKABLE(tokenResult.account.accountIdentifier.uid));
+        
         if (error)
         {
             NSDictionary *userInfo = @{MSIDInvalidTokenResultKey : tokenResult};
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo, NO);
         }
         
         return NO;
