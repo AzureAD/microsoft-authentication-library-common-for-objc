@@ -443,6 +443,16 @@
                                     context:context
                                       error:error];
     }
+    
+    // Clear RT from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor validateAndRemoveRefreshToken:token context:context error:error])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove RT from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(*error));
+            return NO;
+        }
+    }
 
     return YES;
 }
