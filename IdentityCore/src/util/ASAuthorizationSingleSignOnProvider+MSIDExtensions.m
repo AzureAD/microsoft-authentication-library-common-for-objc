@@ -29,16 +29,8 @@
 
 + (ASAuthorizationSingleSignOnProvider *)msidSharedProvider
 {
-    static dispatch_once_t once;
-    static ASAuthorizationSingleSignOnProvider *ssoProvider;
-    
-    dispatch_once(&once, ^{
-        NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
-    
-        ssoProvider = [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
-    });
-    
-    return ssoProvider;
+    NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
+    return [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
 }
 
 @end

@@ -49,11 +49,11 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
-    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         
-        if ([self shouldFallback:error])
+        if (error && [self shouldFallback:error])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Falling back to local controller.");
             
@@ -88,7 +88,6 @@
     
     if (![error.domain isEqualToString:ASAuthorizationErrorDomain]) return NO;
     
-    // TODO: verify this logic.
     BOOL shouldFallback = NO;
     switch (error.code)
     {
