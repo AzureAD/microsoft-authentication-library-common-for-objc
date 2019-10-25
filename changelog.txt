@@ -3,6 +3,10 @@ Version 1.3.6
 * Support removing RTs from other accessors
 * Fix UI thread warnings
 * Prevent auth controller from being swiped down
+* Improve logging when error is created
+* Expose instance_aware flag in MSAL config
+* Remove amr64e architecture
+* Fixed static analyser warnings
 
 Version 1.3.5
 -----------
