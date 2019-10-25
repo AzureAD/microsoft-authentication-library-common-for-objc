@@ -126,6 +126,21 @@
 
 - (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller
 {
+    return [self presentationAnchor];
+}
+
+- (ASPresentationAnchor)presentationAnchor
+{
+    if (![NSThread isMainThread])
+    {
+        __block ASPresentationAnchor anchor;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            anchor = [self presentationAnchor];
+        });
+        
+        return anchor;
+    }
+    
     return self.requestParameters.parentViewController.view.window;
 }
 
