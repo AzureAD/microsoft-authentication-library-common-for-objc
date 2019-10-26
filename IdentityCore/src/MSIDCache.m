@@ -62,7 +62,7 @@
     return object;
 }
 
-- (id)copyAndCleanObjectForKey:(id)key
+- (id)copyAndRemoveObjectForKey:(id)key
 {
     if (!key)
     {
