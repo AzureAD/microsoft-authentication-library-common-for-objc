@@ -120,7 +120,7 @@
         [additionalInfo setValue:@1 forKey:MSIDServerUnavailableStatusKey];
     }
     
-    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo);
+    NSError *httpError = MSIDCreateError(MSIDHttpErrorCodeDomain, MSIDErrorServerUnhandledResponse, errorDescription, nil, nil, nil, context.correlationId, additionalInfo, YES);
     
     if (completionBlock) completionBlock(nil, httpError);
 }

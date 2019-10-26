@@ -209,7 +209,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
           error:(NSError **)error
 {
     NSString *errorDescription = @"Intune Enrollment ID JSON structure is incorrect.";
-    __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, context.correlationId, nil);
+    __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, context.correlationId, nil, YES);
     
     if (!json) return YES;
     

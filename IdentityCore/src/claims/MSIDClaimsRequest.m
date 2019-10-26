@@ -67,7 +67,7 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      @"Claim request is nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, NO);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to request claim: claim request is nil.");
@@ -114,7 +114,7 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      @"Name is nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, NO);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to remove claim: name is nil.");
@@ -224,7 +224,7 @@
         *error = MSIDCreateError(MSIDErrorDomain,
                                  MSIDErrorInvalidDeveloperParameter,
                                  message,
-                                 nil, nil, nil, nil, nil);
+                                 nil, nil, nil, nil, nil, NO);
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Invalid claims target: %@", string);

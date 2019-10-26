@@ -321,7 +321,7 @@ static NSString *keyDelimiter = @"-";
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.service == %@", key.service]];
     if (key.generic)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.generic == %@", key.generic]];
-    if (key.type)
+    if (key.type != nil)
         [subPredicates addObject:[NSPredicate predicateWithFormat:@"self.type == %@", key.type]];
     
     // Combine all sub-predicates with AND:
