@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDJsonSerializableFactory : NSObject
 
-+ (void)registertClass:(Class<MSIDJsonSerializable>)value forKey:(NSString *)key;
++ (void)registerClass:(Class<MSIDJsonSerializable>)value forKey:(NSString *)key;
 
 + (void)unregisterAll;
 

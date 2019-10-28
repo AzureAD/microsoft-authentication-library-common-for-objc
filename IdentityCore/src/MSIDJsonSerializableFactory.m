@@ -28,7 +28,7 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
 
 @implementation MSIDJsonSerializableFactory
 
-+ (void)registertClass:(Class<MSIDJsonSerializable>)class forKey:(NSString *)key
++ (void)registerClass:(Class<MSIDJsonSerializable>)class forKey:(NSString *)key
 {
     if (!class || !key) return;
     if (![key isKindOfClass:NSString.class]) return;
