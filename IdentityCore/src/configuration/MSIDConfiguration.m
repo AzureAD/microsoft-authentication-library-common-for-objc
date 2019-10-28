@@ -112,7 +112,6 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     if (![json msidAssertType:NSString.class ofKey:MSID_CLIENT_ID_JSON_KEY required:YES error:error]) return nil;
     NSString *clientId = json[MSID_CLIENT_ID_JSON_KEY];
 
-    if (![json msidAssertType:NSString.class ofKey:MSID_SCOPE_JSON_KEY required:YES error:error]) return nil;
     NSString *target = [json msidStringObjectForKey:MSID_SCOPE_JSON_KEY];
     
     return [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target];
@@ -141,11 +140,6 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     }
     json[MSID_CLIENT_ID_JSON_KEY] = self.clientId;
     
-    if (!self.target)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, target is nil.", self.class);
-        return nil;
-    }
     json[MSID_SCOPE_JSON_KEY] = self.target;
     
     return json;
