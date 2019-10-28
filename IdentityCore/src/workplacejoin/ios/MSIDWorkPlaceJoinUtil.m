@@ -67,14 +67,18 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ certificate reference.");
     status = SecIdentityCopyCertificate(identity, &certificate);
     
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ certificate retrieved with result %ld", (long)status);
+    
     // Get the private key
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ private key reference.");
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
     
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ private key reference retrieved with result %ld", (long)status);
+    
     certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
     certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
     
-    if(!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
+    if (!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid.");
     }

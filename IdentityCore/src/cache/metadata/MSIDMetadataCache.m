@@ -67,7 +67,7 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidInternalParameter,
                                      @"cacheItem and key could not be nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }
@@ -105,7 +105,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return nil;
@@ -151,7 +151,7 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidInternalParameter,
                                      @"cacheItem and key could not be nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }

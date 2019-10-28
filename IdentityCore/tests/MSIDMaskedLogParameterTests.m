@@ -60,7 +60,7 @@
 - (void)testDescription_whenPIIDisabled_andParameterOfErrorType_shouldReturnMaskedValue
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
-    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"MaskedError(MSIDErrorDomain, -10003)");
@@ -69,7 +69,7 @@
 - (void)testDescription_whenPIIEnabled_andParameterOfErrorType_shouldReturnNonMaskedValue
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"Error Domain=MSIDErrorDomain Code=-10003 \"(null)\" UserInfo={MSIDOAuthErrorKey=invalid_grant, MSIDOAuthSubErrorKey=bad_token, MSIDErrorDescriptionKey=test}");

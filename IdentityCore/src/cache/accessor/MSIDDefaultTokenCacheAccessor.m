@@ -313,7 +313,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Wrong id token type passed: %@.", [MSIDCredentialTypeHelpers credentialTypeAsString:idTokenType]);
@@ -626,6 +626,16 @@
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_PII_LOG_MASKABLE(tokenInCache));
         return [self removeToken:tokenInCache context:context error:error];
     }
+    
+    // Clear RT from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor validateAndRemoveRefreshToken:token context:context error:error])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove RT from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(*error));
+            return NO;
+        }
+    }
 
     return YES;
 }
@@ -642,7 +652,7 @@
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
