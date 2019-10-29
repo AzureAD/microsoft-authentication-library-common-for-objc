@@ -28,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrokerOperationGetAccountsRequest : MSIDBrokerOperationRequest
 
 @property (nonatomic) NSString *clientId;
+@property (nonatomic) NSString *familyId;
 
 // TODO: if we want to support more sophisticated account query.
 //@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
