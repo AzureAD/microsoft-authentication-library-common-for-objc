@@ -29,10 +29,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDJsonSerializableFactory : NSObject
 
+/*!
+ Bind class type with sepcifc class type key in json paylod.
+ This method is tread safe.
+ */
 + (void)registerClass:(Class<MSIDJsonSerializable>)value forKey:(NSString *)key;
 
+/*!
+ Unbind all registered classes.
+ This method is tread safe.
+ */
 + (void)unregisterAll;
 
+/*!
+ Create instance of class from the provided json payload.
+ This method is not thread safe.
+ */
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                         classTypeKey:(NSString *)classTypeKey
                                                error:(NSError **)error;
