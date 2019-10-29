@@ -47,10 +47,11 @@
     if (self)
     {
         if (![json msidAssertType:NSDictionary.class ofKey:@"request_parameters" required:YES error:error]) return nil;
-        
         NSDictionary *requestParameters = json[@"request_parameters"];
         
-        _clientId = requestParameters[@"client_id"];
+        _familyId = [requestParameters msidStringObjectForKey:@"family_id"];
+        
+        _clientId = [requestParameters msidStringObjectForKey:@"client_id"];
         if (!_clientId)
         {
             if (error)
@@ -67,6 +68,21 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
+    
+    NSMutableDictionary *requestParametersJson = [json[@"request_parameters"] mutableCopy];
+    if (!requestParametersJson)
+    {
+        requestParametersJson = [NSMutableDictionary new];
+    }
+    [requestParametersJson setValue:self.clientId forKey:@"client_id"];
+    
+    if (self.familyId)
+    {
+        [requestParametersJson setValue:self.familyId forKey:@"family_id"];
+    }
+    
+    json[@"request_parameters"] = requestParametersJson;
     
     return json;
 }

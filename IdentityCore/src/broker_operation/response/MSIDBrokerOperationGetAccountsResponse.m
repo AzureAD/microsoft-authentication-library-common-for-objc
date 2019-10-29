@@ -49,8 +49,14 @@
         NSMutableArray *accounts = [NSMutableArray new];
         for (NSDictionary *accountJson in accountsJson)
         {
-            MSIDAccount *account = [[MSIDAccount alloc] initWithJSONDictionary:accountJson error:error];
-            if (!account) return nil;
+            NSError *localError;
+            MSIDAccount *account = [[MSIDAccount alloc] initWithJSONDictionary:accountJson error:&localError];
+            if (!account)
+            {
+                // We log the error and continue to parse other accounts data
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"MSIDBrokerOperationGetAccountsResponse - could not parse accounts with error domain (%@) + error code (%ld).", localError.domain, (long)localError.code);
+                continue;
+            }
             
             [accounts addObject:account];
         }
