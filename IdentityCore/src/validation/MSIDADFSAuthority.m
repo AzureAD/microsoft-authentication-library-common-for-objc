@@ -86,7 +86,7 @@
 
 + (NSString *)authorityType
 {
-    return @"adfs";
+    return @"authority_adfs";
 }
 
 - (id<MSIDAuthorityResolving>)resolver

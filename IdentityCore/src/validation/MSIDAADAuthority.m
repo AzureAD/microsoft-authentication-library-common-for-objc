@@ -249,7 +249,7 @@
 
 + (NSString *)authorityType
 {
-    return @"aad";
+    return @"authority_aad";
 }
 
 + (NSString *)realmFromURL:(NSURL *)url

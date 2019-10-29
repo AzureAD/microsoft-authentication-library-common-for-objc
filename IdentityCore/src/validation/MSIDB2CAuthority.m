@@ -131,7 +131,7 @@
 
 + (NSString *)authorityType
 {
-    return @"b2c";
+    return @"authority_b2c";
 }
 
 + (NSString *)realmFromURL:(NSURL *)url

@@ -79,7 +79,7 @@
     // If there is no authority type, we assume it's AAD authority.
     if (!authorityType) authorityType = [MSIDAADAuthority authorityType];
     
-    MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeKey:MSID_AUTHORITY_TYPE_JSON_KEY error:error];
+    MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeKey:authorityType error:error];
     
     return authority;
 }
