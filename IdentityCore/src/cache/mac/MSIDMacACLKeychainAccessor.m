@@ -55,12 +55,11 @@ static dispatch_queue_t s_synchronizationQueue;
             return nil;
         }
         
-        if (![trustedApplications count])
-        {
-            trustedApplications = appList;
-        }
+        NSMutableArray *allTrustedApps = [NSMutableArray new];
+        [allTrustedApps addObjectsFromArray:trustedApplications];
+        [allTrustedApps addObjectsFromArray:appList];
         
-        self.accessControlForSharedItems = [self accessCreateWithChangeACL:trustedApplications accessLabel:accessLabel error:error];
+        self.accessControlForSharedItems = [self accessCreateWithChangeACL:allTrustedApps accessLabel:accessLabel error:error];
         if (!self.accessControlForSharedItems)
         {
             return nil;
