@@ -36,57 +36,17 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDNotifications.h"
 #import "MSIDBackgroundTaskManager.h"
-#if !MSID_EXCLUDE_WEBKIT
-#import <SafariServices/SafariServices.h>
-#import <AuthenticationServices/AuthenticationServices.h>
-#endif
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDAuthSessionHandlerFactory.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
-@interface MSIDAuthenticationSession (ASWebAuth) <ASWebAuthenticationPresentationContextProviding>
+@interface MSIDAuthenticationSession (ASWebAuth)
 
-@end
-
-@implementation MSIDAuthenticationSession (ASWebAuth)
-
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session
-API_AVAILABLE(ios(13.0))
-{
-    return [self presentationAnchor];
-}
-
-- (ASPresentationAnchor)presentationAnchor API_AVAILABLE(ios(13.0))
-{
-    if (![NSThread isMainThread])
-    {
-        __block ASPresentationAnchor anchor;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            anchor = [self presentationAnchor];
-        });
-        
-        return anchor;
-    }
-    
-    return self.parentController.view.window;
-}
+@property (nonatomic) id<MSIDAuthSessionHandling> authSession;
 
 @end
-#endif
 
 @implementation MSIDAuthenticationSession
 {
-#if !MSID_EXCLUDE_WEBKIT
-    
-#if !TARGET_OS_MACCATALYST
-    API_AVAILABLE(ios(11.0))
-    SFAuthenticationSession *_authSession;
-#endif
-    
-    API_AVAILABLE(ios(12.0))
-    ASWebAuthenticationSession *_webAuthSession;
-    
-#endif
-    
     NSURL *_startURL;
     NSString *_callbackURLScheme;
 
@@ -129,29 +89,6 @@ API_AVAILABLE(ios(13.0))
     return self;
 }
 
-- (BOOL)isErrorCodeCanceledLogin:(NSError *)error
-{
-    if (!error)
-    {
-        return NO;
-    }
-
-#if !MSID_EXCLUDE_WEBKIT
-    if (@available(iOS 12.0, *))
-    {
-        if (error.code == ASWebAuthenticationSessionErrorCodeCanceledLogin) return YES;
-    }
-    else if (@available(iOS 11.0, *))
-    {
-#if !TARGET_OS_MACCATALYST
-        if (error.code == SFAuthenticationErrorCanceledLogin) return YES;
-#endif
-    }
-#endif
-    
-    return NO;
-}
-
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     if (!completionHandler)
@@ -159,73 +96,40 @@ API_AVAILABLE(ios(13.0))
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,_context, @"CompletionHandler cannot be nil for interactive session.");
         return;
     }
-
-#if !MSID_EXCLUDE_WEBKIT
+    
+    self.authSession = [MSIDAuthSessionHandlerFactory authSessionWithParentController:self.parentController];
+    
+    if (!self.authSession)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticationSession is not available on this platform or OS version.", nil, nil, nil, _context.correlationId, nil, YES);
+        [self notifyEndWebAuthWithURL:nil error:error];
+        completionHandler(nil, error);
+        return;
+    }
     
     [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-
-    NSError *error = nil;
     
-    if (@available(iOS 11.0, *))
-    {
-        _telemetryRequestId = [_context telemetryRequestId];
-        [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
-        _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
-                                                             context:_context];
-        
-        _completionHandler = [completionHandler copy];
-        
-        void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
-        {
-            if ([self isErrorCodeCanceledLogin:authError])
-            {
-                authError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil, YES);
-                [_telemetryEvent setIsCancelled:YES];
-            }
-            
-            [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
-            
-            [self notifyEndWebAuthWithURL:callbackURL error:authError];
-            _completionHandler(callbackURL, authError);
-        };
-
-        [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
-        
-        if (@available(iOS 12.0, *))
-        {
-            _webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:_startURL
-                                                            callbackURLScheme:_callbackURLScheme
-                                                            completionHandler:authCompletion];
-            
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-            if (@available(iOS 13.0, *))
-            {
-                _webAuthSession.presentationContextProvider = self;
-                _webAuthSession.prefersEphemeralWebBrowserSession = self.prefersEphemeralWebBrowserSession;
-            }
-#endif
-            if ([_webAuthSession start]) return;
-        }
-        else
-        {
-#if !TARGET_OS_MACCATALYST
-            _authSession = [[SFAuthenticationSession alloc] initWithURL:_startURL
-                                                      callbackURLScheme:_callbackURLScheme
-                                                      completionHandler:authCompletion];
-            if ([_authSession start]) return;
-#endif
-        }
-  
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil, YES);
-    }
-    else
-    {
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticationSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil, YES);
-    }
+    _telemetryRequestId = [_context telemetryRequestId];
+    [[MSIDTelemetry sharedInstance] startEvent:_telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
+    _telemetryEvent = [[MSIDTelemetryUIEvent alloc] initWithName:MSID_TELEMETRY_EVENT_UI_EVENT
+                                                         context:_context];
     
-    [self notifyEndWebAuthWithURL:nil error:error];
-    completionHandler(nil, error);
-#endif
+    _completionHandler = [completionHandler copy];
+    
+    void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
+    {
+        [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
+        
+        [self notifyEndWebAuthWithURL:callbackURL error:authError];
+        _completionHandler(callbackURL, authError);
+    };
+
+    [MSIDNotifications notifyWebAuthDidStartLoad:_startURL userInfo:nil];
+    
+    [self.authSession startSessionWithWithURL:_startURL
+                            callbackURLScheme:_callbackURLScheme
+                   ephemeralWebBrowserSession:self.prefersEphemeralWebBrowserSession
+                            completionHandler:authCompletion];
 }
 
 - (void)cancel
@@ -234,16 +138,7 @@ API_AVAILABLE(ios(13.0))
     [_telemetryEvent setIsCancelled:YES];
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
-    if (@available(iOS 12.0, *))
-    {
-        [_webAuthSession cancel];
-    }
-#if !TARGET_OS_MACCATALYST
-    else
-    {
-        [_authSession cancel];
-    }
-#endif
+    [self.authSession cancel];
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,
@@ -272,14 +167,7 @@ API_AVAILABLE(ios(13.0))
 {
     [[MSIDTelemetry sharedInstance] stopEvent:_telemetryRequestId event:_telemetryEvent];
     
-    if (@available(iOS 12.0, *))
-    {
-        [_webAuthSession cancel];
-    }
-    else
-    {
-        [_authSession cancel];
-    }
+    [self.authSession cancel];
     
     [self notifyEndWebAuthWithURL:url error:nil];
     _completionHandler(url, nil);

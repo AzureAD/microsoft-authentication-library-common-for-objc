@@ -46,8 +46,8 @@
 @property (readonly) NSURL *startURL;
 @property (readonly) NSURL *redirectURL;
 
-@property (weak, nonatomic, readonly) UIViewController *parentController API_AVAILABLE(ios(13.0));
-@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
+@property (weak, nonatomic, readonly) UIViewController *parentController;
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 
 @end
 #endif

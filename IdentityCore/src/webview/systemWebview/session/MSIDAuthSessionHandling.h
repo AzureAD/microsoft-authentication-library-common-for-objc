@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)startSessionWithWithURL:(NSURL *)URL
               callbackURLScheme:(NSString *)callbackURLScheme
-               parentController:(MSIDViewController *)parentController
      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
               completionHandler:(void (^)(NSURL *callbackURL, NSError *authError))completionHandler;
 

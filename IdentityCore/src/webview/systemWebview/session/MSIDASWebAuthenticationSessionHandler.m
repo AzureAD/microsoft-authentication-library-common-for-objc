@@ -43,15 +43,24 @@
 @implementation MSIDASWebAuthenticationSessionHandler
 
 #pragma mark - MSIDAuthSessionHandling
+
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _parentController = parentController;
+    }
+    
+    return self;
+}
                                       
 - (void)startSessionWithWithURL:(NSURL *)URL
               callbackURLScheme:(NSString *)callbackURLScheme
-               parentController:(MSIDViewController *)parentController
      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
               completionHandler:(void (^)(NSURL *callbackURL, NSError *authError))completionHandler
 {
-    self.parentController = parentController;
-    
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
         if (authError.code == ASWebAuthenticationSessionErrorCodeCanceledLogin)
@@ -72,8 +81,8 @@
     #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         if (@available(iOS 13.0, macOS 10.15, *))
         {
-                self.webAuthSession.presentationContextProvider = self;
-                self.webAuthSession.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
+            self.webAuthSession.presentationContextProvider = self;
+            self.webAuthSession.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
         }
     #endif
     

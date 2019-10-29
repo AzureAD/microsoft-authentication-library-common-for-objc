@@ -35,6 +35,8 @@ NS_ASSUME_NONNULL_BEGIN
 API_AVAILABLE(ios(12.0), macCatalyst(13.0), macos(10.15))
 @interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDAuthSessionHandling>
 
+- (instancetype)initWithParentController:(MSIDViewController *)parentController;
+
 @end
 
 NS_ASSUME_NONNULL_END
