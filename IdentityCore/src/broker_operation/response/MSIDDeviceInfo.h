@@ -21,23 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
 
-@class MSIDDeviceInfo;
+typedef NS_ENUM(NSInteger, MSIDDeviceShareMode)
+{
+    MSIDDeviceShareModeNonShared = 0,
+    MSIDDeviceShareModeShared
+};
+
+typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)
+{
+    MSIDWorkPlaceJoinStatusNotJoined = 0,
+    MSIDWorkPlaceJoinStatusJoined
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
+@interface MSIDDeviceInfo : NSObject <MSIDJsonSerializable>
 
-@property (nonatomic) NSString *operation;
-@property (nonatomic) NSString *applicationToken;
-@property (nonatomic) BOOL success;
-@property (nonatomic) NSError *error;
-
-@property (nonatomic) MSIDDeviceInfo *deviceInfo;
-
-// TODO: add other properties.
+@property (nonatomic) MSIDDeviceShareMode deviceMode;
+@property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
+@property (nonatomic, nullable) NSString *brokerVersion;
 
 @end
 

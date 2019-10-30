@@ -21,24 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDBrokerOperationGetDeviceInfoRequest.h"
+#import "MSIDBrokerOperationRequestFactory.h"
 
-@class MSIDDeviceInfo;
+@implementation MSIDBrokerOperationGetDeviceInfoRequest
 
-NS_ASSUME_NONNULL_BEGIN
++ (void)load
+{
+    [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+}
 
-@interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
+#pragma mark - MSIDBrokerOperationRequest
 
-@property (nonatomic) NSString *operation;
-@property (nonatomic) NSString *applicationToken;
-@property (nonatomic) BOOL success;
-@property (nonatomic) NSError *error;
++ (NSString *)operation
+{
+    return @"get_device_info";
+}
 
-@property (nonatomic) MSIDDeviceInfo *deviceInfo;
+#pragma mark - MSIDJsonSerializable
 
-// TODO: add other properties.
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    
+    return json;
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
+

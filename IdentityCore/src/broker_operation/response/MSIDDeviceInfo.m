@@ -21,24 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDDeviceInfo.h"
 
-@class MSIDDeviceInfo;
+@implementation MSIDDeviceInfo
 
-NS_ASSUME_NONNULL_BEGIN
+#pragma mark - MSIDJsonSerializable
 
-@interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _deviceMode = [[json msidStringObjectForKey:@"device_mode"] intValue];
+        _wpjStatus = [[json msidStringObjectForKey:@"wpj_status"] intValue];
+        _brokerVersion = [json msidStringObjectForKey:@"broker_versioin"];
+    }
+    
+    return self;
+}
 
-@property (nonatomic) NSString *operation;
-@property (nonatomic) NSString *applicationToken;
-@property (nonatomic) BOOL success;
-@property (nonatomic) NSError *error;
-
-@property (nonatomic) MSIDDeviceInfo *deviceInfo;
-
-// TODO: add other properties.
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    
+    json[@"device_mode"] = [NSString stringWithFormat: @"%ld", self.deviceMode];
+    json[@"wpj_status"] = [NSString stringWithFormat: @"%ld", self.wpjStatus];
+    json[@"broker_version"] = self.brokerVersion;
+    
+    return json;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

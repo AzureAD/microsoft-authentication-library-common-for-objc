@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationResponse.h"
+#import "MSIDDeviceInfo.h"
 
 @implementation MSIDBrokerOperationResponse
 
@@ -62,6 +63,13 @@
 //            return nil;
 //        }
         _success = [json[@"success"] boolValue];
+        
+        if (![json msidAssertType:NSDictionary.class ofKey:@"device_info" required:NO error:error])
+        {
+            return nil;
+        }
+        
+        _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json[@"device_info"] error:error];
     }
     
     return self;
@@ -73,6 +81,7 @@
     json[@"operation"] = self.operation;
     json[@"application_token"] = self.applicationToken;
     json[@"success"] = @(self.success);
+    json[@"device_info"] = self.deviceInfo.jsonDictionary;
     
     return json;
 }

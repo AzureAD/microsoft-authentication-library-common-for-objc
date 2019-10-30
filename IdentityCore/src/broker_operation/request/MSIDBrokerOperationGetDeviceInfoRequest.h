@@ -21,23 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-
-@class MSIDDeviceInfo;
+#import "MSIDBrokerOperationRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic) NSString *operation;
-@property (nonatomic) NSString *applicationToken;
-@property (nonatomic) BOOL success;
-@property (nonatomic) NSError *error;
-
-@property (nonatomic) MSIDDeviceInfo *deviceInfo;
-
-// TODO: add other properties.
+@interface MSIDBrokerOperationGetDeviceInfoRequest : MSIDBrokerOperationRequest
 
 @end
 
