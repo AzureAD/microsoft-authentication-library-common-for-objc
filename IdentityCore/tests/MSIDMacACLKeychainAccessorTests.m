@@ -170,12 +170,49 @@
 
 - (void)testRemoveItem_whenItemDoesntExist_shouldNotRemoveOtherItems
 {
+    MSIDMacACLKeychainAccessor *accessor = [[MSIDMacACLKeychainAccessor alloc] initWithTrustedApplications:nil accessLabel:@"label" error:nil];
     
+    NSError *error = nil;
+    NSDictionary *attributes = @{(id)kSecAttrService : @"test-service",
+                                 (id)kSecAttrAccount : @"test-account",
+                                 (id)kSecAttrLabel : @"my-xctest-msal-label"};
+
+    BOOL result = [accessor removeItemWithAttributes:attributes context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
 }
 
 - (void)testRemoveItem_whenItemExists_shouldRemoveItem
 {
+    MSIDMacACLKeychainAccessor *accessor = [[MSIDMacACLKeychainAccessor alloc] initWithTrustedApplications:nil accessLabel:@"label" error:nil];
     
+    NSError *error = nil;
+    NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *data2 = [@"test data 2" dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *attributes = @{(id)kSecAttrService : @"test-service",
+                                 (id)kSecAttrAccount : @"test-account",
+                                 (id)kSecAttrLabel : @"my-xctest-msal-label"};
+    NSDictionary *attributes2 = @{(id)kSecAttrService : @"test-service2",
+                                  (id)kSecAttrAccount : @"test-account2",
+                                  (id)kSecAttrLabel : @"my-xctest-msal-label"};
+    BOOL result = [accessor saveData:data attributes:attributes context:nil error:&error];
+    XCTAssertTrue(result);
+    result = [accessor saveData:data2 attributes:attributes2 context:nil error:&error];
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    BOOL removalResult = [accessor removeItemWithAttributes:attributes context:nil error:&error];
+    XCTAssertTrue(removalResult);
+    XCTAssertNil(error);
+    
+    NSData *writtenData1 = [accessor getDataWithAttributes:attributes context:nil error:&error];
+    XCTAssertNil(writtenData1);
+    XCTAssertNil(error);
+    
+    NSData *writtenData2 = [accessor getDataWithAttributes:attributes2 context:nil error:&error];
+    XCTAssertNotNil(writtenData2);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(writtenData2, data2);
 }
 
 - (void)testGetDataWithAttributes_whenNoDataFound_shouldReturnNil

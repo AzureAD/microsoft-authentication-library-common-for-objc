@@ -244,6 +244,7 @@ static dispatch_queue_t s_synchronizationQueue;
                            error:(NSError **)error
 {
     NSMutableDictionary *query = [NSMutableDictionary new];
+    query[(id)kSecClass] = (id)kSecClassGenericPassword;
     [query addEntriesFromDictionary:attributes];
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
