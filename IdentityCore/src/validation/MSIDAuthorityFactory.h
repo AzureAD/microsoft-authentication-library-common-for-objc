@@ -37,7 +37,4 @@
                                      context:(nullable id<MSIDRequestContext>)context
                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error DEPRECATED_MSG_ATTRIBUTE("Don't use authority factory outside of tests, because not all authorities will comfort to same standards. It will be removed soon. ");
 
-+ (nullable MSIDAuthority *)authorityFromJSONDictionary:(nonnull NSDictionary *)json
-                                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
 @end

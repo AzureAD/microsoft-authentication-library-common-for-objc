@@ -71,17 +71,4 @@
     return nil;
 }
 
-+ (MSIDAuthority *)authorityFromJSONDictionary:(NSDictionary *)json
-                                         error:(NSError **)error
-{
-    NSString *authorityType = [json msidStringObjectForKey:MSID_AUTHORITY_TYPE_JSON_KEY];
-    
-    // If there is no authority type, we assume it's AAD authority.
-    if (!authorityType) authorityType = [MSIDAADAuthority authorityType];
-    
-    MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeValue:authorityType error:error];
-    
-    return authority;
-}
-
 @end
