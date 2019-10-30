@@ -54,26 +54,29 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
 }
 
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
-                                        classTypeKey:(NSString *)classTypeKey
+                                    classTypeJSONKey:(NSString *)classTypeJSONKey
+                                   assertKindOfClass:(Class)aClass
                                                error:(NSError **)error
 {
-    if (![json msidAssertType:NSString.class ofKey:classTypeKey required:YES error:error]) return nil;
-    NSString *classTypeValue = json[classTypeKey];
+    if (![json msidAssertType:NSString.class ofKey:classTypeJSONKey required:YES error:error]) return nil;
+    NSString *classTypeValue = json[classTypeJSONKey];
     
-    return [self createFromJSONDictionary:json containerKey:classTypeValue error:error];
+    return [self createFromJSONDictionary:json containerKey:classTypeValue assertKindOfClass:aClass error:error];
 }
 
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                       classTypeValue:(NSString *)classTypeValue
+                                   assertKindOfClass:(Class)aClass
                                                error:(NSError **)error
 {
-    return [self createFromJSONDictionary:json containerKey:classTypeValue error:error];
+    return [self createFromJSONDictionary:json containerKey:classTypeValue assertKindOfClass:aClass error:error];
 }
 
 #pragma mark - Private
 
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                         containerKey:(NSString *)containerKey
+                                   assertKindOfClass:(Class)aClass
                                                error:(NSError **)error
 {
     Class class = (Class<MSIDJsonSerializable>)s_container[containerKey];
@@ -93,7 +96,24 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
         return nil;
     }
     
-    return [[(Class)class alloc] initWithJSONDictionary:json error:error];
+    id<MSIDJsonSerializable> classInstance = [[(Class)class alloc] initWithJSONDictionary:json error:error];
+    
+    if (![classInstance isKindOfClass:aClass])
+    {
+        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, created class instance is not of expected kind: %@", aClass];
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorInvalidDeveloperParameter,
+                                     errorMessage,
+                                     nil, nil, nil, nil, nil);
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
+        return nil;
+    }
+    
+    return classInstance;
 }
 
 @end

@@ -105,7 +105,7 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeKey:MSID_AUTHORITY_TYPE_JSON_KEY error:error];
+    MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_AUTHORITY_TYPE_JSON_KEY assertKindOfClass:MSIDAuthority.class error:error];
     if (!authority) return nil;
 
     NSString *redirectUri = [json msidStringObjectForKey:MSID_REDIRECT_URI_JSON_KEY];
