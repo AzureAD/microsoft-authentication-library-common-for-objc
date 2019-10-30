@@ -58,13 +58,29 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
                                                error:(NSError **)error
 {
     if (![json msidAssertType:NSString.class ofKey:classTypeKey required:YES error:error]) return nil;
-    NSString *containerKey = json[classTypeKey];
+    NSString *classTypeValue = json[classTypeKey];
     
+    return [self createFromJSONDictionary:json containerKey:classTypeValue error:error];
+}
+
++ (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
+                                      classTypeValue:(NSString *)classTypeValue
+                                               error:(NSError **)error
+{
+    return [self createFromJSONDictionary:json containerKey:classTypeValue error:error];
+}
+
+#pragma mark - Private
+
++ (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
+                                        containerKey:(NSString *)containerKey
+                                               error:(NSError **)error
+{
     Class class = (Class<MSIDJsonSerializable>)s_container[containerKey];
     
     if (!class)
     {
-        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, class: %@ wasn't registered in factory under %@ key.", class, classTypeKey];
+        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, class: %@ wasn't registered in factory under %@ key.", class, containerKey];
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain,

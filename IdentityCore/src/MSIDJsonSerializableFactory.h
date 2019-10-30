@@ -44,9 +44,22 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Create instance of class from the provided json payload.
  This method is not thread safe.
+ @param json JSON payload.
+ @param classTypeKey Key in json payload which should be used to get class type value. All classes are registered
+ under this class type value in this factory.
  */
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                         classTypeKey:(NSString *)classTypeKey
+                                               error:(NSError **)error;
+
+/*!
+Create instance of class from the provided json payload.
+This method is not thread safe.
+@param json JSON payload.
+@param classTypeValue Class type value under which class is registered in this factory.
+*/
++ (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
+                                      classTypeValue:(NSString *)classTypeValue
                                                error:(NSError **)error;
 
 @end
