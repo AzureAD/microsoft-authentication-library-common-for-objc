@@ -229,16 +229,6 @@
     XCTAssertNil(error);
 }
 
-- (void)testClearWithAttributes_whenNoMatchingItemsExist_shouldNotClear
-{
-    
-}
-
-- (void)testClearWithAttributes_whenAttributesProvided_shouldClear
-{
-    
-}
-
 #pragma mark - Helper
 
 - (NSString *)executablePath
