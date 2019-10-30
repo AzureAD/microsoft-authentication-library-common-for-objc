@@ -21,14 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationResponse.h"
 #import "MSIDDeviceInfo.h"
 
-NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
-NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
-NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
-
-@implementation MSIDBrokerOperationResponse
+@implementation MSIDDeviceInfo
 
 #pragma mark - MSIDJsonSerializable
 
@@ -38,12 +33,9 @@ NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_respo
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
-        _operation = json[MSID_BROKER_OPERATION_JSON_KEY];
-
-        _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
-        
-        _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json error:error];
+        _deviceMode = [[json msidStringObjectForKey:@"device_mode"] intValue];
+        _wpjStatus = [[json msidStringObjectForKey:@"wpj_status"] intValue];
+        _brokerVersion = [json msidStringObjectForKey:@"broker_versioin"];
     }
     
     return self;
@@ -52,10 +44,10 @@ NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_respo
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
-    json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
     
-    json[@"device_info"] = self.deviceInfo.jsonDictionary;
+    json[@"device_mode"] = [NSString stringWithFormat: @"%ld", self.deviceMode];
+    json[@"wpj_status"] = [NSString stringWithFormat: @"%ld", self.wpjStatus];
+    json[@"broker_version"] = self.brokerVersion;
     
     return json;
 }

@@ -21,43 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationResponse.h"
-#import "MSIDDeviceInfo.h"
+#import "MSIDBrokerOperationGetDeviceInfoRequest.h"
+#import "MSIDJsonSerializableFactory.h"
 
-NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
-NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
-NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
+@implementation MSIDBrokerOperationGetDeviceInfoRequest
 
-@implementation MSIDBrokerOperationResponse
++ (void)load
+{
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+    }
+}
+
+#pragma mark - MSIDBrokerOperationRequest
+
++ (NSString *)operation
+{
+    return @"get_device_info";
+}
 
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
-    
-    if (self)
-    {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
-        _operation = json[MSID_BROKER_OPERATION_JSON_KEY];
-
-        _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
-        
-        _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json error:error];
-    }
+    self = [super initWithJSONDictionary:json error:error];
     
     return self;
 }
 
 - (NSDictionary *)jsonDictionary
 {
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
-    json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
-    
-    json[@"device_info"] = self.deviceInfo.jsonDictionary;
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     
     return json;
 }
 
 @end
+
+
