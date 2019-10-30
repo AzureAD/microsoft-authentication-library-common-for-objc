@@ -32,8 +32,10 @@ NS_ASSUME_NONNULL_BEGIN
 /*!
  Bind class type with sepcifc class type key in json paylod.
  This method is tread safe.
+ @param aClass Class which will be associated with classType in this factory.
+ @param classType Class type under which class will be registered in this factory.
  */
-+ (void)registerClass:(Class<MSIDJsonSerializable>)value forKey:(NSString *)key;
++ (void)registerClass:(Class<MSIDJsonSerializable>)aClass forClassType:(NSString *)classType;
 
 /*!
  Unbind all registered classes.
@@ -46,8 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
  Create instance of class from the provided json payload.
  This method is not thread safe.
  @param json JSON payload.
- @param classTypeJSONKey Key in json payload which should be used to get class type value. All classes are registered
- under this class type value in this factory.
+ @param classTypeJSONKey Key in json payload which should be used to get class type. All classes are registered
+ under this class type in this factory.
  @param aClass Verify created class instance is kind of aClass.
  */
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
@@ -56,14 +58,14 @@ NS_ASSUME_NONNULL_BEGIN
                                                error:(NSError **)error;
 
 /*!
-Create instance of class from the provided json payload.
-This method is not thread safe.
-@param json JSON payload.
-@param classTypeValue Class type value under which class is registered in this factory.
+ Create instance of class from the provided json payload.
+ This method is not thread safe.
+ @param json JSON payload.
+ @param classType Class type under which class is registered in this factory.
  @param aClass Verify created class instance is kind of aClass.
 */
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
-                                      classTypeValue:(NSString *)classTypeValue
+                                      classType:(NSString *)classType
                                    assertKindOfClass:(Class)aClass
                                                error:(NSError **)error;
 

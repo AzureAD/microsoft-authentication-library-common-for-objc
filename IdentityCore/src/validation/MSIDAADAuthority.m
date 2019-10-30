@@ -43,7 +43,7 @@
 
 + (void)load
 {
-    [MSIDJsonSerializableFactory registerClass:self forKey:self.authorityType];
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.authorityType];
 }
 
 - (instancetype)initWithURL:(NSURL *)url

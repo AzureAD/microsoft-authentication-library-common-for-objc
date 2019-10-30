@@ -35,7 +35,7 @@
 {
     if (@available(iOS 13.0, *))
     {
-        [MSIDJsonSerializableFactory registerClass:self forKey:self.operation];
+        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
     }
 }
 

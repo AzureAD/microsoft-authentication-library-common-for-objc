@@ -28,11 +28,11 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
 
 @implementation MSIDJsonSerializableFactory
 
-+ (void)registerClass:(Class<MSIDJsonSerializable>)class forKey:(NSString *)key
++ (void)registerClass:(Class<MSIDJsonSerializable>)aClass forClassType:(NSString *)classType
 {
-    if (!class || !key) return;
-    if (![key isKindOfClass:NSString.class]) return;
-    if (![class conformsToProtocol:@protocol(MSIDJsonSerializable)]) return;
+    if (!aClass || !classType) return;
+    if (![classType isKindOfClass:NSString.class]) return;
+    if (![aClass conformsToProtocol:@protocol(MSIDJsonSerializable)]) return;
     
     @synchronized(self)
     {
@@ -41,7 +41,7 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
             s_container = [NSMutableDictionary new];
         });
         
-        s_container[key] = class;
+        s_container[classType] = aClass;
     }
 }
 
@@ -65,7 +65,7 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
 }
 
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
-                                      classTypeValue:(NSString *)classTypeValue
+                                      classType:(NSString *)classTypeValue
                                    assertKindOfClass:(Class)aClass
                                                error:(NSError **)error
 {
