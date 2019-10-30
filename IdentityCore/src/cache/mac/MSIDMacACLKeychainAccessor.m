@@ -201,11 +201,16 @@ static dispatch_queue_t s_synchronizationQueue;
          context:(id<MSIDRequestContext>)context
            error:(NSError **)error
 {
-    assert(data);
+    if (!data)
+    {
+        [self createError:@"Nil data provided" domain:MSIDErrorDomain errorCode:MSIDErrorInvalidInternalParameter error:error context:context];
+        return NO;
+    }
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Saving keychain item");
     
     NSMutableDictionary *query = [NSMutableDictionary new];
+    query[(id)kSecClass] = (id)kSecClassGenericPassword;
     [query addEntriesFromDictionary:attributes];
     NSMutableDictionary *updateQuery = [NSMutableDictionary new];
     updateQuery[(id)kSecValueData] = data;
@@ -265,6 +270,7 @@ static dispatch_queue_t s_synchronizationQueue;
                             error:(NSError **)error
 {
     NSMutableDictionary *query = [NSMutableDictionary new];
+    query[(id)kSecClass] = (id)kSecClassGenericPassword;
     [query addEntriesFromDictionary:attributes];
     query[(id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
     query[(id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
@@ -311,6 +317,7 @@ static dispatch_queue_t s_synchronizationQueue;
     
     // Delete all accounts for the keychainGroup
     NSMutableDictionary *query = [NSMutableDictionary new];
+    query[(id)kSecClass] = (id)kSecClassGenericPassword;
     [query addEntriesFromDictionary:attributes];
     
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;

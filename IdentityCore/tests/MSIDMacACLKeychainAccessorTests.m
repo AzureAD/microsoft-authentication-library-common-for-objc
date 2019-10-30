@@ -36,10 +36,10 @@
 {
     [super setUp];
     
-    MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
-    keychainUtil.teamId = @"FakeTeamId";
+    MSIDMacACLKeychainAccessor *accessor = [[MSIDMacACLKeychainAccessor alloc] initWithTrustedApplications:nil accessLabel:@"label" error:nil];
     
-    [[MSIDMacKeychainTokenCache new] clearWithContext:nil error:nil];
+    NSDictionary *attributes = @{(id)kSecAttrLabel : @"my-xctest-msal-label"};
+    [accessor clearWithAttributes:attributes context:nil error:nil];
 }
 
 - (void)testInitWithTrustedApplications_whenNilTrustedApplications_shouldInitWithSelfOnly
@@ -111,17 +111,61 @@
 
 - (void)testSaveData_withNilData_shouldReturnNoAndFillError
 {
+    MSIDMacACLKeychainAccessor *accessor = [[MSIDMacACLKeychainAccessor alloc] initWithTrustedApplications:nil accessLabel:@"label" error:nil];
     
+    NSData *data = nil;
+    NSError *error = nil;
+    BOOL result = [accessor saveData:data attributes:@{} context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
 }
 
 - (void)testSaveData_whenItemDoesntExist_shouldCreateItem
 {
+    MSIDMacACLKeychainAccessor *accessor = [[MSIDMacACLKeychainAccessor alloc] initWithTrustedApplications:nil accessLabel:@"label" error:nil];
     
+    NSError *error = nil;
+    NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *attributes = @{(id)kSecAttrService : @"test-service",
+                                 (id)kSecAttrAccount : @"test-account",
+                                 (id)kSecAttrLabel : @"my-xctest-msal-label"};
+    BOOL result = [accessor saveData:data attributes:attributes context:nil error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    NSData *writtenData = [accessor getDataWithAttributes:attributes context:nil error:&error];
+    XCTAssertNotNil(writtenData);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(writtenData, data);
 }
 
 - (void)testSaveData_whenItemExists_shouldUpdateItem
 {
+    MSIDMacACLKeychainAccessor *accessor = [[MSIDMacACLKeychainAccessor alloc] initWithTrustedApplications:nil accessLabel:@"label" error:nil];
     
+    NSError *error = nil;
+    NSData *data = [@"test data" dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *attributes = @{(id)kSecAttrService : @"test-service",
+                                 (id)kSecAttrAccount : @"test-account",
+                                 (id)kSecAttrLabel : @"my-xctest-msal-label"};
+    BOOL result = [accessor saveData:data attributes:attributes context:nil error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    NSData *updatedData = [@"test data 2" dataUsingEncoding:NSUTF8StringEncoding];
+    BOOL updateResult = [accessor saveData:updatedData attributes:attributes context:nil error:&error];
+    XCTAssertTrue(updateResult);
+    XCTAssertNil(error);
+    
+    NSData *writtenData = [accessor getDataWithAttributes:attributes context:nil error:&error];
+    XCTAssertNotNil(writtenData);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(writtenData, updatedData);
 }
 
 - (void)testRemoveItem_whenItemDoesntExist_shouldNotRemoveOtherItems
@@ -136,12 +180,16 @@
 
 - (void)testGetDataWithAttributes_whenNoDataFound_shouldReturnNil
 {
+    MSIDMacACLKeychainAccessor *accessor = [[MSIDMacACLKeychainAccessor alloc] initWithTrustedApplications:nil accessLabel:@"label" error:nil];
     
-}
+    NSError *error = nil;
+    NSDictionary *attributes = @{(id)kSecAttrService : @"test-service",
+                                 (id)kSecAttrAccount : @"test-account",
+                                 (id)kSecAttrLabel : @"my-xctest-msal-label"};
 
-- (void)testGetDataWithAttributes_whenDataFound_shouldReturnData
-{
-    
+    NSData *writtenData = [accessor getDataWithAttributes:attributes context:nil error:&error];
+    XCTAssertNil(writtenData);
+    XCTAssertNil(error);
 }
 
 - (void)testClearWithAttributes_whenNoMatchingItemsExist_shouldNotClear
