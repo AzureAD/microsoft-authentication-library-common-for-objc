@@ -222,6 +222,8 @@
 		239FE695236A507700D846AC /* MSIDJsonSerializableTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 239FE693236A507700D846AC /* MSIDJsonSerializableTypes.h */; };
 		239FE696236A507700D846AC /* MSIDJsonSerializableTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 239FE694236A507700D846AC /* MSIDJsonSerializableTypes.m */; };
 		239FE697236A507700D846AC /* MSIDJsonSerializableTypes.m in Sources */ = {isa = PBXBuildFile; fileRef = 239FE694236A507700D846AC /* MSIDJsonSerializableTypes.m */; };
+		239FE699236A593300D846AC /* MSIDJsonSerializableFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 239FE698236A593300D846AC /* MSIDJsonSerializableFactoryTests.m */; };
+		239FE69A236A594500D846AC /* MSIDJsonSerializableFactoryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 239FE698236A593300D846AC /* MSIDJsonSerializableFactoryTests.m */; };
 		23AB37EA235151E5003A6E6C /* ASAuthorizationSingleSignOnProvider+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23AB37E8235151E5003A6E6C /* ASAuthorizationSingleSignOnProvider+MSIDExtensions.m */; };
 		23AE20982342D3BF00108F76 /* MSIDSilentController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 23AE20972342D3BF00108F76 /* MSIDSilentController+Internal.h */; };
 		23AE209A2342DD3F00108F76 /* MSIDLocalInteractiveController+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 23AE20992342DD3F00108F76 /* MSIDLocalInteractiveController+Internal.h */; };
@@ -1432,6 +1434,7 @@
 		239E8F7C233D951D00251373 /* MSIDBrokerOperationTokenResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationTokenResponse.h; sourceTree = "<group>"; };
 		239FE693236A507700D846AC /* MSIDJsonSerializableTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJsonSerializableTypes.h; sourceTree = "<group>"; };
 		239FE694236A507700D846AC /* MSIDJsonSerializableTypes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializableTypes.m; sourceTree = "<group>"; };
+		239FE698236A593300D846AC /* MSIDJsonSerializableFactoryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDJsonSerializableFactoryTests.m; sourceTree = "<group>"; };
 		23AB37E8235151E5003A6E6C /* ASAuthorizationSingleSignOnProvider+MSIDExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ASAuthorizationSingleSignOnProvider+MSIDExtensions.m"; sourceTree = "<group>"; };
 		23AB37E9235151E5003A6E6C /* ASAuthorizationSingleSignOnProvider+MSIDExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"; sourceTree = "<group>"; };
 		23AE20972342D3BF00108F76 /* MSIDSilentController+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDSilentController+Internal.h"; sourceTree = "<group>"; };
@@ -3972,6 +3975,7 @@
 				B223B0A222ADEE4500FB8713 /* MSIDMaskedUsernameLogParameterTests.m */,
 				B223B0A522ADEE5900FB8713 /* MSIDMaskedLogParameterTests.m */,
 				B2525C742330623E006FBA4B /* MSIDMainThreadUtilTests.m */,
+				239FE698236A593300D846AC /* MSIDJsonSerializableFactoryTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -4826,6 +4830,7 @@
 				2338ECDA208A7CBD00809B9E /* MSIDAADRequestErrorHandlerTests.m in Sources */,
 				23CA0C4A220A3B6900768729 /* MSIDPKeyAuthHandlerTests.m in Sources */,
 				B223B0A622ADEE5900FB8713 /* MSIDMaskedLogParameterTests.m in Sources */,
+				239FE699236A593300D846AC /* MSIDJsonSerializableFactoryTests.m in Sources */,
 				B2DD4B4220A934BC0047A66E /* MSIDTokenFilteringHelperTests.m in Sources */,
 				239DF9C320E04BC9002D428B /* MSIDADFSAuthorityTests.m in Sources */,
 				960F918A20CBECAE0055A162 /* MSIDAADWebviewFactoryTests.m in Sources */,
@@ -5216,6 +5221,7 @@
 				23B3A4592187BB31009070B2 /* MSIDIntuneMAMResourcesCacheTests.m in Sources */,
 				B2DD5BB2204789FB0084313F /* MSIDIdTokenTests.m in Sources */,
 				232C657721376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m in Sources */,
+				239FE69A236A594500D846AC /* MSIDJsonSerializableFactoryTests.m in Sources */,
 				B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */,
 				B20657D01FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				B26A0B972072B9CB006BD95A /* MSIDAADV1Oauth2FactoryTests.m in Sources */,

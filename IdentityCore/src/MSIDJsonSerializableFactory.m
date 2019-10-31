@@ -83,7 +83,7 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
     
     if (!class)
     {
-        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, class: %@ wasn't registered in factory under %@ key.", class, containerKey];
+        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, class: %@ wasn't registered in factory under %@ key.", aClass, containerKey];
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain,
@@ -100,7 +100,7 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
     
     if (![classInstance isKindOfClass:aClass])
     {
-        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, created class instance is not of expected kind: %@", aClass];
+        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, created class instance is not of expected kind: %@.", aClass];
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain,

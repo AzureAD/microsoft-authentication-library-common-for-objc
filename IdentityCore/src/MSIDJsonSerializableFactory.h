@@ -43,7 +43,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (void)unregisterAll;
 
-
 /*!
  Create instance of class from the provided json payload.
  This method is not thread safe.
