@@ -99,7 +99,11 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     }
     json[MSID_BROKER_KEY] = self.brokerKey;
     json[MSID_BROKER_PROTOCOL_VERSION_KEY] = [@(self.protocolVersion) stringValue];
-    if (!self.protocolVersion) return nil;
+    if (!self.protocolVersion)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, protocolVersion is nil.", self.class);
+        return nil;
+    }
     json[MSID_BROKER_CLIENT_VERSION_KEY] = self.clientVersion;
     json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
     json[MSID_BROKER_CLIENT_APP_NAME_KEY] = self.clientAppName;

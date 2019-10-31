@@ -67,7 +67,11 @@
     if (self)
     {
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
-        if (!_accountIdentifier) return nil;
+        if (!_accountIdentifier)
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, accountIdentifier is nil.", self.class);
+            return nil;
+        }
     }
     
     return self;
