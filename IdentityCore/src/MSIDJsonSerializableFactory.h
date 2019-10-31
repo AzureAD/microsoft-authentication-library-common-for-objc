@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDJsonSerializableFactory : NSObject
 
 /*!
- Bind class type with sepcifc class type key in json paylod.
+ Bind class type with specifc class type key in json paylod.
  This method is tread safe.
  @param aClass Class which will be associated with classType in this factory.
  @param classType Class type under which class will be registered in this factory.
