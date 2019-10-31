@@ -26,6 +26,7 @@
 #import "MSIDCache.h"
 #import "MSIDJsonSerializable.h"
 
+extern NSString * _Nonnull const MSID_AUTHORITY_URL_JSON_KEY;
 extern NSString * _Nonnull const MSID_AUTHORITY_TYPE_JSON_KEY;
 
 @class MSIDOpenIdProviderMetadata;
