@@ -25,9 +25,9 @@
 #import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "MSIDPromptType_Internal.h"
-#import "MSIDBrokerOperationRequestFactory.h"
+#import "MSIDJsonSerializableFactory.h"
 #import "MSIDPromptType_Internal.h"
-#import "MSIDAccountIdentifier+MSIDJsonSerializable.h"
+#import "MSIDAccountIdentifier.h"
 #import "MSIDInteractiveRequestParameters.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
@@ -36,7 +36,7 @@
 {
     if (@available(iOS 13.0, *))
     {
-        [MSIDBrokerOperationRequestFactory registerOperationRequestClass:self operation:self.operation];
+        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
     }
 }
 
@@ -69,10 +69,8 @@
     
     if (self)
     {
-        NSError *localError;
         // We have flat json dictionary, that is why we are passing the whole json to the MSIDAccountIdentifier.
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:&localError];
-        if (localError) MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, nil, @"Failed to parse MSIDAccountIdentifier %@", MSID_PII_LOG_MASKABLE(localError));
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:nil];
         
         _loginHint = [json msidStringObjectForKey:MSID_BROKER_LOGIN_HINT_KEY];
         

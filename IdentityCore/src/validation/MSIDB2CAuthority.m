@@ -25,8 +25,15 @@
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDB2CAuthority
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.authorityType];
+}
 
 - (nullable instancetype)initWithURL:(NSURL *)url
                       validateFormat:(BOOL)validateFormat
@@ -122,6 +129,11 @@
 }
 
 #pragma mark - Protected
+
++ (NSString *)authorityType
+{
+    return MSID_JSON_TYPE_B2C_AUTHORITY;
+}
 
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(id<MSIDRequestContext>)context

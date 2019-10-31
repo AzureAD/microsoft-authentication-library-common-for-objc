@@ -40,6 +40,8 @@
 #import "MSIDTelemetryAuthorityValidationEvent.h"
 
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
+NSString *const MSID_AUTHORITY_URL_JSON_KEY = @"authority";
+NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 
 @implementation MSIDAuthority
 
@@ -90,6 +92,12 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
                       error:(NSError **)error
 {
     return [self initWithURL:url validateFormat:YES context:context error:error];
+}
+
++ (NSString *)authorityType
+{
+    NSAssert(NO, @"Abstract method.");
+    return @"";
 }
 
 - (void)resolveAndValidate:(BOOL)validate
@@ -331,9 +339,40 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 #pragma mark - Sovereign
 
 - (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(__unused NSString *)cloudHostInstanceName
-                                                           error:(__unused NSError **)error
+                                                       error:(__unused NSError **)error
 {
     return nil;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    NSString *authorityString = json[MSID_AUTHORITY_URL_JSON_KEY];
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:authorityString];
+    if (!authorityUrl)
+    {
+        NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: authority is either nil or not a url.", self.class];
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil);
+        return nil;
+    }
+    
+    return [self initWithURL:authorityUrl context:nil error:error];
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    if (!self.url.absoluteString)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: authority url is nil", self.class);
+        return nil;
+    }
+    json[MSID_AUTHORITY_URL_JSON_KEY] = self.url.absoluteString;
+    
+    json[MSID_AUTHORITY_TYPE_JSON_KEY] = self.class.authorityType;
+    
+    return json;
 }
 
 @end

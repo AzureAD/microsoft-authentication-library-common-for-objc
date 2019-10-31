@@ -21,13 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountIdentifier.h"
-#import "MSIDJsonSerializable.h"
+#import "MSIDJsonSerializableTypes.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDAccountIdentifier (MSIDJsonSerializable) <MSIDJsonSerializable>
-
-@end
-
-NS_ASSUME_NONNULL_END
+MSIDJsonSerializableType MSID_JSON_TYPE_AAD_AUTHORITY = @"authority_aad";
+MSIDJsonSerializableType MSID_JSON_TYPE_ADFS_AUTHORITY = @"authority_adfs";
+MSIDJsonSerializableType MSID_JSON_TYPE_B2C_AUTHORITY = @"authority_b2c";

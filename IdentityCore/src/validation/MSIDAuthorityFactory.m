@@ -26,6 +26,7 @@
 #import "MSIDADFSAuthority.h"
 #import "MSIDB2CAuthority.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDAuthorityFactory
 

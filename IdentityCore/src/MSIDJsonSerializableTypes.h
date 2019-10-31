@@ -21,25 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDConfiguration+MSIDJsonSerializable.h"
-#import "MSIDAADAuthority.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDConfiguration (MSIDJsonSerializable)
+typedef NSString *const MSIDJsonSerializableType NS_TYPED_ENUM;
 
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    // TODO: implement
-    
-    return nil;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    // TODO: implement
-    
-    return nil;
-}
-
-@end
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_AAD_AUTHORITY;
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_ADFS_AUTHORITY;
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_B2C_AUTHORITY;

@@ -25,8 +25,15 @@
 #import "MSIDAdfsAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDADFSAuthority
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.authorityType];
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -77,6 +84,11 @@
 }
 
 #pragma mark - Protected
+
++ (NSString *)authorityType
+{
+    return MSID_JSON_TYPE_ADFS_AUTHORITY;
+}
 
 - (id<MSIDAuthorityResolving>)resolver
 {
