@@ -32,6 +32,7 @@
 #import "MSIDADFSAuthority.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @interface MSIDAADAuthority()
 
@@ -249,7 +250,7 @@
 
 + (NSString *)authorityType
 {
-    return @"authority_aad";
+    return MSID_JSON_TYPE_AAD_AUTHORITY;
 }
 
 + (NSString *)realmFromURL:(NSURL *)url

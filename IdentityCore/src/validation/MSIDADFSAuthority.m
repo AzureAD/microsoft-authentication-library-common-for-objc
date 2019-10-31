@@ -26,6 +26,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDADFSAuthority
 
@@ -86,7 +87,7 @@
 
 + (NSString *)authorityType
 {
-    return @"authority_adfs";
+    return MSID_JSON_TYPE_ADFS_AUTHORITY;
 }
 
 - (id<MSIDAuthorityResolving>)resolver

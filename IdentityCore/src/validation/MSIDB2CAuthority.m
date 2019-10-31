@@ -26,6 +26,7 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDB2CAuthority
 
@@ -131,7 +132,7 @@
 
 + (NSString *)authorityType
 {
-    return @"authority_b2c";
+    return MSID_JSON_TYPE_B2C_AUTHORITY;
 }
 
 + (NSString *)realmFromURL:(NSURL *)url
