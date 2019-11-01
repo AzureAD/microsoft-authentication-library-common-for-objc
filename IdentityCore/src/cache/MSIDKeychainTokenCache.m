@@ -153,12 +153,21 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 #endif
     
     self.defaultKeychainQuery = defaultKeychainQuery;
-        
-    self.defaultWipeQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
-                              (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
-                              (id)kSecAttrAccessGroup : self.keychainGroup,
-                              (id)kSecAttrAccount : @"TokenWipe"};
     
+    NSMutableDictionary *defaultWipeQuery = [@{(id)kSecClass : (id)kSecClassGenericPassword,
+                                              (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
+                                              (id)kSecAttrAccessGroup : self.keychainGroup,
+                                              (id)kSecAttrAccount : @"TokenWipe"} mutableCopy];
+    
+#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+        if (@available(macOS 10.15, *)) {
+            defaultWipeQuery[(id)kSecUseDataProtectionKeychain] = @YES;
+        }
+#endif
+#endif
+        
+    self.defaultWipeQuery = defaultWipeQuery;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", MSID_PII_LOG_MASKABLE(_keychainGroup));
     
     return self;
