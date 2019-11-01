@@ -35,7 +35,7 @@
     {
         _deviceMode = [[json msidStringObjectForKey:@"device_mode"] intValue];
         _wpjStatus = [[json msidStringObjectForKey:@"wpj_status"] intValue];
-        _brokerVersion = [json msidStringObjectForKey:@"broker_versioin"];
+        _brokerVersion = [json msidStringObjectForKey:@"broker_version"];
     }
     
     return self;
