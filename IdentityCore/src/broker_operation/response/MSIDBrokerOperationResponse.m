@@ -23,6 +23,9 @@
 
 #import "MSIDBrokerOperationResponse.h"
 
+NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
+NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
+
 @implementation MSIDBrokerOperationResponse
 
 #pragma mark - MSIDJsonSerializable
@@ -33,7 +36,11 @@
     
     if (self)
     {
-        // TODO: implement.
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
+        _operation = json[MSID_BROKER_OPERATION_JSON_KEY];
+        
+        if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_OPERATION_RESULT_JSON_KEY required:YES error:error]) return nil;
+        _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
     }
     
     return self;
@@ -41,9 +48,11 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    // TODO: implement.
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
+    json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
     
-    return nil;
+    return json;
 }
 
 @end

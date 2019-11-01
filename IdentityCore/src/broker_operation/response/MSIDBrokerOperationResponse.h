@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSString *operation;
 @property (nonatomic) BOOL success;
-@property (nonatomic) NSError *error;
+@property (nonatomic, nullable) NSError *error;
 
 // TODO: add device_info
 

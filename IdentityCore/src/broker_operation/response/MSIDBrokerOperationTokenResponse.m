@@ -27,6 +27,7 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAccessToken.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDAADV2TokenResponse.h"
 
 @implementation MSIDBrokerOperationTokenResponse
 
@@ -34,11 +35,16 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
     
     if (self)
     {
-        // TODO: implement.
+        if (self.success)
+        {
+            // TODO: support other response types.
+            _tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:error];
+            if (!_tokenResponse) return nil;
+        }
     }
     
     return self;
@@ -46,9 +52,16 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    // TODO: implement.
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    return nil;
+    if (self.success)
+    {
+        NSDictionary *responseJson = [_tokenResponse jsonDictionary];
+        if (responseJson) [json addEntriesFromDictionary:responseJson];
+    }
+    
+    return json;
 }
 
 @end
