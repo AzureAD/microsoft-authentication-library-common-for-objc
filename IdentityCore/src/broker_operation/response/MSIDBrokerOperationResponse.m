@@ -25,8 +25,15 @@
 
 NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
+NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
 
 @implementation MSIDBrokerOperationResponse
+
++ (NSString *)responseType
+{
+    NSAssert(NO, @"Abstract method.");
+    return @"";
+}
 
 #pragma mark - MSIDJsonSerializable
 
@@ -51,6 +58,7 @@ NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
     NSMutableDictionary *json = [NSMutableDictionary new];
     json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
     json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
+    json[MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY] = self.class.responseType;
     
     return json;
 }

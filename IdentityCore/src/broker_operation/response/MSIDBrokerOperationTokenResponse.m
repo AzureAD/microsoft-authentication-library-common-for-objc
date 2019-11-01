@@ -28,8 +28,23 @@
 #import "MSIDAccessToken.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAADV2TokenResponse.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDBrokerOperationTokenResponse
+
++ (void)load
+{
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+    }
+}
+
++ (NSString *)responseType
+{
+    return MSID_JSON_TYPE_BROKER_OPERATION_TOKEN_RESPONSE;
+}
 
 #pragma mark - MSIDJsonSerializable
 
