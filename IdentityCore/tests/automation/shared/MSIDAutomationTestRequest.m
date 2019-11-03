@@ -84,6 +84,7 @@
         _usePassedWebView = [json[@"use_passed_in_webview"] boolValue];
         _forceRefresh = [json[@"force_refresh"] boolValue];
         _isIntuneMAMCACapable = [json[@"intune_mam_ca_capable"] boolValue];
+        _ssoExtensionHooksEnabled = [json[@"sso_extension_hooks_enabled"] boolValue];
     }
 
     return self;
@@ -107,6 +108,7 @@
     json[@"use_passed_in_webview"] = @(_usePassedWebView);
     json[@"refresh_token"] = _refreshToken;
     json[@"intune_mam_ca_capable"] = @(_isIntuneMAMCACapable);
+    json[@"sso_extension_hooks_enabled"] = @(_ssoExtensionHooksEnabled);
 
     NSString *webviewType = nil;
 

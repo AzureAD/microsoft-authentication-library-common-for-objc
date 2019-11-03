@@ -59,6 +59,7 @@
 @property (nonatomic) UIViewController *parentController;
 #endif
 @property (nonatomic) BOOL isIntuneMAMCACapable;
+@property (nonatomic) BOOL ssoExtensionHooksEnabled;
 
 - (BOOL)usesEmbeddedWebView;
 
