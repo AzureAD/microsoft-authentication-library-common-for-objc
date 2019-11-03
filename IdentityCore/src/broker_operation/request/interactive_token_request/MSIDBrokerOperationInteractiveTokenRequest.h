@@ -28,6 +28,7 @@
 @class WKWebView;
 @class MSIDAccountIdentifier;
 @class MSIDInteractiveRequestParameters;
+@class ADBrokerRequest;
 
 NS_ASSUME_NONNULL_BEGIN
 

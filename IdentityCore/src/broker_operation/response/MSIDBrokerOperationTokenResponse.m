@@ -38,7 +38,7 @@
     
     if (self)
     {
-        // TODO: implement.
+        _tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:error];
     }
     
     return self;
@@ -46,9 +46,7 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    // TODO: implement.
-    
-    return nil;
+    return self.tokenResponse.jsonDictionary;
 }
 
 @end
