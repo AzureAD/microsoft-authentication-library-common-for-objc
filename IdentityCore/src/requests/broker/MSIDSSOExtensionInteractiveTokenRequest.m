@@ -45,11 +45,12 @@
 
 @implementation MSIDSSOExtensionInteractiveTokenRequest
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                             oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                   tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                               tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                     accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+          oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+            tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+          providerType:(MSIDProviderType)providerType
+  accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super initWithRequestParameters:parameters
                                oauthFactory:oauthFactory
@@ -68,6 +69,7 @@
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        _providerType = providerType;
     }
 
     return self;
@@ -101,6 +103,7 @@
         
         NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
+                                                                                                 providerType:self.providerType
                                                                                                          error:&localError];
         
         if (!operationRequest)

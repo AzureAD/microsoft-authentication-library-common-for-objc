@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDSilentTokenRequest.h"
+#import "MSIDProviderType.h"
 
 @class MSIDAccountMetadataCacheAccessor;
 
@@ -42,7 +43,10 @@ API_AVAILABLE(ios(13.0))
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                                      providerType:(MSIDProviderType)providerType
                               accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly) MSIDProviderType providerType;
 
 @end
 

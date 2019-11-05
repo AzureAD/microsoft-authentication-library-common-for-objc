@@ -104,6 +104,7 @@
                                                                                             oauthFactory:self.oauthFactory
                                                                                   tokenResponseValidator:self.tokenResponseValidator
                                                                                               tokenCache:self.tokenCache
+                                                                                            providerType:MSIDProviderTypeAADV2
                                                                                     accountMetadataCache:self.accountMetadataCache];
         return request;
     }
@@ -123,8 +124,8 @@
                                                                                        oauthFactory:self.oauthFactory
                                                                              tokenResponseValidator:self.tokenResponseValidator
                                                                                          tokenCache:self.tokenCache
+                                                                                       providerType:MSIDProviderTypeAADV2
                                                                                accountMetadataCache:self.accountMetadataCache];
-        
         return request;
     }
 #endif

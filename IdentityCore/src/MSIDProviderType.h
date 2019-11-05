@@ -21,29 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
-#import "MSIDProviderType.h"
+#import <Foundation/Foundation.h>
 
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveRequestParameters;
+extern NSString * _Nonnull const MSID_PROVIDER_TYPE_JSON_KEY;
 
-NS_ASSUME_NONNULL_BEGIN
+typedef NS_ENUM(NSInteger, MSIDProviderType)
+{
+    MSIDProviderTypeAADV2,
+    MSIDProviderTypeAADV1,
+    MSIDProviderTypeB2C,
+};
 
-API_AVAILABLE(ios(13.0))
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
-
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic) MSIDPromptType promptType;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
-@end
-
-NS_ASSUME_NONNULL_END
-#endif
+extern NSString * _Nonnull MSIDProviderTypeToString(MSIDProviderType type);
+extern MSIDProviderType MSIDProviderTypeFromString(NSString * _Nonnull providerTypeString);

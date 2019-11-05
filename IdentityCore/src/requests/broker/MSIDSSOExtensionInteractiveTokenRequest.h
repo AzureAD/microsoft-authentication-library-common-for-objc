@@ -22,11 +22,27 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveTokenRequest.h"
+#import "MSIDProviderType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0))
 @interface MSIDSSOExtensionInteractiveTokenRequest : MSIDInteractiveTokenRequest
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+          oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+            tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache NS_UNAVAILABLE;
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                            tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
+                                        tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                      providerType:(MSIDProviderType)providerType
+                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache NS_DESIGNATED_INITIALIZER;
+
+@property (nonatomic, readonly) MSIDProviderType providerType;
 
 @end
 

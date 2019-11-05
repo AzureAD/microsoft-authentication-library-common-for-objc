@@ -26,6 +26,7 @@
 #import "MSIDAccountType.h"
 #import "MSIDConfiguration.h"
 #import "MSIDError.h"
+#import "MSIDProviderType.h"
 
 @protocol MSIDRefreshableToken;
 @class MSIDBaseToken;
@@ -70,6 +71,8 @@
 
 // Account type for an account generated from this response
 @property (nonatomic, readonly) MSIDAccountType accountType;
+
+@property (nonatomic, class, readonly) MSIDProviderType providerType;
 
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token

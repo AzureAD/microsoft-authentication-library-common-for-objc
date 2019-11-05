@@ -29,3 +29,6 @@ extern MSIDJsonSerializableType const MSID_JSON_TYPE_AAD_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_ADFS_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_B2C_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_BROKER_OPERATION_TOKEN_RESPONSE;
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_AADV1;
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_AADV2;
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_B2C;

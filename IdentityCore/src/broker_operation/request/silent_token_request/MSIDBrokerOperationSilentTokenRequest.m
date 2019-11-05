@@ -28,6 +28,7 @@
 #import "MSIDConstants.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDRequestParameters.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 
@@ -40,10 +41,11 @@
 }
 
 + (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                              providerType:(MSIDProviderType)providerType
                                      error:(NSError **)error
 {
     __auto_type request = [MSIDBrokerOperationSilentTokenRequest new];
-    BOOL result = [self fillRequest:request withParameters:parameters error:error];
+    BOOL result = [self fillRequest:request withParameters:parameters providerType:providerType error:error];
     if (!result) return nil;
     
     request.accountIdentifier = parameters.accountIdentifier;

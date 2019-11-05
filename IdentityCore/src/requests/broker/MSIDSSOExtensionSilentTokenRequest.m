@@ -53,6 +53,7 @@
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                             providerType:(MSIDProviderType)providerType
                      accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super initWithRequestParameters:parameters
@@ -73,6 +74,7 @@
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        _providerType = providerType;
     }
     
     return self;
@@ -107,6 +109,7 @@
         
         NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
+                                                                                            providerType:self.providerType
                                                                                                     error:&localError];
         
         if (!operationRequest)

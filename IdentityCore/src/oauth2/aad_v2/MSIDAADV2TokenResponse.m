@@ -26,8 +26,19 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAuthority.h"
 #import "MSIDTokenResponse+Internal.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDAADV2TokenResponse
+
++ (void)load
+{
+    if (@available(iOS 13.0, *))
+    {
+        NSString *providerType = MSIDProviderTypeToString(self.class.providerType);
+        [MSIDJsonSerializableFactory registerClass:self forClassType:providerType];
+    }
+}
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
@@ -37,6 +48,11 @@
 - (MSIDAccountType)accountType
 {
     return MSIDAccountTypeMSSTS;
+}
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV2;
 }
 
 @end

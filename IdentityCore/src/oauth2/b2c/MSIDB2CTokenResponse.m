@@ -28,12 +28,28 @@
 #import "MSIDB2CTokenResponse.h"
 #import "MSIDB2CIdTokenClaims.h"
 #import "MSIDTokenResponse+Internal.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDB2CTokenResponse
+
++ (void)load
+{
+    if (@available(iOS 13.0, *))
+    {
+        NSString *providerType = MSIDProviderTypeToString(self.class.providerType);
+        [MSIDJsonSerializableFactory registerClass:self forClassType:providerType];
+    }
+}
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
     return [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
+}
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeB2C;
 }
 
 @end
