@@ -584,7 +584,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 }
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+                     error:(NSError **)error
 {
     NSMutableDictionary *query = [self.defaultWipeQuery mutableCopy];
     [query setObject:@YES forKey:(id)kSecReturnData];
@@ -677,7 +677,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return key;
 }
 
-- (NSString *)extractAppKey:(NSString *)cacheKeyString
+- (NSString *)extractAppKey:(__unused NSString *)cacheKeyString
 {
     // no app key needs to be set here
     return nil;
