@@ -133,7 +133,7 @@
 
 - (id<MSIDCacheAccessor>)tokenCache
 {
-    return self.tokenCache;
+    return _tokenCache;
 }
 
 - (MSIDAccountMetadataCacheAccessor *)metadataCache
