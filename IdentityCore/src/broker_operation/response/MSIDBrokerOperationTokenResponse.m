@@ -56,8 +56,7 @@
     {
         if (self.success)
         {
-            // TODO: support other response types.
-            _tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:json error:error];
+            _tokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:error];
             if (!_tokenResponse) return nil;
         }
     }
