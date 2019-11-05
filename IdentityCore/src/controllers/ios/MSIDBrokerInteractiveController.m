@@ -346,7 +346,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 #if !AD_BROKER
 
-+ (void)appEnteredForeground:(NSNotification *)notification
++ (void)appEnteredForeground:(__unused NSNotification *)notification
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillEnterForegroundNotification
@@ -360,7 +360,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
                                                  name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
-+ (void)checkTokenResponse:(NSNotification *)notification
++ (void)checkTokenResponse:(__unused NSNotification *)notification
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationDidBecomeActiveNotification

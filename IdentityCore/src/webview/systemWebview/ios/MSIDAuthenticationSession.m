@@ -49,7 +49,7 @@
 
 @implementation MSIDAuthenticationSession (ASWebAuth)
 
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session
 API_AVAILABLE(ios(13.0))
 {
     return [self presentationAnchor];
