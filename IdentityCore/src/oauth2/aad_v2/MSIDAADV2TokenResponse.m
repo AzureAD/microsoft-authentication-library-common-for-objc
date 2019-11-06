@@ -35,8 +35,8 @@
 {
     if (@available(iOS 13.0, *))
     {
-        NSString *providerType = MSIDProviderTypeToString(self.class.providerType);
-        [MSIDJsonSerializableFactory registerClass:self forClassType:providerType];
+        [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE];
+        [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV2 kindOfClass:MSIDTokenResponse.class toClassType:MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE];
     }
 }
 

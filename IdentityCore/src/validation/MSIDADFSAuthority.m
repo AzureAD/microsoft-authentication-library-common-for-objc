@@ -27,12 +27,14 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDProviderType.h"
 
 @implementation MSIDADFSAuthority
 
 + (void)load
 {
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.authorityType];
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_ADFS_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_ADFS kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_ADFS_AUTHORITY];
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -84,11 +86,6 @@
 }
 
 #pragma mark - Protected
-
-+ (NSString *)authorityType
-{
-    return MSID_JSON_TYPE_ADFS_AUTHORITY;
-}
 
 - (id<MSIDAuthorityResolving>)resolver
 {

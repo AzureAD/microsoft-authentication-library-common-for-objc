@@ -41,8 +41,6 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
     NSURL *_openIdConfigurationEndpoint;
 }
 
-@property (nonatomic, class, readonly, nonnull) NSString *authorityType;
-
 @property (class, readonly, nonnull) MSIDCache *openIdConfigurationCache;
 
 @property (readonly, nonnull) NSURL *url;
