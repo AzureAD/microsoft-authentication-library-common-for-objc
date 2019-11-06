@@ -47,8 +47,7 @@
 }
 
 - (void)testInitWithJSONDictionary_whenAllRequiredFieldsAvailable_shouldSucceed {
-    NSDictionary *json = @{@"operation" : @"get_accounts",
-                           MSID_BROKER_KEY : @"I87KMS",
+    NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
                            MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
                            MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
                            MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
@@ -56,8 +55,8 @@
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                            @"request_parameters" : @{
                                    @"account_identifier" : @{
-                                           @"home_account_id" : @"uid.utid",
-                                           @"username" : @"legacy id",
+                                           @"account_home_id" : @"uid.utid",
+                                           @"account_displayable_id" : @"legacy id",
                                    },
                                    @"client_id" : @"my-client-id"
                            }
@@ -79,8 +78,7 @@
 }
 
 - (void)testInitWithJSONDictionary_whenRequestParametersMissing_shouldReturnNil {
-    NSDictionary *json = @{@"operation" : @"get_accounts",
-                           MSID_BROKER_KEY : @"I87KMS",
+    NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
                            MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
                            MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
                            MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
@@ -96,8 +94,7 @@
 }
 
 - (void)testInitWithJSONDictionary_whenHomeAccountIdMissing_shouldReturnNil {
-    NSDictionary *json = @{@"operation" : @"get_accounts",
-                           MSID_BROKER_KEY : @"I87KMS",
+    NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
                            MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
                            MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
                            MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
@@ -105,7 +102,7 @@
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                            @"request_parameters" : @{
                                    @"account_identifier" : @{
-                                           @"username" : @"legacy id"
+                                           @"account_displayable_id" : @"legacy id"
                                    },
                                    @"client_id" : @"my-client-id"
                            }
@@ -119,8 +116,7 @@
 }
 
 - (void)testInitWithJSONDictionary_whenClientIdMissing_shouldReturnNil {
-    NSDictionary *json = @{@"operation" : @"get_accounts",
-                           MSID_BROKER_KEY : @"I87KMS",
+    NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
                            MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
                            MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
                            MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
@@ -128,8 +124,8 @@
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                            @"request_parameters" : @{
                                    @"account_identifier" : @{
-                                           @"home_account_id" : @"uid.utid",
-                                           @"username" : @"legacy id"
+                                           @"account_home_id" : @"uid.utid",
+                                           @"account_displayable_id" : @"legacy id"
                                    }
                            }
     };
@@ -152,8 +148,7 @@
     request.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy id" homeAccountId:@"uid.utid"];
     request.clientId = @"my-client-id";
 
-    NSDictionary *expectedJson = @{@"operation" : @"remove_account",
-                                   MSID_BROKER_KEY : @"I87KMS",
+    NSDictionary *expectedJson = @{MSID_BROKER_KEY : @"I87KMS",
                                    MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
                                    MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
                                    MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
@@ -161,8 +156,8 @@
                                    MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                                    @"request_parameters" : @{
                                            @"account_identifier" : @{
-                                                   @"home_account_id" : @"uid.utid",
-                                                   @"username" : @"legacy id",
+                                                   @"account_home_id" : @"uid.utid",
+                                                   @"account_displayable_id" : @"legacy id",
                                            },
                                            @"client_id" : @"my-client-id"
                                    }
