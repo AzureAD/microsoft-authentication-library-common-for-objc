@@ -28,3 +28,4 @@ typedef NSString *const MSIDJsonSerializableType NS_TYPED_ENUM;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_AAD_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_ADFS_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_B2C_AUTHORITY;
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT;

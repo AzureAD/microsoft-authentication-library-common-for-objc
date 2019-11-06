@@ -29,6 +29,8 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDBrokerOperationRemoveAccountRequest
 
@@ -41,7 +43,7 @@
 
 + (NSString *)operation
 {
-    return @"remove_account";
+    return MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT;
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -52,21 +54,14 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSDictionary.class ofKey:@"request_parameters" required:YES error:error]) return nil;
-        NSDictionary *requestParameters = json[@"request_parameters"];
-        
-        if (![requestParameters msidAssertType:NSDictionary.class ofKey:@"account_identifier" required:YES error:error])
-        {
-            return nil;
-        }
-        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:requestParameters[@"account_identifier"] error:error];
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
         if (!_accountIdentifier || !_accountIdentifier.homeAccountId)
         {
             if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"At least homeAccountId is required for remove account operation!", nil, nil, nil, nil, nil);
             return nil;
         }
         
-        _clientId = [requestParameters msidStringObjectForKey:@"client_id"];
+        _clientId = [json msidStringObjectForKey:MSID_BROKER_CLIENT_ID_KEY];
         if (!_clientId)
         {
             if (error)
@@ -83,17 +78,14 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
-    
-    NSMutableDictionary *requestParametersJson = [json[@"request_parameters"] mutableCopy] ?: [NSMutableDictionary new];
-    
-    if (!requestParametersJson) return nil;
+    if (!json) return nil;
     
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
-    if (accountIdentifierJson) [requestParametersJson setValue:accountIdentifierJson forKey:@"account_identifier"];
+    if (!accountIdentifierJson) return nil;
+    [json addEntriesFromDictionary:accountIdentifierJson];
     
-    [requestParametersJson setValue:self.clientId forKey:@"client_id"];
-    
-    json[@"request_parameters"] = requestParametersJson;
+    if (!self.clientId) return nil;
+    [json setValue:self.clientId forKey:MSID_BROKER_CLIENT_ID_KEY];
     
     return json;
 }

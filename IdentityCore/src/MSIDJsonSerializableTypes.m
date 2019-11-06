@@ -26,3 +26,5 @@
 MSIDJsonSerializableType MSID_JSON_TYPE_AAD_AUTHORITY = @"authority_aad";
 MSIDJsonSerializableType MSID_JSON_TYPE_ADFS_AUTHORITY = @"authority_adfs";
 MSIDJsonSerializableType MSID_JSON_TYPE_B2C_AUTHORITY = @"authority_b2c";
+
+MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT = @"remove_account_operation";
