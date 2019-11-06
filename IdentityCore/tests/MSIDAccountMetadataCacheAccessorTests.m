@@ -28,6 +28,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
+#import "MSIDTestCacheDataSource.h"
 
 @interface MSIDAccountMetadataCacheAccessorTests : XCTestCase
 
@@ -38,10 +39,13 @@
 @implementation MSIDAccountMetadataCacheAccessorTests
 
 - (void)setUp {
+#if TARGET_OS_IOS
     [MSIDKeychainTokenCache reset];
     __auto_type dataSource = [[MSIDKeychainTokenCache alloc] init];
+#else
+    __auto_type dataSource = [[MSIDTestCacheDataSource alloc] init];
+#endif
     self.accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
-    
 }
 
 - (void)tearDown {
