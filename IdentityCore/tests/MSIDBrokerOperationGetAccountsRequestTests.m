@@ -132,4 +132,17 @@
     XCTAssertEqualObjects(request.jsonDictionary, expectedJson);
 }
 
+- (void)testJsonDictionary_whenClientIdNil_shouldReturnNil {
+    MSIDBrokerOperationGetAccountsRequest *request = [MSIDBrokerOperationGetAccountsRequest new];
+    request.brokerKey = @"I87KMS";
+    request.protocolVersion = 3;
+    request.clientVersion = @"1.0";
+    request.clientAppVersion = @"10.3.4";
+    request.clientAppName = @"Outlook";
+    request.correlationId = [[NSUUID alloc] initWithUUIDString:@"A8AAEF5C-6100-4D85-9D8C-B877BDF96043"];
+    request.familyId = @"1";
+    
+    XCTAssertNil(request.jsonDictionary);
+}
+
 @end
