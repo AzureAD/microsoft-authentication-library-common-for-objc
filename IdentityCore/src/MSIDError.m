@@ -83,6 +83,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {
         return MSIDErrorServerUnauthorizedClient;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"interaction_required"] == NSOrderedSame)
+    {
+        return MSIDErrorInteractionRequired;
+    }
     
     return defaultCode;
 }
