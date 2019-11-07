@@ -226,8 +226,8 @@
     
     NSDictionary *expectedJson = @{
         @"account_identifier" : @{
-                @"home_account_id" : @"uid.utid",
-                @"username" : @"legacy id"
+                @"account_home_id" : @"uid.utid",
+                @"account_displayable_id" : @"legacy id"
         },
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
@@ -253,8 +253,8 @@
                                      @"middle_name" : @"Middle" };
     NSDictionary *json = @{
         @"account_identifier" : @{
-                @"home_account_id" : @"uid.utid",
-                @"username" : @"legacy id"
+                @"account_home_id" : @"uid.utid",
+                @"account_displayable_id" : @"legacy id"
         },
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
@@ -323,8 +323,8 @@
 - (void)testInitWithJSONDictionary_whenOptionalValueUnavailable_shouldInitWithJson {
     NSDictionary *json = @{
         @"account_identifier" : @{
-                @"home_account_id" : @"uid.utid",
-                @"username" : @"legacy id"
+                @"account_home_id" : @"uid.utid",
+                @"account_displayable_id" : @"legacy id"
         },
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",

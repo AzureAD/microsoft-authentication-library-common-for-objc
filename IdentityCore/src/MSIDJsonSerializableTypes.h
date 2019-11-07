@@ -29,3 +29,4 @@ extern MSIDJsonSerializableType const MSID_JSON_TYPE_AAD_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_ADFS_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_B2C_AUTHORITY;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT;
+extern MSIDJsonSerializableType const MSID_JSON_TYPE_OPERATION_REQUEST_GET_ACCOUNTS;

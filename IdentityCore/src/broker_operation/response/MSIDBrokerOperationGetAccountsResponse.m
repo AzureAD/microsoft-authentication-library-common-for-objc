@@ -70,6 +70,7 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
     NSMutableArray *accountsJson = [NSMutableArray new];
     

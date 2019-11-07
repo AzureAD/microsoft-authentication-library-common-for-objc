@@ -23,6 +23,8 @@
 
 #import "MSIDBrokerOperationGetAccountsRequest.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDBrokerOperationGetAccountsRequest
 
@@ -35,7 +37,7 @@
 
 + (NSString *)operation
 {
-    return @"get_accounts";
+    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_ACCOUNTS;
 }
 
 #pragma mark - MSIDJsonSerializable
@@ -46,12 +48,9 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSDictionary.class ofKey:@"request_parameters" required:YES error:error]) return nil;
-        NSDictionary *requestParameters = json[@"request_parameters"];
+        _familyId = [json msidStringObjectForKey:MSID_BROKER_FAMILY_ID_KEY];
         
-        _familyId = [requestParameters msidStringObjectForKey:@"family_id"];
-        
-        _clientId = [requestParameters msidStringObjectForKey:@"client_id"];
+        _clientId = [json msidStringObjectForKey:MSID_BROKER_CLIENT_ID_KEY];
         if (!_clientId)
         {
             if (error)
@@ -70,19 +69,13 @@
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if (!json) return nil;
     
-    NSMutableDictionary *requestParametersJson = [json[@"request_parameters"] mutableCopy];
-    if (!requestParametersJson)
-    {
-        requestParametersJson = [NSMutableDictionary new];
-    }
-    [requestParametersJson setValue:self.clientId forKey:@"client_id"];
+    if (!self.clientId) return nil;
+    [json setValue:self.clientId forKey:MSID_BROKER_CLIENT_ID_KEY];
     
     if (self.familyId)
     {
-        [requestParametersJson setValue:self.familyId forKey:@"family_id"];
+        [json setValue:self.familyId forKey:MSID_BROKER_FAMILY_ID_KEY];
     }
-    
-    json[@"request_parameters"] = requestParametersJson;
     
     return json;
 }
