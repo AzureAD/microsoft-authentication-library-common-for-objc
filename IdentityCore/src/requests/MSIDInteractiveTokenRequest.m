@@ -190,16 +190,12 @@
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-    MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory defaultWebViewType];
+    MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:self.requestParameters.webviewType];
     
     BOOL useSession = YES;
-#if TARGET_OS_IPHONE
-    BOOL allowSafariViewController = YES;
-#else
     BOOL allowSafariViewController = NO;
-#endif
     
-    switch (self.requestParameters.webviewType)
+    switch (webviewType)
     {
         case MSIDWebviewTypeWKWebView:
             [self showEmbeddedWebviewWithCompletion:completionHandler];

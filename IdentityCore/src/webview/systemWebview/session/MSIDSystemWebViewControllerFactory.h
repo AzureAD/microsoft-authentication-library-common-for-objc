@@ -16,7 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDSystemWebViewControllerFactory : NSObject
 
-+ (MSIDWebviewType)defaultWebViewType;
++ (MSIDWebviewType)availableWebViewTypeWithPreferredType:(MSIDWebviewType)preferredType;
 
 + (id<MSIDWebviewInteracting>)authSessionWithParentController:(MSIDViewController *)parentController
                                                      startURL:(NSURL *)startURL

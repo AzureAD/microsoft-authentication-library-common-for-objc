@@ -212,13 +212,11 @@
     configuration.loginHint = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
     configuration.extraQueryParameters = parameters.allAuthorizeRequestExtraParameters;
     configuration.customHeaders = parameters.customWebviewHeaders;
-#if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
+    configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
+    
+#if TARGET_OS_IPHONE
     configuration.presentationType = parameters.presentationType;
-    if (@available(iOS 13.0, *))
-    {
-        configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
-    }
 #endif
 
     NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];

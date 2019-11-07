@@ -18,8 +18,13 @@
 
 @implementation MSIDSystemWebViewControllerFactory
 
-+ (MSIDWebviewType)defaultWebViewType
++ (MSIDWebviewType)availableWebViewTypeWithPreferredType:(MSIDWebviewType)preferredType
 {
+    if (preferredType != MSIDWebviewTypeDefault)
+    {
+        return preferredType;
+    }
+    
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         
     if (@available(iOS 12.0, macOS 10.15, *))
