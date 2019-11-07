@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDDeviceInfo.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDDeviceInfo
 
@@ -33,9 +34,9 @@
     
     if (self)
     {
-        _deviceMode = [[json msidStringObjectForKey:@"device_mode"] intValue];
-        _wpjStatus = [[json msidStringObjectForKey:@"wpj_status"] intValue];
-        _brokerVersion = [json msidStringObjectForKey:@"broker_version"];
+        _deviceMode = [[json msidStringObjectForKey:MSID_BROKER_DEVICE_MODE_KEY] intValue];
+        _wpjStatus = [[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY] intValue];
+        _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
     }
     
     return self;
@@ -45,9 +46,9 @@
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
     
-    json[@"device_mode"] = [NSString stringWithFormat: @"%ld", self.deviceMode];
-    json[@"wpj_status"] = [NSString stringWithFormat: @"%ld", self.wpjStatus];
-    json[@"broker_version"] = self.brokerVersion;
+    json[MSID_BROKER_DEVICE_MODE_KEY] = [NSString stringWithFormat: @"%ld", self.deviceMode];
+    json[MSID_BROKER_WPJ_STATUS_KEY] = [NSString stringWithFormat: @"%ld", self.wpjStatus];
+    json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     
     return json;
 }
