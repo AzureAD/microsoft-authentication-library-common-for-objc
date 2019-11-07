@@ -6041,9 +6041,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_WARN_UNUSED_PARAMETER = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
@@ -6056,8 +6054,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4EA01FC3626C00CD70C5 /* identitycore__idlib__mac.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks/Swift",
@@ -6148,9 +6144,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_WARN_UNUSED_PARAMETER = YES;
 			};
 			name = Debug;
 		};
@@ -6158,8 +6152,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E981FC3626A00CD70C5 /* identitycore__idlib__ios.xcconfig */;
 			buildSettings = {
-				CLANG_WARN_SEMICOLON_BEFORE_METHOD_BODY = YES;
-				GCC_WARN_UNUSED_PARAMETER = YES;
 			};
 			name = Release;
 		};

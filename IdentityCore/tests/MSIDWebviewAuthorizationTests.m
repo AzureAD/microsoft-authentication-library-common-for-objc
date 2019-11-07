@@ -113,7 +113,7 @@
 
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
@@ -159,7 +159,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
@@ -173,7 +173,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:[self sessionWithFailedResponse]
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
@@ -211,7 +211,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
@@ -233,7 +233,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
     
@@ -255,7 +255,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
