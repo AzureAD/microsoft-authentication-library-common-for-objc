@@ -44,7 +44,7 @@ static NSString *s_redirectScheme = nil;
 
 @implementation MSIDCertAuthDelegate
 /*! @abstract Delegate callback called when the user taps the Done button. Upon this call, the view controller is dismissed modally. */
-- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
+- (void)safariViewControllerDidFinish:(__unused SFSafariViewController *)controller
 {
     NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"Certificate based authentication got cancelled", nil, nil, nil, nil, nil, YES);
     [MSIDCertAuthHandler completeCertAuthChallenge:nil error:cancelledError];
@@ -55,12 +55,12 @@ static NSString *s_redirectScheme = nil;
  @discussion This method is invoked when SFSafariViewController completes the loading of the URL that you pass
  to its initializer. It is not invoked for any subsequent page loads in the same SFSafariViewController instance.
  */
-- (void)safariViewController:(SFSafariViewController *)controller didCompleteInitialLoad:(BOOL)didLoadSuccessfully
+- (void)safariViewController:(__unused SFSafariViewController *)controller didCompleteInitialLoad:(__unused BOOL)didLoadSuccessfully
 {
     
 }
 
-- (NSArray<UIActivity*>*)safariViewController:(SFSafariViewController *)controller activityItemsForURL:(NSURL *)URL title:(NSString *)title
+- (NSArray<UIActivity*>*)safariViewController:(__unused SFSafariViewController *)controller activityItemsForURL:(__unused NSURL *)URL title:(__unused NSString *)title
 {
     return s_activities;
 }
@@ -125,7 +125,7 @@ static NSString *s_redirectScheme = nil;
 + (void)resetHandler { }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                webview:(WKWebView *)webview
+                webview:(__unused WKWebView *)webview
 #if TARGET_OS_IPHONE
        parentController:(UIViewController *)parentViewController
 #endif
