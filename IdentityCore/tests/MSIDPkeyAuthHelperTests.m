@@ -180,8 +180,8 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     method_exchangeImplementations(originalMethod, mockMethod);
 }
 
-+ (MSIDRegistrationInformation *)getRegistrationInformationMock:(id<MSIDRequestContext>)context
-                                                   urlChallenge:(NSURLAuthenticationChallenge *)challenge;
++ (MSIDRegistrationInformation *)getRegistrationInformationMock:(__unused id<MSIDRequestContext>)context
+                                                   urlChallenge:(__unused NSURLAuthenticationChallenge *)challenge
 {
     return s_registrationInformationToReturn;
 }
