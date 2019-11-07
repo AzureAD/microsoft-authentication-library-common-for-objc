@@ -16,12 +16,14 @@ NS_ASSUME_NONNULL_BEGIN
 @compatibility_alias MSIDViewController NSViewController;
 #endif
 
+typedef void (^MSIDAuthSessionCompletionHandler)(NSURL *callbackURL, NSError *authError);
+
 @protocol MSIDAuthSessionHandling <NSObject>
 
 - (void)startSessionWithWithURL:(NSURL *)URL
               callbackURLScheme:(NSString *)callbackURLScheme
      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-              completionHandler:(void (^)(NSURL *callbackURL, NSError *authError))completionHandler;
+              completionHandler:(MSIDAuthSessionCompletionHandler)completionHandler;
 
 - (void)cancel;
                             

@@ -29,6 +29,7 @@
 
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDConstants.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
 @interface MSIDASWebAuthenticationSessionHandler () <ASWebAuthenticationPresentationContextProviding>
@@ -36,7 +37,10 @@
 @interface MSIDASWebAuthenticationSessionHandler ()
 #endif
 @property (weak, nonatomic) MSIDViewController *parentController;
+@property (nonatomic) NSURL *startURL;
+@property (nonatomic) NSString *callbackURLScheme;
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
+@property (nonatomic) BOOL useEmpheralSession;
 
 @end
 
@@ -45,21 +49,24 @@
 #pragma mark - MSIDAuthSessionHandling
 
 - (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession
 {
     self = [super init];
     
     if (self)
     {
         _parentController = parentController;
+        _startURL = startURL;
+        _callbackURLScheme = callbackURLScheme;
+        _useEmpheralSession = useEmpheralSession;
     }
     
     return self;
 }
-                                      
-- (void)startSessionWithWithURL:(NSURL *)URL
-              callbackURLScheme:(NSString *)callbackURLScheme
-     ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-              completionHandler:(void (^)(NSURL *callbackURL, NSError *authError))completionHandler
+
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
@@ -71,18 +78,18 @@
             return;
         }
         
-        completionHandler(callbackURL, authError);
+        if (completionHandler) completionHandler(callbackURL, authError);
     };
     
-    self.webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:URL
-                                                        callbackURLScheme:callbackURLScheme
+    self.webAuthSession = [[ASWebAuthenticationSession alloc] initWithURL:self.startURL
+                                                        callbackURLScheme:self.callbackURLScheme
                                                         completionHandler:authCompletion];
     
     #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
         if (@available(iOS 13.0, macOS 10.15, *))
         {
             self.webAuthSession.presentationContextProvider = self;
-            self.webAuthSession.prefersEphemeralWebBrowserSession = prefersEphemeralWebBrowserSession;
+            self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
         }
     #endif
     
@@ -91,7 +98,6 @@
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, nil, nil, YES);
         if (completionHandler) completionHandler(nil, error);
     }
-    
 }
 
 - (void)cancel

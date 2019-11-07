@@ -7,14 +7,17 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthSessionHandling.h"
+#import "MSIDWebviewInteracting.h"
 
 #if !MSID_EXCLUDE_WEBKIT && !TARGET_OS_MACCATALYST
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(11.0))
-@interface MSIDSFAuthenticationSessionHandler : NSObject <MSIDAuthSessionHandling>
+@interface MSIDSFAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  callbackScheme:(NSString *)callbackURLScheme;
 
 @end
 

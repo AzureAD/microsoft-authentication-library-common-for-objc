@@ -14,17 +14,30 @@
 @interface MSIDSFAuthenticationSessionHandler()
 
 @property (nonatomic) SFAuthenticationSession *webAuthSession;
+@property (nonatomic) NSURL *startURL;
+@property (nonatomic) NSString *callbackURLScheme;
 
 @end
 
 @implementation MSIDSFAuthenticationSessionHandler
 
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  callbackScheme:(NSString *)callbackURLScheme
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _startURL = startURL;
+        _callbackURLScheme = callbackURLScheme;
+    }
+    
+    return self;
+}
+
 #pragma mark - MSIDAuthSessionHandling
                                       
-- (void)startSessionWithWithURL:(NSURL *)URL
-              callbackURLScheme:(NSString *)callbackURLScheme
-     ephemeralWebBrowserSession:(__unused BOOL)prefersEphemeralWebBrowserSession
-              completionHandler:(void (^)(NSURL *callbackURL, NSError *authError))completionHandler
+- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
@@ -39,8 +52,8 @@
         completionHandler(callbackURL, authError);
     };
     
-    self.webAuthSession = [[SFAuthenticationSession alloc] initWithURL:URL
-                                                     callbackURLScheme:callbackURLScheme
+    self.webAuthSession = [[SFAuthenticationSession alloc] initWithURL:self.startURL
+                                                     callbackURLScheme:self.callbackURLScheme
                                                      completionHandler:authCompletion];
     
     if (![self.webAuthSession start])

@@ -71,7 +71,7 @@ static MSIDWebviewSession *s_currentSession = nil;
 
 #endif
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if !MSID_EXCLUDE_SYSTEMWV
 + (void)startSystemWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
                                   oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
                        useAuthenticationSession:(BOOL)useAuthenticationSession

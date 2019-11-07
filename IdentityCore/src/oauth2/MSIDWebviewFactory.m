@@ -26,9 +26,7 @@
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewSession.h"
 #import <WebKit/WebKit.h>
-#if TARGET_OS_IPHONE
 #import "MSIDSystemWebviewController.h"
-#endif
 #import "MSIDPkce.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
@@ -83,7 +81,7 @@
 
 #endif
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if !MSID_EXCLUDE_SYSTEMWV
 
 - (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration
                                      useAuthenticationSession:(BOOL)useAuthenticationSession
@@ -108,11 +106,14 @@
     MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
                                                                                        redirectURI:configuration.redirectUri
                                                                                   parentController:configuration.parentController
-                                                                                  presentationType:configuration.presentationType
                                                                           useAuthenticationSession:useAuthenticationSession
                                                                          allowSafariViewController:allowSafariViewController
                                                                         ephemeralWebBrowserSession:configuration.prefersEphemeralWebBrowserSession
                                                                                            context:context];
+    
+#if TARGET_OS_IPHONE
+    systemWVC.presentationType = configuration.presentationType;
+#endif
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
                                                                                 factory:self

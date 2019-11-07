@@ -54,7 +54,7 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 
 #endif
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if !MSID_EXCLUDE_SYSTEMWV
 
 // SFAuthenticationSession/ASWebAuthenticationSession is only available on iOS 11 and up.
 //

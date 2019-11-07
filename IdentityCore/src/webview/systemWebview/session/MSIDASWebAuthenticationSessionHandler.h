@@ -26,16 +26,20 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDAuthSessionHandling.h"
+#import "MSIDWebviewInteracting.h"
+#import "MSIDConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(12.0), macCatalyst(13.0), macos(10.15))
-@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDAuthSessionHandling>
+@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
 
-- (instancetype)initWithParentController:(MSIDViewController *)parentController;
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession;
 
 @end
 
