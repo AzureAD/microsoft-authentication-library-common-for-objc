@@ -174,7 +174,7 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"account_home_id";
     if (!displayableId && !homeAccountId)
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: displayableId and homeAccountId are nil.", self.class];
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
         
         return nil;
     }

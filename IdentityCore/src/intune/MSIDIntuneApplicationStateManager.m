@@ -27,7 +27,7 @@
 
 @implementation MSIDIntuneApplicationStateManager
 
-+ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority
++ (BOOL)isAppCapableForMAMCA:(__unused MSIDAuthority *)authority
 {
 #if TARGET_OS_IPHONE
     

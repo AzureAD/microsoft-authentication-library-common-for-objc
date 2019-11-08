@@ -25,7 +25,7 @@
 
 @implementation MSIDClaimsRequestMock
 
-- (BOOL)requestClaim:(MSIDIndividualClaimRequest *)request forTarget:(MSIDClaimsRequestTarget)target error:(NSError **)error
+- (BOOL)requestClaim:(__unused MSIDIndividualClaimRequest *)request forTarget:(__unused MSIDClaimsRequestTarget)target error:(NSError **)error
 {
     self.requestClaimInvokedCount++;
     
@@ -34,7 +34,7 @@
     return self.resultToReturn;
 }
 
-- (BOOL)removeClaimRequestWithName:(NSString *)name target:(MSIDClaimsRequestTarget)target error:(NSError **)error
+- (BOOL)removeClaimRequestWithName:(__unused NSString *)name target:(__unused MSIDClaimsRequestTarget)target error:(NSError **)error
 {
     self.removeClaimRequestWithNameInvokedCount++;
     

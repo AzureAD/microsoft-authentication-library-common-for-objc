@@ -83,6 +83,11 @@
         
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+        if (@available(iOS 13.0, *)) {
+            _safariViewController.modalInPresentation = YES;
+        }
+#endif
 
         _parentController = parentController;
     }
@@ -91,7 +96,7 @@
 
 - (void)cancel
 {
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically", nil, nil, nil, _context.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically", nil, nil, nil, _context.correlationId, nil, YES);
     
     [self completeSessionWithResponse:nil context:_context error:error];
 }
@@ -109,7 +114,7 @@
         UIViewController *viewController = [UIApplication msidCurrentViewController:_parentController];
         if (!viewController)
         {
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil);
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil, YES);
             [MSIDNotifications notifyWebAuthDidFailWithError:error];
             completionHandler(nil, error);
             return;
@@ -143,7 +148,7 @@
 }
 
 - (BOOL)completeSessionWithResponse:(NSURL *)url
-                            context:(id<MSIDRequestContext>)context
+                            context:(__unused id<MSIDRequestContext>)context
                               error:(NSError *)error
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
@@ -174,10 +179,10 @@
 }
 
 #pragma mark - SFSafariViewControllerDelegate
-- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
+- (void)safariViewControllerDidFinish:(__unused SFSafariViewController *)controller
 {
     // user cancel
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil, YES);
     [_telemetryEvent setIsCancelled:YES];
     [self completeSessionWithResponse:nil
                               context:_context error:error];

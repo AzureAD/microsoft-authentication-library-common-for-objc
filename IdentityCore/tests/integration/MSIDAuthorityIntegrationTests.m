@@ -939,7 +939,10 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [authority resolveAndValidate:YES userPrincipalName:nil context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [authority resolveAndValidate:YES
+                userPrincipalName:nil
+                          context:nil
+                  completionBlock:^(__unused NSURL * openIdConfigurationEndpoint, __unused BOOL validated, __unused NSError *error)
      {
          [expectation fulfill];
      }];

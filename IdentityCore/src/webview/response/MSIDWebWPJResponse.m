@@ -42,7 +42,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      @"WPJ response should have msauth as a scheme and wpj/broker as a host",
-                                     nil, nil, nil, context.correlationId, nil);
+                                     nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
     }

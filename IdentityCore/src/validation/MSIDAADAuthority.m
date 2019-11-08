@@ -179,7 +179,7 @@
         if (error)
         {
             __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with ADFS authority url."];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -189,7 +189,7 @@
         if (error)
         {
             __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with B2C authority url."];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -281,7 +281,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return nil;
     }
@@ -298,7 +298,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return nil;
