@@ -35,10 +35,7 @@
 
 + (void)load
 {
-    if (@available(iOS 13.0, *))
-    {
-        [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
-    }
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
 }
 
 + (NSString *)responseType

@@ -34,10 +34,7 @@
 
 + (void)load
 {
-    if (@available(iOS 13.0, *))
-    {
-        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-    }
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
