@@ -138,7 +138,11 @@
         return anchor;
     }
     
+#if TARGET_OS_OSX
+    return self.parentController ? self.parentController.view.window : [NSApplication sharedApplication].keyWindow;
+#else
     return self.parentController.view.window;
+#endif
 }
 
 #endif
