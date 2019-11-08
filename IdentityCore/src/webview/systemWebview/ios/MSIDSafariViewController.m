@@ -120,11 +120,7 @@
                             context:(id<MSIDRequestContext>)context
                               error:(NSError *)error
 {
-    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        [_safariViewController dismissViewControllerAnimated:YES completion:^{
-            _safariViewController = nil;
-        }];
-    }];
+    [self dismiss];
     
     if (error)
     {
@@ -134,6 +130,15 @@
 
     _completionHandler(url, nil);
     return YES;
+}
+
+- (void)dismiss
+{
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        [_safariViewController dismissViewControllerAnimated:YES completion:^{
+            _safariViewController = nil;
+        }];
+    }];
 }
 
 #pragma mark - SFSafariViewControllerDelegate

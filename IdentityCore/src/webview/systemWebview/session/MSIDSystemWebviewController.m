@@ -175,11 +175,16 @@
     
     [[MSIDTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:self.telemetryEvent];
     
-    [self.session cancel];
+    [self.session dismiss];
     
     [self notifyEndWebAuthWithURL:url error:nil];
     self.completionHandler(url, nil);
     return YES;
+}
+
+- (void)dismiss
+{
+    [self.session dismiss];
 }
 
 #pragma mark - Helpers

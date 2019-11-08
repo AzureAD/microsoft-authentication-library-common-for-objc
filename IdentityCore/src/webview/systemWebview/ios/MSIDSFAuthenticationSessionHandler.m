@@ -31,6 +31,7 @@
 @property (nonatomic) SFAuthenticationSession *webAuthSession;
 @property (nonatomic) NSURL *startURL;
 @property (nonatomic) NSString *callbackURLScheme;
+@property (nonatomic) BOOL sessionDismissed;
 
 @end
 
@@ -56,6 +57,11 @@
 {
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
+        if (self.sessionDismissed)
+        {
+            return;
+        }
+        
         if (authError.code == SFAuthenticationErrorCanceledLogin)
         {
             NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, nil, nil, YES);
@@ -84,6 +90,11 @@
     [self.webAuthSession cancel];
 }
 
+- (void)dismiss
+{
+    self.sessionDismissed = YES;
+    [self cancel];
+}
 
 @end
 

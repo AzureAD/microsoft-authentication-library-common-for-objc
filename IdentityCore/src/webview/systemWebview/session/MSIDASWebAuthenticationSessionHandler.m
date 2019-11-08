@@ -41,6 +41,7 @@
 @property (nonatomic) NSString *callbackURLScheme;
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
 @property (nonatomic) BOOL useEmpheralSession;
+@property (nonatomic) BOOL sessionDismissed;
 
 @end
 
@@ -70,6 +71,11 @@
 {
     void (^authCompletion)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *authError)
     {
+        if (self.sessionDismissed)
+        {
+            return;
+        }
+        
         if (authError.code == ASWebAuthenticationSessionErrorCodeCanceledLogin)
         {
             NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, nil, nil, YES);
@@ -103,6 +109,12 @@
 - (void)cancel
 {
     [self.webAuthSession cancel];
+}
+
+- (void)dismiss
+{
+    self.sessionDismissed = YES;
+    [self cancel];
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
