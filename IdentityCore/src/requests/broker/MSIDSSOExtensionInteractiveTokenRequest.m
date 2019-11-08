@@ -33,6 +33,7 @@
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -40,17 +41,17 @@
 @property (nonatomic, copy) MSIDInteractiveRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic, readonly) MSIDProviderType providerType;
 
 @end
 
 @implementation MSIDSSOExtensionInteractiveTokenRequest
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-          oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
-tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
-            tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
-          providerType:(MSIDProviderType)providerType
-  accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                             oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                   tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
+                               tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                     accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super initWithRequestParameters:parameters
                                oauthFactory:oauthFactory
@@ -69,7 +70,7 @@ tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValida
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
-        _providerType = providerType;
+        _providerType = [oauthFactory.class providerType];
     }
 
     return self;

@@ -43,6 +43,11 @@
 
 @implementation MSIDAADV1Oauth2Factory
 
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV1;
+}
+
 #pragma mark - Helpers
 
 - (BOOL)checkResponseClass:(MSIDTokenResponse *)response
