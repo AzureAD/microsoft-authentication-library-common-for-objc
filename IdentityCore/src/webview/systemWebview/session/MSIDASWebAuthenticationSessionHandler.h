@@ -29,11 +29,15 @@
 #import "MSIDWebviewInteracting.h"
 #import "MSIDConstants.h"
 
-#if !MSID_EXCLUDE_WEBKIT
+#if !MSID_EXCLUDE_WEBKIT && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500)
 
 NS_ASSUME_NONNULL_BEGIN
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
 API_AVAILABLE(ios(12.0), macCatalyst(13.0), macos(10.15))
+#else
+API_AVAILABLE(ios(12.0))
+#endif
 @interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
 
 - (instancetype)initWithParentController:(MSIDViewController *)parentController

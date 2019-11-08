@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT
+#if !MSID_EXCLUDE_WEBKIT && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500)
 
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import <AuthenticationServices/AuthenticationServices.h>
