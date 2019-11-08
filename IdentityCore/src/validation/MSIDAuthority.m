@@ -370,8 +370,6 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     }
     json[MSID_AUTHORITY_URL_JSON_KEY] = self.url.absoluteString;
     
-    json[MSID_AUTHORITY_TYPE_JSON_KEY] = self.class.authorityType;
-    
     return json;
 }
 

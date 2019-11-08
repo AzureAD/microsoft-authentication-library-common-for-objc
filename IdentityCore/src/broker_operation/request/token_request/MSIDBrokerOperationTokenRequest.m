@@ -29,11 +29,13 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
+#import "MSIDProviderType.h"
 
 @implementation MSIDBrokerOperationTokenRequest
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
+       providerType:(MSIDProviderType)providerType
               error:(NSError **)error
 {
     BOOL result = [self fillRequest:request
@@ -44,6 +46,7 @@
     if (!result) return NO;
     
     request.configuration = parameters.msidConfiguration;
+    request.providerType = providerType;
     
     return YES;
 }
@@ -58,6 +61,8 @@
     {
         _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:json error:error];
         if (!_configuration) return nil;
+        
+        _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
     }
     
     return self;
@@ -71,6 +76,7 @@
     NSDictionary *configurationJson = [self.configuration jsonDictionary];
     if (!configurationJson) return nil;
     [json addEntriesFromDictionary:configurationJson];
+    json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
     
     return json;
 }

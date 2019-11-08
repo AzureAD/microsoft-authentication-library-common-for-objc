@@ -34,6 +34,7 @@
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -43,6 +44,7 @@
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic, readonly) MSIDProviderType providerType;
 
 @end
 
@@ -73,6 +75,7 @@
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        _providerType = [[oauthFactory class] providerType];
     }
     
     return self;
@@ -107,6 +110,7 @@
         
         NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
+                                                                                            providerType:self.providerType
                                                                                                     error:&localError];
         
         if (!operationRequest)
@@ -130,7 +134,7 @@
 
 - (id<MSIDCacheAccessor>)tokenCache
 {
-    return self.tokenCache;
+    return _tokenCache;
 }
 
 - (MSIDAccountMetadataCacheAccessor *)metadataCache

@@ -38,6 +38,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)registerClass:(Class<MSIDJsonSerializable>)aClass forClassType:(NSString *)classType;
 
 /*!
+Map key, key value and kind of class to specific classType.
+For example: "MSIDAuthority|provider_type|provider_aad_v2" can be mapped to "authority_aad".
+This method is tread safe.
+@param key Key in json payload.
+@param keyValue Value of provided key in json payload.
+@param aClass Class which is used to verify created class instance is a kind of it.
+@param classType Class type under which class will be registered in this factory.
+*/
++ (void)mapJSONKey:(NSString *)key keyValue:(NSString *)keyValue kindOfClass:(Class)aClass toClassType:(NSString *)classType;
+
+/*!
  Unbind all registered classes.
  This method is tread safe.
  */

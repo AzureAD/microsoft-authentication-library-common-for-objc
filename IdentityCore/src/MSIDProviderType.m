@@ -21,29 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
 #import "MSIDProviderType.h"
+#import "MSIDJsonSerializableTypes.h"
 
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveRequestParameters;
+NSString *const MSID_PROVIDER_TYPE_JSON_KEY = @"provider_type";
 
-NS_ASSUME_NONNULL_BEGIN
+NSString *MSIDProviderTypeToString(MSIDProviderType type)
+{
+    switch (type)
+    {
+        case MSIDProviderTypeAADV1:
+            return MSID_JSON_TYPE_PROVIDER_AADV1;
+        case MSIDProviderTypeAADV2:
+            return MSID_JSON_TYPE_PROVIDER_AADV2;
+        case MSIDProviderTypeB2C:
+            return MSID_JSON_TYPE_PROVIDER_B2C;
+        default:
+            return @"";
+    }
+}
 
-API_AVAILABLE(ios(13.0))
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
+MSIDProviderType MSIDProviderTypeFromString(NSString *providerTypeString)
+{
+    if ([providerTypeString isEqualToString:MSID_JSON_TYPE_PROVIDER_AADV1])
+    {
+        return MSIDProviderTypeAADV1;
+    }
+    else if ([providerTypeString isEqualToString:MSID_JSON_TYPE_PROVIDER_AADV2])
+    {
+        return MSIDProviderTypeAADV2;
+    }
+    else if ([providerTypeString isEqualToString:MSID_JSON_TYPE_PROVIDER_B2C])
+    {
+        return MSIDProviderTypeB2C;
+    }
 
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic) MSIDPromptType promptType;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
-
-@end
-
-NS_ASSUME_NONNULL_END
-#endif
+    return MSIDProviderTypeAADV2;
+}

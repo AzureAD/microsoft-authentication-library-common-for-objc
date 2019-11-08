@@ -124,7 +124,6 @@
                                                                              tokenResponseValidator:self.tokenResponseValidator
                                                                                          tokenCache:self.tokenCache
                                                                                accountMetadataCache:self.accountMetadataCache];
-        
         return request;
     }
 #endif

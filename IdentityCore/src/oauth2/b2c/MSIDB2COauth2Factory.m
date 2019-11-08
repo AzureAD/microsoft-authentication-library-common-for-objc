@@ -34,6 +34,11 @@
 
 @implementation MSIDB2COauth2Factory
 
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeB2C;
+}
+
 #pragma mark - Helpers
 
 - (BOOL)checkResponseClass:(MSIDB2CTokenResponse *)response

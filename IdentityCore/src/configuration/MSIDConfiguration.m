@@ -27,6 +27,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDProviderType.h"
 
 NSString *const MSID_REDIRECT_URI_JSON_KEY = @"redirect_uri";
 NSString *const MSID_CLIENT_ID_JSON_KEY = @"client_id";
@@ -105,7 +106,7 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_AUTHORITY_TYPE_JSON_KEY assertKindOfClass:MSIDAuthority.class error:error];
+    MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDAuthority.class error:error];
     if (!authority) return nil;
 
     NSString *redirectUri = [json msidStringObjectForKey:MSID_REDIRECT_URI_JSON_KEY];

@@ -34,17 +34,16 @@
 
 + (void)load
 {
-    if (@available(iOS 13.0, *))
-    {
-        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-    }
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
 }
 
 + (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+                              providerType:(MSIDProviderType)providerType
                                      error:(NSError **)error
 {
     __auto_type request = [MSIDBrokerOperationInteractiveTokenRequest new];
-    BOOL result = [self fillRequest:request withParameters:parameters error:error];
+    // TODO:fix
+    BOOL result = [self fillRequest:request withParameters:parameters providerType:providerType error:error];
     if (!result) return nil;
     
     request.accountIdentifier = parameters.accountIdentifier;
