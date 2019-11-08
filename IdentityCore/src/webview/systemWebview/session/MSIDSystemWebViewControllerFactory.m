@@ -26,7 +26,7 @@
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import "MSIDConstants.h"
-#if !TARGET_OS_MACCATALYST
+#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
 #import "MSIDSFAuthenticationSessionHandler.h"
 #endif
 #import "MSIDSafariViewController.h"
@@ -48,7 +48,7 @@
     }
 #endif
         
-#if !TARGET_OS_MACCATALYST
+#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
         
     if (@available(iOS 11.0, *))
     {
@@ -81,7 +81,7 @@
     }
 #endif
     
-#if !TARGET_OS_MACCATALYST 
+#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
     
     if (@available(iOS 11.0, *))
     {

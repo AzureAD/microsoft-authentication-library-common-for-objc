@@ -33,7 +33,9 @@
 #import "MSIDNotifications.h"
 #import "MSIDURLResponseHandling.h"
 #import "MSIDSystemWebViewControllerFactory.h"
+#if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
+#endif
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -115,7 +117,9 @@
         return;
     }
     
+#if TARGET_OS_IPHONE
     [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
     
     self.telemetryRequestId = [self.context telemetryRequestId];
     [[MSIDTelemetry sharedInstance] startEvent:self.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_UI_EVENT];
@@ -210,7 +214,9 @@
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
                           error:(NSError *)error
 {
+#if TARGET_OS_IPHONE
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
     
     if (error)
     {
@@ -226,7 +232,9 @@
 
 - (void)dealloc
 {
+#if TARGET_OS_IPHONE
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
 }
 
 @end
