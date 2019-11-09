@@ -116,7 +116,7 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
          NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
 
@@ -214,7 +214,7 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
          NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&cloud_instance_host_name=contoso.onmicrosoft.cn&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
 
@@ -313,10 +313,10 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
          NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
-         
+
          MSIDWebAADAuthResponse *oauthResponse = [[MSIDWebAADAuthResponse alloc] initWithURL:[NSURL URLWithString:responseString]
                                                                                      context:nil error:nil];
          completionHandler(oauthResponse, nil);
@@ -380,7 +380,7 @@
 - (void)testInteractiveRequestFlow_whenProtectionPolicyRequired_shouldReturnNilResultWithError
 {
     __block NSUUID *correlationId = [NSUUID new];
-    
+
     MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
@@ -396,28 +396,28 @@
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
-    
+
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
-    
+
     XCTAssertNotNil(request);
-    
+
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
          NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
-         
+
          MSIDWebAADAuthResponse *oauthResponse = [[MSIDWebAADAuthResponse alloc] initWithURL:[NSURL URLWithString:responseString]
                                                                                      context:nil error:nil];
          completionHandler(oauthResponse, nil);
      }];
-    
+
     NSMutableDictionary *reqHeaders = [[MSIDTestURLResponse msidDefaultRequestHeaders] mutableCopy];
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
-    
+
     NSString *url = @"https://login.microsoftonline.com/common/oauth2/v2.0/token";
-    
+
     MSIDTestURLResponse *response =
     [MSIDTestURLResponse requestURLString:url
                            requestHeaders:reqHeaders
@@ -436,23 +436,23 @@
                                              @"suberror" : @"protection_policy_required",
                                              @"adi" : @"fakeuser@contoso.com"
                                              }];
-    
+
     [response->_requestHeaders removeObjectForKey:@"Content-Length"];
-    
+
     [MSIDTestURLSession addResponse:response];
-    
+
     NSString *authority = @"https://login.microsoftonline.com/common";
-    
+
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
-    
+
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
-    
+
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
-    
+
     [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {
-        
+
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
@@ -461,11 +461,11 @@
         XCTAssertEqualObjects(error.userInfo[MSIDUserDisplayableIdkey], @"fakeuser@contoso.com");
         XCTAssertEqualObjects(error.userInfo[MSIDHomeAccountIdkey], @"1.1234-5678-90abcdefg");
         XCTAssertNil(installBrokerResponse);
-        
+
         [expectation fulfill];
-        
+
     }];
-    
+
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
@@ -496,7 +496,7 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
          NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?code=iamafakecode&client_info=%@", [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson]];
 
@@ -585,7 +585,7 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
          NSString *responseString = @"x-msauth-test://com.microsoft.testapp?error=access_denied&error_description=MyError";
 
@@ -648,7 +648,7 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
 
          NSString *responseString = @"msauth://wpj?app_link=https://login.microsoftonline.appinstall.test";
@@ -707,7 +707,7 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startEmbeddedWebviewAuthWithConfiguration:oauth2Factory:webview:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, MSIDWebviewConfiguration *configuration, MSIDOauth2Factory *oauth2Factory, WKWebView *webview, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(__unused id obj, __unused MSIDWebviewConfiguration *configuration, __unused MSIDOauth2Factory *oauth2Factory, __unused WKWebView *webview, __unused id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
      {
 
          NSString *responseString = @"browser://login.microsoftonline.appinstall.test";
@@ -738,7 +738,7 @@
 
     XCTestExpectation *openURLExpectation = [self expectationWithDescription:@"Open URL."];
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
         XCTAssertEqualObjects(url.absoluteString, @"https://login.microsoftonline.appinstall.test");
         [openURLExpectation fulfill];
     }];

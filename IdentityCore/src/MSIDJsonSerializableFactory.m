@@ -141,7 +141,7 @@ static NSMutableDictionary<NSString *, NSString *> *s_keysMap = nil;
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      errorMessage,
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -157,7 +157,7 @@ static NSMutableDictionary<NSString *, NSString *> *s_keysMap = nil;
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      errorMessage,
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         
         return nil;

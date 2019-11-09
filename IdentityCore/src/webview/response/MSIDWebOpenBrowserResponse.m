@@ -41,7 +41,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      @"Browser response should have browser:// as a scheme",
-                                     nil, nil, nil, context.correlationId, nil);
+                                     nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
     }

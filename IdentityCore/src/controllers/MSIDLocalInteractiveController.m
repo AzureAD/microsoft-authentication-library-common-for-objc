@@ -100,7 +100,7 @@
         additionalInfo[MSIDUserDisplayableIdkey] = response.upn;
         additionalInfo[MSIDHomeAccountIdkey] = response.clientInfo.accountIdentifier;
         
-        NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo);
+        NSError *registrationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorWorkplaceJoinRequired, @"Workplace join is required", nil, nil, nil, self.requestParameters.correlationId, additionalInfo, NO);
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setLoginHint:response.upn];
         [self stopTelemetryEvent:telemetryEvent error:registrationError];
@@ -108,7 +108,7 @@
         return;
     }
 
-    NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil);
+    NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
     [self stopTelemetryEvent:[self telemetryAPIEvent] error:appInstallError];
     completionBlock(nil, appInstallError);
 }
@@ -118,7 +118,7 @@
 #if TARGET_OS_IPHONE
     if ([NSString msidIsStringNilOrBlank:response.appInstallLink])
     {
-        NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil);
+        NSError *appInstallError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"App install link is missing. Incorrect URL returned from server", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:appInstallError];
         completion(nil, appInstallError);
         return;
@@ -139,7 +139,7 @@
 
     [brokerController acquireToken:completion];
 #else
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, self.requestParameters.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
     [self stopTelemetryEvent:[self telemetryAPIEvent] error:error];
     completion(nil, error);
 #endif

@@ -172,7 +172,7 @@
     MSIDRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_fail";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 
@@ -233,11 +233,11 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_auto_fail";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *silentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 
-    NSError *interactiveError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant 2", @"invalid_grant2", @"consent_required2", nil, parameters.correlationId, nil);
+    NSError *interactiveError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant 2", @"invalid_grant2", @"consent_required2", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *interactiveProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:interactiveError testWebMSAuthResponse:nil];
 
@@ -301,7 +301,7 @@
     MSIDInteractiveRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"prompt_auto_interactive_success";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *silentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 

@@ -807,7 +807,7 @@
                               @"aliases" : expectedAliases } ];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Process Metadata."];
-    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+    [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(__unused BOOL result, __unused NSError *error)
      {
          XCTAssertFalse([NSThread isMainThread]);
          
@@ -834,7 +834,7 @@
     dispatch_queue_global_t bgQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(bgQueue, ^{
         const char *l1 = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
-        [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(BOOL result, NSError *error)
+        [cache processMetadata:metadata openIdConfigEndpoint:nil authority:authority context:nil completion:^(__unused BOOL result, __unused NSError *error)
          {
              const char *l2 = dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL);
              XCTAssertEqual(l1, l2);

@@ -129,7 +129,7 @@
 
 #pragma mark - ASAuthorizationControllerPresentationContextProviding
 
-- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller
+- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(__unused ASAuthorizationController *)controller
 {
     return [self presentationAnchor];
 }

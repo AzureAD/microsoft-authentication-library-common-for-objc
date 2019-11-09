@@ -28,7 +28,7 @@
 
 @implementation MSIDSSOExtensionTokenRequestDelegate
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
 {
     if (!self.completionBlock) return;
     
