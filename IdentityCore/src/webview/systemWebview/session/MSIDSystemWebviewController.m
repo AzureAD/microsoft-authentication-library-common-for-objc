@@ -178,7 +178,7 @@
     [self.session dismiss];
     
     [self notifyEndWebAuthWithURL:url error:nil];
-    self.completionHandler(url, nil);
+    if (self.completionHandler)self.completionHandler(url, nil);
     return YES;
 }
 
