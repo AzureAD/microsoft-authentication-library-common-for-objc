@@ -685,8 +685,8 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 }
 
 - (NSMutableArray<MSIDCredentialCacheItem *> *)filterTokenItemsFromKeychainItems:(NSArray *)items
-                                                                      serializer:(id<MSIDCacheItemSerializing>)serializer
-                                                                         context:(id<MSIDRequestContext>)context
+                                                                      serializer:(__unused id<MSIDCacheItemSerializing>)serializer
+                                                                         context:(__unused id<MSIDRequestContext>)context
 {
     NSMutableArray *tokenItems = [[NSMutableArray<MSIDCredentialCacheItem *> alloc] initWithCapacity:items.count];
     
@@ -725,7 +725,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
  */
 - (BOOL)removeAllMatchingTokens:(MSIDCacheKey *)key
                         context:(id<MSIDRequestContext>)context
-                     serializer:(id<MSIDCacheItemSerializing>)serializer
+                     serializer:(__unused id<MSIDCacheItemSerializing>)serializer
                        isShared:(BOOL)isShared
                           error:(NSError * _Nullable * _Nullable)error
 {
@@ -979,7 +979,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     return [self removeStorageItem:key.isShared context:context error:error];
 }
 
-- (NSDictionary *)primaryAttributesForItem:(BOOL)isShared context:(id<MSIDRequestContext>)context error:(NSError **)error
+- (NSDictionary *)primaryAttributesForItem:(BOOL)isShared context:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
 {
     NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
     

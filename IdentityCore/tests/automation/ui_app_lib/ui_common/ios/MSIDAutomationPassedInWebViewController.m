@@ -46,7 +46,7 @@ static MSIDAutomationCancelTappedCallback s_cancelTappedCallback;
     self.passedInWebview.frame = CGRectMake(0, 0, self.contentView.frame.size.width, self.contentView.frame.size.height);
 }
 
-- (IBAction)cancelTapped:(id)sender {
+- (IBAction)cancelTapped:(__unused id)sender {
     
     [self dismissViewControllerAnimated:YES completion:^{
         if (self.class.cancelTappedCallback)

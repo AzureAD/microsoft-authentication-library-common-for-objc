@@ -27,17 +27,9 @@
 
 @implementation MSIDAADV1TokenResponse
 
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-
-- (BOOL)initIdToken:(NSError *__autoreleasing *)error
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    
-    return YES;
+    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 - (BOOL)isMultiResource
@@ -55,6 +47,27 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 - (MSIDAccountType)accountType
 {
     return MSIDAccountTypeAADV1;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    if (self)
+    {
+        _resource = [json msidStringObjectForKey:MSID_OAUTH2_RESOURCE];
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableDeepCopy];
+    json[MSID_OAUTH2_RESOURCE] = self.resource;
+    
+    return json;
 }
 
 @end

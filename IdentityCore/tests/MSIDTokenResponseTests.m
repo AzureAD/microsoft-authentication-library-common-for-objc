@@ -100,6 +100,41 @@
     XCTAssertNil(expiryDate);
 }
 
+- (void)testExpiryDate_whenExpiresOnOnly_shouldReturnDate
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_on": @"1538804860",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    NSDate *expiryDate = [response expiryDate];
+    XCTAssertEqual(expiryDate.timeIntervalSince1970, 1538804860);
+}
+
+- (void)testExpiryDate_whenExpiresOnAndExpiresIn_shouldReturnExpiresOnDate
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_on": @"1538804860",
+                                @"expires_in": @"10",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    NSDate *expiryDate = [response expiryDate];
+    XCTAssertEqual(expiryDate.timeIntervalSince1970, 1538804860);
+}
+
 - (void)testIdTokenObj_whenIdTokenAvailable_shouldReturnIDToken
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"test" upn:@"upn" oid:nil tenantId:@"tenant"];
@@ -133,9 +168,7 @@
     MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
     
     XCTAssertNotNil(response);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+    XCTAssertNil(error);
     
     MSIDIdTokenClaims *idTokenObj = response.idTokenObj;
     XCTAssertNil(idTokenObj);
@@ -196,10 +229,7 @@
                                                                               error:&error];
     
     XCTAssertNotNil(response);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    
+    XCTAssertNil(error);
     XCTAssertEqualObjects(response.idToken, @"id token 2");
 }
 

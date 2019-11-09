@@ -64,11 +64,13 @@
     {
         return (aClass == MSIDSystemWebviewController.class);
     }
+#else
+#pragma unused(aClass)
 #endif
     return NO;
 }
 
-- (BOOL)handleURLResponse:(NSURL *)url
+- (BOOL)handleURLResponse:(__unused NSURL *)url
 {
     return self.actAsSafariViewController || self.actAsAuthenticationSession;
 }

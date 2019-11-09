@@ -27,20 +27,20 @@
 @interface MSIDAADTokenResponse : MSIDTokenResponse
 
 // Default properties for an AAD error response
-@property (readonly) NSString *correlationId;
+@property (nonatomic, readonly, nullable) NSString *correlationId;
 
 // Default properties for an AAD successful response
-@property (readonly) NSInteger expiresOn;
-@property (readonly) NSInteger extendedExpiresIn;
-@property (readonly) MSIDClientInfo *clientInfo;
-@property (readonly) NSString *familyId;
-@property (readonly) NSString *suberror;
-@property (readonly) NSString *additionalUserId;
+@property (nonatomic) NSInteger extendedExpiresIn;
+@property (nonatomic) NSInteger extendedExpiresOn;
+@property (nonatomic, nullable) MSIDClientInfo *clientInfo;
+@property (nonatomic, nullable) NSString *familyId;
+@property (nonatomic, nullable) NSString *suberror;
+@property (nonatomic, nullable) NSString *additionalUserId;
 
 // Custom properties that ADAL/MSAL handles
-@property (readonly) NSString *speInfo;
+@property (nonatomic, nullable) NSString *speInfo;
 
 // Derived properties
-@property (readonly) NSDate *extendedExpiresOnDate;
+@property (nonatomic, readonly, nullable) NSDate *extendedExpiresOnDate;
 
 @end

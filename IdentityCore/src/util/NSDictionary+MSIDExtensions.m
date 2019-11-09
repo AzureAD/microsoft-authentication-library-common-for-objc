@@ -96,54 +96,56 @@
     return mutableDict;
 }
 
-
-- (BOOL)msidAssertType:(Class)type
-               ofField:(NSString *)field
-               context:(id <MSIDRequestContext>)context
-             errorCode:(NSInteger)errorCode
-                 error:(NSError **)error
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
 {
-    id fieldValue = self[field];
-    if (![fieldValue isKindOfClass:type])
-    {
-        __auto_type message = [NSString stringWithFormat:@"%@ is not a %@.", field, type];
-        
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     errorCode,
-                                     message,
-                                     nil,
-                                     nil, nil, context.correlationId, nil, NO);
-            
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
-        }
-        
-        return NO;
-    }
-    
-    return YES;
+    return [self msidAssertTypeIsOneOf:@[type] ofKey:key required:required error:error];
 }
 
-- (BOOL)msidAssertContainsField:(NSString *)field
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
 {
-    id fieldValue = self[field];
-    if (!fieldValue)
+    return [self msidAssertTypeIsOneOf:types ofKey:key required:required context:nil errorCode:MSIDErrorInvalidInternalParameter error:error];
+}
+
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types
+                        ofKey:(NSString *)key
+                     required:(BOOL)required
+                      context:(id<MSIDRequestContext>)context
+                    errorCode:(NSInteger)errorCode
+                        error:(NSError **)error
+{
+    id obj = self[key];
+    if (!obj && !required) return YES;
+    
+    NSString *message;
+    if (!obj)
     {
-        __auto_type message = [NSString stringWithFormat:@"%@ is missing.", field];
-        
-        if (error)
+        message = [NSString stringWithFormat:@"%@ key is missing in dictionary.", key];
+    }
+    else
+    {
+        BOOL matched = NO;
+        __auto_type typesSet = [[NSSet alloc] initWithArray:types];
+        for (Class type in typesSet)
         {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorServerInvalidResponse,
-                                     message,
-                                     nil,
-                                     nil, nil, context.correlationId, nil, NO);
-            
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", message);
+            if ([obj isKindOfClass:type])
+            {
+                matched = YES;
+                break;
+            }
         }
+        
+        if (!matched)
+        {
+            NSString *allowedTypesString = [types componentsJoinedByString:@","];
+            message = [NSString stringWithFormat:@"%@ key in dictionary is not of expected type. Allowed types: %@.", key, allowedTypesString];
+        }
+    }
+    
+    if (message)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, errorCode, message, nil, nil, nil, context.correlationId, nil, YES);
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@", message);
         
         return NO;
     }
@@ -225,6 +227,16 @@
 - (NSString *)msidStringObjectForKey:(NSString *)key
 {
     return [self msidObjectForKey:key ofClass:[NSString class]];
+}
+
+- (NSInteger)msidIntegerObjectForKey:(NSString *)key
+{
+    if ([self msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:key required:NO error:nil])
+    {
+        return [self[key] integerValue];
+    }
+    
+    return 0;
 }
 
 - (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass

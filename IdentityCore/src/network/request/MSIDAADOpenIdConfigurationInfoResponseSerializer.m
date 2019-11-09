@@ -53,76 +53,43 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
         return nil;
     }
     
-    if ([jsonObject msidAssertContainsField:@"error" context:context error:nil]
-        && [jsonObject msidAssertType:NSString.class ofField:@"error" context:context errorCode:MSIDErrorServerInvalidResponse error:nil])
+    NSString *oauthError = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR];
+    
+    if (jsonObject[MSID_OAUTH2_ERROR] && !oauthError)
     {
-        NSError *oauthError = MSIDCreateError(MSIDErrorDomain,
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"oauth error is not a string, ignoring it.");
+    }
+    
+    if (oauthError)
+    {
+        NSString *oauthErrorDescription = [jsonObject msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+        
+        NSError *localError = MSIDCreateError(MSIDErrorDomain,
                                               MSIDErrorAuthorityValidation,
-                                              jsonObject[MSID_OAUTH2_ERROR_DESCRIPTION],
-                                              jsonObject[MSID_OAUTH2_ERROR],
+                                              oauthErrorDescription,
+                                              oauthError,
                                               nil,
                                               nil,
                                               context.correlationId,
                                               nil, YES);
-        if (error)
-        {
-            *error = oauthError;
-        }
+        if (error) *error = localError;
+        
         return nil;
     }
     
     __auto_type metadata = [MSIDOpenIdProviderMetadata new];
     
-    if (![jsonObject msidAssertContainsField:@"authorization_endpoint" context:context error:error])
-    {
-        return nil;
-    }
-    
-    if (![jsonObject msidAssertType:NSString.class
-                            ofField:@"authorization_endpoint"
-                            context:context
-                          errorCode:MSIDErrorServerInvalidResponse
-                              error:error])
-    {
-        return nil;
-    }
-    
+    if (![jsonObject msidAssertType:NSString.class ofKey:@"authorization_endpoint" required:YES error:error]) return nil;
     __auto_type authorizationEndpoint = (NSString *)jsonObject[@"authorization_endpoint"];
     
     metadata.authorizationEndpoint = [NSURL URLWithString:authorizationEndpoint];
     
-    if (![jsonObject msidAssertContainsField:@"token_endpoint" context:context error:error])
-    {
-        return nil;
-    }
-    
-    if (![jsonObject msidAssertType:NSString.class
-                            ofField:@"token_endpoint"
-                            context:context
-                          errorCode:MSIDErrorServerInvalidResponse
-                              error:error])
-    {
-        return nil;
-    }
-    
+    if (![jsonObject msidAssertType:NSString.class ofKey:@"token_endpoint" required:YES error:error]) return nil;
     __auto_type tokenEndpoint = (NSString *)jsonObject[@"token_endpoint"];
     
     metadata.tokenEndpoint = [NSURL URLWithString:tokenEndpoint];
     
-    if (![jsonObject msidAssertContainsField:@"issuer" context:context error:error])
-    {
-        return nil;
-    }
-    
-    if (![jsonObject msidAssertType:NSString.class
-                            ofField:@"issuer"
-                            context:context
-                          errorCode:MSIDErrorServerInvalidResponse
-                              error:error])
-    {
-        return nil;
-    }
-    
+    if (![jsonObject msidAssertType:NSString.class ofKey:@"issuer" required:YES error:error]) return nil;
     NSString *issuerString = (NSString *)jsonObject[@"issuer"];
     
     // If `issuer` contains {tenantid}, it is AAD authority.

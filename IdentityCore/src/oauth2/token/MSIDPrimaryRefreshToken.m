@@ -38,6 +38,8 @@
     {
         _sessionKey = [NSData msidDataFromBase64UrlEncodedString:tokenCacheItem.jsonDictionary[MSID_SESSION_KEY_CACHE_KEY]];
         
+        _deviceID = [tokenCacheItem.jsonDictionary msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
+        
         if (!_sessionKey)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
@@ -58,7 +60,7 @@
     
     prtCacheItem.sessionKey = self.sessionKey;
     prtCacheItem.credentialType = MSIDPrimaryRefreshTokenType;
-    
+    prtCacheItem.deviceID = self.deviceID;
     return prtCacheItem;
 }
 
@@ -114,6 +116,7 @@
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.sessionKey.hash;
+    hash = hash * 31 + self.deviceID.hash;
     return hash;
 }
 
@@ -126,6 +129,7 @@
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.sessionKey && !token.sessionKey) || [self.sessionKey isEqualToData:token.sessionKey];
+    result &= (!self.deviceID && !token.deviceID) || [self.deviceID isEqualToString:token.deviceID];
     return result;
 }
 
@@ -135,6 +139,7 @@
 {
     MSIDPrimaryRefreshToken *item = [super copyWithZone:zone];
     item->_sessionKey = [_sessionKey copyWithZone:zone];
+    item->_deviceID = [_deviceID copyWithZone:zone];
     return item;
 }
 

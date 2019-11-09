@@ -79,7 +79,7 @@ static BOOL s_useAuthSession = NO;
 + (void)resetHandler { }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                webview:(WKWebView *)webview
+                webview:(__unused WKWebView *)webview
 #if TARGET_OS_IPHONE
        parentController:(UIViewController *)parentViewController
 #endif

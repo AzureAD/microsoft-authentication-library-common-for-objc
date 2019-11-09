@@ -29,14 +29,9 @@
 
 @implementation MSIDAADV2TokenResponse
 
-- (BOOL)initIdToken:(NSError *__autoreleasing *)error
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    return YES;
+    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 - (MSIDAccountType)accountType
