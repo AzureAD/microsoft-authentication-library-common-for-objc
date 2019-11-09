@@ -213,7 +213,8 @@
         safariController.appActivities = self.appActivities;
         return safariController;
     }
-        
+#else
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Couldn't create session on macOS. Safari allowed flag %d", safariAllowed);
 #endif
     
     return nil;
