@@ -43,8 +43,8 @@
     return NO;
 }
 
-- (void)performActionWithParameters:(NSDictionary *)parameters
-                containerController:(MSIDAutoViewController *)containerController
+- (void)performActionWithParameters:(__unused NSDictionary *)parameters
+                containerController:(__unused MSIDAutoViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
     NSHTTPCookieStorage *cookieStore = [NSHTTPCookieStorage sharedHTTPCookieStorage];

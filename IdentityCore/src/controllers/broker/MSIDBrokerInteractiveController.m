@@ -285,8 +285,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
-    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
-    [appPasteBoard setURL:url];
+    NSURL *pasteBoardURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
+    [appPasteBoard setURL:pasteBoardURL];
 }
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL

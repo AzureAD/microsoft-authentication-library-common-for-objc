@@ -39,7 +39,7 @@
     self.requestInfo.text = nil;
 }
 
-- (IBAction)go:(id)sender
+- (IBAction)go:(__unused id)sender
 {
     self.requestInfo.editable = NO;
     self.requestGo.enabled = NO;
