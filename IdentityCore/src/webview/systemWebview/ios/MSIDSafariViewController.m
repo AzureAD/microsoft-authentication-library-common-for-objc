@@ -150,5 +150,10 @@
                               context:_context error:error];
 }
 
+- (NSArray<UIActivity*>*)safariViewController:(SFSafariViewController *)controller activityItemsForURL:(NSURL *)URL title:(NSString *)title
+{
+    return self.appActivities;
+}
+
 @end
 #endif

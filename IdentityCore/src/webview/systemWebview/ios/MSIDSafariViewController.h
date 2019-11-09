@@ -38,6 +38,7 @@
 
 @property (readonly) NSURL *startURL;
 @property (weak, nonatomic) UIViewController *parentController;
+@property (nonatomic) NSArray<UIActivity *> *appActivities;
 
 @end
 #endif

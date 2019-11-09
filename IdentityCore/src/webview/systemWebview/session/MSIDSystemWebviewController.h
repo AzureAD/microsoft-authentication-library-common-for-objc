@@ -51,6 +51,7 @@
 
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIModalPresentationStyle presentationType;
+@property (nonatomic) NSArray<UIActivity *> *appActivities;
 #endif
 @end
 

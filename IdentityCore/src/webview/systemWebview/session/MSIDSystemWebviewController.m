@@ -205,10 +205,13 @@
         
     if (safariAllowed)
     {
-        return [[MSIDSafariViewController alloc] initWithURL:self.startURL
-                                            parentController:self.parentController
-                                            presentationType:self.presentationType
-                                                     context:self.context];
+        MSIDSafariViewController *safariController = [[MSIDSafariViewController alloc] initWithURL:self.startURL
+                                                                                  parentController:self.parentController
+                                                                                  presentationType:self.presentationType
+                                                                                           context:self.context];
+        
+        safariController.appActivities = self.appActivities;
+        return safariController;
     }
         
 #endif
