@@ -150,7 +150,7 @@
                               context:_context error:error];
 }
 
-- (NSArray<UIActivity*>*)safariViewController:(SFSafariViewController *)controller activityItemsForURL:(NSURL *)URL title:(NSString *)title
+- (NSArray<UIActivity*>*)safariViewController:(__unused SFSafariViewController *)controller activityItemsForURL:(__unused NSURL *)URL title:(__unused NSString *)title
 {
     return self.appActivities;
 }

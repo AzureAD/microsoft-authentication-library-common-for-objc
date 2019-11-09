@@ -121,7 +121,7 @@
 
 #pragma mark - ASWebAuthenticationPresentationContextProviding
 
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0), macCatalyst(13.0), macos(10.15))
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session API_AVAILABLE(ios(13.0), macCatalyst(13.0), macos(10.15))
 {
     return [self presentationAnchor];
 }

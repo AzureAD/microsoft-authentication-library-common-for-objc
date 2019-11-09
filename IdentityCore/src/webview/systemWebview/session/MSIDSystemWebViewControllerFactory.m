@@ -68,7 +68,7 @@
                                                      startURL:(NSURL *)startURL
                                                callbackScheme:(NSString *)callbackURLScheme
                                            useEmpheralSession:(BOOL)useEmpheralSession
-                                                      context:(id<MSIDRequestContext>)context
+                                                      context:(__unused id<MSIDRequestContext>)context
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
     
