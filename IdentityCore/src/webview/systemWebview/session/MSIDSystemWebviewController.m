@@ -35,6 +35,7 @@
 #import "MSIDSystemWebViewControllerFactory.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
+#import "UIApplication+MSIDExtensions.h"
 #endif
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"
@@ -192,9 +193,15 @@
 - (id<MSIDWebviewInteracting>)sessionWithAuthSessionAllowed:(BOOL)authSessionAllowed
                                               safariAllowed:(BOOL)safariAllowed
 {
+    MSIDViewController *currentViewController = self.parentController;
+    
+#if TARGET_OS_IPHONE
+    currentViewController = [UIApplication msidCurrentViewController:currentViewController];
+#endif
+    
     if (authSessionAllowed)
     {
-        return [MSIDSystemWebViewControllerFactory authSessionWithParentController:self.parentController
+        return [MSIDSystemWebViewControllerFactory authSessionWithParentController:currentViewController
                                                                           startURL:self.startURL
                                                                     callbackScheme:self.redirectURL.scheme
                                                                 useEmpheralSession:self.prefersEphemeralWebBrowserSession
@@ -206,7 +213,7 @@
     if (safariAllowed)
     {
         MSIDSafariViewController *safariController = [[MSIDSafariViewController alloc] initWithURL:self.startURL
-                                                                                  parentController:self.parentController
+                                                                                  parentController:currentViewController
                                                                                   presentationType:self.presentationType
                                                                                            context:self.context];
         

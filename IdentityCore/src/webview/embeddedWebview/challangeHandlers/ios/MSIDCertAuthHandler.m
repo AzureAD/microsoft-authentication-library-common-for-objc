@@ -110,7 +110,8 @@ static BOOL s_useAuthSession = NO;
         for (NSURLQueryItem *item in queryItems)
         {
             if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
-                && ![item.value.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString])
+                && ![item.value.lowercaseString hasPrefix:redirectSchemePrefix.lowercaseString]
+                && !s_useAuthSession)
             {
                 newQueryItems[MSID_OAUTH2_REDIRECT_URI] = [s_redirectPrefix stringByAppendingString:item.value.msidURLEncode];
             }
