@@ -202,15 +202,18 @@
     
     [MSIDChallengeHandler resetHandlers];
     
-    if ( _completionHandler )
+    if (_completionHandler)
     {
         MSIDWebUICompletionHandler completionHandler = _completionHandler;
         _completionHandler = nil;
+        [_completionLock unlock];
         
         completionHandler(url, error);
     }
-    
-    [_completionLock unlock];
+    else
+    {
+        [_completionLock unlock];
+    }
 }
 
 - (void)startRequest:(NSURLRequest *)request
