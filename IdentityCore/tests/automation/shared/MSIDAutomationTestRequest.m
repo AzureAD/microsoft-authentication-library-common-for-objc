@@ -31,7 +31,7 @@
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error
+                                 error:(__unused NSError * __autoreleasing *)error
 {
     self = [super init];
 
