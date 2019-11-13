@@ -24,10 +24,11 @@
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDSSOExtensionTokenRequestDelegate
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
 {
     if (!self.completionBlock) return;
     
@@ -37,8 +38,9 @@
     
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
     if (!json) self.completionBlock(nil, error);
+    
+    __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
 
-    MSIDBrokerOperationTokenResponse *operationResponse = [[MSIDBrokerOperationTokenResponse alloc] initWithJSONDictionary:json error:&error];
     if (!operationResponse) self.completionBlock(nil, error);
     
     self.completionBlock(operationResponse.tokenResponse, nil);

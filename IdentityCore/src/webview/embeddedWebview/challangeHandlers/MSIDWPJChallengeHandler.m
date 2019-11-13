@@ -44,6 +44,7 @@
     if ([self isWPJChallenge:distinguishedNames])
     {
 #if TARGET_OS_IPHONE
+#pragma unused(completionHandler)
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Ignoring WPJ challenge on iOS");
         return NO;
 #else

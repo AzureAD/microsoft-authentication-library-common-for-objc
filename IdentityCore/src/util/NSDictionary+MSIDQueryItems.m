@@ -36,7 +36,7 @@
 - (NSArray<NSURLQueryItem *> *)msidQueryItems
 {
     NSMutableArray *items = [NSMutableArray new];
-    [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, BOOL *stop)
+    [self enumerateKeysAndObjectsUsingBlock:^(id key, id value, __unused BOOL *stop)
     {
         if (![key isKindOfClass:NSString.class])
         {

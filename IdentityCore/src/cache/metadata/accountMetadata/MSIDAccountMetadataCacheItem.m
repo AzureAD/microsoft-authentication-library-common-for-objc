@@ -66,7 +66,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     if ([NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
         || [NSString msidIsStringNilOrBlank:requestURL.absoluteString])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Either a target or request URL produces a nil string", nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Either a target or request URL produces a nil string", nil, nil, nil, nil, nil, YES);
         
         return NO;
     }

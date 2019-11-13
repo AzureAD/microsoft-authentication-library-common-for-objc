@@ -34,6 +34,7 @@
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
+#import "MSIDOauth2Factory.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -43,6 +44,7 @@
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic, readonly) MSIDProviderType providerType;
 
 @end
 
@@ -53,7 +55,7 @@
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                     accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                     accountMetadataCache:(__unused MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -73,6 +75,7 @@
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        _providerType = [[oauthFactory class] providerType];
     }
     
     return self;
@@ -86,7 +89,7 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Account parameter cannot be nil");
         
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         completionBlock(nil, error);
         return;
     }
@@ -107,6 +110,7 @@
         
         NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
+                                                                                            providerType:self.providerType
                                                                                                     error:&localError];
         
         if (!operationRequest)
@@ -130,7 +134,7 @@
 
 - (id<MSIDCacheAccessor>)tokenCache
 {
-    return self.tokenCache;
+    return _tokenCache;
 }
 
 - (MSIDAccountMetadataCacheAccessor *)metadataCache

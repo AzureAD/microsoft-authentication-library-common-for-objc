@@ -42,12 +42,12 @@
 
 #pragma mark - ASAuthorizationControllerDelegate
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(__unused ASAuthorization *)authorization
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
 }
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
 {
     assert(self.completionBlock);
     if (!self.completionBlock) return;
@@ -66,7 +66,7 @@
         
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"%@", message);
         
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, message, nil, nil, nil, self.context.correlationId, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, message, nil, nil, nil, self.context.correlationId, nil, YES);
         
         return nil;
     }
@@ -75,7 +75,7 @@
 }
 
 - (NSDictionary *)jsonPayloadFromSSOCredential:(ASAuthorizationSingleSignOnCredential *)ssoCredential
-                                         error:(NSError **)error
+                                         error:(__unused NSError **)error
 {
     return ssoCredential.authenticatedResponse.allHeaderFields;
 }

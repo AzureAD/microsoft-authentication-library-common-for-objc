@@ -115,7 +115,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to retrieve teamId from keychain.", nil, nil, nil, nil, nil, YES);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve teamId from keychain.");
@@ -134,7 +134,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to set keychain access group.", nil, nil, nil, nil, nil, YES);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set keychain access group.");
@@ -153,12 +153,21 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 #endif
     
     self.defaultKeychainQuery = defaultKeychainQuery;
-        
-    self.defaultWipeQuery = @{(id)kSecClass : (id)kSecClassGenericPassword,
-                              (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
-                              (id)kSecAttrAccessGroup : self.keychainGroup,
-                              (id)kSecAttrAccount : @"TokenWipe"};
     
+    NSMutableDictionary *defaultWipeQuery = [@{(id)kSecClass : (id)kSecClassGenericPassword,
+                                              (id)kSecAttrGeneric : [s_wipeLibraryString dataUsingEncoding:NSUTF8StringEncoding],
+                                              (id)kSecAttrAccessGroup : self.keychainGroup,
+                                              (id)kSecAttrAccount : @"TokenWipe"} mutableCopy];
+    
+#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+        if (@available(macOS 10.15, *)) {
+            defaultWipeQuery[(id)kSecUseDataProtectionKeychain] = @YES;
+        }
+#endif
+#endif
+        
+    self.defaultWipeQuery = defaultWipeQuery;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Init MSIDKeychainTokenCache with keychainGroup: %@", MSID_PII_LOG_MASKABLE(_keychainGroup));
     
     return self;
@@ -179,7 +188,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure generic field is not nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure generic field is not nil.", nil, nil, nil, context.correlationId, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return NO;
@@ -193,7 +202,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token item.");
         return NO;
@@ -219,7 +228,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return nil;
@@ -268,7 +277,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token item.");
         return NO;
@@ -293,7 +302,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorCacheMultipleUsers, @"The token cache store for this resource contains more than one user.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return nil;
@@ -323,7 +332,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         if (error)
         {
             NSString *errorMessage = @"Item or serializer is nil while saving app metadata!";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -335,7 +344,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         if (error)
         {
             NSString *errorMessage = @"Failed to serialize app metadata item.";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize app metadata item.");
         return NO;
@@ -382,7 +391,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize account item.", nil, nil, nil, context.correlationId, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to serialize token item.");
         return NO;
@@ -408,7 +417,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
         if (error)
         {
             NSString *errorMessage = @"Nil metadata item is received!";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Nil metadata item is received!");
         return NO;
@@ -494,7 +503,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Key is nil.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return NO;
@@ -531,7 +540,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d)", (int)status);
         
@@ -573,7 +582,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to save wipe token data into keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to save wipe token data into keychain.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save wipe token data into keychain (status: %d)", (int)status);
         return NO;
@@ -583,7 +592,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 }
 
 - (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error;
+                     error:(NSError **)error
 {
     NSMutableDictionary *query = [self.defaultWipeQuery mutableCopy];
     [query setObject:@YES forKey:(id)kSecReturnData];
@@ -601,7 +610,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error && status != errSecItemNotFound)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get a wipe data from keychain.", nil, nil, nil, context.correlationId, nil, NO);
             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to get a wipe data from keychain (status: %d)", (int)status);
         }
         
@@ -676,7 +685,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return key;
 }
 
-- (NSString *)extractAppKey:(NSString *)cacheKeyString
+- (NSString *)extractAppKey:(__unused NSString *)cacheKeyString
 {
     // no app key needs to be set here
     return nil;
@@ -788,7 +797,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to find keychain item (status: %d)", (int)status);
         return nil;
@@ -816,7 +825,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service field is not nil.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid. Make sure service field is not nil.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
         return NO;
@@ -826,7 +835,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to serialize token item.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to serialize token item.");
         return NO;
@@ -877,7 +886,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to set item into keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to set item into keychain.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to set item into keychain (status: %d)", (int)status);
     }
@@ -899,7 +908,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d)", (int)status);
 

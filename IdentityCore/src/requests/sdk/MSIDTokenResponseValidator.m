@@ -147,7 +147,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"No authority returned from broker", nil, nil, nil, correlationID, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"No authority returned from broker", nil, nil, nil, correlationID, nil, YES);
         }
         
         return nil;

@@ -34,7 +34,16 @@
 {
     NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
     NSString *username = self.requestParameters.accountIdentifier.displayableId;
-    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
+    
+    NSMutableDictionary *extraQueryParameters = [NSMutableDictionary new];
+    [extraQueryParameters addEntriesFromDictionary:self.requestParameters.extraAuthorizeURLQueryParameters];
+    
+    if (self.requestParameters.instanceAware)
+    {
+        extraQueryParameters[@"instance_aware"] = @"true";
+    }
+
+    NSString *extraQueryParametersString = [extraQueryParameters count] ? [extraQueryParameters msidWWWFormURLEncode] : @"";
     
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *contents = [NSMutableDictionary new];
@@ -43,7 +52,7 @@
     [contents msidSetNonEmptyString:homeAccountId forKey:@"home_account_id"];
     [contents msidSetNonEmptyString:username forKey:@"username"];
     [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:@"login_hint"];
-    [contents msidSetNonEmptyString:extraQueryParameters forKey:@"extra_query_param"];
+    [contents msidSetNonEmptyString:extraQueryParametersString forKey:@"extra_query_param"];
     [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
     NSString *promptParam = MSIDPromptParamFromType(self.requestParameters.promptType);
     [contents msidSetNonEmptyString:promptParam forKey:@"prompt"];

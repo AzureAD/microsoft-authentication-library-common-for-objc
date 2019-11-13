@@ -27,6 +27,7 @@
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDTokenResponse+Internal.h"
+#import "MSIDProviderType.h"
 
 @implementation MSIDTokenResponse
 
@@ -116,6 +117,11 @@
     return MSIDErrorCodeForOAuthError(self.error, MSIDErrorServerOauth);
 }
 
++ (MSIDProviderType)providerType
+{
+    @throw @"Abstract method was invoked.";
+}
+
 #pragma mark - Protected
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
@@ -132,7 +138,7 @@
     {
         if (!json)
         {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Attempt to initialize token response with nil json", nil, nil, nil, nil, nil);
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Attempt to initialize token response with nil json", nil, nil, nil, nil, nil, YES);
             
             return nil;
         }
@@ -168,6 +174,7 @@
     json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
     json[MSID_OAUTH2_ERROR] = self.error;
     json[MSID_OAUTH2_ERROR_DESCRIPTION] = self.errorDescription;
+    json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
     
     return json;
 }

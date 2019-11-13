@@ -31,7 +31,7 @@
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error
+                                 error:(__unused NSError * __autoreleasing *)error
 {
     self = [super init];
 
@@ -84,6 +84,7 @@
         _usePassedWebView = [json[@"use_passed_in_webview"] boolValue];
         _forceRefresh = [json[@"force_refresh"] boolValue];
         _isIntuneMAMCACapable = [json[@"intune_mam_ca_capable"] boolValue];
+        _instanceAware = [json[@"instance_aware"] boolValue];
     }
 
     return self;
@@ -142,6 +143,7 @@
     json[@"brokerEnabled"] = @(_brokerEnabled);
     json[@"client_capabilities"] = _clientCapabilities;
     json[@"user_identifier_type"] = _legacyAccountIdentifierType;
+    json[@"instance_aware"] = @(_instanceAware);
 
     return json;
 }

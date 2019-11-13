@@ -32,7 +32,7 @@
 // Convenience macro to release CF objects
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                               urlChallenge:(NSURLAuthenticationChallenge *)challenge
+                                               urlChallenge:(__unused NSURLAuthenticationChallenge *)challenge
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     
@@ -67,14 +67,18 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ certificate reference.");
     status = SecIdentityCopyCertificate(identity, &certificate);
     
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ certificate retrieved with result %ld", (long)status);
+    
     // Get the private key
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ private key reference.");
     status = SecIdentityCopyPrivateKey(identity, &privateKey);
     
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ private key reference retrieved with result %ld", (long)status);
+    
     certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
     certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
     
-    if(!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
+    if (!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid.");
     }
@@ -96,7 +100,7 @@
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
++ (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
                 sharedAccessGroup:(NSString *)accessGroup
                 certificateIssuer:(NSString **)issuer
 

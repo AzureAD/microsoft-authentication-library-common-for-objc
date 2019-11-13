@@ -23,6 +23,7 @@
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 #import "MSIDBrokerOperationTokenRequest.h"
+#import "MSIDProviderType.h"
 
 @class MSIDConfiguration;
 @class MSIDAccountIdentifier;
@@ -35,6 +36,7 @@ API_AVAILABLE(ios(13.0))
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 
 + (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
+                              providerType:(MSIDProviderType)providerType
                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

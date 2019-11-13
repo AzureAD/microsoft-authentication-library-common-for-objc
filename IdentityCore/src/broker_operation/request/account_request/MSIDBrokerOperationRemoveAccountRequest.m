@@ -57,7 +57,7 @@
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
         if (!_accountIdentifier || (!_accountIdentifier.homeAccountId && !_accountIdentifier.displayableId))
         {
-            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"homeAccountId and displayableId could not both be nil for remove account operation!", nil, nil, nil, nil, nil);
+            if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"homeAccountId and displayableId could not both be nil for remove account operation!", nil, nil, nil, nil, nil, YES);
             return nil;
         }
         
@@ -66,7 +66,7 @@
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"client id is missing in remove account operation call!", nil, nil, nil, nil, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"client id is missing in remove account operation call!", nil, nil, nil, nil, nil, YES);
             }
             return nil;
         }

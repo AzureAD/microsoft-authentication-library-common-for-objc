@@ -68,7 +68,7 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidInternalParameter,
                                      @"cacheItem and key could not be nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }
@@ -106,7 +106,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Get account metadata with invalid key.");
         return nil;
@@ -152,7 +152,7 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidInternalParameter,
                                      @"cacheItem and key could not be nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         return NO;
     }
@@ -177,7 +177,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil, YES);
         }
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Load account metadata with invalid key.");
         return NO;

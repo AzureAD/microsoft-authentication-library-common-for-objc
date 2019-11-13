@@ -211,7 +211,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     
     if (self.openIdConfigurationEndpoint == nil)
     {
-        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil);
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil, YES);
         completionBlock(nil, error);
         return;
     }
@@ -248,7 +248,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'authority' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'authority' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -257,7 +257,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must use HTTPS.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must use HTTPS.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -353,7 +353,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     if (!authorityUrl)
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: authority is either nil or not a url.", self.class];
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
         return nil;
     }
     
@@ -369,8 +369,6 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
         return nil;
     }
     json[MSID_AUTHORITY_URL_JSON_KEY] = self.url.absoluteString;
-    
-    json[MSID_AUTHORITY_TYPE_JSON_KEY] = self.class.authorityType;
     
     return json;
 }

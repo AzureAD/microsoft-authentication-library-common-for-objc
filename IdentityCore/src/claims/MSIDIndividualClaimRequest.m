@@ -54,7 +54,7 @@
             if (error) *error = MSIDCreateError(MSIDErrorDomain,
                                                 MSIDErrorInvalidDeveloperParameter,
                                                 @"Invalid json.",
-                                                nil, nil, nil, nil, nil);
+                                                nil, nil, nil, nil, nil, NO);
             
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDIndividualClaimRequest with json: json is invalid.");
             return nil;
@@ -67,7 +67,7 @@
             if (error) *error = MSIDCreateError(MSIDErrorDomain,
                                                 MSIDErrorInvalidDeveloperParameter,
                                                 @"Claim name is not a string.",
-                                                nil, nil, nil, nil, nil);
+                                                nil, nil, nil, nil, nil, NO);
             
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to init MSIDIndividualClaimRequest with json: claim name is not a string.");
             return nil;

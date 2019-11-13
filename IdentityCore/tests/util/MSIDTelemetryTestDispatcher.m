@@ -30,16 +30,16 @@
     _testCallback = callback;
 }
 
-- (BOOL)containsObserver:(id)observer
+- (BOOL)containsObserver:(__unused id)observer
 {
     return NO;
 }
 
-- (void)flush:(NSString *)requestId
+- (void)flush:(__unused NSString *)requestId
 {
 }
 
-- (void)receive:(NSString *)requestId event:(id<MSIDTelemetryEventInterface>)event
+- (void)receive:(__unused NSString *)requestId event:(id<MSIDTelemetryEventInterface>)event
 { 
     // call _testCallback when it receives telemetry event
     // this is for the purpose of unit test

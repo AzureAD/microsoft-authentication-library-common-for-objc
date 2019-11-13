@@ -58,7 +58,7 @@
         || [NSString msidIsStringNilOrBlank:homeAccountId]
         || [NSString msidIsStringNilOrBlank:clientId])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"One or more of input field is nil - request requestAuthorityURL, homeAccountId, or clientID", nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"One or more of input field is nil - request requestAuthorityURL, homeAccountId, or clientID", nil, nil, nil, nil, nil, YES);
         return nil;
     }
     
@@ -106,7 +106,7 @@
     if ([NSString msidIsStringNilOrBlank:homeAccountId]
         || [NSString msidIsStringNilOrBlank:clientId])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to query signed out state!", nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to query signed out state!", nil, nil, nil, nil, nil, YES);
         return MSIDAccountMetadataStateUnknown;
     }
     
@@ -126,7 +126,7 @@
     if ([NSString msidIsStringNilOrBlank:homeAccountId]
         || [NSString msidIsStringNilOrBlank:clientId])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to mark signed out state!", nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to mark signed out state!", nil, nil, nil, nil, nil, YES);
         return NO;
     }
     
