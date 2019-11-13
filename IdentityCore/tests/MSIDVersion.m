@@ -53,7 +53,7 @@
 
 + (NSString *)aadApiVersion
 {
-    return nil;
+    return @"test-api-version";
 }
 
 
