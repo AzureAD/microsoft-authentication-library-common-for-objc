@@ -45,47 +45,41 @@
 //        @"application_token" : @"app_token",
         @"operation" : @"get_accounts",
         @"success" : @1,
-        @"response_data" : @{
-                @"accounts" :
-                    @[
-                        @{
-                            @"account_identifier" : @{
-                                    @"account_home_id" : @"uid.utid",
-                                    @"account_displayable_id" : @"legacy id",
-                            },
-                            @"account_type" : @"MSSTS",
-                            @"alternative_account_id" : @"AltID",
-                            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                            @"environment" : @"login.microsoftonline.com",
-                            @"family_name" : @"Last",
-                            @"given_name" : @"Eric",
-                            @"local_account_id" : @"local",
-                            @"middle_name" : @"Middle",
-                            @"name" : @"Eric Middle Last",
-                            @"realm" : @"common",
-                            @"storage_environment" : @"login.windows2.net",
-                            @"username" : @"username",
-                        },
-                        @{
-                            @"account_identifier" : @{
-                                    @"account_home_id" : @"uid.utid",
-                                    @"account_displayable_id" : @"legacy id",
-                            },
-                            @"account_type" : @"MSSTS",
-                            @"alternative_account_id" : @"AltID",
-                            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                            @"environment" : @"login.microsoftonline.com",
-                            @"family_name" : @"Last",
-                            @"given_name" : @"Eric",
-                            @"local_account_id" : @"local",
-                            @"middle_name" : @"Middle",
-                            @"name" : @"Eric Middle Last",
-                            @"realm" : @"tenant",
-                            @"storage_environment" : @"login.windows2.net",
-                            @"username" : @"username",
-                        }
-                    ]
-        },
+        @"accounts" :
+            @[
+                @{
+                    @"account_home_id" : @"uid.utid",
+                    @"account_displayable_id" : @"legacy id",
+                    @"account_type" : @"MSSTS",
+                    @"alternative_account_id" : @"AltID",
+                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+                    @"environment" : @"login.microsoftonline.com",
+                    @"family_name" : @"Last",
+                    @"given_name" : @"Eric",
+                    @"local_account_id" : @"local",
+                    @"middle_name" : @"Middle",
+                    @"name" : @"Eric Middle Last",
+                    @"realm" : @"common",
+                    @"storage_environment" : @"login.windows2.net",
+                    @"username" : @"username",
+                },
+                @{
+                    @"account_home_id" : @"uid.utid",
+                    @"account_displayable_id" : @"legacy id",
+                    @"account_type" : @"MSSTS",
+                    @"alternative_account_id" : @"AltID",
+                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+                    @"environment" : @"login.microsoftonline.com",
+                    @"family_name" : @"Last",
+                    @"given_name" : @"Eric",
+                    @"local_account_id" : @"local",
+                    @"middle_name" : @"Middle",
+                    @"name" : @"Eric Middle Last",
+                    @"realm" : @"tenant",
+                    @"storage_environment" : @"login.windows2.net",
+                    @"username" : @"username",
+                }
+            ]
     };
 
     NSError *error;
@@ -162,47 +156,41 @@
     NSDictionary *expectedJson = @{
         @"operation" : @"get_accounts",
         @"success" : @"1",
-        @"response_data" : @{
-                @"accounts" :
-                    @[
-                        @{
-                            @"account_identifier" : @{
-                                    @"account_home_id" : @"uid.utid",
-                                    @"account_displayable_id" : @"legacy id",
-                            },
-                            @"account_type" : @"MSSTS",
-                            @"alternative_account_id" : @"AltID",
-                            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                            @"environment" : @"login.microsoftonline.com",
-                            @"family_name" : @"Last",
-                            @"given_name" : @"Eric",
-                            @"local_account_id" : @"local",
-                            @"middle_name" : @"Middle",
-                            @"name" : @"Eric Middle Last",
-                            @"realm" : @"common",
-                            @"storage_environment" : @"login.windows2.net",
-                            @"username" : @"username",
-                        },
-                        @{
-                            @"account_identifier" : @{
-                                    @"account_home_id" : @"uid.utid",
-                                    @"account_displayable_id" : @"legacy id",
-                            },
-                            @"account_type" : @"MSSTS",
-                            @"alternative_account_id" : @"AltID",
-                            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                            @"environment" : @"login.microsoftonline.com",
-                            @"family_name" : @"Last",
-                            @"given_name" : @"Eric",
-                            @"local_account_id" : @"local",
-                            @"middle_name" : @"Middle",
-                            @"name" : @"Eric Middle Last",
-                            @"realm" : @"tenant",
-                            @"storage_environment" : @"login.windows2.net",
-                            @"username" : @"username",
-                        }
-                    ]
-        },
+        @"accounts" :
+            @[
+                @{
+                    @"account_home_id" : @"uid.utid",
+                    @"account_displayable_id" : @"legacy id",
+                    @"account_type" : @"MSSTS",
+                    @"alternative_account_id" : @"AltID",
+                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+                    @"environment" : @"login.microsoftonline.com",
+                    @"family_name" : @"Last",
+                    @"given_name" : @"Eric",
+                    @"local_account_id" : @"local",
+                    @"middle_name" : @"Middle",
+                    @"name" : @"Eric Middle Last",
+                    @"realm" : @"common",
+                    @"storage_environment" : @"login.windows2.net",
+                    @"username" : @"username",
+                },
+                @{
+                    @"account_home_id" : @"uid.utid",
+                    @"account_displayable_id" : @"legacy id",
+                    @"account_type" : @"MSSTS",
+                    @"alternative_account_id" : @"AltID",
+                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+                    @"environment" : @"login.microsoftonline.com",
+                    @"family_name" : @"Last",
+                    @"given_name" : @"Eric",
+                    @"local_account_id" : @"local",
+                    @"middle_name" : @"Middle",
+                    @"name" : @"Eric Middle Last",
+                    @"realm" : @"tenant",
+                    @"storage_environment" : @"login.windows2.net",
+                    @"username" : @"username",
+                }
+            ]
     };
 
     XCTAssertEqualObjects(expectedJson, response.jsonDictionary);

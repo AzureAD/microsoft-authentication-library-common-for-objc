@@ -187,12 +187,7 @@
         return nil;
     }
     
-    if (![json msidAssertType:NSDictionary.class ofKey:@"account_identifier" required:YES error:error])
-    {
-        return nil;
-    }
-    
-    self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json[@"account_identifier"] error:error];
+    self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
     if (!self.accountIdentifier)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No valid account identifier present in the JSON");
@@ -224,7 +219,6 @@
 - (NSDictionary *)jsonDictionary
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
-    json[@"account_identifier"] = [self.accountIdentifier jsonDictionary];
     json[@"local_account_id"] = self.localAccountId;
     json[@"account_type"] = [MSIDAccountTypeHelpers accountTypeAsString:self.accountType];
     json[@"environment"] = self.environment;
@@ -238,6 +232,7 @@
     json[@"client_info"] = self.clientInfo.rawClientInfo;
     json[@"alternative_account_id"] = self.alternativeAccountId;
     json[@"id_token_claims"] = self.idTokenClaims.jsonDictionary;
+    [json addEntriesFromDictionary:[self.accountIdentifier jsonDictionary]];
     
     return json;
 }

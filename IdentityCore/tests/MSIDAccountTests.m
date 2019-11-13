@@ -225,10 +225,8 @@
     XCTAssertNil(error);
     
     NSDictionary *expectedJson = @{
-        @"account_identifier" : @{
-                @"account_home_id" : @"uid.utid",
-                @"account_displayable_id" : @"legacy id"
-        },
+        @"account_home_id" : @"uid.utid",
+        @"account_displayable_id" : @"legacy id",
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
         @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -252,10 +250,8 @@
     NSDictionary *idTokenClaims = @{ @"sub" : @"abc",
                                      @"middle_name" : @"Middle" };
     NSDictionary *json = @{
-        @"account_identifier" : @{
-                @"account_home_id" : @"uid.utid",
-                @"account_displayable_id" : @"legacy id"
-        },
+        @"account_home_id" : @"uid.utid",
+        @"account_displayable_id" : @"legacy id",
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
         @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -322,10 +318,8 @@
 
 - (void)testInitWithJSONDictionary_whenOptionalValueUnavailable_shouldInitWithJson {
     NSDictionary *json = @{
-        @"account_identifier" : @{
-                @"account_home_id" : @"uid.utid",
-                @"account_displayable_id" : @"legacy id"
-        },
+        @"account_home_id" : @"uid.utid",
+        @"account_displayable_id" : @"legacy id",
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
         @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",

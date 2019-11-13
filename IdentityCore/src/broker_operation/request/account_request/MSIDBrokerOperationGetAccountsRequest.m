@@ -70,12 +70,9 @@
     if (!json) return nil;
     
     if (!self.clientId) return nil;
-    [json setValue:self.clientId forKey:MSID_BROKER_CLIENT_ID_KEY];
+    json[MSID_BROKER_CLIENT_ID_KEY] = self.clientId;
     
-    if (self.familyId)
-    {
-        [json setValue:self.familyId forKey:MSID_BROKER_FAMILY_ID_KEY];
-    }
+    json[MSID_BROKER_FAMILY_ID_KEY] = self.familyId;
     
     return json;
 }

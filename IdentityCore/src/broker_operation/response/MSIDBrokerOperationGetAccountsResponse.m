@@ -34,21 +34,20 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSDictionary.class ofKey:@"response_data" required:YES error:error])
+        if (![json msidAssertType:NSArray.class ofKey:@"accounts" required:YES error:error])
         {
             return nil;
         }
-        NSDictionary *responseData = json[@"response_data"];
-        
-        if (![responseData msidAssertType:NSArray.class ofKey:@"accounts" required:YES error:error])
-        {
-            return nil;
-        }
-        NSArray *accountsJson = responseData[@"accounts"];
+        NSArray *accountsJson = json[@"accounts"];
         
         NSMutableArray *accounts = [NSMutableArray new];
         for (NSDictionary *accountJson in accountsJson)
         {
+            if (![accountJson isKindOfClass:NSDictionary.class])
+            {
+                continue;
+            }
+            
             NSError *localError;
             MSIDAccount *account = [[MSIDAccount alloc] initWithJSONDictionary:accountJson error:&localError];
             if (!account)
@@ -80,7 +79,7 @@
         if (accountJson) [accountsJson addObject:accountJson];
     }
     
-    json[@"response_data"] = @{@"accounts" : accountsJson};
+    json[@"accounts"] = accountsJson;
     
     return json;
 }
