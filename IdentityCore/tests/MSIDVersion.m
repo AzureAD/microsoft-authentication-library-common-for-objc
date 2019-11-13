@@ -51,4 +51,10 @@
     return @"Microsoft.Test.";
 }
 
++ (NSString *)aadApiVersion
+{
+    return nil;
+}
+
+
 @end

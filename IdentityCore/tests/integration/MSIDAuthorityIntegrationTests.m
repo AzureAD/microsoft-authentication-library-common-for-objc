@@ -57,7 +57,7 @@
     [MSIDAdfsAuthorityResolver.cache removeAllObjects];
 
     MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     
     [MSIDTestURLSession clearResponses];
 }
@@ -513,7 +513,7 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnownAADApiVersionV2_shouldReturnErrorNil
 {
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
     
     __auto_type authorityUrl = [@"https://example.com/common/qwe" msidUrl];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
