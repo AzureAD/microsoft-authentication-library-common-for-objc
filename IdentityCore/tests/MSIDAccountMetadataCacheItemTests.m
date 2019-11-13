@@ -191,7 +191,7 @@
     XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedIn);
     
     // Mark signed out
-    [cacheItem markSignedOut];
+    [cacheItem updateSignInState:MSIDAccountMetadataStateSignedOut];
     XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedOut);
     
     // Set URL again
@@ -315,7 +315,7 @@
                             instanceAware:YES
                                     error:&error]);
     
-    [cacheItem markSignedOut];
+    [cacheItem updateSignInState:MSIDAccountMetadataStateSignedOut];
     
     NSDictionary *expectedMap = @{};
     XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);

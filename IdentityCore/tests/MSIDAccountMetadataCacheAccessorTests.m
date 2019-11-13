@@ -91,7 +91,7 @@
 
 - (void)testMarkSignedOutStateForHomeAccountId_whenHomeAccountIdNil_shouldReturnNil {
     NSError *error;
-    BOOL success = [self.accountMetadataCache markSignedOutStateForHomeAccountId:nil clientId:@"client_id" context:nil error:&error];
+    BOOL success = [self.accountMetadataCache updateSignInStateForHomeAccountId:nil clientId:@"client_id" state:MSIDAccountMetadataStateSignedOut context:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
@@ -101,7 +101,7 @@
 
 - (void)testMarkSignedOutStateForHomeAccountId_whenClientIdNil_shouldReturnNil {
     NSError *error;
-    BOOL success = [self.accountMetadataCache markSignedOutStateForHomeAccountId:@"uid.utid" clientId:nil context:nil error:&error];
+    BOOL success = [self.accountMetadataCache updateSignInStateForHomeAccountId:@"uid.utid" clientId:nil state:MSIDAccountMetadataStateSignedOut context:nil error:&error];
     
     XCTAssertNotNil(error);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
@@ -121,7 +121,7 @@
                                             error:&error];
     XCTAssertNil(error);
     
-    BOOL success = [self.accountMetadataCache markSignedOutStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" context:nil error:&error];
+    BOOL success = [self.accountMetadataCache updateSignInStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" state:MSIDAccountMetadataStateSignedOut context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(success);
     

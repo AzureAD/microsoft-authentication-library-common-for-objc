@@ -100,24 +100,7 @@
     XCTAssertEqualObjects(request.clientId, @"my-client-id");
 }
 
-- (void)testInitWithJSONDictionary_whenAccountIdentifierMissing_shouldReturnNil {
-    NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
-                           MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
-                           MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
-                           MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
-                           MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
-                           MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
-                           MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
-    };
-
-    NSError *error;
-    MSIDBrokerOperationRemoveAccountRequest *request = [[MSIDBrokerOperationRemoveAccountRequest alloc] initWithJSONDictionary:json error:&error];
-
-    XCTAssertNotNil(error);
-    XCTAssertNil(request);
-}
-
-- (void)testInitWithJSONDictionary_whenHomeAccountIdMissing_shouldReturnNil {
+- (void)testInitWithJSONDictionary_whenHomeAccountIdMissing_shouldSucceed {
     NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
                            MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
                            MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
@@ -126,6 +109,31 @@
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                            MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
                            @"account_displayable_id" : @"legacy id"
+    };
+
+    NSError *error;
+    MSIDBrokerOperationRemoveAccountRequest *request = [[MSIDBrokerOperationRemoveAccountRequest alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(request.brokerKey, @"I87KMS");
+    XCTAssertEqual(request.protocolVersion, 3);
+    XCTAssertEqualObjects(request.clientVersion, @"1.0");
+    XCTAssertEqualObjects(request.clientAppVersion, @"10.3.4");
+    XCTAssertEqualObjects(request.clientAppName, @"Outlook");
+    XCTAssertEqualObjects(request.correlationId.UUIDString, @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043");
+    XCTAssertNil(request.accountIdentifier.homeAccountId);
+    XCTAssertEqualObjects(request.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(request.clientId, @"my-client-id");
+}
+
+- (void)testInitWithJSONDictionary_whenAccountIdentifierMissing_shouldReturnNil {
+    NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
+                           MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
+                           MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
+                           MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
+                           MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
+                           MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
+                           MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
     };
 
     NSError *error;

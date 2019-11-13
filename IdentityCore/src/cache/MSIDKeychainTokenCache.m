@@ -444,21 +444,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                              context:(id<MSIDRequestContext>)context
                                                                error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
-    if (!items) return nil;
-    
-    NSMutableArray *metadataItems = [NSMutableArray new];
-    for (NSDictionary *item in items)
-    {
-        NSData *itemData = [item objectForKey:(id)kSecValueData];
-        MSIDAccountMetadataCacheItem *metadata = (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountMetadataCacheItem class]];
-        if (metadata)
-        {
-            [metadataItems addObject:metadata];
-        }
-    }
-    
-    return metadataItems;
+    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
 }
 
 #pragma mark - Removal
