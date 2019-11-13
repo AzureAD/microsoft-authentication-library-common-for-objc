@@ -73,7 +73,7 @@
 - (void)setUp
 {
     [super setUp];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
     MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
     [cache clearWithContext:nil error:nil];
 }
@@ -83,7 +83,7 @@
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [super tearDown];
 }
 

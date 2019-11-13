@@ -33,6 +33,7 @@
 + (NSString *)platformName;
 + (NSString *)sdkName;
 + (NSString *)sdkVersion;
++ (NSString *)aadApiVersion;
 
 // Prefix that will be added to each telemetry field
 // e.g. "msal." for MSAL and "Microsoft.ADAL." for ADAL
