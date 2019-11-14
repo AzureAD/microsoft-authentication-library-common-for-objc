@@ -35,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *operation;
 @property (nonatomic) BOOL success;
 @property (nonatomic, nullable) NSError *error;
+@property (nonatomic, nullable) NSString *authenticatorAppVersion;
 
 // TODO: add device_info
 
