@@ -44,7 +44,7 @@
     userInfo[MSIDErrorDescriptionKey] = errorDescription;
     userInfo[self.oauthErrorKey] = oauthError;
     userInfo[self.subErrorKey] = subError;
-    userInfo[NSUnderlyingErrorKey]  = underlyingError;
+    userInfo[NSUnderlyingErrorKey] = underlyingError;
     userInfo[MSIDCorrelationIdKey] = [correlationId UUIDString];
     if (additionalUserInfo)
     {

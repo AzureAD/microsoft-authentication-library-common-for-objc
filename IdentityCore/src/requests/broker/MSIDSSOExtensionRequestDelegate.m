@@ -52,7 +52,16 @@
     assert(self.completionBlock);
     if (!self.completionBlock) return;
     
-    self.completionBlock(nil, error);
+    // TODO:???
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    if (underlyingError)
+    {
+        self.completionBlock(nil, underlyingError);
+    }
+    else
+    {
+        self.completionBlock(nil, error);
+    }
 }
 
 #pragma mark - Protected

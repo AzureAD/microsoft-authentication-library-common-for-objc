@@ -51,11 +51,8 @@
     
     if (self)
     {
-        if (self.success)
-        {
-            _tokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:error];
-            if (!_tokenResponse) return nil;
-        }
+        _tokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:error];
+        if (!_tokenResponse) return nil;
     }
     
     return self;
@@ -66,11 +63,8 @@
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if (!json) return nil;
     
-    if (self.success)
-    {
-        NSDictionary *responseJson = [_tokenResponse jsonDictionary];
-        if (responseJson) [json addEntriesFromDictionary:responseJson];
-    }
+    NSDictionary *responseJson = [_tokenResponse jsonDictionary];
+    if (responseJson) [json addEntriesFromDictionary:responseJson];
     
     return json;
 }
