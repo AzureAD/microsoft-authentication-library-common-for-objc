@@ -53,9 +53,9 @@
     assert(self.completionBlock);
     if (!self.completionBlock) return;
     
-    if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == MSIDSSOExtensionUnderlyingError)
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == MSIDSSOExtensionUnderlyingError && underlyingError)
     {
-        NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
         self.completionBlock(nil, underlyingError);
     }
     else
