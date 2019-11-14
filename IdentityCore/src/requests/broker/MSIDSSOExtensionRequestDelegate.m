@@ -25,6 +25,7 @@
 #import "MSIDSSOExtensionRequestDelegate.h"
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDError.h"
 
 @implementation MSIDSSOExtensionRequestDelegate
 
@@ -52,7 +53,7 @@
     assert(self.completionBlock);
     if (!self.completionBlock) return;
     
-    if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && [error.code == MSIDSSOExtensionUnderlyingError])
+    if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == MSIDSSOExtensionUnderlyingError)
     {
         NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
         self.completionBlock(nil, underlyingError);
