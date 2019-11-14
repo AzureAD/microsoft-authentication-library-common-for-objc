@@ -308,4 +308,18 @@
     XCTAssertEqualObjects(@"e62e1269", hash);
 }
 
+- (void)testMsidDomainSuffix_whenStringWithNoEmail_shouldReturnNil
+{
+    NSString *input = @"test.test.com";
+    NSString *result = [input msidDomainSuffix];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidDomainSuffix_whenStringContainsEmail_shouldReturnDomainSuffix
+{
+    NSString *input = @"test@test.com";
+    NSString *result = [input msidDomainSuffix];
+    XCTAssertEqualObjects(result, @"test.com");
+}
+
 @end

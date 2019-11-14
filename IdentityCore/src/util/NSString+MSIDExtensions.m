@@ -310,4 +310,16 @@ typedef unsigned char byte;
     return secretHash;
 }
 
+- (NSString *)msidDomainSuffix
+{
+    NSRange emailIndex = [self rangeOfString:@"@"];
+    
+    if (emailIndex.location != NSNotFound)
+    {
+        return [self substringFromIndex:emailIndex.location];
+    }
+    
+    return nil;
+}
+
 @end
