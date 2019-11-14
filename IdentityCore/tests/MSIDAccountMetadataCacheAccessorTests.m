@@ -29,6 +29,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDTestCacheDataSource.h"
+#import "MSIDMetadataCache.h"
 
 @interface MSIDAccountMetadataCacheAccessorTests : XCTestCase
 
@@ -61,7 +62,7 @@
     XCTAssertEqual(signInState, MSIDAccountMetadataStateUnknown);
 }
 
-- (void)testSigneInStateForHomeAccountId_whenClientIdNil_shouldReturnNil {
+- (void)testSigneInStateForHomeAccountId_whenClientIdNil_shouldReturnErrorAndUnknown {
     NSError *error;
     MSIDAccountMetadataState signInState = [self.accountMetadataCache signInStateForHomeAccountId:@"uid.utid" clientId:nil context:nil error:&error];
     
@@ -74,8 +75,8 @@
 - (void)testSignInStateForHomeAccountId_whenAllParametersPassed_shouldReturnState {
     //Save account metadata
     NSError *error;
-    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
-                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
                                     homeAccountId:@"uid.utid"
                                          clientId:@"my-client-id"
                                     instanceAware:NO
@@ -89,7 +90,7 @@
     XCTAssertEqual(signInState, MSIDAccountMetadataStateSignedIn);
 }
 
-- (void)testMarkSignedOutStateForHomeAccountId_whenHomeAccountIdNil_shouldReturnNil {
+- (void)testUpdateSignInStateForHomeAccountId_whenHomeAccountIdNil_shouldReturnError {
     NSError *error;
     BOOL success = [self.accountMetadataCache updateSignInStateForHomeAccountId:nil clientId:@"client_id" state:MSIDAccountMetadataStateSignedOut context:nil error:&error];
     
@@ -99,7 +100,7 @@
     XCTAssertFalse(success);
 }
 
-- (void)testMarkSignedOutStateForHomeAccountId_whenClientIdNil_shouldReturnNil {
+- (void)testUpdateSignInStateForHomeAccountId_whenClientIdNil_shouldReturnError {
     NSError *error;
     BOOL success = [self.accountMetadataCache updateSignInStateForHomeAccountId:@"uid.utid" clientId:nil state:MSIDAccountMetadataStateSignedOut context:nil error:&error];
     
@@ -109,17 +110,22 @@
     XCTAssertFalse(success);
 }
 
-- (void)testMarkSignedOutStateForHomeAccountId_whenAllParametersPassed_shouldMarkSignedOut {
+- (void)testUpdateSignInStateForHomeAccountId_whenSetSignedOut_shouldSetState {
     //Save account metadata
     NSError *error;
-    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
-                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
                                     homeAccountId:@"uid.utid"
                                          clientId:@"my-client-id"
                                     instanceAware:NO
                                           context:nil
                                             error:&error];
     XCTAssertNil(error);
+    
+    NSURL *retrievedCacheURL = [self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                            homeAccountId:@"uid.utid"
+                                                                 clientId:@"my-client-id" instanceAware:NO context:nil error:&error];
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/contoso", retrievedCacheURL.absoluteString);
     
     BOOL success = [self.accountMetadataCache updateSignInStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" state:MSIDAccountMetadataStateSignedOut context:nil error:&error];
     XCTAssertNil(error);
@@ -129,6 +135,89 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(signInState, MSIDAccountMetadataStateSignedOut);
+    
+    XCTAssertNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                              homeAccountId:@"uid.utid"
+                                                   clientId:@"my-client-id" instanceAware:NO context:nil error:&error]);
+    
+    
+}
+
+- (void)testUpdateSignInStateForHomeAccountId_whenSetNonSignedOutState_shouldNotAffectAuthorityMapping {
+    //Save account metadata
+    NSError *error;
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                    homeAccountId:@"uid.utid"
+                                         clientId:@"my-client-id"
+                                    instanceAware:NO
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    
+    NSURL *retrievedCacheURL = [self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                            homeAccountId:@"uid.utid"
+                                                                 clientId:@"my-client-id" instanceAware:NO context:nil error:&error];
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/contoso", retrievedCacheURL.absoluteString);
+    
+    BOOL success = [self.accountMetadataCache updateSignInStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" state:MSIDAccountMetadataStateUnknown context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(success);
+    
+    MSIDAccountMetadataState signInState = [self.accountMetadataCache signInStateForHomeAccountId:@"uid.utid" clientId:@"my-client-id" context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(signInState, MSIDAccountMetadataStateUnknown);
+    
+    retrievedCacheURL = [self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                     homeAccountId:@"uid.utid"
+                                                          clientId:@"my-client-id" instanceAware:NO context:nil error:&error];
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/contoso", retrievedCacheURL.absoluteString);
+}
+
+- (void)testLoadAccountMetadataForKey_whenLoad_shouldLoadAllRelevantAccountMetadata {
+    NSMutableDictionary *memoryCache = [[self.accountMetadataCache valueForKey:@"_metadataCache"] valueForKey:@"_memoryCache"];
+    XCTAssertEqual(memoryCache.count, 0);
+    
+    //Save account metadata
+    NSError *error;
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                    homeAccountId:@"uid.utid"
+                                         clientId:@"my-client-id"
+                                    instanceAware:NO
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                    homeAccountId:@"uid2.utid2"
+                                         clientId:@"my-client-id"
+                                    instanceAware:NO
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
+                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                    homeAccountId:@"uid3.utid3"
+                                         clientId:@"my-client-id2"
+                                    instanceAware:NO
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    
+    XCTAssertEqual(memoryCache.count, 3);
+    
+    // Remove memory cache
+    [memoryCache removeAllObjects];
+    
+    // Load Account metatadata
+    XCTAssertTrue([self.accountMetadataCache loadAccountMetadataForClientId:@"my-client-id" context:nil error:&error]);
+    // Since load account is async, here we do a trick: make a read before we verify the entry count in memoryCache
+    [self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                 homeAccountId:@"uid.utid"
+                                      clientId:@"my-client-id" instanceAware:NO context:nil error:&error];
+    XCTAssertEqual(memoryCache.count, 2);
 }
 
 @end

@@ -85,7 +85,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
 {
-    if (self.signInState == MSIDAccountMetadataStateSignedIn)
+    if (self.signInState != MSIDAccountMetadataStateSignedOut)
     {
         NSString *urlMapKey = [self URLMapKey:instanceAware];
         NSDictionary *urlMap = _internalMap[urlMapKey];

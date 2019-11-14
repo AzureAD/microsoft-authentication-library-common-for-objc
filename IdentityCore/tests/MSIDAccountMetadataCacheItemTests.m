@@ -302,7 +302,7 @@
     XCTAssertNotEqualObjects(item1, item2);
 }
 
-- (void)testMarkSignedOut_whenMarkSignedOut_shouldWipeAuthorityMap
+- (void)testUpdateSignInState_whenSetSignedOut_shouldWipeAuthorityMap
 {
     NSError *error = nil;
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
@@ -320,6 +320,27 @@
     NSDictionary *expectedMap = @{};
     XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);
     XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateSignedOut);
+}
+
+- (void)testUpdateSignInState_whenSetNonSignedOut_shouldNotWipeAuthorityMap
+{
+    NSError *error = nil;
+    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso1.com"]
+                            forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
+                            instanceAware:NO
+                                    error:&error]);
+    XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso2.com"]
+                            forRequestURL:[NSURL URLWithString:@"https://testAuthority2.com"]
+                            instanceAware:YES
+                                    error:&error]);
+    
+    [cacheItem updateSignInState:MSIDAccountMetadataStateUnknown];
+    
+    NSDictionary *expectedMap = @{ @"URLMap-" : @{ @"https://testAuthority1.com" : @"https://contoso1.com"},
+                                   @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}};
+    XCTAssertEqualObjects(cacheItem.internalMap, expectedMap);
+    XCTAssertEqual(cacheItem.signInState, MSIDAccountMetadataStateUnknown);
 }
 
 @end
