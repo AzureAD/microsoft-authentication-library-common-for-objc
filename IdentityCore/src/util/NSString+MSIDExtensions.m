@@ -314,9 +314,9 @@ typedef unsigned char byte;
 {
     NSRange emailIndex = [self rangeOfString:@"@"];
     
-    if (emailIndex.location != NSNotFound)
+    if (emailIndex.location != NSNotFound && [self length] > emailIndex.location + 1)
     {
-        return [self substringFromIndex:emailIndex.location];
+        return [self substringFromIndex:emailIndex.location + 1];
     }
     
     return nil;
