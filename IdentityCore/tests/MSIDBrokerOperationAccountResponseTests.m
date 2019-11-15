@@ -123,7 +123,133 @@
     XCTAssertEqualObjects(account2.name, @"Eric Middle Last");
     XCTAssertEqualObjects(account2.clientInfo.rawClientInfo, [@{@"key" : @"value"} msidBase64UrlJson]);
     XCTAssertEqualObjects(account2.alternativeAccountId, @"AltID");
+}
+
+- (void)testInitWithJSONDictionary_whenSomeAccountsWrongType_shouldInitWithCorrectAccounts {
+    NSDictionary *json = @{
+//        @"application_token" : @"app_token",
+        @"operation" : @"get_accounts",
+        @"success" : @1,
+        @"accounts" :
+            @[
+                @{
+                    @"account_home_id" : @"uid.utid",
+                    @"account_displayable_id" : @"legacy id",
+                    @"account_type" : @"MSSTS",
+                    @"alternative_account_id" : @"AltID",
+                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+                    @"environment" : @"login.microsoftonline.com",
+                    @"family_name" : @"Last",
+                    @"given_name" : @"Eric",
+                    @"local_account_id" : @"local",
+                    @"middle_name" : @"Middle",
+                    @"name" : @"Eric Middle Last",
+                    @"realm" : @"common",
+                    @"storage_environment" : @"login.windows2.net",
+                    @"username" : @"username",
+                },
+                @{
+                    @"account_name" : @"abc",
+                    @"account_id" : @"abc"
+                }
+            ]
+    };
+
+    NSError *error;
+    MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNil(error);
+//    XCTAssertEqualObjects(response.applicationToken, @"app_token");
+//    XCTAssertEqual(response.success, YES);
+//    XCTAssertEqualObjects(response.operation, @"get_accounts");
+    NSArray *accounts = response.accounts;
+    XCTAssertEqual(accounts.count, 1);
+    MSIDAccount *account1 = accounts[0];
     
+    XCTAssertEqual(account1.accountType, MSIDAccountTypeMSSTS);
+    XCTAssertEqualObjects(account1.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account1.localAccountId, @"local");
+    XCTAssertEqualObjects(account1.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account1.realm, @"common");
+    XCTAssertEqualObjects(account1.storageEnvironment, @"login.windows2.net");
+    XCTAssertEqualObjects(account1.username, @"username");
+    XCTAssertEqualObjects(account1.givenName, @"Eric");
+    XCTAssertEqualObjects(account1.middleName, @"Middle");
+    XCTAssertEqualObjects(account1.familyName, @"Last");
+    XCTAssertEqualObjects(account1.name, @"Eric Middle Last");
+    XCTAssertEqualObjects(account1.clientInfo.rawClientInfo, [@{@"key" : @"value"} msidBase64UrlJson]);
+    XCTAssertEqualObjects(account1.alternativeAccountId, @"AltID");
+}
+
+- (void)testInitWithJSONDictionary_whenSomeAccountsNotAbleToInit_shouldInitWithCorrectAccounts {
+    NSDictionary *json = @{
+//        @"application_token" : @"app_token",
+        @"operation" : @"get_accounts",
+        @"success" : @1,
+        @"accounts" :
+            @[
+                @{
+                    @"account_home_id" : @"uid.utid",
+                    @"account_displayable_id" : @"legacy id",
+                    @"account_type" : @"MSSTS",
+                    @"alternative_account_id" : @"AltID",
+                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+                    @"environment" : @"login.microsoftonline.com",
+                    @"family_name" : @"Last",
+                    @"given_name" : @"Eric",
+                    @"local_account_id" : @"local",
+                    @"middle_name" : @"Middle",
+                    @"name" : @"Eric Middle Last",
+                    @"realm" : @"common",
+                    @"storage_environment" : @"login.windows2.net",
+                    @"username" : @"username",
+                },
+                @"2"//corrupted accounts
+            ]
+    };
+
+    NSError *error;
+    MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNil(error);
+//    XCTAssertEqualObjects(response.applicationToken, @"app_token");
+//    XCTAssertEqual(response.success, YES);
+//    XCTAssertEqualObjects(response.operation, @"get_accounts");
+    NSArray *accounts = response.accounts;
+    XCTAssertEqual(accounts.count, 1);
+    MSIDAccount *account1 = accounts[0];
+    
+    XCTAssertEqual(account1.accountType, MSIDAccountTypeMSSTS);
+    XCTAssertEqualObjects(account1.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account1.localAccountId, @"local");
+    XCTAssertEqualObjects(account1.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(account1.realm, @"common");
+    XCTAssertEqualObjects(account1.storageEnvironment, @"login.windows2.net");
+    XCTAssertEqualObjects(account1.username, @"username");
+    XCTAssertEqualObjects(account1.givenName, @"Eric");
+    XCTAssertEqualObjects(account1.middleName, @"Middle");
+    XCTAssertEqualObjects(account1.familyName, @"Last");
+    XCTAssertEqualObjects(account1.name, @"Eric Middle Last");
+    XCTAssertEqualObjects(account1.clientInfo.rawClientInfo, [@{@"key" : @"value"} msidBase64UrlJson]);
+    XCTAssertEqualObjects(account1.alternativeAccountId, @"AltID");
+}
+
+- (void)testInitWithJSONDictionary_whenAccountsNotAnArray_shouldReturnNil {
+    NSDictionary *json = @{
+        @"operation" : @"get_accounts",
+        @"success" : @1,
+        @"accounts" : @2
+    };
+
+    NSError *error;
+    MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertNil(response);
 }
 
 - (void)testJsonDictionary_whenDeserialize_shouldGenerateCorrectJson {

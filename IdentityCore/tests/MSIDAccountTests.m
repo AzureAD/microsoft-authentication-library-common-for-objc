@@ -316,6 +316,33 @@
     XCTAssertNil(account);
 }
 
+- (void)testInitWithJSONDictionary_whenIdTokenClaimsNotDictionary_shouldReturnNil {
+    NSDictionary *json = @{
+        @"account_identifier" : @"some-value",
+        @"account_type" : @"MSSTS",
+        @"alternative_account_id" : @"AltID",
+        @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+        @"environment" : @"login.microsoftonline.com",
+        @"family_name" : @"Last",
+        @"given_name" : @"Eric",
+        @"name" : @"Eric Middle Last",
+        @"local_account_id" : @"local",
+        @"middle_name" : @"Middle",
+        @"realm" : @"common",
+        @"storage_environment" : @"login.windows2.net",
+        @"username" : @"username",
+        @"id_token_claims" : @"some-value"
+    };
+    
+    NSError *error;
+    MSIDAccount *account = [[MSIDAccount alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertNil(account);
+}
+
 - (void)testInitWithJSONDictionary_whenOptionalValueUnavailable_shouldInitWithJson {
     NSDictionary *json = @{
         @"account_home_id" : @"uid.utid",
