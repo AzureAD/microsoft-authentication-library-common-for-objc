@@ -164,16 +164,23 @@
     NSMutableDictionary *json = [NSMutableDictionary new];
     if (self.additionalServerInfo) [json addEntriesFromDictionary:self.additionalServerInfo];
     
-    json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
-    json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
-    json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
-    json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
-    json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
-    json[MSID_OAUTH2_SCOPE] = self.scope;
-    json[MSID_OAUTH2_STATE] = self.state;
-    json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
-    json[MSID_OAUTH2_ERROR] = self.error;
-    json[MSID_OAUTH2_ERROR_DESCRIPTION] = self.errorDescription;
+    if (self.error)
+    {
+        json[MSID_OAUTH2_ERROR] = self.error;
+        json[MSID_OAUTH2_ERROR_DESCRIPTION] = self.errorDescription;
+    }
+    else
+    {
+        json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
+        json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
+        json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
+        json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
+        json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
+        json[MSID_OAUTH2_SCOPE] = self.scope;
+        json[MSID_OAUTH2_STATE] = self.state;
+        json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
+    }
+    
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
     
     return json;
