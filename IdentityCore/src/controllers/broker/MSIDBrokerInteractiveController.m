@@ -130,6 +130,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
 #pragma unused(requestParameters)
 #if AD_BROKER
+#pragma unused(requestParameters)
     return YES;
 #elif TARGET_OS_IPHONE
     
@@ -330,6 +331,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
 #pragma unused(sourceApplication)
 #if AD_BROKER
+#pragma unused(sourceApplication)
     return YES;
 #else
     BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];

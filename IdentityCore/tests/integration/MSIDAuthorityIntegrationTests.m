@@ -57,7 +57,7 @@
     [MSIDAdfsAuthorityResolver.cache removeAllObjects];
 
     MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     
     [MSIDTestURLSession clearResponses];
 }
@@ -439,7 +439,7 @@
     __auto_type authorityUrl = [@"https://example.com/common/qwe" msidUrl];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:400 HTTPVersion:nil headerFields:nil];
-    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Fexample.com%2Fcommon%2Foauth2%2Fauthorize" msidUrl];
+    __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Fexample.com%2Fcommon%2Foauth2%2Ftest-api-version%2Fauthorize" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -513,7 +513,7 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnownAADApiVersionV2_shouldReturnErrorNil
 {
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
     
     __auto_type authorityUrl = [@"https://example.com/common/qwe" msidUrl];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
