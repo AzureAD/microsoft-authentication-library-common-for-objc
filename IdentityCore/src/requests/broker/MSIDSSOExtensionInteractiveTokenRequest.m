@@ -66,17 +66,8 @@
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
-        {
-            MSIDInteractiveRequestCompletionBlock blockWrapper = ^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *installBrokerResponse)
-            {
-//                NSMutableDictionary *userInfo = error.userInfo ? [error.userInfo mutableCopy] : [NSMutableDictionary new];
-//                userInfo[MSIDBrokerVersionKey] = operationResponse.clientAppVersion;
-//                NSError *extendedError = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:userInfo];
-                
-                weakSelf.requestCompletionBlock(result, error, installBrokerResponse);
-            };
-            
-            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:blockWrapper];
+        {            
+            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
