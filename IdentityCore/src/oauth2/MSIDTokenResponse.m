@@ -152,7 +152,7 @@
         _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
         [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
         _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
-        _errorDescription = [json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+        _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
         [self setAdditionalServerInfo:json];
     }
     
@@ -173,7 +173,7 @@
     json[MSID_OAUTH2_STATE] = self.state;
     json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
     json[MSID_OAUTH2_ERROR] = self.error;
-    json[MSID_OAUTH2_ERROR_DESCRIPTION] = self.errorDescription;
+    json[MSID_OAUTH2_ERROR_DESCRIPTION] = [self.errorDescription msidURLEncode];
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
     
     return json;
