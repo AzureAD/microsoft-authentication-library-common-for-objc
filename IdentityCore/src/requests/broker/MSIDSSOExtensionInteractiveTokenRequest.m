@@ -69,11 +69,11 @@
         {
             MSIDInteractiveRequestCompletionBlock blockWrapper = ^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *installBrokerResponse)
             {
-                NSMutableDictionary *userInfo = error.userInfo ? [error.userInfo mutableCopy] : [NSMutableDictionary new];
-                userInfo[MSIDBrokerVersionKey] = operationResponse.clientAppVersion;
-                NSError *extendedError = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:userInfo];
+//                NSMutableDictionary *userInfo = error.userInfo ? [error.userInfo mutableCopy] : [NSMutableDictionary new];
+//                userInfo[MSIDBrokerVersionKey] = operationResponse.clientAppVersion;
+//                NSError *extendedError = [[NSError alloc] initWithDomain:error.domain code:error.code userInfo:userInfo];
                 
-                weakSelf.requestCompletionBlock(result, extendedError, installBrokerResponse);
+                weakSelf.requestCompletionBlock(result, error, installBrokerResponse);
             };
             
             [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:blockWrapper];

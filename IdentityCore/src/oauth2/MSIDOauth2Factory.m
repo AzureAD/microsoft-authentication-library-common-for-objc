@@ -81,6 +81,9 @@
     {
         if (error)
         {
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
+            
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
                                      response.errorDescription,
@@ -88,7 +91,7 @@
                                      nil,
                                      nil,
                                      context.correlationId,
-                                     nil, NO);
+                                     userInfo, NO);
         }
         return NO;
     }
