@@ -50,6 +50,8 @@
 
 - (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
 {
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"Received error from SSO extension: %@", MSID_PII_LOG_MASKABLE(error));
+    
     assert(self.completionBlock);
     if (!self.completionBlock) return;
     
