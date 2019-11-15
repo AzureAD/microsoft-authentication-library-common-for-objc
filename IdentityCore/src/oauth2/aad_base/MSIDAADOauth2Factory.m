@@ -101,7 +101,7 @@
         {
             NSError *parentError = *error;
             MSIDErrorCode errorCode = parentError.code;
-            NSMutableDictionary *additionalUserInfo = [parentError.userInfo mutableDeepCopy];
+            NSMutableDictionary *additionalUserInfo = [parentError.userInfo mutableDeepCopy] ?: [NSMutableDictionary new];
             
             /* This is a special error case for True MAM,
              where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
@@ -115,7 +115,14 @@
             
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Processing an AAD error with error code %ld, error %@, suberror %@, description %@", (long)errorCode, response.error, response.suberror, MSID_PII_LOG_MASKABLE(response.errorDescription));
             
-            *error = [[NSError alloc] initWithDomain:parentError.domain code:errorCode userInfo:additionalUserInfo];
+            *error = MSIDCreateError(parentError.domain,
+                                     errorCode,
+                                     response.errorDescription,
+                                     response.error,
+                                     response.suberror,
+                                     nil,
+                                     context.correlationId,
+                                     additionalUserInfo, NO);
         }
         
         return result;
