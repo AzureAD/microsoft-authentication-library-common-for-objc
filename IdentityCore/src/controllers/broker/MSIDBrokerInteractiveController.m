@@ -128,7 +128,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 + (BOOL)canPerformRequest:(MSIDInteractiveRequestParameters *)requestParameters
 {
-#pragma unused(requestParameters)
 #if AD_BROKER
 #pragma unused(requestParameters)
     return YES;
@@ -329,7 +328,6 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 + (BOOL)isResponseFromBroker:(NSString *)sourceApplication
 {
-#pragma unused(sourceApplication)
 #if AD_BROKER
 #pragma unused(sourceApplication)
     return YES;
