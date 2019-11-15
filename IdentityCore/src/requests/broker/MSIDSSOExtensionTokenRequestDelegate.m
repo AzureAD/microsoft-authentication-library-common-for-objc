@@ -43,7 +43,7 @@
 
     if (!operationResponse) self.completionBlock(nil, error);
     
-    self.completionBlock(operationResponse.tokenResponse, nil);
+    self.completionBlock(operationResponse, nil);
 }
 
 @end

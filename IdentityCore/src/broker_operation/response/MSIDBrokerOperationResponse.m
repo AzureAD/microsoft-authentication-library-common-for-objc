@@ -37,11 +37,6 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
     return @"";
 }
 
-- (NSString *)clientAppVersion
-{
-    return [NSBundle msidAppVersion];
-}
-
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
