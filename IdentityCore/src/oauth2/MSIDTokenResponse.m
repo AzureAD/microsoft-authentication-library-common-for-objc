@@ -28,6 +28,7 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDTokenResponse+Internal.h"
 #import "MSIDProviderType.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDTokenResponse
 
@@ -153,6 +154,7 @@
         [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
         _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
         _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
+        _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
         [self setAdditionalServerInfo:json];
     }
     
@@ -182,6 +184,7 @@
     
     json[MSID_OAUTH2_STATE] = self.state;
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
+    json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
     
     return json;
 }
