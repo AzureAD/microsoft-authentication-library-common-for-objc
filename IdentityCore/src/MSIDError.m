@@ -41,7 +41,7 @@ NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
 NSString *MSIDKeychainErrorDomain = @"MSIDKeychainErrorDomain";
 NSString *MSIDHttpErrorCodeDomain = @"MSIDHttpErrorCodeDomain";
 NSString *MSIDInvalidTokenResultKey = @"MSIDInvalidTokenResultKey";
-NSInteger const MSIDSSOExtensionUnderlyingError = 2000;
+NSInteger const MSIDSSOExtensionUnderlyingError = -6000;
 
 NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo, BOOL logErrorDescription)
 {
