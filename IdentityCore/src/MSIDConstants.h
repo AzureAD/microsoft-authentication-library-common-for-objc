@@ -107,6 +107,7 @@ extern NSString * _Nonnull const MSID_BROKER_CORRELATION_ID_KEY;
 extern NSString * _Nonnull const MSID_BROKER_REQUEST_PARAMETERS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_LOGIN_HINT_KEY;
 extern NSString * _Nonnull const MSID_BROKER_PROMPT_KEY;
+extern NSString * _Nonnull const MSID_BROKER_CLIENT_ID_KEY;
 extern NSString * _Nonnull const MSID_ADAL_BROKER_MESSAGE_VERSION;
 extern NSString * _Nonnull const MSID_MSAL_BROKER_MESSAGE_VERSION;
 extern NSString * _Nonnull const MSID_AUTHENTICATOR_REDIRECT_URI;
