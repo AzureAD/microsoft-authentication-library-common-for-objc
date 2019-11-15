@@ -129,7 +129,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 + (BOOL)canPerformRequest:(MSIDInteractiveRequestParameters *)requestParameters
 {
 #if AD_BROKER
-    (void)requestParameters;
+#pragma unused(requestParameters)
     return YES;
 #elif TARGET_OS_IPHONE
     
@@ -329,7 +329,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 + (BOOL)isResponseFromBroker:(NSString *)sourceApplication
 {
 #if AD_BROKER
-    (void)sourceApplication;
+#pragma unused(sourceApplication)
     return YES;
 #else
     BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];
