@@ -24,30 +24,36 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if !MSID_EXCLUDE_SYSTEMWV
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import "MSIDSystemWebviewController.h"
-#import "MSIDURLResponseHandling.h"
+#import "MSIDWebviewInteracting.h"
+#import "MSIDConstants.h"
 
-@interface MSIDAuthenticationSession : NSObject<MSIDWebviewInteracting, MSIDURLResponseHandling>
+@class MSIDOauth2Factory;
 
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-                    context:(id<MSIDRequestContext>)context;
+@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-           parentController:(UIViewController *)parentController
- ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-                    context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0));
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                     redirectURI:(NSString *)redirectURI
+                parentController:(MSIDViewController *)parentController
+        useAuthenticationSession:(BOOL)useAuthenticationSession
+       allowSafariViewController:(BOOL)allowSafariViewController
+      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
+                         context:(id<MSIDRequestContext>)context;
+
+- (BOOL)handleURLResponse:(NSURL *)url;
 
 @property (readonly) NSURL *startURL;
 @property (readonly) NSURL *redirectURL;
 
-@property (weak, nonatomic, readonly) UIViewController *parentController API_AVAILABLE(ios(13.0));
-@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
+@property (weak, nonatomic) MSIDViewController *parentController;
 
-@end
+#if TARGET_OS_IPHONE
+@property (nonatomic) UIModalPresentationStyle presentationType;
+@property (nonatomic) NSArray<UIActivity *> *appActivities;
 #endif
+@end
+
+#endif
+

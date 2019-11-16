@@ -307,7 +307,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     return completionResult;
 }
 
-+ (BOOL)isResponseFromBroker:(NSString *)sourceApplication
++ (BOOL)isResponseFromBroker:(__unused NSString *)sourceApplication
 {
 #if AD_BROKER
     return YES;

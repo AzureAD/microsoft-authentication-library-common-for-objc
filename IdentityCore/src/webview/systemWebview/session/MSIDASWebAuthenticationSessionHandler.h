@@ -24,33 +24,29 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
 #import <Foundation/Foundation.h>
 #import "MSIDWebviewInteracting.h"
+#import "MSIDConstants.h"
 
-@class MSIDOauth2Factory;
+#if !MSID_EXCLUDE_WEBKIT && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500)
 
-@interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithStartURL:(NSURL *)startURL
-                     redirectURI:(NSString *)redirectURI
-                parentController:(UIViewController *)parentController
-                presentationType:(UIModalPresentationStyle)presentationType
-        useAuthenticationSession:(BOOL)useAuthenticationSession
-       allowSafariViewController:(BOOL)allowSafariViewController
-      ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-                         context:(id<MSIDRequestContext>)context;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+API_AVAILABLE(ios(12.0), macCatalyst(13.0), macos(10.15))
+#else
+API_AVAILABLE(ios(12.0))
+#endif
+@interface MSIDASWebAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
 
-- (BOOL)handleURLResponse:(NSURL *)url;
-
-@property (readonly) NSURL *startURL;
-@property (readonly) NSURL *redirectURL;
-
-@property (weak, nonatomic) UIViewController *parentController;
-@property (nonatomic) UIModalPresentationStyle presentationType;
-
+- (instancetype)initWithParentController:(MSIDViewController *)parentController
+                                startURL:(NSURL *)startURL
+                          callbackScheme:(NSString *)callbackURLScheme
+                      useEmpheralSession:(BOOL)useEmpheralSession;
 
 @end
-#endif
 
+NS_ASSUME_NONNULL_END
+
+#endif
