@@ -65,6 +65,12 @@ MSID_JSON_ACCESSOR(ID_TOKEN_HOME_OBJECT_ID, homeObjectId)
     _userId = [MSIDHelpers normalizeUserId:userId];
     _userIdDisplayable = YES;
     
+    if (!self.issuer)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Issuer is not present in the provided AAD v2 id token claims");
+        return;
+    }
+    
     NSError *issuerError = nil;
     _issuerAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:self.issuer] rawTenant:nil context:nil error:&issuerError];
     
