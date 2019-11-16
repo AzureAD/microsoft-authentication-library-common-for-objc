@@ -34,6 +34,7 @@
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -64,9 +65,9 @@
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDTokenResponse *response, NSError *error)
-        {
-            [weakSelf handleTokenResponse:response error:error completionBlock:weakSelf.requestCompletionBlock];
+        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
+        {            
+            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];

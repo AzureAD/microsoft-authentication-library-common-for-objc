@@ -25,6 +25,7 @@
 #import "MSIDSSOExtensionRequestDelegate.h"
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDError.h"
 
 @implementation MSIDSSOExtensionRequestDelegate
 
@@ -49,10 +50,20 @@
 
 - (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
 {
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"Received error from SSO extension: %@", MSID_PII_LOG_MASKABLE(error));
+    
     assert(self.completionBlock);
     if (!self.completionBlock) return;
     
-    self.completionBlock(nil, error);
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == MSIDSSOExtensionUnderlyingError && underlyingError)
+    {
+        self.completionBlock(nil, underlyingError);
+    }
+    else
+    {
+        self.completionBlock(nil, error);
+    }
 }
 
 #pragma mark - Protected

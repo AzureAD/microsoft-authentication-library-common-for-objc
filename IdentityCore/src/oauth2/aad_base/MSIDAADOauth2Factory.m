@@ -99,8 +99,9 @@
     {
         if (response.error && error)
         {
-            MSIDErrorCode errorCode = response.oauthErrorCode;
-            NSDictionary *additionalUserInfo = nil;
+            NSError *parentError = *error;
+            MSIDErrorCode errorCode = parentError.code;
+            NSMutableDictionary *additionalUserInfo = [parentError.userInfo mutableDeepCopy] ?: [NSMutableDictionary new];
             
             /* This is a special error case for True MAM,
              where a combination of unauthorized client and MSID_PROTECTION_POLICY_REQUIRED should produce a different error */
@@ -109,12 +110,12 @@
                 && [response.suberror isEqualToString:MSID_PROTECTION_POLICY_REQUIRED])
             {
                 errorCode = MSIDErrorServerProtectionPoliciesRequired;
-                additionalUserInfo = @{MSIDUserDisplayableIdkey : response.additionalUserId ?: @""};
+                additionalUserInfo[MSIDUserDisplayableIdkey] = response.additionalUserId ?: @"";
             }
             
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Processing an AAD error with error code %ld, error %@, suberror %@, description %@", (long)errorCode, response.error, response.suberror, MSID_PII_LOG_MASKABLE(response.errorDescription));
             
-            *error = MSIDCreateError(MSIDOAuthErrorDomain,
+            *error = MSIDCreateError(parentError.domain,
                                      errorCode,
                                      response.errorDescription,
                                      response.error,

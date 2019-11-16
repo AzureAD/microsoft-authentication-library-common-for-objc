@@ -21,29 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSSOExtensionTokenRequestDelegate.h"
-#import "MSIDSSOExtensionRequestDelegate+Internal.h"
-#import "MSIDBrokerOperationTokenResponse.h"
-#import "MSIDJsonSerializableFactory.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDSSOExtensionTokenRequestDelegate
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
-{
-    if (!self.completionBlock) return;
-    
-    NSError *error;
-    __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
-    if (!ssoCredential) self.completionBlock(nil, error);
-    
-    __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
-    if (!json) self.completionBlock(nil, error);
-    
-    __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
+@interface NSBundle (MSIDExtensions)
 
-    if (!operationResponse) self.completionBlock(nil, error);
-    
-    self.completionBlock(operationResponse, nil);
-}
++ (NSString *)msidAppVersion;
 
 @end
+
+NS_ASSUME_NONNULL_END

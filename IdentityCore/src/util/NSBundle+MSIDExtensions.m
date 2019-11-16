@@ -21,29 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSSOExtensionTokenRequestDelegate.h"
-#import "MSIDSSOExtensionRequestDelegate+Internal.h"
-#import "MSIDBrokerOperationTokenResponse.h"
-#import "MSIDJsonSerializableFactory.h"
+#import "NSBundle+MSIDExtensions.h"
 
-@implementation MSIDSSOExtensionTokenRequestDelegate
+@implementation NSBundle (MSIDExtensions)
 
-- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
++ (NSString *)msidAppVersion
 {
-    if (!self.completionBlock) return;
+    NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    if (!appVersion)
+    {
+        appVersion = @"Unknown";
+    }
     
-    NSError *error;
-    __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
-    if (!ssoCredential) self.completionBlock(nil, error);
-    
-    __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
-    if (!json) self.completionBlock(nil, error);
-    
-    __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
-
-    if (!operationResponse) self.completionBlock(nil, error);
-    
-    self.completionBlock(operationResponse, nil);
+    return appVersion;
 }
 
 @end
