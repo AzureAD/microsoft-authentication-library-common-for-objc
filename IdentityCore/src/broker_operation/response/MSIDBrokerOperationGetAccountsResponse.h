@@ -21,23 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDBrokerOperationResponse.h"
 
-typedef NSString *const MSIDJsonSerializableType NS_TYPED_ENUM;
+@class MSIDAccount;
 
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_AAD_AUTHORITY;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_ADFS_AUTHORITY;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_B2C_AUTHORITY;
+NS_ASSUME_NONNULL_BEGIN
 
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_OPERATION_REQUEST_GET_ACCOUNTS;
+@interface MSIDBrokerOperationGetAccountsResponse : MSIDBrokerOperationResponse
 
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_BROKER_OPERATION_GET_ACCOUNTS_RESPONSE;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_BROKER_OPERATION_TOKEN_RESPONSE;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_AADV1;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_AADV2;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_B2C;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_ADFS;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_AADV1_TOKEN_RESPONSE;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE;
-extern MSIDJsonSerializableType const MSID_JSON_TYPE_B2C_TOKEN_RESPONSE;
+@property (nonatomic, nullable) NSArray<MSIDAccount *> *accounts;
+
+@end
+
+NS_ASSUME_NONNULL_END

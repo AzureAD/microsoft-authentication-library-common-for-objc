@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAccountType.h"
+#import "MSIDJsonSerializable.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDConfiguration;
@@ -32,7 +33,7 @@
 @class MSIDAuthority;
 @class MSIDIdTokenClaims;
 
-@interface MSIDAccount : NSObject <NSCopying>
+@interface MSIDAccount : NSObject <NSCopying, MSIDJsonSerializable>
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite) NSString *localAccountId;

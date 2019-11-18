@@ -178,4 +178,63 @@
     return [NSString stringWithFormat:@"MSIDAccount environment: %@ storage environment %@ realm: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@", self.environment, self.storageEnvironment,  self.realm, self.username, self.accountIdentifier.homeAccountId, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId];
 }
 
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:error];
+    if (!self.accountIdentifier)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No valid account identifier present in the JSON");
+        return nil;
+    }
+    
+    self.accountType = [MSIDAccountTypeHelpers accountTypeFromString:[json msidStringObjectForKey:@"account_type"]];
+    self.localAccountId = [json msidStringObjectForKey:@"local_account_id"];
+    self.environment = [json msidStringObjectForKey:@"environment"];
+    self.storageEnvironment = [json msidStringObjectForKey:@"storage_environment"];
+    self.realm = [json msidStringObjectForKey:@"realm"];
+    self.username = [json msidStringObjectForKey:@"username"];
+    self.givenName = [json msidStringObjectForKey:@"given_name"];
+    self.middleName = [json msidStringObjectForKey:@"middle_name"];
+    self.familyName = [json msidStringObjectForKey:@"family_name"];
+    self.name = [json msidStringObjectForKey:@"name"];
+    self.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:[json msidStringObjectForKey:@"client_info"] error:nil];
+    self.alternativeAccountId = [json msidStringObjectForKey:@"alternative_account_id"];
+    
+    if (![json msidAssertType:NSDictionary.class ofKey:@"id_token_claims" required:NO error:error])
+    {
+        return nil;
+    }
+    self.idTokenClaims = [[MSIDIdTokenClaims alloc] initWithJSONDictionary:json[@"id_token_claims"] error:nil];
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    json[@"local_account_id"] = self.localAccountId;
+    json[@"account_type"] = [MSIDAccountTypeHelpers accountTypeAsString:self.accountType];
+    json[@"environment"] = self.environment;
+    json[@"storage_environment"] = self.storageEnvironment;
+    json[@"realm"] = self.realm;
+    json[@"username"] = self.username;
+    json[@"given_name"] = self.givenName;
+    json[@"middle_name"] = self.middleName;
+    json[@"family_name"] = self.familyName;
+    json[@"name"] = self.name;
+    json[@"client_info"] = self.clientInfo.rawClientInfo;
+    json[@"alternative_account_id"] = self.alternativeAccountId;
+    json[@"id_token_claims"] = self.idTokenClaims.jsonDictionary;
+    [json addEntriesFromDictionary:[self.accountIdentifier jsonDictionary]];
+    
+    return json;
+}
+
 @end
