@@ -24,13 +24,18 @@
 #import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
 
+extern NSString * _Nonnull const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
 
+@property (nonatomic, class, readonly) NSString *responseType;
+
 @property (nonatomic) NSString *operation;
 @property (nonatomic) BOOL success;
-@property (nonatomic) NSError *error;
+@property (nonatomic, nullable) NSError *error;
+@property (nonatomic, nullable) NSString *clientAppVersion;
 
 // TODO: add device_info
 

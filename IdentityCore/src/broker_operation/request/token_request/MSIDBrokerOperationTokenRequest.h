@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationRequest.h"
+#import "MSIDProviderType.h"
 
 @class MSIDRequestParameters;
 @class MSIDConfiguration;
@@ -31,11 +32,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrokerOperationTokenRequest : MSIDBrokerOperationRequest
 
 @property (nonatomic) MSIDConfiguration *configuration;
+@property (nonatomic) MSIDProviderType providerType;
 
 // TODO: add other properties.
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
+       providerType:(MSIDProviderType)providerType
               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

@@ -49,6 +49,11 @@
 
 @implementation MSIDOauth2Factory
 
++ (MSIDProviderType)providerType
+{
+    @throw @"Abstract method was invoked.";
+}
+
 #pragma mark - Response
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
@@ -67,7 +72,7 @@
         if (error)
         {
             *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorInternal, @"processTokenResponse called without a response dictionary", nil, nil, nil, context.correlationId, nil);
+                                     MSIDErrorInternal, @"processTokenResponse called without a response dictionary", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -76,6 +81,9 @@
     {
         if (error)
         {
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
+            
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
                                      response.errorDescription,
@@ -83,7 +91,7 @@
                                      nil,
                                      nil,
                                      context.correlationId,
-                                     nil);
+                                     userInfo, NO);
         }
         return NO;
     }
@@ -92,7 +100,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Authentication response received without expected accessToken", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Authentication response received without expected accessToken", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }

@@ -43,8 +43,8 @@
     return NO;
 }
 
-- (void)performActionWithParameters:(NSDictionary *)parameters
-                containerController:(UIViewController *)containerController
+- (void)performActionWithParameters:(__unused NSDictionary *)parameters
+                containerController:(__unused UIViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
     NSArray *secItemClasses = @[(__bridge id)kSecClassGenericPassword,

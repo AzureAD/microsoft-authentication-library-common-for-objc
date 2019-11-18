@@ -33,6 +33,7 @@
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDProviderType.h"
 
 @interface MSIDAADAuthority()
 
@@ -44,7 +45,9 @@
 
 + (void)load
 {
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.authorityType];
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV1 kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV2 kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -176,7 +179,7 @@
         if (error)
         {
             __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with ADFS authority url."];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -186,7 +189,7 @@
         if (error)
         {
             __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with B2C authority url."];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -248,11 +251,6 @@
 
 #pragma mark - Protected
 
-+ (NSString *)authorityType
-{
-    return MSID_JSON_TYPE_AAD_AUTHORITY;
-}
-
 + (NSString *)realmFromURL:(NSURL *)url
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
@@ -283,7 +281,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return nil;
     }
@@ -300,7 +298,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return nil;

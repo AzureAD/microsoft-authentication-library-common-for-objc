@@ -66,7 +66,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     if ([NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
         || [NSString msidIsStringNilOrBlank:requestURL.absoluteString])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Either a target or request URL produces a nil string", nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Either a target or request URL produces a nil string", nil, nil, nil, nil, nil, YES);
         
         return NO;
     }
@@ -85,7 +85,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
 {
-    if (self.signInState == MSIDAccountMetadataStateSignedIn)
+    if (self.signInState != MSIDAccountMetadataStateSignedOut)
     {
         NSString *urlMapKey = [self URLMapKey:instanceAware];
         NSDictionary *urlMap = _internalMap[urlMapKey];
@@ -97,10 +97,13 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 }
 
 #pragma - Mark Signed out
-- (void)markSignedOut
+- (void)updateSignInState:(MSIDAccountMetadataState)state
 {
-    _signInState = MSIDAccountMetadataStateSignedOut;
-    _internalMap = [NSMutableDictionary new];
+    _signInState = state;
+    if (state == MSIDAccountMetadataStateSignedOut)
+    {
+        _internalMap = [NSMutableDictionary new];
+    }
     
 }
 

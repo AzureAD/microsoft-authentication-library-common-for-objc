@@ -90,7 +90,7 @@
     json[MSID_OAUTH2_SUB_ERROR] = self.suberror;
     json[@"adi"] = self.additionalUserId;
     json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;
-    json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
+    if (!self.error) json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
     
     return json;
 }

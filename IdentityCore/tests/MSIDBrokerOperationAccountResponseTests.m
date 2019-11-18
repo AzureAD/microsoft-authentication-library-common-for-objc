@@ -282,6 +282,7 @@
     NSDictionary *expectedJson = @{
         @"operation" : @"get_accounts",
         @"success" : @"1",
+        @"operation_response_type" : @"operation_get_accounts_response",
         @"accounts" :
             @[
                 @{

@@ -34,6 +34,11 @@
 
 @implementation MSIDB2COauth2Factory
 
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeB2C;
+}
+
 #pragma mark - Helpers
 
 - (BOOL)checkResponseClass:(MSIDB2CTokenResponse *)response
@@ -46,7 +51,7 @@
         {
             NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDB2CTokenResponse, passed %@", response.class];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
 
         return NO;

@@ -129,6 +129,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 + (BOOL)canPerformRequest:(MSIDInteractiveRequestParameters *)requestParameters
 {
 #if AD_BROKER
+#pragma unused(requestParameters)
     return YES;
 #elif TARGET_OS_IPHONE
     
@@ -168,7 +169,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if ([self.class currentBrokerController])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionAlreadyRunning, @"Broker authentication already in progress", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         completionBlockWrapper(nil, error);
         return;
     }
@@ -187,7 +188,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         completionBlockWrapper(nil, brokerError);
         return;
     }
-
+    
     NSError *appTokenError = nil;
     NSString *applicationToken = [self.brokerKeyProvider getApplicationToken:self.interactiveParameters.clientId error:&appTokenError];
     
@@ -285,8 +286,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
-    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
-    [appPasteBoard setURL:url];
+    NSURL *pasteBoardURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
+    [appPasteBoard setURL:pasteBoardURL];
 }
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
@@ -328,6 +329,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 + (BOOL)isResponseFromBroker:(NSString *)sourceApplication
 {
 #if AD_BROKER
+#pragma unused(sourceApplication)
     return YES;
 #else
     BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];
@@ -364,7 +366,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 #if !AD_BROKER
 
-+ (void)appEnteredForeground:(NSNotification *)notification
++ (void)appEnteredForeground:(__unused NSNotification *)notification
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillEnterForegroundNotification
@@ -378,7 +380,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
                                                  name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
-+ (void)checkTokenResponse:(NSNotification *)notification
++ (void)checkTokenResponse:(__unused NSNotification *)notification
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationDidBecomeActiveNotification
@@ -386,7 +388,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
     if ([self.class currentBrokerController])
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"application did not receive response from broker.", nil, nil, nil, nil, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerResponseNotReceived, @"application did not receive response from broker.", nil, nil, nil, nil, nil, YES);
 
         MSIDBrokerInteractiveController *brokerController = [self.class currentBrokerController];
         [brokerController completeAcquireTokenWithResult:nil error:error];
@@ -497,7 +499,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     if (!self.fallbackController || !shouldFallbackToLocalController)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Failed to open broker URL. Should fallback to local controller %d", (int)shouldFallbackToLocalController);
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL.", nil, nil, nil, nil, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to open broker URL.", nil, nil, nil, nil, nil, NO);
         if (completionBlock) completionBlock(nil, error);
         return;
     }

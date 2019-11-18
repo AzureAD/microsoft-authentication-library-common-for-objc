@@ -52,7 +52,7 @@ typedef NS_ENUM(NSInteger, MSIDAccountMetadataState)
                error:(NSError **)error;
 - (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware;
 
-// Signed out state
-- (void)markSignedOut;
+// Update sign in state
+- (void)updateSignInState:(MSIDAccountMetadataState)state;
 
 @end

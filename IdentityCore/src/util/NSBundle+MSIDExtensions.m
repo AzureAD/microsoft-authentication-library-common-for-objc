@@ -21,29 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
-#import "MSIDProviderType.h"
+#import "NSBundle+MSIDExtensions.h"
 
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveRequestParameters;
+@implementation NSBundle (MSIDExtensions)
 
-NS_ASSUME_NONNULL_BEGIN
-
-API_AVAILABLE(ios(13.0))
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
-
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic) MSIDPromptType promptType;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
++ (NSString *)msidAppVersion
+{
+    NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    if (!appVersion)
+    {
+        appVersion = @"Unknown";
+    }
+    
+    return appVersion;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
-#endif

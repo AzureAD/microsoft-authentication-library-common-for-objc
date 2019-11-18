@@ -29,8 +29,8 @@
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                   context:(__unused id<MSIDRequestContext>)context
+                     error:(__unused NSError **)error
 {
     self.getAuthorityURLInvokedCount++;
     
@@ -49,8 +49,8 @@
              homeAccountId:(NSString *)homeAccountId
                   clientId:(NSString *)clientId
              instanceAware:(BOOL)instanceAware
-                   context:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+                   context:(__unused id<MSIDRequestContext>)context
+                     error:(__unused NSError **)error
 {
     self.updateAuthorityURLInvokedCount++;
     
@@ -65,10 +65,10 @@
     return YES;
 }
 
-- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
-                     clientId:(NSString *)clientId
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (BOOL)clearForHomeAccountId:(__unused NSString *)homeAccountId
+                     clientId:(__unused NSString *)clientId
+                      context:(__unused id<MSIDRequestContext>)context
+                        error:(__unused NSError **)error
 {
     return YES;
 }

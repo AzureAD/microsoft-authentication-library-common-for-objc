@@ -33,6 +33,8 @@
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDBrokerOperationTokenResponse.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -40,6 +42,7 @@
 @property (nonatomic, copy) MSIDInteractiveRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic, readonly) MSIDProviderType providerType;
 
 @end
 
@@ -62,12 +65,13 @@
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDTokenResponse *response, NSError *error)
-        {
-            [weakSelf handleTokenResponse:response error:error completionBlock:weakSelf.requestCompletionBlock];
+        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
+        {            
+            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        _providerType = [oauthFactory.class providerType];
     }
 
     return self;
@@ -101,6 +105,7 @@
         
         NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
+                                                                                                 providerType:self.providerType
                                                                                                          error:&localError];
         
         if (!operationRequest)
@@ -125,7 +130,7 @@
 
 #pragma mark - ASAuthorizationControllerPresentationContextProviding
 
-- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller
+- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(__unused ASAuthorizationController *)controller
 {
     return [self presentationAnchor];
 }

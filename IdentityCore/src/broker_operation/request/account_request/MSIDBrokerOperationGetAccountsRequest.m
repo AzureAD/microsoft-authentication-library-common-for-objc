@@ -55,7 +55,7 @@
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"client id is missing in get accounts operation call!", nil, nil, nil, nil, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"client id is missing in get accounts operation call!", nil, nil, nil, nil, nil, YES);
             }
             return nil;
         }

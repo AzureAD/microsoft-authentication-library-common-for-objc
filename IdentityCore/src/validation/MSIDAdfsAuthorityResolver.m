@@ -69,7 +69,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
     NSString *domain = [self getDomain:upn];
     if ([NSString msidIsStringNilOrBlank:domain])
     {
-        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'upn' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil);
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'upn' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil, YES);
         
         if (completionBlock) completionBlock(nil, NO, error);
         return;
@@ -107,7 +107,7 @@ static MSIDCache <NSString *, MSIDAuthorityCacheRecord *> *s_cache;
               }
               else
               {
-                  error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil);
+                  error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorityValidation, @"WebFinger request was invalid or failed", nil, nil, nil, context.correlationId, nil, YES);
                   if (completionBlock) completionBlock(nil, NO, error);
               }
           }];

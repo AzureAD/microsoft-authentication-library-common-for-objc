@@ -33,7 +33,7 @@
 
 @implementation MSIDJsonSerializableMock
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
 {
     self = [super init];
     if (self)
@@ -163,6 +163,23 @@
     XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
     XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"my_class_type_2 key is missing in dictionary.");
+}
+
+- (void)testCreateFromJSONDictionary_whenClassTypeMapped_shouldCreateInstanceOfClass
+{
+    [MSIDJsonSerializableFactory mapJSONKey:@"provider_type" keyValue:@"my_provider" kindOfClass:MSIDJsonSerializableMock.class toClassType:@"my_class"];
+    
+    NSDictionary *json = @{@"key1": @"value1",
+                           @"provider_type": @"my_provider"
+    };
+    
+    NSError *error;
+    __auto_type instance = (MSIDJsonSerializableMock *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:@"provider_type" assertKindOfClass:MSIDJsonSerializableMock.class error:&error];
+    
+    XCTAssertNotNil(instance);
+    XCTAssertNil(error);
+    XCTAssertTrue([instance isKindOfClass:MSIDJsonSerializableMock.class]);
+    XCTAssertEqualObjects(json, instance.receivedJson);
 }
 
 @end

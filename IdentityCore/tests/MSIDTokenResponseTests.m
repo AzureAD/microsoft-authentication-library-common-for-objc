@@ -233,4 +233,36 @@
     XCTAssertEqualObjects(response.idToken, @"id token 2");
 }
 
+- (void)testInitWithJSONDictionary_whenErrorDescriptionNotUrlEncoded_shouldParseIt
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code",
+                                @"error_description": @"some description"
+    };
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.errorDescription, @"some description");
+}
+
+- (void)testInitWithJSONDictionary_whenErrorDescriptionUrlEncoded_shouldParseIt
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code",
+                                @"error_description": @"AADSTS650052%3A%2BThe%2Bapp%2Bneeds%2Baccess%2Bto%2Ba%2Bservice."
+    };
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.errorDescription, @"AADSTS650052:+The+app+needs+access+to+a+service.");
+}
+
 @end

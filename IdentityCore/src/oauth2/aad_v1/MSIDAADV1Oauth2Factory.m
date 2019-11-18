@@ -43,6 +43,11 @@
 
 @implementation MSIDAADV1Oauth2Factory
 
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV1;
+}
+
 #pragma mark - Helpers
 
 - (BOOL)checkResponseClass:(MSIDTokenResponse *)response
@@ -55,7 +60,7 @@
         {
             NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDAADV1TokenResponse, passed %@", response.class];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
 
         return NO;
@@ -118,7 +123,7 @@
                                          nil,
                                          nil,
                                          nil,
-                                         internalError.userInfo);
+                                         internalError.userInfo, NO);
             }
             else
             {

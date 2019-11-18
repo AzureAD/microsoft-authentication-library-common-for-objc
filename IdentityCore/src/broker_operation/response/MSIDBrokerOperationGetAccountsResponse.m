@@ -23,8 +23,20 @@
 
 #import "MSIDBrokerOperationGetAccountsResponse.h"
 #import "MSIDAccount.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDBrokerOperationGetAccountsResponse
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+}
+
++ (NSString *)responseType
+{
+    return MSID_JSON_TYPE_BROKER_OPERATION_GET_ACCOUNTS_RESPONSE;
+}
 
 #pragma mark - MSIDJsonSerializable
 

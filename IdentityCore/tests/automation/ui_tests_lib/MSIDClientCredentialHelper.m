@@ -115,7 +115,7 @@
     {
         if (completionHandler)
         {
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't create assertion.", nil, nil, nil, nil, nil);
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't create assertion.", nil, nil, nil, nil, nil, YES);
             completionHandler(nil, error);
         }
         

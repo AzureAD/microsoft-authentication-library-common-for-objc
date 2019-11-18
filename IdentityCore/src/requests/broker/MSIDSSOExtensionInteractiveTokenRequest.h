@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveTokenRequest.h"
+#import "MSIDProviderType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -156,7 +156,7 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Unable to base64 encode broker key");
 
-        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, context.correlationId, nil);
+        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, context.correlationId, nil, YES);
         
         if (error) *error = localError;
         

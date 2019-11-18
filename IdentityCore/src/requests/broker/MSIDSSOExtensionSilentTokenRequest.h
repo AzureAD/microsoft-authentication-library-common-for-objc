@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDSilentTokenRequest.h"
+#import "MSIDProviderType.h"
 
 @class MSIDAccountMetadataCacheAccessor;
 
