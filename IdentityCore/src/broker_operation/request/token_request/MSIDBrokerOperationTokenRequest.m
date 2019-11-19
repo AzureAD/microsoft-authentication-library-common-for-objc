@@ -30,12 +30,17 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
 #import "MSIDProviderType.h"
+#import "MSIDJsonSerializer.h"
+#import "NSDictionary+MSIDJsonSerializable.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDBrokerOperationTokenRequest
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
        providerType:(MSIDProviderType)providerType
+      enrollmentIds:(NSDictionary *)enrollmentIds
+       mamResources:(NSDictionary *)mamResources
               error:(NSError **)error
 {
     BOOL result = [self fillRequest:request
@@ -47,7 +52,14 @@
     
     request.configuration = parameters.msidConfiguration;
     request.providerType = providerType;
-    
+    request.oidcScope = parameters.oidcScope;
+    request.extraQueryParameters = parameters.extraURLQueryParameters;
+    request.instanceAware = parameters.instanceAware;
+    request.enrollmentIds = enrollmentIds;
+    request.enrollmentIds = mamResources;
+    request.clientCapabilities = parameters.clientCapabilities;
+    request.claimsRequest = parameters.claimsRequest;
+        
     return YES;
 }
 
@@ -63,6 +75,25 @@
         if (!_configuration) return nil;
         
         _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
+        
+        _oidcScope = [json msidStringObjectForKey:@"extra_oidc_scopes"];
+        
+        NSString *extraQueryParam = [json msidStringObjectForKey:@"extra_query_param"];
+        _extraQueryParameters = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:extraQueryParam];
+        
+        _instanceAware = [json msidBoolObjectForKey:@"instance_aware"];
+        
+        NSString *enrollmentIdsStr = [[json msidStringObjectForKey:@"intune_enrollment_ids"] msidWWWFormURLDecode];
+        _enrollmentIds = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:enrollmentIdsStr ofType:NSDictionary.class context:nil error:nil];
+        
+        NSString *mamResourcesStr = [[json msidStringObjectForKey:@"intune_mam_resource"] msidWWWFormURLDecode];
+        _mamResources = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:mamResourcesStr ofType:NSDictionary.class context:nil error:nil];
+        
+        NSString *clientCapabilitiesStr = [json msidStringObjectForKey:@"client_capabilities"];
+        _clientCapabilities = [clientCapabilitiesStr componentsSeparatedByString:@","];
+        
+        NSString *claimsString = [[json msidStringObjectForKey:@"claims"] msidWWWFormURLDecode];
+        _claimsRequest = (MSIDClaimsRequest *)[[MSIDJsonSerializer new] fromJsonString:claimsString ofType:MSIDClaimsRequest.class context:nil error:nil];
     }
     
     return self;
@@ -77,7 +108,22 @@
     if (!configurationJson) return nil;
     [json addEntriesFromDictionary:configurationJson];
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
+    json[@"extra_oidc_scopes"] = self.oidcScope;
+    json[@"extra_query_param"] = [self.extraQueryParameters msidWWWFormURLEncode];
+    json[@"instance_aware"] = [@(self.instanceAware) stringValue];
     
+    NSString *enrollmentIdsStr = [[MSIDJsonSerializer new] toJsonString:self.enrollmentIds context:nil error:nil];
+    json[@"intune_enrollment_ids"] = [enrollmentIdsStr msidWWWFormURLEncode];
+    
+    NSString *mamResourcesStr = [[MSIDJsonSerializer new] toJsonString:self.mamResources context:nil error:nil];
+    json[@"intune_mam_resource"] = [mamResourcesStr msidWWWFormURLEncode];
+    
+    json[@"client_capabilities"] = [self.clientCapabilities componentsJoinedByString:@","];
+    
+    NSDictionary *claimJsonDictionary = [self.claimsRequest jsonDictionary];
+    NSString *claimsString = [claimJsonDictionary msidJSONSerializeWithContext:nil];
+    json[@"claims"] = [claimsString msidWWWFormURLEncode];
+
     return json;
 }
 
