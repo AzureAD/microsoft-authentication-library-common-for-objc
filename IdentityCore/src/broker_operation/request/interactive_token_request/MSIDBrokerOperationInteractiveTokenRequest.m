@@ -81,7 +81,7 @@
         
         NSString *promptString = [json msidStringObjectForKey:MSID_BROKER_PROMPT_KEY];
         _promptType = MSIDPromptTypeFromString(promptString);
-        _extraScopesToConsent = [json msidStringObjectForKey:@"extra_consent_scopes"];
+        _extraScopesToConsent = [json msidStringObjectForKey:MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY];
     }
     
     return self;
@@ -99,7 +99,7 @@
     
     NSString *promptString = MSIDPromptParamFromType(self.promptType);
     json[MSID_BROKER_PROMPT_KEY] = promptString;
-    json[@"extra_consent_scopes"] = self.extraScopesToConsent;
+    json[MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY] = self.extraScopesToConsent;
     
     return json;
 }

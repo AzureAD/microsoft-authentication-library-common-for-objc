@@ -42,8 +42,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSArray *clientCapabilities;
 @property (nonatomic) MSIDClaimsRequest *claimsRequest;
 
-// TODO: add other properties.
-
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
        providerType:(MSIDProviderType)providerType

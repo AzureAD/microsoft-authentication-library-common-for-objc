@@ -76,29 +76,29 @@
         
         _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
         
-        _oidcScope = [json msidStringObjectForKey:@"extra_oidc_scopes"];
+        _oidcScope = [json msidStringObjectForKey:MSID_BROKER_EXTRA_OIDC_SCOPES_KEY];
         
-        NSString *extraQueryParam = [json msidStringObjectForKey:@"extra_query_param"];
+        NSString *extraQueryParam = [json msidStringObjectForKey:MSID_BROKER_EXTRA_QUERY_PARAM_KEY];
         _extraQueryParameters = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:extraQueryParam];
         
-        _instanceAware = [json msidBoolObjectForKey:@"instance_aware"];
+        _instanceAware = [json msidBoolObjectForKey:MSID_BROKER_INSTANCE_AWARE_KEY];
         
-        NSString *enrollmentIdsStr = [json msidStringObjectForKey:@"intune_enrollment_ids"];
+        NSString *enrollmentIdsStr = [json msidStringObjectForKey:MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY];
         if (enrollmentIdsStr)
         {
             _enrollmentIds = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:enrollmentIdsStr ofType:NSDictionary.class context:nil error:nil];
         }
         
-        NSString *mamResourcesStr = [json msidStringObjectForKey:@"intune_mam_resource"];
+        NSString *mamResourcesStr = [json msidStringObjectForKey:MSID_BROKER_INTUNE_MAM_RESOURCE_KEY];
         if (mamResourcesStr)
         {
             _mamResources = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:mamResourcesStr ofType:NSDictionary.class context:nil error:nil];
         }
         
-        NSString *clientCapabilitiesStr = [json msidStringObjectForKey:@"client_capabilities"];
+        NSString *clientCapabilitiesStr = [json msidStringObjectForKey:MSID_BROKER_CLIENT_CAPABILITIES_KEY];
         _clientCapabilities = [clientCapabilitiesStr componentsSeparatedByString:@","];
         
-        NSString *claimsStr= [json msidStringObjectForKey:@"claims"];
+        NSString *claimsStr= [json msidStringObjectForKey:MSID_BROKER_CLAIMS_KEY];
         if (claimsStr)
         {
             _claimsRequest = (MSIDClaimsRequest *)[[MSIDJsonSerializer new] fromJsonString:claimsStr ofType:MSIDClaimsRequest.class context:nil error:nil];
@@ -118,13 +118,13 @@
     if (!configurationJson) return nil;
     [json addEntriesFromDictionary:configurationJson];
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
-    json[@"extra_oidc_scopes"] = self.oidcScope;
-    json[@"extra_query_param"] = self.extraQueryParameters;
-    json[@"instance_aware"] = [@(self.instanceAware) stringValue];
-    json[@"intune_enrollment_ids"] = [self.enrollmentIds msidJSONSerializeWithContext:nil];
-    json[@"intune_mam_resource"] = [self.mamResources msidJSONSerializeWithContext:nil];
-    json[@"client_capabilities"] = [self.clientCapabilities componentsJoinedByString:@","];
-    json[@"claims"] = [[self.claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
+    json[MSID_BROKER_EXTRA_OIDC_SCOPES_KEY] = self.oidcScope;
+    json[MSID_BROKER_EXTRA_QUERY_PARAM_KEY] = self.extraQueryParameters;
+    json[MSID_BROKER_INSTANCE_AWARE_KEY] = [@(self.instanceAware) stringValue];
+    json[MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY] = [self.enrollmentIds msidJSONSerializeWithContext:nil];
+    json[MSID_BROKER_INTUNE_MAM_RESOURCE_KEY] = [self.mamResources msidJSONSerializeWithContext:nil];
+    json[MSID_BROKER_CLIENT_CAPABILITIES_KEY] = [self.clientCapabilities componentsJoinedByString:@","];
+    json[MSID_BROKER_CLAIMS_KEY] = [[self.claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
 
     return json;
 }
