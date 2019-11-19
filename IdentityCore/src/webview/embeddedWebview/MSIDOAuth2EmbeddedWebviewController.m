@@ -145,6 +145,11 @@
     [self endWebAuthWithURL:nil error:error];
 }
 
+- (void)dismiss
+{
+    [self cancel];
+}
+
 - (void)userCancel
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller by the user.");

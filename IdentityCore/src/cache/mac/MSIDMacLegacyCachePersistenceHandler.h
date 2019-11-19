@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,26 +15,25 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDMacACLKeychainAccessor.h"
+#import "MSIDMacTokenCache.h"
 
-@class MSIDWebOAuth2Response;
+NS_ASSUME_NONNULL_BEGIN
 
-typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
+@interface MSIDMacLegacyCachePersistenceHandler : MSIDMacACLKeychainAccessor <MSIDMacTokenCacheDelegate>
 
-@protocol MSIDWebviewInteracting
-
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-- (void)dismiss;
-
-- (NSURL *)startURL;
+- (nullable instancetype)initWithTrustedApplications:(nullable NSArray *)trustedApplications
+                                         accessLabel:(nonnull NSString *)accessLabel
+                                          attributes:(nonnull NSDictionary *)attributes
+                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END
