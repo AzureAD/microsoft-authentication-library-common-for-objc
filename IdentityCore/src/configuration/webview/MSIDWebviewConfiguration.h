@@ -26,6 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
@@ -68,10 +69,11 @@
 // Priority start URL
 @property (readwrite) NSURL *explicitStartURL;
 
-#if TARGET_OS_IPHONE
-@property (weak) UIViewController *parentController;
-@property (readwrite) UIModalPresentationStyle presentationType;
+@property (weak) MSIDViewController *parentController;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
+
+#if TARGET_OS_IPHONE
+@property (readwrite) UIModalPresentationStyle presentationType;
 #endif
 
 - (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint

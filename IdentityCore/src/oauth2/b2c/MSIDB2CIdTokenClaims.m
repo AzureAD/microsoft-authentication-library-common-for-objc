@@ -52,6 +52,12 @@ MSID_JSON_ACCESSOR(@"tfp", tfp)
 
     _userId = [MSIDHelpers normalizeUserId:userId];
     
+    if (!self.issuer)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Issuer is not present in the provided B2C id token claims");
+        return;
+    }
+    
     NSError *issuerError = nil;
     _issuerAuthority = [[MSIDB2CAuthority alloc] initWithURL:[NSURL URLWithString:self.issuer] validateFormat:NO context:nil error:&issuerError];
     
