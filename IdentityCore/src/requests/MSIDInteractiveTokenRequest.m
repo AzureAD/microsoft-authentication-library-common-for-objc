@@ -39,6 +39,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDSystemWebViewControllerFactory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -185,27 +186,27 @@
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-
-    BOOL useSession = YES;
-    BOOL allowSafariViewController = YES;
+    MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:self.requestParameters.webviewType];
     
-    switch (self.requestParameters.webviewType) {
+    BOOL useSession = YES;
+    BOOL allowSafariViewController = NO;
+    
+    switch (webviewType)
+    {
         case MSIDWebviewTypeWKWebView:
-        {
             [self showEmbeddedWebviewWithCompletion:completionHandler];
             return;
-        }
         case MSIDWebviewTypeAuthenticationSession:
             useSession = YES;
             allowSafariViewController = NO;
             break;
-
+#if TARGET_OS_IPHONE
         case MSIDWebviewTypeSafariViewController:
             useSession = NO;
             allowSafariViewController = YES;
             break;
-
+#endif
+            
         default:
             break;
     }
@@ -216,9 +217,6 @@
                                             allowSafariViewController:allowSafariViewController
                                                               context:self.requestParameters
                                                     completionHandler:completionHandler];
-#else
-    [self showEmbeddedWebviewWithCompletion:completionHandler];
-#endif
 }
 
 - (void)showEmbeddedWebviewWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler

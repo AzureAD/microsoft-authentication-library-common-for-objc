@@ -43,6 +43,7 @@ NSString *const MSID_BROKER_REQUEST_PARAMETERS_KEY = @"request_parameters";
 NSString *const MSID_BROKER_LOGIN_HINT_KEY         = @"login_hint";
 NSString *const MSID_BROKER_PROMPT_KEY             = @"prompt";
 NSString *const MSID_BROKER_CLIENT_ID_KEY          = @"client_id";
+NSString *const MSID_BROKER_FAMILY_ID_KEY          = @"family_id";
 NSString *const MSID_BROKER_EXTRA_OIDC_SCOPES_KEY  = @"extra_oidc_scopes";
 NSString *const MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY = @"extra_consent_scopes";
 NSString *const MSID_BROKER_EXTRA_QUERY_PARAM_KEY  = @"extra_query_param";

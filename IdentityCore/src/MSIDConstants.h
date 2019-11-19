@@ -27,20 +27,23 @@
 
 typedef NS_ENUM(NSInteger, MSIDWebviewType)
 {
-#if TARGET_OS_IPHONE
     // For iOS 11 and up, uses AuthenticationSession (ASWebAuthenticationSession
     // or SFAuthenticationSession).
     // For older versions, with AuthenticationSession not being available, uses
     // SafariViewController.
+    // For macOS 10.15+ uses ASWebAuthenticationSession
+    // For older macOS versions, uses WKWebView
     MSIDWebviewTypeDefault,
 
     // Use SFAuthenticationSession/ASWebAuthenticationSession
     MSIDWebviewTypeAuthenticationSession,
 
+#if TARGET_OS_IPHONE
     // Use SFSafariViewController for all versions.
     MSIDWebviewTypeSafariViewController,
 
 #endif
+    
     // Use WKWebView
     MSIDWebviewTypeWKWebView,
 };
@@ -70,6 +73,12 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
 };
 
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
+
+#if TARGET_OS_IPHONE
+@compatibility_alias MSIDViewController UIViewController;
+#else
+@compatibility_alias MSIDViewController NSViewController;
+#endif
 
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_SOURCE_PLATFORM_KEY;//The source SDK platform. iOS or OSX
