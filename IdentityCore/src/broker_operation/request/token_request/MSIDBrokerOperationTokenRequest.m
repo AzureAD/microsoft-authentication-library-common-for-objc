@@ -56,7 +56,7 @@
     request.extraQueryParameters = parameters.extraURLQueryParameters;
     request.instanceAware = parameters.instanceAware;
     request.enrollmentIds = enrollmentIds;
-    request.enrollmentIds = mamResources;
+    request.mamResources = mamResources;
     request.clientCapabilities = parameters.clientCapabilities;
     request.claimsRequest = parameters.claimsRequest;
         
