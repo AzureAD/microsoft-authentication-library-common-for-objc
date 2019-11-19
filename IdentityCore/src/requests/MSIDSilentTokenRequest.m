@@ -36,6 +36,7 @@
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDConfiguration.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
@@ -102,6 +103,22 @@
 
 - (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
 {
+    // We return early if account metadata shows account in signed-out state
+    NSError *signInStateError;
+    MSIDAccountMetadataState signInState = [self getSignInState:&signInStateError];
+    if (signInStateError)
+    {
+        completionBlock(nil, signInStateError);
+        return;
+    }
+        
+    if (signInState == MSIDAccountMetadataStateSignedOut)
+    {
+        NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"Account is signed out, user interaction is required.", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        completionBlock(nil, interactionError);
+        return;
+    }
+    
     if (!self.forceRefresh && ![self.requestParameters.claimsRequest hasClaims])
     {
         NSError *accessTokenError = nil;
@@ -430,6 +447,19 @@
             completionBlock(result, error);
         }];
     }];
+}
+
+- (MSIDAccountMetadataState)getSignInState:(NSError **)error
+{
+    if (!self.metadataCache)
+    {
+        return MSIDAccountMetadataStateUnknown;
+    }
+    
+    return [self.metadataCache signInStateForHomeAccountId:self.requestParameters.accountIdentifier.homeAccountId
+                                                  clientId:self.requestParameters.clientId
+                                                   context:self.requestParameters
+                                                     error:error];
 }
 
 #pragma mark - Protected
