@@ -49,7 +49,7 @@
                                                                                                  correlationId:correlationID
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:brokerOptions
-                                                                                                   requestType:MSIDInteractiveRequestBrokeredType
+                                                                                                   requestType:MSIDRequestBrokeredType
                                                                                            intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:&error];
     
@@ -65,7 +65,7 @@
     XCTAssertEqual(parameters.brokerInvocationOptions.minRequiredBrokerType, MSIDRequiredBrokerTypeDefault);
     XCTAssertEqual(parameters.brokerInvocationOptions.protocolType, MSIDBrokerProtocolTypeCustomScheme);
     XCTAssertEqual(parameters.brokerInvocationOptions.brokerAADRequestVersion, MSIDBrokerAADRequestVersionV2);
-    XCTAssertEqual(parameters.requestType, MSIDInteractiveRequestBrokeredType);
+    XCTAssertEqual(parameters.requestType, MSIDRequestBrokeredType);
     
     XCTAssertNil(error);
 }
@@ -82,7 +82,7 @@
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new] 
-                                                                                                   requestType:MSIDInteractiveRequestBrokeredType
+                                                                                                   requestType:MSIDRequestBrokeredType
                                                                                            intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
@@ -103,7 +103,7 @@
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new]
-                                                                                                   requestType:MSIDInteractiveRequestBrokeredType
+                                                                                                   requestType:MSIDRequestBrokeredType
                                                                                            intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     
@@ -123,7 +123,7 @@
                                                                                                  correlationId:nil
                                                                                                 telemetryApiId:@"100"
                                                                                                  brokerOptions:[MSIDBrokerInvocationOptions new]
-                                                                                                   requestType:MSIDInteractiveRequestBrokeredType
+                                                                                                   requestType:MSIDRequestBrokeredType
                                                                                            intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
     

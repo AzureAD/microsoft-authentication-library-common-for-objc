@@ -26,7 +26,6 @@
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDBrokerKeyProvider.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDNotifications.h"
 #import "MSIDBrokerResponseHandler.h"
@@ -41,7 +40,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDBrokerInvocationOptions.h"
+#import "MSIDBrokerKeyProvider.h"
 #import "MSIDMainThreadUtil.h"
+
+static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 @interface MSIDBrokerInteractiveController()
 
@@ -51,8 +53,6 @@
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
 
 @end
-
-static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 @implementation MSIDBrokerInteractiveController
 
@@ -126,6 +126,39 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
      }];
 }
 
++ (BOOL)canPerformRequest:(MSIDInteractiveRequestParameters *)requestParameters
+{
+#if AD_BROKER
+#pragma unused(requestParameters)
+    return YES;
+#elif TARGET_OS_IPHONE
+    
+    if (![NSThread isMainThread])
+    {
+        __block BOOL brokerInstalled = NO;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            brokerInstalled = [self canPerformRequest:requestParameters];
+        });
+        
+        return brokerInstalled;
+    }
+    
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return NO;
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Checking broker install state for version %@", requestParameters.brokerInvocationOptions.versionDisplayableName);
+    
+    if (requestParameters.brokerInvocationOptions && requestParameters.brokerInvocationOptions.isRequiredBrokerPresent)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Broker version %@ found installed on device", requestParameters.brokerInvocationOptions.versionDisplayableName);
+        return YES;
+    }
+    
+    return NO;
+#else
+    return NO;
+#endif
+}
+
 - (void)acquireTokenImpl:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
@@ -144,32 +177,18 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
     self.requestCompletionBlock = completionBlockWrapper;
-
-    NSError *brokerError = nil;
-
-    NSData *brokerKey = [self.brokerKeyProvider brokerKeyWithError:&brokerError];
-
-    if (!brokerKey)
+    
+    NSError *brokerError;
+    NSString *base64UrlKey = [self.brokerKeyProvider base64BrokerKeyWithContext:self.requestParameters
+                                                                          error:&brokerError];
+    
+    if (!base64UrlKey)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve broker key with error %@", MSID_PII_LOG_MASKABLE(brokerError));
-
         [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerError];
         completionBlockWrapper(nil, brokerError);
         return;
     }
-
-    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
-
-    if (!base64UrlKey)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Unable to base64 encode broker key");
-
-        NSError *brokerKeyError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
-        [self stopTelemetryEvent:[self telemetryAPIEvent] error:brokerKeyError];
-        completionBlockWrapper(nil, brokerKeyError);
-        return;
-    }
-
+    
     NSError *appTokenError = nil;
     NSString *applicationToken = [self.brokerKeyProvider getApplicationToken:self.interactiveParameters.clientId error:&appTokenError];
     
@@ -267,8 +286,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 {
     UIPasteboard *appPasteBoard = [UIPasteboard pasteboardWithName:@"WPJ"
                                                             create:YES];
-    url = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
-    [appPasteBoard setURL:url];
+    NSURL *pasteBoardURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@&%@=%@", url.absoluteString, @"sourceApplication", [[NSBundle mainBundle] bundleIdentifier]]];
+    [appPasteBoard setURL:pasteBoardURL];
 }
 
 + (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
@@ -310,6 +329,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 + (BOOL)isResponseFromBroker:(__unused NSString *)sourceApplication
 {
 #if AD_BROKER
+#pragma unused(sourceApplication)
     return YES;
 #else
     BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];

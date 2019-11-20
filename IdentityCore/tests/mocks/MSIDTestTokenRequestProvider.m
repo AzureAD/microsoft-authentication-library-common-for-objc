@@ -106,4 +106,15 @@
     return [[MSIDTestBrokerTokenRequest alloc] initWithURL:self.testBrokerRequestURL resumeDictionary:self.testResumeDictionary];
 }
 
+- (nullable MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(nonnull __unused MSIDInteractiveRequestParameters *)parameters
+{
+    return nil;
+}
+
+
+- (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters forceRefresh:(__unused BOOL)forceRefresh
+{
+    return nil;
+}
+
 @end

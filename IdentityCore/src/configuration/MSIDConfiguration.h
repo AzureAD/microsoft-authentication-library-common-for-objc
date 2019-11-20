@@ -23,8 +23,9 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthority.h"
+#import "MSIDJsonSerializable.h"
 
-@interface MSIDConfiguration : NSObject <NSCopying>
+@interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
 // Commonly used or needed properties
 @property (readwrite) MSIDAuthority *authority;

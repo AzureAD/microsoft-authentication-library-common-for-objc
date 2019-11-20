@@ -41,4 +41,9 @@
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                                 error:(NSError * _Nullable * _Nullable)error;
 
+- (nullable MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
+
+- (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
+                                                                        forceRefresh:(BOOL)forceRefresh;
+
 @end

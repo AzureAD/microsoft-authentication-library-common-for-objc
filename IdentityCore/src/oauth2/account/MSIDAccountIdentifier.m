@@ -26,6 +26,9 @@
 #import "MSIDMaskedHashableLogParameter.h"
 #import "MSIDMaskedUsernameLogParameter.h"
 
+static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"account_displayable_id";
+static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"account_home_id";
+
 @interface MSIDAccountIdentifier()
 
 @property (nonatomic, readwrite) MSIDMaskedHashableLogParameter *maskedHomeAccountId;
@@ -50,7 +53,7 @@
 }
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                          homeAccountId:(NSString *)homeAccountId
+                        homeAccountId:(NSString *)homeAccountId
 {
     if (!(self = [self init]))
     {
@@ -159,6 +162,40 @@
     result &= (!self.localAccountId && !account.localAccountId) || [self.localAccountId isEqualToString:account.localAccountId];
     result &= self.legacyAccountIdentifierType == account.legacyAccountIdentifierType;
     return result;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    NSString *displayableId = [json msidStringObjectForKey:MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY];
+    NSString *homeAccountId = [json msidStringObjectForKey:MSID_ACCOUNT_HOME_ID_JSON_KEY];
+    
+    if (!displayableId && !homeAccountId)
+    {
+        NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: displayableId and homeAccountId are nil.", self.class];
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+        
+        return nil;
+    }
+    
+    return [self initWithDisplayableId:displayableId homeAccountId:homeAccountId];;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    
+    if (!self.displayableId && !self.homeAccountId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: displayableId and homeAccountId are nil.", self.class);
+        return nil;
+    }
+    
+    json[MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY] = self.displayableId;
+    json[MSID_ACCOUNT_HOME_ID_JSON_KEY] = self.homeAccountId;
+    
+    return json;
 }
 
 @end

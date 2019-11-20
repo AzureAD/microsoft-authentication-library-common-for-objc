@@ -21,32 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDBaseRequestController.h"
-#import "MSIDTokenRequestProviding.h"
-#import "MSIDRequestControlling.h"
+#import "MSIDLocalInteractiveController.h"
 
-@class MSIDInteractiveRequestParameters;
-@class MSIDBrokerResponseHandler;
-@class MSIDBrokerInvocationOptions;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
+API_AVAILABLE(ios(13.0))
+@interface MSIDSSOExtensionInteractiveTokenRequestController : MSIDLocalInteractiveController
 
-@property (class, strong, readonly, nullable) MSIDBrokerInteractiveController *currentBrokerController;
-@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveParameters;
+@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParameters;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
-                                                        error:(NSError * _Nullable * _Nullable)error;
+                                                        error:(NSError * _Nullable * _Nullable)error NS_DESIGNATED_INITIALIZER;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                         tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                            brokerInstallLink:(nonnull NSURL *)brokerInstallLink
-                                                        error:(NSError * _Nullable * _Nullable)error;
-
-+ (BOOL)completeAcquireToken:(nullable NSURL *)resultURL
-           sourceApplication:(nullable NSString *)sourceApplication
-       brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler;
++ (BOOL)canPerformRequest;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -27,6 +27,8 @@
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDTokenResponse+Internal.h"
+#import "MSIDProviderType.h"
+#import "MSIDConstants.h"
 
 @implementation MSIDTokenResponse
 
@@ -116,6 +118,11 @@
     return MSIDErrorCodeForOAuthError(self.error, MSIDErrorServerOauth);
 }
 
++ (MSIDProviderType)providerType
+{
+    @throw @"Abstract method was invoked.";
+}
+
 #pragma mark - Protected
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
@@ -146,7 +153,8 @@
         _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
         [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
         _error = [json msidStringObjectForKey:MSID_OAUTH2_ERROR];
-        _errorDescription = [json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION];
+        _errorDescription = [[json msidStringObjectForKey:MSID_OAUTH2_ERROR_DESCRIPTION] msidURLDecode];
+        _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_VERSION_KEY];
         [self setAdditionalServerInfo:json];
     }
     
@@ -158,16 +166,25 @@
     NSMutableDictionary *json = [NSMutableDictionary new];
     if (self.additionalServerInfo) [json addEntriesFromDictionary:self.additionalServerInfo];
     
-    json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
-    json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
-    json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
-    json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
-    json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
-    json[MSID_OAUTH2_SCOPE] = self.scope;
+    if (self.error)
+    {
+        json[MSID_OAUTH2_ERROR] = self.error;
+        json[MSID_OAUTH2_ERROR_DESCRIPTION] = [self.errorDescription msidURLEncode];
+    }
+    else
+    {
+        json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
+        json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
+        json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
+        json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
+        json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
+        json[MSID_OAUTH2_SCOPE] = self.scope;
+        json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
+    }
+    
     json[MSID_OAUTH2_STATE] = self.state;
-    json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
-    json[MSID_OAUTH2_ERROR] = self.error;
-    json[MSID_OAUTH2_ERROR_DESCRIPTION] = self.errorDescription;
+    json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.class.providerType);
+    json[MSID_BROKER_CLIENT_APP_VERSION_KEY] = self.clientAppVersion;
     
     return json;
 }

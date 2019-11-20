@@ -41,6 +41,7 @@ NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
 NSString *MSIDKeychainErrorDomain = @"MSIDKeychainErrorDomain";
 NSString *MSIDHttpErrorCodeDomain = @"MSIDHttpErrorCodeDomain";
 NSString *MSIDInvalidTokenResultKey = @"MSIDInvalidTokenResultKey";
+NSInteger const MSIDSSOExtensionUnderlyingError = -6000;
 
 NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo, BOOL logErrorDescription)
 {
@@ -87,6 +88,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     if (oauthError && [oauthError caseInsensitiveCompare:@"unauthorized_client"] == NSOrderedSame)
     {
         return MSIDErrorServerUnauthorizedClient;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"interaction_required"] == NSOrderedSame)
+    {
+        return MSIDErrorInteractionRequired;
     }
     
     return defaultCode;

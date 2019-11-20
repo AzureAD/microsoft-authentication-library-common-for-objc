@@ -974,6 +974,34 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error
 {
+    NSError *localError;
+    NSArray *itemList = [self accountsMetadataWithKey:key serializer:serializer context:context error:&localError];
+    
+    if (localError)
+    {
+        if (error) *error = localError;
+        return nil;
+    }
+    
+    if (!itemList) return nil;
+    
+    if (itemList.count > 1)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Multiple account metadata entries found in the cache.");
+        [self createError:@"Multiple account metadata entries found in the cache."
+                   domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
+        return nil;
+    }
+    
+    return itemList.firstObject;
+    
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                                                             context:(id<MSIDRequestContext>)context
+                                                               error:(NSError **)error
+{
     MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
     NSArray *itemList = [storageItem storedItemsForKey:key];
     
@@ -986,16 +1014,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         itemList = [storageItem storedItemsForKey:key];
     }
     
-    if (itemList.count > 1)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Multiple account metadata entries found in the cache.");
-        [self createError:@"Multiple account metadata entries found in the cache."
-                   domain:MSIDErrorDomain errorCode:MSIDErrorCacheMultipleUsers error:error context:context];
-        return nil;
-    }
-    
-    return itemList.firstObject;
-    
+    return itemList;
 }
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error

@@ -49,6 +49,11 @@
 
 @implementation MSIDOauth2Factory
 
++ (MSIDProviderType)providerType
+{
+    @throw @"Abstract method was invoked.";
+}
+
 #pragma mark - Response
 
 - (MSIDTokenResponse *)tokenResponseFromJSON:(NSDictionary *)json
@@ -76,6 +81,9 @@
     {
         if (error)
         {
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
+            
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
                                      response.errorDescription,
@@ -83,7 +91,7 @@
                                      nil,
                                      nil,
                                      context.correlationId,
-                                     nil, NO);
+                                     userInfo, NO);
         }
         return NO;
     }

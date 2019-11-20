@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
+#import "MSIDSilentTokenRequest+Internal.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAccessToken.h"
 #import "MSIDTokenResponseValidator.h"
@@ -43,11 +43,11 @@
 
 @interface MSIDSilentTokenRequest()
 
-@property (nonatomic, readwrite) MSIDRequestParameters *requestParameters;
+@property (nonatomic) MSIDRequestParameters *requestParameters;
 @property (nonatomic) BOOL forceRefresh;
-@property (nonatomic, readwrite) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic, readwrite) MSIDAccessToken *extendedLifetimeAccessToken;
+@property (nonatomic) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 
 @end
 
@@ -87,7 +87,7 @@
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
                                                  context:self.requestParameters
-                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint, 
+                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
                                          __unused BOOL validated, NSError *error)
      {
          if (error)
@@ -410,74 +410,92 @@
             completionBlock(nil, error);
             return;
         }
-
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Validate and save token response...");
-        NSError *validationError = nil;
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
-                                                                                    oauthFactory:self.oauthFactory
-                                                                                      tokenCache:self.tokenCache
-                                                                            accountMetadataCache:self.metadataCache
-                                                                               requestParameters:self.requestParameters
-                                                                                           error:&validationError];
-
-        if (!tokenResult && [self shouldRemoveRefreshToken:validationError])
+        
+        [self handleTokenResponse:tokenResponse error:nil completionBlock:^(MSIDTokenResult *result, NSError *error)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token invalid, removing it...");
-            NSError *removalError = nil;
-            BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
-                                                                 context:self.requestParameters
-                                                                   error:&removalError];
-
-            if (!result)
+            if (!result && [self shouldRemoveRefreshToken:error])
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove invalid refresh token with error %@", MSID_PII_LOG_MASKABLE(removalError));
-            }
-        }
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token invalid, removing it...");
+                NSError *removalError = nil;
+                BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
+                                                                     context:self.requestParameters
+                                                                       error:&removalError];
 
-        if (!tokenResult)
-        {
-            // Special case - need to return homeAccountId in case of Intune policies required.
-            if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Received Protection Policy Required error.");
-                
-                NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
-                updatedUserInfo[MSIDHomeAccountIdkey] = self.requestParameters.accountIdentifier.homeAccountId;
-                
-                validationError = MSIDCreateError(validationError.domain,
-                                                  validationError.code,
-                                                  nil,
-                                                  nil,
-                                                  nil,
-                                                  nil,
-                                                  nil,
-                                                  updatedUserInfo, NO);
+                if (!result)
+                {
+                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove invalid refresh token with error %@", MSID_PII_LOG_MASKABLE(removalError));
+                }
             }
             
-            completionBlock(nil, validationError);
-            return;
-        }
-        
-        void (^completionBlockWrapper)(void) = ^
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Returning token result.");
-            completionBlock(tokenResult, nil);
-        };
-        
-#if TARGET_OS_OSX
-        if (self.externalCacheSeeder != nil)
-        {
-            [self.externalCacheSeeder seedTokenResponse:tokenResponse
-                                                factory:self.oauthFactory
-                                      requestParameters:self.requestParameters
-                                        completionBlock:completionBlockWrapper];
-        }
-        else
-#endif
-        {
-            completionBlockWrapper();
-        }
+            completionBlock(result, error);
+        }];
     }];
+}
+
+#pragma mark - Protected
+
+- (void)handleTokenResponse:(MSIDTokenResponse *)tokenResponse
+                      error:(NSError *)error
+            completionBlock:(MSIDRequestCompletionBlock)completionBlock
+{
+    if (error)
+    {
+        completionBlock(nil, error);
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Validate and save token response...");
+    NSError *validationError;
+    MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
+                                                                                oauthFactory:self.oauthFactory
+                                                                                  tokenCache:self.tokenCache
+                                                                        accountMetadataCache:self.metadataCache
+                                                                           requestParameters:self.requestParameters
+                                                                                       error:&validationError];
+    
+    if (!tokenResult)
+    {
+        // Special case - need to return homeAccountId in case of Intune policies required.
+        if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Received Protection Policy Required error.");
+            
+            NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
+            updatedUserInfo[MSIDHomeAccountIdkey] = self.requestParameters.accountIdentifier.homeAccountId;
+            
+            validationError = MSIDCreateError(validationError.domain,
+                                              validationError.code,
+                                              nil,
+                                              nil,
+                                              nil,
+                                              nil,
+                                              nil,
+                                              updatedUserInfo, YES);
+        }
+        
+        completionBlock(nil, validationError);
+        return;
+    }
+    
+    void (^completionBlockWrapper)(void) = ^
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Returning token result.");
+        completionBlock(tokenResult, nil);
+    };
+    
+#if TARGET_OS_OSX
+    if (self.externalCacheSeeder != nil)
+    {
+        [self.externalCacheSeeder seedTokenResponse:tokenResponse
+                                            factory:self.oauthFactory
+                                  requestParameters:self.requestParameters
+                                    completionBlock:completionBlockWrapper];
+    }
+    else
+#endif
+    {
+        completionBlockWrapper();
+    }
 }
 
 #pragma mark - Abstract
