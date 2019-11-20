@@ -27,7 +27,7 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonSerializing.h"
 #import "MSIDCacheKey.h"
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheKey.h"
 
 @implementation MSIDMetadataCache
@@ -56,7 +56,7 @@
     return self;
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item
                         key:(MSIDCacheKey *)key
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
@@ -98,7 +98,7 @@
     return saveSuccess;
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
+- (MSIDAccountMetadata *)accountMetadataWithKey:(MSIDCacheKey *)key
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
@@ -112,7 +112,7 @@
         return nil;
     }
 
-    __block MSIDAccountMetadataCacheItem *item;
+    __block MSIDAccountMetadata *item;
     __block NSError *localError;
     __block BOOL updatedItem = NO;
 
@@ -193,7 +193,7 @@
     }
     
     dispatch_barrier_async(_synchronizationQueue, ^{
-        for (MSIDAccountMetadataCacheItem *item in items)
+        for (MSIDAccountMetadata *item in items)
         {
             MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:item.homeAccountId clientId:item.clientId];
             _memoryCache[key] = item;

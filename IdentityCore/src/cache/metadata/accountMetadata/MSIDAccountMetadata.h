@@ -31,7 +31,7 @@ typedef NS_ENUM(NSInteger, MSIDAccountMetadataState)
     MSIDAccountMetadataStateUnknown
 };
 
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
+@interface MSIDAccountMetadata : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
 @property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;

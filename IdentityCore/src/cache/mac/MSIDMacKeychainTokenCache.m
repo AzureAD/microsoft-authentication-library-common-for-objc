@@ -41,7 +41,7 @@
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDMacCredentialStorageItem.h"
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDConstants.h"
@@ -958,7 +958,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 #pragma mark - Account metadata
 
 // TODO: To improve the saving logic here (to not pollute keychain)
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item
                         key:(MSIDAccountMetadataCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
@@ -969,7 +969,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     return [self saveStorageItem:storageItem isShared:key.isShared serializer:serializer context:context error:error];
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+- (MSIDAccountMetadata *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
                                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error
@@ -997,7 +997,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     
 }
 
-- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
                                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                              context:(id<MSIDRequestContext>)context
                                                                error:(NSError **)error

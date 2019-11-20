@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDAccountIdentifier.h"
 
-@interface MSIDAccountMetadataCacheItemTests : XCTestCase
+@interface MSIDAccountMetadataTests : XCTestCase
 
 @end
 
-@implementation MSIDAccountMetadataCacheItemTests
+@implementation MSIDAccountMetadataTests
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -42,7 +42,7 @@
 
 - (void)testJSONDictionary_whenAllFieldsSet_shouldReturnJSONDictionaryWithAccountKey
 {
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     
     NSError *error;
     
@@ -81,7 +81,7 @@
                                       @"home_account_id" : @"homeAccountId" };
 
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithJSONDictionary:jsonDictionary error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(cacheItem);
@@ -99,7 +99,7 @@
                                       };
     
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(cacheItem);
@@ -121,7 +121,7 @@
                                       };
     
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(cacheItem);
@@ -142,7 +142,7 @@
 - (void)testSetCachedURL_whenCacheURLAndRequestURLPresent_shouldSaveMapping
 {
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso1.com"]
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
                             instanceAware:NO
@@ -160,7 +160,7 @@
 - (void)testSetCachedURL_whenCacheURLAndRequestURLPresentWhenRecordAlreadyExists_shouldOverwriteAndSaveMapping
 {
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso.com"]
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority.com"]
                             instanceAware:NO
@@ -183,7 +183,7 @@
 - (void)testSetCachedURL_whenSetCacheURL_shouldSetSignInStateSignedIn
 {
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso1.com"]
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
                             instanceAware:NO
@@ -209,7 +209,7 @@
 
 - (void)testCachedURL_withCachedRequestURLNotMapped_shouldReturnNil
 {
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertNil([cacheItem cachedURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO]);
 }
 
@@ -227,7 +227,7 @@
     };
     
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithJSONDictionary:jsonDictionary error:&error];
     
     XCTAssertNil(error);
     XCTAssertNotNil(cacheItem);
@@ -239,7 +239,7 @@
 - (void)testAccountMetadataCopy_withOriginalObjectChanged_shouldNotChangeCopiedObject
 {
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *item1 = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"home_account_id" clientId:@"clientId"];
+    MSIDAccountMetadata *item1 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"home_account_id" clientId:@"clientId"];
     
     XCTAssertTrue([item1 setCachedURL:[NSURL URLWithString:@"https://contoso1.com"]
                         forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
@@ -250,7 +250,7 @@
                         instanceAware:YES
                                 error:&error]);
     
-    MSIDAccountMetadataCacheItem *item2 = [item1 copy];
+    MSIDAccountMetadata *item2 = [item1 copy];
     
     XCTAssertTrue([item1 setCachedURL:[NSURL URLWithString:@"https://contoso3.com"]
                         forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
@@ -291,11 +291,11 @@
     };
     
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *item1 = [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary1 error:&error];
+    MSIDAccountMetadata *item1 = [[MSIDAccountMetadata alloc] initWithJSONDictionary:jsonDictionary1 error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(item1);
     
-    MSIDAccountMetadataCacheItem *item2 = [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary2 error:&error];
+    MSIDAccountMetadata *item2 = [[MSIDAccountMetadata alloc] initWithJSONDictionary:jsonDictionary2 error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(item2);
     
@@ -305,7 +305,7 @@
 - (void)testUpdateSignInState_whenSetSignedOut_shouldWipeAuthorityMap
 {
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso1.com"]
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
                             instanceAware:NO
@@ -325,7 +325,7 @@
 - (void)testUpdateSignInState_whenSetNonSignedOut_shouldNotWipeAuthorityMap
 {
     NSError *error = nil;
-    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([cacheItem setCachedURL:[NSURL URLWithString:@"https://contoso1.com"]
                             forRequestURL:[NSURL URLWithString:@"https://testAuthority1.com"]
                             instanceAware:NO

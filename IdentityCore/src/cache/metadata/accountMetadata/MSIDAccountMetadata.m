@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDAuthorityFactory.h"
@@ -31,12 +31,12 @@
 
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
-@interface MSIDAccountMetadataCacheItem()
+@interface MSIDAccountMetadata()
 @property NSMutableDictionary *internalMap;
 
 @end
 
-@implementation MSIDAccountMetadataCacheItem
+@implementation MSIDAccountMetadata
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
                              clientId:(NSString *)clientId
@@ -172,10 +172,10 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         return NO;
     }
     
-    return [self isEqualToItem:(MSIDAccountMetadataCacheItem *)object];
+    return [self isEqualToItem:(MSIDAccountMetadata *)object];
 }
 
-- (BOOL)isEqualToItem:(MSIDAccountMetadataCacheItem *)item
+- (BOOL)isEqualToItem:(MSIDAccountMetadata *)item
 {
     BOOL result = YES;
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
@@ -209,7 +209,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 - (id)copyWithZone:(NSZone *)zone
 {
-    MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
+    MSIDAccountMetadata *item = [[self class] allocWithZone:zone];
     item->_homeAccountId = [self.homeAccountId copyWithZone:zone];
     item->_clientId = [self.clientId copyWithZone:zone];
     item->_internalMap = [self->_internalMap mutableDeepCopy];

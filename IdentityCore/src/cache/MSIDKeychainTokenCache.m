@@ -28,7 +28,7 @@
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDJsonSerializing.h"
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
@@ -405,7 +405,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     error:error];
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item
                         key:(MSIDCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
@@ -431,7 +431,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     error:error];
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
+- (MSIDAccountMetadata *)accountMetadataWithKey:(MSIDCacheKey *)key
                                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
@@ -448,12 +448,12 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return metadataItems[0];
 }
 
-- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
                                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                              context:(id<MSIDRequestContext>)context
                                                                error:(NSError **)error
 {
-    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
+    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadata.class context:context error:error];
 }
 
 #pragma mark - Removal

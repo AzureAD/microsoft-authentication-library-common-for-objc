@@ -26,7 +26,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDMetadataCache.h"
 #import "MSIDAccountMetadataCacheKey.h"
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 
 @implementation MSIDAccountMetadataCacheAccessor
 {
@@ -63,7 +63,7 @@
     }
     
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    MSIDAccountMetadataCacheItem *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
+    MSIDAccountMetadata *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
     if (!authorityMap) { return nil; }
     
     return [authorityMap cachedURL:requestAuthorityURL instanceAware:instanceAware];
@@ -82,10 +82,10 @@
         || [cacheAuthorityURL isEqual:requestAuthorityURL]) return YES;
     
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    MSIDAccountMetadataCacheItem *accountMetadataItem = [_metadataCache accountMetadataWithKey:key context:context error:error];
+    MSIDAccountMetadata *accountMetadataItem = [_metadataCache accountMetadataWithKey:key context:context error:error];
     if (!accountMetadataItem)
     {
-        accountMetadataItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+        accountMetadataItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
     
     if (![accountMetadataItem setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL instanceAware:instanceAware error:error])
@@ -111,7 +111,7 @@
     }
     
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    MSIDAccountMetadataCacheItem *acountMetadata = [_metadataCache accountMetadataWithKey:key context:context error:error];
+    MSIDAccountMetadata *acountMetadata = [_metadataCache accountMetadataWithKey:key context:context error:error];
     if (!acountMetadata) { return MSIDAccountMetadataStateUnknown; }
     
     return acountMetadata.signInState;
@@ -130,7 +130,7 @@
         return NO;
     }
     
-    MSIDAccountMetadataCacheItem *accountMetadataItem;
+    MSIDAccountMetadata *accountMetadataItem;
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
     
     // Need to read existing account metetada if not setting as signed out
@@ -147,7 +147,7 @@
     
     if (!accountMetadataItem)
     {
-        accountMetadataItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+        accountMetadataItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
     [accountMetadataItem updateSignInState:state];
     
