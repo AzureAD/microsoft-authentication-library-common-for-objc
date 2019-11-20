@@ -37,6 +37,8 @@ API_AVAILABLE(ios(13.0))
 
 + (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
                               providerType:(MSIDProviderType)providerType
+                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
+                              mamResources:(nullable NSDictionary *)mamResources
                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
