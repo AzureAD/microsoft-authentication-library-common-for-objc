@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDCredentialType.h"
+#import "MSIDProviderType.h"
 
 @class MSIDTokenResponse;
 @class MSIDBaseToken;
@@ -86,6 +87,8 @@
 
 // Webview Factory
 @property (readonly) MSIDWebviewFactory *webviewFactory;
+
+@property (nonatomic, readonly, class) MSIDProviderType providerType;
 
 @end
 

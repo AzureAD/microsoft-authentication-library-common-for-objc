@@ -141,7 +141,7 @@
 }
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
-                   context:(id<MSIDRequestContext>)context
+                   context:(__unused id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
     if (!key)
@@ -214,15 +214,15 @@
     return resultItems;
 }
 
-- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
+                          error:(__unused NSError **)error
 {
     _wipeInfo = @{@"wiped": [NSDate date]};
     return YES;
 }
 
-- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
+                     error:(__unused NSError **)error
 {
     return _wipeInfo;
 }
@@ -314,21 +314,21 @@
     return resultItems;
 }
 
-- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(MSIDCacheKey *)key
-                                       serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
-                                          context:(id<MSIDRequestContext>)context
-                                            error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(__unused MSIDCacheKey *)key
+                                       serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
+                                          context:(__unused id<MSIDRequestContext>)context
+                                            error:(__unused NSError *__autoreleasing *)error
 {
     // TODO
     return nil;
 }
 
 
-- (BOOL)saveJsonObject:(MSIDJsonObject *)jsonObject
-            serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
-                   key:(MSIDCacheKey *)key
-               context:(id<MSIDRequestContext>)context
-                 error:(NSError *__autoreleasing *)error
+- (BOOL)saveJsonObject:(__unused MSIDJsonObject *)jsonObject
+            serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
+                   key:(__unused MSIDCacheKey *)key
+               context:(__unused id<MSIDRequestContext>)context
+                 error:(__unused NSError *__autoreleasing *)error
 {
     // TODO
     return NO;
@@ -409,7 +409,7 @@
                  key:(MSIDCacheKey *)key
            cacheKeys:(NSMutableDictionary *)cacheKeys
         cacheContent:(NSMutableDictionary *)cacheContent
-             context:(id<MSIDRequestContext>)context
+             context:(__unused id<MSIDRequestContext>)context
                error:(NSError **)error
 {
     if (!key || !cacheKeys || !cacheContent)
@@ -457,7 +457,7 @@
 - (NSArray<NSData *> *)itemsWithKey:(MSIDCacheKey *)key
                      keysDictionary:(NSDictionary *)cacheKeys
                   contentDictionary:(NSDictionary *)cacheContent
-                            context:(id<MSIDRequestContext>)context
+                            context:(__unused id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
     if (!key
@@ -525,7 +525,7 @@
     return resultItems;
 }
 
-- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+- (BOOL)clearWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
 {
     [self reset];
     return YES;
@@ -547,6 +547,31 @@
     return (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
 }
 
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    NSArray *items = [self itemsWithKey:key keysDictionary:_accountKeys contentDictionary:_accountContents context:context error:error];
+    
+    NSMutableArray *metadataItems = [NSMutableArray new];
+    for(NSData *data in items)
+    {
+        MSIDAccountMetadataCacheItem *metadata = (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
+        if (metadata)
+        {
+            [metadataItems addObject:metadata];
+        }
+    }
+    return metadataItems;
+}
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
@@ -604,7 +629,7 @@
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
                                                         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error;
+                                                             error:(NSError **)error
 {
     if (!serializer)
     {

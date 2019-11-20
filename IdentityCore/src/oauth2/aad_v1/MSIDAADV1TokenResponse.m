@@ -24,20 +24,20 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDTokenResponse+Internal.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDAADV1TokenResponse
 
-MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
-
-- (BOOL)initIdToken:(NSError *__autoreleasing *)error
++ (void)load
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    
-    return YES;
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_AADV1_TOKEN_RESPONSE];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV1 kindOfClass:MSIDTokenResponse.class toClassType:MSID_JSON_TYPE_AADV1_TOKEN_RESPONSE];
+}
+
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
+{
+    return [[MSIDAADV1IdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 - (BOOL)isMultiResource
@@ -55,6 +55,32 @@ MSID_JSON_ACCESSOR(MSID_OAUTH2_RESOURCE, resource)
 - (MSIDAccountType)accountType
 {
     return MSIDAccountTypeAADV1;
+}
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV1;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    if (self)
+    {
+        _resource = [json msidStringObjectForKey:MSID_OAUTH2_RESOURCE];
+    }
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableDeepCopy];
+    json[MSID_OAUTH2_RESOURCE] = self.resource;
+    
+    return json;
 }
 
 @end

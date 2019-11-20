@@ -31,6 +31,9 @@
 #import "MSIDB2CAuthority.h"
 #import "MSIDADFSAuthority.h"
 #import "NSURL+MSIDAADUtils.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDProviderType.h"
 
 @interface MSIDAADAuthority()
 
@@ -39,6 +42,13 @@
 @end
 
 @implementation MSIDAADAuthority
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV1 kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV2 kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context

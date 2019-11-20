@@ -145,6 +145,11 @@
     [self endWebAuthWithURL:nil error:error];
 }
 
+- (void)dismiss
+{
+    [self cancel];
+}
+
 - (void)userCancel
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller by the user.");
@@ -202,15 +207,18 @@
     
     [MSIDChallengeHandler resetHandlers];
     
-    if ( _completionHandler )
+    if (_completionHandler)
     {
         MSIDWebUICompletionHandler completionHandler = _completionHandler;
         _completionHandler = nil;
+        [_completionLock unlock];
         
         completionHandler(url, error);
     }
-    
-    [_completionLock unlock];
+    else
+    {
+        [_completionLock unlock];
+    }
 }
 
 - (void)startRequest:(NSURLRequest *)request

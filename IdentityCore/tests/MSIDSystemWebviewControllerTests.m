@@ -26,12 +26,13 @@
 #import <XCTest/XCTest.h>
 #import "MSIDSystemWebviewController.h"
 #import "MSIDURLResponseHandling.h"
+#import "MSIDOAuth2EmbeddedWebviewController.h"
 
 @interface MSIDTestSession: NSObject<MSIDURLResponseHandling>
 @end
 
 @implementation MSIDTestSession: NSObject
-- (BOOL)handleURLResponse:(NSURL *)url
+- (BOOL)handleURLResponse:(__unused NSURL *)url
 {
     return YES;
 }
@@ -60,7 +61,6 @@
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:nil
                                                                                    redirectURI:@"some://redirecturi"
                                                                               parentController:nil
-                                                                              presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
                                                                     ephemeralWebBrowserSession:NO
@@ -74,7 +74,6 @@
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                                    redirectURI:nil
                                                                               parentController:nil
-                                                                              presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
                                                                     ephemeralWebBrowserSession:NO
@@ -90,7 +89,6 @@
     MSIDSystemWebviewController *webVC = [[MSIDSystemWebviewController alloc] initWithStartURL:[NSURL URLWithString:@"https://contoso.com/oauth/authorize"]
                                                                                    redirectURI:@"some://redirecturi"
                                                                               parentController:nil
-                                                                              presentationType:UIModalPresentationFullScreen
                                                                       useAuthenticationSession:YES
                                                                      allowSafariViewController:YES
                                                                     ephemeralWebBrowserSession:NO
@@ -121,8 +119,8 @@
 - (void)testHandleURLResponse_whenRedirectHostAndSchemeMatch_shouldReturnYes
 {
     MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
+    [webVC setValue:[MSIDOAuth2EmbeddedWebviewController new] forKey:@"session"];
     [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
-    [webVC setValue:[MSIDTestSession new] forKey:@"_session"];
     
     XCTAssertTrue([webVC handleURLResponse:[NSURL URLWithString:@"scheme://host"]]);
 }

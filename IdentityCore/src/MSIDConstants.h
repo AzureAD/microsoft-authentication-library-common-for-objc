@@ -21,32 +21,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDBrokerConstants.h"
+
 @class MSIDTokenResult;
 
 typedef NS_ENUM(NSInteger, MSIDWebviewType)
 {
-#if TARGET_OS_IPHONE
     // For iOS 11 and up, uses AuthenticationSession (ASWebAuthenticationSession
     // or SFAuthenticationSession).
     // For older versions, with AuthenticationSession not being available, uses
     // SafariViewController.
+    // For macOS 10.15+ uses ASWebAuthenticationSession
+    // For older macOS versions, uses WKWebView
     MSIDWebviewTypeDefault,
 
     // Use SFAuthenticationSession/ASWebAuthenticationSession
     MSIDWebviewTypeAuthenticationSession,
 
+#if TARGET_OS_IPHONE
     // Use SFSafariViewController for all versions.
     MSIDWebviewTypeSafariViewController,
 
 #endif
+    
     // Use WKWebView
     MSIDWebviewTypeWKWebView,
 };
 
-typedef NS_ENUM(NSInteger, MSIDInteractiveRequestType)
+typedef NS_ENUM(NSInteger, MSIDRequestType)
 {
-    MSIDInteractiveRequestBrokeredType = 0,
-    MSIDInteractiveRequestLocalType
+    MSIDRequestBrokeredType = 0,
+    MSIDRequestLocalType
 };
 
 typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
@@ -69,6 +74,12 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
 
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 
+#if TARGET_OS_IPHONE
+@compatibility_alias MSIDViewController UIViewController;
+#else
+@compatibility_alias MSIDViewController NSViewController;
+#endif
+
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_SOURCE_PLATFORM_KEY;//The source SDK platform. iOS or OSX
 extern NSString * _Nonnull const MSID_VERSION_KEY;
@@ -77,23 +88,18 @@ extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
-extern NSString * _Nonnull const MSID_BROKER_RESUME_DICTIONARY_KEY;
-extern NSString * _Nonnull const MSID_BROKER_SYMMETRIC_KEY_TAG;
-extern NSString * _Nonnull const MSID_BROKER_ADAL_SCHEME;
-extern NSString * _Nonnull const MSID_BROKER_MSAL_SCHEME;
-extern NSString * _Nonnull const MSID_BROKER_NONCE_SCHEME;
-extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID;
-extern NSString * _Nonnull const MSID_BROKER_APP_BUNDLE_ID_DF;
-extern NSString * _Nonnull const MSID_BROKER_MAX_PROTOCOL_VERSION;
-extern NSString * _Nonnull const MSID_BROKER_PROTOCOL_VERSION_KEY;
-extern NSString * _Nonnull const MSID_ADAL_BROKER_MESSAGE_VERSION;
-extern NSString * _Nonnull const MSID_MSAL_BROKER_MESSAGE_VERSION;
-extern NSString * _Nonnull const MSID_AUTHENTICATOR_REDIRECT_URI;
+
+
+
+
+
+
+
 extern NSString * _Nonnull const MSID_DEFAULT_FAMILY_ID;
 extern NSString * _Nonnull const MSID_ADAL_SDK_NAME;
 extern NSString * _Nonnull const MSID_MSAL_SDK_NAME;
 extern NSString * _Nonnull const MSID_SDK_NAME_KEY;
-extern NSString * _Nonnull const MSID_BROKER_APPLICATION_TOKEN_TAG;
+
 
 extern NSString * _Nonnull const MSIDTrustedAuthority;
 extern NSString * _Nonnull const MSIDTrustedAuthorityUS;

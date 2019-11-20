@@ -52,7 +52,7 @@
 - (void)setUp
 {
     [super setUp];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
 }
 
 - (void)tearDown
@@ -60,7 +60,7 @@
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [super tearDown];
 }
 
@@ -151,7 +151,7 @@
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, brokerRequestURL);
 
@@ -229,7 +229,7 @@
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
     
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
         
         XCTAssertEqualObjects(url, brokerRequestURL);
         return NO;
@@ -272,7 +272,7 @@
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
     
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
         
         XCTAssertEqualObjects(url, brokerRequestURL);
         return NO;
@@ -331,7 +331,7 @@
 
     NSError *testError = MSIDCreateError(MSIDErrorDomain, 123456789, @"Test broker error", @"broker_error", @"broker_sub_error", nil, parameters.correlationId, nil, YES);
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, brokerRequestURL);
 
@@ -433,7 +433,7 @@
     XCTestExpectation *firstRequestExpectation = [self expectationWithDescription:@"First request"];
     XCTestExpectation *secondRequestExpectation = [self expectationWithDescription:@"Second request"];
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, brokerRequestURL);
 
@@ -609,7 +609,7 @@
     XCTAssertNotNil(brokerController);
     XCTAssertNil(error);
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, brokerRequestURL);
 
@@ -714,7 +714,7 @@
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"Acquire token"];
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, brokerRequestURL);
 
@@ -833,7 +833,7 @@
     
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
     
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
         
         XCTAssertEqualObjects(url, brokerRequestURL);
         
@@ -853,7 +853,7 @@
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:@"https://login.microsoftonline.com/common"];
     [MSIDTestURLSession addResponse:discoveryResponse];
     
-    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [brokerController acquireToken:^(MSIDTokenResult * _Nullable result, __unused NSError * _Nullable error) {
         
         XCTAssertNotNil(result);
         XCTAssertEqualObjects(result.accessToken, testResult.accessToken);

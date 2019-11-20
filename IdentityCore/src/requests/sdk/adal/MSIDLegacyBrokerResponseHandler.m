@@ -42,7 +42,7 @@
 @implementation MSIDLegacyBrokerResponseHandler
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(NSError **)error
+                                                  error:(__unused NSError **)error
 {
 #if TARGET_OS_IPHONE
     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
@@ -109,7 +109,7 @@
     {
         NSDictionary *intuneResponseDictionary = @{@"response": encryptedParams[@"intune_mam_token"],
                                                    @"hash": encryptedParams[@"intune_mam_token_hash"],
-                                                   MSID_BROKER_PROTOCOL_VERSION_KEY: encryptedParams[MSID_BROKER_PROTOCOL_VERSION_KEY] ?: @2};
+                                                   MSID_BROKER_PROTOCOL_VERSION_KEY: encryptedParams[MSID_BROKER_PROTOCOL_VERSION_KEY] ?: @(MSID_BROKER_PROTOCOL_VERSION_2)};
 
         NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:intuneResponseDictionary
                                                                              correlationId:correlationID

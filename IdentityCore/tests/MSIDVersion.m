@@ -51,4 +51,10 @@
     return @"Microsoft.Test.";
 }
 
++ (NSString *)aadApiVersion
+{
+    return @"test-api-version";
+}
+
+
 @end

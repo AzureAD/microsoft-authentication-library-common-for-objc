@@ -100,6 +100,41 @@
     XCTAssertNil(expiryDate);
 }
 
+- (void)testExpiryDate_whenExpiresOnOnly_shouldReturnDate
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_on": @"1538804860",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    NSDate *expiryDate = [response expiryDate];
+    XCTAssertEqual(expiryDate.timeIntervalSince1970, 1538804860);
+}
+
+- (void)testExpiryDate_whenExpiresOnAndExpiresIn_shouldReturnExpiresOnDate
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_on": @"1538804860",
+                                @"expires_in": @"10",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    NSDate *expiryDate = [response expiryDate];
+    XCTAssertEqual(expiryDate.timeIntervalSince1970, 1538804860);
+}
+
 - (void)testIdTokenObj_whenIdTokenAvailable_shouldReturnIDToken
 {
     NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"test" upn:@"upn" oid:nil tenantId:@"tenant"];
@@ -133,9 +168,7 @@
     MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
     
     XCTAssertNotNil(response);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
+    XCTAssertNil(error);
     
     MSIDIdTokenClaims *idTokenObj = response.idTokenObj;
     XCTAssertNil(idTokenObj);
@@ -196,11 +229,40 @@
                                                                               error:&error];
     
     XCTAssertNotNil(response);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-    
+    XCTAssertNil(error);
     XCTAssertEqualObjects(response.idToken, @"id token 2");
+}
+
+- (void)testInitWithJSONDictionary_whenErrorDescriptionNotUrlEncoded_shouldParseIt
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code",
+                                @"error_description": @"some description"
+    };
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.errorDescription, @"some description");
+}
+
+- (void)testInitWithJSONDictionary_whenErrorDescriptionUrlEncoded_shouldParseIt
+{
+    NSDictionary *jsonInput = @{@"error": @"error_code",
+                                @"error_description": @"AADSTS650052%3A%2BThe%2Bapp%2Bneeds%2Baccess%2Bto%2Ba%2Bservice."
+    };
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(response.error, @"error_code");
+    XCTAssertEqualObjects(response.errorDescription, @"AADSTS650052:+The+app+needs+access+to+a+service.");
 }
 
 @end

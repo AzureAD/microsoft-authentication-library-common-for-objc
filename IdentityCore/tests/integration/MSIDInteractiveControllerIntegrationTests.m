@@ -55,7 +55,8 @@
 - (void)setUp
 {
     [super setUp];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
 }
 
 - (void)tearDown
@@ -63,7 +64,7 @@
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [super tearDown];
 }
 
@@ -283,7 +284,7 @@
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://test.url.broker?test1=test2"]);
 

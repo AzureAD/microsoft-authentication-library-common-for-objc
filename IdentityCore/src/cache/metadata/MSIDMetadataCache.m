@@ -28,6 +28,7 @@
 #import "MSIDJsonSerializing.h"
 #import "MSIDCacheKey.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheKey.h"
 
 @implementation MSIDMetadataCache
 {
@@ -105,9 +106,9 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
         }
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Get account metadata with invalid key.");
         return nil;
     }
 
@@ -166,6 +167,40 @@
     
     if (error && localError) *error = localError;
     return success;
+}
+
+- (BOOL)loadAccountMetadataForKey:(MSIDCacheKey *)key
+                          context:(id<MSIDRequestContext>)context
+                            error:(NSError **)error
+{
+    if (!key)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil, YES);
+        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Load account metadata with invalid key.");
+        return NO;
+    }
+
+    NSError *localError;
+    NSArray *items = [_dataSource accountsMetadataWithKey:key serializer:_jsonSerializer context:context error:&localError];
+    
+    if (localError)
+    {
+        if (error) *error = localError;
+        return NO;
+    }
+    
+    dispatch_barrier_async(_synchronizationQueue, ^{
+        for (MSIDAccountMetadataCacheItem *item in items)
+        {
+            MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:item.homeAccountId clientId:item.clientId];
+            _memoryCache[key] = item;
+        }
+    });
+    
+    return YES;
 }
 
 @end

@@ -94,6 +94,7 @@ NSString *const MSID_ENVIRONMENT_CACHE_KEY               = @"environment";
 NSString *const MSID_REALM_CACHE_KEY                     = @"realm";
 NSString *const MSID_AUTHORITY_CACHE_KEY                 = @"authority";
 NSString *const MSID_HOME_ACCOUNT_ID_CACHE_KEY           = @"home_account_id";
+NSString *const MSID_SIGN_IN_STATE_CACHE_KEY             = @"sign_in_state";
 NSString *const MSID_ENROLLMENT_ID_CACHE_KEY             = @"enrollment_id";
 NSString *const MSID_CLIENT_ID_CACHE_KEY                 = @"client_id";
 NSString *const MSID_FAMILY_ID_CACHE_KEY                 = @"family_id";
@@ -134,6 +135,7 @@ NSString *const MSID_GENERAL_TOKEN_CACHE_TYPE            = @"token";
 NSString *const MSID_GENERAL_CACHE_ITEM_TYPE             = @"general_cache_item";
 NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";
 NSString *const MSID_APP_METADATA_AUTHORITY_MAP_TYPE     = @"authority_map";
+NSString *const MSID_DEVICE_ID_CACHE_KEY                 = @"device_id";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
 NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";

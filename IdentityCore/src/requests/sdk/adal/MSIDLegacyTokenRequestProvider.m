@@ -85,5 +85,17 @@
                                                                      error:error];
 }
 
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
+{
+    // TODO: not implemented yet.
+    return nil;
+}
+
+- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
+                                                            forceRefresh:(__unused BOOL)forceRefresh
+{
+    // TODO: not implemented yet.
+    return nil;
+}
 
 @end

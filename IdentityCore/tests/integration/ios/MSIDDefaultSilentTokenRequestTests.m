@@ -108,7 +108,7 @@
 - (void)setUp
 {
     [super setUp];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
     MSIDKeychainTokenCache *cache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
     [cache clearWithContext:nil error:nil];
 }
@@ -118,7 +118,7 @@
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [super tearDown];
 }
 
@@ -587,7 +587,7 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
-    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(__unused MSIDTokenResult * _Nullable result, __unused NSError * _Nullable error) {
         
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
@@ -641,7 +641,7 @@
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
-    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+    [silentRequest executeRequestWithCompletion:^(__unused MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
         
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, MSIDErrorInteractionRequired);

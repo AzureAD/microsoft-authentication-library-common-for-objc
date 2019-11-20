@@ -78,23 +78,23 @@
 
 #pragma mark - MSIDTokenRequestProviding
 
-- (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull __unused MSIDInteractiveRequestParameters *)parameters
 {
     return [[MSIDTestInteractiveTokenRequest alloc] initWithTestResponse:self.testTokenResult
                                                                testError:self.testError
                                                    testWebMSAuthResponse:self.testBrokerResponse];
 }
 
-- (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
-                                                         forceRefresh:(BOOL)forceRefresh
+- (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters
+                                                         forceRefresh:(__unused BOOL)forceRefresh
 {
     return [[MSIDTestSilentTokenRequest alloc] initWithTestResponse:self.testTokenResult testError:self.testError];
 }
 
 
-- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                            brokerKey:(nonnull NSString *)brokerKey
-                                               brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull __unused MSIDInteractiveRequestParameters *)parameters
+                                                            brokerKey:(nonnull __unused NSString *)brokerKey
+                                               brokerApplicationToken:(__unused NSString * _Nullable )brokerApplicationToken
                                                                 error:(NSError * _Nullable * _Nullable)error
 {
     if (self.testError)
@@ -104,6 +104,17 @@
     }
 
     return [[MSIDTestBrokerTokenRequest alloc] initWithURL:self.testBrokerRequestURL resumeDictionary:self.testResumeDictionary];
+}
+
+- (nullable MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(nonnull __unused MSIDInteractiveRequestParameters *)parameters
+{
+    return nil;
+}
+
+
+- (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull __unused MSIDRequestParameters *)parameters forceRefresh:(__unused BOOL)forceRefresh
+{
+    return nil;
 }
 
 @end

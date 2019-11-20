@@ -70,6 +70,12 @@ extern NSString *MSIDServerUnavailableStatusKey;
  */
 extern NSString *MSIDInvalidTokenResultKey;
 
+/*!
+ SSO extension failed with underlying error.
+ This error defined under ASAuthorizationErrorDomain.
+ */
+extern NSInteger const MSIDSSOExtensionUnderlyingError;
+
 typedef NS_ENUM(NSInteger, MSIDErrorCode)
 {
     /*!

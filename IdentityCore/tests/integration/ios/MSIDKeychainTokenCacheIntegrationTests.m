@@ -655,6 +655,42 @@
     XCTAssertEqualObjects(item, cachedItem);
 }
 
+- (void)testAccountsMetadataWithKey_whenMultipleItemInCache_shouldReturnMultipleItems
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    MSIDAccountMetadataCacheItem *item = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    
+    MSIDAccountMetadataCacheKey *key2 = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId2" clientId:@"clientId"];
+    MSIDAccountMetadataCacheItem *item2 = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId2" clientId:@"clientId"];
+    
+    MSIDAccountMetadataCacheKey *key3 = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId3" clientId:@"clientId3"];
+    MSIDAccountMetadataCacheItem *item3 = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId3" clientId:@"clientId3"];
+    
+    NSError *error;
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:&error]);
+    XCTAssertNil(error);
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:item2 key:key2 serializer:serializer context:nil error:&error]);
+    XCTAssertNil(error);
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:item3 key:key3 serializer:serializer context:nil error:&error]);
+    XCTAssertNil(error);
+    
+    MSIDAccountMetadataCacheKey *retrieveKey = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:nil clientId:@"clientId"];
+    NSArray *cachedItems = [keychainTokenCache accountsMetadataWithKey:retrieveKey serializer:serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(cachedItems.count, 2);
+    XCTAssertEqualObjects(item, cachedItems[0]);
+    XCTAssertEqualObjects(item2, cachedItems[1]);
+    
+    retrieveKey = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:nil clientId:@"clientId3"];
+    cachedItems = [keychainTokenCache accountsMetadataWithKey:retrieveKey serializer:serializer context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(cachedItems.count, 1);
+    XCTAssertEqualObjects(item3, cachedItems[0]);
+}
+
 - (void)testRemoveAccountMetadata_shouldRemoveItem
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
@@ -671,7 +707,5 @@
     XCTAssertTrue([keychainTokenCache removeAccountMetadataForKey:key context:nil error:&error]);
     XCTAssertNil(error);
     XCTAssertNil([keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:nil]);
-    
-    
 }
 @end
