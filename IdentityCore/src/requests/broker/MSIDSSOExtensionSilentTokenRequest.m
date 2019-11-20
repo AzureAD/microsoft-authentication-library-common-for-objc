@@ -115,23 +115,13 @@
             return;
         }
         
-        NSError *localError;
         NSDictionary *enrollmentIds = [self.enrollmentIdsCache enrollmentIdsJsonDictionaryWithContext:self.requestParameters
-                                                                                                error:&localError];
-        if (localError)
-        {
-            completionBlock(nil, error);
-            return;
-        }
+                                                                                                error:nil];
         
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
-                                                                                          error:&localError];
-        if (localError)
-        {
-            completionBlock(nil, error);
-            return;
-        }
+                                                                                          error:nil];
         
+        NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
