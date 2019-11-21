@@ -668,8 +668,6 @@
     [metadata setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
     [cacheItem addAccountMetadata:metadata forHomeAccountId:@"homeAccountId"];
     
-    
-    
     [keychainTokenCache saveAccountMetadata:cacheItem key:key serializer:serializer context:nil error:nil];
     
     XCTAssertNotNil([keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:nil]);

@@ -23,6 +23,7 @@
 
 
 #import "MSIDMacCredentialStorageItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 static NSString *keyDelimiter = @"-";
 
@@ -352,7 +353,7 @@ static NSString *keyDelimiter = @"-";
     }
     else if([typeKey isEqualToString:MSID_ACCOUNT_METADATA_CACHE_TYPE])
     {
-        return [[MSIDAccountMetadata alloc] initWithJSONDictionary:itemDict error:error];
+        return [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Unknown key type passed %@.", MSID_PII_LOG_MASKABLE(typeKey));
