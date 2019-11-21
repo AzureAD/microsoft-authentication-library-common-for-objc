@@ -448,14 +448,6 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return metadataItems[0];
 }
 
-//- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
-//                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
-//                                                             context:(id<MSIDRequestContext>)context
-//                                                               error:(NSError **)error
-//{
-//    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadata.class context:context error:error];
-//}
-
 #pragma mark - Removal
 
 - (BOOL)removeTokensWithKey:(MSIDCacheKey *)key

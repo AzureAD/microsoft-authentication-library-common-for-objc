@@ -175,49 +175,4 @@
     XCTAssertEqualObjects(@"https://login.microsoftonline.com/contoso", retrievedCacheURL.absoluteString);
 }
 
-//- (void)testLoadAccountMetadataForKey_whenLoad_shouldLoadAllRelevantAccountMetadata {
-//    NSMutableDictionary *memoryCache = [[self.accountMetadataCache valueForKey:@"_metadataCache"] valueForKey:@"_memoryCache"];
-//    XCTAssertEqual(memoryCache.count, 0);
-//    
-//    //Save account metadata
-//    NSError *error;
-//    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
-//                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
-//                                    homeAccountId:@"uid.utid"
-//                                         clientId:@"my-client-id"
-//                                    instanceAware:NO
-//                                          context:nil
-//                                            error:&error];
-//    XCTAssertNil(error);
-//    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
-//                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
-//                                    homeAccountId:@"uid2.utid2"
-//                                         clientId:@"my-client-id"
-//                                    instanceAware:NO
-//                                          context:nil
-//                                            error:&error];
-//    XCTAssertNil(error);
-//    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/contoso"]
-//                                    forRequestURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
-//                                    homeAccountId:@"uid3.utid3"
-//                                         clientId:@"my-client-id2"
-//                                    instanceAware:NO
-//                                          context:nil
-//                                            error:&error];
-//    XCTAssertNil(error);
-//    
-//    XCTAssertEqual(memoryCache.count, 3);
-//    
-//    // Remove memory cache
-//    [memoryCache removeAllObjects];
-//    
-//    // Load Account metatadata
-//    XCTAssertTrue([self.accountMetadataCache loadAccountMetadataForClientId:@"my-client-id" context:nil error:&error]);
-//    // Since load account is async, here we do a trick: make a read before we verify the entry count in memoryCache
-//    [self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
-//                                 homeAccountId:@"uid.utid"
-//                                      clientId:@"my-client-id" instanceAware:NO context:nil error:&error];
-//    XCTAssertEqual(memoryCache.count, 2);
-//}
-
 @end

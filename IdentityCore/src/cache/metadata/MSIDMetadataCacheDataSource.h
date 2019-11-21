@@ -39,11 +39,6 @@
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error;
 
-//- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
-//                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
-//                                                             context:(id<MSIDRequestContext>)context
-//                                                               error:(NSError **)error;
-
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
                             context:(id<MSIDRequestContext>)context
                               error:(NSError **)error;
