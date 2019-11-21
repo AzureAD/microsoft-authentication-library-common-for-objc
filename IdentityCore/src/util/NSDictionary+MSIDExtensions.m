@@ -239,6 +239,16 @@
     return 0;
 }
 
+- (BOOL)msidBoolObjectForKey:(NSString *)key
+{
+    if ([self msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:key required:NO error:nil])
+    {
+        return [self[key] boolValue];
+    }
+    
+    return NO;
+}
+
 - (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass
 {
     id object = [self objectForKey:key];

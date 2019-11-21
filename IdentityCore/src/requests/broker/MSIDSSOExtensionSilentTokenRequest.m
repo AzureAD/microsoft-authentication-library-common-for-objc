@@ -36,6 +36,8 @@
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDIntuneMAMResourcesCache.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -46,6 +48,8 @@
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic, readonly) MSIDProviderType providerType;
+@property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
+@property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
 
 @end
 
@@ -77,6 +81,8 @@
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
         _providerType = [[oauthFactory class] providerType];
+        _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
+        _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
     }
     
     return self;
@@ -109,10 +115,18 @@
             return;
         }
         
+        NSDictionary *enrollmentIds = [self.enrollmentIdsCache enrollmentIdsJsonDictionaryWithContext:self.requestParameters
+                                                                                                error:nil];
+        
+        NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
+                                                                                          error:nil];
+        
         NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
-                                                                                                    error:&localError];
+                                                                                           enrollmentIds:enrollmentIds
+                                                                                            mamResources:mamResources
+                                                                                                   error:&localError];
         
         if (!operationRequest)
         {

@@ -138,11 +138,8 @@
     if (![self checkParameter:self.requestParameters.correlationId parameterName:@"correlationId" error:error]) return nil;
     if (![self checkParameter:self.brokerKey parameterName:@"brokerKey" error:error]) return nil;
 
-    NSString *enrollmentIds = [self intuneEnrollmentIdsParameterWithError:error];
-    if (!enrollmentIds) return nil;
-
-    NSString *mamResources = [self intuneMAMResourceParameterWithError:error];
-    if (!mamResources) return nil;
+    NSString *enrollmentIds = [self intuneEnrollmentIdsParameter];
+    NSString *mamResources = [self intuneMAMResourceParameter];
 
     NSString *capabilities = [self.requestParameters.clientCapabilities componentsJoinedByString:@","];
     NSDictionary *clientMetadata = self.requestParameters.appRequestMetadata;
@@ -228,40 +225,34 @@
     return [claimsString msidWWWFormURLEncode];
 }
 
-- (NSString *)intuneEnrollmentIdsParameterWithError:(NSError **)error
+- (NSString *)intuneEnrollmentIdsParameter
 {
     NSError *cacheError = nil;
-
     NSDictionary *enrollmentIds = [[MSIDIntuneEnrollmentIdsCache sharedCache] enrollmentIdsJsonDictionaryWithContext:self.requestParameters
                                                                                                                error:&cacheError];
 
     if (cacheError)
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve valid intune enrollment IDs with error %@", MSID_PII_LOG_MASKABLE(cacheError));
-        if (error) *error = cacheError;
         return nil;
     }
 
-    NSString *serializedEnrollmentIds = [enrollmentIds msidJSONSerializeWithContext:self.requestParameters];
-    return serializedEnrollmentIds ?: @"";
+    return [enrollmentIds msidJSONSerializeWithContext:self.requestParameters];
 }
 
-- (NSString *)intuneMAMResourceParameterWithError:(NSError **)error
+- (NSString *)intuneMAMResourceParameter
 {
     NSError *cacheError = nil;
-
     NSDictionary *mamResources = [[MSIDIntuneMAMResourcesCache sharedCache] resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                                          error:&cacheError];
 
     if (cacheError)
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve valid intune MAM resource with error %@", MSID_PII_LOG_MASKABLE(cacheError));
-        if (error) *error = cacheError;
         return nil;
     }
 
-    NSString *serializedResources = [mamResources msidJSONSerializeWithContext:self.requestParameters];
-    return serializedResources ?: @"";
+    return [mamResources msidJSONSerializeWithContext:self.requestParameters];
 }
 
 - (NSString *)brokerNonce
