@@ -25,6 +25,7 @@
 #import "MSIDSSOExtensionRequestDelegate.h"
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDJsonSerializer.h"
+#import "MSIDError.h"
 
 @implementation MSIDSSOExtensionRequestDelegate
 
@@ -42,17 +43,27 @@
 
 #pragma mark - ASAuthorizationControllerDelegate
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(__unused ASAuthorization *)authorization
 {
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
 }
 
-- (void)authorizationController:(ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
 {
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"Received error from SSO extension: %@", MSID_PII_LOG_MASKABLE(error));
+    
     assert(self.completionBlock);
     if (!self.completionBlock) return;
     
-    self.completionBlock(nil, error);
+    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == MSIDSSOExtensionUnderlyingError && underlyingError)
+    {
+        self.completionBlock(nil, underlyingError);
+    }
+    else
+    {
+        self.completionBlock(nil, error);
+    }
 }
 
 #pragma mark - Protected
@@ -66,7 +77,7 @@
         
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.context, @"%@", message);
         
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, message, nil, nil, nil, self.context.correlationId, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, message, nil, nil, nil, self.context.correlationId, nil, YES);
         
         return nil;
     }
@@ -75,7 +86,7 @@
 }
 
 - (NSDictionary *)jsonPayloadFromSSOCredential:(ASAuthorizationSingleSignOnCredential *)ssoCredential
-                                         error:(NSError **)error
+                                         error:(__unused NSError **)error
 {
     return ssoCredential.authenticatedResponse.allHeaderFields;
 }

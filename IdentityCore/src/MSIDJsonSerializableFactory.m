@@ -25,6 +25,7 @@
 #import "MSIDJsonSerializable.h"
 
 static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container = nil;
+static NSMutableDictionary<NSString *, NSString *> *s_keysMap = nil;
 
 @implementation MSIDJsonSerializableFactory
 
@@ -45,11 +46,35 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
     }
 }
 
++ (void)mapJSONKey:(NSString *)key
+          keyValue:(NSString *)keyValue
+       kindOfClass:(Class)aClass
+       toClassType:(NSString *)classType
+{
+    if (!key || !keyValue || !aClass || !classType) return;
+    if (![key isKindOfClass:NSString.class]) return;
+    if (![keyValue isKindOfClass:NSString.class]) return;
+    if (![aClass conformsToProtocol:@protocol(MSIDJsonSerializable)]) return;
+    if (![classType isKindOfClass:NSString.class]) return;
+    
+    @synchronized(self)
+    {
+        static dispatch_once_t once;
+        dispatch_once(&once, ^{
+            s_keysMap = [NSMutableDictionary new];
+        });
+        
+        NSString *compositeKey = [self mappingKeyForClass:aClass key:key keyValue:keyValue];
+        s_keysMap[compositeKey] = classType;
+    }
+}
+
 + (void)unregisterAll
 {
     @synchronized(self)
     {
         [s_container removeAllObjects];
+        [s_keysMap removeAllObjects];
     }
 }
 
@@ -61,7 +86,23 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
     if (![json msidAssertType:NSString.class ofKey:classTypeJSONKey required:YES error:error]) return nil;
     NSString *classTypeValue = json[classTypeJSONKey];
     
-    return [self createFromJSONDictionary:json containerKey:classTypeValue assertKindOfClass:aClass error:error];
+    NSError *localError;
+    id<MSIDJsonSerializable> instance = [self createFromJSONDictionary:json containerKey:classTypeValue assertKindOfClass:aClass error:&localError];
+    
+    if (instance) return instance;
+    
+    // There is no class registered under `classTypeValue`. Let's see if we have a mapping for classTypeJSONKey.
+    NSString *mappedClassTypeValue = [self classTypeForJSONKey:classTypeJSONKey keyValue:classTypeValue kindOfClass:aClass];
+    
+     // If there is no mapping, return original error.
+    if (!mappedClassTypeValue)
+    {
+        if (error) *error = localError;
+        return nil;
+    }
+    
+    // At this point we have mapped class type. Let's use it to create instance of class.
+    return [self createFromJSONDictionary:json containerKey:mappedClassTypeValue assertKindOfClass:aClass error:error];
 }
 
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
@@ -74,6 +115,17 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
 
 #pragma mark - Private
 
++ (NSString *)classTypeForJSONKey:(NSString *)key keyValue:(NSString *)keyValue kindOfClass:(Class)aClass
+{
+    NSString *compositeKey = [self mappingKeyForClass:aClass key:key keyValue:keyValue];
+    return s_keysMap[compositeKey];
+}
+
++ (NSString *)mappingKeyForClass:(Class)aClass key:(NSString *)key keyValue:(NSString *)keyValue
+{
+    return [NSString stringWithFormat:@"%@|%@|%@", NSStringFromClass(aClass), key, keyValue];
+}
+
 + (id<MSIDJsonSerializable>)createFromJSONDictionary:(NSDictionary *)json
                                         containerKey:(NSString *)containerKey
                                    assertKindOfClass:(Class)aClass
@@ -83,16 +135,15 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
     
     if (!class)
     {
-        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, class: %@ wasn't registered in factory under %@ key.", aClass, containerKey];
         if (error)
         {
+            NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, class: %@ wasn't registered in factory under %@ key.", aClass, containerKey];
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      errorMessage,
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
         return nil;
     }
     
@@ -100,16 +151,15 @@ static NSMutableDictionary<NSString *, Class<MSIDJsonSerializable>> *s_container
     
     if (![classInstance isKindOfClass:aClass])
     {
-        NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, created class instance is not of expected kind: %@.", aClass];
         if (error)
         {
+            NSString *errorMessage = [NSString stringWithFormat:@"Failed to create object from json, created class instance is not of expected kind: %@.", aClass];
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      errorMessage,
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, YES);
         }
         
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", errorMessage);
         return nil;
     }
     

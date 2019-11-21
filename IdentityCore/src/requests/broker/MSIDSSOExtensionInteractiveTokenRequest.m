@@ -33,6 +33,10 @@
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDBrokerOperationTokenResponse.h"
+#import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDIntuneMAMResourcesCache.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -40,6 +44,9 @@
 @property (nonatomic, copy) MSIDInteractiveRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionTokenRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
+@property (nonatomic, readonly) MSIDProviderType providerType;
+@property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
+@property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
 
 @end
 
@@ -62,12 +69,15 @@
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDTokenResponse *response, NSError *error)
-        {
-            [weakSelf handleTokenResponse:response error:error completionBlock:weakSelf.requestCompletionBlock];
+        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
+        {            
+            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        _providerType = [oauthFactory.class providerType];
+        _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
+        _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
     }
 
     return self;
@@ -99,9 +109,17 @@
              return;
          }
         
+        NSDictionary *enrollmentIds = [self.enrollmentIdsCache enrollmentIdsJsonDictionaryWithContext:self.requestParameters
+                                                                                                error:nil];
+        NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
+                                                                                          error:nil];
+        
         NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
-                                                                                                         error:&localError];
+                                                                                                 providerType:self.providerType
+                                                                                                enrollmentIds:enrollmentIds
+                                                                                                 mamResources:mamResources
+                                                                                                        error:&localError];
         
         if (!operationRequest)
         {
@@ -125,7 +143,7 @@
 
 #pragma mark - ASAuthorizationControllerPresentationContextProviding
 
-- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(ASAuthorizationController *)controller
+- (ASPresentationAnchor)presentationAnchorForAuthorizationController:(__unused ASAuthorizationController *)controller
 {
     return [self presentationAnchor];
 }

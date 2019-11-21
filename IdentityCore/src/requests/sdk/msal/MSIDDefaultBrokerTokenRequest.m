@@ -34,19 +34,28 @@
 {
     NSString *homeAccountId = self.requestParameters.accountIdentifier.homeAccountId;
     NSString *username = self.requestParameters.accountIdentifier.displayableId;
-    NSString *extraQueryParameters = [self.requestParameters.extraAuthorizeURLQueryParameters count] ? [self.requestParameters.extraAuthorizeURLQueryParameters msidWWWFormURLEncode] : @"";
+    
+    NSMutableDictionary *extraQueryParameters = [NSMutableDictionary new];
+    [extraQueryParameters addEntriesFromDictionary:self.requestParameters.extraAuthorizeURLQueryParameters];
+    
+    if (self.requestParameters.instanceAware)
+    {
+        extraQueryParameters[MSID_BROKER_INSTANCE_AWARE_KEY] = @"true";
+    }
+
+    NSString *extraQueryParametersString = [extraQueryParameters count] ? [extraQueryParameters msidWWWFormURLEncode] : @"";
     
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *contents = [NSMutableDictionary new];
     [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"scope"];
-    [contents msidSetNonEmptyString:self.requestParameters.oidcScope forKey:@"extra_oidc_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.oidcScope forKey:MSID_BROKER_EXTRA_OIDC_SCOPES_KEY];
     [contents msidSetNonEmptyString:homeAccountId forKey:@"home_account_id"];
     [contents msidSetNonEmptyString:username forKey:@"username"];
-    [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:@"login_hint"];
-    [contents msidSetNonEmptyString:extraQueryParameters forKey:@"extra_query_param"];
-    [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:MSID_BROKER_LOGIN_HINT_KEY];
+    [contents msidSetNonEmptyString:extraQueryParametersString forKey:MSID_BROKER_EXTRA_QUERY_PARAM_KEY];
+    [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY];
     NSString *promptParam = MSIDPromptParamFromType(self.requestParameters.promptType);
-    [contents msidSetNonEmptyString:promptParam forKey:@"prompt"];
+    [contents msidSetNonEmptyString:promptParam forKey:MSID_BROKER_PROMPT_KEY];
     [contents setValue:@(MSID_BROKER_PROTOCOL_VERSION_3) forKey:MSID_BROKER_PROTOCOL_VERSION_KEY];
     
     return contents;

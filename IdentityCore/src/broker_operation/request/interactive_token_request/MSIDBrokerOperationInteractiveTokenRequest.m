@@ -41,15 +41,20 @@
 }
 
 + (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+                              providerType:(MSIDProviderType)providerType
+                             enrollmentIds:(NSDictionary *)enrollmentIds
+                              mamResources:(NSDictionary *)mamResources
                                      error:(NSError **)error
 {
     __auto_type request = [MSIDBrokerOperationInteractiveTokenRequest new];
-    BOOL result = [self fillRequest:request withParameters:parameters error:error];
+    BOOL result = [self fillRequest:request withParameters:parameters providerType:providerType enrollmentIds:enrollmentIds mamResources:mamResources error:error];
     if (!result) return nil;
     
     request.accountIdentifier = parameters.accountIdentifier;
     request.loginHint = parameters.loginHint;
     request.promptType = parameters.promptType;
+    request.extraQueryParameters = parameters.extraAuthorizeURLQueryParameters;
+    request.extraScopesToConsent = parameters.extraScopesToConsent;
     
     return request;
 }
@@ -76,6 +81,7 @@
         
         NSString *promptString = [json msidStringObjectForKey:MSID_BROKER_PROMPT_KEY];
         _promptType = MSIDPromptTypeFromString(promptString);
+        _extraScopesToConsent = [json msidStringObjectForKey:MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY];
     }
     
     return self;
@@ -93,6 +99,7 @@
     
     NSString *promptString = MSIDPromptParamFromType(self.promptType);
     json[MSID_BROKER_PROMPT_KEY] = promptString;
+    json[MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY] = self.extraScopesToConsent;
     
     return json;
 }

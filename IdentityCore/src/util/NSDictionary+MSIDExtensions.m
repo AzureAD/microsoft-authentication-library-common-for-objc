@@ -143,7 +143,7 @@
     
     if (message)
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, errorCode, message, nil, nil, nil, context.correlationId, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, errorCode, message, nil, nil, nil, context.correlationId, nil, YES);
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@", message);
         
@@ -237,6 +237,16 @@
     }
     
     return 0;
+}
+
+- (BOOL)msidBoolObjectForKey:(NSString *)key
+{
+    if ([self msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:key required:NO error:nil])
+    {
+        return [self[key] boolValue];
+    }
+    
+    return NO;
 }
 
 - (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass

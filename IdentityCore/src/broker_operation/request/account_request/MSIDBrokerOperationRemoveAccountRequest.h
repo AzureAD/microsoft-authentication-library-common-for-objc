@@ -24,30 +24,19 @@
 // THE SOFTWARE.
 //
 //------------------------------------------------------------------------------
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
-#import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import "MSIDSystemWebviewController.h"
-#import "MSIDURLResponseHandling.h"
+#import "MSIDBrokerOperationRequest.h"
 
-@interface MSIDAuthenticationSession : NSObject<MSIDWebviewInteracting, MSIDURLResponseHandling>
+@class MSIDAccountIdentifier;
 
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-                    context:(id<MSIDRequestContext>)context;
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithURL:(NSURL *)url
-          callbackURLScheme:(NSString *)callbackURLScheme
-           parentController:(UIViewController *)parentController
- ephemeralWebBrowserSession:(BOOL)prefersEphemeralWebBrowserSession
-                    context:(id<MSIDRequestContext>)context API_AVAILABLE(ios(13.0));
+@interface MSIDBrokerOperationRemoveAccountRequest : MSIDBrokerOperationRequest
 
-@property (readonly) NSURL *startURL;
-@property (readonly) NSURL *redirectURL;
-
-@property (weak, nonatomic, readonly) UIViewController *parentController API_AVAILABLE(ios(13.0));
-@property (nonatomic) BOOL prefersEphemeralWebBrowserSession API_AVAILABLE(ios(13.0));
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *clientId;
 
 @end
-#endif
+
+NS_ASSUME_NONNULL_END
+

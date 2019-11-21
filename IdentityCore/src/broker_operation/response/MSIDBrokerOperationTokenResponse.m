@@ -27,18 +27,32 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDAccessToken.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "MSIDAADV2TokenResponse.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDBrokerOperationTokenResponse
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+}
+
++ (NSString *)responseType
+{
+    return MSID_JSON_TYPE_BROKER_OPERATION_TOKEN_RESPONSE;
+}
 
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
     
     if (self)
     {
-        // TODO: implement.
+        _tokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:error];
+        if (!_tokenResponse) return nil;
     }
     
     return self;
@@ -46,9 +60,13 @@
 
 - (NSDictionary *)jsonDictionary
 {
-    // TODO: implement.
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
     
-    return nil;
+    NSDictionary *responseJson = [_tokenResponse jsonDictionary];
+    if (responseJson) [json addEntriesFromDictionary:responseJson];
+    
+    return json;
 }
 
 @end

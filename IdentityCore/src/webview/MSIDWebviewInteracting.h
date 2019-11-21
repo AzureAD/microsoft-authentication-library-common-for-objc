@@ -35,6 +35,7 @@ typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
 - (void)cancel;
+- (void)dismiss;
 
 - (NSURL *)startURL;
 

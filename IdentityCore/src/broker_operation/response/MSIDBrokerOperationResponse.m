@@ -23,12 +23,21 @@
 
 #import "MSIDBrokerOperationResponse.h"
 #import "MSIDDeviceInfo.h"
+#import "NSBundle+MSIDExtensions.h"
 
 NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
 NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
+NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
+NSString *const MSID_BROKER_DEVICE_INFO_JSON_KEY = @"device_info";
 
 @implementation MSIDBrokerOperationResponse
+
++ (NSString *)responseType
+{
+    NSAssert(NO, @"Abstract method.");
+    return @"";
+}
 
 #pragma mark - MSIDJsonSerializable
 
@@ -40,9 +49,10 @@ NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_respo
     {
         if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
         _operation = json[MSID_BROKER_OPERATION_JSON_KEY];
-
-        _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
         
+        if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_OPERATION_RESULT_JSON_KEY required:YES error:error]) return nil;
+        _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
+        _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_APP_VERSION_JSON_KEY];
         _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json error:error];
     }
     
@@ -54,8 +64,9 @@ NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_respo
     NSMutableDictionary *json = [NSMutableDictionary new];
     json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
     json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
-    
-    json[@"device_info"] = self.deviceInfo.jsonDictionary;
+    json[MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY] = self.class.responseType;
+    json[MSID_BROKER_APP_VERSION_JSON_KEY] = self.clientAppVersion;
+    json[MSID_BROKER_DEVICE_INFO_JSON_KEY] = self.deviceInfo.jsonDictionary;
     
     return json;
 }

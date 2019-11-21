@@ -58,7 +58,7 @@
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
                                                             tokenType:MSIDIDTokenType
                                                           returnFirst:YES
-                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(__unused MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return YES;
                                                              }];
     
@@ -87,7 +87,7 @@
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
                                                             tokenType:MSIDIDTokenType
                                                           returnFirst:NO
-                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(__unused MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return YES;
                                                              }];
     
@@ -110,7 +110,7 @@
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
                                                             tokenType:MSIDCredentialTypeOther
                                                           returnFirst:YES
-                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(__unused MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return NO;
                                                              }];
     
@@ -124,7 +124,7 @@
     NSArray *result = [MSIDTokenFilteringHelper filterTokenCacheItems:input
                                                             tokenType:MSIDCredentialTypeOther
                                                           returnFirst:NO
-                                                             filterBy:^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
+                                                             filterBy:^BOOL(__unused MSIDCredentialCacheItem *tokenCacheItem) {
                                                                  return NO;
                                                              }];
     

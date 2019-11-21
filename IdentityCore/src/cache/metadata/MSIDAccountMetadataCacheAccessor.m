@@ -58,7 +58,7 @@
         || [NSString msidIsStringNilOrBlank:homeAccountId]
         || [NSString msidIsStringNilOrBlank:clientId])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"One or more of input field is nil - request requestAuthorityURL, homeAccountId, or clientID", nil, nil, nil, nil, nil);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"One or more of input field is nil - request requestAuthorityURL, homeAccountId, or clientID", nil, nil, nil, nil, nil, YES);
         return nil;
     }
     
@@ -98,13 +98,70 @@
                                        context:context error:error];
 }
 
-- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
-                     clientId:(NSString *)clientId
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error
+- (MSIDAccountMetadataState)signInStateForHomeAccountId:(NSString *)homeAccountId
+                                               clientId:(NSString *)clientId
+                                                context:(id<MSIDRequestContext>)context
+                                                  error:(NSError **)error
 {
+    if ([NSString msidIsStringNilOrBlank:homeAccountId]
+        || [NSString msidIsStringNilOrBlank:clientId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to query signed out state!", nil, nil, nil, nil, nil, YES);
+        return MSIDAccountMetadataStateUnknown;
+    }
+    
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    return [_metadataCache removeAccountMetadataForKey:key context:context error:error];
+    MSIDAccountMetadataCacheItem *acountMetadata = [_metadataCache accountMetadataWithKey:key context:context error:error];
+    if (!acountMetadata) { return MSIDAccountMetadataStateUnknown; }
+    
+    return acountMetadata.signInState;
+}
+
+- (BOOL)updateSignInStateForHomeAccountId:(NSString *)homeAccountId
+                                 clientId:(NSString *)clientId
+                                    state:(MSIDAccountMetadataState)state
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    if ([NSString msidIsStringNilOrBlank:homeAccountId]
+        || [NSString msidIsStringNilOrBlank:clientId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to mark signed out state!", nil, nil, nil, nil, nil, YES);
+        return NO;
+    }
+    
+    MSIDAccountMetadataCacheItem *accountMetadataItem;
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
+    
+    // Need to read existing account metetada if not setting as signed out
+    if (state != MSIDAccountMetadataStateSignedOut)
+    {
+        NSError *localError;
+        accountMetadataItem = [_metadataCache accountMetadataWithKey:key context:context error:&localError];
+        if (localError)
+        {
+            if (error) *error = localError;
+            return NO;
+        }
+    }
+    
+    if (!accountMetadataItem)
+    {
+        accountMetadataItem = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+    }
+    [accountMetadataItem updateSignInState:state];
+    
+    return [_metadataCache saveAccountMetadata:accountMetadataItem
+                                           key:key
+                                       context:context error:error];
+}
+
+- (BOOL)loadAccountMetadataForClientId:(NSString *)clientId
+                               context:(id<MSIDRequestContext>)context
+                                 error:(NSError **)error
+{
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:nil clientId:clientId];
+    return [_metadataCache loadAccountMetadataForKey:key context:context error:error];
 }
 
 @end

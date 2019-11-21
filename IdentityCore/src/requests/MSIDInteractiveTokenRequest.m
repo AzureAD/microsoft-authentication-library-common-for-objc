@@ -39,6 +39,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDSystemWebViewControllerFactory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -166,14 +167,14 @@
             }
             else
             {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil);
+                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
                 completionBlock(nil, error, nil);
                 return;
             }
 #else
             [[NSWorkspace sharedWorkspace] openURL:browserURL];
 #endif
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil);
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
             completionBlock(nil, error, nil);
             return;
         }
@@ -185,27 +186,27 @@
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
 {
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-
-    BOOL useSession = YES;
-    BOOL allowSafariViewController = YES;
+    MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:self.requestParameters.webviewType];
     
-    switch (self.requestParameters.webviewType) {
+    BOOL useSession = YES;
+    BOOL allowSafariViewController = NO;
+    
+    switch (webviewType)
+    {
         case MSIDWebviewTypeWKWebView:
-        {
             [self showEmbeddedWebviewWithCompletion:completionHandler];
             return;
-        }
         case MSIDWebviewTypeAuthenticationSession:
             useSession = YES;
             allowSafariViewController = NO;
             break;
-
+#if TARGET_OS_IPHONE
         case MSIDWebviewTypeSafariViewController:
             useSession = NO;
             allowSafariViewController = YES;
             break;
-
+#endif
+            
         default:
             break;
     }
@@ -216,9 +217,6 @@
                                             allowSafariViewController:allowSafariViewController
                                                               context:self.requestParameters
                                                     completionHandler:completionHandler];
-#else
-    [self showEmbeddedWebviewWithCompletion:completionHandler];
-#endif
 }
 
 - (void)showEmbeddedWebviewWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
@@ -281,7 +279,7 @@
                                               nil,
                                               nil,
                                               nil,
-                                              updatedUserInfo);
+                                              updatedUserInfo, NO);
         }
         
         completionBlock(nil, validationError, nil);

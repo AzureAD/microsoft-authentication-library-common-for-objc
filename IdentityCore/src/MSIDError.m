@@ -41,14 +41,20 @@ NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
 NSString *MSIDKeychainErrorDomain = @"MSIDKeychainErrorDomain";
 NSString *MSIDHttpErrorCodeDomain = @"MSIDHttpErrorCodeDomain";
 NSString *MSIDInvalidTokenResultKey = @"MSIDInvalidTokenResultKey";
+NSInteger const MSIDSSOExtensionUnderlyingError = -6000;
 
-NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
+NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo, BOOL logErrorDescription)
 {
     id<MSIDErrorConverting> errorConverter = MSIDErrorConverter.errorConverter;
 
     if (!errorConverter)
     {
         errorConverter = MSIDErrorConverter.defaultErrorConverter;
+    }
+    
+    if (logErrorDescription)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"Creating Error with description: %@", errorDescription);
     }
 
     return [errorConverter errorWithDomain:domain
@@ -162,7 +168,7 @@ void MSIDFillAndLogError(NSError **error, MSIDErrorCode errorCode, NSString *err
 {
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, errorCode, errorDescription, nil, nil, nil, correlationID, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, errorCode, errorDescription, nil, nil, nil, correlationID, nil, NO);
     }
 
     MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationID, @"Encountered error with code %ld, description %@", (long)errorCode, MSID_PII_LOG_MASKABLE(errorDescription));

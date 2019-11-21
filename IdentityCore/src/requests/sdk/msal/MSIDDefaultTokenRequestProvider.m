@@ -95,7 +95,7 @@
                                                                       error:error];
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
 {
 #if TARGET_OS_IOS
     if (@available(iOS 13.0, *))
@@ -112,8 +112,8 @@
     return nil;
 }
 
-- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(MSIDRequestParameters *)parameters
-                                                               forceRefresh:(BOOL)forceRefresh
+- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
+                                                            forceRefresh:(__unused BOOL)forceRefresh
 {
 #if TARGET_OS_IOS
     if (@available(iOS 13.0, *))
@@ -124,7 +124,6 @@
                                                                              tokenResponseValidator:self.tokenResponseValidator
                                                                                          tokenCache:self.tokenCache
                                                                                accountMetadataCache:self.accountMetadataCache];
-        
         return request;
     }
 #endif

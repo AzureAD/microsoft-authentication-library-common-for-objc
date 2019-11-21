@@ -139,18 +139,23 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
     
     // End web auth with error
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil, NO);
     
     [_telemetryEvent setIsCancelled:YES];
     [self endWebAuthWithURL:nil error:error];
 }
 
+- (void)dismiss
+{
+    [self cancel];
+}
+
 - (void)userCancel
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller by the user.");
     
     // End web auth with error
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil);
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil, NO);
     
     [_telemetryEvent setIsCancelled:YES];
     [self endWebAuthWithURL:nil error:error];
@@ -202,15 +207,18 @@
     
     [MSIDChallengeHandler resetHandlers];
     
-    if ( _completionHandler )
+    if (_completionHandler)
     {
         MSIDWebUICompletionHandler completionHandler = _completionHandler;
         _completionHandler = nil;
+        [_completionLock unlock];
         
         completionHandler(url, error);
     }
-    
-    [_completionLock unlock];
+    else
+    {
+        [_completionLock unlock];
+    }
 }
 
 - (void)startRequest:(NSURLRequest *)request
@@ -364,7 +372,7 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Server is redirecting to a non-https url");
         
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerNonHttpsRedirect, @"The server has redirected to a non-https url.", nil, nil, nil, self.context.correlationId, nil, NO);
         [self endWebAuthWithURL:nil error:error];
         
         decisionHandler(WKNavigationActionPolicyCancel);

@@ -42,7 +42,7 @@
     return json;
 }
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError *__autoreleasing *)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError *__autoreleasing *)error
 {
     self = [super init];
 

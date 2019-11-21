@@ -24,6 +24,7 @@
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDConstants.h"
+#import "MSIDProviderType.h"
 
 @class WKWebView;
 @class MSIDAccountIdentifier;
@@ -37,8 +38,12 @@ API_AVAILABLE(ios(13.0))
 @property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic, nullable) NSString *loginHint;
 @property (nonatomic) MSIDPromptType promptType;
+@property (nonatomic) NSString *extraScopesToConsent;
 
 + (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+                              providerType:(MSIDProviderType)providerType
+                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
+                              mamResources:(nullable NSDictionary *)mamResources
                                      error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end

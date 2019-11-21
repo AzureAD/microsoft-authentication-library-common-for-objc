@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationTokenResponse : MSIDBrokerOperationResponse
 
-@property (nonatomic) MSIDTokenResponse *tokenResponse;
+@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
 
 @end
 

@@ -254,7 +254,7 @@
     [MSIDTestURLSession addResponses:@[response]];
     [self keyValueObservingExpectationForObject:testErrorHandler keyPath:@"handleErrorInvokedCounts" expectedValue:@1];
     
-    [self.request sendWithBlock:^(id response, NSError *error) {}];
+    [self.request sendWithBlock:^(__unused id response, __unused NSError *error) {}];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     XCTAssertEqualObjects(testErrorHandler.passedError, response->_error);
@@ -286,7 +286,7 @@
     [MSIDTestURLSession addResponses:@[response]];
     [self keyValueObservingExpectationForObject:testErrorHandler keyPath:@"handleErrorInvokedCounts" expectedValue:@1];
     
-    [self.request sendWithBlock:^(id response, NSError *error) {}];
+    [self.request sendWithBlock:^(__unused id response, __unused NSError *error) {}];
     
     [self waitForExpectationsWithTimeout:1 handler:nil];
     XCTAssertEqualObjects(testErrorHandler.passedError, response->_error);

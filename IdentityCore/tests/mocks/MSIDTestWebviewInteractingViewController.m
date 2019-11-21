@@ -34,7 +34,7 @@
 {
     if (self.successAfterInterval == 0)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, nil, nil);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Interactive web session failed to start.", nil, nil, nil, nil, nil, YES);
         completionHandler(nil, error);
     }
     else
@@ -51,6 +51,11 @@
     
 }
 
+- (void)dismiss
+{
+    
+}
+
 
 - (BOOL)isKindOfClass:(Class)aClass
 {
@@ -59,11 +64,13 @@
     {
         return (aClass == MSIDSystemWebviewController.class);
     }
+#else
+#pragma unused(aClass)
 #endif
     return NO;
 }
 
-- (BOOL)handleURLResponse:(NSURL *)url
+- (BOOL)handleURLResponse:(__unused NSURL *)url
 {
     return self.actAsSafariViewController || self.actAsAuthenticationSession;
 }

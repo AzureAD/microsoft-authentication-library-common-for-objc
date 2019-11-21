@@ -40,22 +40,22 @@
 
 #pragma mark - MSIDMacTokenCacheDelegate
 
-- (void)willAccessCache:(nonnull MSIDMacTokenCache *)cache
+- (void)willAccessCache:(nonnull __unused MSIDMacTokenCache *)cache
 {
     self.willAccessCount++;
 }
 
-- (void)didAccessCache:(nonnull MSIDMacTokenCache *)cache
+- (void)didAccessCache:(nonnull __unused MSIDMacTokenCache *)cache
 {
     self.didAccessCount++;
 }
 
-- (void)willWriteCache:(nonnull MSIDMacTokenCache *)cache
+- (void)willWriteCache:(nonnull __unused MSIDMacTokenCache *)cache
 {
     self.willWriteCount++;
 }
 
-- (void)didWriteCache:(nonnull MSIDMacTokenCache *)cache
+- (void)didWriteCache:(nonnull __unused MSIDMacTokenCache *)cache
 {
     self.didWriteCount++;
 }
