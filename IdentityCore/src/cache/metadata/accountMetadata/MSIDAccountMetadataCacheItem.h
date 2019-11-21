@@ -21,23 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountMetadataCacheKey.h"
-#import "MSIDCacheKey.h"
+@class MSIDAccountMetadata;
 
-static NSString *MSID_APP_METADATA_ACCOUNT_KEY_VALUE = @"msid_account_metadata_account_key";
-static NSInteger kAuthorityMapMetadataType = 5001;
+#import "MSIDJsonSerializable.h"
+#import "MSIDKeyGenerator.h"
 
-@implementation MSIDAccountMetadataCacheKey
+@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
-- (instancetype)initWithClientId:(NSString *)clientId
-{
-    self = [super initWithAccount:MSID_APP_METADATA_ACCOUNT_KEY_VALUE
-                          service:clientId ? [NSString stringWithFormat:@"%@-%@", MSID_APP_METADATA_AUTHORITY_MAP_TYPE, clientId] : nil
-                          generic:nil
-                             type:@(kAuthorityMapMetadataType)];
-    return self;
-}
+@property (nonatomic, readonly) NSString *clientId;
+@property (nonatomic) NSDictionary <NSString *, MSIDAccountMetadata *> *accountMetadataMap;
 
+- (instancetype)initWithClientId:(NSString *)clientId;
 
+- (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
+
+- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
+          forHomeAccountId:(NSString *)homeAccountId;
 
 @end

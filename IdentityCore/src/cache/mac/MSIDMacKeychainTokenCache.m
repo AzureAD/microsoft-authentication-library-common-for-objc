@@ -41,7 +41,7 @@
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDMacCredentialStorageItem.h"
-#import "MSIDAccountMetadata.h"
+#import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDConstants.h"
@@ -958,7 +958,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 #pragma mark - Account metadata
 
 // TODO: To improve the saving logic here (to not pollute keychain)
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
                         key:(MSIDAccountMetadataCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
@@ -969,21 +969,22 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     return [self saveStorageItem:storageItem isShared:key.isShared serializer:serializer context:context error:error];
 }
 
-- (MSIDAccountMetadata *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDAccountMetadataCacheKey *)key
                                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error
 {
-    NSError *localError;
-    NSArray *itemList = [self accountsMetadataWithKey:key serializer:serializer context:context error:&localError];
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+    NSArray *itemList = [storageItem storedItemsForKey:key];
     
-    if (localError)
+    /*
+     Merge in memory with persistence only if not found in memory to cover the case when 2 apps sharing the same clientId can modify the same entry in the keychain.
+     */
+    if (![itemList count])
     {
-        if (error) *error = localError;
-        return nil;
+        storageItem = [self syncStorageItem:key.isShared serializer:serializer context:context error:error];
+        itemList = [storageItem storedItemsForKey:key];
     }
-    
-    if (!itemList) return nil;
     
     if (itemList.count > 1)
     {

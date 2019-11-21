@@ -21,28 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class MSIDAccountMetadata;
+@class MSIDAccountMetadataCacheItem;
 @class MSIDCacheKey;
 @class MSIDAppMetadataCacheItem;
 @protocol MSIDExtendedCacheItemSerializing;
 
 @protocol MSIDMetadataCacheDataSource <NSObject>
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
                         key:(MSIDCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error;
 
-- (MSIDAccountMetadata *)accountMetadataWithKey:(MSIDCacheKey *)key
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error;
 
-- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
-                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
-                                                             context:(id<MSIDRequestContext>)context
-                                                               error:(NSError **)error;
+//- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+//                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+//                                                             context:(id<MSIDRequestContext>)context
+//                                                               error:(NSError **)error;
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
                             context:(id<MSIDRequestContext>)context

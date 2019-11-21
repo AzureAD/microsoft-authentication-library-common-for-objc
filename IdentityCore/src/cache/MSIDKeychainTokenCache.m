@@ -28,7 +28,7 @@
 #import "MSIDError.h"
 #import "MSIDRefreshToken.h"
 #import "MSIDJsonSerializing.h"
-#import "MSIDAccountMetadata.h"
+#import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDExtendedCacheItemSerializing.h"
 #import "MSIDAccountCacheItem.h"
@@ -405,7 +405,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     error:error];
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
                         key:(MSIDCacheKey *)key
                  serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                     context:(id<MSIDRequestContext>)context
@@ -431,12 +431,12 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                     error:error];
 }
 
-- (MSIDAccountMetadata *)accountMetadataWithKey:(MSIDCacheKey *)key
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
                                               serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    NSArray *metadataItems = [self accountsMetadataWithKey:key serializer:serializer context:context error:error];
+    NSArray *metadataItems = [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
     if (!metadataItems) return nil;
     
     if (metadataItems.count < 1)
@@ -448,13 +448,13 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     return metadataItems[0];
 }
 
-- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
-                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
-                                                             context:(id<MSIDRequestContext>)context
-                                                               error:(NSError **)error
-{
-    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadata.class context:context error:error];
-}
+//- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+//                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+//                                                             context:(id<MSIDRequestContext>)context
+//                                                               error:(NSError **)error
+//{
+//    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadata.class context:context error:error];
+//}
 
 #pragma mark - Removal
 

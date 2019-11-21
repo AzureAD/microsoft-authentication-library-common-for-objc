@@ -123,7 +123,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
     self->_homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
-    self->_internalMap = [[json msidObjectForKey:MSID_ACCOUNT_CACHE_KEY ofClass:NSDictionary.class] mutableDeepCopy];
+    self->_internalMap = [[json msidObjectForKey:MSID_AUTHORITY_MAP_CACHE_KEY ofClass:NSDictionary.class] mutableDeepCopy];
     self->_signInState = [[json msidStringObjectForKey:MSID_SIGN_IN_STATE_CACHE_KEY] intValue];
     
     return self;
@@ -135,7 +135,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.homeAccountId;
-    dictionary[MSID_ACCOUNT_CACHE_KEY] = _internalMap;
+    dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = _internalMap;
     dictionary[MSID_SIGN_IN_STATE_CACHE_KEY] = [NSString stringWithFormat: @"%ld", self.signInState];
     
     return dictionary;
@@ -184,12 +184,6 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     result &= (self.signInState == item.signInState);
     
     return result;
-}
-
-- (nullable MSIDCacheKey *)generateCacheKey
-{
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:self.homeAccountId clientId:self.clientId];
-    return key;
 }
 
 #pragma mark - NSObject

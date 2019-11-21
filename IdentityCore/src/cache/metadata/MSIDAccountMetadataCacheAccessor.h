@@ -60,9 +60,4 @@
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error;
 
-// Load account metadata to memory
-- (BOOL)loadAccountMetadataForClientId:(NSString *)clientId
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error;
-
 @end

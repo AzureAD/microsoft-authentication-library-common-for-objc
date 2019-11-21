@@ -27,6 +27,7 @@
 #import "MSIDMetadataCache.h"
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDAccountMetadata.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @implementation MSIDAccountMetadataCacheAccessor
 {
@@ -62,11 +63,13 @@
         return nil;
     }
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    MSIDAccountMetadata *authorityMap = [_metadataCache accountMetadataWithKey:key context:context error:error];
-    if (!authorityMap) { return nil; }
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
+    MSIDAccountMetadataCacheItem *cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:error];
+    MSIDAccountMetadata *accountMetadata =  [cacheItem accountMetadataForHomeAccountId:homeAccountId];
     
-    return [authorityMap cachedURL:requestAuthorityURL instanceAware:instanceAware];
+    if (!accountMetadata) return nil;
+    
+    return [accountMetadata cachedURL:requestAuthorityURL instanceAware:instanceAware];
 }
 
 - (BOOL)updateAuthorityURL:(NSURL *)cacheAuthorityURL
@@ -81,21 +84,39 @@
     if (!cacheAuthorityURL
         || [cacheAuthorityURL isEqual:requestAuthorityURL]) return YES;
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    MSIDAccountMetadata *accountMetadataItem = [_metadataCache accountMetadataWithKey:key context:context error:error];
-    if (!accountMetadataItem)
+    NSError *localError;
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
+    MSIDAccountMetadataCacheItem *cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:&localError];
+    if (localError)
     {
-        accountMetadataItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+        if (error) *error = localError;
+        return NO;
     }
     
-    if (![accountMetadataItem setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL instanceAware:instanceAware error:error])
+    if (!cacheItem)
+    {
+        cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:clientId];
+    }
+    
+    MSIDAccountMetadata *accountMetadata = [cacheItem accountMetadataForHomeAccountId:homeAccountId];
+    if (!accountMetadata)
+    {
+        accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+    }
+    
+    if (![accountMetadata setCachedURL:cacheAuthorityURL forRequestURL:requestAuthorityURL instanceAware:instanceAware error:error])
     {
         return NO;
     }
     
-    return [_metadataCache saveAccountMetadata:accountMetadataItem
-                                           key:key
-                                       context:context error:error];
+    if (![cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId])
+    {
+        return NO;
+    }
+    
+    return [_metadataCache saveAccountMetadataCacheItem:cacheItem
+                                                    key:key
+                                                context:context error:error];
 }
 
 - (MSIDAccountMetadataState)signInStateForHomeAccountId:(NSString *)homeAccountId
@@ -110,11 +131,13 @@
         return MSIDAccountMetadataStateUnknown;
     }
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
-    MSIDAccountMetadata *acountMetadata = [_metadataCache accountMetadataWithKey:key context:context error:error];
-    if (!acountMetadata) { return MSIDAccountMetadataStateUnknown; }
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
+    MSIDAccountMetadataCacheItem *cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:error];
     
-    return acountMetadata.signInState;
+    MSIDAccountMetadata *accountMetadata = [cacheItem accountMetadataForHomeAccountId:homeAccountId];
+    if (!accountMetadata) return MSIDAccountMetadataStateUnknown;
+    
+    return accountMetadata.signInState;
 }
 
 - (BOOL)updateSignInStateForHomeAccountId:(NSString *)homeAccountId
@@ -130,38 +153,40 @@
         return NO;
     }
     
-    MSIDAccountMetadata *accountMetadataItem;
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:homeAccountId clientId:clientId];
+    NSError *localError;
+    MSIDAccountMetadataCacheItem *cacheItem;
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
+    cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:&localError];
+    if (localError)
+    {
+        if (error) *error = localError;
+        return NO;
+    }
+    
+    if (!cacheItem)
+    {
+        cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:clientId];
+    }
     
     // Need to read existing account metetada if not setting as signed out
+    MSIDAccountMetadata *accountMetadata;
     if (state != MSIDAccountMetadataStateSignedOut)
     {
-        NSError *localError;
-        accountMetadataItem = [_metadataCache accountMetadataWithKey:key context:context error:&localError];
-        if (localError)
-        {
-            if (error) *error = localError;
-            return NO;
-        }
+        accountMetadata = [cacheItem accountMetadataForHomeAccountId:homeAccountId];
     }
     
-    if (!accountMetadataItem)
+    if (!accountMetadata)
     {
-        accountMetadataItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
+        accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
-    [accountMetadataItem updateSignInState:state];
     
-    return [_metadataCache saveAccountMetadata:accountMetadataItem
-                                           key:key
-                                       context:context error:error];
-}
-
-- (BOOL)loadAccountMetadataForClientId:(NSString *)clientId
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error
-{
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:nil clientId:clientId];
-    return [_metadataCache loadAccountMetadataForKey:key context:context error:error];
+    [accountMetadata updateSignInState:state];
+    
+    [cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId];
+    
+    return [_metadataCache saveAccountMetadataCacheItem:cacheItem
+                                                    key:key
+                                                context:context error:error];
 }
 
 @end

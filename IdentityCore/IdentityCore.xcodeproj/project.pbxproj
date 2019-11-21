@@ -401,6 +401,8 @@
 		6078EB51226DA97200235498 /* MSIDTestCacheUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 6078EB4D226DA73600235498 /* MSIDTestCacheUtil.m */; };
 		607A788D23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */; };
 		607A788E23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */; };
+		6080B97A2384BD17009B1322 /* MSIDAccountMetadataCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6080B9792384BD17009B1322 /* MSIDAccountMetadataCacheItem.m */; };
+		6080B97B2384BD17009B1322 /* MSIDAccountMetadataCacheItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 6080B9792384BD17009B1322 /* MSIDAccountMetadataCacheItem.m */; };
 		609E74BD228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 609E74BC228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m */; };
 		609E74BE228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 609E74BC228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m */; };
 		609E74C1228CC50E005E3FED /* MSIDMetadataCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 609E74C0228CC50E005E3FED /* MSIDMetadataCache.m */; };
@@ -1630,6 +1632,8 @@
 		6078EB4D226DA73600235498 /* MSIDTestCacheUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestCacheUtil.m; sourceTree = "<group>"; };
 		607A788B23294D2400A1F74D /* MSIDAccountMetadataCacheAccessorMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheAccessorMock.h; sourceTree = "<group>"; };
 		607A788C23294D6F00A1F74D /* MSIDAccountMetadataCacheAccessorMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheAccessorMock.m; sourceTree = "<group>"; };
+		6080B9782384BD01009B1322 /* MSIDAccountMetadataCacheItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheItem.h; sourceTree = "<group>"; };
+		6080B9792384BD17009B1322 /* MSIDAccountMetadataCacheItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheItem.m; sourceTree = "<group>"; };
 		608709D3234E86D3004CFB9C /* MSIDBrokerOperationRemoveAccountRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationRemoveAccountRequest.m; sourceTree = "<group>"; };
 		609E74BB228CA5A8005E3FED /* MSIDAccountMetadataCacheAccessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAccountMetadataCacheAccessor.h; sourceTree = "<group>"; };
 		609E74BC228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheAccessor.m; sourceTree = "<group>"; };
@@ -2818,6 +2822,8 @@
 				609E74C6228DCEA1005E3FED /* MSIDAccountMetadata.m */,
 				609E74C9228DE230005E3FED /* MSIDAccountMetadataCacheKey.h */,
 				609E74CA228DE23B005E3FED /* MSIDAccountMetadataCacheKey.m */,
+				6080B9782384BD01009B1322 /* MSIDAccountMetadataCacheItem.h */,
+				6080B9792384BD17009B1322 /* MSIDAccountMetadataCacheItem.m */,
 			);
 			path = accountMetadata;
 			sourceTree = "<group>";
@@ -5172,6 +5178,7 @@
 				B2AF1D30218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.m in Sources */,
 				B227035622A3633700030ADC /* MSIDMaskedLogParameter.m in Sources */,
 				04930F961FEDB2E100FC4DCD /* MSIDAuthority.m in Sources */,
+				6080B97B2384BD17009B1322 /* MSIDAccountMetadataCacheItem.m in Sources */,
 				238E19DC2086FE28004DF483 /* MSIDAuthorizationCodeGrantRequest.m in Sources */,
 				9686480620C7711400EF7E73 /* MSIDAADV1WebviewFactory.m in Sources */,
 				B28D90A7218FD1E800E230D6 /* MSIDLegacyTokenResponseValidator.m in Sources */,
@@ -5684,6 +5691,7 @@
 				23B5DF7F234031EE002C530F /* MSIDSSOExtensionSilentTokenRequestController.m in Sources */,
 				B20657CC1FC9271000412B7D /* MSIDTelemetryUIEvent.m in Sources */,
 				6057EE9020B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m in Sources */,
+				6080B97A2384BD17009B1322 /* MSIDAccountMetadataCacheItem.m in Sources */,
 				960196FC208E579600D962D3 /* MSIDSafariViewController.m in Sources */,
 				B297E1E720A12BDE00F370EC /* MSIDDefaultAccountCacheKey.m in Sources */,
 			);
