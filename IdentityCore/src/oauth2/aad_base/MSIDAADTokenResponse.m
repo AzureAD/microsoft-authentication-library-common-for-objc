@@ -95,7 +95,7 @@
     if (!self.error)
     {
         json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
-        json[@"ext_expires_on"] = [@(self.extendedExpiresIn) stringValue];
+        json[@"ext_expires_on"] = [@(self.extendedExpiresOn) stringValue];
     }
     
     return json;
