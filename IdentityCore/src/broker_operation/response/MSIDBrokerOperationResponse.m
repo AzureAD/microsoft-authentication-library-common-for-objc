@@ -29,7 +29,6 @@ NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
 NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
 NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
-NSString *const MSID_BROKER_DEVICE_INFO_JSON_KEY = @"device_info";
 
 @implementation MSIDBrokerOperationResponse
 
@@ -66,7 +65,9 @@ NSString *const MSID_BROKER_DEVICE_INFO_JSON_KEY = @"device_info";
     json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
     json[MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY] = self.class.responseType;
     json[MSID_BROKER_APP_VERSION_JSON_KEY] = self.clientAppVersion;
-    json[MSID_BROKER_DEVICE_INFO_JSON_KEY] = self.deviceInfo.jsonDictionary;
+    
+    NSDictionary *deviceInfoJson = [self.deviceInfo jsonDictionary];
+    if (deviceInfoJson) [json addEntriesFromDictionary:deviceInfoJson];
     
     return json;
 }

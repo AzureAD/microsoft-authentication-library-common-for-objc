@@ -24,6 +24,8 @@
 #import "MSIDDeviceInfo.h"
 #import "MSIDConstants.h"
 
+static NSArray *deviceModeEnumString;
+
 @implementation MSIDDeviceInfo
 
 #pragma mark - MSIDJsonSerializable
@@ -34,8 +36,8 @@
     
     if (self)
     {
-        _deviceMode = [[json msidStringObjectForKey:MSID_BROKER_DEVICE_MODE_KEY] intValue];
-        _wpjStatus = [[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY] intValue];
+        _deviceMode = [self deviceModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_DEVICE_MODE_KEY]];
+        _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
     }
     
@@ -46,11 +48,77 @@
 {
     NSMutableDictionary *json = [NSMutableDictionary new];
     
-    json[MSID_BROKER_DEVICE_MODE_KEY] = [NSString stringWithFormat: @"%ld", self.deviceMode];
-    json[MSID_BROKER_WPJ_STATUS_KEY] = [NSString stringWithFormat: @"%ld", self.wpjStatus];
+    json[MSID_BROKER_DEVICE_MODE_KEY] = [self deviceModeStringFromEnum:self.deviceMode];
+    json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     
     return json;
+}
+
+- (NSString *)deviceModeStringFromEnum:(MSIDDeviceMode)deviceMode
+{
+    if (deviceMode < 0 || deviceMode >= self.deviceModeEnumString.count) return nil;
+    
+    return [self.deviceModeEnumString objectAtIndex:deviceMode];
+}
+
+- (MSIDDeviceMode)deviceModeEnumFromString:(NSString *)deviceModeString
+{
+    // Default to personal mode if no device mode is available
+    if ([NSString msidIsStringNilOrBlank:deviceModeString]) return MSIDDeviceModePersonal;
+    
+    NSUInteger index = [self.deviceModeEnumString indexOfObject:deviceModeString];
+    
+    if (index < 0 || index >= self.deviceModeEnumString.count)
+    {
+        return (MSIDDeviceMode) 0;
+    }
+    return (MSIDDeviceMode) index;
+}
+
+- (NSArray *)deviceModeEnumString
+{
+    static NSArray *s_deviceModeEnumStrings = nil;
+    static dispatch_once_t deviceModeStringOnce;
+    
+    dispatch_once(&deviceModeStringOnce, ^{
+        s_deviceModeEnumStrings = [[NSArray alloc] initWithObjects:DeviceModeStringArray];
+    });
+    
+    return s_deviceModeEnumStrings;
+}
+
+- (NSString *)wpjStatusStringFromEnum:(MSIDWorkPlaceJoinStatus)wpjStatus
+{
+    if (wpjStatus < 0 || wpjStatus >= self.wpjStatusEnumString.count) return nil;
+    
+    return [self.wpjStatusEnumString objectAtIndex:wpjStatus];
+}
+
+- (MSIDWorkPlaceJoinStatus)wpjStatusEnumFromString:(NSString *)wpjStatusString
+{
+    // Default to personal mode if no device mode is available
+    if ([NSString msidIsStringNilOrBlank:wpjStatusString]) return MSIDWorkPlaceJoinStatusNotJoined;
+    
+    NSUInteger index = [self.wpjStatusEnumString indexOfObject:wpjStatusString];
+    
+    if (index < 0 || index >= self.wpjStatusEnumString.count)
+    {
+        return (MSIDWorkPlaceJoinStatus) 0;
+    }
+    return (MSIDWorkPlaceJoinStatus) index;
+}
+
+- (NSArray *)wpjStatusEnumString
+{
+    static NSArray *s_wpjEnumStrings = nil;
+    static dispatch_once_t wpjStringOnce;
+    
+    dispatch_once(&wpjStringOnce, ^{
+        s_wpjEnumStrings = [[NSArray alloc] initWithObjects:WPJStatusStringArray];
+    });
+    
+    return s_wpjEnumStrings;
 }
 
 @end
