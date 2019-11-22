@@ -23,6 +23,7 @@
 
 #import "MSIDBrokerOperationGetDeviceInfoRequest.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @implementation MSIDBrokerOperationGetDeviceInfoRequest
 
@@ -38,7 +39,7 @@
 
 + (NSString *)operation
 {
-    return @"get_device_info";
+    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO;
 }
 
 #pragma mark - MSIDJsonSerializable
