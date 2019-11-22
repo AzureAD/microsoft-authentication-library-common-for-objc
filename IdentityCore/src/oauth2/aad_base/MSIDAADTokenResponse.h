@@ -27,7 +27,7 @@
 @interface MSIDAADTokenResponse : MSIDTokenResponse
 
 // Default properties for an AAD error response
-@property (nonatomic, readonly, nullable) NSString *correlationId;
+@property (nonatomic, nullable) NSString *correlationId;
 
 // Default properties for an AAD successful response
 @property (nonatomic) NSInteger extendedExpiresIn;

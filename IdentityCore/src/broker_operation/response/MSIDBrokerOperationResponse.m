@@ -37,6 +37,20 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
     return @"";
 }
 
+- (NSNumber *)httpStatusCode
+{
+    if (!_httpStatusCode) _httpStatusCode = @200;
+    
+    return _httpStatusCode;
+}
+
+- (NSString *)httpVersion
+{
+    if (!_httpVersion) _httpVersion = @"HTTP/1.1";
+    
+    return _httpVersion;
+}
+
 #pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
