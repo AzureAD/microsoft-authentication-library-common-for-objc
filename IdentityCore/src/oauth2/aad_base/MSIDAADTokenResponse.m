@@ -40,7 +40,9 @@
                              MSID_OAUTH2_CLIENT_INFO,
                              MSID_FAMILY_ID,
                              MSID_TELEMETRY_KEY_SPE_INFO,
-                             MSID_OAUTH2_EXT_EXPIRES_IN, @"url",
+                             MSID_OAUTH2_EXT_EXPIRES_IN,
+                             @"url",
+                             @"ext_expires_on",
                              MSID_OAUTH2_SUB_ERROR];
     
     NSDictionary *additionalInfo = [additionalServerInfo dictionaryByRemovingFields:knownFields];
