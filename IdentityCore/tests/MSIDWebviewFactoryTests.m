@@ -165,7 +165,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -177,7 +177,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:nil requestState:nil ignoreInvalidState:NO context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:nil requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -190,7 +190,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://host"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -201,7 +201,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/path"]  requestState:nil ignoreInvalidState:NO context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://host/path"]  requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -212,7 +212,7 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://host?"] requestState:nil ignoreInvalidState:NO context:nil error:&error];
     
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -223,11 +223,11 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://host/msal?error=iamanerror&error_description=evenmoreinfo"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertNotNil(response);
     XCTAssertNil(error);
@@ -249,11 +249,11 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
 
     XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
     XCTAssertNil(error);
@@ -266,11 +266,11 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?code=authcode"]
-                                       requestState:nil
-                                 ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"urn:ietf:wg:oauth:2.0:oob?code=authcode"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebOAuth2Response.class]);
     XCTAssertNil(error);
@@ -283,11 +283,11 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
-                                       requestState:@"somerequeststate"
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode&state=wrongstate"]
+                                            requestState:@"somerequeststate"
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);
@@ -300,11 +300,11 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com?code=authcode"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
 
     XCTAssertNotNil(response);
     XCTAssertNil(error);
@@ -316,11 +316,11 @@
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
 
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://consoto.com"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
 
     XCTAssertNil(response);
     XCTAssertNotNil(error);

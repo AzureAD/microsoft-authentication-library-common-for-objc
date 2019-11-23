@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebOAuth2Response.h"
 #import "MSIDWebviewSession.h"
@@ -41,35 +41,12 @@ typedef void (^MSIDWebviewAuthCompletionHandler)(MSIDWebviewResponse *response, 
 
 #if !MSID_EXCLUDE_WEBKIT
 
-+ (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                    oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                          context:(id<MSIDRequestContext>)context
-                                completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
++ (void)startSessionWithWebView:(NSObject<MSIDWebviewInteracting> *)webview
+                  oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
+                  configuration:(MSIDBaseWebRequestConfiguration *)configuration
+                        context:(id<MSIDRequestContext>)context
+              completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 
-+ (void)startEmbeddedWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                    oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                                          webview:(WKWebView *)webview
-                                          context:(id<MSIDRequestContext>)context
-                                completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
-
-#endif
-
-#if !MSID_EXCLUDE_SYSTEMWV
-
-// SFAuthenticationSession/ASWebAuthenticationSession is only available on iOS 11 and up.
-//
-// useAuthentication:YES allowSafariViewController:NO
-//    > try SFAuthenticationSession/ASWebAuthenticationSession, if not availble, error out.
-// useAuthentication:YES allowSafariViewController:YES
-//    > try SFAuthenticationSession/ASWebAuthenticationSession, if not availble, use SFSafariViewController.
-// useAuthentication:NO allowSafariViewController:YES
-//    > do not use SFAuthenticationSession/ASWebAuthenticationSession, and always use SFSafariViewControler
-+ (void)startSystemWebviewAuthWithConfiguration:(MSIDWebviewConfiguration *)configuration
-                                  oauth2Factory:(MSIDOauth2Factory *)oauth2Factory
-                       useAuthenticationSession:(BOOL)useAuthenticationSession
-                      allowSafariViewController:(BOOL)allowSafariViewController
-                                        context:(id<MSIDRequestContext>)context
-                              completionHandler:(MSIDWebviewAuthCompletionHandler)completionHandler;
 #endif
 
 #if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV

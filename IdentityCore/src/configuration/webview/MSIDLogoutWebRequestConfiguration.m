@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,28 +17,25 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDAADV1WebviewFactory.h"
-#import "MSIDAuthorizeWebRequestConfiguration.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDWebviewResponse.h"
 
-@implementation MSIDAADV1WebviewFactory
+@implementation MSIDLogoutWebRequestConfiguration
 
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                                                                         pkce:(MSIDPkce *)pkce
-                                                                                 requestState:(NSString *)state
+- (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
+                                       factory:(__unused MSIDWebviewFactory *)factory
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
 {
-    NSMutableDictionary<NSString *, NSString *> *result = [super authorizationParametersFromRequestParameters:parameters
-                                                                                                         pkce:pkce
-                                                                                                 requestState:state];
-    
-    result[MSID_OAUTH2_RESOURCE] = parameters.target;
-    return result;
+    return [[MSIDWebviewResponse alloc] initWithURL:url context:context error:error];
 }
 
 @end

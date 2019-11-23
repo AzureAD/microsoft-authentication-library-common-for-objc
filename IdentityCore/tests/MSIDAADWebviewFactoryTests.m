@@ -126,7 +126,7 @@
                                                                                            intuneAppIdentifier:@"com.microsoft.mytest"
                                                                                                          error:nil];
 
-    MSIDWebviewConfiguration *configuration = [factory webViewConfigurationWithRequestParameters:parameters];
+    MSIDWebviewConfiguration *configuration = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
     XCTAssertNotNil(configuration);
     NSURL *expectedAuthorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/mypath/oauth/authorize"];
     XCTAssertEqualObjects(configuration.authorizationEndpoint, expectedAuthorizationEndpoint);
@@ -155,7 +155,7 @@
                                                                                                          error:nil];
     parameters.instanceAware = YES;
 
-    MSIDWebviewConfiguration *configuration = [[MSIDAADWebviewFactory new] webViewConfigurationWithRequestParameters:parameters];
+    MSIDWebviewConfiguration *configuration = [[MSIDAADWebviewFactory new] authorizeWebRequestConfigurationWithRequestParameters:parameters];
     XCTAssertNotNil(configuration);
     XCTAssertEqual(configuration.instanceAware, YES);
 }
@@ -165,11 +165,11 @@
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -182,7 +182,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
-    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -199,7 +199,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
-    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -216,7 +216,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost//msauth/wpj?app_link=app.link&username=XXX@upn.com"];
-    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -231,11 +231,11 @@
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebAADAuthResponse.class]);
     XCTAssertNil(error);
@@ -247,11 +247,11 @@
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"browser://somehost"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"browser://somehost"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebOpenBrowserResponse.class]);
     XCTAssertNil(error);

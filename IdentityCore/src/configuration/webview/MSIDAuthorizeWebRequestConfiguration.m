@@ -25,33 +25,38 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT
-
-#import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewUIController.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDPkce.h"
+#import "MSIDWebviewFactory.h"
 
-@interface MSIDOAuth2EmbeddedWebviewController :
-MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+@implementation MSIDAuthorizeWebRequestConfiguration
 
-- (id)init NS_UNAVAILABLE;
-- (id)initWithStartURL:(NSURL *)startURL
-                endURL:(NSURL *)endURL
-               webview:(WKWebView *)webview
-         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-               context:(id<MSIDRequestContext>)context;
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                            pkce:(MSIDPkce *)pkce
+                           state:(NSString *)state
+{
+    self = [super initWithStartURL:startURL endRedirectUri:endRedirectUri];
+    
+    if (self)
+    {
+        _pkce = pkce;
+        _state = state;
+    }
+    
+    return self;
+}
 
-- (void)loadRequest:(NSURLRequest *)request;
-- (void)completeWebAuthWithURL:(NSURL *)endURL;
-- (void)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error;
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
-
-@property (readonly) NSURL *startURL;
+- (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
+                                       factory:(MSIDWebviewFactory *)factory
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
+{
+    return [factory oAuthResponseWithURL:url
+                       requestState:self.state
+                 ignoreInvalidState:self.ignoreInvalidState
+                            context:context
+                              error:error];
+}
 
 @end
-
-#endif

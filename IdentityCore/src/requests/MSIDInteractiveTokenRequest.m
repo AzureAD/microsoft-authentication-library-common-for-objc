@@ -24,7 +24,7 @@
 #import "MSIDInteractiveTokenRequest+Internal.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDWebviewResponse.h"
 #import "MSIDWebOAuth2Response.h"
@@ -51,7 +51,7 @@
 
 @interface MSIDInteractiveTokenRequest()
 
-@property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
+@property (nonatomic) MSIDAuthorizeWebRequestConfiguration *webViewConfiguration;
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 
 @end
@@ -180,52 +180,22 @@
         }
     };
 
-    self.webViewConfiguration = [self.oauthFactory.webviewFactory webViewConfigurationWithRequestParameters:self.requestParameters];
+    self.webViewConfiguration = [self.oauthFactory.webviewFactory authorizeWebRequestConfigurationWithRequestParameters:self.requestParameters];
     [self showWebComponentWithCompletion:webAuthCompletion];
 }
 
 - (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
-{
-    MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:self.requestParameters.webviewType];
+{    
+    NSObject<MSIDWebviewInteracting> *webView = [self.oauthFactory.webviewFactory webViewWithConfiguration:self.webViewConfiguration
+                                                                                         requestParameters:self.requestParameters
+                                                                                                   context:self.requestParameters];
     
-    BOOL useSession = YES;
-    BOOL allowSafariViewController = NO;
-    
-    switch (webviewType)
-    {
-        case MSIDWebviewTypeWKWebView:
-            [self showEmbeddedWebviewWithCompletion:completionHandler];
-            return;
-        case MSIDWebviewTypeAuthenticationSession:
-            useSession = YES;
-            allowSafariViewController = NO;
-            break;
-#if TARGET_OS_IPHONE
-        case MSIDWebviewTypeSafariViewController:
-            useSession = NO;
-            allowSafariViewController = YES;
-            break;
-#endif
-            
-        default:
-            break;
-    }
+    [MSIDWebviewAuthorization startSessionWithWebView:webView
+                                        oauth2Factory:self.oauthFactory
+                                        configuration:self.webViewConfiguration
+                                              context:self.requestParameters
+                                    completionHandler:completionHandler];
 
-    [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                        oauth2Factory:self.oauthFactory
-                                             useAuthenticationSession:useSession
-                                            allowSafariViewController:allowSafariViewController
-                                                              context:self.requestParameters
-                                                    completionHandler:completionHandler];
-}
-
-- (void)showEmbeddedWebviewWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
-{
-    [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                          oauth2Factory:self.oauthFactory
-                                                                webview:self.requestParameters.customWebview
-                                                                context:self.requestParameters
-                                                      completionHandler:completionHandler];
 }
 
 #pragma mark - Helpers

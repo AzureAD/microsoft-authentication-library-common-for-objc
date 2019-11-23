@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,28 +17,34 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDAADV1WebviewFactory.h"
-#import "MSIDAuthorizeWebRequestConfiguration.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import <Foundation/Foundation.h>
+#import "MSIDBaseWebRequestConfiguration.h"
 
-@implementation MSIDAADV1WebviewFactory
+@class MSIDPkce;
 
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-                                                                                         pkce:(MSIDPkce *)pkce
-                                                                                 requestState:(NSString *)state
-{
-    NSMutableDictionary<NSString *, NSString *> *result = [super authorizationParametersFromRequestParameters:parameters
-                                                                                                         pkce:pkce
-                                                                                                 requestState:state];
-    
-    result[MSID_OAUTH2_RESOURCE] = parameters.target;
-    return result;
-}
+@interface MSIDAuthorizeWebRequestConfiguration : MSIDBaseWebRequestConfiguration
+
+// PKCE Support
+@property (readonly) MSIDPkce *pkce;
+@property (nonatomic) NSString *state;
+
+// State verification
+// Set this to YES to have the request continue even at state verification failure.
+// Set this to NO if request should stop at state verification failure.
+// By default, this is set to NO.
+@property (readwrite) BOOL ignoreInvalidState;
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                            pkce:(MSIDPkce *)pkce
+                           state:(NSString *)state;
 
 @end

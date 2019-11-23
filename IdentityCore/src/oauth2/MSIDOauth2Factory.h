@@ -41,7 +41,7 @@
 @class MSIDAuthorizationCodeGrantRequest;
 @class MSIDRequestParameters;
 @class MSIDRefreshTokenGrantRequest;
-@class MSIDWebviewConfiguration;
+@class MSIDAuthorizeWebRequestConfiguration;
 @class MSIDInteractiveRequestParameters;
 @class MSIDClientInfo;
 

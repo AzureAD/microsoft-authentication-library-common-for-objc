@@ -22,35 +22,37 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV2WebviewFactory.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDLogoutWebRequestConfiguration.h"
 
 @implementation MSIDAADV2WebviewFactory
 
-- (NSMutableDictionary<NSString *,NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                                                         pkce:(MSIDPkce *)pkce
+                                                                                 requestState:(NSString *)state
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+    NSMutableDictionary<NSString *, NSString *> *result = [super authorizationParametersFromRequestParameters:parameters
+                                                                                                         pkce:pkce
                                                                                                  requestState:state];
-    parameters[MSID_OAUTH2_CLIENT_INFO] = @"1";
-    parameters[MSID_OAUTH2_LOGIN_REQ] = configuration.uid;
-    parameters[MSID_OAUTH2_DOMAIN_REQ] = configuration.utid;
     
-    
-    return parameters;
+    result[MSID_OAUTH2_CLIENT_INFO] = @"1";
+    return result;
 }
 
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (NSDictionary<NSString *, NSString *> *)metadataFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
 {
-    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
-
-    configuration.uid = parameters.accountIdentifier.uid;
-    configuration.utid = parameters.accountIdentifier.utid;
-
-    return configuration;
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    [result addEntriesFromDictionary:[super metadataFromRequestParameters:parameters]];
+    
+    result[MSID_OAUTH2_LOGIN_REQ] = parameters.accountIdentifier.uid;
+    result[MSID_OAUTH2_DOMAIN_REQ] = parameters.accountIdentifier.utid;
+    
+    return result;
 }
 
 @end

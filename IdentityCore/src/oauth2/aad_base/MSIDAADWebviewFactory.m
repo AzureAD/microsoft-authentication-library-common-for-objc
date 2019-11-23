@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAADWebviewFactory.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthResponse.h"
@@ -34,83 +34,88 @@
 #import "MSIDAuthority.h"
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
+#import "MSIDLogoutWebRequestConfiguration.h"
+#import "NSURL+MSIDAADUtils.h"
 
 @implementation MSIDAADWebviewFactory
 
-- (NSMutableDictionary<NSString *,NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                                                         pkce:(MSIDPkce *)pkce
+                                                                                 requestState:(NSString *)state
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+    NSMutableDictionary<NSString *, NSString *> *result = [super authorizationParametersFromRequestParameters:parameters
+                                                                                                         pkce:pkce
                                                                                                  requestState:state];
-
-    if (![NSString msidIsStringNilOrBlank:configuration.promptBehavior])
-    {
-        parameters[MSID_OAUTH2_PROMPT] = configuration.promptBehavior;
-    }
     
-    if (configuration.correlationId)
+    if (parameters.instanceAware) result[@"instance_aware"] = @"true";
+    
+    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
+                                                                          claimsRequest:parameters.claimsRequest];
+    NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
+    
+    result[MSID_OAUTH2_CLAIMS] = claims;
+
+    return result;
+}
+
+- (NSDictionary<NSString *, NSString *> *)metadataFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    [result addEntriesFromDictionary:[super metadataFromRequestParameters:parameters]];
+    
+    if (parameters.correlationId)
     {
-        [parameters addEntriesFromDictionary:
+        [result addEntriesFromDictionary:
          @{
            MSID_OAUTH2_CORRELATION_ID_REQUEST : @"true",
-           MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [configuration.correlationId UUIDString]
+           MSID_OAUTH2_CORRELATION_ID_REQUEST_VALUE : [parameters.correlationId UUIDString]
            }];
     }
     
-    parameters[@"haschrome"] = @"1";
-    parameters[MSID_OAUTH2_CLAIMS] = configuration.claims;
-    [parameters addEntriesFromDictionary:MSIDDeviceId.deviceId];
+    result[@"haschrome"] = @"1";
+    [result addEntriesFromDictionary:MSIDDeviceId.deviceId];
     
-    if (configuration.instanceAware)
-    {
-        parameters[@"instance_aware"] = @"true";
-    }
-
-    return parameters;
+    return result;
 }
 
 #if !MSID_EXCLUDE_WEBKIT
 
-- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
+- (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
+                                                         customWebview:(WKWebView *)webview
+                                                               context:(id<MSIDRequestContext>)context
 {
     if (![NSThread isMainThread])
     {
-        __block MSIDWebviewSession *session;
+        __block NSObject<MSIDWebviewInteracting> *session;
         dispatch_sync(dispatch_get_main_queue(), ^{
-            session = [self embeddedWebviewSessionFromConfiguration:configuration customWebview:webview context:context];
+            session = [self embeddedWebviewFromConfiguration:configuration customWebview:webview context:context];
         });
         
         return session;
     }
     
-    NSString *state = [self generateStateValue];
-    NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
-    NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
+     MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
+       = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
+                                                                  endURL:[NSURL URLWithString:configuration.endRedirectUrl]
+                                                                 webview:webview
+                                                           customHeaders:configuration.customHeaders
+                                                                 context:context];
     
-    MSIDAADOAuthEmbeddedWebviewController *embeddedWebviewController
-    = [[MSIDAADOAuthEmbeddedWebviewController alloc] initWithStartURL:startURL
-                                                               endURL:redirectURL
-                                                              webview:webview
-                                                        customHeaders:configuration.customHeaders
-                                                              context:context];
 #if TARGET_OS_IPHONE
     embeddedWebviewController.parentController = configuration.parentController;
     embeddedWebviewController.presentationType = configuration.presentationType;
 #endif
-    
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
-                                                                                factory:self
-                                                                           requestState:state
-                                                                     ignoreInvalidState:configuration.ignoreInvalidState];
-    return session;
+
+    return embeddedWebviewController;
 }
 
 #endif
 
-- (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
-                            requestState:(NSString *)requestState
-                      ignoreInvalidState:(BOOL)ignoreInvalidState
-                                 context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
+- (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
+                                 requestState:(NSString *)requestState
+                           ignoreInvalidState:(BOOL)ignoreInvalidState
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error
 {
     // Try to create CBA response
 #if AD_BROKER
@@ -137,39 +142,5 @@
     
     return response;
 }
-
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-{
-    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
-
-    if (!configuration)
-    {
-        return nil;
-    }
-
-    NSURL *authorizationEndpoint = configuration.authorizationEndpoint;
-    NSURL *networkURL = [parameters.authority networkUrlWithContext:parameters];
-    
-    if (!authorizationEndpoint)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Nil authorization endpoint provided");
-        return nil;
-    }
-
-    NSURLComponents *authorizationComponents = [NSURLComponents componentsWithURL:authorizationEndpoint resolvingAgainstBaseURL:NO];
-    authorizationComponents.host = networkURL.host;
-    configuration.authorizationEndpoint = authorizationComponents.URL;
-    
-    
-    MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
-                                                                          claimsRequest:parameters.claimsRequest];
-    NSString *claims = [[claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
-
-    configuration.claims = claims;
-    configuration.instanceAware = parameters.instanceAware;
-
-    return configuration;
-}
-
 
 @end

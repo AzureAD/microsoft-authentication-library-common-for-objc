@@ -25,37 +25,30 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebviewConfiguration.h"
-#import "MSIDPkce.h"
+#import "MSIDBaseWebRequestConfiguration.h"
 
-@implementation MSIDWebviewConfiguration
+@implementation MSIDBaseWebRequestConfiguration
 
-- (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
-                                  redirectUri:(NSString *)redirectUri
-                                     clientId:(NSString *)clientId
-                                     resource:(NSString *)resource
-                                       scopes:(NSOrderedSet<NSString *> *)scopes
-                                correlationId:(NSUUID *)correlationId
-                                   enablePkce:(BOOL)enablePkce
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
 {
     self = [super init];
+    
     if (self)
     {
-        _authorizationEndpoint = authorizationEndpoint;
-        _redirectUri = redirectUri;
-        _clientId = clientId;
-        _resource = resource;
-        _scopes = scopes;
-        _correlationId = correlationId;
-        
-        if (enablePkce)
-        {
-            _pkce = [MSIDPkce new];
-        }
-        
-        _ignoreInvalidState = NO;
-        _customHeaders = [NSMutableDictionary new];
+        _startURL = startURL;
+        _endRedirectUrl = endRedirectUri;
     }
+    
     return self;
 }
+
+- (MSIDWebviewResponse *)responseWithResultURL:(__unused NSURL *)url
+                                       factory:(__unused MSIDWebviewFactory *)factory
+                                       context:(__unused id<MSIDRequestContext>)context
+                                         error:(__unused NSError **)error
+{
+    return nil;
+}
+
 @end
