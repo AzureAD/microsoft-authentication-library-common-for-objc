@@ -34,7 +34,7 @@
 
 + (void)load
 {
-    if (@available(iOS 13.0, *))
+    if (@available(iOS 13.0, macOS 10.15, *))
     {
         [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
     }
