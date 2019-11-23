@@ -43,17 +43,27 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *endRedirectUrl;
 
 // Embedded webview
-@property (readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
+@property (nonatomic, readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
 
-@property (weak) MSIDViewController *parentController;
+@property (nonatomic, weak) MSIDViewController *parentController;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 
 #if TARGET_OS_IPHONE
-@property (readwrite) UIModalPresentationStyle presentationType;
+@property (nonatomic, readwrite) UIModalPresentationStyle presentationType;
 #endif
 
+@property (nonatomic, readonly) NSString *state;
+
+// State verification
+// Set this to YES to have the request continue even at state verification failure.
+// Set this to NO if request should stop at state verification failure.
+// By default, this is set to NO.
+@property (nonatomic, readonly) BOOL ignoreInvalidState;
+
 - (instancetype)initWithStartURL:(NSURL *)startURL
-                  endRedirectUri:(NSString *)endRedirectUri;
+                  endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState;
 
 
 - (nullable MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url

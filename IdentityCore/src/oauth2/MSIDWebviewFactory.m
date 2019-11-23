@@ -23,7 +23,7 @@
 
 #import "MSIDWebviewFactory.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDWebviewSession.h"
 #import <WebKit/WebKit.h>
 #import "MSIDSystemWebviewController.h"
@@ -194,9 +194,11 @@
 }
 
 - (NSMutableDictionary<NSString *, NSString *> *)logoutParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                                          requestState:(NSString *)state
 {
     NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
     result[MSID_OAUTH2_SIGNOUT_REDIRECT_URI] = parameters.redirectUri;
+    result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
     return result;
 }
@@ -215,7 +217,7 @@
 {
     //  return base response
     NSError *responseCreationError = nil;
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:url
                                                                     requestState:requestState
                                                               ignoreInvalidState:ignoreInvalidState
                                                                          context:context
@@ -247,7 +249,8 @@
     MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
                                                                                   endRedirectUri:parameters.redirectUri
                                                                                             pkce:pkce
-                                                                                           state:oauthState];
+                                                                                           state:oauthState
+                                                                              ignoreInvalidState:NO];
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
     configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
@@ -262,11 +265,15 @@
 - (MSIDLogoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
 {
     NSURL *logoutEndpoint = parameters.authority.metadata.endSessionEndpoint;
-    NSDictionary *logoutQuery = [self logoutParametersFromRequestParameters:parameters];
+    
+    NSString *oauthState = [self generateStateValue];
+    NSDictionary *logoutQuery = [self logoutParametersFromRequestParameters:parameters requestState:oauthState];
     NSURL *startURL = [self startURLWithEndpoint:logoutEndpoint authority:parameters.authority query:logoutQuery context:parameters];
     
     MSIDLogoutWebRequestConfiguration *configuration = [[MSIDLogoutWebRequestConfiguration alloc] initWithStartURL:startURL
-                                                                                                    endRedirectUri:parameters.redirectUri];
+                                                                                                    endRedirectUri:parameters.redirectUri
+                                                                                                             state:oauthState
+                                                                                                ignoreInvalidState:NO];
     
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;

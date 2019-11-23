@@ -25,10 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDClientInfo.h"
 
-@interface MSIDWebAADAuthResponse : MSIDWebOAuth2Response
+@interface MSIDWebAADAuthCodeResponse : MSIDWebOAuth2AuthCodeResponse
 
 @property (readonly) NSString *cloudHostName;
 @property (readonly) MSIDClientInfo *clientInfo;

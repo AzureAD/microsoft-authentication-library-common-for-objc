@@ -26,7 +26,7 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDLogoutWebRequestConfiguration.h"
-#import "MSIDWebviewResponse.h"
+#import "MSIDWebOAuth2Response.h"
 
 @implementation MSIDLogoutWebRequestConfiguration
 
@@ -35,7 +35,11 @@
                                        context:(id<MSIDRequestContext>)context
                                          error:(NSError **)error
 {
-    return [[MSIDWebviewResponse alloc] initWithURL:url context:context error:error];
+    return [[MSIDWebOAuth2Response alloc] initWithURL:url
+                                         requestState:self.state
+                                   ignoreInvalidState:self.ignoreInvalidState
+                                              context:context
+                                                error:error];
 }
 
 @end

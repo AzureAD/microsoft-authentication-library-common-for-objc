@@ -27,8 +27,8 @@
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDWebviewResponse.h"
-#import "MSIDWebOAuth2Response.h"
-#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
+#import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDCBAWebAADAuthResponse.h"
@@ -124,9 +124,9 @@
          Some minor refactoring to MSIDWebviewAuthorization response logic and to the interactive requests tests will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
          */
 
-        if ([response isKindOfClass:MSIDWebOAuth2Response.class])
+        if ([response isKindOfClass:MSIDWebOAuth2AuthCodeResponse.class])
         {
-            MSIDWebOAuth2Response *oauthResponse = (MSIDWebOAuth2Response *)response;
+            MSIDWebOAuth2AuthCodeResponse *oauthResponse = (MSIDWebOAuth2AuthCodeResponse *)response;
 
             if (oauthResponse.authorizationCode)
             {
@@ -137,9 +137,9 @@
                 }
                 // handle instance aware flow (cloud host)
                 
-                if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
+                if ([response isKindOfClass:MSIDWebAADAuthCodeResponse.class])
                 {
-                    MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
+                    MSIDWebAADAuthCodeResponse *aadResponse = (MSIDWebAADAuthCodeResponse *)response;
                     [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
                     self.authCodeClientInfo = aadResponse.clientInfo;
                 }

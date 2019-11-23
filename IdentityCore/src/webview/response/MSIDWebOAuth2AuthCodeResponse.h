@@ -25,41 +25,12 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDAuthorizeWebRequestConfiguration.h"
-#import "MSIDPkce.h"
-#import "MSIDWebviewFactory.h"
+#import <Foundation/Foundation.h>
+#import "MSIDWebOAuth2Response.h"
 
-@implementation MSIDAuthorizeWebRequestConfiguration
+@interface MSIDWebOAuth2AuthCodeResponse : MSIDWebOAuth2Response
 
-- (instancetype)initWithStartURL:(NSURL *)startURL
-                  endRedirectUri:(NSString *)endRedirectUri
-                            pkce:(MSIDPkce *)pkce
-                           state:(NSString *)state
-              ignoreInvalidState:(BOOL)ignoreInvalidState
-{
-    self = [super initWithStartURL:startURL
-                    endRedirectUri:endRedirectUri
-                             state:state
-                ignoreInvalidState:ignoreInvalidState];
-    
-    if (self)
-    {
-        _pkce = pkce;
-    }
-    
-    return self;
-}
-
-- (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
-                                       factory:(MSIDWebviewFactory *)factory
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
-{
-    return [factory oAuthResponseWithURL:url
-                       requestState:self.state
-                 ignoreInvalidState:self.ignoreInvalidState
-                            context:context
-                              error:error];
-}
+@property (readonly) NSString *authorizationCode;
+@property (readonly) NSError *oauthError;
 
 @end

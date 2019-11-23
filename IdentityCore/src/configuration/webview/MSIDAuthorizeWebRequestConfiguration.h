@@ -34,17 +34,11 @@
 
 // PKCE Support
 @property (readonly) MSIDPkce *pkce;
-@property (nonatomic) NSString *state;
-
-// State verification
-// Set this to YES to have the request continue even at state verification failure.
-// Set this to NO if request should stop at state verification failure.
-// By default, this is set to NO.
-@property (readwrite) BOOL ignoreInvalidState;
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                   endRedirectUri:(NSString *)endRedirectUri
                             pkce:(MSIDPkce *)pkce
-                           state:(NSString *)state;
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState;
 
 @end

@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDOauth2Factory.h"
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDWebviewSession.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDAADV2Oauth2Factory.h"

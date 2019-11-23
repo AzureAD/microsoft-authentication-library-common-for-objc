@@ -31,6 +31,8 @@
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
                   endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
 {
     self = [super init];
     
@@ -38,6 +40,8 @@
     {
         _startURL = startURL;
         _endRedirectUrl = endRedirectUri;
+        _state = state;
+        _ignoreInvalidState = ignoreInvalidState;
     }
     
     return self;

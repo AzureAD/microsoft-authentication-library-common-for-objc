@@ -60,7 +60,9 @@
                                                                                          pkce:(MSIDPkce *)pkce
                                                                                  requestState:(NSString *)state;
 
-- (NSMutableDictionary<NSString *, NSString *> *)logoutParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+- (NSMutableDictionary<NSString *, NSString *> *)logoutParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                                          requestState:(NSString *)state;
+
 - (NSDictionary<NSString *, NSString *> *)metadataFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 
 // Create a corresponding response from URL.
