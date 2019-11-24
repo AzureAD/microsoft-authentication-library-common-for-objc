@@ -164,7 +164,7 @@
     result[MSID_OAUTH2_CLIENT_ID] = parameters.clientId;
     result[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
     result[MSID_OAUTH2_REDIRECT_URI] = parameters.redirectUri;
-    result[MSID_OAUTH2_LOGIN_HINT] = parameters.loginHint;
+    result[MSID_OAUTH2_LOGIN_HINT] = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
     
     // Extra query params
     if (parameters.allAuthorizeRequestExtraParameters)
@@ -240,6 +240,11 @@
 {
     NSURL *authorizeEndpoint = parameters.authority.metadata.authorizationEndpoint;
     
+    if (!parameters || !authorizeEndpoint)
+    {
+        return nil;
+    }
+    
     MSIDPkce *pkce = parameters.enablePkce ? [MSIDPkce new] : nil;
         
     NSString *oauthState = [self generateStateValue];
@@ -265,6 +270,11 @@
 - (MSIDLogoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
 {
     NSURL *logoutEndpoint = parameters.authority.metadata.endSessionEndpoint;
+    
+    if (!parameters || !logoutEndpoint)
+    {
+        return nil;
+    }
     
     NSString *oauthState = [self generateStateValue];
     NSDictionary *logoutQuery = [self logoutParametersFromRequestParameters:parameters requestState:oauthState];
