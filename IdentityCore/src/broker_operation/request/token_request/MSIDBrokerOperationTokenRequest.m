@@ -30,12 +30,17 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
 #import "MSIDProviderType.h"
+#import "MSIDJsonSerializer.h"
+#import "NSDictionary+MSIDJsonSerializable.h"
+#import "MSIDClaimsRequest.h"
 
 @implementation MSIDBrokerOperationTokenRequest
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters
        providerType:(MSIDProviderType)providerType
+      enrollmentIds:(NSDictionary *)enrollmentIds
+       mamResources:(NSDictionary *)mamResources
               error:(NSError **)error
 {
     BOOL result = [self fillRequest:request
@@ -47,7 +52,14 @@
     
     request.configuration = parameters.msidConfiguration;
     request.providerType = providerType;
-    
+    request.oidcScope = parameters.oidcScope;
+    request.extraQueryParameters = parameters.extraURLQueryParameters;
+    request.instanceAware = parameters.instanceAware;
+    request.enrollmentIds = enrollmentIds;
+    request.mamResources = mamResources;
+    request.clientCapabilities = parameters.clientCapabilities;
+    request.claimsRequest = parameters.claimsRequest;
+        
     return YES;
 }
 
@@ -63,6 +75,35 @@
         if (!_configuration) return nil;
         
         _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
+        
+        _oidcScope = [json msidStringObjectForKey:MSID_BROKER_EXTRA_OIDC_SCOPES_KEY];
+        
+        NSString *extraQueryParam = [json msidStringObjectForKey:MSID_BROKER_EXTRA_QUERY_PARAM_KEY];
+        _extraQueryParameters = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:extraQueryParam];
+        
+        _instanceAware = [json msidBoolObjectForKey:MSID_BROKER_INSTANCE_AWARE_KEY];
+        
+        NSString *enrollmentIdsStr = [json msidStringObjectForKey:MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY];
+        if (enrollmentIdsStr)
+        {
+            _enrollmentIds = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:enrollmentIdsStr ofType:NSDictionary.class context:nil error:nil];
+        }
+        
+        NSString *mamResourcesStr = [json msidStringObjectForKey:MSID_BROKER_INTUNE_MAM_RESOURCE_KEY];
+        if (mamResourcesStr)
+        {
+            _mamResources = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:mamResourcesStr ofType:NSDictionary.class context:nil error:nil];
+        }
+        
+        NSString *clientCapabilitiesStr = [json msidStringObjectForKey:MSID_BROKER_CLIENT_CAPABILITIES_KEY];
+        _clientCapabilities = [clientCapabilitiesStr componentsSeparatedByString:@","];
+        
+        NSString *claimsStr= [json msidStringObjectForKey:MSID_BROKER_CLAIMS_KEY];
+        if (claimsStr)
+        {
+            _claimsRequest = (MSIDClaimsRequest *)[[MSIDJsonSerializer new] fromJsonString:claimsStr ofType:MSIDClaimsRequest.class context:nil error:nil];
+        }
+        
     }
     
     return self;
@@ -77,7 +118,14 @@
     if (!configurationJson) return nil;
     [json addEntriesFromDictionary:configurationJson];
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
-    
+    json[MSID_BROKER_EXTRA_OIDC_SCOPES_KEY] = self.oidcScope;
+    json[MSID_BROKER_EXTRA_QUERY_PARAM_KEY] = self.extraQueryParameters;
+    json[MSID_BROKER_INSTANCE_AWARE_KEY] = [@(self.instanceAware) stringValue];
+    json[MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY] = [self.enrollmentIds msidJSONSerializeWithContext:nil];
+    json[MSID_BROKER_INTUNE_MAM_RESOURCE_KEY] = [self.mamResources msidJSONSerializeWithContext:nil];
+    json[MSID_BROKER_CLIENT_CAPABILITIES_KEY] = [self.clientCapabilities componentsJoinedByString:@","];
+    json[MSID_BROKER_CLAIMS_KEY] = [[self.claimsRequest jsonDictionary] msidJSONSerializeWithContext:nil];
+
     return json;
 }
 
