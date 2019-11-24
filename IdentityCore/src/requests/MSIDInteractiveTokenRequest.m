@@ -190,6 +190,13 @@
                                                                                          requestParameters:self.requestParameters
                                                                                                    context:self.requestParameters];
     
+    if (!webView)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected error. Didn't find any supported web browsers.", nil, nil, nil, nil, nil, YES);
+        if (completionHandler) completionHandler(nil, error);
+        return;
+    }
+    
     [MSIDWebviewAuthorization startSessionWithWebView:webView
                                         oauth2Factory:self.oauthFactory
                                         configuration:self.webViewConfiguration

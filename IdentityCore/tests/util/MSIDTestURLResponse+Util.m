@@ -98,7 +98,8 @@
     NSDictionary *oidcJson =
     @{ @"token_endpoint" : [NSString stringWithFormat:@"%@/oauth2/v2.0/token", authority],
        @"authorization_endpoint" : [NSString stringWithFormat:@"%@/oauth2/v2.0/authorize", authority],
-       @"issuer" : @"issuer"
+       @"issuer" : @"issuer",
+       @"end_session_endpoint": [NSString stringWithFormat:@"%@/oauth2/v2.0/logout", authority]
        };
 
     MSIDTestURLResponse *oidcResponse =
