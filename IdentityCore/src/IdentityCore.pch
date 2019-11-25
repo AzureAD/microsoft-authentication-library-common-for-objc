@@ -43,4 +43,6 @@
 #include "../../../../../aad_overrides.h"
 #endif
 
+#define MSID_ENABLE_SSO_EXTENSION ((__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500) && !MSID_EXCLUDE_WEBKIT)
+
 #endif /* IdentityCore_pch */
