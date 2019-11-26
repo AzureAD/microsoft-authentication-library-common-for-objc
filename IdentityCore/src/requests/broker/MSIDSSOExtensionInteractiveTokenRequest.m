@@ -128,11 +128,7 @@
             completionBlock(nil, localError, nil);
             return;
         }
-        
-        // TODO: fix
-        
-        operationRequest.instanceAware = YES;
-        
+    
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
         ssoRequest.requestedOperation = [operationRequest.class operation];
         __auto_type queryItems = [[operationRequest jsonDictionary] msidQueryItems];
