@@ -70,7 +70,9 @@
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
-        {            
+        {
+            if (operationResponse.authority) weakSelf.requestParameters.cloudAuthority = operationResponse.authority;
+            
             [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
         };
         
