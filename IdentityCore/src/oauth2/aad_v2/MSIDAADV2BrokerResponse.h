@@ -32,6 +32,6 @@
 @property (readonly) NSString *errorDescription;
 @property (readonly) NSString *subError;
 @property (readonly) NSString *httpHeaders;
-@property (readonly) NSString *username;
+//@property (readonly) NSString *username;
 
 @end
