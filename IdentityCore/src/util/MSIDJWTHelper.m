@@ -81,7 +81,7 @@
 
     NSMutableData *hashData = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
     CC_SHA256(plainData.bytes, (CC_LONG)plainData.length, [hashData mutableBytes]);
-    return [hashData signHashWithPrivateKey:privateKey];
+    return [hashData msidSignHashWithPrivateKey:privateKey];
 }
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary
