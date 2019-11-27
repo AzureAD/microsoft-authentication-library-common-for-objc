@@ -45,7 +45,7 @@
                              @"ext_expires_on",
                              MSID_OAUTH2_SUB_ERROR];
     
-    NSDictionary *additionalInfo = [additionalServerInfo dictionaryByRemovingFields:knownFields];
+    NSDictionary *additionalInfo = [additionalServerInfo msidDictionaryByRemovingFields:knownFields];
     
     [super setAdditionalServerInfo:additionalInfo];
 }
