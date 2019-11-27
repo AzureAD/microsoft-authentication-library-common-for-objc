@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
+#if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDProviderType.h"
 
@@ -30,7 +30,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0))
+API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest
 
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
