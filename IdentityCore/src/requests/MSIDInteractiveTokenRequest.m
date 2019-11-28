@@ -270,7 +270,10 @@
         if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
         {
             NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
-            updatedUserInfo[MSIDHomeAccountIdkey] = self.authCodeClientInfo.accountIdentifier;
+            if (self.authCodeClientInfo.accountIdentifier)
+            {
+                updatedUserInfo[MSIDHomeAccountIdkey] = self.authCodeClientInfo.accountIdentifier;
+            }
             
             validationError = MSIDCreateError(validationError.domain,
                                               validationError.code,
