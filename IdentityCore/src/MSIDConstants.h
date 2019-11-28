@@ -73,6 +73,7 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
 };
 
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
+typedef void (^MSIDLogoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 
 #if TARGET_OS_IPHONE
 @compatibility_alias MSIDViewController UIViewController;

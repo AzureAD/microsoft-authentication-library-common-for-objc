@@ -25,33 +25,20 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewUIController.h"
-#import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDBaseWebRequestConfiguration.h"
 
-@interface MSIDOAuth2EmbeddedWebviewController :
-MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+@class MSIDPkce;
 
-- (id)init NS_UNAVAILABLE;
-- (id)initWithStartURL:(NSURL *)startURL
-                endURL:(NSURL *)endURL
-               webview:(WKWebView *)webview
-         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-               context:(id<MSIDRequestContext>)context;
+@interface MSIDAuthorizeWebRequestConfiguration : MSIDBaseWebRequestConfiguration
 
-- (void)loadRequest:(NSURLRequest *)request;
-- (void)completeWebAuthWithURL:(NSURL *)endURL;
-- (void)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error;
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
+// PKCE Support
+@property (readonly) MSIDPkce *pkce;
 
-@property (readonly) NSURL *startURL;
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                            pkce:(MSIDPkce *)pkce
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState;
 
 @end
-
-#endif

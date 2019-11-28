@@ -25,33 +25,34 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT
+#import "MSIDBaseWebRequestConfiguration.h"
 
-#import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewUIController.h"
-#import "MSIDAuthorizeWebRequestConfiguration.h"
+@implementation MSIDBaseWebRequestConfiguration
 
-@interface MSIDOAuth2EmbeddedWebviewController :
-MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _startURL = startURL;
+        _endRedirectUrl = endRedirectUri;
+        _state = state;
+        _ignoreInvalidState = ignoreInvalidState;
+    }
+    
+    return self;
+}
 
-- (id)init NS_UNAVAILABLE;
-- (id)initWithStartURL:(NSURL *)startURL
-                endURL:(NSURL *)endURL
-               webview:(WKWebView *)webview
-         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-               context:(id<MSIDRequestContext>)context;
-
-- (void)loadRequest:(NSURLRequest *)request;
-- (void)completeWebAuthWithURL:(NSURL *)endURL;
-- (void)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error;
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
-
-@property (readonly) NSURL *startURL;
+- (MSIDWebviewResponse *)responseWithResultURL:(__unused NSURL *)url
+                                       factory:(__unused MSIDWebviewFactory *)factory
+                                       context:(__unused id<MSIDRequestContext>)context
+                                         error:(__unused NSError **)error
+{
+    return nil;
+}
 
 @end
-
-#endif
