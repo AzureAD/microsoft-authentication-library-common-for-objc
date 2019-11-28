@@ -846,7 +846,6 @@
 		B286BA03238A091B007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BE923621A0F99C00F5AB8C /* MSIDDefaultInteractiveTokenRequestTests.m */; };
 		B286BA06238A110A007833AD /* MSIDLogoutRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B286BA05238A110A007833AD /* MSIDLogoutRequestTests.m */; };
 		B286BA07238A110A007833AD /* MSIDLogoutRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B286BA05238A110A007833AD /* MSIDLogoutRequestTests.m */; };
-=======
 		B286B97E2389DC05007833AD /* MSIDBrokerOperationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B018A523554B8700207FEC /* MSIDBrokerOperationRequest.h */; };
 		B286B97F2389DC08007833AD /* MSIDBrokerOperationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 23B018A423554B8700207FEC /* MSIDBrokerOperationRequest.m */; };
 		B286B9802389DC0C007833AD /* MSIDBrokerOperationTokenRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 23B0189323554B2B00207FEC /* MSIDBrokerOperationTokenRequest.h */; };
@@ -948,7 +947,6 @@
 		B286B9E12389DFA7007833AD /* MSIDError.h in Headers */ = {isa = PBXBuildFile; fileRef = 04D32CB01FD6212F000B123E /* MSIDError.h */; };
 		B286B9E22389DFAB007833AD /* MSIDDRSType.h in Headers */ = {isa = PBXBuildFile; fileRef = 2306D2A120AB744B00F875A3 /* MSIDDRSType.h */; };
 		B286B9E32389DFB4007833AD /* MSIDBasicContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 2323A6C32217AD4A00727088 /* MSIDBasicContext.h */; };
->>>>>>> origin/dev
 		B2893CB11FCF6A8C00E348E9 /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */; };
 		B28AC66421A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B28AC66221A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h */; };
 		B28AC66521A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */; };
