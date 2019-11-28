@@ -25,6 +25,6 @@
 
 @interface NSData (JWT)
 
-- (NSData *)signHashWithPrivateKey:(SecKeyRef)privateKey;
+- (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey;
 
 @end
