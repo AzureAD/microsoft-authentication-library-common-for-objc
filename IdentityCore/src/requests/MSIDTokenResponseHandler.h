@@ -21,13 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+
+@class MSIDExternalAADCacheSeeder;
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDTokenResponseValidator;
+@class MSIDAccountMetadataCacheAccessor;
+@protocol MSIDCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSilentTokenRequest ()
+@interface MSIDTokenResponseHandler : NSObject
+
+#if TARGET_OS_OSX
+@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
+#endif
 
 - (void)handleTokenResponse:(nullable MSIDTokenResponse *)tokenResponse
+          requestParameters:(MSIDRequestParameters *)requestParameters
+              homeAccountId:(nullable NSString *)homeAccountId
+     tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
+               oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                 tokenCache:(id<MSIDCacheAccessor>)tokenCache
+       accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                       error:(nullable NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 

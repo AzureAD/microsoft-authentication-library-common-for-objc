@@ -35,6 +35,8 @@
                    oauthFactory:(MSIDOauth2Factory *)oauthFactory
                      tokenCache:(id<MSIDCacheAccessor>)tokenCache
            accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                          error:(NSError *)error
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
     if (!operationResponse) return;
     
@@ -63,6 +65,16 @@
            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Saved additional token response.");
         }
     }
+    
+    [self handleTokenResponse:operationResponse.tokenResponse
+            requestParameters:requestParameters
+                homeAccountId:nil
+       tokenResponseValidator:tokenResponseValidator
+                 oauthFactory:oauthFactory
+                   tokenCache:tokenCache
+         accountMetadataCache:accountMetadataCache
+                        error:error
+              completionBlock:completionBlock];
 }
 
 @end

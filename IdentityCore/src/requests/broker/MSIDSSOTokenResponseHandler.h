@@ -22,24 +22,22 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTokenResponseHandler.h"
 
 @class MSIDBrokerOperationTokenResponse;
-@class MSIDRequestParameters;
-@class MSIDTokenResponseValidator;
-@class MSIDOauth2Factory;
-@class MSIDAccountMetadataCacheAccessor;
-@protocol MSIDCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSOTokenResponseHandler : NSObject
+@interface MSIDSSOTokenResponseHandler : MSIDTokenResponseHandler
 
 - (void)handleOperationResponse:(MSIDBrokerOperationTokenResponse *)operationResponse
               requestParameters:(MSIDRequestParameters *)requestParameters
          tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                    oauthFactory:(MSIDOauth2Factory *)oauthFactory
                      tokenCache:(id<MSIDCacheAccessor>)tokenCache
-           accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+           accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                          error:(nullable NSError *)error
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 

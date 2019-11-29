@@ -25,7 +25,7 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
-#import "MSIDSilentTokenRequest+Internal.h"
+#import "MSIDSilentTokenRequest.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
@@ -78,14 +78,20 @@
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
+#if TARGET_OS_OSX
+            weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
+#endif
             [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                              requestParameters:weakSelf.requestParameters
-                                         tokenResponseValidator:weakSelf.tokenResponseValidator
-                                                   oauthFactory:weakSelf.oauthFactory
-                                                     tokenCache:weakSelf.tokenCache
-                                           accountMetadataCache:weakSelf.accountMetadataCache];
-            
-            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
+                                                    requestParameters:weakSelf.requestParameters
+                                               tokenResponseValidator:weakSelf.tokenResponseValidator
+                                                         oauthFactory:weakSelf.oauthFactory
+                                                           tokenCache:weakSelf.tokenCache
+                                                 accountMetadataCache:weakSelf.accountMetadataCache
+                                                                error:error
+                                                      completionBlock:^(MSIDTokenResult *result, NSError *error)
+             {
+                weakSelf.requestCompletionBlock(result, error);
+            }];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];

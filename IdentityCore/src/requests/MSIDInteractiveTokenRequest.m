@@ -40,6 +40,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDSystemWebViewControllerFactory.h"
+#import "MSIDTokenResponseHandler.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -53,6 +54,7 @@
 
 @property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
+@property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
 
 @end
 
@@ -73,6 +75,7 @@
         _tokenResponseValidator = tokenResponseValidator;
         _tokenCache = tokenCache;
         _accountMetadataCache = accountMetadataCache;
+        _tokenResponseHandler = [MSIDTokenResponseHandler new];
     }
 
     return self;
@@ -240,85 +243,22 @@
 
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {
-        [self handleTokenResponse:tokenResponse error:error completionBlock:completionBlock];
-    }];
-}
-
-#pragma mark - Protected
-
-- (void)handleTokenResponse:(MSIDTokenResponse *)tokenResponse
-                      error:(NSError *)error
-            completionBlock:(MSIDInteractiveRequestCompletionBlock)completionBlock
-{
-    if (error)
-    {
-        completionBlock(nil, error, nil);
-        return;
-    }
-    
-    NSError *validationError;
-    MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
-                                                                                oauthFactory:self.oauthFactory
-                                                                                  tokenCache:self.tokenCache
-                                                                        accountMetadataCache:self.accountMetadataCache
-                                                                           requestParameters:self.requestParameters
-                                                                                       error:&validationError];
-    
-    if (!tokenResult)
-    {
-        // Special case - need to return homeAccountId in case of Intune policies required.
-        if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
-        {
-            NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
-            if (self.authCodeClientInfo.accountIdentifier)
-            {
-                updatedUserInfo[MSIDHomeAccountIdkey] = self.authCodeClientInfo.accountIdentifier;
-            }
-            
-            validationError = MSIDCreateError(validationError.domain,
-                                              validationError.code,
-                                              nil,
-                                              nil,
-                                              nil,
-                                              nil,
-                                              nil,
-                                              updatedUserInfo, NO);
-        }
-        
-        completionBlock(nil, validationError, nil);
-        return;
-    }
-    
-    void (^validateAccountAndCompleteBlock)(void) = ^
-    {
-        NSError *validationError;
-        BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
-                                                               tokenResult:tokenResult
-                                                             correlationID:self.requestParameters.correlationId
-                                                                     error:&validationError];
-        
-        if (!accountChecked)
-        {
-            completionBlock(nil, validationError, nil);
-            return;
-        }
-        
-        completionBlock(tokenResult, nil, nil);
-    };
-    
 #if TARGET_OS_OSX
-    if (self.externalCacheSeeder != nil)
-    {
-        [self.externalCacheSeeder seedTokenResponse:tokenResponse
-                                            factory:self.oauthFactory
-                                  requestParameters:self.requestParameters
-                                    completionBlock:validateAccountAndCompleteBlock];
-    }
-    else
+        self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
 #endif
-    {
-        validateAccountAndCompleteBlock();
-    }
+        [self.tokenResponseHandler handleTokenResponse:tokenResponse
+                                     requestParameters:self.requestParameters
+                                         homeAccountId:self.authCodeClientInfo.accountIdentifier
+                                tokenResponseValidator:self.tokenResponseValidator
+                                          oauthFactory:self.oauthFactory
+                                            tokenCache:self.tokenCache
+                                  accountMetadataCache:self.accountMetadataCache
+                                                 error:error
+                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
+         {
+            completionBlock(result, error, nil);
+        }];
+    }];
 }
 
 @end
