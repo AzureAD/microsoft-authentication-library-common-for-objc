@@ -31,7 +31,7 @@
 #import <WebKit/WebKit.h>
 #import "MSIDWebviewInteracting.h"
 #import "MSIDWebviewUIController.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 
 @interface MSIDOAuth2EmbeddedWebviewController :
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>

@@ -25,26 +25,34 @@
 //
 //------------------------------------------------------------------------------
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
+#import "MSIDBaseWebRequestConfiguration.h"
 
-// Utility macros for convience classes wrapped around dictionaries
-#define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
-- (NSString *)GETTER \
-{ \
-    if ([[DICT objectForKey:KEY] isKindOfClass:[NSString class]]) \
-    { \
-        return [DICT objectForKey:KEY]; \
-    } \
-    return nil; \
+@implementation MSIDBaseWebRequestConfiguration
+
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _startURL = startURL;
+        _endRedirectUrl = endRedirectUri;
+        _state = state;
+        _ignoreInvalidState = ignoreInvalidState;
+    }
+    
+    return self;
 }
 
-#define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
-- (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
+- (MSIDWebviewResponse *)responseWithResultURL:(__unused NSURL *)url
+                                       factory:(__unused MSIDWebviewFactory *)factory
+                                       context:(__unused id<MSIDRequestContext>)context
+                                         error:(__unused NSError **)error
+{
+    return nil;
+}
 
-#define STRING_CASE(_CASE) case _CASE: return @#_CASE
-#define MSID_ENABLE_SSO_EXTENSION ((__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500) && !MSID_EXCLUDE_WEBKIT)
+@end
