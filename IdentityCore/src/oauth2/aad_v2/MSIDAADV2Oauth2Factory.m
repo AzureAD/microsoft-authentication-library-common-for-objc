@@ -37,7 +37,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRefreshTokenGrantRequest.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADTokenResponseSerializer.h"

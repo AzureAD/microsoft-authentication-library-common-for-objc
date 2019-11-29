@@ -25,37 +25,41 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDPkce.h"
+#import "MSIDWebviewFactory.h"
 
-@implementation MSIDWebviewConfiguration
+@implementation MSIDAuthorizeWebRequestConfiguration
 
-- (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
-                                  redirectUri:(NSString *)redirectUri
-                                     clientId:(NSString *)clientId
-                                     resource:(NSString *)resource
-                                       scopes:(NSOrderedSet<NSString *> *)scopes
-                                correlationId:(NSUUID *)correlationId
-                                   enablePkce:(BOOL)enablePkce
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                            pkce:(MSIDPkce *)pkce
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState
 {
-    self = [super init];
+    self = [super initWithStartURL:startURL
+                    endRedirectUri:endRedirectUri
+                             state:state
+                ignoreInvalidState:ignoreInvalidState];
+    
     if (self)
     {
-        _authorizationEndpoint = authorizationEndpoint;
-        _redirectUri = redirectUri;
-        _clientId = clientId;
-        _resource = resource;
-        _scopes = scopes;
-        _correlationId = correlationId;
-        
-        if (enablePkce)
-        {
-            _pkce = [MSIDPkce new];
-        }
-        
-        _ignoreInvalidState = NO;
-        _customHeaders = [NSMutableDictionary new];
+        _pkce = pkce;
     }
+    
     return self;
 }
+
+- (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
+                                       factory:(MSIDWebviewFactory *)factory
+                                       context:(id<MSIDRequestContext>)context
+                                         error:(NSError **)error
+{
+    return [factory oAuthResponseWithURL:url
+                       requestState:self.state
+                 ignoreInvalidState:self.ignoreInvalidState
+                            context:context
+                              error:error];
+}
+
 @end

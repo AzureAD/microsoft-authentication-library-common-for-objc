@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,26 +15,31 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
-@class MSIDWebOAuth2AuthCodeResponse;
+@class MSIDInteractiveRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDTokenResponseValidator;
 
-typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDWebviewInteracting
+@interface MSIDLogoutRequest : NSObject
 
-- (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancel;
-- (void)dismiss;
+@property (nonatomic, readonly, nonnull) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
 
-- (NSURL *)startURL;
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
+
+- (void)executeRequestWithCompletion:(nonnull MSIDLogoutRequestCompletionBlock)completionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END

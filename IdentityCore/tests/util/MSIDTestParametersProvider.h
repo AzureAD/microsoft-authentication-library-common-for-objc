@@ -25,33 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebviewInteracting.h"
-#import "MSIDWebviewUIController.h"
-#import "MSIDAuthorizeWebRequestConfiguration.h"
 
-@interface MSIDOAuth2EmbeddedWebviewController :
-MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
+@class MSIDInteractiveRequestParameters;
 
-- (id)init NS_UNAVAILABLE;
-- (id)initWithStartURL:(NSURL *)startURL
-                endURL:(NSURL *)endURL
-               webview:(WKWebView *)webview
-         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-               context:(id<MSIDRequestContext>)context;
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)loadRequest:(NSURLRequest *)request;
-- (void)completeWebAuthWithURL:(NSURL *)endURL;
-- (void)endWebAuthWithURL:(NSURL *)endURL error:(NSError *)error;
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
+@interface MSIDTestParametersProvider : NSObject
 
-@property (readonly) NSURL *startURL;
++ (MSIDInteractiveRequestParameters *)testInteractiveParameters;
 
 @end
 
-#endif
+NS_ASSUME_NONNULL_END

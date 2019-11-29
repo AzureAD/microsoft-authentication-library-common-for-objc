@@ -27,11 +27,14 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDAADV1WebviewFactory.h"
-#import "MSIDWebviewConfiguration.h"
 #import "MSIDTestIdentifiers.h"
 #import "MSIDPkce.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDDeviceId.h"
+#import "MSIDTestParametersProvider.h"
+#import "MSIDPkce.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAADV1WebviewFactoryTests : XCTestCase
 
@@ -39,39 +42,19 @@
 
 @implementation MSIDAADV1WebviewFactoryTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
-
-- (void)testAuthorizationParametersFromConfiguration_withValidParams_shouldContainAADV1Configuration
+- (void)testAuthorizationParametersFromParameters_withValidParams_shouldContainAADV1Configuration
 {
-    __block NSUUID *correlationId = [NSUUID new];
-    
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                              resource:DEFAULT_TEST_RESOURCE
-                                                                                                scopes:nil
-                                                                                         correlationId:correlationId
-                                                                                            enablePkce:NO];
-    
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
-    config.promptBehavior = @"login";
-    config.claims = @"claims";
-    config.loginHint = @"fakeuser@contoso.com";
+    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.promptType = MSIDPromptTypeLogin;
+    parameters.loginHint = @"fakeuser@contoso.com";
+    parameters.target = DEFAULT_TEST_RESOURCE;
     
     NSString *requestState = @"state";
     
     MSIDAADV1WebviewFactory *factory = [MSIDAADV1WebviewFactory new];
     
-    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:nil requestState:requestState];
     
     NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
                                         @{
@@ -81,50 +64,15 @@
                                           @"response_type" : @"code",
                                           @"eqp1" : @"val1",
                                           @"eqp2" : @"val2",
-                                          @"claims" : @"claims",
                                           @"return-client-request-id" : @"true",
-                                          @"client-request-id" : correlationId.UUIDString,
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
                                           @"prompt" : @"login",
-                                          @"haschrome" : @"1"
-                                          }];
-    
-    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
-    
-    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
-}
-
-- (void)testAuthorizationParametersFromConfiguration_whenInstanceAwareTrue_shouldContainAADV1ConfigurationWithInstanceAwareParameter
-{
-    __block NSUUID *correlationId = [NSUUID new];
-    
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                              resource:DEFAULT_TEST_RESOURCE
-                                                                                                scopes:nil
-                                                                                         correlationId:correlationId
-                                                                                            enablePkce:NO];
-    config.instanceAware = YES;
-    
-    NSString *requestState = @"state";
-    
-    MSIDAADV1WebviewFactory *factory = [MSIDAADV1WebviewFactory new];
-    
-    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
-    
-    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
-                                        @{
-                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
-                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
-                                          @"resource" : DEFAULT_TEST_RESOURCE,
-                                          @"response_type" : @"code",
-                                          @"return-client-request-id" : @"true",
-                                          @"client-request-id" : correlationId.UUIDString,
-                                          @"state" : requestState.msidBase64UrlEncode,
                                           @"haschrome" : @"1",
-                                          @"instance_aware": @"true"
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new]
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
@@ -134,26 +82,15 @@
 
 - (void)testAuthorizationParametersFromConfiguration_withValidParamsWithScopes_shouldContainAADV1ConfigurationWithScopes
 {
-    __block NSUUID *correlationId = [NSUUID new];
-    
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                              resource:DEFAULT_TEST_RESOURCE
-                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
-                                                                                         correlationId:correlationId
-                                                                                            enablePkce:NO];
-    
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
-    config.promptBehavior = @"login";
-    config.claims = @"claims";
-    config.loginHint = @"fakeuser@contoso.com";
+    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.target = DEFAULT_TEST_RESOURCE;
+    parameters.oidcScope = @"openid";
     
     NSString *requestState = @"state";
     
     MSIDAADV1WebviewFactory *factory = [MSIDAADV1WebviewFactory new];
     
-    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:nil requestState:requestState];
     
     NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
                                         @{
@@ -161,16 +98,14 @@
                                           @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
                                           @"resource" : DEFAULT_TEST_RESOURCE,
                                           @"response_type" : @"code",
-                                          @"eqp1" : @"val1",
-                                          @"eqp2" : @"val2",
-                                          @"claims" : @"claims",
                                           @"return-client-request-id" : @"true",
-                                          @"client-request-id" : correlationId.UUIDString,
-                                          @"login_hint" : @"fakeuser@contoso.com",
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
                                           @"state" : requestState.msidBase64UrlEncode,
-                                          @"prompt" : @"login",
                                           @"haschrome" : @"1",
-                                          @"scope" : @"scope1"
+                                          @"scope" : @"openid",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new]
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
