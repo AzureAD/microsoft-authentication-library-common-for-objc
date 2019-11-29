@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSSORequestHandler.h"
+#import "MSIDSSOTokenResponseHandler.h"
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenResponseValidator.h"
 
-@implementation MSIDSSORequestHandler
+@implementation MSIDSSOTokenResponseHandler
 
 - (void)handleOperationResponse:(MSIDBrokerOperationTokenResponse *)operationResponse
               requestParameters:(MSIDRequestParameters *)requestParameters

@@ -32,7 +32,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSSORequestHandler : NSObject
+@interface MSIDSSOTokenResponseHandler : NSObject
 
 - (void)handleOperationResponse:(MSIDBrokerOperationTokenResponse *)operationResponse
               requestParameters:(MSIDRequestParameters *)requestParameters

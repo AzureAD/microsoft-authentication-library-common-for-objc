@@ -38,7 +38,7 @@
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
-#import "MSIDSSORequestHandler.h"
+#import "MSIDSSOTokenResponseHandler.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -51,7 +51,7 @@
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
-@property (nonatomic, readonly) MSIDSSORequestHandler *ssoRequestHandler;
+@property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
 
 @end
 
@@ -72,13 +72,13 @@
     if (self)
     {
         _tokenCache = tokenCache;
-        _ssoRequestHandler = [MSIDSSORequestHandler new];
+        _ssoTokenResponseHandler = [MSIDSSOTokenResponseHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
-            [weakSelf.ssoRequestHandler handleOperationResponse:operationResponse
+            [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
                                               requestParameters:weakSelf.requestParameters
                                          tokenResponseValidator:weakSelf.tokenResponseValidator
                                                    oauthFactory:weakSelf.oauthFactory
