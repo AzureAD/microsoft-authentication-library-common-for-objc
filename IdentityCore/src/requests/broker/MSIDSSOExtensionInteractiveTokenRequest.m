@@ -37,6 +37,7 @@
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#import "MSIDSSORequestHandler.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -47,6 +48,7 @@
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
+@property (nonatomic, readonly) MSIDSSORequestHandler *ssoRequestHandler;
 
 @end
 
@@ -66,12 +68,18 @@
 
     if (self)
     {
+        _ssoRequestHandler = [MSIDSSORequestHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
-            if (operationResponse.authority) weakSelf.requestParameters.cloudAuthority = operationResponse.authority;
+            [weakSelf.ssoRequestHandler handleOperationResponse:operationResponse
+                                              requestParameters:weakSelf.requestParameters
+                                         tokenResponseValidator:weakSelf.tokenResponseValidator
+                                                   oauthFactory:weakSelf.oauthFactory
+                                                     tokenCache:weakSelf.tokenCache
+                                           accountMetadataCache:weakSelf.accountMetadataCache];
             
             [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
         };

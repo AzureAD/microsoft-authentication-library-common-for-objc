@@ -251,4 +251,38 @@
     return YES;
 }
 
+#pragma mark - NSCopying
+
+- (instancetype)copyWithZone:(NSZone*)zone
+{
+    __auto_type parameters = [[MSIDRequestParameters allocWithZone:zone] init];
+    parameters->_authority = _authority;
+    parameters->_providedAuthority = _providedAuthority;
+    parameters->_cloudAuthority = _cloudAuthority;
+    parameters->_redirectUri = _redirectUri;
+    parameters->_clientId = _clientId;
+    parameters->_target = _target;
+    parameters->_oidcScope = _oidcScope;
+    parameters->_accountIdentifier = _accountIdentifier;
+    parameters->_validateAuthority = _validateAuthority;
+    parameters->_extraTokenRequestParameters = _extraTokenRequestParameters;
+    parameters->_extraURLQueryParameters = _extraURLQueryParameters;
+    parameters->_tokenExpirationBuffer = _tokenExpirationBuffer;
+    parameters->_extendedLifetimeEnabled = _extendedLifetimeEnabled;
+    parameters->_instanceAware = _instanceAware;
+    parameters->_intuneApplicationIdentifier = _intuneApplicationIdentifier;
+    parameters->_requestType = _requestType;
+    parameters->_correlationId = _correlationId;
+    parameters->_logComponent = _logComponent;
+    parameters->_telemetryRequestId = _telemetryRequestId;
+    parameters->_appRequestMetadata = _appRequestMetadata;
+    parameters->_telemetryApiId = _telemetryApiId;
+    parameters->_claimsRequest = _claimsRequest;
+    parameters->_clientCapabilities = _clientCapabilities;
+    parameters->_msidConfiguration = _msidConfiguration;
+    parameters->_keychainAccessGroup = _keychainAccessGroup;
+
+    return parameters;
+}
+
 @end
