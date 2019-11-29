@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
                    oauthFactory:(MSIDOauth2Factory *)oauthFactory
                      tokenCache:(id<MSIDCacheAccessor>)tokenCache
            accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                validateAccount:(BOOL)validateAccount
                           error:(nullable NSError *)error
                 completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 

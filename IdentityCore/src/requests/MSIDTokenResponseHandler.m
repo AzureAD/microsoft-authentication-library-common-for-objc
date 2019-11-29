@@ -36,6 +36,7 @@
                oauthFactory:(MSIDOauth2Factory *)oauthFactory
                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
        accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+            validateAccount:(BOOL)validateAccount
                       error:(NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
@@ -80,16 +81,19 @@
     
     void (^validateAccountAndCompleteBlock)(void) = ^
     {
-        NSError *validationError;
-        BOOL accountChecked = [tokenResponseValidator validateAccount:requestParameters.accountIdentifier
-                                                          tokenResult:tokenResult
-                                                        correlationID:requestParameters.correlationId
-                                                                error:&validationError];
-        
-        if (!accountChecked)
+        if (validateAccount)
         {
-            completionBlock(nil, validationError);
-            return;
+            NSError *validationError;
+            BOOL accountChecked = [tokenResponseValidator validateAccount:requestParameters.accountIdentifier
+                                                              tokenResult:tokenResult
+                                                            correlationID:requestParameters.correlationId
+                                                                    error:&validationError];
+            
+            if (!accountChecked)
+            {
+                completionBlock(nil, validationError);
+                return;
+            }
         }
         
         completionBlock(tokenResult, nil);

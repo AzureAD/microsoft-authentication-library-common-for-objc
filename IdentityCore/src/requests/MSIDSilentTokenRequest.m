@@ -424,6 +424,7 @@
                                           oauthFactory:self.oauthFactory
                                             tokenCache:self.tokenCache
                                   accountMetadataCache:self.metadataCache
+                                       validateAccount:NO
                                                  error:nil
                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
          {

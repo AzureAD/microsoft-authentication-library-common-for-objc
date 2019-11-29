@@ -78,14 +78,15 @@
             weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
 #endif
             [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                              requestParameters:weakSelf.requestParameters
-                                         tokenResponseValidator:weakSelf.tokenResponseValidator
-                                                   oauthFactory:weakSelf.oauthFactory
-                                                     tokenCache:weakSelf.tokenCache
-                                           accountMetadataCache:weakSelf.accountMetadataCache
+                                                    requestParameters:weakSelf.requestParameters
+                                               tokenResponseValidator:weakSelf.tokenResponseValidator
+                                                         oauthFactory:weakSelf.oauthFactory
+                                                           tokenCache:weakSelf.tokenCache
+                                                 accountMetadataCache:weakSelf.accountMetadataCache
+                                                      validateAccount:YES
                                                                 error:error
                                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
-            {
+             {
                 weakSelf.requestCompletionBlock(result, error, nil);
             }];
         };

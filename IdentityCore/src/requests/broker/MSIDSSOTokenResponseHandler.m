@@ -35,6 +35,7 @@
                    oauthFactory:(MSIDOauth2Factory *)oauthFactory
                      tokenCache:(id<MSIDCacheAccessor>)tokenCache
            accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                validateAccount:(BOOL)validateAccount
                           error:(NSError *)error
                 completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
@@ -73,6 +74,7 @@
                  oauthFactory:oauthFactory
                    tokenCache:tokenCache
          accountMetadataCache:accountMetadataCache
+              validateAccount:validateAccount
                         error:error
               completionBlock:completionBlock];
 }

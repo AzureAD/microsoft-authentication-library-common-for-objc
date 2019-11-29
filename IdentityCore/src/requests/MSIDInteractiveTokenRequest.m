@@ -230,6 +230,7 @@
                                           oauthFactory:self.oauthFactory
                                             tokenCache:self.tokenCache
                                   accountMetadataCache:self.accountMetadataCache
+                                       validateAccount:YES
                                                  error:error
                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
          {
