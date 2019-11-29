@@ -68,7 +68,7 @@
     NSURL *resultURL = [request requestURLWithAPIPath:self.labAPIpath];
     
     [[[NSURLSession sharedSession] dataTaskWithURL:resultURL
-                                 completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
+                                 completionHandler:^(NSData * _Nullable data, __unused NSURLResponse * _Nullable response, NSError * _Nullable error)
       {
           if (error)
           {
