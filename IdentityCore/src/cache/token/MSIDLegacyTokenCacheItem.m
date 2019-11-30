@@ -23,7 +23,6 @@
 
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDUserInformation.h"
-#import "MSIDClientInfo.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"

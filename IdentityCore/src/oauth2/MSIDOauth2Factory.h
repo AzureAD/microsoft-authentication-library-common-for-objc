@@ -43,7 +43,6 @@
 @class MSIDRefreshTokenGrantRequest;
 @class MSIDAuthorizeWebRequestConfiguration;
 @class MSIDInteractiveRequestParameters;
-@class MSIDClientInfo;
 
 @protocol MSIDRequestContext;
 

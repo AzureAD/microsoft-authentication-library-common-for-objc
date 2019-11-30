@@ -35,6 +35,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
+#import "MSIDJsonObject.h"
 
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
