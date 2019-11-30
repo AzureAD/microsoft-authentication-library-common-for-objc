@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0))
+API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionSilentTokenRequest : MSIDSilentTokenRequest
 
 @property (nonatomic, readonly, nonnull) id<MSIDCacheAccessor> tokenCache;

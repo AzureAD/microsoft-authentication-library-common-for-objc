@@ -61,6 +61,7 @@ extern NSString *const MSID_OAUTH2_ASSERTION;
 extern NSString *const MSID_OAUTH2_CLIENT_TELEMETRY;
 extern NSString *const MSID_OAUTH2_PROMPT;
 extern NSString *const MSID_OAUTH2_PROMPT_NONE;
+extern NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI;
 
 extern NSString *const MSID_OAUTH2_EXPIRES_ON;
 extern NSString *const MSID_OAUTH2_EXT_EXPIRES_IN;

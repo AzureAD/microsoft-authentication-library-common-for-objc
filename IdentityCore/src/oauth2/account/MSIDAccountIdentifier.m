@@ -26,8 +26,8 @@
 #import "MSIDMaskedHashableLogParameter.h"
 #import "MSIDMaskedUsernameLogParameter.h"
 
-static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"account_displayable_id";
-static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"account_home_id";
+static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
+static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
 
 @interface MSIDAccountIdentifier()
 

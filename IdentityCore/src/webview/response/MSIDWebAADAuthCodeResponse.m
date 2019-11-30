@@ -25,9 +25,9 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebAADAuthCodeResponse.h"
 
-@implementation MSIDWebAADAuthResponse
+@implementation MSIDWebAADAuthCodeResponse
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context

@@ -25,26 +25,16 @@
 //
 //------------------------------------------------------------------------------
 
-#import "NSDictionary+MSIDExtensions.h"
-#import "NSString+MSIDExtensions.h"
-#import "NSURL+MSIDExtensions.h"
-#import "MSIDLogger+Internal.h"
-#import "MSIDError.h"
-#import "MSIDOAuth2Constants.h"
+#import <Foundation/Foundation.h>
 
-// Utility macros for convience classes wrapped around dictionaries
-#define DICTIONARY_READ_PROPERTY_IMPL(DICT, KEY, GETTER) \
-- (NSString *)GETTER \
-{ \
-    if ([[DICT objectForKey:KEY] isKindOfClass:[NSString class]]) \
-    { \
-        return [DICT objectForKey:KEY]; \
-    } \
-    return nil; \
-}
+@class MSIDInteractiveRequestParameters;
 
-#define DICTIONARY_WRITE_PROPERTY_IMPL(DICT, KEY, SETTER) \
-- (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
+NS_ASSUME_NONNULL_BEGIN
 
-#define STRING_CASE(_CASE) case _CASE: return @#_CASE
-#define MSID_ENABLE_SSO_EXTENSION ((__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500) && !MSID_EXCLUDE_WEBKIT)
+@interface MSIDTestParametersProvider : NSObject
+
++ (MSIDInteractiveRequestParameters *)testInteractiveParameters;
+
+@end
+
+NS_ASSUME_NONNULL_END

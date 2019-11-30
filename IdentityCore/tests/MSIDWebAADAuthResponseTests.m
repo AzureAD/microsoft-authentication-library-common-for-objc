@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebAADAuthCodeResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
 
-@interface MSIDWebAADAuthResponseTests : XCTestCase
+@interface MSIDWebAADAuthCodeResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDWebAADAuthResponseTests
+@implementation MSIDWebAADAuthCodeResponseTests
 
 - (void)setUp {
     [super setUp];
@@ -52,7 +52,7 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:nil ignoreInvalidState:NO context:nil error:&error];
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:urlComponents.URL requestState:nil ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     
@@ -70,7 +70,7 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     
@@ -94,7 +94,7 @@
                                  }.urlQueryItemsArray;
     MSIDClientInfo *expectedClientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
@@ -116,7 +116,7 @@
                                  }.urlQueryItemsArray;
     urlComponents.fragment = @"_=_";
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
@@ -136,7 +136,7 @@
                                  }.urlQueryItemsArray;
     urlComponents.fragment = @"code=fragment_code";
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
@@ -157,7 +157,7 @@
                                  }.urlQueryItemsArray;
     urlComponents.fragment = @"code=fragment_code&_=_";
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     
@@ -177,7 +177,7 @@
                                  }.urlQueryItemsArray;
     
     
-    MSIDWebAADAuthResponse *response = [[MSIDWebAADAuthResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:urlComponents.URL requestState:@"state" ignoreInvalidState:NO context:nil error:&error];
     XCTAssertNotNil(response);
     XCTAssertNil(error);
     

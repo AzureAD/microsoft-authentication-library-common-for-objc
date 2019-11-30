@@ -24,12 +24,15 @@
 #import "MSIDBrokerOperationResponse.h"
 
 @class MSIDTokenResponse;
+@class MSIDAuthority;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationTokenResponse : MSIDBrokerOperationResponse
 
 @property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
+
+@property (nonatomic, nullable) MSIDAuthority *authority;
 
 @end
 

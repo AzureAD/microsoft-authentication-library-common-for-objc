@@ -48,8 +48,7 @@
         @"accounts" :
             @[
                 @{
-                    @"account_home_id" : @"uid.utid",
-                    @"account_displayable_id" : @"legacy id",
+                    @"home_account_id" : @"uid.utid",
                     @"account_type" : @"MSSTS",
                     @"alternative_account_id" : @"AltID",
                     @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -64,8 +63,7 @@
                     @"username" : @"username",
                 },
                 @{
-                    @"account_home_id" : @"uid.utid",
-                    @"account_displayable_id" : @"legacy id",
+                    @"home_account_id" : @"uid.utid",
                     @"account_type" : @"MSSTS",
                     @"alternative_account_id" : @"AltID",
                     @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -96,7 +94,7 @@
     
     XCTAssertEqual(account1.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account1.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"username");
     XCTAssertEqualObjects(account1.localAccountId, @"local");
     XCTAssertEqualObjects(account1.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(account1.realm, @"common");
@@ -111,7 +109,7 @@
     
     XCTAssertEqual(account2.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account2.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account2.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account2.accountIdentifier.displayableId, @"username");
     XCTAssertEqualObjects(account2.localAccountId, @"local");
     XCTAssertEqualObjects(account2.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(account2.realm, @"tenant");
@@ -133,8 +131,7 @@
         @"accounts" :
             @[
                 @{
-                    @"account_home_id" : @"uid.utid",
-                    @"account_displayable_id" : @"legacy id",
+                    @"home_account_id" : @"uid.utid",
                     @"account_type" : @"MSSTS",
                     @"alternative_account_id" : @"AltID",
                     @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -168,7 +165,7 @@
     
     XCTAssertEqual(account1.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account1.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"username");
     XCTAssertEqualObjects(account1.localAccountId, @"local");
     XCTAssertEqualObjects(account1.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(account1.realm, @"common");
@@ -190,8 +187,7 @@
         @"accounts" :
             @[
                 @{
-                    @"account_home_id" : @"uid.utid",
-                    @"account_displayable_id" : @"legacy id",
+                    @"home_account_id" : @"uid.utid",
                     @"account_type" : @"MSSTS",
                     @"alternative_account_id" : @"AltID",
                     @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -222,7 +218,7 @@
     
     XCTAssertEqual(account1.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account1.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account1.accountIdentifier.displayableId, @"username");
     XCTAssertEqualObjects(account1.localAccountId, @"local");
     XCTAssertEqualObjects(account1.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(account1.realm, @"common");
@@ -255,7 +251,7 @@
 - (void)testJsonDictionary_whenDeserialize_shouldGenerateCorrectJson {
     MSIDAccount *account = [MSIDAccount new];
     account.accountType = MSIDAccountTypeMSSTS;
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy id" homeAccountId:@"uid.utid"];
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"username" homeAccountId:@"uid.utid"];
     account.localAccountId = @"local";
     account.environment = @"login.microsoftonline.com";
     account.realm = @"common";
@@ -286,8 +282,7 @@
         @"accounts" :
             @[
                 @{
-                    @"account_home_id" : @"uid.utid",
-                    @"account_displayable_id" : @"legacy id",
+                    @"home_account_id" : @"uid.utid",
                     @"account_type" : @"MSSTS",
                     @"alternative_account_id" : @"AltID",
                     @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -302,8 +297,7 @@
                     @"username" : @"username",
                 },
                 @{
-                    @"account_home_id" : @"uid.utid",
-                    @"account_displayable_id" : @"legacy id",
+                    @"home_account_id" : @"uid.utid",
                     @"account_type" : @"MSSTS",
                     @"alternative_account_id" : @"AltID",
                     @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",

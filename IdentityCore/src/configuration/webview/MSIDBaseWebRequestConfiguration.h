@@ -32,56 +32,45 @@
 #import <UIKit/UIKit.h>
 #endif
 
-@class MSIDPkce;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDWebviewConfiguration : NSObject
+@class MSIDWebviewResponse;
+@class MSIDWebviewFactory;
 
-// Common
-@property (readwrite) NSURL *authorizationEndpoint;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
-@property (readwrite) NSString *resource;
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
-@property (readwrite) NSUUID *correlationId;
+@interface MSIDBaseWebRequestConfiguration : NSObject
 
-@property (readwrite) NSDictionary<NSString *, NSString *> *extraQueryParameters;
-@property (readwrite) NSString *promptBehavior;
-@property (readwrite) NSString *claims;
-@property (readwrite) BOOL instanceAware;
+@property (nonatomic) NSURL *startURL;
+@property (nonatomic) NSString *endRedirectUrl;
 
 // Embedded webview
-@property (readwrite) NSMutableDictionary<NSString *, NSString *> *customHeaders;
+@property (nonatomic, readwrite) NSDictionary<NSString *, NSString *> *customHeaders;
 
-// PKCE Support
-@property (readonly) MSIDPkce *pkce;
+@property (nonatomic, weak) MSIDViewController *parentController;
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
+
+#if TARGET_OS_IPHONE
+@property (nonatomic, readwrite) UIModalPresentationStyle presentationType;
+#endif
+
+@property (nonatomic, readonly) NSString *state;
 
 // State verification
 // Set this to YES to have the request continue even at state verification failure.
 // Set this to NO if request should stop at state verification failure.
 // By default, this is set to NO.
-@property (readwrite) BOOL ignoreInvalidState;
+@property (nonatomic, readonly) BOOL ignoreInvalidState;
 
-// User information
-@property (readwrite) NSString *loginHint;
-@property (readwrite) NSString *utid;
-@property (readwrite) NSString *uid;
+- (instancetype)initWithStartURL:(NSURL *)startURL
+                  endRedirectUri:(NSString *)endRedirectUri
+                           state:(NSString *)state
+              ignoreInvalidState:(BOOL)ignoreInvalidState;
 
-// Priority start URL
-@property (readwrite) NSURL *explicitStartURL;
 
-@property (weak) MSIDViewController *parentController;
-@property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
-
-#if TARGET_OS_IPHONE
-@property (readwrite) UIModalPresentationStyle presentationType;
-#endif
-
-- (instancetype)initWithAuthorizationEndpoint:(NSURL *)authorizationEndpoint
-                                  redirectUri:(NSString *)redirectUri
-                                     clientId:(NSString *)clientId
-                                     resource:(NSString *)resource
-                                       scopes:(NSOrderedSet<NSString *> *)scopes
-                                correlationId:(NSUUID *)correlationId
-                                   enablePkce:(BOOL)enablePkce;
+- (nullable MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
+                                                factory:(MSIDWebviewFactory *)factory
+                                                context:(nullable id<MSIDRequestContext>)context
+                                                  error:(NSError * _Nullable * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

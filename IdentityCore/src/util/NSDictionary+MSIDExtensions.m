@@ -89,7 +89,7 @@
 }
 
 
-- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
+- (NSDictionary *)msidDictionaryByRemovingFields:(NSArray *)fieldsToRemove
 {
     NSMutableDictionary *mutableDict = [self mutableCopy];
     [mutableDict removeObjectsForKeys:fieldsToRemove];

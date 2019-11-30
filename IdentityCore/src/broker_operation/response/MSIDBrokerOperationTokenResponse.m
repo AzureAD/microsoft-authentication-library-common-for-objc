@@ -51,6 +51,12 @@
     
     if (self)
     {
+        if (self.success)
+        {
+            _authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDAuthority.class error:error];
+            if (!_authority) return nil;
+        }
+        
         _tokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:error];
         if (!_tokenResponse) return nil;
     }
@@ -62,6 +68,17 @@
 {
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if (!json) return nil;
+    
+    if (self.success)
+    {
+        NSDictionary *authorityJson = [self.authority jsonDictionary];
+        if (!authorityJson)
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, authority json is nil.", self.class);
+            return nil;
+        }
+        [json addEntriesFromDictionary:authorityJson];
+    }
     
     NSDictionary *responseJson = [_tokenResponse jsonDictionary];
     if (responseJson) [json addEntriesFromDictionary:responseJson];

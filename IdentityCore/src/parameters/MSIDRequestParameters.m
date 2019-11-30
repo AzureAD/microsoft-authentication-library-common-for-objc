@@ -166,6 +166,12 @@
     [self updateMSIDConfiguration];
 }
 
+- (void)setCloudAuthority:(MSIDAuthority *)cloudAuthority
+{
+    _cloudAuthority = cloudAuthority;
+    [self updateMSIDConfiguration];
+}
+
 - (void)setClientId:(NSString *)clientId
 {
     _clientId = clientId;

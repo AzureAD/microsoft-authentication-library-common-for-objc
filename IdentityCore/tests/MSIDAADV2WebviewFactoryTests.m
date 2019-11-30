@@ -27,11 +27,14 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDAADV2WebviewFactory.h"
-#import "MSIDWebviewConfiguration.h"
 #import "MSIDTestIdentifiers.h"
 #import "MSIDPkce.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDDeviceId.h"
+#import "MSIDTestParametersProvider.h"
+#import "MSIDPkce.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAADV2WebviewFactoryTests : XCTestCase
 
@@ -39,41 +42,18 @@
 
 @implementation MSIDAADV2WebviewFactoryTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
-
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
-
-
-- (void)testAuthorizationParametersFromConfiguration_withValidParams_shouldContainAADV2Configuration
+- (void)testAuthorizationParametersFromParameters_withValidParams_shouldContainAADV2Configuration
 {
-    __block NSUUID *correlationId = [NSUUID new];
-    
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                              resource:nil
-                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", @"scope2", nil]
-                                                                                         correlationId:correlationId
-                                                                                            enablePkce:YES];
-    
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
-    config.promptBehavior = @"login";
-    config.claims = @"claims";
-    config.utid = DEFAULT_TEST_UTID;
-    config.uid = DEFAULT_TEST_UID;
-    config.loginHint = @"fakeuser@contoso.com";
+    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"fakeuser@contoso.com" homeAccountId:@"uid.utid"];
     
     NSString *requestState = @"state";
     
     MSIDAADV2WebviewFactory *factory = [MSIDAADV2WebviewFactory new];
     
-    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
+    MSIDPkce *pkce = [MSIDPkce new];
+    
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
     
     NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
                                         @{
@@ -81,20 +61,19 @@
                                           @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
                                           @"response_type" : @"code",
                                           @"code_challenge_method" : @"S256",
-                                          @"code_challenge" : config.pkce.codeChallenge,
-                                          @"eqp1" : @"val1",
-                                          @"eqp2" : @"val2",
-                                          @"claims" : @"claims",
+                                          @"code_challenge" : pkce.codeChallenge,
                                           @"return-client-request-id" : @"true",
-                                          @"client-request-id" : correlationId.UUIDString,
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
-                                          @"scope" : @"scope1 scope2",
+                                          @"scope" : @"scope1",
                                           @"client_info" : @"1",
-                                          @"login_req" : config.uid,
-                                          @"domain_req" : config.utid,
-                                          @"prompt" : @"login",
-                                          @"haschrome" : @"1"
+                                          @"login_req" : @"uid",
+                                          @"domain_req" : @"utid",
+                                          @"haschrome" : @"1",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new]
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
