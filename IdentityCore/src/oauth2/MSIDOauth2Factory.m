@@ -41,7 +41,7 @@
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDRefreshTokenGrantRequest.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"

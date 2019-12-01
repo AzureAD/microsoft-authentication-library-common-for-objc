@@ -39,6 +39,7 @@
 #import "MSIDLogoutWebRequestConfiguration.h"
 #import "MSIDWebviewInteracting.h"
 #import "MSIDSystemWebViewControllerFactory.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDWebviewFactory
 
@@ -154,7 +155,7 @@
 
 #pragma mark - Webview helpers
 
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                                                          pkce:(MSIDPkce *)pkce
                                                                                  requestState:(NSString *)state
 {
@@ -236,7 +237,7 @@
     return [[NSUUID UUID] UUIDString];
 }
 
-- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
     NSURL *authorizeEndpoint = parameters.authority.metadata.authorizationEndpoint;
     

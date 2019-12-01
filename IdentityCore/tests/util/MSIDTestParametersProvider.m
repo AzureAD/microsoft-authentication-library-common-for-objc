@@ -29,21 +29,21 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAuthority+Internal.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTestIdentifiers.h"
 
 @implementation MSIDTestParametersProvider
 
 #pragma mark - Helpers
 
-+ (MSIDInteractiveRequestParameters *)testInteractiveParameters
++ (MSIDInteractiveTokenRequestParameters *)testInteractiveParameters
 {
     NSUUID *correlationId = [NSUUID new];
     
     MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:DEFAULT_TEST_AUTHORITY] rawTenant:nil context:nil error:nil];
     authority.metadata = [MSIDOpenIdProviderMetadata new];
     
-    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:DEFAULT_TEST_REDIRECT_URI
                                                                                                       clientId:DEFAULT_TEST_CLIENT_ID
                                                                                                         scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]

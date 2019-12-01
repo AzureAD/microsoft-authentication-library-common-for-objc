@@ -51,6 +51,7 @@ NSString *const MSID_BROKER_INSTANCE_AWARE_KEY     = @"instance_aware";
 NSString *const MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY = @"intune_enrollment_ids";
 NSString *const MSID_BROKER_INTUNE_MAM_RESOURCE_KEY = @"intune_mam_resource";
 NSString *const MSID_BROKER_CLIENT_CAPABILITIES_KEY = @"client_capabilities";
+NSString *const MSID_BROKER_REMOVE_ACCOUNT_SCOPE    = @"remove_account_scope";
 NSString *const MSID_BROKER_CLAIMS_KEY             = @"claims";
 NSString *const MSID_BROKER_APPLICATION_TOKEN_TAG  = @"com.microsoft.adBrokerAppToken";
 NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION   = @"2";

@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDInteractiveTokenRequest()
 
-@property (nonatomic) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic) MSIDInteractiveTokenRequestParameters *requestParameters;
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;

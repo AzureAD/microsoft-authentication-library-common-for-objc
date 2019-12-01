@@ -27,7 +27,7 @@
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 #import "MSIDJsonSerializer.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
@@ -52,7 +52,7 @@
 
 @implementation MSIDSSOExtensionInteractiveTokenRequest
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache

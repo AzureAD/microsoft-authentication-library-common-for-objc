@@ -43,6 +43,7 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDTestParametersProvider.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @interface MSIDWebviewFactoryTests : XCTestCase
 
@@ -55,7 +56,7 @@
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
 
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};
     parameters.loginHint = @"fakeuser@contoso.com";
@@ -90,7 +91,7 @@
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     
     NSString *requestState = @"state";
 
@@ -137,7 +138,7 @@
 - (void)testAuthorizeWebRequestConfiguration_whenValidParameters_noAuthorizeURLPresent_shouldReturnNil
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.authorizationEndpoint = nil;
     
     MSIDAuthorizeWebRequestConfiguration *conf = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
@@ -175,7 +176,7 @@
 - (void)testAuthorizeWebRequestConfiguration_whenValidParameters_shouldReturnNonNilWebConfiguration
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/authorizeme"];
     
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};

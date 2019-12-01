@@ -21,32 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
-#import "MSIDProviderType.h"
-
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveTokenRequestParameters;
+#import <Foundation/Foundation.h>
+#import "MSIDLogoutRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
-
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic) NSString *extraScopesToConsent;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@interface MSIDSSOExtensionLogoutRequest : MSIDLogoutRequest
 
 @end
 
 NS_ASSUME_NONNULL_END
-#endif

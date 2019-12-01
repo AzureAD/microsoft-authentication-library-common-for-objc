@@ -25,7 +25,7 @@
 #import "MSIDRequestControlling.h"
 #import "MSIDTokenRequestProviding.h"
 
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 @class MSIDRequestParameters;
 
 @interface MSIDRequestControllerFactory : NSObject
@@ -35,7 +35,7 @@
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError * _Nullable * _Nullable)error;
 
-+ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                     error:(NSError * _Nullable * _Nullable)error;
 

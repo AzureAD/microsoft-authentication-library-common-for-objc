@@ -21,32 +21,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
-#import "MSIDProviderType.h"
+#import "MSIDSSOExtensionOperationRequestDelegate.h"
+#import "MSIDSSOExtensionRequestDelegate+Internal.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDBrokerOperationResponse.h"
 
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveTokenRequestParameters;
+@implementation MSIDSSOExtensionOperationRequestDelegate
 
-NS_ASSUME_NONNULL_BEGIN
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(__unused ASAuthorization *)authorization
+{
+    if (!self.completionBlock) return;
+    
+    NSError *error;
+    __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
+    if (!ssoCredential) self.completionBlock(nil, error);
+    
+    __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
+    if (!json) self.completionBlock(nil, error);
+    
+    __auto_type operationResponse = (MSIDBrokerOperationResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationResponse.class error:&error];
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
-
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic) NSString *extraScopesToConsent;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+    if (!operationResponse)
+    {
+        self.completionBlock(nil, error);
+        return;
+    }
+    
+    self.completionBlock(operationResponse, nil);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
-#endif

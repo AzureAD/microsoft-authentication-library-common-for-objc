@@ -30,6 +30,7 @@
 #import "MSIDWebviewFactory.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDMainThreadUtil.h"
 
 @interface MSIDLogoutRequest()
 
@@ -60,7 +61,7 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDLogoutRequestCompletionBlock)completionBlock
 {
-    NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.requestParameters.loginHint;
+    NSString *upn = self.requestParameters.accountIdentifier.displayableId;
 
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
@@ -77,14 +78,17 @@
          [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
                                                          completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *error)
           {
-              if (error)
-              {
-                  completionBlock(NO, error);
-                  return;
-              }
-
-              [self executeRequestWithCompletionImpl:completionBlock];
-          }];
+             if (error)
+             {
+                 completionBlock(NO, error);
+                 return;
+             }
+             
+             [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+                 [self executeRequestWithCompletionImpl:completionBlock];
+             }];
+             
+         }];
      }];
 }
 
@@ -109,7 +113,7 @@
                                               context:self.requestParameters
                                     completionHandler:^(MSIDWebviewResponse *response, NSError *error)
     {
-        if (error)
+        if (error && !([error.domain isEqualToString:MSIDErrorDomain] && error.code == MSIDErrorUserCancel))
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Encountered an error in logout request handling %@", MSID_PII_LOG_MASKABLE(error));
             if (completionBlock) completionBlock(NO, error);

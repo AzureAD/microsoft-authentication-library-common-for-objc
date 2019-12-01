@@ -516,6 +516,23 @@
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error
 {
+    return [self clearCacheForAccount:accountIdentifier
+                            authority:authority
+                             clientId:clientId
+                             familyId:familyId
+                        clearAccounts:NO
+                              context:context
+                                error:error];
+}
+
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)accountIdentifier
+                   authority:(MSIDAuthority *)authority
+                    clientId:(NSString *)clientId
+                    familyId:(NSString *)familyId
+               clearAccounts:(BOOL)clearAccounts
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error
+{
     if (!accountIdentifier)
     {
         MSIDFillAndLogError(error, MSIDErrorInternal, @"Cannot clear cache without account provided", context.correlationId);
@@ -547,7 +564,32 @@
         query.environmentAliases = aliases;
         query.matchAnyCredentialType = YES;
 
-        BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
+        NSError *credentialRemovalError;
+        BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:&credentialRemovalError];
+        
+        if (!result)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove credentials with error %@", MSID_PII_LOG_MASKABLE(credentialRemovalError));
+            if (error) *error = credentialRemovalError;
+        }
+        
+        if (clearAccounts)
+        {
+            MSIDDefaultAccountCacheQuery *accountQuery = [MSIDDefaultAccountCacheQuery new];
+            accountQuery.homeAccountId = homeAccountId;
+            accountQuery.environmentAliases = aliases;
+            accountQuery.accountType = MSIDAccountTypeMSSTS;
+            
+            NSError *accountRemovalError;
+            result = [_accountCredentialCache removeAccountsWithQuery:accountQuery context:context error:&accountRemovalError];
+            
+            if (!result)
+            {
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove accounts with error %@", MSID_PII_LOG_MASKABLE(accountRemovalError));
+                if (error) *error = accountRemovalError;
+            }
+        }
+        
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:result context:context];
     }
     else

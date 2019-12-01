@@ -36,10 +36,11 @@
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDLogoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDAADWebviewFactory
 
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                                                          pkce:(MSIDPkce *)pkce
                                                                                  requestState:(NSString *)state
 {

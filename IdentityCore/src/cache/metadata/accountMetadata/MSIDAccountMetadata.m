@@ -136,7 +136,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.homeAccountId;
     dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = _internalMap;
-    dictionary[MSID_SIGN_IN_STATE_CACHE_KEY] = [NSString stringWithFormat: @"%ld", self.signInState];
+    dictionary[MSID_SIGN_IN_STATE_CACHE_KEY] = [NSString stringWithFormat: @"%ld", (long)self.signInState];
     
     return dictionary;
 }

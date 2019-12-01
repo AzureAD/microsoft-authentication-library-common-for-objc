@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,38 +17,27 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
+#import "MSIDBrokerOperationRemoveAccountRequest.h"
 #import "MSIDProviderType.h"
-
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveTokenRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
+@class MSIDAuthority;
 
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic) NSString *extraScopesToConsent;
+@interface MSIDBrokerOperationSignoutFromDeviceRequest : MSIDBrokerOperationRemoveAccountRequest
 
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+@property (readwrite) MSIDAuthority *authority;
+@property (readwrite) NSString *redirectUri;
+@property (nonatomic) MSIDProviderType providerType;
 
 @end
 
 NS_ASSUME_NONNULL_END
-#endif

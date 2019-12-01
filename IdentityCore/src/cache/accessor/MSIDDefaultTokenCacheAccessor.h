@@ -80,4 +80,12 @@
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
 
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)accountIdentifier
+                   authority:(MSIDAuthority *)authority
+                    clientId:(NSString *)clientId
+                    familyId:(NSString *)familyId
+               clearAccounts:(BOOL)clearAccounts
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
+
 @end

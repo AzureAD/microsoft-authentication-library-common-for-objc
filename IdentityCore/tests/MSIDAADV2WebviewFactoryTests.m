@@ -33,7 +33,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDTestParametersProvider.h"
 #import "MSIDPkce.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDAADV2WebviewFactoryTests : XCTestCase
@@ -44,7 +44,7 @@
 
 - (void)testAuthorizationParametersFromParameters_withValidParams_shouldContainAADV2Configuration
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"fakeuser@contoso.com" homeAccountId:@"uid.utid"];
     
     NSString *requestState = @"state";

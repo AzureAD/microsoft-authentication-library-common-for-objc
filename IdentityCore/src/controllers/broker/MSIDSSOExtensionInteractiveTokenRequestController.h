@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionInteractiveTokenRequestController : MSIDLocalInteractiveController
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParameters;
+@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParameters;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                         error:(NSError * _Nullable * _Nullable)error NS_DESIGNATED_INITIALIZER;

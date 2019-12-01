@@ -23,7 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDInteractiveTokenRequest.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
@@ -96,7 +96,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
@@ -194,7 +194,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
@@ -293,7 +293,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
@@ -384,7 +384,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
@@ -476,7 +476,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
@@ -565,7 +565,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
@@ -628,7 +628,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";
@@ -688,7 +688,7 @@
 {
     __block NSUUID *correlationId = [NSUUID new];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.target = @"fakescope1 fakescope2";
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-test://com.microsoft.testapp";

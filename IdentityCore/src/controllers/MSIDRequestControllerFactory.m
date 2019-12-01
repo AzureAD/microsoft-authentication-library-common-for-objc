@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestControllerFactory.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDSilentController.h"
 #if TARGET_OS_IPHONE
@@ -72,7 +72,7 @@
     return localController;
 }
 
-+ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                     error:(NSError * _Nullable * _Nullable)error
 {
@@ -92,7 +92,7 @@
                                                              error:error];
 }
 
-+ (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError * _Nullable * _Nullable)error
 {
@@ -132,7 +132,7 @@
     return localController;
 }
 
-+ (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                             error:(NSError * _Nullable * _Nullable)error
 {

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDLegacyBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
@@ -39,7 +39,7 @@
 
 - (void)testInitBrokerRequest_whenClaimsPassed_shouldSetSkipCacheToYES
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     NSDictionary *claimsJsonDictionary = @{@"access_token":@{@"polids":@{@"values":@[@"5ce770ea-8690-4747-aa73-c5b3cd509cd4"], @"essential":@YES}}};
     parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
 
@@ -90,7 +90,7 @@
 
 - (void)testInitBrokerRequest_whenUsernameAndTypePassed_shouldSendUsernameAndType
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"username@upn.com" homeAccountId:nil];
     parameters.accountIdentifier.legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
 
@@ -142,7 +142,7 @@
 
 - (void)testInitBrokerRequest_whenLoginHintPassed_shouldSendLoginHintAndType
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     parameters.loginHint = @"myloginhint";
 
     NSError *error = nil;
@@ -193,7 +193,7 @@
 
 - (void)testInitBrokerRequest_whenForcePromptPassed_shouldSendForceYES
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     parameters.uiBehaviorType = MSIDUIBehaviorForceType;
 
     NSError *error = nil;
@@ -242,9 +242,9 @@
 
 #pragma mark - Helpers
 
-- (MSIDInteractiveRequestParameters *)defaultTestParameters
+- (MSIDInteractiveTokenRequestParameters *)defaultTestParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"myresource";

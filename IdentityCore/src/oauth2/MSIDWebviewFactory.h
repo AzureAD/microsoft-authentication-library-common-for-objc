@@ -33,6 +33,7 @@
 @class MSIDLogoutWebRequestConfiguration;
 @class MSIDBaseWebRequestConfiguration;
 @class MSIDPkce;
+@class MSIDInteractiveTokenRequestParameters;
 
 @interface MSIDWebviewFactory : NSObject
 
@@ -56,7 +57,7 @@
 #endif
 
 // Webview related
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                                                          pkce:(MSIDPkce *)pkce
                                                                                  requestState:(NSString *)state;
 
@@ -76,7 +77,7 @@
 // Helper for generating state for state verification
 - (NSString *)generateStateValue;
 
-- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters;
 
 - (MSIDLogoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 

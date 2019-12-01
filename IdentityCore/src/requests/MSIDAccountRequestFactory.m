@@ -21,32 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDAccountRequestFactory.h"
+#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDRequestParameters+Broker.h"
 #if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
-#import "MSIDProviderType.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "MSIDSSOExtensionLogoutRequest.h"
+#endif
 
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveTokenRequestParameters;
+@implementation MSIDAccountRequestFactory
 
-NS_ASSUME_NONNULL_BEGIN
++ (MSIDLogoutRequest *)logoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                             oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+{
+#if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
+    if ([parameters shouldUseBroker])
+    {
+        if (@available(iOS 13.0, macos 10.15, *))
+        {
+            if ([self canUseSSOExtension])
+            {
+                return [[MSIDSSOExtensionLogoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+            }
+        }
+    }
+#endif
+    
+    return [[MSIDLogoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+}
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
+#if MSID_ENABLE_SSO_EXTENSION
 
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic, nullable) NSString *loginHint;
-@property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic) NSString *extraScopesToConsent;
++ (BOOL)canUseSSOExtension API_AVAILABLE(ios(13.0), macos(10.15))
+{
+    return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
+}
 
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+#endif
 
 @end
-
-NS_ASSUME_NONNULL_END
-#endif

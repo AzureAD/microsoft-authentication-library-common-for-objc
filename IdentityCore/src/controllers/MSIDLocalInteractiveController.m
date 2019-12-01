@@ -23,7 +23,7 @@
 
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "MSIDInteractiveTokenRequest.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryAPIEvent.h"
@@ -38,7 +38,7 @@
 
 @interface MSIDLocalInteractiveController()
 
-@property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
+@property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 @property (nonatomic) MSIDInteractiveTokenRequest *currentRequest;
 
 @end
@@ -47,7 +47,7 @@
 
 #pragma mark - Init
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError * _Nullable * _Nullable)error
 {
@@ -174,17 +174,19 @@
     [[MSIDTelemetry sharedInstance] startEvent:self.interactiveRequestParamaters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
     self.currentRequest = request;
+    
+    __weak typeof(self) weakSelf = self;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
     {
         if (msauthResponse)
         {
-            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
+            [weakSelf handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }
 
-        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
+        MSIDTelemetryAPIEvent *telemetryEvent = [weakSelf telemetryAPIEvent];
         [telemetryEvent setUserInformation:result.account];
-        [self stopTelemetryEvent:telemetryEvent error:error];
+        [weakSelf stopTelemetryEvent:telemetryEvent error:error];
         completionBlock(result, error);
     }];
 }
