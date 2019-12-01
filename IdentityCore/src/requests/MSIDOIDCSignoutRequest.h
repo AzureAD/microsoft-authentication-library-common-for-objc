@@ -22,12 +22,23 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDLogoutRequest.h"
+#import "MSIDConstants.h"
+
+@class MSIDInteractiveRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDTokenResponseValidator;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionLogoutRequest : MSIDLogoutRequest
+@interface MSIDOIDCSignoutRequest : NSObject
+
+@property (nonatomic, readonly, nonnull) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
+
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
+
+- (void)executeRequestWithCompletion:(nonnull MSIDSignoutRequestCompletionBlock)completionBlock;
 
 @end
 

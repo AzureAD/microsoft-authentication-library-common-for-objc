@@ -25,14 +25,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDLogoutRequest;
+@class MSIDOIDCSignoutRequest;
 @class MSIDInteractiveRequestParameters;
 @class MSIDOauth2Factory;
 
 @interface MSIDAccountRequestFactory : NSObject
 
-+ (MSIDLogoutRequest *)logoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                             oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
++ (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                   oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
 
 @end
 

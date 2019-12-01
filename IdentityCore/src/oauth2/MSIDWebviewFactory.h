@@ -30,7 +30,7 @@
 @class WKWebView;
 @class MSIDInteractiveRequestParameters;
 @protocol MSIDWebviewInteracting;
-@class MSIDLogoutWebRequestConfiguration;
+@class MSIDSignoutWebRequestConfiguration;
 @class MSIDBaseWebRequestConfiguration;
 @class MSIDPkce;
 @class MSIDInteractiveTokenRequestParameters;
@@ -79,6 +79,6 @@
 
 - (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters;
 
-- (MSIDLogoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+- (MSIDSignoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 
 @end

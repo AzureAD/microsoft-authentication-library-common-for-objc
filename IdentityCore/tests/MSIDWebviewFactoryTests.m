@@ -38,7 +38,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDOpenIdProviderMetadata.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDTestUtil.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
@@ -110,7 +110,7 @@
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     MSIDInteractiveRequestParameters *parameters = nil;
-    MSIDLogoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
+    MSIDSignoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNil(conf);
 }
@@ -118,7 +118,7 @@
 - (void)testAuthorizeWebRequestConfiguration_whenNilParameters_shouldReturnNil
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    MSIDInteractiveRequestParameters *parameters = nil;
+    MSIDInteractiveTokenRequestParameters *parameters = nil;
     MSIDAuthorizeWebRequestConfiguration *conf = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNil(conf);
@@ -130,7 +130,7 @@
     MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.endSessionEndpoint = nil;
     
-    MSIDLogoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
+    MSIDSignoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNil(conf);
 }
@@ -152,7 +152,7 @@
     MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.endSessionEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/logmeout"];
     
-    MSIDLogoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
+    MSIDSignoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNotNil(conf);
     XCTAssertNotNil(conf.startURL);

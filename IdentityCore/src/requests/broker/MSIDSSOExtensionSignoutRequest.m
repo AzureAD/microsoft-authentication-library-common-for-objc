@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSSOExtensionLogoutRequest.h"
+#import "MSIDSSOExtensionSignoutRequest.h"
 
 #if MSID_ENABLE_SSO_EXTENSION
 #import <AuthenticationServices/AuthenticationServices.h>
@@ -35,17 +35,17 @@
 #import "MSIDBrokerOperationResponse.h"
 #import "MSIDConfiguration.h"
 
-@interface MSIDSSOExtensionLogoutRequest() <ASAuthorizationControllerPresentationContextProviding, ASAuthorizationControllerDelegate>
+@interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerPresentationContextProviding, ASAuthorizationControllerDelegate>
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
-@property (nonatomic, copy) MSIDLogoutRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic, copy) MSIDSignoutRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic, readonly) MSIDProviderType providerType;
 
 @end
 
-@implementation MSIDSSOExtensionLogoutRequest
+@implementation MSIDSSOExtensionSignoutRequest
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
@@ -74,7 +74,7 @@
     return self;
 }
 
-- (void)executeRequestWithCompletion:(nonnull MSIDLogoutRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(nonnull MSIDSignoutRequestCompletionBlock)completionBlock
 {
     if (!self.requestParameters.accountIdentifier)
     {

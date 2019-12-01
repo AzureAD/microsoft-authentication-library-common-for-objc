@@ -28,7 +28,7 @@
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDAADV2WebviewFactory

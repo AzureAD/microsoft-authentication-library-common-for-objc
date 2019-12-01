@@ -31,7 +31,7 @@
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebWPJResponse.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCacheRecord.h"

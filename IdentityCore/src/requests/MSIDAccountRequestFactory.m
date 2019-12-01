@@ -26,13 +26,13 @@
 #import "MSIDRequestParameters+Broker.h"
 #if MSID_ENABLE_SSO_EXTENSION
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDSSOExtensionLogoutRequest.h"
+#import "MSIDSSOExtensionSignoutRequest.h"
 #endif
 
 @implementation MSIDAccountRequestFactory
 
-+ (MSIDLogoutRequest *)logoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                             oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
++ (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                   oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
 {
 #if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
     if ([parameters shouldUseBroker])
@@ -41,13 +41,13 @@
         {
             if ([self canUseSSOExtension])
             {
-                return [[MSIDSSOExtensionLogoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+                return [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
             }
         }
     }
 #endif
     
-    return [[MSIDLogoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+    return [[MSIDOIDCSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
 }
 
 #if MSID_ENABLE_SSO_EXTENSION

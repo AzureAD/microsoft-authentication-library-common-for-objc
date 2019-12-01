@@ -21,25 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLogoutRequest.h"
+#import "MSIDOIDCSignoutRequest.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDWebviewAuthorization.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
 #import "MSIDMainThreadUtil.h"
 
-@interface MSIDLogoutRequest()
+@interface MSIDOIDCSignoutRequest()
 
 @property (nonatomic, nonnull) MSIDInteractiveRequestParameters *requestParameters;
 @property (nonatomic, nonnull) MSIDOauth2Factory *oauthFactory;
 
 @end
 
-@implementation MSIDLogoutRequest
+@implementation MSIDOIDCSignoutRequest
 
 #pragma mark - Init
 
@@ -59,7 +58,7 @@
 
 #pragma mark - Execute
 
-- (void)executeRequestWithCompletion:(nonnull MSIDLogoutRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(nonnull MSIDSignoutRequestCompletionBlock)completionBlock
 {
     NSString *upn = self.requestParameters.accountIdentifier.displayableId;
 
@@ -92,9 +91,9 @@
      }];
 }
 
-- (void)executeRequestWithCompletionImpl:(nonnull MSIDLogoutRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletionImpl:(nonnull MSIDSignoutRequestCompletionBlock)completionBlock
 {
-    MSIDLogoutWebRequestConfiguration *configuration = [self.oauthFactory.webviewFactory logoutWebRequestConfigurationWithRequestParameters:self.requestParameters];
+    MSIDSignoutWebRequestConfiguration *configuration = [self.oauthFactory.webviewFactory logoutWebRequestConfigurationWithRequestParameters:self.requestParameters];
     
     NSObject<MSIDWebviewInteracting> *webView = [self.oauthFactory.webviewFactory webViewWithConfiguration:configuration
                                                                                          requestParameters:self.requestParameters

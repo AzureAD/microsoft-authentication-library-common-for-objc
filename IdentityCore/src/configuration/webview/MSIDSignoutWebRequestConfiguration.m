@@ -25,10 +25,10 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOAuth2Response.h"
 
-@implementation MSIDLogoutWebRequestConfiguration
+@implementation MSIDSignoutWebRequestConfiguration
 
 - (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
                                        factory:(__unused MSIDWebviewFactory *)factory

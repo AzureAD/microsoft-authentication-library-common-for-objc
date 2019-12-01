@@ -34,7 +34,7 @@
 #import "MSIDAuthority.h"
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 

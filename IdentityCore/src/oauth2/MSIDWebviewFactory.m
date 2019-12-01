@@ -36,7 +36,7 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDClaimsRequest.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebviewInteracting.h"
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
@@ -268,7 +268,7 @@
     return configuration;
 }
 
-- (MSIDLogoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDSignoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
 {
     NSURL *logoutEndpoint = parameters.authority.metadata.endSessionEndpoint;
     
@@ -281,10 +281,10 @@
     NSDictionary *logoutQuery = [self logoutParametersFromRequestParameters:parameters requestState:oauthState];
     NSURL *startURL = [self startURLWithEndpoint:logoutEndpoint authority:parameters.authority query:logoutQuery context:parameters];
     
-    MSIDLogoutWebRequestConfiguration *configuration = [[MSIDLogoutWebRequestConfiguration alloc] initWithStartURL:startURL
-                                                                                                    endRedirectUri:parameters.redirectUri
-                                                                                                             state:oauthState
-                                                                                                ignoreInvalidState:NO];
+    MSIDSignoutWebRequestConfiguration *configuration = [[MSIDSignoutWebRequestConfiguration alloc] initWithStartURL:startURL
+                                                                                                      endRedirectUri:parameters.redirectUri
+                                                                                                               state:oauthState
+                                                                                                  ignoreInvalidState:NO];
     
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;
