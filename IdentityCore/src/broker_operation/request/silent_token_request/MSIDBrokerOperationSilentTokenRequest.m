@@ -59,7 +59,12 @@
 
 + (NSString *)operation
 {
-    return ASAuthorizationOperationRefresh;
+    if (@available(iOS 13.0, macOS 10.15, *))
+    {
+        return ASAuthorizationOperationRefresh;
+    }
+    
+    return @"refresh";
 }
 
 #pragma mark - MSIDJsonSerializable

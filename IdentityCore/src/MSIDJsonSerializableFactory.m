@@ -148,6 +148,7 @@ static NSMutableDictionary<NSString *, NSString *> *s_keysMap = nil;
     }
     
     id<MSIDJsonSerializable> classInstance = [[(Class)class alloc] initWithJSONDictionary:json error:error];
+    if (!classInstance) return nil;
     
     if (![classInstance isKindOfClass:aClass])
     {
