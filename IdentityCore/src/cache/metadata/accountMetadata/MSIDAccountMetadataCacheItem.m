@@ -96,7 +96,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     return nil;
 }
 
-#pragma - Mark Signed out
+#pragma mark - Signed out
 - (void)updateSignInState:(MSIDAccountMetadataState)state
 {
     _signInState = state;
