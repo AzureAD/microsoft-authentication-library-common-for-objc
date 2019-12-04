@@ -37,6 +37,7 @@
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#import "MSIDSSOTokenResponseHandler.h"
 
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
@@ -47,6 +48,7 @@
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
+@property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
 
 @end
 
@@ -66,12 +68,27 @@
 
     if (self)
     {
+        _ssoTokenResponseHandler = [MSIDSSOTokenResponseHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
-        {            
-            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
+        {
+#if TARGET_OS_OSX
+            weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
+#endif
+            [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
+                                                    requestParameters:weakSelf.requestParameters
+                                               tokenResponseValidator:weakSelf.tokenResponseValidator
+                                                         oauthFactory:weakSelf.oauthFactory
+                                                           tokenCache:weakSelf.tokenCache
+                                                 accountMetadataCache:weakSelf.accountMetadataCache
+                                                      validateAccount:YES
+                                                                error:error
+                                                      completionBlock:^(MSIDTokenResult *result, NSError *error)
+             {
+                weakSelf.requestCompletionBlock(result, error, nil);
+            }];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
@@ -126,7 +143,7 @@
             completionBlock(nil, localError, nil);
             return;
         }
-        
+    
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
         ssoRequest.requestedOperation = [operationRequest.class operation];
         __auto_type queryItems = [[operationRequest jsonDictionary] msidQueryItems];

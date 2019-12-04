@@ -33,7 +33,7 @@
 @class MSIDConfiguration;
 @class MSIDClaimsRequest;
 
-@interface MSIDRequestParameters : NSObject <MSIDRequestContext>
+@interface MSIDRequestParameters : NSObject <NSCopying, MSIDRequestContext>
 
 @property (nonatomic) MSIDAuthority *authority;
 /*

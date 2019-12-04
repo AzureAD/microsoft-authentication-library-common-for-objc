@@ -25,11 +25,11 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebAADAuthResponse.h"
+#import "MSIDWebAADAuthCodeResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDCBAWebAADAuthResponse : MSIDWebAADAuthResponse
+@interface MSIDCBAWebAADAuthResponse : MSIDWebAADAuthCodeResponse
 
 @property (nonatomic) NSString *redirectUri;
 

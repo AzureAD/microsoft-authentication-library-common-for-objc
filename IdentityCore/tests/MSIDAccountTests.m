@@ -85,31 +85,6 @@
     XCTAssertEqualObjects(account.homeAccountId, @"some id");
 }
 
-- (void)testInitWithLegacyUserIdClientInfo_shouldInitAccountAndSetProperties
-
-{
-    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
-    
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy user id" clientInfo:clientInfo];
-    
-    XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.displayableId, @"legacy user id");
-    XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
-}
-
-- (void)testInitWithTokenResponseRequestParams_shouldInitAccountAndSetProperties
-{
-    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
-    
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy user id" clientInfo:clientInfo];
-    
-    XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.displayableId, @"legacy user id");
-    XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
-}
-
 - (void)testAccountIdentifier_whenCopied_shouldReturnSameItem
 {
     MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id"];

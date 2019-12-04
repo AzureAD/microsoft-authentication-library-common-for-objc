@@ -27,7 +27,6 @@
 #import "MSIDKeyGenerator.h"
 
 @class MSIDBaseToken;
-@class MSIDClientInfo;
 
 @interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 

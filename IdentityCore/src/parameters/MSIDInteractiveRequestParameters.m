@@ -109,4 +109,28 @@
     return YES;
 }
 
+#pragma mark - NSCopying
+
+- (instancetype)copyWithZone:(NSZone*)zone
+{
+    MSIDInteractiveRequestParameters *parameters = [super copyWithZone:zone];
+    parameters->_uiBehaviorType = _uiBehaviorType;
+    parameters->_loginHint = [_loginHint copyWithZone:zone];
+    parameters->_webviewType = _webviewType;
+    parameters->_customWebview = _customWebview;
+    parameters->_customWebviewHeaders = [_customWebviewHeaders copyWithZone:zone];
+    parameters->_parentViewController = _parentViewController;
+#if TARGET_OS_IPHONE
+    parameters->_presentationType = _presentationType;
+#endif
+    parameters->_prefersEphemeralWebBrowserSession = _prefersEphemeralWebBrowserSession;
+    parameters->_extraScopesToConsent = [_extraScopesToConsent copyWithZone:zone];
+    parameters->_promptType = _promptType;
+    parameters->_extraAuthorizeURLQueryParameters = [_extraAuthorizeURLQueryParameters copyWithZone:zone];
+    parameters->_telemetryWebviewType = [_telemetryWebviewType copyWithZone:zone];
+    parameters->_brokerInvocationOptions = _brokerInvocationOptions;
+    parameters->_enablePkce = _enablePkce;
+    return parameters;
+}
+
 @end

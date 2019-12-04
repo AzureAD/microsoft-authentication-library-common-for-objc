@@ -30,7 +30,7 @@
 #import "MSIDSafariViewController.h"
 #import "MSIDSystemWebviewController.h"
 #import <SafariServices/SafariServices.h>
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDMainThreadUtil.h"

@@ -24,41 +24,60 @@
 #import <Foundation/Foundation.h>
 
 @protocol MSIDRequestContext;
-@class MSIDWebviewConfiguration;
+@class MSIDAuthorizeWebRequestConfiguration;
 @class MSIDWebviewResponse;
 @class MSIDWebviewSession;
 @class WKWebView;
 @class MSIDInteractiveRequestParameters;
+@protocol MSIDWebviewInteracting;
+@class MSIDLogoutWebRequestConfiguration;
+@class MSIDBaseWebRequestConfiguration;
+@class MSIDPkce;
 
 @interface MSIDWebviewFactory : NSObject
 
 #if !MSID_EXCLUDE_WEBKIT
-// Webviews creation
-- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context;
+
+- (NSObject<MSIDWebviewInteracting> *)webViewWithConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
+                                             requestParameters:(MSIDInteractiveRequestParameters *)requestParameters
+                                                       context:(id<MSIDRequestContext>)context;
+
+- (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
+                                                         customWebview:(WKWebView *)webview
+                                                               context:(id<MSIDRequestContext>)context;
+
 #endif
 
 #if !MSID_EXCLUDE_SYSTEMWV
-- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration
-                                     useAuthenticationSession:(BOOL)useAuthenticationSession
-                                    allowSafariViewController:(BOOL)allowSafariViewController
-                                                      context:(id<MSIDRequestContext>)context;
+- (NSObject<MSIDWebviewInteracting> *)systemWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
+                                            useAuthenticationSession:(BOOL)useAuthenticationSession
+                                           allowSafariViewController:(BOOL)allowSafariViewController
+                                                             context:(id<MSIDRequestContext>)context;
 #endif
 
 // Webview related
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state;
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state;
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                                                         pkce:(MSIDPkce *)pkce
+                                                                                 requestState:(NSString *)state;
+
+- (NSMutableDictionary<NSString *, NSString *> *)logoutParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                                          requestState:(NSString *)state;
+
+- (NSDictionary<NSString *, NSString *> *)metadataFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 
 // Create a corresponding response from URL.
 //   If this different per authorization setup (i.e./ v1 vs v2), implement it in subclasses.
-- (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
-                            requestState:(NSString *)requestState
-                      ignoreInvalidState:(BOOL)ignoreInvalidState
-                                 context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error;
+- (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
+                                 requestState:(NSString *)requestState
+                           ignoreInvalidState:(BOOL)ignoreInvalidState
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error;
 
 // Helper for generating state for state verification
 - (NSString *)generateStateValue;
 
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
+
+- (MSIDLogoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters;
 
 @end
