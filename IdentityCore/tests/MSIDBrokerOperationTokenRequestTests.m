@@ -97,7 +97,7 @@
     XCTAssertNil(json);
 }
 
-- (void)testJsonDictionary_whenNoTarget_shouldReturnNilJson
+- (void)testJsonDictionary_whenNoTarget_shouldReturnJson
 {
     __auto_type request = [MSIDBrokerOperationTokenRequest new];
     request.brokerKey = @"broker_key_value";
@@ -111,7 +111,16 @@
     
     NSDictionary *json = [request jsonDictionary];
     
-    XCTAssertNil(json);
+    XCTAssertNotNil(json);
+    XCTAssertEqual(7, json.allKeys.count);
+    XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
+    XCTAssertEqualObjects(json[@"client_id"], @"client id");
+    XCTAssertEqualObjects(json[@"client_id"], @"client id");
+    XCTAssertEqualObjects(json[@"instance_aware"], @"0");
+    XCTAssertEqualObjects(json[@"msg_protocol_ver"], @"99");
+    XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
+    XCTAssertEqualObjects(json[@"redirect_uri"], @"redirect uri");
 }
 
 - (void)testInitWithJSONDictionary_whenNoProviderType_shouldReturnError
@@ -180,7 +189,7 @@
     XCTAssertEqualObjects(@"client_id key is missing in dictionary.", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
-- (void)testInitWithJSONDictionary_whenNo_shouldReturnError
+- (void)testInitWithJSONDictionary_whenNoTarget_shouldCreateRequest
 {
     NSDictionary *json = @{
         @"broker_key": @"broker_key_value",
@@ -194,9 +203,8 @@
     NSError *error;
     __auto_type request = [[MSIDBrokerOperationTokenRequest alloc] initWithJSONDictionary:json error:&error];
     
-    XCTAssertNil(request);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(@"scope key is missing in dictionary.", error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
 }
 
 @end
