@@ -35,10 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 
-- (void)handleTokenResponse:(nullable MSIDTokenResponse *)tokenResponse
-                      error:(nullable NSError *)error
-            completionBlock:(MSIDInteractiveRequestCompletionBlock)completionBlock;
-
 @end
 
 NS_ASSUME_NONNULL_END

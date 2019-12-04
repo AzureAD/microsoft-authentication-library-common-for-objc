@@ -21,16 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTokenResponseHandler.h"
 
-@interface MSIDAADV2BrokerResponse : MSIDBrokerResponse
+@class MSIDBrokerOperationTokenResponse;
 
-@property (readonly) NSString *scope;
-@property (readonly) NSDictionary *errorMetadata;
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readonly) NSString *oauthErrorCode;
-@property (readonly) NSString *errorDescription;
-@property (readonly) NSString *subError;
-@property (readonly) NSString *httpHeaders;
+@interface MSIDSSOTokenResponseHandler : MSIDTokenResponseHandler
+
+- (void)handleOperationResponse:(MSIDBrokerOperationTokenResponse *)operationResponse
+              requestParameters:(MSIDRequestParameters *)requestParameters
+         tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
+                   oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                     tokenCache:(id<MSIDCacheAccessor>)tokenCache
+           accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                validateAccount:(BOOL)validateAccount
+                          error:(nullable NSError *)error
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END

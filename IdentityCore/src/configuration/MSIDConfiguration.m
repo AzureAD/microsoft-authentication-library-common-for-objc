@@ -56,7 +56,6 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     return configuration;
 }
 
-
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId

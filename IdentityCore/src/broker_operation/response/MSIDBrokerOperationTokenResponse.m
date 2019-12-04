@@ -30,6 +30,9 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializer.h"
+
+NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_token_reponse";
 
 @implementation MSIDBrokerOperationTokenResponse
 
@@ -56,6 +59,16 @@
             _authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDAuthority.class error:error];
             if (!_authority) return nil;
         }
+        else
+        {
+            if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY required:NO error:error]) return nil;
+            NSString *tokenResponseJsonString = json[MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY];
+            if (tokenResponseJsonString)
+            {
+                NSDictionary *tokenResponseJson = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:tokenResponseJsonString ofType:NSDictionary.class context:nil error:nil];
+                _additionalTokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:tokenResponseJson classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:nil];
+            }
+        }
         
         _tokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:error];
         if (!_tokenResponse) return nil;
@@ -78,6 +91,20 @@
             return nil;
         }
         [json addEntriesFromDictionary:authorityJson];
+    }
+    
+    if (self.additionalTokenResponse)
+    {
+        NSDictionary *tokenResponseJson = [self.additionalTokenResponse jsonDictionary];
+        if (tokenResponseJson)
+        {
+            
+            json[MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY] = [tokenResponseJson msidJSONSerializeWithContext:nil];
+        }
+        else
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for additional token response.");
+        }
     }
     
     NSDictionary *responseJson = [_tokenResponse jsonDictionary];
