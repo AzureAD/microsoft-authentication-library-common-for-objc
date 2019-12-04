@@ -25,7 +25,6 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDClientInfo.h"
 
 @interface MSIDCredentialCacheItemTests : XCTestCase
 
