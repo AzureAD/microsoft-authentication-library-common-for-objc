@@ -32,7 +32,11 @@
 
 - (instancetype)initWithClientId:(NSString *)clientId
 {
-    if ([NSString msidIsStringNilOrBlank:clientId]) return nil;
+    if ([NSString msidIsStringNilOrBlank:clientId])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot initialize account metadata cache item with nil client id!");
+        return nil;
+    }
     
     self = [super init];
     
@@ -47,23 +51,28 @@
 
 - (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId
 {
-    if (!homeAccountId) return nil;
+    if (!homeAccountId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot lookup account metadata with nil homeAccountId!");
+        return nil;
+    }
     
     return _accountMetadataMap[homeAccountId];
 }
 
 - (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId
 {
-    if (!homeAccountId || !accountMetadata) return NO;
+    if (!homeAccountId || !accountMetadata)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot add account metadata with nil accountMetadata or homeAccountId!");
+        return NO;
+    }
     
     _accountMetadataMap[homeAccountId] = accountMetadata;
     
     return YES;
 }
 
-- (NSDictionary *)accountMetadataMap {
-    return _accountMetadataMap;
-}
 
 #pragma mark - MSIDJsonSerializable
 
@@ -83,8 +92,8 @@
         return nil;
     }
     
-    self->_accountMetadataMap = [NSMutableDictionary new];
-    self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    _accountMetadataMap = [NSMutableDictionary new];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
     
     NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_CACHE_ITEM_KEY ofClass:NSDictionary.class];
     for (NSString *key in accountMetaMapJson)
@@ -98,7 +107,7 @@
         
         if (accountMetadata)
         {
-            self->_accountMetadataMap[key] = accountMetadata;
+            _accountMetadataMap[key] = accountMetadata;
         }
     }
     

@@ -24,15 +24,14 @@
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDCacheKey.h"
 
-static NSString *MSID_APP_METADATA_ACCOUNT_KEY_VALUE = @"msid_account_metadata_account_key";
 static NSInteger kAuthorityMapMetadataType = 5001;
 
 @implementation MSIDAccountMetadataCacheKey
 
 - (instancetype)initWithClientId:(NSString *)clientId
 {
-    self = [super initWithAccount:MSID_APP_METADATA_ACCOUNT_KEY_VALUE
-                          service:clientId ? [NSString stringWithFormat:@"%@-%@", MSID_APP_METADATA_AUTHORITY_MAP_TYPE, clientId] : nil
+    self = [super initWithAccount:MSID_APP_METADATA_AUTHORITY_MAP_TYPE
+                          service:clientId
                           generic:nil
                              type:@(kAuthorityMapMetadataType)];
     return self;

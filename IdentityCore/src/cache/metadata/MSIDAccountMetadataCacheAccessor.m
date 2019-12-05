@@ -80,6 +80,12 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
+    if (!cacheAuthorityURL || !requestAuthorityURL || !homeAccountId || !clientId)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Parameters cannot be nil for updating account metadata authority map!", nil, nil, nil, nil, nil, YES);
+        return NO;
+    }
+        
     //No need to update if the request authority is the same as the authority used internally
     if (!cacheAuthorityURL
         || [cacheAuthorityURL isEqual:requestAuthorityURL]) return YES;
@@ -99,7 +105,16 @@
     }
     
     MSIDAccountMetadata *accountMetadata = [cacheItem accountMetadataForHomeAccountId:homeAccountId];
-    if (!accountMetadata)
+    if (accountMetadata)
+    {
+        // No need to update if same record exists
+        if ([accountMetadata cachedURL:requestAuthorityURL instanceAware:instanceAware] == cacheAuthorityURL &&
+            accountMetadata.signInState == MSIDAccountMetadataStateSignedIn)
+        {
+            return YES;
+        }
+    }
+    else
     {
         accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
@@ -182,7 +197,11 @@
     
     [accountMetadata updateSignInState:state];
     
-    [cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId];
+    if (![cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to add account metadata to cache item!", nil, nil, nil, nil, nil, YES);
+        return NO;
+    }
     
     return [_metadataCache saveAccountMetadataCacheItem:cacheItem
                                                     key:key

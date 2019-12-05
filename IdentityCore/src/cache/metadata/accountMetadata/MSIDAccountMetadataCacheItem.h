@@ -29,7 +29,6 @@
 @interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
 @property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic) NSDictionary <NSString *, MSIDAccountMetadata *> *accountMetadataMap;
 
 - (instancetype)initWithClientId:(NSString *)clientId;
 

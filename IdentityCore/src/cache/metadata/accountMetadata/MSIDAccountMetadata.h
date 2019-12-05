@@ -26,10 +26,11 @@
 
 typedef NS_ENUM(NSInteger, MSIDAccountMetadataState)
 {
-    MSIDAccountMetadataStateSignedIn = 0,
-    MSIDAccountMetadataStateSignedOut,
-    MSIDAccountMetadataStateUnknown
+    MSIDAccountMetadataStateUnknown = 0,
+    MSIDAccountMetadataStateSignedIn,
+    MSIDAccountMetadataStateSignedOut
 };
+#define AccountMetadataStateStringArray @"unknown", @"signed_in", @"signed_out", nil
 
 @interface MSIDAccountMetadata : NSObject <MSIDJsonSerializable, NSCopying>
 

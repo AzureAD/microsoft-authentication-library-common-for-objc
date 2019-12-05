@@ -32,6 +32,7 @@
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 @interface MSIDAccountMetadata()
+
 @property NSMutableDictionary *internalMap;
 
 @end
@@ -72,7 +73,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     }
     
     NSString *urlMapKey = [self URLMapKey:instanceAware];
-    NSMutableDictionary *urlMap = _internalMap[urlMapKey];
+    NSMutableDictionary *urlMap = self.internalMap[urlMapKey];
     if (!urlMap)
     {
         urlMap = [NSMutableDictionary new];
@@ -121,10 +122,10 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
         return nil;
     }
     
-    self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
-    self->_homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
-    self->_internalMap = [[json msidObjectForKey:MSID_AUTHORITY_MAP_CACHE_KEY ofClass:NSDictionary.class] mutableDeepCopy];
-    self->_signInState = [[json msidStringObjectForKey:MSID_SIGN_IN_STATE_CACHE_KEY] intValue];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
+    _internalMap = [[json msidObjectForKey:MSID_AUTHORITY_MAP_CACHE_KEY ofClass:NSDictionary.class] mutableDeepCopy];
+    _signInState = [self accountMetadataStateEnumFromString:[json msidStringObjectForKey:MSID_SIGN_IN_STATE_CACHE_KEY]];
     
     return self;
 }
@@ -135,8 +136,8 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.homeAccountId;
-    dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = _internalMap;
-    dictionary[MSID_SIGN_IN_STATE_CACHE_KEY] = [NSString stringWithFormat: @"%ld", self.signInState];
+    dictionary[MSID_AUTHORITY_MAP_CACHE_KEY] = self.internalMap;
+    dictionary[MSID_SIGN_IN_STATE_CACHE_KEY] = [self accountMetadataStateStringFromEnum:self.signInState];
     
     return dictionary;
 }
@@ -157,6 +158,40 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     return instanceAware ? @"URLMap-instance_aware=YES" : @"URLMap-";
 }
+
+- (NSString *)accountMetadataStateStringFromEnum:(MSIDAccountMetadataState)state
+{
+    if (state < 0 || state >= self.accountMetadataStateEnumString.count) return nil;
+    
+    return [self.accountMetadataStateEnumString objectAtIndex:state];
+}
+
+- (MSIDAccountMetadataState)accountMetadataStateEnumFromString:(NSString *)stateString
+{
+    // Default to personal mode if no device mode is available
+    if ([NSString msidIsStringNilOrBlank:stateString]) return MSIDAccountMetadataStateUnknown;
+    
+    NSUInteger index = [self.accountMetadataStateEnumString indexOfObject:stateString];
+    
+    if (index < 0 || index >= self.accountMetadataStateEnumString.count)
+    {
+        return (MSIDAccountMetadataState) 0;
+    }
+    return (MSIDAccountMetadataState) index;
+}
+
+- (NSArray *)accountMetadataStateEnumString
+{
+    static NSArray *s_accountMetadataStateEnumStrings = nil;
+    static dispatch_once_t accountMetadataStateStringOnce;
+    
+    dispatch_once(&accountMetadataStateStringOnce, ^{
+        s_accountMetadataStateEnumStrings = [[NSArray alloc] initWithObjects:AccountMetadataStateStringArray];
+    });
+    
+    return s_accountMetadataStateEnumStrings;
+}
+
 
 #pragma mark - Equal
 
@@ -180,7 +215,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     BOOL result = YES;
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= ([_internalMap isEqualToDictionary:item->_internalMap]);
+    result &= ([self.internalMap isEqualToDictionary:item->_internalMap]);
     result &= (self.signInState == item.signInState);
     
     return result;
@@ -193,7 +228,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
-    hash = hash * 31 + _internalMap.hash;
+    hash = hash * 31 + self.internalMap.hash;
     hash = hash * 31 + @(self.signInState).hash;
     
     return hash;
