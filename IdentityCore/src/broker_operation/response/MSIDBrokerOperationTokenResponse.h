@@ -35,7 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) MSIDAuthority *authority;
 
 @property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
-@property (nonatomic, nullable) NSError *mamError;
 
 @end
 
