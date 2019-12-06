@@ -195,7 +195,6 @@
     response.clientAppVersion = @"1.0";
     response.tokenResponse = tokenResponse;
     
-    
     NSDictionary *json = [response jsonDictionary];
     
     XCTAssertEqual(13, json.allKeys.count);
