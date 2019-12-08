@@ -59,19 +59,17 @@ NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_to
             _authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDAuthority.class error:error];
             if (!_authority) return nil;
         }
-        else
-        {
-            if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY required:NO error:error]) return nil;
-            NSString *tokenResponseJsonString = json[MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY];
-            if (tokenResponseJsonString)
-            {
-                NSDictionary *tokenResponseJson = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:tokenResponseJsonString ofType:NSDictionary.class context:nil error:nil];
-                _additionalTokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:tokenResponseJson classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:nil];
-            }
-        }
         
         _tokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:error];
         if (!_tokenResponse) return nil;
+        
+        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY required:NO error:error]) return nil;
+        NSString *tokenResponseJsonString = json[MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY];
+        if (tokenResponseJsonString)
+        {
+            NSDictionary *tokenResponseJson = (NSDictionary *)[[MSIDJsonSerializer new] fromJsonString:tokenResponseJsonString ofType:NSDictionary.class context:nil error:nil];
+            _additionalTokenResponse = (MSIDTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:tokenResponseJson classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDTokenResponse.class error:nil];
+        }
     }
     
     return self;
@@ -108,7 +106,13 @@ NSString *const MSID_BROKER_ADDITIONAL_TOKEN_RESPONSE_JSON_KEY = @"additional_to
     }
     
     NSDictionary *responseJson = [_tokenResponse jsonDictionary];
-    if (responseJson) [json addEntriesFromDictionary:responseJson];
+    if (!responseJson)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, tokenResponse json is nil.", self.class);
+        return nil;
+    }
+    
+    [json addEntriesFromDictionary:responseJson];
     
     return json;
 }

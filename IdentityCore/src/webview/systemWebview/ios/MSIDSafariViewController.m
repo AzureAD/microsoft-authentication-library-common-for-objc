@@ -72,7 +72,7 @@
             _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
         }
 #endif
-        
+
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
