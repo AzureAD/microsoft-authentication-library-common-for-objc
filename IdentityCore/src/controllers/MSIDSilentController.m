@@ -112,6 +112,8 @@
             [telemetryEvent setUserInformation:result.account];
             [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
             [self stopTelemetryEvent:telemetryEvent error:error];
+            self.currentRequest = nil;
+            
             completionBlock(result, error);
             return;
         }

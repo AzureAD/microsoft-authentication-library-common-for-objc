@@ -38,9 +38,7 @@
                 validateAccount:(BOOL)validateAccount
                           error:(NSError *)error
                 completionBlock:(MSIDRequestCompletionBlock)completionBlock
-{
-    if (!operationResponse) return;
-    
+{    
     if (operationResponse.authority) requestParameters.cloudAuthority = operationResponse.authority;
     
     if (operationResponse.additionalTokenResponse)

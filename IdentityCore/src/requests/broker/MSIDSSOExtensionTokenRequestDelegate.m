@@ -41,7 +41,11 @@
     
     __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
 
-    if (!operationResponse) self.completionBlock(nil, error);
+    if (!operationResponse)
+    {
+        self.completionBlock(nil, error);
+        return;
+    }
     
     self.completionBlock(operationResponse, nil);
 }
