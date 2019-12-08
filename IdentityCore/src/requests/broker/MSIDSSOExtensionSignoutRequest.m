@@ -64,7 +64,10 @@
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, parameters, @"Finished logout request with error %@", MSID_PII_LOG_MASKABLE(error));
             }
             
-            if (weakSelf.requestCompletionBlock) weakSelf.requestCompletionBlock(operationResponse.success, error);
+            MSIDSignoutRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+            weakSelf.requestCompletionBlock = nil;
+            
+            if (completionBlock) completionBlock(operationResponse.success, error);
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
