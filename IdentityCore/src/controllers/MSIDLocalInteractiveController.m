@@ -175,18 +175,19 @@
 
     self.currentRequest = request;
     
-    __weak typeof(self) weakSelf = self;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
     {
         if (msauthResponse)
         {
-            [weakSelf handleWebMSAuthResponse:msauthResponse completion:completionBlock];
+            [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }
 
-        MSIDTelemetryAPIEvent *telemetryEvent = [weakSelf telemetryAPIEvent];
+        MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:result.account];
-        [weakSelf stopTelemetryEvent:telemetryEvent error:error];
+        [self stopTelemetryEvent:telemetryEvent error:error];
+        self.currentRequest = nil;
+        
         completionBlock(result, error);
     }];
 }

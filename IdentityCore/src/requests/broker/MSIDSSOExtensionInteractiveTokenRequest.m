@@ -73,7 +73,10 @@
         {
             if (operationResponse.authority) weakSelf.requestParameters.cloudAuthority = operationResponse.authority;
             
-            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
+            MSIDInteractiveRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+            weakSelf.requestCompletionBlock = nil;
+            
+            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:completionBlock];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];

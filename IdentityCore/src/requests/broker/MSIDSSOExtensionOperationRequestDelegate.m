@@ -37,7 +37,12 @@
     if (!ssoCredential) self.completionBlock(nil, error);
     
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
-    if (!json) self.completionBlock(nil, error);
+    if (!json)
+    {
+        if (!error) error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Received unexpected response from the extension", nil, nil, nil, nil, nil, nil);
+        self.completionBlock(nil, error);
+        return;
+    }
     
     __auto_type operationResponse = (MSIDBrokerOperationResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationResponse.class error:&error];
 
