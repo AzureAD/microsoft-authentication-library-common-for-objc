@@ -39,7 +39,7 @@
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
     if (!json)
     {
-        if (!error) error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Received unexpected response from the extension", nil, nil, nil, nil, nil, nil);
+        if (!error) error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Received unexpected response from the extension", nil, nil, nil, nil, nil, YES);
         self.completionBlock(nil, error);
         return;
     }
