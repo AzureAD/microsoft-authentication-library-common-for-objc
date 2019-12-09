@@ -65,7 +65,7 @@
     [self readAndDeserializeWithCache:cache];
 }
 
-- (void)didAccessCache:(nonnull MSIDMacTokenCache *)cache
+- (void)didAccessCache:(nonnull __unused MSIDMacTokenCache *)cache
 {
     
 }

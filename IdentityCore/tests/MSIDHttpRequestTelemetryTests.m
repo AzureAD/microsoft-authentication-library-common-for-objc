@@ -51,7 +51,7 @@
     self.passedEventName = eventName;
 }
 
-- (void)stopEvent:(NSString *)requestId event:(id<MSIDTelemetryEventInterface>)event
+- (void)stopEvent:(__unused NSString *)requestId event:(id<MSIDTelemetryEventInterface>)event
 {
     self.stopEventCounter++;
     self.passedEvent = event;

@@ -32,7 +32,7 @@
 // Convenience macro to release CF objects
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                               urlChallenge:(NSURLAuthenticationChallenge *)challenge
+                                               urlChallenge:(__unused NSURLAuthenticationChallenge *)challenge
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     
@@ -100,7 +100,7 @@
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentity:(id<MSIDRequestContext>)context
++ (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
                 sharedAccessGroup:(NSString *)accessGroup
                 certificateIssuer:(NSString **)issuer
 

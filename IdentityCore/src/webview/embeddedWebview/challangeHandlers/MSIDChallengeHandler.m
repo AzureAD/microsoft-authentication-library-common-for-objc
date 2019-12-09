@@ -33,12 +33,12 @@ static NSMutableDictionary *s_handlers = nil;
                 webview:(WKWebView *)webview
        parentController:(UIViewController *)parentViewController
                 context:(id<MSIDRequestContext>)context
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
+      completionHandler:(ChallengeCompletionHandler)completionHandler
 #else
 + (void)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
                 context:(id<MSIDRequestContext>)context
-      completionHandler:(ChallengeCompletionHandler)completionHandler;
+      completionHandler:(ChallengeCompletionHandler)completionHandler
 #endif
 {
     NSString *authMethod = [challenge.protectionSpace.authenticationMethod lowercaseString];

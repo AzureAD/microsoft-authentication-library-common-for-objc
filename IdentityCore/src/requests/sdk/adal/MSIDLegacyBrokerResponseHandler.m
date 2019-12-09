@@ -42,7 +42,7 @@
 @implementation MSIDLegacyBrokerResponseHandler
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(NSError **)error
+                                                  error:(__unused NSError **)error
 {
 #if TARGET_OS_IPHONE
     MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
