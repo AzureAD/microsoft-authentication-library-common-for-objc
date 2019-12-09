@@ -44,6 +44,7 @@
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDGeneralCacheItemType.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -378,6 +379,24 @@
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
+    return [self accountsWithAuthority:authority
+                              clientId:clientId
+                              familyId:familyId
+                     accountIdentifier:accountIdentifier
+                  accountMetadataCache:nil
+                  signedInAccountsOnly:YES
+                               context:context error:error];
+}
+
+- (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
+                                         clientId:(NSString *)clientId
+                                         familyId:(NSString *)familyId
+                                accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                             accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                             signedInAccountsOnly:(BOOL)signedInAccountsOnly
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error
+{
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Get accounts.");
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
 
@@ -431,7 +450,19 @@
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [self filterAndFillIdTokenClaimsForAccounts:allAccounts
                                                                                          authority:authority
                                                                                         accountIds:filterAccountIds
-                                                                                          idTokens:idTokens];
+                                                                                          idTokens:idTokens
+                                                                                          clientId:clientId
+                                                                              accountMetadataCache:accountMetadataCache
+                                                                              signedInAccountsOnly:signedInAccountsOnly];
+    if (localError)
+    {
+        if (error)
+        {
+            *error = localError;
+        }
+        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+        return nil;
+    }
 
     if ([filteredAccountsSet count])
     {
@@ -1022,6 +1053,9 @@
                                                              authority:(MSIDAuthority *)authority
                                                             accountIds:(NSSet<NSString *> *)accountIds
                                                               idTokens:(NSArray<MSIDIdToken *> *)idTokens
+                                                              clientId:(NSString *)clientId
+                                                  accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                                  signedInAccountsOnly:(BOOL)signedInAccountsOnly
 {
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
     
@@ -1035,8 +1069,28 @@
     
     for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
     {
-        // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if ([accountIds containsObject:accountCacheItem.homeAccountId])
+        BOOL shouldReturnAccount = NO;
+        
+        if (!signedInAccountsOnly)
+        {
+            shouldReturnAccount = YES;
+        }
+        else if ([accountIds containsObject:accountCacheItem.homeAccountId])
+        {
+            shouldReturnAccount = YES;
+        }
+        
+        MSIDAccountMetadataState signInState = [accountMetadataCache signInStateForHomeAccountId:accountCacheItem.homeAccountId clientId:clientId context:nil error:nil];
+        if (signInState == MSIDAccountMetadataStateSignedIn)
+        {
+            shouldReturnAccount = YES;
+        }
+        else if (signInState == MSIDAccountMetadataStateSignedOut)
+        {
+            shouldReturnAccount = NO;
+        }
+        
+        if (shouldReturnAccount)
         {
             if (authority.environment)
             {
