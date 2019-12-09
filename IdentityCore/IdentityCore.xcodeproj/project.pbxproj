@@ -417,6 +417,8 @@
 		60B3855E20A96E0600D546D0 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B3855D20A96E0600D546D0 /* MSIDWebviewUIController.m */; };
 		60B3856020A96E2700D546D0 /* MSIDWebviewUIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */; };
 		60B55FFF20AE28AE00DDB46D /* GSS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 60B55FEF20ADFA1B00DDB46D /* GSS.framework */; };
+		60BE05F5239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BE05F4239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m */; };
+		60BE05F6239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BE05F4239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m */; };
 		60BF06042051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60BF06052051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */; };
 		60D6ED0220D9BB02002FCBBB /* SecurityInterface.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9623FF4220A396F700A989B7 /* SecurityInterface.framework */; };
@@ -1654,6 +1656,7 @@
 		60B3855F20A96E2700D546D0 /* MSIDWebviewUIController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebviewUIController.m; sourceTree = "<group>"; };
 		60B55FEF20ADFA1B00DDB46D /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = System/Library/Frameworks/GSS.framework; sourceTree = SDKROOT; };
 		60B55FFD20AE26EC00DDB46D /* GSS.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GSS.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/GSS.framework; sourceTree = DEVELOPER_DIR; };
+		60BE05F4239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccountMetadataCacheItemTests.m; sourceTree = "<group>"; };
 		60BF06022051F95B00DE7C1C /* MSIDTelemetryTestDispatcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTelemetryTestDispatcher.h; sourceTree = "<group>"; };
 		60BF06032051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTelemetryTestDispatcher.m; sourceTree = "<group>"; };
 		60BF06062052023900DE7C1C /* MSIDWipeDataTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWipeDataTelemetryTests.m; sourceTree = "<group>"; };
@@ -4093,6 +4096,7 @@
 				60747FF72354F73000C5308F /* MSIDBrokerOperationAccountResponseTests.m */,
 				B2F7C96A2368FCAC00627A7C /* MSIDMacACLKeychainAccessorTests.m */,
 				B2F6C7E3236BD01500C8D3AE /* MSIDMacLegacyCachePersistenceHandlerTests.m */,
+				60BE05F4239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -4975,6 +4979,7 @@
 				B281B338226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */,
 				238AB2A920BF473F00CD8675 /* MSIDURLSessionDelegateTests.m in Sources */,
 				B2808001204CB29900944D89 /* MSIDAADTokenResponseTests.m in Sources */,
+				60BE05F5239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m in Sources */,
 				B28BBD3F221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m in Sources */,
 				239DF9C120E04BC9002D428B /* MSIDB2CAuthorityTests.m in Sources */,
 				B2DD4B4020A934170047A66E /* MSIDCredentialTypeTests.m in Sources */,
@@ -5312,6 +5317,7 @@
 				B2525C762330623E006FBA4B /* MSIDMainThreadUtilTests.m in Sources */,
 				960F918B20CBECAE0055A162 /* MSIDAADWebviewFactoryTests.m in Sources */,
 				238A047A2088561100989EE0 /* MSIDHttpRequestIntegrationTests.m in Sources */,
+				60BE05F6239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m in Sources */,
 				963CFAF420AD817600BDA25F /* MSIDWebviewAuthorizationTests.m in Sources */,
 				2338ECDB208A7CBD00809B9E /* MSIDAADRequestErrorHandlerTests.m in Sources */,
 				964FAB41213F598F00AF0EB1 /* MSIDOrderedSetExtensionsTests.m in Sources */,

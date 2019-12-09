@@ -95,7 +95,7 @@
     _accountMetadataMap = [NSMutableDictionary new];
     _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
     
-    NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_CACHE_ITEM_KEY ofClass:NSDictionary.class];
+    NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_MAP_CACHE_KEY ofClass:NSDictionary.class];
     for (NSString *key in accountMetaMapJson)
     {
         NSError *localError;
@@ -125,7 +125,7 @@
     {
         accountMetadataMapJson[key] = _accountMetadataMap[key].jsonDictionary;
     }
-    dictionary[MSID_ACCOUNT_METADATA_CACHE_ITEM_KEY] = accountMetadataMapJson;
+    dictionary[MSID_ACCOUNT_METADATA_MAP_CACHE_KEY] = accountMetadataMapJson;
     
     return dictionary;
 }
