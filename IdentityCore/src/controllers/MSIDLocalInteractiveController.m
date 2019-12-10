@@ -185,6 +185,8 @@
         MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
         [telemetryEvent setUserInformation:result.account];
         [self stopTelemetryEvent:telemetryEvent error:error];
+        self.currentRequest = nil;
+        
         completionBlock(result, error);
     }];
 }
