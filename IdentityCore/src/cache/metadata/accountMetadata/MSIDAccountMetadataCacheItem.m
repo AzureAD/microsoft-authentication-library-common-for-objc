@@ -24,6 +24,7 @@
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAccountMetadataCacheItem
 {
@@ -83,8 +84,16 @@
         return nil;
     }
     
-    self->_accountMetadataMap = [NSMutableDictionary new];
-    self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    _accountMetadataMap = [NSMutableDictionary new];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    
+    NSString *principalHomeAccountId = [json msidStringObjectForKey:MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY];
+    NSString *principalDisplayableId = [json msidStringObjectForKey:MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY];
+    
+    if (principalHomeAccountId ||principalDisplayableId)
+    {
+        _principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:principalDisplayableId homeAccountId:principalHomeAccountId];
+    }
     
     NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_CACHE_ITEM_KEY ofClass:NSDictionary.class];
     for (NSString *key in accountMetaMapJson)
@@ -98,7 +107,7 @@
         
         if (accountMetadata)
         {
-            self->_accountMetadataMap[key] = accountMetadata;
+            _accountMetadataMap[key] = accountMetadata;
         }
     }
     
@@ -110,6 +119,8 @@
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
+    dictionary[MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY] = self.principalAccountId.homeAccountId;
+    dictionary[MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY] = self.principalAccountId.displayableId;
     
     NSMutableDictionary *accountMetadataMapJson = [NSMutableDictionary new];
     for (NSString *key in _accountMetadataMap)

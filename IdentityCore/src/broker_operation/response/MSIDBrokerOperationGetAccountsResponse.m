@@ -25,6 +25,7 @@
 #import "MSIDAccount.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDBrokerOperationGetAccountsResponse
 
@@ -50,6 +51,7 @@
         {
             return nil;
         }
+        
         NSArray *accountsJson = json[@"accounts"];
         
         NSMutableArray *accounts = [NSMutableArray new];
@@ -73,6 +75,14 @@
         }
         
         self.accounts = accounts;
+        
+        NSString *principalHomeAccountId = [json msidStringObjectForKey:MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY];
+        NSString *principalDisplayableId = [json msidStringObjectForKey:MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY];
+        
+        if (principalHomeAccountId ||principalDisplayableId)
+        {
+            self.principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:principalDisplayableId homeAccountId:principalHomeAccountId];
+        }
     }
     
     return self;
@@ -92,6 +102,9 @@
     }
     
     json[@"accounts"] = accountsJson;
+    
+    json[MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY] = self.principalAccountId.homeAccountId;
+    json[MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY] = self.principalAccountId.displayableId;
     
     return json;
 }

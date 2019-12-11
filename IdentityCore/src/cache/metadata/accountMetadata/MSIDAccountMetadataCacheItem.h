@@ -26,16 +26,23 @@
 #import "MSIDJsonSerializable.h"
 #import "MSIDKeyGenerator.h"
 
+@class MSIDAccountIdentifier;
+
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
 @property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic) NSDictionary <NSString *, MSIDAccountMetadata *> *accountMetadataMap;
+@property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
+@property (nonatomic, nullable) NSDictionary <NSString *, MSIDAccountMetadata *> *accountMetadataMap;
 
-- (instancetype)initWithClientId:(NSString *)clientId;
+- (nullable instancetype)initWithClientId:(NSString *)clientId;
 
-- (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
+- (nullable MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
 
 - (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
           forHomeAccountId:(NSString *)homeAccountId;
 
 @end
+
+NS_ASSUME_NONNULL_END

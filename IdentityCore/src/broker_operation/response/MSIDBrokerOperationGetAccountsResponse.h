@@ -24,12 +24,14 @@
 #import "MSIDBrokerOperationResponse.h"
 
 @class MSIDAccount;
+@class MSIDAccountIdentifier;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationGetAccountsResponse : MSIDBrokerOperationResponse
 
 @property (nonatomic, nullable) NSArray<MSIDAccount *> *accounts;
+@property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
 
 @end
 
