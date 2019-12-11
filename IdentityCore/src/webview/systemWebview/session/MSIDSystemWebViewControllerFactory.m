@@ -64,10 +64,10 @@
     return MSIDWebviewTypeWKWebView;
 }
 
-+ (id<MSIDWebviewInteracting>)authSessionWithParentController:(MSIDViewController *)parentController
-                                                     startURL:(NSURL *)startURL
-                                               callbackScheme:(NSString *)callbackURLScheme
-                                           useEmpheralSession:(BOOL)useEmpheralSession
++ (id<MSIDWebviewInteracting>)authSessionWithParentController:(__unused MSIDViewController *)parentController
+                                                     startURL:(__unused NSURL *)startURL
+                                               callbackScheme:(__unused NSString *)callbackURLScheme
+                                           useEmpheralSession:(__unused BOOL)useEmpheralSession
                                                       context:(__unused id<MSIDRequestContext>)context
 {
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500

@@ -25,12 +25,12 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDWebOAuth2Response.h"
-#import "MSIDClientInfo.h"
+#import "MSIDBaseWebRequestConfiguration.h"
 
-@interface MSIDWebAADAuthResponse : MSIDWebOAuth2Response
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readonly) NSString *cloudHostName;
-@property (readonly) MSIDClientInfo *clientInfo;
+@interface MSIDLogoutWebRequestConfiguration : MSIDBaseWebRequestConfiguration
 
 @end
+
+NS_ASSUME_NONNULL_END

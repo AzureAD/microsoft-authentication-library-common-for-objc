@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "NSDictionary+MSIDTestUtil.h"
 
-@interface MSIDWebOAuth2ResponseTests : XCTestCase
+@interface MSIDWebOAuth2AuthCodeResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDWebOAuth2ResponseTests
+@implementation MSIDWebOAuth2AuthCodeResponseTests
 
 - (void)setUp {
     [super setUp];
@@ -41,7 +41,7 @@
 {
     NSError *error = nil;
     
-    XCTAssertNil([[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://contoso.com"]
+    XCTAssertNil([[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:[NSURL URLWithString:@"https://contoso.com"]
                                                     context:nil
                                                       error:&error]);
     XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
@@ -51,9 +51,9 @@
 {
     NSError *error = nil;
     
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://contoso.com?code=authCode"]
-                                                                         context:nil
-                                                                           error:&error];
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:[NSURL URLWithString:@"https://contoso.com?code=authCode"]
+                                                                                         context:nil
+                                                                                           error:&error];
     
     XCTAssertEqualObjects(response.authorizationCode, @"authCode");
     XCTAssertNil(response.oauthError);
@@ -65,7 +65,7 @@
     NSError *error = nil;
     NSString *state = @"state";
     
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://contoso.com?code=authCode&state=%@", state.msidBase64UrlEncode]]
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://contoso.com?code=authCode&state=%@", state.msidBase64UrlEncode]]
                                                                          context:nil
                                                                            error:&error];
     
@@ -79,7 +79,7 @@
     NSError *error = nil;
     NSString *state = @"state";
     
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://contoso.com?code=&state=%@", state.msidBase64UrlEncode]]
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://contoso.com?code=&state=%@", state.msidBase64UrlEncode]]
                                                                          context:nil
                                                                            error:&error];
     
@@ -103,11 +103,11 @@
                                  MSID_OAUTH2_STATE : state.msidBase64UrlEncode
                                  }.urlQueryItemsArray;
     
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:urlComponents.URL
-                                                                    requestState:state
-                                                              ignoreInvalidState:NO
-                                                                         context:nil
-                                                                           error:&error];
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:urlComponents.URL
+                                                                                    requestState:state
+                                                                              ignoreInvalidState:NO
+                                                                                         context:nil
+                                                                                           error:&error];
     
     XCTAssertNil(response.authorizationCode);
     XCTAssertNil(error);
@@ -140,9 +140,9 @@
     
     
     
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:urlComponents.URL
-                                                                         context:nil
-                                                                           error:&error];
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:urlComponents.URL
+                                                                                         context:nil
+                                                                                           error:&error];
     
     XCTAssertNil(response.authorizationCode);
     XCTAssertNil(error);
@@ -225,11 +225,11 @@
 - (void)testInitWithParameters_whenCode_InvalidState_NoStopAtVerification_shouldReturnAuthCode
 {
     NSError *error = nil;
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"]
-                                                                    requestState:@"requestState"
-                                                              ignoreInvalidState:YES
-                                                                         context:nil
-                                                                           error:&error];
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:[NSURL URLWithString:@"https://host/?code=iamacode&state=fake_state"]
+                                                                                    requestState:@"requestState"
+                                                                              ignoreInvalidState:YES
+                                                                                         context:nil
+                                                                                           error:&error];
     XCTAssertEqualObjects(response.authorizationCode, @"iamacode");
     XCTAssertNil(response.oauthError);
     XCTAssertNil(error);
@@ -238,11 +238,11 @@
 - (void)testInitWithParameters_whenOAuthError_InvalidState_NoStopAtVerification_shouldReturnNilWithOAuthError
 {
     NSError *error = nil;
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"]
-                                                                    requestState:@"requestState"
-                                                              ignoreInvalidState:YES
-                                                                         context:nil
-                                                                           error:&error];
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:[NSURL URLWithString:@"https://host/msal?error=iamaerror&error_description=evenmoreinfo&state=fake_state"]
+                                                                                    requestState:@"requestState"
+                                                                              ignoreInvalidState:YES
+                                                                                         context:nil
+                                                                                           error:&error];
     
     XCTAssertNil(response.authorizationCode);
     XCTAssertNil(error);

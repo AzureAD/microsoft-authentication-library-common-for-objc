@@ -30,7 +30,7 @@
 #import "MSIDSafariViewController.h"
 #import "MSIDSystemWebviewController.h"
 #import <SafariServices/SafariServices.h>
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDMainThreadUtil.h"
@@ -72,7 +72,7 @@
             _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
         }
 #endif
-        
+
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000

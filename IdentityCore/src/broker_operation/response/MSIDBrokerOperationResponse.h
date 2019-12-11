@@ -36,12 +36,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSString *operation;
 @property (nonatomic) BOOL success;
-@property (nonatomic, nullable) NSError *error;
 @property (nonatomic, nullable) NSString *clientAppVersion;
 
 @property (nonatomic) MSIDDeviceInfo *deviceInfo;
 
 // TODO: add other properties.
+
+@property (nonatomic) NSNumber *httpStatusCode;
+@property (nonatomic, nullable) NSDictionary *httpHeaders;
+@property (nonatomic) NSString *httpVersion;
 
 @end
 

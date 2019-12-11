@@ -55,8 +55,8 @@
                            MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                            MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
-                           @"account_home_id" : @"uid.utid",
-                           @"account_displayable_id" : @"legacy id"
+                           @"home_account_id" : @"uid.utid",
+                           @"username" : @"legacy id"
     };
 
     NSError *error;
@@ -82,7 +82,7 @@
                            MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                            MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
-                           @"account_home_id" : @"uid.utid"
+                           @"home_account_id" : @"uid.utid"
     };
 
     NSError *error;
@@ -108,7 +108,7 @@
                            MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                            MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
-                           @"account_displayable_id" : @"legacy id"
+                           @"username" : @"legacy id"
     };
 
     NSError *error;
@@ -150,8 +150,8 @@
                            MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
                            MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
                            MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
-                           @"account_home_id" : @"uid.utid",
-                           @"account_displayable_id" : @"legacy id"
+                           @"home_account_id" : @"uid.utid",
+                           @"username" : @"legacy id"
     };
 
     NSError *error;
@@ -179,8 +179,8 @@
                                    MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
                                    MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                                    MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
-                                   @"account_home_id" : @"uid.utid",
-                                   @"account_displayable_id" : @"legacy id"
+                                   @"home_account_id" : @"uid.utid",
+                                   @"username" : @"legacy id"
     };
 
     XCTAssertEqualObjects(request.jsonDictionary, expectedJson);

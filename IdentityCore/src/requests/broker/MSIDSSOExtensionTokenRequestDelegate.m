@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDBrokerOperationTokenResponse.h"
@@ -41,9 +42,14 @@
     
     __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
 
-    if (!operationResponse) self.completionBlock(nil, error);
+    if (!operationResponse)
+    {
+        self.completionBlock(nil, error);
+        return;
+    }
     
     self.completionBlock(operationResponse, nil);
 }
 
 @end
+#endif

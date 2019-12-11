@@ -78,7 +78,7 @@
                                       @"key1": @"value1",
                                       @"key2": @"value2",
                                       @"key3": @"value3"};
-    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:nil];
+    NSDictionary *resultDictionary = [inputDictionary msidDictionaryByRemovingFields:nil];
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }
 
@@ -88,7 +88,7 @@
                                       @"key2": @"value2",
                                       @"key3": @"value3"};
     
-    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:@[]];
+    NSDictionary *resultDictionary = [inputDictionary msidDictionaryByRemovingFields:@[]];
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }
 
@@ -99,7 +99,7 @@
                                       @"key3": @"value3"};
     
     NSArray *keysArray = @[@"key2", @"key1"];
-    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:keysArray];
+    NSDictionary *resultDictionary = [inputDictionary msidDictionaryByRemovingFields:keysArray];
     
     NSDictionary *expectedDictionary = @{@"key3": @"value3"};
     XCTAssertEqualObjects(resultDictionary, expectedDictionary);

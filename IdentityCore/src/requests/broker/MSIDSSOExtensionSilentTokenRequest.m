@@ -21,11 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 && !MSID_EXCLUDE_WEBKIT
+#if MSID_ENABLE_SSO_EXTENSION
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
-#import "MSIDSilentTokenRequest+Internal.h"
+#import "MSIDSilentTokenRequest.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
@@ -38,6 +38,7 @@
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#import "MSIDSSOTokenResponseHandler.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -50,6 +51,7 @@
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
+@property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
 
 @end
 
@@ -70,13 +72,29 @@
     if (self)
     {
         _tokenCache = tokenCache;
-        
+        _ssoTokenResponseHandler = [MSIDSSOTokenResponseHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
-            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:weakSelf.requestCompletionBlock];
+#if TARGET_OS_OSX
+            weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
+#endif
+            [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
+                                                    requestParameters:weakSelf.requestParameters
+                                               tokenResponseValidator:weakSelf.tokenResponseValidator
+                                                         oauthFactory:weakSelf.oauthFactory
+                                                           tokenCache:weakSelf.tokenCache
+                                                 accountMetadataCache:weakSelf.accountMetadataCache
+                                                      validateAccount:NO
+                                                                error:error
+                                                      completionBlock:^(MSIDTokenResult *result, NSError *error)
+             {
+                MSIDRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+                weakSelf.requestCompletionBlock = nil;
+                if (completionBlock) completionBlock(result, error);
+            }];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
