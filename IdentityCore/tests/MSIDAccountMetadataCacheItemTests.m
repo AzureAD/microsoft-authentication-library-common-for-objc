@@ -37,36 +37,42 @@
 - (void)tearDown {
 }
 
-- testInitWithClientId_whenClientNil_shouldReturnNil {
+- (void)testInitWithClientId_whenClientNil_shouldReturnNil {
     XCTAssertNil([[MSIDAccountMetadataCacheItem alloc] initWithClientId:nil]);
 }
 
-- testAddAccountMetadata_whenRequiredParamsNil_shouldReturnNo {
+- (void)testAddAccountMetadata_whenRequiredParamsNil_shouldReturnNo {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"client-id"];
     
-    XCTAssertFalse([cacheItem addAccountMetadata:nil forHomeAccountId:@"uid.utid"]);
+    NSError *error;
+    XCTAssertFalse([cacheItem addAccountMetadata:nil forHomeAccountId:@"uid.utid" error:&error]);
+    XCTAssertNotNil(error);
     
+    error = nil;
     MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"uid.utid" clientId:@"client-id"];
-    XCTAssertFalse([cacheItem addAccountMetadata:metadata forHomeAccountId:nil]);
+    XCTAssertFalse([cacheItem addAccountMetadata:metadata forHomeAccountId:nil error:&error]);
+    XCTAssertNotNil(error);
 }
 
-- testAddAccountMetadata_whenAccountMetadataValid_shouldAddIt {
+- (void)testAddAccountMetadata_whenAccountMetadataValid_shouldAddIt {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"client-id"];
-    
+
     MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"uid.utid" clientId:@"client-id"];
     [metadata updateSignInState:MSIDAccountMetadataStateSignedIn];
-    XCTAssertFalse([cacheItem addAccountMetadata:metadata forHomeAccountId:@"uid.utid"]);
-    
+    NSError *error;
+    XCTAssertTrue([cacheItem addAccountMetadata:metadata forHomeAccountId:@"uid.utid" error:&error]);
+    XCTAssertNil(error);
+
     XCTAssertEqualObjects(metadata, [cacheItem accountMetadataForHomeAccountId:@"uid.utid"]);
 }
 
-- testAccountMetadataForHomeAccountId_whenAccountMetadataMatched_shouldReturnIt {
+- (void)testAccountMetadataForHomeAccountId_whenAccountMetadataMatched_shouldReturnIt {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"client-id"];
-    
+
     MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"uid.utid" clientId:@"client-id"];
     [metadata updateSignInState:MSIDAccountMetadataStateSignedIn];
-    XCTAssertFalse([cacheItem addAccountMetadata:metadata forHomeAccountId:@"uid.utid"]);
-    
+    XCTAssertTrue([cacheItem addAccountMetadata:metadata forHomeAccountId:@"uid.utid" error:nil]);
+
     XCTAssertNil([cacheItem accountMetadataForHomeAccountId:@"uid.utid2"]);
     XCTAssertEqualObjects(metadata, [cacheItem accountMetadataForHomeAccountId:@"uid.utid"]);
 }
@@ -74,10 +80,10 @@
 - (void)testJSONDictionary_whenAllFieldsSet_shouldReturnJSONDictionaryWithAccountKey
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
-    
+
     MSIDAccountMetadata *accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     MSIDAccountMetadata *accountMetadata2 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId2" clientId:@"clientId"];
-    
+
     NSError *error;
     XCTAssertTrue([accountMetadata setCachedURL:[NSURL URLWithString:@"https://contoso.com"]
                                   forRequestURL:[NSURL URLWithString:@"https://testAuthority.com"]
@@ -93,16 +99,16 @@
                                   forRequestURL:[NSURL URLWithString:@"https://testAuthority2.com"]
                                   instanceAware:NO
                                           error:&error]);
-    [cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId"];
-    
+    XCTAssertTrue([cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId" error:nil]);
+
     XCTAssertNil(error);
     XCTAssertTrue([accountMetadata2 setCachedURL:[NSURL URLWithString:@"https://contoso2.com"]
                                    forRequestURL:[NSURL URLWithString:@"https://testAuthority2.com"]
                                    instanceAware:NO
                                            error:&error]);
     XCTAssertNil(error);
-    [cacheItem addAccountMetadata:accountMetadata2 forHomeAccountId:@"homeAccountId2"];
-    
+    XCTAssertTrue([cacheItem addAccountMetadata:accountMetadata2 forHomeAccountId:@"homeAccountId2" error:nil]);
+
     __auto_type *expected = @{
         MSID_CLIENT_ID_CACHE_KEY : @"clientId",
         MSID_ACCOUNT_METADATA_MAP_CACHE_KEY : @{@"homeAccountId" : @{ @"client_id" : @"clientId",
@@ -114,7 +120,7 @@
                                                                        @"sign_in_state" : @"signed_in",
                                                                        @"athority_map" : @{ @"URLMap-" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}}}
         }};
-    
+
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expected);
 }
 
@@ -128,15 +134,15 @@
                                             @"home_account_id" : @"homeAccountId2",
                                             @"sign_in_state" : @"signed_in",
                                             @"athority_map" : @{ @"URLMap-" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}}};
-    
+
     NSDictionary *jsonDictionary = @{
         MSID_CLIENT_ID_CACHE_KEY : @"clientId",
         MSID_ACCOUNT_METADATA_MAP_CACHE_KEY : @{@"homeAccountId" : accountMetadataJson1,
                                                 @"homeAccountId2" : accountMetadataJson2}};
-    
+
     NSError *error = nil;
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:jsonDictionary error:&error];
-    
+
     XCTAssertNil(error);
     XCTAssertNotNil(cacheItem);
     XCTAssertEqualObjects(cacheItem.clientId, @"clientId");
@@ -148,7 +154,7 @@
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
     MSIDAccountMetadataCacheItem *cacheItem2 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
-    
+
     MSIDAccountMetadata *accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     NSError *error;
     XCTAssertTrue([accountMetadata setCachedURL:[NSURL URLWithString:@"https://contoso.com"]
@@ -156,20 +162,17 @@
                                   instanceAware:NO
                                           error:&error]);
     XCTAssertNil(error);
-    
+
     MSIDAccountMetadata *accountMetadata2 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([accountMetadata2 setCachedURL:[NSURL URLWithString:@"https://contoso.com"]
                                    forRequestURL:[NSURL URLWithString:@"https://testAuthority.com"]
                                    instanceAware:NO
                                            error:&error]);
     XCTAssertNil(error);
-    
-    [cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId"];
-    [cacheItem2 addAccountMetadata:accountMetadata2 forHomeAccountId:@"homeAccountId"];
-    
-    
-    
-    
+
+    XCTAssertTrue([cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId" error:nil]);
+    XCTAssertTrue([cacheItem2 addAccountMetadata:accountMetadata2 forHomeAccountId:@"homeAccountId" error:nil]);
+
     XCTAssertTrue([cacheItem isEqual:cacheItem2]);
 }
 
@@ -177,8 +180,8 @@
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
     MSIDAccountMetadataCacheItem *cacheItem2 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId2"];
-    
-    
+
+
     XCTAssertFalse([cacheItem isEqual:cacheItem2]);
 }
 
@@ -186,7 +189,7 @@
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
     MSIDAccountMetadataCacheItem *cacheItem2 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
-    
+
     MSIDAccountMetadata *accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     NSError *error;
     XCTAssertTrue([accountMetadata setCachedURL:[NSURL URLWithString:@"https://contoso.com"]
@@ -194,19 +197,16 @@
                                   instanceAware:NO
                                           error:&error]);
     XCTAssertNil(error);
-    
+
     MSIDAccountMetadata *accountMetadata2 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     XCTAssertTrue([accountMetadata2 setCachedURL:[NSURL URLWithString:@"https://contoso.com2"]
                                    forRequestURL:[NSURL URLWithString:@"https://testAuthority.com"]
                                    instanceAware:NO
                                            error:&error]);
     XCTAssertNil(error);
-    
-    [cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId"];
-    [cacheItem2 addAccountMetadata:accountMetadata2 forHomeAccountId:@"homeAccountId"];
-    
-    
-    
+
+    XCTAssertTrue([cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId" error:nil]);
+    XCTAssertTrue([cacheItem2 addAccountMetadata:accountMetadata2 forHomeAccountId:@"homeAccountId" error:nil]);
     
     XCTAssertFalse([cacheItem isEqual:cacheItem2]);
 }
@@ -214,7 +214,7 @@
 - (void)testGenerateCacheKey_whenGenerateKey_shouldReturnExpectedKey
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
-    
+
     MSIDCacheKey *key = [cacheItem generateCacheKey];
     XCTAssertEqualObjects(key.account, MSID_APP_METADATA_AUTHORITY_MAP_TYPE);
     XCTAssertEqualObjects(key.service, @"clientId");
@@ -223,7 +223,7 @@
 - (void)testCopy_whenCopy_shouldDeepCopy
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
-    
+
     MSIDAccountMetadata *accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     NSError *error;
     XCTAssertTrue([accountMetadata setCachedURL:[NSURL URLWithString:@"https://contoso.com"]
@@ -231,16 +231,16 @@
                                   instanceAware:NO
                                           error:&error]);
     XCTAssertNil(error);
-    [cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId"];
-    
+    XCTAssertTrue([cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"homeAccountId" error:nil]);
+
     MSIDAccountMetadataCacheItem *cacheItem2 = [cacheItem copy];
-    
+
     MSIDAccountMetadata *metadata = [cacheItem accountMetadataForHomeAccountId:@"homeAccountId"];
     MSIDAccountMetadata *metadata2 = [cacheItem2 accountMetadataForHomeAccountId:@"homeAccountId"];
-    
-    
-    
-    
+
+
+
+
     XCTAssertNotEqual(metadata, metadata2);
     XCTAssertEqualObjects(metadata, metadata2);
 }

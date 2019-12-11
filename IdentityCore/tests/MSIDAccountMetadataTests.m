@@ -158,7 +158,7 @@
     NSDictionary *expectedMap = @{ @"URLMap-" : @{ @"https://testAuthority1.com" : @"https://contoso1.com"},
                                    @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}
     };
-    XCTAssertEqualObjects(accountMetadata.internalMap, expectedMap);
+    XCTAssertEqualObjects(accountMetadata.auhtorityMap, expectedMap);
 }
 
 - (void)testSetCachedURL_whenCacheURLAndRequestURLPresentWhenRecordAlreadyExists_shouldOverwriteAndSaveMapping
@@ -181,7 +181,7 @@
     NSDictionary *expectedMap = @{ @"URLMap-" : @{ @"https://testAuthority.com" : @"https://contoso3.com"},
                                    @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}
     };
-    XCTAssertEqualObjects(accountMetadata.internalMap, expectedMap);
+    XCTAssertEqualObjects(accountMetadata.auhtorityMap, expectedMap);
 }
 
 - (void)testSetCachedURL_whenSetCacheURL_shouldSetSignInStateSignedIn
@@ -207,7 +207,7 @@
     // Should flip signed out state
     NSDictionary *expectedMap = @{ @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}
     };
-    XCTAssertEqualObjects(accountMetadata.internalMap, expectedMap);
+    XCTAssertEqualObjects(accountMetadata.auhtorityMap, expectedMap);
     XCTAssertEqual(accountMetadata.signInState, MSIDAccountMetadataStateSignedIn);
 }
 
@@ -322,7 +322,7 @@
     [accountMetadata updateSignInState:MSIDAccountMetadataStateSignedOut];
     
     NSDictionary *expectedMap = @{};
-    XCTAssertEqualObjects(accountMetadata.internalMap, expectedMap);
+    XCTAssertEqualObjects(accountMetadata.auhtorityMap, expectedMap);
     XCTAssertEqual(accountMetadata.signInState, MSIDAccountMetadataStateSignedOut);
 }
 
@@ -343,7 +343,7 @@
     
     NSDictionary *expectedMap = @{ @"URLMap-" : @{ @"https://testAuthority1.com" : @"https://contoso1.com"},
                                    @"URLMap-instance_aware=YES" : @{ @"https://testAuthority2.com" : @"https://contoso2.com"}};
-    XCTAssertEqualObjects(accountMetadata.internalMap, expectedMap);
+    XCTAssertEqualObjects(accountMetadata.auhtorityMap, expectedMap);
     XCTAssertEqual(accountMetadata.signInState, MSIDAccountMetadataStateUnknown);
 }
 

@@ -982,7 +982,7 @@
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
     MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     [metadata setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
-    [cacheItem addAccountMetadata:metadata forHomeAccountId:@"homeAccountId"];
+    [cacheItem addAccountMetadata:metadata forHomeAccountId:@"homeAccountId" error:nil];
     
     NSError *error;
     XCTAssertTrue([_dataSource saveAccountMetadata:cacheItem key:key serializer:serializer context:nil error:&error]);
@@ -1013,7 +1013,7 @@
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
     MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     [metadata setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
-    [cacheItem addAccountMetadata:metadata forHomeAccountId:@"homeAccountId"];
+    [cacheItem addAccountMetadata:metadata forHomeAccountId:@"homeAccountId" error:nil];
     
     [_dataSource saveAccountMetadata:cacheItem key:key serializer:serializer context:nil error:nil];
     

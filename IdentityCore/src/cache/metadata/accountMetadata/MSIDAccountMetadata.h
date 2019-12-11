@@ -30,13 +30,12 @@ typedef NS_ENUM(NSInteger, MSIDAccountMetadataState)
     MSIDAccountMetadataStateSignedIn,
     MSIDAccountMetadataStateSignedOut
 };
-#define AccountMetadataStateStringArray @"unknown", @"signed_in", @"signed_out", nil
 
 @interface MSIDAccountMetadata : NSObject <MSIDJsonSerializable, NSCopying>
 
 @property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic, readonly) NSDictionary *internalMap;
+@property (nonatomic, readonly) NSDictionary *auhtorityMap;
 
 @property (nonatomic, readonly) MSIDAccountMetadataState signInState;
 

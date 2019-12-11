@@ -60,11 +60,12 @@
     return _accountMetadataMap[homeAccountId];
 }
 
-- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId
+- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId error:(NSError **)error
 {
     if (!homeAccountId || !accountMetadata)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot add account metadata with nil accountMetadata or homeAccountId!");
+        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Cannot add account metadata with nil accountMetadata or homeAccountId!", nil, nil, nil, nil, nil, YES);
+        if (error) *error = localError;
         return NO;
     }
     

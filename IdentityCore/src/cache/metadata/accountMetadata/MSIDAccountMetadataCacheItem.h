@@ -35,6 +35,7 @@
 - (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
 
 - (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
-          forHomeAccountId:(NSString *)homeAccountId;
+          forHomeAccountId:(NSString *)homeAccountId
+                     error:(NSError **)error;
 
 @end
