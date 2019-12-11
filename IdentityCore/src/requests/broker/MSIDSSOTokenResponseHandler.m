@@ -50,11 +50,15 @@
         MSIDRequestParameters *parameters = [requestParameters copy];
         parameters.target = operationResponse.additionalTokenResponse.scope;
         
+        BOOL saveSSOStateOnly = NO;
+        // TODO: once device info is available, set to YES if it is a shared device
+        
         [tokenResponseValidator validateAndSaveTokenResponse:operationResponse.additionalTokenResponse
                                                 oauthFactory:oauthFactory
                                                   tokenCache:tokenCache
                                         accountMetadataCache:accountMetadataCache
                                            requestParameters:parameters
+                                            saveSSOStateOnly:saveSSOStateOnly
                                                        error:&localError];
         
         if (localError)

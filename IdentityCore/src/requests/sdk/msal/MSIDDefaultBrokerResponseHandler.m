@@ -98,11 +98,15 @@
             
             if (!additionalTokensError)
             {
+                BOOL saveSSOStateOnly = NO;
+                // TODO: return device info for broker FLW and set to YES if it is a shared device
+                
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
                                                                            correlationID:correlationID
+                                                                        saveSSOStateOnly:saveSSOStateOnly
                                                                                    error:&additionalTokensError];
             }
         }

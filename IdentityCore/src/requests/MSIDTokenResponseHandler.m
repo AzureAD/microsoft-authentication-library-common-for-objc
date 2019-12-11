@@ -53,6 +53,7 @@
                                                                              tokenCache:tokenCache
                                                                    accountMetadataCache:accountMetadataCache
                                                                       requestParameters:requestParameters
+                                                                       saveSSOStateOnly:NO
                                                                                   error:&validationError];
        
     if (!tokenResult)

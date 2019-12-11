@@ -142,11 +142,15 @@
         }
     }
     
+    BOOL saveSSOStateOnly = NO;
+    // TODO: return device info for broker FLW and set to YES if it is a shared device
+    
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                             oidcScope:oidcScope
                                                          oauthFactory:self.oauthFactory
                                                            tokenCache:self.tokenCache
                                                         correlationID:correlationId
+                                                     saveSSOStateOnly:saveSSOStateOnly
                                                                 error:error];
 }
 
