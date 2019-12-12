@@ -401,25 +401,35 @@
         return nil;
     }
     
-    NSSet<NSString *> *filterAccountIds = nil;
-
-    NSError *localError;
-    // we only return accounts for which we have refresh tokens in cache
-    filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
-                                                       clientId:clientId
-                                                       familyId:familyId
-                                         accountCredentialCache:_accountCredentialCache
-                                                        context:context
-                                                          error:&localError];
+    BOOL filterByRT = clientId || familyId;
     
-    if (localError)
+    NSSet<NSString *> *filterAccountIds = nil;
+    
+    if (filterByRT)
     {
-        if (error)
+        NSError *localError;
+        
+        // we only return accounts for which we have refresh tokens in cache if clientId or familyId were provided
+        filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                           clientId:clientId
+                                                           familyId:familyId
+                                             accountCredentialCache:_accountCredentialCache
+                                                            context:context
+                                                              error:&localError];
+        
+        if (localError)
         {
-            *error = localError;
+            if (error)
+            {
+                *error = localError;
+            }
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+            return nil;
         }
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-        return nil;
+    }
+    else
+    {
+        NSLog(@"Hey!");
     }
     
     NSArray<MSIDIdToken *> *idTokens = [self idTokensWithAuthority:authority
@@ -431,6 +441,7 @@
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [self filterAndFillIdTokenClaimsForAccounts:allAccounts
                                                                                          authority:authority
                                                                                         accountIds:filterAccountIds
+                                                                                        filterByRT:filterByRT
                                                                                           idTokens:idTokens];
 
     if ([filteredAccountsSet count])
@@ -1021,6 +1032,7 @@
 - (NSMutableSet<MSIDAccount *> *)filterAndFillIdTokenClaimsForAccounts:(NSArray<MSIDAccountCacheItem *> *)allAccounts
                                                              authority:(MSIDAuthority *)authority
                                                             accountIds:(NSSet<NSString *> *)accountIds
+                                                            filterByRT:(BOOL)filterByRT
                                                               idTokens:(NSArray<MSIDIdToken *> *)idTokens
 {
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
@@ -1036,7 +1048,7 @@
     for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
     {
         // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if ([accountIds containsObject:accountCacheItem.homeAccountId])
+        if ([accountIds containsObject:accountCacheItem.homeAccountId] || !filterByRT)
         {
             if (authority.environment)
             {
