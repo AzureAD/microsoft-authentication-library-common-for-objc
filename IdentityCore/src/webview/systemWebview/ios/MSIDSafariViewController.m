@@ -148,7 +148,7 @@
 }
 
 - (BOOL)completeSessionWithResponse:(NSURL *)url
-                            context:(id<MSIDRequestContext>)context
+                            context:(__unused id<MSIDRequestContext>)context
                               error:(NSError *)error
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
@@ -179,7 +179,7 @@
 }
 
 #pragma mark - SFSafariViewControllerDelegate
-- (void)safariViewControllerDidFinish:(SFSafariViewController *)controller
+- (void)safariViewControllerDidFinish:(__unused SFSafariViewController *)controller
 {
     // user cancel
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil, YES);

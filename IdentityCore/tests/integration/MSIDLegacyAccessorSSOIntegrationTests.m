@@ -2232,7 +2232,7 @@
                 accessToken:(NSString *)accessToken
                refreshToken:(NSString *)refreshToken
            additionalFields:(NSDictionary *)additionalFields
-               enrollmentId:(NSString *)enrollmentId
+               enrollmentId:(__unused NSString *)enrollmentId
               appIdentifier:(NSString *)appIdentifier
                    accessor:(id<MSIDCacheAccessor>)accessor
 {
