@@ -427,10 +427,6 @@
             return nil;
         }
     }
-    else
-    {
-        NSLog(@"Hey!");
-    }
     
     NSArray<MSIDIdToken *> *idTokens = [self idTokensWithAuthority:authority
                                                  accountIdentifier:accountIdentifier
