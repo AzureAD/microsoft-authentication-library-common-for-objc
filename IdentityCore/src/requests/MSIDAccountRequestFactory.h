@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAccountRequestFactory : NSObject
 
 + (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                       shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                                    oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
 
 @end

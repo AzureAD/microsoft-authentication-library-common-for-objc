@@ -31,6 +31,8 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 
+NSString *const MSID_SIGNOUT_FROM_BROWSER_KEY = @"signout_from_browser";
+
 @implementation MSIDBrokerOperationSignoutFromDeviceRequest
 
 + (void)load
@@ -59,6 +61,7 @@
         _authority = authority;
         _redirectUri = [json msidStringObjectForKey:MSID_REDIRECT_URI_JSON_KEY];
         _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
+        _signoutFromBrowser = [json msidBoolObjectForKey:MSID_SIGNOUT_FROM_BROWSER_KEY];
     }
     
     return self;
@@ -80,6 +83,8 @@
     json[MSID_REDIRECT_URI_JSON_KEY] = self.redirectUri;
     
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
+    json[MSID_SIGNOUT_FROM_BROWSER_KEY] = @(_signoutFromBrowser);
+    
     return json;
 }
 

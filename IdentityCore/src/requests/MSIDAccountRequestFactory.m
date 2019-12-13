@@ -32,6 +32,7 @@
 @implementation MSIDAccountRequestFactory
 
 + (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                       shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                                    oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
 {
 #if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
@@ -41,13 +42,20 @@
         {
             if ([self canUseSSOExtension])
             {
-                return [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+                return [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:parameters
+                                                                shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                                            oauthFactory:oauthFactory];
             }
         }
     }
 #endif
     
-    return [[MSIDOIDCSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+    if (shouldSignoutFromBrowser)
+    {
+        return [[MSIDOIDCSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+    }
+    
+    return nil;
 }
 
 #if MSID_ENABLE_SSO_EXTENSION
