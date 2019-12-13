@@ -23,10 +23,28 @@
 
 #import "MSIDDeviceInfo.h"
 #import "MSIDConstants.h"
+#import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDRegistrationInformation.h"
 
 static NSArray *deviceModeEnumString;
 
 @implementation MSIDDeviceInfo
+
+- (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
+                 isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
+                     brokerVersion:(NSString *)brokerVersion
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _deviceMode = deviceMode;
+        _wpjStatus = isWorkPlaceJoined ? MSIDWorkPlaceJoinStatusJoined : MSIDWorkPlaceJoinStatusNotJoined;
+        _brokerVersion = brokerVersion;
+    }
+    
+    return self;
+}
 
 #pragma mark - MSIDJsonSerializable
 
@@ -57,68 +75,42 @@ static NSArray *deviceModeEnumString;
 
 - (NSString *)deviceModeStringFromEnum:(MSIDDeviceMode)deviceMode
 {
-    if (deviceMode < 0 || deviceMode >= self.deviceModeEnumString.count) return nil;
-    
-    return [self.deviceModeEnumString objectAtIndex:deviceMode];
+    switch (deviceMode) {
+        case MSIDDeviceModePersonal:
+            return @"personal";
+        case MSIDDeviceModeShared:
+            return @"shared";
+        default:
+            return nil;
+    }
 }
 
 - (MSIDDeviceMode)deviceModeEnumFromString:(NSString *)deviceModeString
 {
-    // Default to personal mode if no device mode is available
-    if ([NSString msidIsStringNilOrBlank:deviceModeString]) return MSIDDeviceModePersonal;
-    
-    NSUInteger index = [self.deviceModeEnumString indexOfObject:deviceModeString];
-    
-    if (index < 0 || index >= self.deviceModeEnumString.count)
-    {
-        return (MSIDDeviceMode) 0;
-    }
-    return (MSIDDeviceMode) index;
-}
+    if ([deviceModeString isEqualToString:@"personal"])    return MSIDDeviceModePersonal;
+    if ([deviceModeString isEqualToString:@"shared"])  return MSIDDeviceModeShared;
 
-- (NSArray *)deviceModeEnumString
-{
-    static NSArray *s_deviceModeEnumStrings = nil;
-    static dispatch_once_t deviceModeStringOnce;
-    
-    dispatch_once(&deviceModeStringOnce, ^{
-        s_deviceModeEnumStrings = [[NSArray alloc] initWithObjects:DeviceModeStringArray];
-    });
-    
-    return s_deviceModeEnumStrings;
+    return MSIDDeviceModePersonal;
 }
 
 - (NSString *)wpjStatusStringFromEnum:(MSIDWorkPlaceJoinStatus)wpjStatus
 {
-    if (wpjStatus < 0 || wpjStatus >= self.wpjStatusEnumString.count) return nil;
-    
-    return [self.wpjStatusEnumString objectAtIndex:wpjStatus];
+    switch (wpjStatus) {
+        case MSIDWorkPlaceJoinStatusNotJoined:
+            return @"NotJoined";
+        case MSIDWorkPlaceJoinStatusJoined:
+            return @"joined";
+        default:
+            return nil;
+    }
 }
 
 - (MSIDWorkPlaceJoinStatus)wpjStatusEnumFromString:(NSString *)wpjStatusString
 {
-    // Default to personal mode if no device mode is available
-    if ([NSString msidIsStringNilOrBlank:wpjStatusString]) return MSIDWorkPlaceJoinStatusNotJoined;
-    
-    NSUInteger index = [self.wpjStatusEnumString indexOfObject:wpjStatusString];
-    
-    if (index < 0 || index >= self.wpjStatusEnumString.count)
-    {
-        return (MSIDWorkPlaceJoinStatus) 0;
-    }
-    return (MSIDWorkPlaceJoinStatus) index;
-}
+    if ([wpjStatusString isEqualToString:@"NotJoined"]) return MSIDWorkPlaceJoinStatusNotJoined;
+    if ([wpjStatusString isEqualToString:@"joined"])    return MSIDWorkPlaceJoinStatusJoined;
 
-- (NSArray *)wpjStatusEnumString
-{
-    static NSArray *s_wpjEnumStrings = nil;
-    static dispatch_once_t wpjStringOnce;
-    
-    dispatch_once(&wpjStringOnce, ^{
-        s_wpjEnumStrings = [[NSArray alloc] initWithObjects:WPJStatusStringArray];
-    });
-    
-    return s_wpjEnumStrings;
+    return MSIDWorkPlaceJoinStatusNotJoined;
 }
 
 @end

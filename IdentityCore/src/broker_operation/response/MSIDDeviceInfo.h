@@ -28,14 +28,12 @@ typedef NS_ENUM(NSInteger, MSIDDeviceMode)
     MSIDDeviceModePersonal = 0,
     MSIDDeviceModeShared
 };
-#define DeviceModeStringArray @"personal", @"shared", nil
 
 typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)
 {
     MSIDWorkPlaceJoinStatusNotJoined = 0,
     MSIDWorkPlaceJoinStatusJoined
 };
-#define WPJStatusStringArray @"NotJoined", @"joined", nil
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,6 +42,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDDeviceMode deviceMode;
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
+
+- (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
+                 isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
+                     brokerVersion:(NSString *)brokerVersion;
 
 @end
 
