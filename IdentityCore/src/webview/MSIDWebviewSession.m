@@ -33,8 +33,7 @@
 
 - (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
-                             requestState:(NSString *)state
-                       ignoreInvalidState:(BOOL)ignoreInvalidState
+                            configuration:(MSIDBaseWebRequestConfiguration *)configuration
 
 {
     self = [super init];
@@ -42,8 +41,7 @@
     {
         _webviewController = webviewController;
         _factory = factory;
-        _requestState = state;
-        _ignoreInvalidState = ignoreInvalidState;
+        _webViewConfiguration = configuration;
     }
     
     return self;

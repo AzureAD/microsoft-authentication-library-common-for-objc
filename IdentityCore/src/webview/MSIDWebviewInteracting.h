@@ -27,7 +27,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDWebOAuth2Response;
+@class MSIDWebOAuth2AuthCodeResponse;
 
 typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 

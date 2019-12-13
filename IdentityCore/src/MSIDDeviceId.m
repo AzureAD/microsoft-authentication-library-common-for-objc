@@ -36,7 +36,7 @@
 #if !TARGET_OS_IPHONE
 // Returns the serial number as a CFString.
 // It is the caller's responsibility to release the returned CFString when done with it.
-void CopySerialNumber(CFStringRef *serialNumber)
+void MSIDDeviceCopySerialNumber(CFStringRef *serialNumber)
 {
     if (serialNumber != NULL)
     {
@@ -161,7 +161,7 @@ void CopySerialNumber(CFStringRef *serialNumber)
     return [[[UIDevice currentDevice] identifierForVendor] UUIDString];
 #else
     CFStringRef macSerialNumber = nil;
-    CopySerialNumber(&macSerialNumber);
+    MSIDDeviceCopySerialNumber(&macSerialNumber);
     NSString *deviceId = CFBridgingRelease(macSerialNumber);
     return deviceId;
 #endif

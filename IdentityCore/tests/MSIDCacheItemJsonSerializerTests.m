@@ -29,6 +29,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAccountMetadata.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDCacheItemJsonSerializerTests : XCTestCase
 

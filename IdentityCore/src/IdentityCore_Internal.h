@@ -47,3 +47,4 @@
 - (void)SETTER:(NSString *)value { [DICT setValue:[value copy] forKey:KEY]; }
 
 #define STRING_CASE(_CASE) case _CASE: return @#_CASE
+#define MSID_ENABLE_SSO_EXTENSION ((__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500) && !MSID_EXCLUDE_WEBKIT)

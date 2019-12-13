@@ -34,13 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) MSIDConfiguration *configuration;
 @property (nonatomic) MSIDProviderType providerType;
-@property (nonatomic) NSString *oidcScope;
-@property (nonatomic) NSDictionary *extraQueryParameters;
+@property (nonatomic, nullable) NSString *oidcScope;
+@property (nonatomic, nullable) NSDictionary *extraQueryParameters;
 @property (nonatomic) BOOL instanceAware;
-@property (nonatomic) NSDictionary *enrollmentIds;
-@property (nonatomic) NSDictionary *mamResources;
-@property (nonatomic) NSArray *clientCapabilities;
-@property (nonatomic) MSIDClaimsRequest *claimsRequest;
+@property (nonatomic, nullable) NSDictionary *enrollmentIds;
+@property (nonatomic, nullable) NSDictionary *mamResources;
+@property (nonatomic, nullable) NSArray *clientCapabilities;
+@property (nonatomic, nullable) MSIDClaimsRequest *claimsRequest;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationTokenRequest *)request
      withParameters:(MSIDRequestParameters *)parameters

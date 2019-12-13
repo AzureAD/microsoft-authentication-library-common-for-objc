@@ -103,6 +103,19 @@ static NSString *s_tenantIdPlaceholder = @"{tenantid}";
     
     metadata.issuer = [NSURL URLWithString:issuerString];
     
+    if (![jsonObject msidAssertType:NSString.class ofKey:@"end_session_endpoint" required:NO error:error]) return nil;
+    
+    NSString *endSessionUrlString = (NSString *)jsonObject[@"end_session_endpoint"];
+    
+    if (endSessionUrlString)
+    {
+        metadata.endSessionEndpoint = [NSURL URLWithString:endSessionUrlString];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"End session endpoint not returned in Openid metadata");
+    }
+    
     return metadata;
 }
 

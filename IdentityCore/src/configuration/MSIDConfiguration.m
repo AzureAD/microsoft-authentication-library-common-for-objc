@@ -56,7 +56,6 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     return configuration;
 }
 
-
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
@@ -109,11 +108,13 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     MSIDAuthority *authority = (MSIDAuthority *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_PROVIDER_TYPE_JSON_KEY assertKindOfClass:MSIDAuthority.class error:error];
     if (!authority) return nil;
 
+    if (![json msidAssertType:NSString.class ofKey:MSID_REDIRECT_URI_JSON_KEY required:YES error:error]) return nil;
     NSString *redirectUri = [json msidStringObjectForKey:MSID_REDIRECT_URI_JSON_KEY];
     
     if (![json msidAssertType:NSString.class ofKey:MSID_CLIENT_ID_JSON_KEY required:YES error:error]) return nil;
     NSString *clientId = json[MSID_CLIENT_ID_JSON_KEY];
 
+    if (![json msidAssertType:NSString.class ofKey:MSID_SCOPE_JSON_KEY required:NO error:error]) return nil;
     NSString *target = [json msidStringObjectForKey:MSID_SCOPE_JSON_KEY];
     
     return [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target];
@@ -131,10 +132,6 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     }
     [json addEntriesFromDictionary:authorityJson];
     
-    json[MSID_CLIENT_ID_JSON_KEY] = self.clientId;
-    
-    json[MSID_REDIRECT_URI_JSON_KEY] = self.redirectUri;
-    
     if (!self.clientId)
     {
         MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, clientId is nil.", self.class);
@@ -142,6 +139,12 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     }
     json[MSID_CLIENT_ID_JSON_KEY] = self.clientId;
     
+    if (!self.redirectUri)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, redirectUri is nil.", self.class);
+        return nil;
+    }
+    json[MSID_REDIRECT_URI_JSON_KEY] = self.redirectUri;
     json[MSID_SCOPE_JSON_KEY] = self.target;
     
     return json;

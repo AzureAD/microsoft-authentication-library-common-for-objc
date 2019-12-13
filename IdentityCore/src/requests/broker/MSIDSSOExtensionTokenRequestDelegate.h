@@ -21,13 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDSSOExtensionRequestDelegate.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0))
+API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionTokenRequestDelegate : MSIDSSOExtensionRequestDelegate
 
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

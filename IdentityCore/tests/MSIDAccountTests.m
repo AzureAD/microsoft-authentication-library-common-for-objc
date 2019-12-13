@@ -85,31 +85,6 @@
     XCTAssertEqualObjects(account.homeAccountId, @"some id");
 }
 
-- (void)testInitWithLegacyUserIdClientInfo_shouldInitAccountAndSetProperties
-
-{
-    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
-    
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy user id" clientInfo:clientInfo];
-    
-    XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.displayableId, @"legacy user id");
-    XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
-}
-
-- (void)testInitWithTokenResponseRequestParams_shouldInitAccountAndSetProperties
-{
-    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
-    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
-    
-    MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy user id" clientInfo:clientInfo];
-    
-    XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.displayableId, @"legacy user id");
-    XCTAssertEqualObjects(account.homeAccountId, @"1.1234-5678-90abcdefg");
-}
-
 - (void)testAccountIdentifier_whenCopied_shouldReturnSameItem
 {
     MSIDAccountIdentifier *account1 = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy account id" homeAccountId:@"home account id"];
@@ -225,8 +200,7 @@
     XCTAssertNil(error);
     
     NSDictionary *expectedJson = @{
-        @"account_home_id" : @"uid.utid",
-        @"account_displayable_id" : @"legacy id",
+        @"home_account_id" : @"uid.utid",
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
         @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -250,8 +224,7 @@
     NSDictionary *idTokenClaims = @{ @"sub" : @"abc",
                                      @"middle_name" : @"Middle" };
     NSDictionary *json = @{
-        @"account_home_id" : @"uid.utid",
-        @"account_displayable_id" : @"legacy id",
+        @"home_account_id" : @"uid.utid",
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
         @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -273,7 +246,7 @@
     XCTAssertNil(error);
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"username");
     XCTAssertEqualObjects(account.localAccountId, @"local");
     XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(account.realm, @"common");
@@ -304,7 +277,6 @@
         @"middle_name" : @"Middle",
         @"realm" : @"common",
         @"storage_environment" : @"login.windows2.net",
-        @"username" : @"username"
     };
     
     NSError *error;
@@ -345,8 +317,7 @@
 
 - (void)testInitWithJSONDictionary_whenOptionalValueUnavailable_shouldInitWithJson {
     NSDictionary *json = @{
-        @"account_home_id" : @"uid.utid",
-        @"account_displayable_id" : @"legacy id",
+        @"home_account_id" : @"uid.utid",
         @"account_type" : @"MSSTS",
         @"alternative_account_id" : @"AltID",
         @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
@@ -364,7 +335,7 @@
     XCTAssertNil(error);
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
-    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy id");
+    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"username");
     XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
     XCTAssertEqualObjects(account.storageEnvironment, @"login.windows2.net");
     XCTAssertEqualObjects(account.username, @"username");
@@ -385,7 +356,7 @@
 {
     MSIDAccount *account = [MSIDAccount new];
     account.accountType = MSIDAccountTypeMSSTS;
-    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"legacy id" homeAccountId:@"uid.utid"];
+    account.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"username" homeAccountId:@"uid.utid"];
     account.localAccountId = @"local";
     account.environment = @"login.microsoftonline.com";
     account.realm = @"common";

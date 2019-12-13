@@ -115,11 +115,16 @@
     if (!json) return nil;
     
     NSDictionary *configurationJson = [self.configuration jsonDictionary];
-    if (!configurationJson) return nil;
+    if (!configurationJson)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, configuration is nil.", self.class);
+        return nil;
+    }
+        
     [json addEntriesFromDictionary:configurationJson];
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
     json[MSID_BROKER_EXTRA_OIDC_SCOPES_KEY] = self.oidcScope;
-    json[MSID_BROKER_EXTRA_QUERY_PARAM_KEY] = self.extraQueryParameters;
+    json[MSID_BROKER_EXTRA_QUERY_PARAM_KEY] = [self.extraQueryParameters msidWWWFormURLEncode];
     json[MSID_BROKER_INSTANCE_AWARE_KEY] = [@(self.instanceAware) stringValue];
     json[MSID_BROKER_INTUNE_ENROLLMENT_IDS_KEY] = [self.enrollmentIds msidJSONSerializeWithContext:nil];
     json[MSID_BROKER_INTUNE_MAM_RESOURCE_KEY] = [self.mamResources msidJSONSerializeWithContext:nil];

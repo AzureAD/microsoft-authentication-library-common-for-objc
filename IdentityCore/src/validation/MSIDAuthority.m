@@ -94,12 +94,6 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
-+ (NSString *)authorityType
-{
-    NSAssert(NO, @"Abstract method.");
-    return @"";
-}
-
 - (void)resolveAndValidate:(BOOL)validate
          userPrincipalName:(__unused NSString *)upn
                    context:(id<MSIDRequestContext>)context
@@ -349,7 +343,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
     NSString *authorityString = json[MSID_AUTHORITY_URL_JSON_KEY];
-    NSURL *authorityUrl = [[NSURL alloc] initWithString:authorityString];
+    NSURL *authorityUrl = authorityString ? [[NSURL alloc] initWithString:authorityString] : nil;
     if (!authorityUrl)
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: authority is either nil or not a url.", self.class];

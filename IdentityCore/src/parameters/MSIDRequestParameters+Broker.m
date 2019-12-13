@@ -22,7 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestParameters+Broker.h"
+#if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#endif
 #import "MSIDAuthority.h"
 
 @implementation MSIDRequestParameters (Broker)
