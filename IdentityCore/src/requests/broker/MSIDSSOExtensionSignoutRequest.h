@@ -24,6 +24,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDOIDCSignoutRequest.h"
 
+#if MSID_ENABLE_SSO_EXTENSION
+
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0), macos(10.15))
@@ -32,3 +34,4 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
