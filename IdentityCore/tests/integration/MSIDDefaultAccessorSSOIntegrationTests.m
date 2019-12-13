@@ -1482,7 +1482,7 @@
     
     NSError *error = nil;
     MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:@"uid.utid"];
-    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:identifier context:nil error:&error];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:identifier accountMetadataCache:nil signedInAccountsOnly:NO context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(accounts);
     XCTAssertEqual([accounts count], 1);
