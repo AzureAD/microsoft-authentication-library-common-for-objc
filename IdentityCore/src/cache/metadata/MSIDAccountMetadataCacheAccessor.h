@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
@@ -59,10 +59,5 @@
                                     state:(MSIDAccountMetadataState)state
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error;
-
-// Load account metadata to memory
-- (BOOL)loadAccountMetadataForClientId:(NSString *)clientId
-                               context:(id<MSIDRequestContext>)context
-                                 error:(NSError **)error;
 
 @end

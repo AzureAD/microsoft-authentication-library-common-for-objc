@@ -248,6 +248,16 @@
     
     //save metadata
     NSError *updateMetadataError = nil;
+    [accountMetadataCache updateSignInStateForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
+                                                   clientId:parameters.clientId
+                                                      state:MSIDAccountMetadataStateSignedIn
+                                                    context:parameters
+                                                      error:&updateMetadataError];
+    if (updateMetadataError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update sign in state in metadata cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+    }
+    
     MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
     if (resultingAuthority && !updateMetadataError)
     {

@@ -36,6 +36,7 @@
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDConfiguration.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponseHandler.h"
 
 #if TARGET_OS_OSX
