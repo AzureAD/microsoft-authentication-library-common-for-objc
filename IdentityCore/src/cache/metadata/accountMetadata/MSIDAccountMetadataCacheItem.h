@@ -29,13 +29,13 @@
 @interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
 @property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic) NSDictionary <NSString *, MSIDAccountMetadata *> *accountMetadataMap;
 
 - (instancetype)initWithClientId:(NSString *)clientId;
 
 - (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
 
 - (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
-          forHomeAccountId:(NSString *)homeAccountId;
+          forHomeAccountId:(NSString *)homeAccountId
+                     error:(NSError **)error;
 
 @end

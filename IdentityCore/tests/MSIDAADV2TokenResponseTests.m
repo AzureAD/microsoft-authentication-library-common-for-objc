@@ -22,102 +22,26 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDAADV1TokenResponse.h"
+#import "MSIDAADV2TokenResponse.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
 
-@interface MSIDAADV1TokenResponseTests : XCTestCase
+@interface MSIDAADV2TokenResponseTests : XCTestCase
 
 @end
 
-@implementation MSIDAADV1TokenResponseTests
-
-- (void)testIsMultiResource_whenResourceAndRTPresent_shouldReturnYes
-{
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"xyz",
-                                @"expires_on": @"xyz",
-                                @"refresh_token": @"rt",
-                                @"resource": @"resource"
-                                };
-    
-    NSError *error = nil;
-    MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
-    
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    BOOL result = [response isMultiResource];
-    XCTAssertTrue(result);
-}
-
-- (void)testIsMultiResource_whenResourceMissingAndRTPresent_shouldReturnNO
-{
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"xyz",
-                                @"expires_on": @"xyz",
-                                @"refresh_token": @"rt",
-                                };
-    
-    NSError *error = nil;
-    MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
-    
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    BOOL result = [response isMultiResource];
-    XCTAssertFalse(result);
-}
-
-- (void)testIsMultiResource_whenResourcePresentAndRTMissing_shouldReturnNO
-{
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"xyz",
-                                @"expires_on": @"xyz",
-                                @"resource": @"resource",
-                                };
-    
-    NSError *error = nil;
-    MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
-    
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    BOOL result = [response isMultiResource];
-    XCTAssertFalse(result);
-}
-
-- (void)testIsMultiResource_whenResourceMissingAndRTMissing_shouldReturnNO
-{
-    NSDictionary *jsonInput = @{@"access_token": @"at",
-                                @"token_type": @"Bearer",
-                                @"expires_in": @"xyz",
-                                @"expires_on": @"xyz",
-                                };
-    
-    NSError *error = nil;
-    MSIDAADV1TokenResponse *response = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
-    
-    XCTAssertNotNil(response);
-    XCTAssertNil(error);
-    
-    BOOL result = [response isMultiResource];
-    XCTAssertFalse(result);
-}
+@implementation MSIDAADV2TokenResponseTests
 
 - (void)testJsonDictionary_whenAllPropertiesSetForSuccessResponse_shouldReturnJson
 {
-    __auto_type tokenResponse = [MSIDAADV1TokenResponse new];
+    __auto_type tokenResponse = [MSIDAADV2TokenResponse new];
     tokenResponse.expiresIn = 300;
     tokenResponse.expiresOn = 1575635662;
     tokenResponse.accessToken = @"access_token";
     tokenResponse.refreshToken = @"refresh_token";
     tokenResponse.tokenType = MSID_OAUTH2_BEARER;
-    tokenResponse.resource = @"https://contoso.com";
+    tokenResponse.scope = @"scope 1";
     tokenResponse.state = @"state 1";
     tokenResponse.additionalServerInfo = @{@"k": @"v"};
     tokenResponse.clientAppVersion = @"1.0";
@@ -147,8 +71,8 @@
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"1585635662");
     XCTAssertEqualObjects(json[@"foci"], @"family 1");
     XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
-    XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v1");
-    XCTAssertEqualObjects(json[@"resource"], @"https://contoso.com");
+    XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
+    XCTAssertEqualObjects(json[@"scope"], @"scope 1");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
     XCTAssertEqualObjects(json[@"k"], @"v");
     XCTAssertEqualObjects(json[@"state"], @"state 1");
@@ -157,7 +81,7 @@
 
 - (void)testJsonDictionary_whenAllPropertiesSetForErrorResponse_shouldReturnJson
 {
-    __auto_type tokenResponse = [MSIDAADV1TokenResponse new];
+    __auto_type tokenResponse = [MSIDAADV2TokenResponse new];
     tokenResponse.error = @"unauthorized_client";
     tokenResponse.errorDescription = @"AADSTS53005: Application needs to enforce Intune protection policies. Trace ID: 0ec6f651-1b0f-4147-8461-c8ecfb9c0400 Correlation ID: e6317b1d-726e-4d63-a824-d530336101e6 Timestamp: 2019-11-28 00:13:53Z";
     tokenResponse.state = @"state 1";

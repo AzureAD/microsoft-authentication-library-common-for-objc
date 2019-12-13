@@ -25,6 +25,7 @@
 #import "MSIDBaseToken.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDBaseTokenTests : XCTestCase
 

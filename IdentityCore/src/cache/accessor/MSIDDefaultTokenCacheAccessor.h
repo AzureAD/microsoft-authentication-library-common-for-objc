@@ -33,6 +33,7 @@
 @class MSIDIdToken;
 @class MSIDAuthority;
 @class MSIDAppMetadataCacheItem;
+@class MSIDAccountMetadataCacheAccessor;
 @protocol MSIDExtendedTokenCacheDataSource;
 
 @interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
@@ -87,5 +88,14 @@
                clearAccounts:(BOOL)clearAccounts
                      context:(id<MSIDRequestContext>)context
                        error:(NSError **)error;
+
+- (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
+                                         clientId:(NSString *)clientId
+                                         familyId:(NSString *)familyId
+                                accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                             accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                             signedInAccountsOnly:(BOOL)signedInAccountsOnly
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error;
 
 @end

@@ -80,6 +80,12 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
+    if (!cacheAuthorityURL || !requestAuthorityURL || !homeAccountId || !clientId)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Parameters cannot be nil for updating account metadata authority map!", nil, nil, nil, nil, nil, YES);
+        return NO;
+    }
+        
     //No need to update if the request authority is the same as the authority used internally
     if (!cacheAuthorityURL
         || [cacheAuthorityURL isEqual:requestAuthorityURL]) return YES;
@@ -99,7 +105,16 @@
     }
     
     MSIDAccountMetadata *accountMetadata = [cacheItem accountMetadataForHomeAccountId:homeAccountId];
-    if (!accountMetadata)
+    if (accountMetadata)
+    {
+        // No need to update if same record exists
+        if ([[accountMetadata cachedURL:requestAuthorityURL instanceAware:instanceAware] isEqual:cacheAuthorityURL] &&
+            accountMetadata.signInState == MSIDAccountMetadataStateSignedIn)
+        {
+            return YES;
+        }
+    }
+    else
     {
         accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:homeAccountId clientId:clientId];
     }
@@ -109,7 +124,7 @@
         return NO;
     }
     
-    if (![cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId])
+    if (![cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId error:error])
     {
         return NO;
     }
@@ -131,9 +146,14 @@
         return MSIDAccountMetadataStateUnknown;
     }
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
-    MSIDAccountMetadataCacheItem *cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:error];
-    
+    NSError *localError;
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId context:context error:&localError];
+    if (localError)
+    {
+        if (error) *error = localError;
+        return MSIDAccountMetadataStateUnknown;
+    }
+                                               
     MSIDAccountMetadata *accountMetadata = [cacheItem accountMetadataForHomeAccountId:homeAccountId];
     if (!accountMetadata) return MSIDAccountMetadataStateUnknown;
     
@@ -154,9 +174,7 @@
     }
     
     NSError *localError;
-    MSIDAccountMetadataCacheItem *cacheItem;
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
-    cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:&localError];
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId context:context error:&localError];
     if (localError)
     {
         if (error) *error = localError;
@@ -182,11 +200,30 @@
     
     [accountMetadata updateSignInState:state];
     
-    [cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId];
+    if (![cacheItem addAccountMetadata:accountMetadata forHomeAccountId:homeAccountId error:error])
+    {
+        return NO;
+    }
     
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
     return [_metadataCache saveAccountMetadataCacheItem:cacheItem
                                                     key:key
                                                 context:context error:error];
 }
+
+#pragma mark - Internal
+
+- (MSIDAccountMetadataCacheItem *)retrieveAccountMetadataCacheItemForClientId:(NSString *)clientId
+                                                                      context:(id<MSIDRequestContext>)context
+                                                                        error:(NSError **)error
+{
+    NSError *localError;
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
+    MSIDAccountMetadataCacheItem *cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:&localError];
+    if (localError && error) *error = localError;
+    
+    return cacheItem;
+}
+
 
 @end

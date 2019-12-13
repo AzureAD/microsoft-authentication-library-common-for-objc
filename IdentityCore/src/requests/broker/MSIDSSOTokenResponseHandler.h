@@ -21,30 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDConstants.h"
-#import "MSIDProviderType.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTokenResponseHandler.h"
 
-@class WKWebView;
-@class MSIDAccountIdentifier;
-@class MSIDInteractiveTokenRequestParameters;
+@class MSIDBrokerOperationTokenResponse;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationInteractiveTokenRequest : MSIDBrokerOperationTokenRequest
+@interface MSIDSSOTokenResponseHandler : MSIDTokenResponseHandler
 
-@property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic) MSIDPromptType promptType;
-@property (nonatomic, nullable) NSString *extraScopesToConsent;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (void)handleOperationResponse:(MSIDBrokerOperationTokenResponse *)operationResponse
+              requestParameters:(MSIDRequestParameters *)requestParameters
+         tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
+                   oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                     tokenCache:(id<MSIDCacheAccessor>)tokenCache
+           accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                validateAccount:(BOOL)validateAccount
+                          error:(nullable NSError *)error
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 
 NS_ASSUME_NONNULL_END
-#endif
