@@ -33,9 +33,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 
 @property (nonatomic, readonly) BOOL shouldSignoutFromBrowser;
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
-                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory;
 
 @end
 

@@ -589,6 +589,8 @@
         
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Resolving home account ID from legacy account ID, legacy account %@, resolved account %@", accountIdentifier.maskedDisplayableId, MSID_PII_LOG_TRACKABLE(homeAccountId));
     }
+    
+    BOOL result = YES;
 
     if (homeAccountId)
     {
@@ -602,7 +604,7 @@
         query.matchAnyCredentialType = YES;
 
         NSError *credentialRemovalError;
-        BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:&credentialRemovalError];
+        result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:&credentialRemovalError];
         
         if (!result)
         {
@@ -618,12 +620,13 @@
             accountQuery.accountType = MSIDAccountTypeMSSTS;
             
             NSError *accountRemovalError;
-            result = [_accountCredentialCache removeAccountsWithQuery:accountQuery context:context error:&accountRemovalError];
+            BOOL accountRemovalResult = [_accountCredentialCache removeAccountsWithQuery:accountQuery context:context error:&accountRemovalError];
             
-            if (!result)
+            if (!accountRemovalResult)
             {
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove accounts with error %@", MSID_PII_LOG_MASKABLE(accountRemovalError));
                 if (error) *error = accountRemovalError;
+                result = NO;
             }
         }
         
@@ -648,7 +651,7 @@
         }
     }
 
-    return YES;
+    return result;
 }
 
 - (BOOL)validateAndRemoveRefreshToken:(MSIDRefreshToken *)token
