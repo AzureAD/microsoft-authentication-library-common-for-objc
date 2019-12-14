@@ -2302,6 +2302,62 @@
     XCTAssertEqual([allLegacyRTs count], 0);
 }
 
+- (void)testClearCacheForAccount_whenAccountProvided_andNonNilClientId_andClearAccountsYes_shouldRemoveTokensAndAccounts
+{
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.sing"
+                  inputScopes:@"user.sing"
+                          uid:@"uid2"
+                         utid:@"utid"
+                  accessToken:@"access token 2"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+    
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@test.com" homeAccountId:@"uid2.utid"];
+
+    NSError *error = nil;
+    MSIDAuthority *authority = [[MSIDAuthority alloc] initWithURL:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
+    BOOL result = [_defaultAccessor clearCacheForAccount:identifier authority:authority clientId:@"test_client_id" familyId:nil context:nil error:&error];
+
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+
+    NSArray *allATs = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_defaultAccessor];
+    XCTAssertEqual([allATs count], 1);
+    MSIDAccessToken *at = allATs[0];
+    XCTAssertEqualObjects(at.accountIdentifier.homeAccountId, @"uid.utid");
+
+    NSArray *allRTs = [MSIDTestCacheAccessorHelper getAllDefaultRefreshTokens:_defaultAccessor];
+    XCTAssertEqual([allRTs count], 1);
+    MSIDRefreshToken *rt = allRTs[0];
+    XCTAssertEqualObjects(rt.accountIdentifier.homeAccountId, @"uid.utid");
+
+    NSArray *allIDs = [MSIDTestCacheAccessorHelper getAllIdTokens:_defaultAccessor];
+    XCTAssertEqual([allIDs count], 1);
+    MSIDIdToken *idToken = allIDs[0];
+    XCTAssertEqualObjects(idToken.accountIdentifier.homeAccountId, @"uid.utid");
+
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:authority clientId:nil familyId:nil accountIdentifier:nil context:nil error:&error];
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+}
+
 - (void)testClearCacheForAccount_whenAccountProvided_andNilClientId_shouldRemoveTokensForAllClientIds
 {
     [self saveResponseWithUPN:@"upn@test.com"

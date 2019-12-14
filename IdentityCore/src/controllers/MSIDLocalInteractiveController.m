@@ -179,6 +179,7 @@
     {
         if (msauthResponse)
         {
+            self.currentRequest = nil;
             [self handleWebMSAuthResponse:msauthResponse completion:completionBlock];
             return;
         }

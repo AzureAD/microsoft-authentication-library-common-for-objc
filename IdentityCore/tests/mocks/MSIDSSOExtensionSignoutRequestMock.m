@@ -22,42 +22,22 @@
 // THE SOFTWARE.
 
 #if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDSSOExtensionTokenRequestDelegate.h"
-#import "MSIDSSOExtensionRequestDelegate+Internal.h"
-#import "MSIDBrokerOperationTokenResponse.h"
-#import "MSIDJsonSerializableFactory.h"
 
-@implementation MSIDSSOExtensionTokenRequestDelegate
+#import "MSIDSSOExtensionSignoutRequestMock.h"
 
-- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
+@implementation MSIDSSOExtensionSignoutRequestMock
+
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
 {
-    if (!self.completionBlock) return;
-    
-    NSError *error;
-    __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
-    if (!ssoCredential)
+    if (self.authorizationControllerToReturn)
     {
-        self.completionBlock(nil, error);
-        return;
+        self.authorizationControllerToReturn.request = ssoRequest;
+        return self.authorizationControllerToReturn;
     }
     
-    __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
-    if (!json)
-    {
-        self.completionBlock(nil, error);
-        return;
-    }
-    
-    __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
-
-    if (!operationResponse)
-    {
-        self.completionBlock(nil, error);
-        return;
-    }
-    
-    self.completionBlock(operationResponse, nil);
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
 }
 
 @end
+
 #endif

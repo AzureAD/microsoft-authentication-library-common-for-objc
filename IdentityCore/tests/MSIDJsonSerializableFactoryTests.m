@@ -69,11 +69,6 @@
     [MSIDJsonSerializableFactory registerClass:MSIDJsonSerializableMock.class forClassType:@"my_class"];
 }
 
-- (void)tearDown
-{
-    [MSIDJsonSerializableFactory unregisterAll];
-}
-
 #pragma mark - Tests
 
 - (void)testCreateFromJSONDictionary_whenCorrectClassTypeProvided_shouldCreateInstanceOfClass

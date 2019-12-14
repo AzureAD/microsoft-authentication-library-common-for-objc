@@ -32,7 +32,11 @@
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDRequestParameters+Broker.h"
 #endif
+#if MSID_ENABLE_SSO_EXTENSION
+#import "MSIDSSOExtensionSignoutController.h"
+#endif
 #import "MSIDAuthority.h"
+#import "MSIDSignoutController.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -159,6 +163,33 @@
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
+}
+
++ (nullable MSIDSignoutController *)signoutControllerForParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                                          shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                                             error:(NSError **)error
+{
+#if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
+    if ([parameters shouldUseBroker])
+    {
+        if (@available(iOS 13.0, macos 10.15, *))
+        {
+            if ([MSIDSSOExtensionSignoutController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionSignoutController alloc] initWithRequestParameters:parameters
+                                                                   shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                                               oauthFactory:oauthFactory
+                                                                                      error:error];
+            }
+        }
+    }
+    #endif
+    
+    return [[MSIDSignoutController alloc] initWithRequestParameters:parameters
+                                           shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                       oauthFactory:oauthFactory
+                                                              error:error];
 }
 
 @end

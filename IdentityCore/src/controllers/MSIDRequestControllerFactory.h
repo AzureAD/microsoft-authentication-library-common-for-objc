@@ -27,6 +27,9 @@
 
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDRequestParameters;
+@class MSIDSignoutController;
+@class MSIDOauth2Factory;
+@class MSIDInteractiveRequestParameters;
 
 @interface MSIDRequestControllerFactory : NSObject
 
@@ -38,5 +41,10 @@
 + (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                     error:(NSError * _Nullable * _Nullable)error;
+
++ (nullable MSIDSignoutController *)signoutControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+                                                      oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+                                          shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                                             error:(NSError * _Nullable * _Nullable)error;
 
 @end

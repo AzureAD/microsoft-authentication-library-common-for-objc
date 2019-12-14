@@ -21,50 +21,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountRequestFactory.h"
-#import "MSIDInteractiveRequestParameters.h"
-#import "MSIDRequestParameters+Broker.h"
 #if MSID_ENABLE_SSO_EXTENSION
-#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+
+#import "MSIDSSOExtensionSignoutController.h"
 #import "MSIDSSOExtensionSignoutRequest.h"
-#endif
+#import "MSIDInteractiveRequestParameters.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 
-@implementation MSIDAccountRequestFactory
+@interface MSIDSSOExtensionSignoutController()
 
-+ (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                       shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
-                                                   oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+@property (nonatomic) MSIDSSOExtensionSignoutRequest *currentSSORequest;
+
+@end
+
+@implementation MSIDSSOExtensionSignoutController
+
+- (void)executeRequestWithCompletion:(MSIDSignoutRequestCompletionBlock)completionBlock
 {
-#if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
-    if ([parameters shouldUseBroker])
-    {
-        if (@available(iOS 13.0, macos 10.15, *))
+    if (!completionBlock) return;
+    
+    self.currentSSORequest = [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:self.parameters
+                                                                      shouldSignoutFromBrowser:NO
+                                                                                  oauthFactory:self.factory];
+        
+    [self.currentSSORequest executeRequestWithCompletion:^(BOOL success, NSError * _Nullable error) {
+        
+        self.currentSSORequest = nil;
+        
+        if (!success)
         {
-            if ([self canUseSSOExtension])
-            {
-                return [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:parameters
-                                                                shouldSignoutFromBrowser:shouldSignoutFromBrowser
-                                                                            oauthFactory:oauthFactory];
-            }
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.parameters, @"Failed to perform SSO extension signout request with error %@", MSID_PII_LOG_MASKABLE(error));
+            completionBlock(success, error);
+            return;
         }
-    }
-#endif
-    
-    if (shouldSignoutFromBrowser)
-    {
-        return [[MSIDOIDCSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
-    }
-    
-    return nil;
+        
+        [super executeRequestWithCompletion:completionBlock];
+    }];
 }
 
-#if MSID_ENABLE_SSO_EXTENSION
-
-+ (BOOL)canUseSSOExtension API_AVAILABLE(ios(13.0), macos(10.15))
++ (BOOL)canPerformRequest
 {
     return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
 }
 
-#endif
-
 @end
+
+#endif

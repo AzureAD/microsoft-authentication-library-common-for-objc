@@ -127,10 +127,20 @@
     
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
     ssoRequest.requestedOperation = [signoutRequest.class operation];
-    __auto_type queryItems = [[signoutRequest jsonDictionary] msidQueryItems];
+    
+    NSDictionary *jsonDictionary = [signoutRequest jsonDictionary];
+    
+    if (!jsonDictionary)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for signout request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        completionBlock(NO, error);
+        return;
+    }
+    
+    __auto_type queryItems = [jsonDictionary msidQueryItems];
     ssoRequest.authorizationOptions = queryItems;
     
-    self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+    self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     self.authorizationController.presentationContextProvider = self;
     [self.authorizationController performRequests];
@@ -160,6 +170,12 @@
     return self.requestParameters.parentViewController.view.window;
 }
 
+#pragma mark - AuthenticationServices
+
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
+{
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+}
 
 @end
 

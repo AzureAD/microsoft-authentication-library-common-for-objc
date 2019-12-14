@@ -21,20 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDSSOExtensionSignoutRequest.h"
+
+#if MSID_ENABLE_SSO_EXTENSION
+
+#import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDAuthorizationControllerMock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDOIDCSignoutRequest;
-@class MSIDInteractiveRequestParameters;
-@class MSIDOauth2Factory;
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionSignoutRequestMock : MSIDSSOExtensionSignoutRequest
 
-@interface MSIDAccountRequestFactory : NSObject
-
-+ (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                       shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
-                                                   oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
+@property (nonatomic) MSIDAuthorizationControllerMock *authorizationControllerToReturn;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
