@@ -66,6 +66,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
+#if TARGET_OS_IPHONE
+
 - (void)testExecuteRequest_whenCouldntCreateRequestJSON_shouldReturnNilAndFillError
 {
     MSIDInteractiveRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
@@ -127,7 +129,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
     
-    NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Invalid param", @"invalid_grant", @"bad_token", nil, nil, nil, nil);
+    NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Invalid param", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     NSError *error = [NSError errorWithDomain:ASAuthorizationErrorDomain code:MSIDSSOExtensionUnderlyingError userInfo:@{NSUnderlyingErrorKey : msidError}];
     
     [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
@@ -177,6 +179,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
+
+#endif
 
 @end
 
