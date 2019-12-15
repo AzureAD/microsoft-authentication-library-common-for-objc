@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if MSID_ENABLE_SSO_EXTENSION
 #import <XCTest/XCTest.h>
 #import "MSIDTestIdentifiers.h"
 #import "MSIDBrokerOperationInteractiveTokenRequest.h"
@@ -234,3 +235,4 @@
 }
 
 @end
+#endif

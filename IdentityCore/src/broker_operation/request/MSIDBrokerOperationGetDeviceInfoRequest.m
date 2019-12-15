@@ -21,15 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDSSOExtensionRequestDelegate.h"
+#import "MSIDBrokerOperationGetDeviceInfoRequest.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDBrokerOperationGetDeviceInfoRequest
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionTokenRequestDelegate : MSIDSSOExtensionRequestDelegate
++ (void)load
+{
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+    }
+}
+
+#pragma mark - MSIDBrokerOperationRequest
+
++ (NSString *)operation
+{
+    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    
+    return json;
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
-#endif
+

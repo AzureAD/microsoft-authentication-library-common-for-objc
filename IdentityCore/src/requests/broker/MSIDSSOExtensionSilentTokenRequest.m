@@ -91,7 +91,9 @@
                                                                 error:error
                                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
              {
-                weakSelf.requestCompletionBlock(result, error);
+                MSIDRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+                weakSelf.requestCompletionBlock = nil;
+                if (completionBlock) completionBlock(result, error);
             }];
         };
         

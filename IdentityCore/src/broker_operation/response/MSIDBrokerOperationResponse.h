@@ -24,6 +24,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
 
+@class MSIDDeviceInfo;
+
 extern NSString * _Nonnull const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -36,7 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) BOOL success;
 @property (nonatomic, nullable) NSString *clientAppVersion;
 
-// TODO: add device_info
+@property (nonatomic) MSIDDeviceInfo *deviceInfo;
+
+// TODO: add other properties.
 
 @property (nonatomic) NSNumber *httpStatusCode;
 @property (nonatomic, nullable) NSDictionary *httpHeaders;
