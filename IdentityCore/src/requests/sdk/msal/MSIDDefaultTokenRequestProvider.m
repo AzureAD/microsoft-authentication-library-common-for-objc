@@ -89,10 +89,14 @@
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                                 error:(NSError * _Nullable * _Nullable)error
 {
-    return [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
-                                                                  brokerKey:brokerKey
-                                                     brokerApplicationToken:brokerApplicationToken
-                                                                      error:error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                                    brokerKey:brokerKey
+                                                                                       brokerApplicationToken:brokerApplicationToken
+                                                                                                        error:error];
+    
+    
+    request.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
+    return request;
 }
 
 - (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters

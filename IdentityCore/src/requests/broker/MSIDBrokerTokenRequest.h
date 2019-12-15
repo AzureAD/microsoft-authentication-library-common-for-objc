@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
 @property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
 @property (nonatomic, readonly, nullable) NSString *brokerNonce;
+@property (nonatomic) NSArray<NSString *> *sdkBrokerCapabilities;
 
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey

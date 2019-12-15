@@ -164,6 +164,12 @@
     [queryDictionary msidSetNonEmptyString:clientAppName forKey:@"client_app_name"];
     [queryDictionary msidSetNonEmptyString:clientAppVersion forKey:@"client_app_version"];
     [queryDictionary msidSetNonEmptyString:self.brokerApplicationToken forKey:@"application_token"];
+    
+    if ([self.sdkBrokerCapabilities count])
+    {
+        NSString *capabilitiesString = [self.sdkBrokerCapabilities componentsJoinedByString:@","];
+        [queryDictionary msidSetNonEmptyString:capabilitiesString forKey:MSID_BROKER_SDK_CAPABILITIES_KEY];
+    }
 
     return queryDictionary;
 }
