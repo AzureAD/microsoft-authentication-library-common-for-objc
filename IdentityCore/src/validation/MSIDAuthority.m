@@ -94,12 +94,6 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     return [self initWithURL:url validateFormat:YES context:context error:error];
 }
 
-+ (NSString *)authorityType
-{
-    NSAssert(NO, @"Abstract method.");
-    return @"";
-}
-
 - (void)resolveAndValidate:(BOOL)validate
          userPrincipalName:(__unused NSString *)upn
                    context:(id<MSIDRequestContext>)context

@@ -273,7 +273,7 @@
         {
             copy = [value mutableDeepCopy];
         }
-        else if ([value respondsToSelector:@selector(mutableCopy)])
+        else if ([value respondsToSelector:@selector(mutableCopyWithZone:)])
         {
             copy = [value mutableCopy];
         }

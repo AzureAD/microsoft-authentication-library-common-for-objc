@@ -437,7 +437,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    NSArray *metadataItems = [self accountsMetadataWithKey:key serializer:serializer context:context error:error];
+    NSArray *metadataItems = [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
     if (!metadataItems) return nil;
     
     if (metadataItems.count < 1)
@@ -447,14 +447,6 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
     
     return metadataItems[0];
-}
-
-- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
-                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
-                                                             context:(id<MSIDRequestContext>)context
-                                                               error:(NSError **)error
-{
-    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
 }
 
 #pragma mark - Removal

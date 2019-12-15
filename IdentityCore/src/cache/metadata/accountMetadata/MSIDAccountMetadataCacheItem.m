@@ -22,93 +22,63 @@
 // THE SOFTWARE.
 
 #import "MSIDAccountMetadataCacheItem.h"
-#import "MSIDAccountIdentifier.h"
-#import "MSIDAuthority.h"
-#import "MSIDAuthorityFactory.h"
-#import "NSDictionary+MSIDExtensions.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheKey.h"
-#import "MSIDRequestParameters.h"
-
-static const NSString *AccountMetadataURLMapKey = @"URLMap";
-
-@interface MSIDAccountMetadataCacheItem()
-@property NSMutableDictionary *internalMap;
-
-@end
 
 @implementation MSIDAccountMetadataCacheItem
-
-- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
-                             clientId:(NSString *)clientId
-
 {
-    if (!homeAccountId || !clientId) return nil;
+    NSMutableDictionary <NSString *, MSIDAccountMetadata *> *_accountMetadataMap;
+}
+
+- (instancetype)initWithClientId:(NSString *)clientId
+{
+    if ([NSString msidIsStringNilOrBlank:clientId])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot initialize account metadata cache item with nil client id!");
+        return nil;
+    }
     
     self = [super init];
+    
     if (self)
     {
-        _homeAccountId = homeAccountId;
         _clientId = clientId;
-        _internalMap = [NSMutableDictionary new];
-        _signInState = MSIDAccountMetadataStateSignedIn;
+        _accountMetadataMap = [NSMutableDictionary new];
     }
+    
     return self;
 }
 
-#pragma mark - URL caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL
-       forRequestURL:(NSURL *)requestURL
-       instanceAware:(BOOL)instanceAware
-               error:(NSError **)error
+- (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId
 {
-    _signInState = MSIDAccountMetadataStateSignedIn;
-    
-    if ([NSString msidIsStringNilOrBlank:cachedURL.absoluteString]
-        || [NSString msidIsStringNilOrBlank:requestURL.absoluteString])
+    if (!homeAccountId)
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Either a target or request URL produces a nil string", nil, nil, nil, nil, nil, YES);
-        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot lookup account metadata with nil homeAccountId!");
+        return nil;
+    }
+    
+    return _accountMetadataMap[homeAccountId];
+}
+
+- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId error:(NSError **)error
+{
+    if (!homeAccountId || !accountMetadata)
+    {
+        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Cannot add account metadata with nil accountMetadata or homeAccountId!", nil, nil, nil, nil, nil, YES);
+        if (error) *error = localError;
         return NO;
     }
     
-    NSString *urlMapKey = [self URLMapKey:instanceAware];
-    NSMutableDictionary *urlMap = _internalMap[urlMapKey];
-    if (!urlMap)
-    {
-        urlMap = [NSMutableDictionary new];
-        _internalMap[urlMapKey] = urlMap;
-    }
+    _accountMetadataMap[homeAccountId] = accountMetadata;
     
-    urlMap[requestURL.absoluteString] = cachedURL.absoluteString;
     return YES;
 }
 
-- (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware
-{
-    if (self.signInState != MSIDAccountMetadataStateSignedOut)
-    {
-        NSString *urlMapKey = [self URLMapKey:instanceAware];
-        NSDictionary *urlMap = _internalMap[urlMapKey];
-        
-        return [NSURL URLWithString:urlMap[requestURL.absoluteString]];
-    }
-    
-    return nil;
-}
 
-#pragma mark - Signed out
-- (void)updateSignInState:(MSIDAccountMetadataState)state
-{
-    _signInState = state;
-    if (state == MSIDAccountMetadataStateSignedOut)
-    {
-        _internalMap = [NSMutableDictionary new];
-    }
-    
-}
+#pragma mark - MSIDJsonSerializable
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(__unused NSError * __autoreleasing *)error
+                                 error:(NSError *__autoreleasing *)error
 {
     if (!(self = [super init]))
     {
@@ -117,14 +87,30 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     
     if (!json)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode an authority map item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode an account metadata item from nil json!");
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Tried to decode an account metadata item from nil json!", nil, nil, nil, nil, nil, NO);
+        
         return nil;
     }
     
-    self->_clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
-    self->_homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
-    self->_internalMap = [[json msidObjectForKey:MSID_ACCOUNT_CACHE_KEY ofClass:NSDictionary.class] mutableDeepCopy];
-    self->_signInState = [[json msidStringObjectForKey:MSID_SIGN_IN_STATE_CACHE_KEY] intValue];
+    _accountMetadataMap = [NSMutableDictionary new];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    
+    NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_MAP_CACHE_KEY ofClass:NSDictionary.class];
+    for (NSString *key in accountMetaMapJson)
+    {
+        NSError *localError;
+        MSIDAccountMetadata *accountMetadata = [[MSIDAccountMetadata alloc] initWithJSONDictionary:accountMetaMapJson[key] error:&localError];
+        if (localError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Failed to decode account metadata from json!");
+        }
+        
+        if (accountMetadata)
+        {
+            _accountMetadataMap[key] = accountMetadata;
+        }
+    }
     
     return self;
 }
@@ -134,28 +120,34 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
-    dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = self.homeAccountId;
-    dictionary[MSID_ACCOUNT_CACHE_KEY] = _internalMap;
-    dictionary[MSID_SIGN_IN_STATE_CACHE_KEY] = [NSString stringWithFormat: @"%ld", (long)self.signInState];
+    
+    NSMutableDictionary *accountMetadataMapJson = [NSMutableDictionary new];
+    for (NSString *key in _accountMetadataMap)
+    {
+        accountMetadataMapJson[key] = _accountMetadataMap[key].jsonDictionary;
+    }
+    dictionary[MSID_ACCOUNT_METADATA_MAP_CACHE_KEY] = accountMetadataMapJson;
     
     return dictionary;
 }
 
-- (NSString *)URLMapKey:(BOOL)instanceAware
-{
-    // The subkey is in the format of @"URLMap-key1=value1&key2=value2...",
-    // where key1, key2... are the request parameters that may affect the url mapping.
-    // Currently the only parameter that affects the mapping is instance aware flag.
-    //
-    // Example of subkeys:
-    // "URLMap-" : with all possible keys being their default value repectively. Default
-    //             value of instance_aware is NO, so "URLMap-" represents "URLMap-instance_aware=NO"
-    // "URLMap-instance_aware=YES" : with instance_aware being YES.
-    //
-    // The benefit of such a design is, if we are introducing new parameters what will affect the
-    // mapping, there will be no breaking change to existing clients who don't use the new parameters.
+#pragma mark - NSCopying
+
+- (nonnull id)copyWithZone:(nullable NSZone *)zone {
+    MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
+    item->_clientId = [self.clientId copyWithZone:zone];
+    item->_accountMetadataMap = [self->_accountMetadataMap mutableDeepCopy];
     
-    return instanceAware ? @"URLMap-instance_aware=YES" : @"URLMap-";
+    return item;
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash = hash * 31 + self.clientId.hash;
+    hash = hash * 31 + _accountMetadataMap.hash;
+    
+    return hash;
 }
 
 #pragma mark - Equal
@@ -179,44 +171,17 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 {
     BOOL result = YES;
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
-    result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= ([_internalMap isEqualToDictionary:item->_internalMap]);
-    result &= (self.signInState == item.signInState);
+    result &= ([_accountMetadataMap isEqualToDictionary:item->_accountMetadataMap]);
     
     return result;
 }
 
+#pragma mark - MSIDKeyGenerator
+
 - (nullable MSIDCacheKey *)generateCacheKey
 {
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:self.homeAccountId clientId:self.clientId];
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:self.clientId];
     return key;
 }
-
-#pragma mark - NSObject
-
-- (NSUInteger)hash
-{
-    NSUInteger hash = [super hash];
-    hash = hash * 31 + self.clientId.hash;
-    hash = hash * 31 + self.homeAccountId.hash;
-    hash = hash * 31 + _internalMap.hash;
-    hash = hash * 31 + @(self.signInState).hash;
-    
-    return hash;
-}
-
-#pragma mark - NSCopying
-
-- (id)copyWithZone:(NSZone *)zone
-{
-    MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
-    item->_homeAccountId = [self.homeAccountId copyWithZone:zone];
-    item->_clientId = [self.clientId copyWithZone:zone];
-    item->_internalMap = [self->_internalMap mutableDeepCopy];
-    item->_signInState = self.signInState;
-    
-    return item;
-}
-
 
 @end
