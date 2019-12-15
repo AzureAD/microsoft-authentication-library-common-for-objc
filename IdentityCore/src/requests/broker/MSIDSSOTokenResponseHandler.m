@@ -48,11 +48,14 @@
         MSIDRequestParameters *parameters = [requestParameters copy];
         parameters.target = operationResponse.additionalTokenResponse.scope;
         
+        BOOL saveSSOStateOnly = NO; // TODO: change this once device info PR is merged
+        
         [tokenResponseValidator validateAndSaveTokenResponse:operationResponse.additionalTokenResponse
                                                 oauthFactory:oauthFactory
                                                   tokenCache:tokenCache
                                         accountMetadataCache:accountMetadataCache
                                            requestParameters:parameters
+                                            saveSSOStateOnly:saveSSOStateOnly
                                                        error:&localError];
         
         if (localError)

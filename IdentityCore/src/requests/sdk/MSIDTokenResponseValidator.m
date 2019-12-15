@@ -132,7 +132,9 @@
                                          oidcScope:(NSString *)oidcScope
                                       oauthFactory:(MSIDOauth2Factory *)factory
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                      correlationID:(NSUUID *)correlationID
+                                  saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                              error:(NSError **)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
@@ -175,37 +177,24 @@
         return nil;
     }
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Broker response is valid.");
-
-    BOOL shouldSaveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse;
-    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
-
-    NSError *savingError = nil;
-    BOOL isSaved = NO;
-
-    if (shouldSaveSSOStateOnly)
-    {
-        isSaved = [tokenCache saveSSOStateWithConfiguration:configuration
-                                                   response:tokenResponse
-                                                    factory:factory
+    
+    [self saveTokenResponseToCache:tokenResponse
+                     configuration:configuration
+                      oauthFactory:factory
+                        tokenCache:tokenCache
+                  saveSSOStateOnly:saveSSOStateOnly
+                           context:nil
+                             error:nil];
+    
+    NSError *updateMetadataError = nil;
+    [accountMetadataCache updateSignInStateForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
+                                                   clientId:configuration.clientId
+                                                      state:MSIDAccountMetadataStateSignedIn
                                                     context:nil
-                                                      error:&savingError];
-    }
-    else
+                                                      error:&updateMetadataError];
+    if (updateMetadataError)
     {
-        isSaved = [tokenCache saveTokensWithConfiguration:configuration
-                                                 response:tokenResponse
-                                                  factory:factory
-                                                  context:nil
-                                                    error:&savingError];
-    }
-
-    if (!isSaved)
-    {
-        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationID, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
-    }
-    else
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Saved broker response.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to update sign in state in metadata cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
     }
 
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating token result.");
@@ -232,6 +221,7 @@
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                 requestParameters:(MSIDRequestParameters *)parameters
+                                 saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                             error:(NSError **)error
 {
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
@@ -275,18 +265,16 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
         }
     }
-
-    NSError *savingError = nil;
-    BOOL isSaved = [tokenCache saveTokensWithConfiguration:parameters.msidConfiguration
-                                                  response:tokenResponse
-                                                   factory:factory
-                                                   context:parameters
-                                                     error:&savingError];
-
-    if (!isSaved)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
-    }
+    
+    // Note, if there's an error saving result, we log it, but we don't fail validation
+    // This is by design because even if we fail to cache, we still should return tokens back to the app
+    [self saveTokenResponseToCache:tokenResponse
+                     configuration:parameters.msidConfiguration
+                      oauthFactory:factory
+                        tokenCache:tokenCache
+                  saveSSOStateOnly:saveSSOStateOnly
+                           context:parameters
+                             error:nil];
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
@@ -302,5 +290,49 @@
     return tokenResult;
 }
 
+#pragma mark - Internal
+
+- (BOOL)saveTokenResponseToCache:(MSIDTokenResponse *)tokenResponse
+                   configuration:(MSIDConfiguration *)configuration
+                    oauthFactory:(MSIDOauth2Factory *)factory
+                      tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Saving token response, only save SSO state %d", saveSSOStateOnly);
+    
+    NSError *savingError;
+    BOOL isSaved = NO;
+
+    if (saveSSOStateOnly)
+    {
+        isSaved = [tokenCache saveSSOStateWithConfiguration:configuration
+                                                   response:tokenResponse
+                                                    factory:factory
+                                                    context:context
+                                                      error:&savingError];
+    }
+    else
+    {
+        isSaved = [tokenCache saveTokensWithConfiguration:configuration
+                                                 response:tokenResponse
+                                                  factory:factory
+                                                  context:context
+                                                    error:&savingError];
+    }
+
+    if (!isSaved)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
+        if (error) *error = savingError;
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Saved token response successfully.");
+    }
+    
+    return isSaved;
+}
 
 @end

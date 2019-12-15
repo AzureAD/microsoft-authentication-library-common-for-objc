@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class MSIDTokenResult;
 @class MSIDTokenResponseValidator;
 @class MSIDBrokerCryptoProvider;
+@class MSIDAccountMetadataCacheAccessor;
 
 @interface MSIDBrokerResponseHandler : NSObject
 
@@ -38,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, nullable) MSIDBrokerCryptoProvider *brokerCryptoProvider;
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readonly, nullable) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic, readonly, nullable) MSIDAccountMetadataCacheAccessor *accountMetadataCacheAccessor;
 
 @property (nonatomic, readonly) BOOL sourceApplicationAvailable;
 @property (nonatomic, readonly) NSString *brokerNonce;

@@ -34,6 +34,7 @@
 
 @property (class, strong, readonly, nullable) MSIDBrokerInteractiveController *currentBrokerController;
 @property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveParameters;
+@property (nonatomic, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
 
 - (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider

@@ -55,6 +55,7 @@
 - (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey
                    brokerApplicationToken:(NSString *)brokerApplicationToken
+                          sdkCapabilities:(NSArray *)sdkCapabilities
                                     error:(NSError **)error
 {
     self = [super init];
@@ -65,6 +66,7 @@
         _brokerKey = brokerKey;
         _brokerNonce = [[NSUUID new] UUIDString];
         _brokerApplicationToken = brokerApplicationToken;
+        _sdkBrokerCapabilities = sdkCapabilities;
 
         if (![self initPayloadContentsWithError:error])
         {

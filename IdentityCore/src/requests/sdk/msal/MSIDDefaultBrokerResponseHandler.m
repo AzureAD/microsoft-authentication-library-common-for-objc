@@ -31,6 +31,7 @@
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -98,11 +99,15 @@
             
             if (!additionalTokensError)
             {
+                BOOL saveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse; // TODO: also check for device info once device info PR is merged
+                
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
+                                                                    accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
+                                                                        saveSSOStateOnly:saveSSOStateOnly
                                                                                    error:&additionalTokensError];
             }
         }
@@ -169,6 +174,25 @@
     
     return nil;
 #endif
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
+    
+    if (!dataSource)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    return accountMetadataCache;
 }
 
 - (NSError *)resultFromBrokerErrorResponse:(MSIDAADV2BrokerResponse *)errorResponse

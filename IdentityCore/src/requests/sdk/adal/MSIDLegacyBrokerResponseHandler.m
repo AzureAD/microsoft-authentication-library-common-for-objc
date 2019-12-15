@@ -126,7 +126,9 @@
                                                                                          oidcScope:oidcScope
                                                                                       oauthFactory:self.oauthFactory
                                                                                         tokenCache:self.tokenCache
+                                                                              accountMetadataCache:self.accountMetadataCacheAccessor
                                                                                      correlationID:correlationID
+                                                                                  saveSSOStateOnly:brokerResponse.accessTokenInvalidForResponse
                                                                                              error:&intuneError];
 
         if (!intuneResult)

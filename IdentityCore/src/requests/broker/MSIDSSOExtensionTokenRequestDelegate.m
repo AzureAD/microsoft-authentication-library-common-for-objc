@@ -38,7 +38,11 @@
     if (!ssoCredential) self.completionBlock(nil, error);
     
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
-    if (!json) self.completionBlock(nil, error);
+    if (!json)
+    {
+        self.completionBlock(nil, error);
+        return;
+    }
     
     __auto_type operationResponse = (MSIDBrokerOperationTokenResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationTokenResponse.class error:&error];
 
