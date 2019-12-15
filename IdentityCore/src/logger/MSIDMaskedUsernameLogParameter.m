@@ -43,10 +43,10 @@
     {
         NSString *username = [stringValue substringToIndex:emailIndex.location];
         NSString *domain = [stringValue substringFromIndex:emailIndex.location];
-        return [NSString stringWithFormat:@"%@%@", [username msidSecretLoggingHash], domain];
+        return [NSString stringWithFormat:@"auth.placeholder-%@%@", [username msidSecretLoggingHash], domain];
     }
     
     return [self.parameterValue msidSecretLoggingHash];
 }
-
+ 
 @end
