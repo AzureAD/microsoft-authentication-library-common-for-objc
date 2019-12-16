@@ -97,7 +97,7 @@ static NSArray *deviceModeEnumString;
 {
     switch (wpjStatus) {
         case MSIDWorkPlaceJoinStatusNotJoined:
-            return @"NotJoined";
+            return @"notJoined";
         case MSIDWorkPlaceJoinStatusJoined:
             return @"joined";
         default:
@@ -107,7 +107,7 @@ static NSArray *deviceModeEnumString;
 
 - (MSIDWorkPlaceJoinStatus)wpjStatusEnumFromString:(NSString *)wpjStatusString
 {
-    if ([wpjStatusString isEqualToString:@"NotJoined"]) return MSIDWorkPlaceJoinStatusNotJoined;
+    if ([wpjStatusString isEqualToString:@"notJoined"]) return MSIDWorkPlaceJoinStatusNotJoined;
     if ([wpjStatusString isEqualToString:@"joined"])    return MSIDWorkPlaceJoinStatusJoined;
 
     return MSIDWorkPlaceJoinStatusNotJoined;

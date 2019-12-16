@@ -24,6 +24,8 @@
 #if MSID_ENABLE_SSO_EXTENSION
 #import <XCTest/XCTest.h>
 #import "MSIDBrokerOperationResponse.h"
+#import "MSIDDeviceInfo.h"
+#import "MSIDBrokerConstants.h"
 
 @interface MSIDBrokerOperationTestResponse : MSIDBrokerOperationResponse
 
@@ -64,14 +66,18 @@
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
+    response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared isWorkPlaceJoined:YES brokerVersion:@"1.2.3"];
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(4, json.allKeys.count);
+    XCTAssertEqual(7, json.allKeys.count);
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");
     XCTAssertEqualObjects(json[@"success"], @"1");
+    XCTAssertEqualObjects(json[MSID_BROKER_DEVICE_MODE_KEY], @"shared");
+    XCTAssertEqualObjects(json[MSID_BROKER_WPJ_STATUS_KEY], @"joined");
+    XCTAssertEqualObjects(json[MSID_BROKER_BROKER_VERSION_KEY], @"1.2.3");
 }
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
@@ -95,6 +101,9 @@
         @"operation_response_type": @"test_response",
         @"success": @"1",
         @"operation": @"login",
+        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
     };
     
     NSError *error;
@@ -105,6 +114,9 @@
     XCTAssertEqualObjects(@"1.0", response.clientAppVersion);
     XCTAssertEqualObjects(@"login", response.operation);
     XCTAssertTrue(response.success);
+    XCTAssertEqual(response.deviceInfo.deviceMode, MSIDDeviceModeShared);
+    XCTAssertEqual(response.deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
+    XCTAssertEqualObjects(response.deviceInfo.brokerVersion, @"1.2.3");
 }
 
 - (void)testInitWithJSONDictionary_whenRequiredProperties_shouldInitResponse

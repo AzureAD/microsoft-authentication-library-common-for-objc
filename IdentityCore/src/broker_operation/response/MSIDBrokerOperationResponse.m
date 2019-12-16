@@ -32,6 +32,18 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
 
 @implementation MSIDBrokerOperationResponse
 
+- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _deviceInfo = deviceInfo;
+    }
+    
+    return self;
+}
+
 + (NSString *)responseType
 {
     NSAssert(NO, @"Abstract method.");
