@@ -52,7 +52,7 @@
 // Additional properties that server sends
 @property (nonatomic, nullable) NSDictionary *additionalServerInfo;
 
-// When SSO extension creates token reposne, this property will contain authenticator app version.
+// When SSO extension creates token response, this property will contain authenticator app version.
 @property (nonatomic, nullable) NSString *clientAppVersion;
 
 /* Derived properties */

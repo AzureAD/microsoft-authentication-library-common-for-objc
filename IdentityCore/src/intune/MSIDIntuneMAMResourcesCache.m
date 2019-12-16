@@ -127,7 +127,7 @@ static MSIDIntuneMAMResourcesCache *s_sharedCache;
           error:(NSError **)error
 {
     NSString *errorDescription = @"Intune Resource JSON structure is incorrect.";
-    __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, context.correlationId, nil, YES);
+    __auto_type validationError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, context.correlationId, nil, NO);
     
     if (!json)
     {

@@ -21,21 +21,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class MSIDAccountMetadata;
-
 #import "MSIDJsonSerializable.h"
 #import "MSIDKeyGenerator.h"
 
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
+typedef NS_ENUM(NSInteger, MSIDAccountMetadataState)
+{
+    MSIDAccountMetadataStateUnknown = 0,
+    MSIDAccountMetadataStateSignedIn,
+    MSIDAccountMetadataStateSignedOut
+};
 
+@interface MSIDAccountMetadata : NSObject <MSIDJsonSerializable, NSCopying>
+
+@property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;
+@property (nonatomic, readonly) NSDictionary *auhtorityMap;
 
-- (instancetype)initWithClientId:(NSString *)clientId;
+@property (nonatomic, readonly) MSIDAccountMetadataState signInState;
 
-- (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
-- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
-          forHomeAccountId:(NSString *)homeAccountId
-                     error:(NSError **)error;
+- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
+                             clientId:(NSString *)clientId;
+
+// Authority map caching
+- (BOOL)setCachedURL:(NSURL *)cachedURL
+       forRequestURL:(NSURL *)requestURL
+       instanceAware:(BOOL)instanceAware
+               error:(NSError **)error;
+- (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware;
+
+// Update sign in state
+- (void)updateSignInState:(MSIDAccountMetadataState)state;
 
 @end
