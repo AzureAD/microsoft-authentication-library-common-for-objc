@@ -24,11 +24,20 @@
 #import <Foundation/Foundation.h>
 #import "MSIDOIDCSignoutRequest.h"
 
+#if MSID_ENABLE_SSO_EXTENSION
+
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionSignoutRequest : MSIDOIDCSignoutRequest
 
+@property (nonatomic, readonly) BOOL shouldSignoutFromBrowser;
+
+- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                          shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory;
+
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

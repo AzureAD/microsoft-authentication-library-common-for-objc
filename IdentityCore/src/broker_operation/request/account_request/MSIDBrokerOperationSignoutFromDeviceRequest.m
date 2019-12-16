@@ -31,6 +31,8 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 
+NSString *const MSID_SIGNOUT_FROM_BROWSER_KEY = @"signout_from_browser";
+
 @implementation MSIDBrokerOperationSignoutFromDeviceRequest
 
 + (void)load
@@ -57,8 +59,12 @@
         if (!authority) return nil;
 
         _authority = authority;
+        
+        if (![json msidAssertType:NSString.class ofKey:MSID_REDIRECT_URI_JSON_KEY required:YES error:error]) return nil;
+        
         _redirectUri = [json msidStringObjectForKey:MSID_REDIRECT_URI_JSON_KEY];
         _providerType = MSIDProviderTypeFromString([json msidStringObjectForKey:MSID_PROVIDER_TYPE_JSON_KEY]);
+        _signoutFromBrowser = [json msidBoolObjectForKey:MSID_SIGNOUT_FROM_BROWSER_KEY];
     }
     
     return self;
@@ -79,7 +85,15 @@
     [json addEntriesFromDictionary:authorityJson];
     json[MSID_REDIRECT_URI_JSON_KEY] = self.redirectUri;
     
+    if (!self.redirectUri)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, redirectUri is nil.", self.class);
+        return nil;
+    }
+    
     json[MSID_PROVIDER_TYPE_JSON_KEY] = MSIDProviderTypeToString(self.providerType);
+    json[MSID_SIGNOUT_FROM_BROWSER_KEY] = @(_signoutFromBrowser);
+    
     return json;
 }
 

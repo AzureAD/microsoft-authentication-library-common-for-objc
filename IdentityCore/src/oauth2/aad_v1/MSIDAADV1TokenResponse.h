@@ -26,6 +26,6 @@
 @interface MSIDAADV1TokenResponse : MSIDAADTokenResponse
 
 // Default properties for an AAD successful response
-@property (readonly) NSString *resource;
+@property (nonatomic) NSString *resource;
 
 @end

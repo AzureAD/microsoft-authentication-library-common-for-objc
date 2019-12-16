@@ -28,13 +28,17 @@
 
 @implementation MSIDSSOExtensionOperationRequestDelegate
 
-- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(__unused ASAuthorization *)authorization
+- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithAuthorization:(ASAuthorization *)authorization
 {
     if (!self.completionBlock) return;
     
     NSError *error;
     __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
-    if (!ssoCredential) self.completionBlock(nil, error);
+    if (!ssoCredential)
+    {
+        self.completionBlock(nil, error);
+        return;
+    }
     
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
     if (!json)

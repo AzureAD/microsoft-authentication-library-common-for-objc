@@ -29,6 +29,7 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAccountMetadata.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDCacheItemJsonSerializerTests : XCTestCase
 
@@ -227,9 +228,9 @@
 - (void)testDeserializeAccountMetadata_whenDataIsValid_shouldReturnAccount {
     NSDictionary *jsonDict = @{ @"home_account_id": @"homeAccountId",
                                 @"client_id": @"clientId",
-                                @"account_metadata" : @{ @"URLMap-" :
-                                                             @{ @"https://contoso.com" : @"https://internalcontoso.com" }
-                                                         }};
+                                @"athority_map" : @{ @"URLMap-" :
+                                                         @{ @"https://contoso.com" : @"https://internalcontoso.com" }
+                                }};
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDict
                                                        options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
                                                          error:nil];

@@ -22,17 +22,34 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+
+@class MSIDExternalAADCacheSeeder;
+@class MSIDTokenResponse;
+@class MSIDRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDTokenResponseValidator;
+@class MSIDAccountMetadataCacheAccessor;
+@protocol MSIDCacheAccessor;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDOIDCSignoutRequest;
-@class MSIDInteractiveRequestParameters;
-@class MSIDOauth2Factory;
+@interface MSIDTokenResponseHandler : NSObject
 
-@interface MSIDAccountRequestFactory : NSObject
+#if TARGET_OS_OSX
+@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
+#endif
 
-+ (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                   oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory;
+- (void)handleTokenResponse:(nullable MSIDTokenResponse *)tokenResponse
+          requestParameters:(MSIDRequestParameters *)requestParameters
+              homeAccountId:(nullable NSString *)homeAccountId
+     tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
+               oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                 tokenCache:(id<MSIDCacheAccessor>)tokenCache
+       accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+            validateAccount:(BOOL)validateAccount
+                      error:(nullable NSError *)error
+            completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
 @end
 

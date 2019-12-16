@@ -34,7 +34,6 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
-#import "MSIDClientInfo.h"
 #import "MSIDLogger+Trace.h"
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"

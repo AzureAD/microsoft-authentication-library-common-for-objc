@@ -25,7 +25,7 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDSSOExtensionSilentTokenRequest.h"
-#import "MSIDSilentTokenRequest+Internal.h"
+#import "MSIDSilentTokenRequest.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
@@ -38,6 +38,7 @@
 #import "MSIDBrokerOperationTokenResponse.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#import "MSIDSSOTokenResponseHandler.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -50,6 +51,7 @@
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
+@property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
 
 @end
 
@@ -70,17 +72,29 @@
     if (self)
     {
         _tokenCache = tokenCache;
-        
+        _ssoTokenResponseHandler = [MSIDSSOTokenResponseHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
-            if (operationResponse.authority) weakSelf.requestParameters.cloudAuthority = operationResponse.authority;
-            
-            MSIDRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
-            [weakSelf handleTokenResponse:operationResponse.tokenResponse error:error completionBlock:completionBlock];
+#if TARGET_OS_OSX
+            weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
+#endif
+            [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
+                                                    requestParameters:weakSelf.requestParameters
+                                               tokenResponseValidator:weakSelf.tokenResponseValidator
+                                                         oauthFactory:weakSelf.oauthFactory
+                                                           tokenCache:weakSelf.tokenCache
+                                                 accountMetadataCache:weakSelf.accountMetadataCache
+                                                      validateAccount:NO
+                                                                error:error
+                                                      completionBlock:^(MSIDTokenResult *result, NSError *error)
+             {
+                MSIDRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+                weakSelf.requestCompletionBlock = nil;
+                if (completionBlock) completionBlock(result, error);
+            }];
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
@@ -138,9 +152,18 @@
             return;
         }
         
+        NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
+        
+        if (!jsonDictionary)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for silent token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+            completionBlock(nil, error);
+            return;
+        }
+        
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
         ssoRequest.requestedOperation = [operationRequest.class operation];
-        __auto_type queryItems = [[operationRequest jsonDictionary] msidQueryItems];
+        __auto_type queryItems = [jsonDictionary msidQueryItems];
         ssoRequest.authorizationOptions = queryItems;
         
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];

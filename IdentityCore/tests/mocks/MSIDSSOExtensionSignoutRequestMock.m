@@ -21,42 +21,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAccountRequestFactory.h"
-#import "MSIDInteractiveRequestParameters.h"
-#import "MSIDRequestParameters+Broker.h"
 #if MSID_ENABLE_SSO_EXTENSION
-#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDSSOExtensionSignoutRequest.h"
-#endif
 
-@implementation MSIDAccountRequestFactory
+#import "MSIDSSOExtensionSignoutRequestMock.h"
 
-+ (MSIDOIDCSignoutRequest *)signoutRequestWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
-                                                   oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
+@implementation MSIDSSOExtensionSignoutRequestMock
+
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
 {
-#if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
-    if ([parameters shouldUseBroker])
+    if (self.authorizationControllerToReturn)
     {
-        if (@available(iOS 13.0, macos 10.15, *))
-        {
-            if ([self canUseSSOExtension])
-            {
-                return [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
-            }
-        }
+        self.authorizationControllerToReturn.request = ssoRequest;
+        return self.authorizationControllerToReturn;
     }
-#endif
     
-    return [[MSIDOIDCSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:oauthFactory];
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
 }
-
-#if MSID_ENABLE_SSO_EXTENSION
-
-+ (BOOL)canUseSSOExtension API_AVAILABLE(ios(13.0), macos(10.15))
-{
-    return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
-}
-
-#endif
 
 @end
+
+#endif

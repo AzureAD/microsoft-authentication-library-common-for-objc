@@ -33,7 +33,11 @@
 
 - (instancetype)initWithClientId:(NSString *)clientId
 {
-    if ([NSString msidIsStringNilOrBlank:clientId]) return nil;
+    if ([NSString msidIsStringNilOrBlank:clientId])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot initialize account metadata cache item with nil client id!");
+        return nil;
+    }
     
     self = [super init];
     
@@ -48,23 +52,29 @@
 
 - (MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId
 {
-    if (!homeAccountId) return nil;
+    if (!homeAccountId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Cannot lookup account metadata with nil homeAccountId!");
+        return nil;
+    }
     
     return _accountMetadataMap[homeAccountId];
 }
 
-- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId
+- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata forHomeAccountId:(NSString *)homeAccountId error:(NSError **)error
 {
-    if (!homeAccountId || !accountMetadata) return NO;
+    if (!homeAccountId || !accountMetadata)
+    {
+        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Cannot add account metadata with nil accountMetadata or homeAccountId!", nil, nil, nil, nil, nil, YES);
+        if (error) *error = localError;
+        return NO;
+    }
     
     _accountMetadataMap[homeAccountId] = accountMetadata;
     
     return YES;
 }
 
-- (NSDictionary *)accountMetadataMap {
-    return _accountMetadataMap;
-}
 
 #pragma mark - MSIDJsonSerializable
 
@@ -95,7 +105,7 @@
         _principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:principalDisplayableId homeAccountId:principalHomeAccountId];
     }
     
-    NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_CACHE_ITEM_KEY ofClass:NSDictionary.class];
+    NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_MAP_CACHE_KEY ofClass:NSDictionary.class];
     for (NSString *key in accountMetaMapJson)
     {
         NSError *localError;
@@ -127,7 +137,8 @@
     {
         accountMetadataMapJson[key] = _accountMetadataMap[key].jsonDictionary;
     }
-    dictionary[MSID_ACCOUNT_METADATA_CACHE_ITEM_KEY] = accountMetadataMapJson;
+    
+    dictionary[MSID_ACCOUNT_METADATA_MAP_CACHE_KEY] = accountMetadataMapJson;
     
     return dictionary;
 }

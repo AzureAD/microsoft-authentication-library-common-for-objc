@@ -30,7 +30,6 @@
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheItem.h"
-#import "MSIDAccountMetadata.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

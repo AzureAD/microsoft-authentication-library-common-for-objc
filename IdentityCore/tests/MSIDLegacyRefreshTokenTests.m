@@ -27,6 +27,7 @@
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDLegacyRefreshTokenTests : XCTestCase
 

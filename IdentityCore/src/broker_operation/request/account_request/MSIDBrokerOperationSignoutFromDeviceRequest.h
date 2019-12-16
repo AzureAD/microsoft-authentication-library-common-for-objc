@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readwrite) MSIDAuthority *authority;
 @property (readwrite) NSString *redirectUri;
 @property (nonatomic) MSIDProviderType providerType;
+@property (nonatomic) BOOL signoutFromBrowser;
 
 @end
 

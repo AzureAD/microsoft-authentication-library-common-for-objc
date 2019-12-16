@@ -176,7 +176,7 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
-    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"");
+    XCTAssertNil(error.userInfo[MSIDUserDisplayableIdkey]);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
 }
 

@@ -21,16 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentTokenRequest.h"
+#import "MSIDSSOExtensionSignoutRequest.h"
+
+#if MSID_ENABLE_SSO_EXTENSION
+
+#import <AuthenticationServices/AuthenticationServices.h>
+#import "MSIDAuthorizationControllerMock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSilentTokenRequest ()
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionSignoutRequestMock : MSIDSSOExtensionSignoutRequest
 
-- (void)handleTokenResponse:(nullable MSIDTokenResponse *)tokenResponse
-                      error:(nullable NSError *)error
-            completionBlock:(MSIDRequestCompletionBlock)completionBlock;
+@property (nonatomic) MSIDAuthorizationControllerMock *authorizationControllerToReturn;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

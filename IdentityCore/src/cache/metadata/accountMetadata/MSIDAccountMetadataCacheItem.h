@@ -34,14 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSString *clientId;
 @property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
-@property (nonatomic, nullable) NSDictionary <NSString *, MSIDAccountMetadata *> *accountMetadataMap;
 
 - (nullable instancetype)initWithClientId:(NSString *)clientId;
 
 - (nullable MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
 
 - (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
-          forHomeAccountId:(NSString *)homeAccountId;
+          forHomeAccountId:(NSString *)homeAccountId
+                     error:(NSError **)error;
 
 @end
 
