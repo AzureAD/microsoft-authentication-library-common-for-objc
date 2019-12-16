@@ -21,16 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
-@class MSIDAccount;
+#if MSID_ENABLE_SSO_EXTENSION
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationGetAccountsResponse : MSIDBrokerOperationResponse
+@class MSIDRequestParameters;
 
-@property (nonatomic, nullable) NSArray<MSIDAccount *> *accounts;
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetAccountsRequest : NSObject
+
+@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
+
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                             error:(NSError * _Nullable * _Nullable)error;
+
+- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
 
 @end
 
 NS_ASSUME_NONNULL_END
+#endif
