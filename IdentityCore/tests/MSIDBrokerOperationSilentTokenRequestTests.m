@@ -66,7 +66,6 @@
         @"intune_enrollment_ids": @"{\"enrollment_ids\":[{\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\"}]}",
         @"intune_mam_resource": @"{\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}",
         @"msg_protocol_ver": @"99",
-        @"prompt": @"select_account",
         @"provider_type": @"provider_aad_v1",
         @"redirect_uri": @"redirect uri",
         @"scope": @"scope scope2",
@@ -196,18 +195,43 @@
     XCTAssertEqualObjects(json[@"username"], @"user@contoso.com");
 }
 
-- (void)testInitWithJSONDictionary_whenRequiredProperties_shouldInitRequest
+- (void)testInitWithJSONDictionary_whenRequiredPropertiesWithHomeAccountId_shouldInitRequest
 {
     NSDictionary *json = @{
         @"authority": @"https://login.microsoftonline.com/common",
         @"broker_key": @"broker_key_value",
         @"client_id": @"client id",
         @"msg_protocol_ver": @"99",
-        @"prompt": @"select_account",
         @"provider_type": @"provider_aad_v1",
         @"redirect_uri": @"redirect uri",
         @"scope": @"scope scope2",
         @"home_account_id": @"1.1234-5678-90abcdefg",
+    };
+    
+    NSError *error;
+    __auto_type request = [[MSIDBrokerOperationSilentTokenRequest alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(@"broker_key_value", request.brokerKey);
+    XCTAssertEqual(99, request.protocolVersion);
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/common", request.configuration.authority.url.absoluteString);
+    XCTAssertEqualObjects(@"client id", request.configuration.clientId);
+    XCTAssertEqual(MSIDProviderTypeAADV1, request.providerType);
+    XCTAssertNil(request.accountIdentifier.displayableId);
+    XCTAssertEqualObjects(DEFAULT_TEST_HOME_ACCOUNT_ID, request.accountIdentifier.homeAccountId);
+}
+
+- (void)testInitWithJSONDictionary_whenRequiredPropertiesWithUsername_shouldInitRequest
+{
+    NSDictionary *json = @{
+        @"authority": @"https://login.microsoftonline.com/common",
+        @"broker_key": @"broker_key_value",
+        @"client_id": @"client id",
+        @"msg_protocol_ver": @"99",
+        @"provider_type": @"provider_aad_v1",
+        @"redirect_uri": @"redirect uri",
+        @"scope": @"scope scope2",
         @"username": @"user@contoso.com",
     };
     
@@ -222,7 +246,7 @@
     XCTAssertEqualObjects(@"client id", request.configuration.clientId);
     XCTAssertEqual(MSIDProviderTypeAADV1, request.providerType);
     XCTAssertEqualObjects(DEFAULT_TEST_ID_TOKEN_USERNAME, request.accountIdentifier.displayableId);
-    XCTAssertEqualObjects(DEFAULT_TEST_HOME_ACCOUNT_ID, request.accountIdentifier.homeAccountId);
+    XCTAssertNil(request.accountIdentifier.homeAccountId);
 }
 
 @end
