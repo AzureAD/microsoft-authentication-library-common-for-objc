@@ -76,6 +76,8 @@
             return;
         }
         
+        self.sessionDismissed = YES;
+        
         if (authError.code == ASWebAuthenticationSessionErrorCodeCanceledLogin)
         {
             NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, nil, nil, YES);
@@ -99,7 +101,7 @@
         }
     #endif
     
-    if (![self.webAuthSession start])
+    if (![self.webAuthSession start] && !self.sessionDismissed)
     {
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, nil, nil, YES);
         if (completionHandler) completionHandler(nil, error);

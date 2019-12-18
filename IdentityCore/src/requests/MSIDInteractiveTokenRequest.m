@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveTokenRequest+Internal.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAuthority.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDOpenIdProviderMetadata.h"
@@ -60,7 +60,7 @@
 
 @implementation MSIDInteractiveTokenRequest
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache

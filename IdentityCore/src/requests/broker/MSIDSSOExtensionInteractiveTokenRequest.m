@@ -27,7 +27,7 @@
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
 #import "MSIDInteractiveTokenRequest+Internal.h"
 #import "MSIDJsonSerializer.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAuthority.h"
 #import "MSIDSSOExtensionTokenRequestDelegate.h"
@@ -54,7 +54,7 @@
 
 @implementation MSIDSSOExtensionInteractiveTokenRequest
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
@@ -148,7 +148,17 @@
     
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
         ssoRequest.requestedOperation = [operationRequest.class operation];
-        __auto_type queryItems = [[operationRequest jsonDictionary] msidQueryItems];
+        
+        NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
+        
+        if (!jsonDictionary)
+        {
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for interactive token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+            completionBlock(nil, error, nil);
+            return;
+        }
+        
+        __auto_type queryItems = [jsonDictionary msidQueryItems];
         ssoRequest.authorizationOptions = queryItems;
         
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];

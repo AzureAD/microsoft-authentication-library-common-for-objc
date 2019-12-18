@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "NSString+MSIDTestUtil.h"
 
 @interface MSIDInteractiveRequestParametersTests : XCTestCase
@@ -40,7 +40,7 @@
     
     MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     
-    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]
@@ -73,7 +73,7 @@
 - (void)testAllAuthorizeRequestScopes_whenOnlyResourceScopesProvided_shouldReturnResourceScopesOnly
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
-    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]
@@ -94,7 +94,7 @@
 - (void)testAllAuthorizeRequestScopes_whenBothResourceAndOIDCScopesProvided_shouldReturnAllScopesCombined
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
-    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]
@@ -114,7 +114,7 @@
 - (void)testAllAuthorizeRequestScopes_whenResource_AndOIDCS_AndExtraScopesProvided_shouldReturnAllScopesCombined
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
-    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]
@@ -133,7 +133,7 @@
 
 - (void)testAllAuthorizeRequestParameters_whenNoExtraParameters_shouldReturnAppMetaDataParams
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     
     NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
      XCTAssertEqualObjects(eqp, parameters.appRequestMetadata);
@@ -141,7 +141,7 @@
 
 - (void)testAllAuthorizeRequestParameters_whenOnlyAuthorizeParameters_shouldReturnAuthorizeParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.appRequestMetadata = nil;
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
@@ -153,7 +153,7 @@
 
 - (void)testAllAuthorizeRequestParameters_whenOnlyTokenParameters_shouldReturnTokenParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.appRequestMetadata = nil;
     NSDictionary *additionalParams = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraURLQueryParameters = additionalParams;
@@ -165,7 +165,7 @@
 
 - (void)testAllAuthorizeRequestParameters_whenBothAuthorizeAndTokenParameters_shouldReturnAllParametersCombined
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.appRequestMetadata = nil;
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
@@ -179,7 +179,7 @@
 
 - (void)testAllAuthorizeRequestParameters_whenOnlyAuthorizeParametersAndAppMetadata_shouldReturnAuthorizeParametersAndAppMetadata
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     NSMutableDictionary *combinedParameters = [NSMutableDictionary new];
@@ -193,7 +193,7 @@
 
 - (void)testAllAuthorizeRequestParameters_whenOnlyTokenParametersAndAppMetadata_shouldReturnTokenParametersAndAppMetadata
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     NSDictionary *tokenParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraURLQueryParameters = tokenParameters;
     NSMutableDictionary *combinedParameters = [NSMutableDictionary new];
@@ -207,7 +207,7 @@
 
 - (void)testAllAuthorizeRequestParameters_whenAllAuthorizeAndTokenParametersAndAppMetadata_shouldReturnAllParametersCombined
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     NSDictionary *authorizeEndpointParameters = @{@"eqp1": @"val1", @"eqp2": @"val2"};
     parameters.extraAuthorizeURLQueryParameters = authorizeEndpointParameters;
     NSDictionary *tokenParameters = @{@"add1": @"val1", @"add2": @"val2"};

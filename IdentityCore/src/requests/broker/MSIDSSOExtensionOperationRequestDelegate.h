@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,29 +15,19 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "MSIDLogoutWebRequestConfiguration.h"
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDSSOExtensionRequestDelegate.h"
 
-@implementation MSIDLogoutWebRequestConfiguration
+NS_ASSUME_NONNULL_BEGIN
 
-- (MSIDWebviewResponse *)responseWithResultURL:(NSURL *)url
-                                       factory:(__unused MSIDWebviewFactory *)factory
-                                       context:(id<MSIDRequestContext>)context
-                                         error:(NSError **)error
-{
-    return [[MSIDWebOAuth2Response alloc] initWithURL:url
-                                         requestState:self.state
-                                   ignoreInvalidState:self.ignoreInvalidState
-                                              context:context
-                                                error:error];
-}
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionOperationRequestDelegate : MSIDSSOExtensionRequestDelegate
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -24,6 +24,8 @@
 #import "MSIDBrokerOperationResponse.h"
 #import "MSIDDeviceInfo.h"
 #import "NSBundle+MSIDExtensions.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
@@ -31,6 +33,11 @@ NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_respo
 NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
 
 @implementation MSIDBrokerOperationResponse
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+}
 
 - (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo
 {
@@ -46,8 +53,7 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
 
 + (NSString *)responseType
 {
-    NSAssert(NO, @"Abstract method.");
-    return @"";
+    return MSID_JSON_TYPE_BROKER_OPERATION_GENERIC_RESPONSE;
 }
 
 - (NSNumber *)httpStatusCode
