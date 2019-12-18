@@ -47,16 +47,14 @@
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Validate and save token response...");
-    
-    BOOL saveSSOStateOnly = NO; // TODO: change this once device info PR is merged
-    
+        
     NSError *validationError;
     MSIDTokenResult *tokenResult = [tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                            oauthFactory:oauthFactory
                                                                              tokenCache:tokenCache
                                                                    accountMetadataCache:accountMetadataCache
                                                                       requestParameters:requestParameters
-                                                                       saveSSOStateOnly:saveSSOStateOnly
+                                                                       saveSSOStateOnly:NO
                                                                                   error:&validationError];
        
     if (!tokenResult)

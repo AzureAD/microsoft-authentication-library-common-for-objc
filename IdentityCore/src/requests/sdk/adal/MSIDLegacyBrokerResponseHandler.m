@@ -199,6 +199,12 @@
     return brokerError;
 }
 
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    return nil;
+}
+
 - (BOOL)canHandleBrokerResponse:(NSURL *)response
              hasCompletionBlock:(BOOL)hasCompletionBlock
 {

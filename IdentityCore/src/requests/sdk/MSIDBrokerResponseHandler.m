@@ -151,7 +151,7 @@
         }
     }
     
-    BOOL saveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse; // TODO: change this once device_info PR has been merged
+    BOOL saveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse; // TODO: change this once device_info is available in legacy protocol
     
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                             oidcScope:oidcScope
