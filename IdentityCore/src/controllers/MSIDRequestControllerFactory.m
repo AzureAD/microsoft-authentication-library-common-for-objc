@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestControllerFactory.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDSilentController.h"
 #if TARGET_OS_IPHONE
@@ -32,7 +32,11 @@
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDRequestParameters+Broker.h"
 #endif
+#if MSID_ENABLE_SSO_EXTENSION
+#import "MSIDSSOExtensionSignoutController.h"
+#endif
 #import "MSIDAuthority.h"
+#import "MSIDSignoutController.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -72,7 +76,7 @@
     return localController;
 }
 
-+ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                     error:(NSError * _Nullable * _Nullable)error
 {
@@ -92,7 +96,7 @@
                                                              error:error];
 }
 
-+ (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError * _Nullable * _Nullable)error
 {
@@ -138,7 +142,7 @@
     return localController;
 }
 
-+ (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                              tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                             error:(NSError * _Nullable * _Nullable)error
 {
@@ -165,6 +169,33 @@
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
+}
+
++ (nullable MSIDSignoutController *)signoutControllerForParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                                          shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                                             error:(NSError **)error
+{
+#if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
+    if ([parameters shouldUseBroker])
+    {
+        if (@available(iOS 13.0, macos 10.15, *))
+        {
+            if ([MSIDSSOExtensionSignoutController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionSignoutController alloc] initWithRequestParameters:parameters
+                                                                   shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                                               oauthFactory:oauthFactory
+                                                                                      error:error];
+            }
+        }
+    }
+    #endif
+    
+    return [[MSIDSignoutController alloc] initWithRequestParameters:parameters
+                                           shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                       oauthFactory:oauthFactory
+                                                              error:error];
 }
 
 @end

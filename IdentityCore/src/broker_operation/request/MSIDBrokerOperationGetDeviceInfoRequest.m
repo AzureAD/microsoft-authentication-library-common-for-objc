@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,20 +15,49 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import "MSIDBaseWebRequestConfiguration.h"
+#import "MSIDBrokerOperationGetDeviceInfoRequest.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDBrokerOperationGetDeviceInfoRequest
 
-@interface MSIDLogoutWebRequestConfiguration : MSIDBaseWebRequestConfiguration
++ (void)load
+{
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+    }
+}
+
+#pragma mark - MSIDBrokerOperationRequest
+
++ (NSString *)operation
+{
+    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    
+    return json;
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
+

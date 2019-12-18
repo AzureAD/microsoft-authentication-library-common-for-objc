@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerInteractiveController.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDBrokerTokenRequest.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"
@@ -47,7 +47,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 @interface MSIDBrokerInteractiveController()
 
-@property (nonatomic, readwrite) MSIDInteractiveRequestParameters *interactiveParameters;
+@property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *interactiveParameters;
 @property (nonatomic, readwrite) MSIDBrokerKeyProvider *brokerKeyProvider;
 @property (nonatomic, readonly) NSURL *brokerInstallLink;
 @property (copy) MSIDRequestCompletionBlock requestCompletionBlock;
@@ -58,7 +58,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 
 #pragma mark - Init
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                         error:(NSError * _Nullable * _Nullable)error
@@ -78,7 +78,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     return self;
 }
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
                                                         error:(NSError * _Nullable * _Nullable)error
@@ -126,7 +126,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
      }];
 }
 
-+ (BOOL)canPerformRequest:(MSIDInteractiveRequestParameters *)requestParameters
++ (BOOL)canPerformRequest:(MSIDInteractiveTokenRequestParameters *)requestParameters
 {
 #if AD_BROKER
 #pragma unused(requestParameters)

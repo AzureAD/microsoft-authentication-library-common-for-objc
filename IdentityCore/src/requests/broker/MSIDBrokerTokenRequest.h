@@ -25,17 +25,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 
 @interface MSIDBrokerTokenRequest : NSObject
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *requestParameters;
 @property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
 @property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
 @property (nonatomic, readonly, nullable) NSString *brokerNonce;
 @property (nonatomic, readonly, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey
                    brokerApplicationToken:(NSString *)brokerApplicationToken
                           sdkCapabilities:(NSArray *)sdkCapabilities

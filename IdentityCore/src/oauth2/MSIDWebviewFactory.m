@@ -36,9 +36,10 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDClaimsRequest.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebviewInteracting.h"
 #import "MSIDSystemWebViewControllerFactory.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDWebviewFactory
 
@@ -154,7 +155,7 @@
 
 #pragma mark - Webview helpers
 
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                                                                          pkce:(MSIDPkce *)pkce
                                                                                  requestState:(NSString *)state
 {
@@ -236,7 +237,7 @@
     return [[NSUUID UUID] UUIDString];
 }
 
-- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
     NSURL *authorizeEndpoint = parameters.authority.metadata.authorizationEndpoint;
     
@@ -267,7 +268,7 @@
     return configuration;
 }
 
-- (MSIDLogoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDSignoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
 {
     NSURL *logoutEndpoint = parameters.authority.metadata.endSessionEndpoint;
     
@@ -280,10 +281,10 @@
     NSDictionary *logoutQuery = [self logoutParametersFromRequestParameters:parameters requestState:oauthState];
     NSURL *startURL = [self startURLWithEndpoint:logoutEndpoint authority:parameters.authority query:logoutQuery context:parameters];
     
-    MSIDLogoutWebRequestConfiguration *configuration = [[MSIDLogoutWebRequestConfiguration alloc] initWithStartURL:startURL
-                                                                                                    endRedirectUri:parameters.redirectUri
-                                                                                                             state:oauthState
-                                                                                                ignoreInvalidState:NO];
+    MSIDSignoutWebRequestConfiguration *configuration = [[MSIDSignoutWebRequestConfiguration alloc] initWithStartURL:startURL
+                                                                                                      endRedirectUri:parameters.redirectUri
+                                                                                                               state:oauthState
+                                                                                                  ignoreInvalidState:NO];
     
     configuration.customHeaders = parameters.customWebviewHeaders;
     configuration.parentController = parameters.parentViewController;

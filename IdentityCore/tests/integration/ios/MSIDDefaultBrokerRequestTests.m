@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDVersion.h"
 #import "NSURL+MSIDTestUtil.h"
@@ -38,7 +38,7 @@
 
 - (void)testInitBrokerRequest_whenValidRequest_shouldSendScopeAndPromptAndProtocolVer
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     
     NSError *error = nil;
     MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
@@ -90,7 +90,7 @@
 
 - (void)testInitBrokerRequest_whenInstanceAwareFlagSet_shouldSendInstanceAwareInEQP
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     parameters.instanceAware = YES;
     
     NSError *error = nil;
@@ -125,7 +125,7 @@
 
 - (void)testInitBrokerRequest_whenAccountSet_shouldSendHomeAccountIdAndUsername
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user" homeAccountId:@"myHomeAccountId"];
     
     NSError *error = nil;
@@ -179,7 +179,7 @@
 
 - (void)testInitBrokerRequest_whenLoginHintSet_shouldSendLoginHint
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     parameters.loginHint = @"myuser";
     
     NSError *error = nil;
@@ -232,7 +232,7 @@
 
 - (void)testInitBrokerRequest_whenExtraScopesSet_shouldSendExtraScopes
 {
-    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     parameters.extraScopesToConsent = @"extraScope1 extraScope2";
     
     NSError *error = nil;
@@ -285,9 +285,9 @@
 
 #pragma mark - Helpers
 
-- (MSIDInteractiveRequestParameters *)defaultTestParameters
+- (MSIDInteractiveTokenRequestParameters *)defaultTestParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.authority = [@"https://login.microsoftonline.com/contoso.com" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"myscope1 myscope2";

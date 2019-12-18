@@ -28,7 +28,7 @@
 
 @class WKWebView;
 @class MSIDAccountIdentifier;
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDPromptType promptType;
 @property (nonatomic, nullable) NSString *extraScopesToConsent;
 
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
++ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                               providerType:(MSIDProviderType)providerType
                              enrollmentIds:(nullable NSDictionary *)enrollmentIds
                               mamResources:(nullable NSDictionary *)mamResources

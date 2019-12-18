@@ -31,11 +31,11 @@
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebWPJResponse.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCacheRecord.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDOpenIdProviderMetadata.h"
@@ -60,7 +60,7 @@
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.promptType = MSIDPromptTypeLogin;
     
     NSDictionary *claimsJsonDictionary = @{@"id_token":@{@"given_name":@{@"essential":@YES}}};
@@ -114,7 +114,7 @@
     metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
     authority.metadata = metadata;
     
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority = authority;
 
     MSIDAuthorizeWebRequestConfiguration *configuration = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
@@ -131,7 +131,7 @@
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.instanceAware = YES;
     
     NSString *requestState = @"state";

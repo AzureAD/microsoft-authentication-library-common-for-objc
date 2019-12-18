@@ -26,22 +26,22 @@
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDRequestControlling.h"
 
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 @class MSIDBrokerResponseHandler;
 @class MSIDBrokerInvocationOptions;
 
 @interface MSIDBrokerInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
 @property (class, strong, readonly, nullable) MSIDBrokerInteractiveController *currentBrokerController;
-@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveParameters;
 @property (nonatomic, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
+@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveParameters;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                            fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
                                                         error:(NSError * _Nullable * _Nullable)error;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                             brokerInstallLink:(nonnull NSURL *)brokerInstallLink
                                                         error:(NSError * _Nullable * _Nullable)error;
@@ -50,6 +50,6 @@
            sourceApplication:(nullable NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler;
 
-+ (BOOL)canPerformRequest:(nonnull MSIDInteractiveRequestParameters *)requestParameters;
++ (BOOL)canPerformRequest:(nonnull MSIDInteractiveTokenRequestParameters *)requestParameters;
 
 @end

@@ -27,6 +27,8 @@
 #import "MSIDAccountIdentifier.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDClientInfo.h"
+#import "MSIDBrokerConstants.h"
+#import "MSIDDeviceInfo.h"
 
 @interface MSIDBrokerOperationGetAccountsResponseTests : XCTestCase
 
@@ -42,9 +44,11 @@
 
 - (void)testInitWithJSONDictionary_whenJsonValid_shouldInitWithJson {
     NSDictionary *json = @{
-//        @"application_token" : @"app_token",
         @"operation" : @"get_accounts",
         @"success" : @1,
+        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"accounts" :
             @[
                 @{
@@ -84,9 +88,11 @@
     MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithJSONDictionary:json error:&error];
 
     XCTAssertNil(error);
-//    XCTAssertEqualObjects(response.applicationToken, @"app_token");
-//    XCTAssertEqual(response.success, YES);
-//    XCTAssertEqualObjects(response.operation, @"get_accounts");
+    XCTAssertEqual(response.success, YES);
+    XCTAssertEqualObjects(response.operation, @"get_accounts");
+    XCTAssertEqual(response.deviceInfo.deviceMode, MSIDDeviceModeShared);
+    XCTAssertEqual(response.deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
+    XCTAssertEqualObjects(response.deviceInfo.brokerVersion, @"1.2.3");
     NSArray *accounts = response.accounts;
     XCTAssertEqual(accounts.count, 2);
     MSIDAccount *account1 = accounts[0];
@@ -125,7 +131,6 @@
 
 - (void)testInitWithJSONDictionary_whenSomeAccountsWrongType_shouldInitWithCorrectAccounts {
     NSDictionary *json = @{
-//        @"application_token" : @"app_token",
         @"operation" : @"get_accounts",
         @"success" : @1,
         @"accounts" :
@@ -156,9 +161,6 @@
     MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithJSONDictionary:json error:&error];
 
     XCTAssertNil(error);
-//    XCTAssertEqualObjects(response.applicationToken, @"app_token");
-//    XCTAssertEqual(response.success, YES);
-//    XCTAssertEqualObjects(response.operation, @"get_accounts");
     NSArray *accounts = response.accounts;
     XCTAssertEqual(accounts.count, 1);
     MSIDAccount *account1 = accounts[0];
@@ -181,7 +183,6 @@
 
 - (void)testInitWithJSONDictionary_whenSomeAccountsNotAbleToInit_shouldInitWithCorrectAccounts {
     NSDictionary *json = @{
-//        @"application_token" : @"app_token",
         @"operation" : @"get_accounts",
         @"success" : @1,
         @"accounts" :
@@ -209,9 +210,6 @@
     MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithJSONDictionary:json error:&error];
 
     XCTAssertNil(error);
-//    XCTAssertEqualObjects(response.applicationToken, @"app_token");
-//    XCTAssertEqual(response.success, YES);
-//    XCTAssertEqualObjects(response.operation, @"get_accounts");
     NSArray *accounts = response.accounts;
     XCTAssertEqual(accounts.count, 1);
     MSIDAccount *account1 = accounts[0];
@@ -269,16 +267,22 @@
     MSIDAccount *account2 = [account copy];
     account2.realm = @"tenant";
     
-    MSIDBrokerOperationGetAccountsResponse *response = [MSIDBrokerOperationGetAccountsResponse new];
+    MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.accounts = @[account, account2];
     response.operation = @"get_accounts";
-//    response.applicationToken = @"app_token";
     response.success = YES;
+    response.deviceInfo = [MSIDDeviceInfo new];
+    response.deviceInfo.deviceMode = MSIDDeviceModeShared;
+    response.deviceInfo.wpjStatus = MSIDWorkPlaceJoinStatusJoined;
+    response.deviceInfo.brokerVersion = @"1.2.3";
     
     NSDictionary *expectedJson = @{
         @"operation" : @"get_accounts",
         @"success" : @"1",
         @"operation_response_type" : @"operation_get_accounts_response",
+        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
         @"accounts" :
             @[
                 @{

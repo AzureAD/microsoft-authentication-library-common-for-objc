@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerTokenRequest.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDVersion.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
@@ -39,7 +39,7 @@
 
 @interface MSIDBrokerTokenRequest()
 
-@property (nonatomic, readwrite) MSIDInteractiveRequestParameters *requestParameters;
+@property (nonatomic, readwrite) MSIDInteractiveTokenRequestParameters *requestParameters;
 @property (nonatomic, readwrite) NSDictionary *resumeDictionary;
 @property (nonatomic, readwrite) NSString *brokerKey;
 @property (nonatomic, readwrite) NSURL *brokerRequestURL;
@@ -52,7 +52,7 @@
 
 #pragma mark - Init
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey
                    brokerApplicationToken:(NSString *)brokerApplicationToken
                           sdkCapabilities:(NSArray *)sdkCapabilities

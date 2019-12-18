@@ -25,7 +25,7 @@
 #import "MSIDLegacyTokenRequestProvider.h"
 #import "MSIDAADV1Oauth2Factory.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDLegacySilentTokenRequest.h"
 #import "MSIDLegacyBrokerTokenRequest.h"
 #import "NSString+MSIDTestUtil.h"
@@ -40,7 +40,7 @@
 {
     MSIDLegacyTokenRequestProvider *provider = [[MSIDLegacyTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] legacyAccessor:[MSIDLegacyTokenCacheAccessor new]];
 
-    MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveRequestParameters new]];
+    MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveTokenRequestParameters new]];
     XCTAssertNotNil(interactiveRequest);
 }
 
@@ -59,7 +59,7 @@
 {
     MSIDLegacyTokenRequestProvider *provider = [[MSIDLegacyTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] legacyAccessor:[MSIDLegacyTokenCacheAccessor new]];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-testapp://auth";
     parameters.target = @"user.read";

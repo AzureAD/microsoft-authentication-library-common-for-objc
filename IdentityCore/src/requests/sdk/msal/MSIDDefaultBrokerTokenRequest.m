@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDDefaultBrokerTokenRequest.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDPromptType_Internal.h"

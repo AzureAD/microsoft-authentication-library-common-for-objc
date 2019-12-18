@@ -126,6 +126,7 @@
     {
         accountMetadataMapJson[key] = _accountMetadataMap[key].jsonDictionary;
     }
+    
     dictionary[MSID_ACCOUNT_METADATA_MAP_CACHE_KEY] = accountMetadataMapJson;
     
     return dictionary;

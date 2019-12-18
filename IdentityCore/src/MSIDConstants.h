@@ -73,7 +73,7 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
 };
 
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
-typedef void (^MSIDLogoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
+typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 
 #if TARGET_OS_IPHONE
 @compatibility_alias MSIDViewController UIViewController;
@@ -89,12 +89,6 @@ extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
-
-
-
-
-
-
 
 extern NSString * _Nonnull const MSID_DEFAULT_FAMILY_ID;
 extern NSString * _Nonnull const MSID_ADAL_SDK_NAME;

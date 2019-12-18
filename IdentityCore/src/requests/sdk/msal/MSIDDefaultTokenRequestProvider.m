@@ -53,7 +53,7 @@
     return self;
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
     __auto_type request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                                             oauthFactory:self.oauthFactory
@@ -84,7 +84,7 @@
     return request;
 }
 
-- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                       sdkCapabilities:(NSArray *)sdkCapabilities
@@ -100,7 +100,7 @@
     return request;
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
 {
 #if TARGET_OS_IOS
     if (@available(iOS 13.0, *))

@@ -25,24 +25,24 @@
 
 @class MSIDInteractiveTokenRequest;
 @class MSIDSilentTokenRequest;
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 @class MSIDRequestParameters;
 @class MSIDBrokerTokenRequest;
 @class MSIDBrokerInvocationOptions;
 
 @protocol MSIDTokenRequestProviding <NSObject>
 
-- (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
+- (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                          forceRefresh:(BOOL)forceRefresh;
 
-- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
                                                       sdkCapabilities:(nullable NSArray *)sdkCapabilities
                                                                 error:(NSError * _Nullable * _Nullable)error;
 
-- (nullable MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters;
+- (nullable MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
 
 - (nullable MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                                         forceRefresh:(BOOL)forceRefresh;

@@ -25,6 +25,10 @@
 #import "MSIDAuthority.h"
 #import "MSIDJsonSerializable.h"
 
+extern NSString * const MSID_REDIRECT_URI_JSON_KEY;
+extern NSString * const MSID_CLIENT_ID_JSON_KEY;
+extern NSString * const MSID_SCOPE_JSON_KEY;
+
 @interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
 // Commonly used or needed properties

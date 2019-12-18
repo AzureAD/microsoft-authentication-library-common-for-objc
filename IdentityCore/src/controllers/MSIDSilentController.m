@@ -118,6 +118,7 @@
             return;
         }
 
+        self.currentRequest = nil;
         [self.fallbackController acquireToken:completionBlock];
     }];
 }

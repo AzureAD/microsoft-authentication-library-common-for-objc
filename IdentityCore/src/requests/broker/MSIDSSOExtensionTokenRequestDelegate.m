@@ -35,7 +35,11 @@
     
     NSError *error;
     __auto_type ssoCredential = [self ssoCredentialFromCredential:authorization.credential error:&error];
-    if (!ssoCredential) self.completionBlock(nil, error);
+    if (!ssoCredential)
+    {
+        self.completionBlock(nil, error);
+        return;
+    }
     
     __auto_type json = [self jsonPayloadFromSSOCredential:ssoCredential error:&error];
     if (!json)
