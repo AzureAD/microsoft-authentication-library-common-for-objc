@@ -32,10 +32,7 @@
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
-
-#if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
-#endif
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
