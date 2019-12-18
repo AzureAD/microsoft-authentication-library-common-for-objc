@@ -48,21 +48,21 @@
 
 - (void)testHttpVersion_whenItWasNotSet_shouldReturnDefaultVersion
 {
-    __auto_type response = [MSIDBrokerOperationResponse new];
+    __auto_type response = [[MSIDBrokerOperationTestResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     
     XCTAssertEqualObjects(@"HTTP/1.1", response.httpVersion);
 }
 
 - (void)testHttpStatusCode_whenItWasNotSet_shouldReturnDefaultCode
 {
-    __auto_type response = [MSIDBrokerOperationResponse new];
+    __auto_type response = [[MSIDBrokerOperationTestResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     
     XCTAssertEqual(@200, response.httpStatusCode);
 }
 
 - (void)testJsonDictionary_whenAllPropertiesSet_shouldReturnJson
 {
-    __auto_type response = [MSIDBrokerOperationTestResponse new];
+    __auto_type response = [[MSIDBrokerOperationTestResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
@@ -82,13 +82,13 @@
 
 - (void)testJsonDictionary_whenRequiredPropertiesSet_shouldReturnJson
 {
-    __auto_type response = [MSIDBrokerOperationTestResponse new];
+    __auto_type response = [[MSIDBrokerOperationTestResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = true;
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(3, json.allKeys.count);
+    XCTAssertEqual(5, json.allKeys.count);
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");
     XCTAssertEqualObjects(json[@"success"], @"1");
