@@ -21,32 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
 
-@class MSIDDeviceInfo;
+typedef NS_ENUM(NSInteger, MSIDDeviceMode)
+{
+    MSIDDeviceModePersonal = 0,
+    MSIDDeviceModeShared
+};
 
-extern NSString * _Nonnull const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY;
+typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)
+{
+    MSIDWorkPlaceJoinStatusNotJoined = 0,
+    MSIDWorkPlaceJoinStatusJoined
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
+@interface MSIDDeviceInfo : NSObject <MSIDJsonSerializable>
 
-- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo;
+@property (nonatomic) MSIDDeviceMode deviceMode;
+@property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
+@property (nonatomic, nullable) NSString *brokerVersion;
 
-@property (nonatomic, class, readonly) NSString *responseType;
-
-@property (nonatomic) NSString *operation;
-@property (nonatomic) BOOL success;
-@property (nonatomic, nullable) NSString *clientAppVersion;
-
-@property (nonatomic) MSIDDeviceInfo *deviceInfo;
-
-// TODO: add other properties.
-
-@property (nonatomic) NSNumber *httpStatusCode;
-@property (nonatomic, nullable) NSDictionary *httpHeaders;
-@property (nonatomic) NSString *httpVersion;
+- (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
+                 isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
+                     brokerVersion:(NSString *)brokerVersion;
 
 @end
 
