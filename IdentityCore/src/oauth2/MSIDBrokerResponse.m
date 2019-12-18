@@ -25,6 +25,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDBrokerResponse+Internal.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDDeviceInfo.h"
 
 @implementation MSIDBrokerResponse
 
@@ -55,6 +56,7 @@ MSID_FORM_ACCESSOR(@"application_token", applicationToken);
 {
     self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
     self.msidAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:self.authority] rawTenant:nil context:nil error:nil];
+    self.deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:_urlForm error:nil];
 }
 
 - (NSString *)target
@@ -62,9 +64,9 @@ MSID_FORM_ACCESSOR(@"application_token", applicationToken);
     return _urlForm[@"scope"];
 }
 
-- (BOOL)accessTokenInvalidForResponse
+- (BOOL)ignoreAccessTokenCache
 {
-    return NO;
+    return self.deviceInfo.deviceMode == MSIDDeviceModeShared;
 }
 
 @end

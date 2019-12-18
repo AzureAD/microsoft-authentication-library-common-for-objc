@@ -128,7 +128,7 @@
                                                                                         tokenCache:self.tokenCache
                                                                               accountMetadataCache:self.accountMetadataCacheAccessor
                                                                                      correlationID:correlationID
-                                                                                  saveSSOStateOnly:brokerResponse.accessTokenInvalidForResponse
+                                                                                  saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                                              error:&intuneError];
 
         if (!intuneResult)

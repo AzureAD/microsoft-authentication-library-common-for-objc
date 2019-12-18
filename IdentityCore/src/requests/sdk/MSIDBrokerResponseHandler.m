@@ -35,6 +35,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDDeviceInfo.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -151,15 +152,13 @@
         }
     }
     
-    BOOL saveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse; // TODO: change this once device_info is available in legacy protocol
-    
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                             oidcScope:oidcScope
                                                          oauthFactory:self.oauthFactory
                                                            tokenCache:self.tokenCache
                                                  accountMetadataCache:self.accountMetadataCacheAccessor
                                                         correlationID:correlationId
-                                                     saveSSOStateOnly:saveSSOStateOnly
+                                                     saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                 error:error];
 }
 

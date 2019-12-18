@@ -98,16 +98,14 @@
             MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
             
             if (!additionalTokensError)
-            {
-                BOOL saveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse; // TODO: also check for device info once device info PR is merged
-                
+            {  
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
-                                                                        saveSSOStateOnly:saveSSOStateOnly
+                                                                        saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                                    error:&additionalTokensError];
             }
         }
