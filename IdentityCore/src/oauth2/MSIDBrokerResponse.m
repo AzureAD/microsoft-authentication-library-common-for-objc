@@ -47,6 +47,7 @@ MSID_FORM_ACCESSOR(@"application_token", applicationToken);
     if (self)
     {
         [self initDerivedProperties];
+        _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:_urlForm error:nil];
     }
 
     return self;
@@ -56,7 +57,6 @@ MSID_FORM_ACCESSOR(@"application_token", applicationToken);
 {
     self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
     self.msidAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:self.authority] rawTenant:nil context:nil error:nil];
-    self.deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:_urlForm error:nil];
 }
 
 - (NSString *)target
