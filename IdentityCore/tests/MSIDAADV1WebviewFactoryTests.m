@@ -33,7 +33,7 @@
 #import "MSIDDeviceId.h"
 #import "MSIDTestParametersProvider.h"
 #import "MSIDPkce.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 
 @interface MSIDAADV1WebviewFactoryTests : XCTestCase
@@ -44,7 +44,7 @@
 
 - (void)testAuthorizationParametersFromParameters_withValidParams_shouldContainAADV1Configuration
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
     parameters.promptType = MSIDPromptTypeLogin;
     parameters.loginHint = @"fakeuser@contoso.com";
@@ -82,7 +82,7 @@
 
 - (void)testAuthorizationParametersFromConfiguration_withValidParamsWithScopes_shouldContainAADV1ConfigurationWithScopes
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.target = DEFAULT_TEST_RESOURCE;
     parameters.oidcScope = @"openid";
     

@@ -28,7 +28,7 @@
 @class MSIDAccountMetadataCacheAccessor;
 @class MSIDTokenResult;
 @class MSIDWebWPJResponse;
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 @class MSIDOauth2Factory;
 #if TARGET_OS_OSX
 @class MSIDExternalAADCacheSeeder;
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
 #endif
 
-- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache

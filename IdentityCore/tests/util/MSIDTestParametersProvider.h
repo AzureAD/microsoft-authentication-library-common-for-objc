@@ -27,13 +27,13 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDTestParametersProvider : NSObject
 
-+ (MSIDInteractiveRequestParameters *)testInteractiveParameters;
++ (MSIDInteractiveTokenRequestParameters *)testInteractiveParameters;
 
 @end
 

@@ -26,14 +26,14 @@
 #import "MSIDTokenRequestProviding.h"
 #import "MSIDRequestControlling.h"
 
-@class MSIDInteractiveRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 @class MSIDWebWPJResponse;
 
 @interface MSIDLocalInteractiveController : MSIDBaseRequestController <MSIDRequestControlling>
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveRequestParameters *interactiveRequestParamaters;
+@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *interactiveRequestParamaters;
 
-- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithInteractiveRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                          tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                         error:(NSError * _Nullable * _Nullable)error;
 

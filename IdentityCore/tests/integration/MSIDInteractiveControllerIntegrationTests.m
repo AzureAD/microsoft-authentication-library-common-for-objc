@@ -32,7 +32,7 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDLocalInteractiveController.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
 #import "MSIDRefreshToken.h"
@@ -71,9 +71,9 @@
 
 #pragma mark - Helpers
 
-- (MSIDInteractiveRequestParameters *)requestParameters
+- (MSIDInteractiveTokenRequestParameters *)requestParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
@@ -135,7 +135,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_id1111";
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
@@ -201,7 +201,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_fail";
 
     NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
@@ -265,7 +265,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2&username=my@test.com"];
@@ -368,7 +368,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_wpj";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?username=my@test.com&client_info=eyJ1aWQiOiIwZWE5OWM1OC02NGIzLTRhZmEtYmU1MC00NGU2NDA4ZWRjZDUiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
@@ -431,7 +431,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_link_failure";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link_wrong=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];

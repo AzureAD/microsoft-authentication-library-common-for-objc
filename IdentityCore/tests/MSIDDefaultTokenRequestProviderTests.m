@@ -25,7 +25,7 @@
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDDefaultSilentTokenRequest.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "NSString+MSIDTestUtil.h"
@@ -42,7 +42,7 @@
 {
     MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
-    MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveRequestParameters new]];
+    MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveTokenRequestParameters new]];
     XCTAssertNotNil(interactiveRequest);
 }
 
@@ -61,7 +61,7 @@
 {
     MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-testapp://auth";
     parameters.target = @"user.read";

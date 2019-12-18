@@ -25,7 +25,7 @@
 #import "MSIDTestParametersProvider.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDLogoutRequest.h"
+#import "MSIDOIDCSignoutRequest.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDTestURLResponse+Util.h"
@@ -34,12 +34,13 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
-@interface MSIDLogoutRequestTests : XCTestCase
+@interface MSIDOIDCSignoutRequestTests : XCTestCase
 
 @end
 
-@implementation MSIDLogoutRequestTests
+@implementation MSIDOIDCSignoutRequestTests
 
 - (void)setUp
 {
@@ -58,11 +59,11 @@
 
 - (void)testLogoutRequest_whenLogoutSucceeded_shouldReturnSuccessNilError
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"fakeuser@contoso.com" homeAccountId:@"uid.utid"];
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     
-    MSIDLogoutRequest *logoutRequest = [[MSIDLogoutRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new]];
+    MSIDOIDCSignoutRequest *logoutRequest = [[MSIDOIDCSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(logoutRequest);
 
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
@@ -98,12 +99,12 @@
 
 - (void)testLogoutRequest_whenLogoutFailedWithMismatchedState_shouldReturnFailureAndFillError
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"fakeuser@contoso.com" homeAccountId:@"uid.utid"];
     parameters.authority.metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/authorize"];
     parameters.webviewType = MSIDWebviewTypeWKWebView;
     
-    MSIDLogoutRequest *logoutRequest = [[MSIDLogoutRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new]];
+    MSIDOIDCSignoutRequest *logoutRequest = [[MSIDOIDCSignoutRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(logoutRequest);
 
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests

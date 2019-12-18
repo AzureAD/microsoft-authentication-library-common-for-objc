@@ -28,7 +28,7 @@
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
-- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                   fallbackController:(id<MSIDRequestControlling>)fallbackController
                                                error:(NSError **)error

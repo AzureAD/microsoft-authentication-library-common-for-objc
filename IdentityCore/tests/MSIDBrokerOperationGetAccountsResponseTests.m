@@ -267,7 +267,7 @@
     MSIDAccount *account2 = [account copy];
     account2.realm = @"tenant";
     
-    MSIDBrokerOperationGetAccountsResponse *response = [MSIDBrokerOperationGetAccountsResponse new];
+    MSIDBrokerOperationGetAccountsResponse *response = [[MSIDBrokerOperationGetAccountsResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.accounts = @[account, account2];
     response.operation = @"get_accounts";
     response.success = YES;

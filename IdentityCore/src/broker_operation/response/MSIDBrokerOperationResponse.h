@@ -32,8 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationResponse : NSObject <MSIDJsonSerializable>
 
-- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo;
-
 @property (nonatomic, class, readonly) NSString *responseType;
 
 @property (nonatomic) NSString *operation;
@@ -47,6 +45,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSNumber *httpStatusCode;
 @property (nonatomic, nullable) NSDictionary *httpHeaders;
 @property (nonatomic) NSString *httpVersion;
+
+- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 

@@ -28,7 +28,7 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 
@@ -40,7 +40,7 @@
     }
 }
 
-+ (instancetype)tokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
++ (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                               providerType:(MSIDProviderType)providerType
                              enrollmentIds:(NSDictionary *)enrollmentIds
                               mamResources:(NSDictionary *)mamResources

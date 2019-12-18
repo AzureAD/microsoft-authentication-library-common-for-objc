@@ -38,11 +38,12 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDOpenIdProviderMetadata.h"
-#import "MSIDLogoutWebRequestConfiguration.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDTestUtil.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDTestParametersProvider.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @interface MSIDWebviewFactoryTests : XCTestCase
 
@@ -55,7 +56,7 @@
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
 
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};
     parameters.loginHint = @"fakeuser@contoso.com";
@@ -90,7 +91,7 @@
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     
     NSString *requestState = @"state";
 
@@ -109,7 +110,7 @@
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
     MSIDInteractiveRequestParameters *parameters = nil;
-    MSIDLogoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
+    MSIDSignoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNil(conf);
 }
@@ -117,7 +118,7 @@
 - (void)testAuthorizeWebRequestConfiguration_whenNilParameters_shouldReturnNil
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    MSIDInteractiveRequestParameters *parameters = nil;
+    MSIDInteractiveTokenRequestParameters *parameters = nil;
     MSIDAuthorizeWebRequestConfiguration *conf = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNil(conf);
@@ -129,7 +130,7 @@
     MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.endSessionEndpoint = nil;
     
-    MSIDLogoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
+    MSIDSignoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNil(conf);
 }
@@ -137,7 +138,7 @@
 - (void)testAuthorizeWebRequestConfiguration_whenValidParameters_noAuthorizeURLPresent_shouldReturnNil
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.authorizationEndpoint = nil;
     
     MSIDAuthorizeWebRequestConfiguration *conf = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
@@ -151,7 +152,7 @@
     MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.endSessionEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/logmeout"];
     
-    MSIDLogoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
+    MSIDSignoutWebRequestConfiguration *conf = [factory logoutWebRequestConfigurationWithRequestParameters:parameters];
     
     XCTAssertNotNil(conf);
     XCTAssertNotNil(conf.startURL);
@@ -175,7 +176,7 @@
 - (void)testAuthorizeWebRequestConfiguration_whenValidParameters_shouldReturnNonNilWebConfiguration
 {
     MSIDWebviewFactory *factory = [MSIDWebviewFactory new];
-    MSIDInteractiveRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
     parameters.authority.metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/authorizeme"];
     
     parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2", @"eqp3" : @""};

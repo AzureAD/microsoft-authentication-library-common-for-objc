@@ -28,6 +28,7 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDTestIdTokenUtil.h"
 #import "MSIDTestIdentifiers.h"
+#import "MSIDDeviceInfo.h"
 
 @interface MSIDBrokerOperationTokenResponseTests : XCTestCase
 
@@ -49,7 +50,7 @@
     tokenResponse.tokenType = MSID_OAUTH2_BEARER;
     tokenResponse.idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                       subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
-    __auto_type response = [MSIDBrokerOperationTokenResponse new];
+    __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
@@ -60,7 +61,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(15, json.allKeys.count);
+    XCTAssertEqual(17, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
@@ -86,7 +87,7 @@
     tokenResponse.tokenType = MSID_OAUTH2_BEARER;
     tokenResponse.idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                       subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
-    __auto_type response = [MSIDBrokerOperationTokenResponse new];
+    __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
@@ -96,7 +97,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(14, json.allKeys.count);
+    XCTAssertEqual(16, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
@@ -121,7 +122,7 @@
     tokenResponse.tokenType = MSID_OAUTH2_BEARER;
     tokenResponse.idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                       subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
-    __auto_type response = [MSIDBrokerOperationTokenResponse new];
+    __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
@@ -134,7 +135,7 @@
 
 - (void)testJsonDictionary_whenNoTokenResponseForSuccessResponse_shouldReturnNil
 {
-    __auto_type response = [MSIDBrokerOperationTokenResponse new];
+    __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
@@ -155,7 +156,7 @@
     tokenResponse.tokenType = MSID_OAUTH2_BEARER;
     tokenResponse.idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                       subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
-    __auto_type response = [MSIDBrokerOperationTokenResponse new];
+    __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = NO;
     response.clientAppVersion = @"1.0";
@@ -164,7 +165,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(14, json.allKeys.count);
+    XCTAssertEqual(16, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
@@ -189,7 +190,7 @@
     tokenResponse.tokenType = MSID_OAUTH2_BEARER;
     tokenResponse.idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME
                                                                       subject:DEFAULT_TEST_ID_TOKEN_SUBJECT];
-    __auto_type response = [MSIDBrokerOperationTokenResponse new];
+    __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = NO;
     response.clientAppVersion = @"1.0";
@@ -197,7 +198,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(13, json.allKeys.count);
+    XCTAssertEqual(15, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
@@ -214,7 +215,7 @@
 
 - (void)testJsonDictionary_whenNoTokenResponseForFailureResponse_shouldReturnNil
 {
-    __auto_type response = [MSIDBrokerOperationTokenResponse new];
+    __auto_type response = [[MSIDBrokerOperationTokenResponse alloc] initWithDeviceInfo:[MSIDDeviceInfo new]];
     response.operation = @"login";
     response.success = NO;
     response.clientAppVersion = @"1.0";
