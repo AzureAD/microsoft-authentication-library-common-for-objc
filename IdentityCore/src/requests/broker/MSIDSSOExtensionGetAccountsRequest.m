@@ -105,8 +105,8 @@
 {
     MSIDBrokerOperationGetAccountsRequest *getAccountsRequest = [MSIDBrokerOperationGetAccountsRequest new];
     getAccountsRequest.clientId = self.requestParameters.clientId;
-    // TODO: pass familyId?
-    // TODO: pass returnOnlySignedInAccounts == false
+    // TODO: pass familyId, will be addressed in a separate PR
+    // TODO: pass returnOnlySignedInAccounts == false, will be addressed in a separate PR
     
     NSError *paramError;
     BOOL paramResult = [MSIDBrokerOperationRequest fillRequest:getAccountsRequest
