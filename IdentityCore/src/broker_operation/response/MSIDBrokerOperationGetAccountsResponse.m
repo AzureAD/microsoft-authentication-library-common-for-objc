@@ -26,6 +26,7 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDJsonSerializer.h"
 
 @implementation MSIDBrokerOperationGetAccountsResponse
 
@@ -47,13 +48,29 @@
     
     if (self)
     {
-        if (![json msidAssertType:NSArray.class ofKey:@"accounts" required:YES error:error])
+        if (![json msidAssertType:NSString.class ofKey:@"accounts" required:NO error:error])
         {
             return nil;
         }
         
-        NSArray *accountsJson = json[@"accounts"];
+        NSString *accountsString = json[@"accounts"];
         
+        if ([NSString msidIsStringNilOrBlank:accountsString])
+        {
+            self.accounts = @[];
+            self.success = YES;
+            return self;
+        }
+        
+        NSData *jsonData = [accountsString dataUsingEncoding:NSUTF8StringEncoding];
+        NSArray *accountsJson = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:error];
+                  
+        if (!accountsJson)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to deserialize accounts data");
+            return nil;
+        }
+                
         NSMutableArray *accounts = [NSMutableArray new];
         for (NSDictionary *accountJson in accountsJson)
         {
@@ -74,6 +91,7 @@
             [accounts addObject:account];
         }
         
+        self.success = YES;
         self.accounts = accounts;
     }
     
@@ -93,8 +111,18 @@
         if (accountJson) [accountsJson addObject:accountJson];
     }
     
-    json[@"accounts"] = accountsJson;
+    NSError *jsonError;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:accountsJson options:0 error:&jsonError];
     
+    if (jsonError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to serialize accounts with error %@", MSID_PII_LOG_MASKABLE(jsonError));
+    }
+    else if (jsonData)
+    {
+        json[@"accounts"] = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+
     return json;
 }
 

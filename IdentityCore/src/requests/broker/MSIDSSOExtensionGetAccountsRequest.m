@@ -32,6 +32,7 @@
 #import "MSIDBrokerOperationGetAccountsRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDBrokerOperationGetAccountsResponse.h"
+#import "MSIDDeviceInfo.h"
 
 @interface MSIDSSOExtensionGetAccountsRequest()
 
@@ -85,7 +86,7 @@
             {
                 MSIDBrokerOperationGetAccountsResponse *response = (MSIDBrokerOperationGetAccountsResponse *)operationResponse;
                 resultAccounts = response.accounts;
-                returnBrokerAccountsOnly = NO; // TODO: update based on the shared device status once PR is merged
+                returnBrokerAccountsOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
             }
             
             MSIDGetAccountsRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
@@ -105,6 +106,7 @@
     MSIDBrokerOperationGetAccountsRequest *getAccountsRequest = [MSIDBrokerOperationGetAccountsRequest new];
     getAccountsRequest.clientId = self.requestParameters.clientId;
     // TODO: pass familyId?
+    // TODO: pass returnOnlySignedInAccounts == false
     
     NSError *paramError;
     BOOL paramResult = [MSIDBrokerOperationRequest fillRequest:getAccountsRequest

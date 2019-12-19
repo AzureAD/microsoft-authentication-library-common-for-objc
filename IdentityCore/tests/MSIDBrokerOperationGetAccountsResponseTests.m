@@ -43,45 +43,49 @@
 }
 
 - (void)testInitWithJSONDictionary_whenJsonValid_shouldInitWithJson {
+    
+    NSArray *inputAccounts = @[
+        @{
+            @"home_account_id" : @"uid.utid",
+            @"account_type" : @"MSSTS",
+            @"alternative_account_id" : @"AltID",
+            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+            @"environment" : @"login.microsoftonline.com",
+            @"family_name" : @"Last",
+            @"given_name" : @"Eric",
+            @"local_account_id" : @"local",
+            @"middle_name" : @"Middle",
+            @"name" : @"Eric Middle Last",
+            @"realm" : @"common",
+            @"storage_environment" : @"login.windows2.net",
+            @"username" : @"username",
+        },
+        @{
+            @"home_account_id" : @"uid.utid",
+            @"account_type" : @"MSSTS",
+            @"alternative_account_id" : @"AltID",
+            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+            @"environment" : @"login.microsoftonline.com",
+            @"family_name" : @"Last",
+            @"given_name" : @"Eric",
+            @"local_account_id" : @"local",
+            @"middle_name" : @"Middle",
+            @"name" : @"Eric Middle Last",
+            @"realm" : @"tenant",
+            @"storage_environment" : @"login.windows2.net",
+            @"username" : @"username",
+        }
+    ];
+    
+    NSString *accountsJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:inputAccounts options:0 error:nil] encoding:NSUTF8StringEncoding];
+    
     NSDictionary *json = @{
         @"operation" : @"get_accounts",
         @"success" : @1,
         MSID_BROKER_DEVICE_MODE_KEY : @"shared",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
-        @"accounts" :
-            @[
-                @{
-                    @"home_account_id" : @"uid.utid",
-                    @"account_type" : @"MSSTS",
-                    @"alternative_account_id" : @"AltID",
-                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                    @"environment" : @"login.microsoftonline.com",
-                    @"family_name" : @"Last",
-                    @"given_name" : @"Eric",
-                    @"local_account_id" : @"local",
-                    @"middle_name" : @"Middle",
-                    @"name" : @"Eric Middle Last",
-                    @"realm" : @"common",
-                    @"storage_environment" : @"login.windows2.net",
-                    @"username" : @"username",
-                },
-                @{
-                    @"home_account_id" : @"uid.utid",
-                    @"account_type" : @"MSSTS",
-                    @"alternative_account_id" : @"AltID",
-                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                    @"environment" : @"login.microsoftonline.com",
-                    @"family_name" : @"Last",
-                    @"given_name" : @"Eric",
-                    @"local_account_id" : @"local",
-                    @"middle_name" : @"Middle",
-                    @"name" : @"Eric Middle Last",
-                    @"realm" : @"tenant",
-                    @"storage_environment" : @"login.windows2.net",
-                    @"username" : @"username",
-                }
-            ]
+        @"accounts" : accountsJsonString
     };
 
     NSError *error;
@@ -130,31 +134,36 @@
 }
 
 - (void)testInitWithJSONDictionary_whenSomeAccountsWrongType_shouldInitWithCorrectAccounts {
+    
+    NSArray *inputAccounts = @[
+        @{
+            @"home_account_id" : @"uid.utid",
+            @"account_type" : @"MSSTS",
+            @"alternative_account_id" : @"AltID",
+            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+            @"environment" : @"login.microsoftonline.com",
+            @"family_name" : @"Last",
+            @"given_name" : @"Eric",
+            @"local_account_id" : @"local",
+            @"middle_name" : @"Middle",
+            @"name" : @"Eric Middle Last",
+            @"realm" : @"common",
+            @"storage_environment" : @"login.windows2.net",
+            @"username" : @"username",
+        },
+        @{
+            @"account_name" : @"abc",
+            @"account_id" : @"abc"
+        }
+    ];
+    
+    NSString *accountsJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:inputAccounts options:0 error:nil] encoding:NSUTF8StringEncoding];
+    
+    
     NSDictionary *json = @{
         @"operation" : @"get_accounts",
         @"success" : @1,
-        @"accounts" :
-            @[
-                @{
-                    @"home_account_id" : @"uid.utid",
-                    @"account_type" : @"MSSTS",
-                    @"alternative_account_id" : @"AltID",
-                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                    @"environment" : @"login.microsoftonline.com",
-                    @"family_name" : @"Last",
-                    @"given_name" : @"Eric",
-                    @"local_account_id" : @"local",
-                    @"middle_name" : @"Middle",
-                    @"name" : @"Eric Middle Last",
-                    @"realm" : @"common",
-                    @"storage_environment" : @"login.windows2.net",
-                    @"username" : @"username",
-                },
-                @{
-                    @"account_name" : @"abc",
-                    @"account_id" : @"abc"
-                }
-            ]
+        @"accounts" : accountsJsonString
     };
 
     NSError *error;
@@ -182,28 +191,32 @@
 }
 
 - (void)testInitWithJSONDictionary_whenSomeAccountsNotAbleToInit_shouldInitWithCorrectAccounts {
+    
+    NSArray *inputAccounts = @[
+        @{
+            @"home_account_id" : @"uid.utid",
+            @"account_type" : @"MSSTS",
+            @"alternative_account_id" : @"AltID",
+            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+            @"environment" : @"login.microsoftonline.com",
+            @"family_name" : @"Last",
+            @"given_name" : @"Eric",
+            @"local_account_id" : @"local",
+            @"middle_name" : @"Middle",
+            @"name" : @"Eric Middle Last",
+            @"realm" : @"common",
+            @"storage_environment" : @"login.windows2.net",
+            @"username" : @"username",
+        },
+        @"2"//corrupted accounts
+    ];
+    
+    NSString *accountsJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:inputAccounts options:0 error:nil] encoding:NSUTF8StringEncoding];
+    
     NSDictionary *json = @{
         @"operation" : @"get_accounts",
         @"success" : @1,
-        @"accounts" :
-            @[
-                @{
-                    @"home_account_id" : @"uid.utid",
-                    @"account_type" : @"MSSTS",
-                    @"alternative_account_id" : @"AltID",
-                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                    @"environment" : @"login.microsoftonline.com",
-                    @"family_name" : @"Last",
-                    @"given_name" : @"Eric",
-                    @"local_account_id" : @"local",
-                    @"middle_name" : @"Middle",
-                    @"name" : @"Eric Middle Last",
-                    @"realm" : @"common",
-                    @"storage_environment" : @"login.windows2.net",
-                    @"username" : @"username",
-                },
-                @"2"//corrupted accounts
-            ]
+        @"accounts" : accountsJsonString
     };
 
     NSError *error;
@@ -276,49 +289,50 @@
     response.deviceInfo.wpjStatus = MSIDWorkPlaceJoinStatusJoined;
     response.deviceInfo.brokerVersion = @"1.2.3";
     
-    NSDictionary *expectedJson = @{
-        @"operation" : @"get_accounts",
-        @"success" : @"1",
-        @"operation_response_type" : @"operation_get_accounts_response",
-        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
-        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
-        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
-        @"accounts" :
-            @[
-                @{
-                    @"home_account_id" : @"uid.utid",
-                    @"account_type" : @"MSSTS",
-                    @"alternative_account_id" : @"AltID",
-                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                    @"environment" : @"login.microsoftonline.com",
-                    @"family_name" : @"Last",
-                    @"given_name" : @"Eric",
-                    @"local_account_id" : @"local",
-                    @"middle_name" : @"Middle",
-                    @"name" : @"Eric Middle Last",
-                    @"realm" : @"common",
-                    @"storage_environment" : @"login.windows2.net",
-                    @"username" : @"username",
-                },
-                @{
-                    @"home_account_id" : @"uid.utid",
-                    @"account_type" : @"MSSTS",
-                    @"alternative_account_id" : @"AltID",
-                    @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
-                    @"environment" : @"login.microsoftonline.com",
-                    @"family_name" : @"Last",
-                    @"given_name" : @"Eric",
-                    @"local_account_id" : @"local",
-                    @"middle_name" : @"Middle",
-                    @"name" : @"Eric Middle Last",
-                    @"realm" : @"tenant",
-                    @"storage_environment" : @"login.windows2.net",
-                    @"username" : @"username",
-                }
-            ]
-    };
-
-    XCTAssertEqualObjects(expectedJson, response.jsonDictionary);
+    NSArray *inputAccounts = @[
+        @{
+            @"home_account_id" : @"uid.utid",
+            @"account_type" : @"MSSTS",
+            @"alternative_account_id" : @"AltID",
+            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+            @"environment" : @"login.microsoftonline.com",
+            @"family_name" : @"Last",
+            @"given_name" : @"Eric",
+            @"local_account_id" : @"local",
+            @"middle_name" : @"Middle",
+            @"name" : @"Eric Middle Last",
+            @"realm" : @"common",
+            @"storage_environment" : @"login.windows2.net",
+            @"username" : @"username",
+        },
+        @{
+            @"home_account_id" : @"uid.utid",
+            @"account_type" : @"MSSTS",
+            @"alternative_account_id" : @"AltID",
+            @"client_info" : @"eyJrZXkiOiJ2YWx1ZSJ9",
+            @"environment" : @"login.microsoftonline.com",
+            @"family_name" : @"Last",
+            @"given_name" : @"Eric",
+            @"local_account_id" : @"local",
+            @"middle_name" : @"Middle",
+            @"name" : @"Eric Middle Last",
+            @"realm" : @"tenant",
+            @"storage_environment" : @"login.windows2.net",
+            @"username" : @"username",
+        }
+    ];
+    
+    NSDictionary *result = response.jsonDictionary;
+    
+    XCTAssertEqualObjects(result[@"operation"], @"get_accounts");
+    XCTAssertEqualObjects(result[@"success"] , @"1");
+    XCTAssertEqualObjects(result[@"operation_response_type"], @"operation_get_accounts_response");
+    XCTAssertEqualObjects(result[MSID_BROKER_DEVICE_MODE_KEY], @"shared");
+    XCTAssertEqualObjects(result[MSID_BROKER_WPJ_STATUS_KEY], @"joined");
+    XCTAssertEqualObjects(result[MSID_BROKER_BROKER_VERSION_KEY], @"1.2.3");
+    
+    NSArray *decodedAccounts = [NSJSONSerialization JSONObjectWithData:[result[@"accounts"] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    XCTAssertEqualObjects(decodedAccounts, inputAccounts);
 }
 
 @end
