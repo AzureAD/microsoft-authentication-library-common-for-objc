@@ -24,6 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDAccountMetadata.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAccountMetadataCacheItemTests : XCTestCase
 
@@ -158,7 +159,10 @@
 - (void)testIsEqual_whenSame_shouldReturnYes
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
+    cacheItem.principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid"];
+     
     MSIDAccountMetadataCacheItem *cacheItem2 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
+    cacheItem2.principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid"];
 
     MSIDAccountMetadata *accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     NSError *error;
@@ -181,12 +185,21 @@
     XCTAssertTrue([cacheItem isEqual:cacheItem2]);
 }
 
+- (void)testIsEqual_whenPrincipalAccountIdDifferent_shouldReturnNO
+{
+    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
+    cacheItem.principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid2"];
+     
+    MSIDAccountMetadataCacheItem *cacheItem2 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
+    cacheItem2.principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid"];
+
+    XCTAssertFalse([cacheItem isEqual:cacheItem2]);
+}
+
 - (void)testIsEqual_whenClientIdDifferent_shouldReturnNo
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
     MSIDAccountMetadataCacheItem *cacheItem2 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId2"];
-
-
     XCTAssertFalse([cacheItem isEqual:cacheItem2]);
 }
 
@@ -228,6 +241,7 @@
 - (void)testCopy_whenCopy_shouldDeepCopy
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
+    cacheItem.principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid"];
 
     MSIDAccountMetadata *accountMetadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
     NSError *error;
@@ -243,11 +257,9 @@
     MSIDAccountMetadata *metadata = [cacheItem accountMetadataForHomeAccountId:@"homeAccountId"];
     MSIDAccountMetadata *metadata2 = [cacheItem2 accountMetadataForHomeAccountId:@"homeAccountId"];
 
-
-
-
     XCTAssertNotEqual(metadata, metadata2);
     XCTAssertEqualObjects(metadata, metadata2);
+    XCTAssertEqualObjects(cacheItem, cacheItem2);
 }
 
 @end

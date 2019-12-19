@@ -149,6 +149,7 @@
     MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
     item->_clientId = [self.clientId copyWithZone:zone];
     item->_accountMetadataMap = [self->_accountMetadataMap mutableDeepCopy];
+    item->_principalAccountId = [self->_principalAccountId copyWithZone:zone];
     
     return item;
 }
@@ -158,6 +159,7 @@
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + _accountMetadataMap.hash;
+    hash = hash * 31 + self.principalAccountId.hash;
     
     return hash;
 }
@@ -184,6 +186,7 @@
     BOOL result = YES;
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= ([_accountMetadataMap isEqualToDictionary:item->_accountMetadataMap]);
+    result &= (!self.principalAccountId && !item.principalAccountId) || [self.principalAccountId isEqual:item.principalAccountId];
     
     return result;
 }

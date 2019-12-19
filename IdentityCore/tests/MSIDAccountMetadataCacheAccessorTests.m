@@ -30,6 +30,7 @@
 #import "MSIDKeychainTokenCache+MSIDTestsUtil.h"
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDMetadataCache.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAccountMetadataCacheAccessorTests : XCTestCase
 
@@ -341,6 +342,90 @@
                                                             homeAccountId:@"uid.utid"
                                                                  clientId:@"my-client-id" instanceAware:NO context:nil error:&error];
     XCTAssertEqualObjects(@"https://login.microsoftonline.com/contoso", retrievedCacheURL.absoluteString);
+    XCTAssertNil(error);
+}
+
+- (void)testPrincipalAccountIdForClientId_whenClientIdNil_shouldReturnNilAndFillError
+{
+    NSString *clientId = nil;
+    
+    NSError *error;
+    MSIDAccountIdentifier *accountIdentifier = [self.accountMetadataCache principalAccountIdForClientId:clientId context:nil error:&error];
+    
+    XCTAssertNil(accountIdentifier);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"ClientId is required to query account metadata cache!");
+}
+
+- (void)testPrincipalAccountIdForClientId_whenAllParametersPassed_andNoAccountIdSaved_shouldReturnNil_andNilError
+{
+    NSString *clientId = @"myclientId";
+    
+    NSError *error;
+    MSIDAccountIdentifier *accountIdentifier = [self.accountMetadataCache principalAccountIdForClientId:clientId context:nil error:&error];
+    
+    XCTAssertNil(accountIdentifier);
+    XCTAssertNil(error);
+}
+
+- (void)testPrincipalAccountIdForClientId_whenAllParametersPassed_andAccountIdSaved_shouldReturnNonNil_andNilError
+{
+    NSString *clientId = @"myclientId";
+    
+    MSIDAccountIdentifier *testAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"test@upn.com" homeAccountId:@"uid.utid"];
+    
+    [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId
+                                                principalAccountId:testAccountId
+                                                           context:nil
+                                                             error:nil];
+    
+    NSError *error;
+    MSIDAccountIdentifier *accountIdentifier = [self.accountMetadataCache principalAccountIdForClientId:clientId context:nil error:&error];
+    
+    XCTAssertNotNil(accountIdentifier);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(accountIdentifier.displayableId, @"test@upn.com");
+    XCTAssertEqualObjects(accountIdentifier.homeAccountId, @"uid.utid");
+}
+
+- (void)testUpdatePrincipalAccountId_whenNilClientId_shouldReturnError
+{
+    NSString *clientId = nil;
+
+    NSError *error;
+    BOOL result = [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId principalAccountId:nil context:nil error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"ClientId is required to query account metadata cache!");
+}
+
+- (void)testUpdatePrincipalAccountId_whenNilPrincipalId_shouldRemovePreviousPrincipalId
+{
+    NSString *clientId = @"myclientId";
+    
+    MSIDAccountIdentifier *testAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"test@upn.com" homeAccountId:@"uid.utid"];
+    
+    // Save first time
+    [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId
+                                                principalAccountId:testAccountId
+                                                           context:nil
+                                                             error:nil];
+    
+    // Save with nil
+    NSError *error;
+    BOOL result = [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId principalAccountId:nil context:nil error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    MSIDAccountIdentifier *accountIdentifier = [self.accountMetadataCache principalAccountIdForClientId:clientId context:nil error:&error];
+    
+    XCTAssertNil(accountIdentifier);
     XCTAssertNil(error);
 }
 

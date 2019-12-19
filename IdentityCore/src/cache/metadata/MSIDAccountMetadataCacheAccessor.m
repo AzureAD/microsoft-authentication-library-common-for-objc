@@ -215,14 +215,13 @@
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    if ([NSString msidIsStringNilOrBlank:clientId])
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId context:context error:error];
+    
+    if (!cacheItem)
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Client id is required to query account metadata cache!", nil, nil, nil, nil, nil, YES);
         return nil;
     }
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
-    MSIDAccountMetadataCacheItem *cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:error];
     return cacheItem.principalAccountId;
 }
 
