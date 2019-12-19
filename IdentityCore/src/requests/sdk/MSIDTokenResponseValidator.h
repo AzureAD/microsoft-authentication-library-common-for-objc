@@ -37,13 +37,16 @@
                                                 tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                                       accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)metadataCache
                                          requestParameters:(nonnull MSIDRequestParameters *)parameters
+                                          saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                                      error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable MSIDTokenResult *)validateAndSaveBrokerResponse:(nonnull MSIDBrokerResponse *)brokerResponse
                                                   oidcScope:(nullable NSString *)oidcScope
                                                oauthFactory:(nonnull MSIDOauth2Factory *)factory
                                                  tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
+                                       accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                               correlationID:(nullable NSUUID *)correlationID
+                                           saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                                       error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable MSIDTokenResult *)validateTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse

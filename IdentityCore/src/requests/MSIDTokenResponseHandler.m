@@ -47,12 +47,14 @@
     }
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Validate and save token response...");
+        
     NSError *validationError;
     MSIDTokenResult *tokenResult = [tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
                                                                            oauthFactory:oauthFactory
                                                                              tokenCache:tokenCache
                                                                    accountMetadataCache:accountMetadataCache
                                                                       requestParameters:requestParameters
+                                                                       saveSSOStateOnly:NO
                                                                                   error:&validationError];
        
     if (!tokenResult)
