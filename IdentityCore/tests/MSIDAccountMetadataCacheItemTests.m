@@ -38,19 +38,24 @@
 }
 
 - (void)testInitWithClientId_whenClientNil_shouldReturnNil {
-    XCTAssertNil([[MSIDAccountMetadataCacheItem alloc] initWithClientId:nil]);
+    NSString *clientId = nil;
+    XCTAssertNil([[MSIDAccountMetadataCacheItem alloc] initWithClientId:clientId]);
 }
 
 - (void)testAddAccountMetadata_whenRequiredParamsNil_shouldReturnNo {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"client-id"];
     
     NSError *error;
-    XCTAssertFalse([cacheItem addAccountMetadata:nil forHomeAccountId:@"uid.utid" error:&error]);
+    
+    MSIDAccountMetadata *accountMetadata = nil;
+    XCTAssertFalse([cacheItem addAccountMetadata:accountMetadata forHomeAccountId:@"uid.utid" error:&error]);
     XCTAssertNotNil(error);
     
     error = nil;
     MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"uid.utid" clientId:@"client-id"];
-    XCTAssertFalse([cacheItem addAccountMetadata:metadata forHomeAccountId:nil error:&error]);
+    
+    NSString *homeAccountId = nil;
+    XCTAssertFalse([cacheItem addAccountMetadata:metadata forHomeAccountId:homeAccountId error:&error]);
     XCTAssertNotNil(error);
 }
 
