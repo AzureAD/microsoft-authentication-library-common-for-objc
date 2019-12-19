@@ -59,6 +59,7 @@
     {
         if (self.sessionDismissed)
         {
+            self.webAuthSession = nil;
             return;
         }
         
