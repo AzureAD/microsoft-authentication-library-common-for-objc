@@ -65,7 +65,7 @@
         NSData *jsonData = [accountsString dataUsingEncoding:NSUTF8StringEncoding];
         NSArray *accountsJson = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:error];
                   
-        if (!accountsJson)
+        if (!accountsJson || ![accountsJson isKindOfClass:[NSArray class]])
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to deserialize accounts data");
             return nil;

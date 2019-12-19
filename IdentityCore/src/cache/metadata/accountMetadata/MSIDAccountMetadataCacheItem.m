@@ -100,7 +100,7 @@
     NSString *principalHomeAccountId = [json msidStringObjectForKey:MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY];
     NSString *principalDisplayableId = [json msidStringObjectForKey:MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY];
     
-    if (principalHomeAccountId ||principalDisplayableId)
+    if (principalHomeAccountId || principalDisplayableId)
     {
         _principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:principalDisplayableId homeAccountId:principalHomeAccountId];
     }
