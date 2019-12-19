@@ -40,6 +40,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
 
++ (BOOL)canPerformRequest;
+
 @end
 
 NS_ASSUME_NONNULL_END

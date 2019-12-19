@@ -150,6 +150,11 @@
     return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
 }
 
++ (BOOL)canPerformRequest
+{
+    return [[ASAuthorizationSingleSignOnProvider msidSharedProvider] canPerformAuthorization];
+}
+
 @end
 
 #endif
