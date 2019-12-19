@@ -21,25 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
+
+typedef NS_ENUM(NSInteger, MSIDDeviceMode)
+{
+    MSIDDeviceModePersonal = 0,
+    MSIDDeviceModeShared
+};
+
+typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)
+{
+    MSIDWorkPlaceJoinStatusNotJoined = 0,
+    MSIDWorkPlaceJoinStatusJoined
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDInteractiveTokenRequestParameters;
+@interface MSIDDeviceInfo : NSObject <MSIDJsonSerializable>
 
-@interface MSIDBrokerTokenRequest : NSObject
+@property (nonatomic) MSIDDeviceMode deviceMode;
+@property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
+@property (nonatomic, nullable) NSString *brokerVersion;
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
-@property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
-@property (nonatomic, readonly, nullable) NSString *brokerNonce;
-@property (nonatomic, readonly, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
-
-- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                brokerKey:(NSString *)brokerKey
-                   brokerApplicationToken:(NSString *)brokerApplicationToken
-                          sdkCapabilities:(nullable NSArray *)sdkCapabilities
-                                    error:(NSError **)error;
+- (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
+                 isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
+                     brokerVersion:(NSString *)brokerVersion;
 
 @end
 

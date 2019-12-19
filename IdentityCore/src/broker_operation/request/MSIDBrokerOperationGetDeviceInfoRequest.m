@@ -21,26 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDBrokerOperationGetDeviceInfoRequest.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDBrokerOperationGetDeviceInfoRequest
 
-@class MSIDInteractiveTokenRequestParameters;
++ (void)load
+{
+    if (@available(iOS 13.0, *))
+    {
+        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
+    }
+}
 
-@interface MSIDBrokerTokenRequest : NSObject
+#pragma mark - MSIDBrokerOperationRequest
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
-@property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
-@property (nonatomic, readonly, nullable) NSString *brokerNonce;
-@property (nonatomic, readonly, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
++ (NSString *)operation
+{
+    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO;
+}
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                brokerKey:(NSString *)brokerKey
-                   brokerApplicationToken:(NSString *)brokerApplicationToken
-                          sdkCapabilities:(nullable NSArray *)sdkCapabilities
-                                    error:(NSError **)error;
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    
+    return json;
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
+

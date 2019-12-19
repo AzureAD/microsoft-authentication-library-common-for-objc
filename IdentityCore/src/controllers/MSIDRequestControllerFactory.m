@@ -112,23 +112,43 @@
 #if TARGET_OS_IPHONE
     if ([parameters shouldUseBroker])
     {
+        MSIDBrokerInteractiveController *brokerController = nil;
+        
+        NSError *brokerControllerError;
+        if ([MSIDBrokerInteractiveController canPerformRequest:parameters])
+        {
+            brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                        tokenRequestProvider:tokenRequestProvider
+                                                                                          fallbackController:localController
+                                                                                                       error:&brokerControllerError];
+            
+            if (brokerControllerError)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Encountered an error creating broker controller %@", MSID_PII_LOG_MASKABLE(brokerControllerError));
+            }
+        }
+        
         if (@available(iOS 13.0, *))
         {
             if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
             {
+                brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
+                
                 return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                                                   tokenRequestProvider:tokenRequestProvider
-                                                                                                    fallbackController:localController
+                                                                                                    fallbackController:brokerController
                                                                                                                  error:error];
             }
         }
         
-        if ([MSIDBrokerInteractiveController canPerformRequest:parameters])
+        if (brokerControllerError)
         {
-            return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                            tokenRequestProvider:tokenRequestProvider
-                                                                              fallbackController:localController
-                                                                                           error:error];
+            if (error) *error = brokerControllerError;
+            return nil;
+        }
+        else if (brokerController)
+        {
+            return brokerController;
         }
     }
 #endif

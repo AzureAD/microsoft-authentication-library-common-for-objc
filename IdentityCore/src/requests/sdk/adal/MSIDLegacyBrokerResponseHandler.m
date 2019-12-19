@@ -126,7 +126,9 @@
                                                                                          oidcScope:oidcScope
                                                                                       oauthFactory:self.oauthFactory
                                                                                         tokenCache:self.tokenCache
+                                                                              accountMetadataCache:self.accountMetadataCacheAccessor
                                                                                      correlationID:correlationID
+                                                                                  saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                                              error:&intuneError];
 
         if (!intuneResult)
@@ -195,6 +197,12 @@
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, errorResponse.subError, nil, correlationId, userInfo, NO);
 
     return brokerError;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    return nil;
 }
 
 - (BOOL)canHandleBrokerResponse:(NSURL *)response

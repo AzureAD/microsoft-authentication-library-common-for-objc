@@ -26,6 +26,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenResponseValidator.h"
+#import "MSIDDeviceInfo.h"
 
 @implementation MSIDSSOTokenResponseHandler
 
@@ -48,11 +49,14 @@
         MSIDRequestParameters *parameters = [requestParameters copy];
         parameters.target = operationResponse.additionalTokenResponse.scope;
         
+        BOOL saveSSOStateOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
+        
         [tokenResponseValidator validateAndSaveTokenResponse:operationResponse.additionalTokenResponse
                                                 oauthFactory:oauthFactory
                                                   tokenCache:tokenCache
                                         accountMetadataCache:accountMetadataCache
                                            requestParameters:parameters
+                                            saveSSOStateOnly:saveSSOStateOnly
                                                        error:&localError];
         
         if (localError)

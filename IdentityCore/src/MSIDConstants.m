@@ -32,18 +32,6 @@ NSString *const MSID_DEVICE_MODEL_KEY              = @"x-client-DM";
 NSString *const MSID_APP_NAME_KEY                  = @"x-app-name";
 NSString *const MSID_APP_VER_KEY                   = @"x-app-ver";
 
-
-
-
-
-
-
-
-
-
-
-
-
 NSString *const MSID_DEFAULT_FAMILY_ID             = @"1";
 NSString *const MSID_ADAL_SDK_NAME                 = @"adal-objc";
 NSString *const MSID_MSAL_SDK_NAME                 = @"msal-objc";
