@@ -42,7 +42,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 
 @implementation MSIDSSOExtensionGetAccountsRequestIntegrationTests
 
-//#if TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
 
 - (void)testExecuteRequest_whenCouldntCreateRequestJSON_shouldReturnNilAndFillError
 {
@@ -355,4 +355,4 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 
 @end
 
-//#endif
+#endif
