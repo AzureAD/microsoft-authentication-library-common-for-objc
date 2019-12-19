@@ -66,10 +66,12 @@
         {
             NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, nil, nil, YES);
             
+            self.webAuthSession = nil;
             if (completionHandler) completionHandler(nil, cancelledError);
             return;
         }
         
+        self.webAuthSession = nil;
         completionHandler(callbackURL, authError);
     };
     
