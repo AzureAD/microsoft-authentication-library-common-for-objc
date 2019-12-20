@@ -21,28 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class MSIDAccountMetadata;
+#if MSID_ENABLE_SSO_EXTENSION
 
-#import "MSIDJsonSerializable.h"
-#import "MSIDKeyGenerator.h"
+#import "MSIDSSOExtensionGetAccountsRequestMock.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-@class MSIDAccountIdentifier;
+@implementation MSIDSSOExtensionGetAccountsRequestMock
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
-
-@property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
-
-- (nullable instancetype)initWithClientId:(NSString *)clientId;
-
-- (nullable MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
-
-- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
-          forHomeAccountId:(NSString *)homeAccountId
-                     error:(NSError **)error;
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
+{
+    if (self.authorizationControllerToReturn)
+    {
+        self.authorizationControllerToReturn.request = ssoRequest;
+        return self.authorizationControllerToReturn;
+    }
+    
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
+#endif

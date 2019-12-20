@@ -24,6 +24,7 @@
 #import "MSIDAccountMetadataCacheItem.h"
 #import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDAccountIdentifier.h"
 
 @implementation MSIDAccountMetadataCacheItem
 {
@@ -96,6 +97,14 @@
     _accountMetadataMap = [NSMutableDictionary new];
     _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
     
+    NSString *principalHomeAccountId = [json msidStringObjectForKey:MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY];
+    NSString *principalDisplayableId = [json msidStringObjectForKey:MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY];
+    
+    if (principalHomeAccountId || principalDisplayableId)
+    {
+        _principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:principalDisplayableId homeAccountId:principalHomeAccountId];
+    }
+    
     NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_MAP_CACHE_KEY ofClass:NSDictionary.class];
     for (NSString *key in accountMetaMapJson)
     {
@@ -120,6 +129,8 @@
     NSMutableDictionary *dictionary = [NSMutableDictionary dictionary];
     
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
+    dictionary[MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY] = self.principalAccountId.homeAccountId;
+    dictionary[MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY] = self.principalAccountId.displayableId;
     
     NSMutableDictionary *accountMetadataMapJson = [NSMutableDictionary new];
     for (NSString *key in _accountMetadataMap)
@@ -138,6 +149,7 @@
     MSIDAccountMetadataCacheItem *item = [[self class] allocWithZone:zone];
     item->_clientId = [self.clientId copyWithZone:zone];
     item->_accountMetadataMap = [self->_accountMetadataMap mutableDeepCopy];
+    item->_principalAccountId = [self->_principalAccountId copyWithZone:zone];
     
     return item;
 }
@@ -147,6 +159,7 @@
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + _accountMetadataMap.hash;
+    hash = hash * 31 + self.principalAccountId.hash;
     
     return hash;
 }
@@ -173,6 +186,7 @@
     BOOL result = YES;
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= ([_accountMetadataMap isEqualToDictionary:item->_accountMetadataMap]);
+    result &= (!self.principalAccountId && !item.principalAccountId) || [self.principalAccountId isEqual:item.principalAccountId];
     
     return result;
 }

@@ -21,28 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class MSIDAccountMetadata;
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
-#import "MSIDJsonSerializable.h"
-#import "MSIDKeyGenerator.h"
-
-@class MSIDAccountIdentifier;
+#if MSID_ENABLE_SSO_EXTENSION
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
+@class MSIDRequestParameters;
 
-@property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetAccountsRequest : NSObject
 
-- (nullable instancetype)initWithClientId:(NSString *)clientId;
+@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
 
-- (nullable MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                             error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
-          forHomeAccountId:(NSString *)homeAccountId
-                     error:(NSError **)error;
+- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
+
++ (BOOL)canPerformRequest;
 
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

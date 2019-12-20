@@ -21,28 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-@class MSIDAccountMetadata;
+#import "MSIDSSOExtensionGetAccountsRequest.h"
+#if MSID_ENABLE_SSO_EXTENSION
 
-#import "MSIDJsonSerializable.h"
-#import "MSIDKeyGenerator.h"
-
-@class MSIDAccountIdentifier;
+#import "MSIDAuthorizationControllerMock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetAccountsRequestMock : MSIDSSOExtensionGetAccountsRequest
 
-@property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
-
-- (nullable instancetype)initWithClientId:(NSString *)clientId;
-
-- (nullable MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
-
-- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
-          forHomeAccountId:(NSString *)homeAccountId
-                     error:(NSError **)error;
+@property (nonatomic) MSIDAuthorizationControllerMock *authorizationControllerToReturn;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif
