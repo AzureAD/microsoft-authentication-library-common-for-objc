@@ -51,4 +51,7 @@
 // Helper dispatch method that URLSessionTask can utilize
 - (void)dispatchIfNeed:(void (^)(void))block;
 
+// Required method to mock NSURLSession on iOS 13.
+- (void)defaultTaskGroup;
+
 @end
