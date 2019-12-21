@@ -139,18 +139,10 @@
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
         
-        NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
-                                                                                            mamResources:mamResources
-                                                                                                   error:&localError];
-        
-        if (!operationRequest)
-        {
-            completionBlock(nil, localError);
-            return;
-        }
+                                                                                            mamResources:mamResources];
         
         NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
         

@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic, class, readonly) NSString *operation;
-@property (nonatomic) NSString *brokerKey;
+@property (nonatomic, nullable) NSString *brokerKey;
 @property (nonatomic) NSInteger protocolVersion;
 @property (nonatomic, nullable) NSString *clientVersion;
 @property (nonatomic, nullable) NSString *clientAppVersion;
@@ -39,8 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
 keychainAccessGroup:(nullable NSString *)keychainAccessGroup
      clientMetadata:(nullable NSDictionary *)clientMetadata
-            context:(nullable id<MSIDRequestContext>)context
-              error:(NSError * _Nullable * _Nullable)error;
+            context:(nullable id<MSIDRequestContext>)context;
 
 @end
 

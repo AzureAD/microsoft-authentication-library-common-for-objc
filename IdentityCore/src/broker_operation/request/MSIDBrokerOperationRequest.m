@@ -40,20 +40,11 @@
 keychainAccessGroup:(NSString *)keychainAccessGroup
      clientMetadata:(NSDictionary *)clientMetadata
             context:(id<MSIDRequestContext>)context
-              error:(NSError **)error
 {
     NSString *accessGroup = keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup;
     __auto_type brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:accessGroup];
-    NSError *brokerError = nil;
     NSString *base64UrlKey = [brokerKeyProvider base64BrokerKeyWithContext:context
-                                                                     error:&brokerError];
-    
-    if (!base64UrlKey)
-    {
-        if (error) *error = brokerError;
-        return NO;
-    }
-    
+                                                                     error:nil];
     request.brokerKey = base64UrlKey;
     request.clientVersion = [MSIDVersion sdkVersion];
     request.protocolVersion = MSID_BROKER_PROTOCOL_VERSION_4;

@@ -133,18 +133,10 @@
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
         
-        NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationInteractiveTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                                  providerType:self.providerType
                                                                                                 enrollmentIds:enrollmentIds
-                                                                                                 mamResources:mamResources
-                                                                                                        error:&localError];
-        
-        if (!operationRequest)
-        {
-            completionBlock(nil, localError, nil);
-            return;
-        }
+                                                                                                 mamResources:mamResources];
     
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
         ssoRequest.requestedOperation = [operationRequest.class operation];

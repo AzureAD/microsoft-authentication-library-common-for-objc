@@ -41,14 +41,11 @@
        providerType:(MSIDProviderType)providerType
       enrollmentIds:(NSDictionary *)enrollmentIds
        mamResources:(NSDictionary *)mamResources
-              error:(NSError **)error
 {
-    BOOL result = [self fillRequest:request
-                keychainAccessGroup:parameters.keychainAccessGroup
-                     clientMetadata:parameters.appRequestMetadata
-                            context:parameters
-                              error:error];
-    if (!result) return NO;
+    [self fillRequest:request
+  keychainAccessGroup:parameters.keychainAccessGroup
+       clientMetadata:parameters.appRequestMetadata
+              context:parameters];
     
     request.configuration = parameters.msidConfiguration;
     request.providerType = providerType;
