@@ -39,6 +39,8 @@ static WKWebViewConfiguration *s_webConfig;
     id _foregroundObserver;
 }
 
+@property (nonatomic) BOOL presentInParentController;
+
 @end
 
 @implementation MSIDWebviewUIController
@@ -78,6 +80,7 @@ static WKWebViewConfiguration *s_webConfig;
     
     if (_webView)
     {
+        self.presentInParentController = NO;
         return YES;
     }
     
@@ -111,11 +114,15 @@ static WKWebViewConfiguration *s_webConfig;
     [rootView addSubview:_webView];
     [rootView addSubview:_loadingIndicator];
     
+    self.presentInParentController = YES;
+    
     return YES;
 }
 
 - (void)presentView
 {
+    if (!self.presentInParentController) return;
+    
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
     
@@ -137,7 +144,7 @@ static WKWebViewConfiguration *s_webConfig;
     
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
-    if (_parentController)
+    if (_parentController && self.presentInParentController)
     {
         [_parentController dismissViewControllerAnimated:YES completion:completion];
     }
