@@ -333,11 +333,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 #pragma unused(sourceApplication)
     return YES;
 #else
-    BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];
-
-#ifdef DOGFOOD_BROKER
-    isBrokerResponse = isBrokerResponse || [MSID_BROKER_APP_BUNDLE_ID_DF isEqualToString:sourceApplication];
-#endif
+    BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication]
+                            || [MSID_BROKER_APP_BUNDLE_ID_DF isEqualToString:sourceApplication];
 
     return isBrokerResponse;
 #endif
