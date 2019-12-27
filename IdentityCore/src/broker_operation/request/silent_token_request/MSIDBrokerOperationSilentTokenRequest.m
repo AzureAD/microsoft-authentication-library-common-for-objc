@@ -44,11 +44,9 @@
                               providerType:(MSIDProviderType)providerType
                              enrollmentIds:(NSDictionary *)enrollmentIds
                               mamResources:(NSDictionary *)mamResources
-                                     error:(NSError **)error
 {
     __auto_type request = [MSIDBrokerOperationSilentTokenRequest new];
-    BOOL result = [self fillRequest:request withParameters:parameters providerType:providerType enrollmentIds:enrollmentIds mamResources:mamResources error:error];
-    if (!result) return nil;
+    [self fillRequest:request withParameters:parameters providerType:providerType enrollmentIds:enrollmentIds mamResources:mamResources];
     
     request.accountIdentifier = parameters.accountIdentifier;
     

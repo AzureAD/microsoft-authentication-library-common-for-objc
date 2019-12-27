@@ -108,18 +108,10 @@
     // TODO: pass familyId, will be addressed in a separate PR
     // TODO: pass returnOnlySignedInAccounts == false, will be addressed in a separate PR
     
-    NSError *paramError;
-    BOOL paramResult = [MSIDBrokerOperationRequest fillRequest:getAccountsRequest
-                                           keychainAccessGroup:self.requestParameters.keychainAccessGroup
-                                                clientMetadata:self.requestParameters.appRequestMetadata
-                                                       context:self.requestParameters
-                                                         error:&paramError];
-    
-    if (!paramResult)
-    {
-        completionBlock(nil, NO, paramError);
-        return;
-    }
+    [MSIDBrokerOperationRequest fillRequest:getAccountsRequest
+                        keychainAccessGroup:self.requestParameters.keychainAccessGroup
+                             clientMetadata:self.requestParameters.appRequestMetadata
+                                    context:self.requestParameters];
     
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
     ssoRequest.requestedOperation = [getAccountsRequest.class operation];
