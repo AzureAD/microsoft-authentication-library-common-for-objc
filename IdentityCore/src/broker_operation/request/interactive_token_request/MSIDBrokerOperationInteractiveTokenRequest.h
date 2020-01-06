@@ -41,8 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)tokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                               providerType:(MSIDProviderType)providerType
                              enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources
-                                     error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+                              mamResources:(nullable NSDictionary *)mamResources;
 
 @end
 

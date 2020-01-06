@@ -55,6 +55,7 @@
 - (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
                                 brokerKey:(NSString *)brokerKey
                    brokerApplicationToken:(NSString *)brokerApplicationToken
+                          sdkCapabilities:(NSArray *)sdkCapabilities
                                     error:(NSError **)error
 {
     self = [super init];
@@ -65,6 +66,7 @@
         _brokerKey = brokerKey;
         _brokerNonce = [[NSUUID new] UUIDString];
         _brokerApplicationToken = brokerApplicationToken;
+        _sdkBrokerCapabilities = sdkCapabilities;
 
         if (![self initPayloadContentsWithError:error])
         {
@@ -164,6 +166,12 @@
     [queryDictionary msidSetNonEmptyString:clientAppName forKey:@"client_app_name"];
     [queryDictionary msidSetNonEmptyString:clientAppVersion forKey:@"client_app_version"];
     [queryDictionary msidSetNonEmptyString:self.brokerApplicationToken forKey:@"application_token"];
+    
+    if ([self.sdkBrokerCapabilities count])
+    {
+        NSString *capabilitiesString = [self.sdkBrokerCapabilities componentsJoinedByString:@","];
+        [queryDictionary msidSetNonEmptyString:capabilitiesString forKey:MSID_BROKER_SDK_CAPABILITIES_KEY];
+    }
 
     return queryDictionary;
 }

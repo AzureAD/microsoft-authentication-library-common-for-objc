@@ -25,6 +25,7 @@
 #import "MSIDAADTokenResponse.h"
 
 @class MSIDAuthority;
+@class MSIDDeviceInfo;
 
 @interface MSIDBrokerResponse : MSIDURLFormObject
 
@@ -43,6 +44,7 @@
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;
 @property (readonly) MSIDAuthority *msidAuthority;
-@property (readonly) BOOL accessTokenInvalidForResponse;
+@property (readonly) BOOL ignoreAccessTokenCache;
+@property (readonly) MSIDDeviceInfo *deviceInfo;
 
 @end

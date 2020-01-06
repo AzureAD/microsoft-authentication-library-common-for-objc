@@ -112,18 +112,10 @@
     signoutRequest.accountIdentifier = self.requestParameters.accountIdentifier;
     signoutRequest.signoutFromBrowser = self.shouldSignoutFromBrowser;
     
-    NSError *paramError;
-    BOOL paramResult = [MSIDBrokerOperationRequest fillRequest:signoutRequest
-                                           keychainAccessGroup:self.requestParameters.keychainAccessGroup
-                                                clientMetadata:self.requestParameters.appRequestMetadata
-                                                       context:self.requestParameters
-                                                         error:&paramError];
-    
-    if (!paramResult)
-    {
-        completionBlock(NO, paramError);
-        return;
-    }
+    [MSIDBrokerOperationRequest fillRequest:signoutRequest
+                        keychainAccessGroup:self.requestParameters.keychainAccessGroup
+                             clientMetadata:self.requestParameters.appRequestMetadata
+                                    context:self.requestParameters];
     
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
     ssoRequest.requestedOperation = [signoutRequest.class operation];

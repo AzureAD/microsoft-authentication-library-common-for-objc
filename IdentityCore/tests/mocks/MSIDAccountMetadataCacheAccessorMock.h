@@ -42,6 +42,12 @@ struct MSIDAccountMetadataCacheMockGetAuthorityParameters
     BOOL instanceAware;
 };
 
+struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams
+{
+    MSIDAccountIdentifier * _Nullable principalAccountId;
+    NSString * _Nullable clientId;
+};
+
 @interface MSIDAccountMetadataCacheAccessorMock : MSIDAccountMetadataCacheAccessor
 
 @property (nonatomic) NSInteger updateAuthorityURLInvokedCount;
@@ -50,6 +56,14 @@ struct MSIDAccountMetadataCacheMockGetAuthorityParameters
 @property (nonatomic) NSInteger getAuthorityURLInvokedCount;
 @property (nonatomic) struct MSIDAccountMetadataCacheMockGetAuthorityParameters getAuthorityProvidedParams;
 @property (nonatomic) NSURL *authorityURLToReturn;
+
+@property (nonatomic, nullable) MSIDAccountIdentifier *mockedPrincipalAccountId;
+@property (nonatomic, nullable) NSError *mockedPrincipalAccountIdError;
+
+@property (nonatomic) BOOL updatePrincipalAccountIdResult;
+@property (nonatomic) NSError *updatePrincipalAccountIdError;
+@property (nonatomic) NSInteger updatePrincipalAccountIdInvokedCount;
+@property (nonatomic) struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams updatePrincipalAccountIdParams;
 
 @end
 

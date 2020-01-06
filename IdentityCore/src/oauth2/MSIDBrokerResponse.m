@@ -25,6 +25,7 @@
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDBrokerResponse+Internal.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDDeviceInfo.h"
 
 @implementation MSIDBrokerResponse
 
@@ -46,6 +47,7 @@ MSID_FORM_ACCESSOR(@"application_token", applicationToken);
     if (self)
     {
         [self initDerivedProperties];
+        _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:_urlForm error:nil];
     }
 
     return self;
@@ -62,9 +64,9 @@ MSID_FORM_ACCESSOR(@"application_token", applicationToken);
     return _urlForm[@"scope"];
 }
 
-- (BOOL)accessTokenInvalidForResponse
+- (BOOL)ignoreAccessTokenCache
 {
-    return NO;
+    return self.deviceInfo.deviceMode == MSIDDeviceModeShared;
 }
 
 @end

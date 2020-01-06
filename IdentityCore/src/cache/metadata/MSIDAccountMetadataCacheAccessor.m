@@ -166,10 +166,9 @@
                                   context:(id<MSIDRequestContext>)context
                                     error:(NSError **)error
 {
-    if ([NSString msidIsStringNilOrBlank:homeAccountId]
-        || [NSString msidIsStringNilOrBlank:clientId])
+    if ([NSString msidIsStringNilOrBlank:homeAccountId])
     {
-        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Both homeAccountId and clientId are needed to mark signed out state!", nil, nil, nil, nil, nil, YES);
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"HomeAccountId is needed to mark signed out state!", nil, nil, nil, nil, nil, YES);
         return NO;
     }
     
@@ -206,6 +205,49 @@
     }
     
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
+    
+    return [_metadataCache saveAccountMetadataCacheItem:cacheItem
+                                                    key:key
+                                                context:context error:error];
+}
+
+- (MSIDAccountIdentifier *)principalAccountIdForClientId:(NSString *)clientId
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error
+{
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId context:context error:error];
+    
+    if (!cacheItem)
+    {
+        return nil;
+    }
+    
+    return cacheItem.principalAccountId;
+}
+
+- (BOOL)updatePrincipalAccountIdForClientId:(NSString *)clientId
+                         principalAccountId:(MSIDAccountIdentifier *)principalAccountId
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error
+{
+    NSError *accountMetadataError;
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId context:context error:&accountMetadataError];
+    
+    if (accountMetadataError)
+    {
+        if (error) *error = accountMetadataError;
+        return NO;
+    }
+    
+    if (!cacheItem)
+    {
+        cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:clientId];
+    }
+    
+    cacheItem.principalAccountId = principalAccountId;
+    
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
+    
     return [_metadataCache saveAccountMetadataCacheItem:cacheItem
                                                     key:key
                                                 context:context error:error];
@@ -217,6 +259,12 @@
                                                                       context:(id<MSIDRequestContext>)context
                                                                         error:(NSError **)error
 {
+    if ([NSString msidIsStringNilOrBlank:clientId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"ClientId is required to query account metadata cache!", nil, nil, nil, nil, nil, YES);
+        return nil;
+    }
+    
     NSError *localError;
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
     MSIDAccountMetadataCacheItem *cacheItem = [_metadataCache accountMetadataCacheItemWithKey:key context:context error:&localError];
@@ -224,6 +272,5 @@
     
     return cacheItem;
 }
-
 
 @end

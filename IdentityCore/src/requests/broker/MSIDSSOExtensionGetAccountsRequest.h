@@ -22,25 +22,27 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+
+#if MSID_ENABLE_SSO_EXTENSION
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDInteractiveTokenRequestParameters;
+@class MSIDRequestParameters;
 
-@interface MSIDBrokerTokenRequest : NSObject
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetAccountsRequest : NSObject
 
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
-@property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
-@property (nonatomic, readonly, nullable) NSString *brokerNonce;
-@property (nonatomic, readonly, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
+@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
 
-- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                brokerKey:(NSString *)brokerKey
-                   brokerApplicationToken:(NSString *)brokerApplicationToken
-                          sdkCapabilities:(nullable NSArray *)sdkCapabilities
-                                    error:(NSError **)error;
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                             error:(NSError * _Nullable * _Nullable)error;
+
+- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
+
++ (BOOL)canPerformRequest;
 
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

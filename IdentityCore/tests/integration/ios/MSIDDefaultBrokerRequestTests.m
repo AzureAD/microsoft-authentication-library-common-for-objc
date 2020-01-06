@@ -41,7 +41,7 @@
     MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -94,7 +94,7 @@
     parameters.instanceAware = YES;
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -129,7 +129,7 @@
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user" homeAccountId:@"myHomeAccountId"];
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -183,7 +183,7 @@
     parameters.loginHint = @"myuser";
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     
@@ -236,7 +236,7 @@
     parameters.extraScopesToConsent = @"extraScope1 extraScope2";
     
     NSError *error = nil;
-    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
     XCTAssertNotNil(request);
     XCTAssertNil(error);
     

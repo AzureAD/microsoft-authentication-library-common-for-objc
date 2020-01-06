@@ -66,6 +66,7 @@
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
+    XCTAssertEqualObjects(json[@"expires_on"], @"0");
     XCTAssertEqualObjects(json[@"ext_expires_in"], @"0");
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"0");
     XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
@@ -76,6 +77,8 @@
     XCTAssertEqualObjects(json[@"success"], @"1");
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
     XCTAssertEqualObjects(json[@"additional_token_reponse"], @"{\"token_type\":\"Bearer\",\"scope\":\"scope 1\",\"ext_expires_in\":\"0\",\"provider_type\":\"provider_aad_v2\",\"ext_expires_on\":\"0\",\"expires_on\":\"0\",\"id_token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ\",\"access_token\":\"access_token\",\"expires_in\":\"300\"}");
+    XCTAssertEqualObjects(json[@"device_mode"], @"personal");
+    XCTAssertEqualObjects(json[@"wpj_status"], @"notJoined");
 }
 
 - (void)testJsonDictionary_whenNoAdditionalTokenResponseForSuccessResponse_shouldReturnJson
@@ -242,6 +245,9 @@
         @"success": @"1",
         @"token_type": @"Bearer",
         @"additional_token_reponse": @"{\"token_type\":\"Bearer\",\"scope\":\"scope 1\",\"ext_expires_in\":\"0\",\"provider_type\":\"provider_aad_v2\",\"ext_expires_on\":\"0\",\"expires_on\":\"0\",\"id_token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ\",\"access_token\":\"access_token\",\"expires_in\":\"300\"}",
+        @"device_mode": @"personal",
+        @"wpj_status": @"notJoined",
+        @"broker_version": @"1.2"
     };
     
     NSError *error;
@@ -253,6 +259,9 @@
     XCTAssertNotNil(response.tokenResponse);
     XCTAssertNotNil(response.additionalTokenResponse);
     XCTAssertTrue(response.success);
+    XCTAssertEqual(@"1.2", response.deviceInfo.brokerVersion);
+    XCTAssertEqual(MSIDDeviceModePersonal, response.deviceInfo.deviceMode);
+    XCTAssertEqual(MSIDWorkPlaceJoinStatusNotJoined, response.deviceInfo.wpjStatus);
 }
 
 - (void)testInitWithJSONDictionary_whenNoAdditionalTokenResponseForSuccessResponse_shouldInitResponse
@@ -359,6 +368,7 @@
         @"operation_response_type": @"operation_token_response",
         @"provider_type": @"provider_aad_v2",
         @"error": @"invalid_grant",
+        @"suberror": @"consent_required",
         @"success": @"0",
     };
     
@@ -370,6 +380,7 @@
     XCTAssertNil(response.authority);
     XCTAssertNotNil(response.tokenResponse);
     XCTAssertEqualObjects(@"invalid_grant", response.tokenResponse.error);
+    XCTAssertEqualObjects(@"consent_required", ((MSIDAADTokenResponse *)response.tokenResponse).suberror);
     XCTAssertNil(response.additionalTokenResponse);
     XCTAssertFalse(response.success);
 }

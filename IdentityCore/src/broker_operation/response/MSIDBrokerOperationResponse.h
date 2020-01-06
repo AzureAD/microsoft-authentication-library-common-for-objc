@@ -40,8 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) MSIDDeviceInfo *deviceInfo;
 
-// TODO: add other properties.
-
 @property (nonatomic) NSNumber *httpStatusCode;
 @property (nonatomic, nullable) NSDictionary *httpHeaders;
 @property (nonatomic) NSString *httpVersion;

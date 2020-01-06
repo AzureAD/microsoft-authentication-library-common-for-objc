@@ -62,7 +62,7 @@
                              oauthFactory:(MSIDOauth2Factory *)oauthFactory
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                     accountMetadataCache:(__unused MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                     accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -101,6 +101,7 @@
         _providerType = [[oauthFactory class] providerType];
         _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
         _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
+        _accountMetadataCache = accountMetadataCache;
     }
     
     return self;
@@ -139,18 +140,10 @@
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
         
-        NSError *localError;
         __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
-                                                                                            mamResources:mamResources
-                                                                                                   error:&localError];
-        
-        if (!operationRequest)
-        {
-            completionBlock(nil, localError);
-            return;
-        }
+                                                                                            mamResources:mamResources];
         
         NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
         

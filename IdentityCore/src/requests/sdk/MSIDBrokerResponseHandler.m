@@ -35,6 +35,7 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDDeviceInfo.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -42,6 +43,7 @@
 @property (nonatomic, readwrite) MSIDBrokerCryptoProvider *brokerCryptoProvider;
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readwrite) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic, readwrite) MSIDAccountMetadataCacheAccessor *accountMetadataCacheAccessor;
 
 @property (nonatomic, readwrite) BOOL sourceApplicationAvailable;
 @property (nonatomic, readwrite) NSString *brokerNonce;
@@ -115,6 +117,14 @@
         if (error) *error = cacheError;
         return nil;
     }
+    
+    NSError *accountMetadataError;
+    self.accountMetadataCacheAccessor = [self accountMetadataCacheWithKeychainGroup:keychainGroup error:&accountMetadataError];
+    
+    if (accountMetadataError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create account metadata cache with error %@", MSID_PII_LOG_MASKABLE(accountMetadataError));
+    }
 
     NSError *brokerError = nil;
     MSIDBrokerResponse *brokerResponse = [self brokerResponseFromEncryptedQueryParams:queryParamsMap
@@ -146,7 +156,9 @@
                                                             oidcScope:oidcScope
                                                          oauthFactory:self.oauthFactory
                                                            tokenCache:self.tokenCache
+                                                 accountMetadataCache:self.accountMetadataCacheAccessor
                                                         correlationID:correlationId
+                                                     saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                 error:error];
 }
 
@@ -246,6 +258,13 @@
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
                                                   error:(__unused NSError **)error
+{
+    NSAssert(NO, @"Abstract method, implemented in subclasses");
+    return nil;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;

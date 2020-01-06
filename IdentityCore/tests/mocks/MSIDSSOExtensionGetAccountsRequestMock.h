@@ -21,26 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDSSOExtensionGetAccountsRequest.h"
+#if MSID_ENABLE_SSO_EXTENSION
+
+#import "MSIDAuthorizationControllerMock.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDInteractiveTokenRequestParameters;
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetAccountsRequestMock : MSIDSSOExtensionGetAccountsRequest
 
-@interface MSIDBrokerTokenRequest : NSObject
-
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
-@property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
-@property (nonatomic, readonly, nullable) NSString *brokerNonce;
-@property (nonatomic, readonly, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
-
-- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                brokerKey:(NSString *)brokerKey
-                   brokerApplicationToken:(NSString *)brokerApplicationToken
-                          sdkCapabilities:(nullable NSArray *)sdkCapabilities
-                                    error:(NSError **)error;
+@property (nonatomic) MSIDAuthorizationControllerMock *authorizationControllerToReturn;
 
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

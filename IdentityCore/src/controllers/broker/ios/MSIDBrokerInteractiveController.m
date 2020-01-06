@@ -206,6 +206,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     MSIDBrokerTokenRequest *brokerRequest = [self.tokenRequestProvider brokerTokenRequestWithParameters:self.interactiveParameters
                                                                                               brokerKey:base64UrlKey
                                                                                  brokerApplicationToken:applicationToken
+                                                                                        sdkCapabilities:self.sdkBrokerCapabilities
                                                                                                   error:&brokerError];
 
     if (!brokerRequest)
@@ -215,7 +216,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         completionBlockWrapper(nil, brokerError);
         return;
     }
-
+    
     NSDictionary *brokerResumeDictionary = brokerRequest.resumeDictionary;
     [[NSUserDefaults standardUserDefaults] setObject:brokerResumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
 
@@ -332,11 +333,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 #pragma unused(sourceApplication)
     return YES;
 #else
-    BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication];
-
-#ifdef DOGFOOD_BROKER
-    isBrokerResponse = isBrokerResponse || [MSID_BROKER_APP_BUNDLE_ID_DF isEqualToString:sourceApplication];
-#endif
+    BOOL isBrokerResponse = [MSID_BROKER_APP_BUNDLE_ID isEqualToString:sourceApplication]
+                            || [MSID_BROKER_APP_BUNDLE_ID_DF isEqualToString:sourceApplication];
 
     return isBrokerResponse;
 #endif
@@ -356,7 +354,7 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
     // occuring between ApplicationWillEnterForeground and ApplicationDidBecomeActive.
 
     // https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/Inter-AppCommunication/Inter-AppCommunication.html#//apple_ref/doc/uid/TP40007072-CH6-SW8
-
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appEnteredForeground:)
                                                  name:UIApplicationWillEnterForegroundNotification

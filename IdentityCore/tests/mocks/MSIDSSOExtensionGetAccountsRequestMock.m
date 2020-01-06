@@ -21,26 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#if MSID_ENABLE_SSO_EXTENSION
 
-NS_ASSUME_NONNULL_BEGIN
+#import "MSIDSSOExtensionGetAccountsRequestMock.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-@class MSIDInteractiveTokenRequestParameters;
+@implementation MSIDSSOExtensionGetAccountsRequestMock
 
-@interface MSIDBrokerTokenRequest : NSObject
-
-@property (nonatomic, readonly, nullable) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic, readonly, nullable) NSDictionary *resumeDictionary;
-@property (nonatomic, readonly, nullable) NSURL *brokerRequestURL;
-@property (nonatomic, readonly, nullable) NSString *brokerNonce;
-@property (nonatomic, readonly, nullable) NSArray<NSString *> *sdkBrokerCapabilities;
-
-- (instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                brokerKey:(NSString *)brokerKey
-                   brokerApplicationToken:(NSString *)brokerApplicationToken
-                          sdkCapabilities:(nullable NSArray *)sdkCapabilities
-                                    error:(NSError **)error;
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
+{
+    if (self.authorizationControllerToReturn)
+    {
+        self.authorizationControllerToReturn.request = ssoRequest;
+        return self.authorizationControllerToReturn;
+    }
+    
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
+#endif
