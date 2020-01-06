@@ -490,7 +490,7 @@
                                           accountIdentifier:accountIdentifier
                                                     context:context
                                                       error:error];
-        accounts = [self filterSignedOutAccountsFromOtherAccessor:accounts accountMetadataCache:accountMetadataCache clientId:clientId noReturnAccountUPNs:noReturnAccountUPNSet];
+        accounts = [self filterSignedOutAccountsFromOtherAccessor:accounts accountMetadataCache:accountMetadataCache clientId:clientId noReturnAccountUPNs:noReturnAccountUPNSet knownReturnAccounts:returnAccountsSet];
         
         [returnAccountsSet addObjectsFromArray:accounts];
     }
@@ -1188,6 +1188,7 @@
                                                 accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                                             clientId:(NSString *)clientId
                                                  noReturnAccountUPNs:(NSSet<NSString *> *)noReturnAccountUPNSet
+                                                 knownReturnAccounts:(NSSet<MSIDAccount *> *)knownReturnAccounts
 {
     NSMutableArray *returnAccounts = [NSMutableArray new];
     for (MSIDAccount *account in accounts)
@@ -1196,6 +1197,10 @@
         if ([NSString msidIsStringNilOrBlank:account.accountIdentifier.homeAccountId])
         {
             if ([noReturnAccountUPNSet containsObject:account.username]) continue;
+        }
+        else if ([knownReturnAccounts containsObject:account])
+        {
+            continue;
         }
         else
         {

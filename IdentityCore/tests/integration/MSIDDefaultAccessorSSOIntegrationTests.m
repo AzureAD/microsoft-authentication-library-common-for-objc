@@ -107,7 +107,6 @@
 {
     [super tearDown];
     [_defaultDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
-//    [_defaultDataSource removeMetadataItemsWithKey:[MSIDCacheKey new] context:nil error:nil];
     [_otherDataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
 
@@ -1679,7 +1678,7 @@
                   inputScopes:@"user.read user.write"
                           uid:@"uid2"
                          utid:@"utid2"
-                  accessToken:@"access token"
+                  accessToken:@"access token 2"
                  refreshToken:@"refresh token 2"
                      familyId:nil
                      accessor:_nonSSOAccessor];
@@ -1689,7 +1688,7 @@
     XCTAssertTrue([_accountMetadataCache updateSignInStateForHomeAccountId:@"uid2.utid2" clientId:@"test_client_id2" state:MSIDAccountMetadataStateSignedOut context:nil error:&error]);
     XCTAssertNil(error);
     
-    // setup legacy cache with 1 account
+    // setup legacy cache with 2 accounts, one is duplicate as it also appears in default cache
     [self saveResponseWithUPN:@"upn3@test.com"
                      clientId:@"test_client_id3"
                     authority:@"https://login.windows.net/common"
@@ -1697,8 +1696,20 @@
                   inputScopes:@"user.read user.write"
                           uid:@"uid3"
                          utid:@"utid3"
+                  accessToken:@"access token 3"
+                 refreshToken:@"refresh token 3"
+                     familyId:@"3"
+                     accessor:_otherAccessor];
+    
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/utid"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
                   accessToken:@"access token"
-                 refreshToken:@"refresh token 2"
+                 refreshToken:@"refresh token"
                      familyId:@"3"
                      accessor:_otherAccessor];
     
