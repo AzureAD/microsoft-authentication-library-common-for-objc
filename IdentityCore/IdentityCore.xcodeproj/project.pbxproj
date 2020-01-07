@@ -5383,8 +5383,6 @@
 				B2DD4B4220A934BC0047A66E /* MSIDTokenFilteringHelperTests.m in Sources */,
 				239DF9C320E04BC9002D428B /* MSIDADFSAuthorityTests.m in Sources */,
 				9652905C229E03FC00862A2E /* MSIDAccountMetadataTests.m in Sources */,
-				9652905C229E03FC00862A2E /* MSIDAccountMetadataTests.m in Sources */,
-				9652905C229E03FC00862A2E /* MSIDAccountMetadataTests.m in Sources */,
 				B2936F7320ABDEF40050C585 /* MSIDBaseTokenTests.m in Sources */,
 				B2C17AF41FC7A6BC0070A514 /* MSIDTestLogger.m in Sources */,
 				23B37D1E20CA098E0018722F /* MSIDCacheTests.m in Sources */,
