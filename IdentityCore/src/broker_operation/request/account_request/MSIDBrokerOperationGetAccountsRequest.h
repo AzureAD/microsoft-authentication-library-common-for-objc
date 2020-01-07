@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSString *clientId;
 @property (nonatomic) NSString *familyId;
+@property (nonatomic) BOOL returnOnlySignedInAccounts;
 
 // TODO: if we want to support more sophisticated account query.
 //@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;

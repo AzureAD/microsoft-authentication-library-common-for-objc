@@ -59,6 +59,12 @@
             }
             return nil;
         }
+        
+        _returnOnlySignedInAccounts = YES;
+        if(json[MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY])
+        {
+            _returnOnlySignedInAccounts = [json msidBoolObjectForKey:MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY];
+        }
     }
     
     return self;
@@ -73,6 +79,7 @@
     json[MSID_BROKER_CLIENT_ID_KEY] = self.clientId;
     
     json[MSID_BROKER_FAMILY_ID_KEY] = self.familyId;
+    json[MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY] = @(self.returnOnlySignedInAccounts);
     
     return json;
 }
