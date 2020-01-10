@@ -93,6 +93,24 @@
     XCTAssertEqual(request.returnOnlySignedInAccounts, NO);
 }
 
+- (void)testInitWithJSONDictionary_whenSignedInAccountsOnlyInvalidValue_shouldSetDefaultValue {
+    NSDictionary *json = @{MSID_BROKER_KEY : @"I87KMS",
+                           MSID_BROKER_PROTOCOL_VERSION_KEY : @"3",
+                           MSID_BROKER_CLIENT_VERSION_KEY : @"1.0",
+                           MSID_BROKER_CLIENT_APP_VERSION_KEY : @"10.3.4",
+                           MSID_BROKER_CLIENT_APP_NAME_KEY : @"Outlook",
+                           MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
+                           MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
+                           MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY : [NSSet new],
+    };
+
+    NSError *error;
+    MSIDBrokerOperationGetAccountsRequest *request = [[MSIDBrokerOperationGetAccountsRequest alloc] initWithJSONDictionary:json error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertEqual(request.returnOnlySignedInAccounts, YES);
+}
+
 - (void)testInitWithJSONDictionary_whenClientIdMissing_shouldReturnNil {
     NSDictionary *json = @{@"operation" : @"get_accounts",
                            MSID_BROKER_KEY : @"I87KMS",
@@ -131,7 +149,7 @@
                                    MSID_BROKER_CORRELATION_ID_KEY : @"A8AAEF5C-6100-4D85-9D8C-B877BDF96043",
                                    MSID_BROKER_CLIENT_ID_KEY : @"my-client-id",
                                    MSID_BROKER_FAMILY_ID_KEY : @"1",
-                                   MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY : @1,
+                                   MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY : @"1",
     };
     
     XCTAssertEqualObjects(request.jsonDictionary, expectedJson);

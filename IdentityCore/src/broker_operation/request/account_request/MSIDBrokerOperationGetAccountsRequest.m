@@ -61,7 +61,7 @@
         }
         
         _returnOnlySignedInAccounts = YES;
-        if(json[MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY])
+        if ([json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY required:YES error:nil])
         {
             _returnOnlySignedInAccounts = [json msidBoolObjectForKey:MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY];
         }
@@ -79,7 +79,7 @@
     json[MSID_BROKER_CLIENT_ID_KEY] = self.clientId;
     
     json[MSID_BROKER_FAMILY_ID_KEY] = self.familyId;
-    json[MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY] = @(self.returnOnlySignedInAccounts);
+    json[MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY] = [@(self.returnOnlySignedInAccounts) stringValue];
     
     return json;
 }
