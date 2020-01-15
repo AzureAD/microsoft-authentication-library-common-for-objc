@@ -44,7 +44,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSDictionary *httpHeaders;
 @property (nonatomic) NSString *httpVersion;
 
+@property (nonatomic, nullable) NSHTTPURLResponse *httpResponse;
+@property (nonatomic, nullable) NSData *httpBody;
+@property (nonatomic, nullable) NSError *httpError;
+@property (nonatomic) BOOL isBrowserResponse;
+
 - (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo;
+- (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(NSData *)httpBody error:(NSError *)httpError;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

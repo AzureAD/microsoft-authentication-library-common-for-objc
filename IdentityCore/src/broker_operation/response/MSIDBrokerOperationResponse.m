@@ -51,6 +51,21 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
     return self;
 }
 
+- (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(NSData *)httpBody error:(NSError *)httpError
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _httpResponse = httpResponse;
+        _httpBody = httpBody;
+        _httpError = httpError;
+        _isBrowserResponse = YES;
+    }
+    
+    return self;
+}
+
 + (NSString *)responseType
 {
     return MSID_JSON_TYPE_BROKER_OPERATION_GENERIC_RESPONSE;

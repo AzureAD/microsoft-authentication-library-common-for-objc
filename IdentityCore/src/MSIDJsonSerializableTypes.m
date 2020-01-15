@@ -31,6 +31,7 @@ MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_REMOVE_ACCOUNT = @"rem
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_SIGNOUT_ACCOUNT = @"signout_account_operation";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_ACCOUNTS = @"get_accounts_operation";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO = @"get_device_info";
+MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT = @"get_prt";
 
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_ACCOUNTS_RESPONSE = @"operation_get_accounts_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GENERIC_RESPONSE = @"operation_generic_response";

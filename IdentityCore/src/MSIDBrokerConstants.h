@@ -71,3 +71,4 @@ extern NSString * _Nonnull const MSID_MSAL_BROKER_MESSAGE_VERSION;
 extern NSString * _Nonnull const MSID_AUTHENTICATOR_REDIRECT_URI;
 extern NSString * _Nonnull const MSID_BROKER_SDK_CAPABILITIES_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY;
+extern NSString * _Nonnull const MSID_BROKER_BROWSER_REQUEST_KEY;
