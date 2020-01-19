@@ -286,7 +286,7 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
-- (void)testInteractiveRequestFlow_whenAccountMismatch_shouldReturnNilResultWithError
+- (void)testInteractiveRequestFlow_whenAccountMismatch_andShouldValidateResultAccountYES_shouldReturnNilResultWithError
 {
     __block NSUUID *correlationId = [NSUUID new];
 
@@ -305,6 +305,7 @@
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
     parameters.enablePkce = YES;
+    parameters.shouldValidateResultAccount = YES;
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
 

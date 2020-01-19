@@ -1622,7 +1622,7 @@
                                                                                  homeAccountId:@"home.id"];
 
     MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNil(account);
@@ -1649,12 +1649,86 @@
 
     MSIDAuthority *authority = [@"https://login.windows.net/contoso.com" aadAuthority];
 
-    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority context:nil error:&error];
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:authority realmHint:nil context:nil error:&error];
 
     XCTAssertNil(error);
     XCTAssertNotNil(account);
     XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.contoso.com");
     XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy.id");
+}
+
+- (void)testGetAccount_whenMultipleAccountsPresent_andRealmHintProvided_shouldReturnMatchingAccount
+{
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/non.matching.realm"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"home"
+                         utid:@"contoso.com"
+                     tenantId:@"non.matching.realm"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:nil
+                     accessor:_defaultAccessor];
+    
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/matching.realm"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"home"
+                         utid:@"contoso.com"
+                     tenantId:@"matching.realm"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:nil
+                     accessor:_defaultAccessor];
+
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
+                                                                                 homeAccountId:@"home.contoso.com"];
+
+    NSError *error = nil;
+
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.contoso.com");
+    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy.id");
+    XCTAssertEqualObjects(account.realm, @"matching.realm");
+}
+
+- (void)testGetAccount_whenMultipleAccountsPresent_andNonMatchingRealmHintProvided_shouldReturnAnyAccount
+{
+    [self saveResponseWithUPN:@"legacy.id"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/non.matching.realm2"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"home"
+                         utid:@"contoso.com"
+                     tenantId:@"non.matching.realm2"
+                  accessToken:@"access token"
+                 refreshToken:@"refresh token"
+                     familyId:nil
+                appIdentifier:nil
+                     accessor:_defaultAccessor];
+
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
+                                                                                 homeAccountId:@"home.contoso.com"];
+
+    NSError *error = nil;
+
+    MSIDAccount *account = [_defaultAccessor getAccountForIdentifier:identifier authority:nil realmHint:@"matching.realm" context:nil error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(account);
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"home.contoso.com");
+    XCTAssertEqualObjects(account.accountIdentifier.displayableId, @"legacy.id");
+    XCTAssertEqualObjects(account.realm, @"non.matching.realm2");
 }
 
 #pragma mark - Get access tokens
@@ -2523,7 +2597,36 @@
               appIdentifier:(NSString *)appIdentifier
                    accessor:(id<MSIDCacheAccessor>)accessor
 {
-    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:upn subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:utid];
+    [self saveResponseWithUPN:upn
+                     clientId:clientId
+                    authority:authority
+               responseScopes:responseScopes
+                  inputScopes:inputScopes
+                          uid:uid
+                         utid:utid
+                     tenantId:utid
+                  accessToken:accessToken
+                 refreshToken:refreshToken
+                     familyId:familyId
+                appIdentifier:appIdentifier
+                     accessor:accessor];
+}
+
+- (void)saveResponseWithUPN:(NSString *)upn
+                   clientId:(NSString *)clientId
+                  authority:(NSString *)authority
+             responseScopes:(NSString *)responseScopes
+                inputScopes:(NSString *)inputScopes
+                        uid:(NSString *)uid
+                       utid:(NSString *)utid
+                   tenantId:(NSString *)tenantId
+                accessToken:(NSString *)accessToken
+               refreshToken:(NSString *)refreshToken
+                   familyId:(NSString *)familyId
+              appIdentifier:(NSString *)appIdentifier
+                   accessor:(id<MSIDCacheAccessor>)accessor
+{
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:upn subject:@"subject" givenName:@"Hello" familyName:@"World" name:@"Hello World" version:@"2.0" tid:tenantId];
 
     MSIDTokenResponse *response = [MSIDTestTokenResponse v2TokenResponseWithAT:accessToken
                                                                             RT:refreshToken
