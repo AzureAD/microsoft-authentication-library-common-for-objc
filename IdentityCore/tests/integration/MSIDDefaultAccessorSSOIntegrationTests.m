@@ -1454,6 +1454,43 @@
     XCTAssertEqualObjects(account.realm, @"utid");
 }
 
+- (void)testAccountsWithAuthority_whenRefreshTokensNotPresent_NilClientId_nilFamilyId_shouldReturnAllAccounts
+{
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid"
+                         utid:@"utid"
+                  accessToken:@"access token"
+                 refreshToken:nil
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+
+    [self saveResponseWithUPN:@"upn@test.com"
+                     clientId:@"test_client_id"
+                    authority:@"https://login.windows.net/common"
+               responseScopes:@"user.read user.write"
+                  inputScopes:@"user.read user.write"
+                          uid:@"uid2"
+                         utid:@"utid2"
+                  accessToken:@"access token"
+                 refreshToken:nil
+                     familyId:nil
+                     accessor:_nonSSOAccessor];
+    
+    NSError *error = nil;
+    MSIDAccountIdentifier *identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:@"uid.utid"];
+    NSArray *accounts = [_defaultAccessor accountsWithAuthority:nil clientId:nil familyId:nil accountIdentifier:identifier context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(accounts);
+    XCTAssertEqual([accounts count], 1);
+    MSIDAccount *account = accounts[0];
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(account.realm, @"utid");
+}
+
 - (void)testAccountsWithAuthority_whenNilAuthority_NonNilClientId_nilFamilyId_andLegacyAccountIdentifier_shouldReturnMatch
 {
     [self saveResponseWithUPN:@"upn@test.com"
@@ -1856,7 +1893,7 @@
     XCTAssertEqual([remaininRefreshTokens count], 0);
 }
 
-- (void)testValidateAndRemoveRefreshToken_whenTokenProvided_butTokenFromSecondaryCache_shouldNotRemoveToken
+- (void)testValidateAndRemoveRefreshToken_whenTokenProvided_butTokenFromSecondaryCache_shouldRemoveToken
 {
     // Save first token
     [self saveResponseWithUPN:@"upn@test.com"
@@ -1882,7 +1919,7 @@
     XCTAssertNil(error);
 
     NSArray *remaininRefreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:_otherAccessor];
-    XCTAssertEqual([remaininRefreshTokens count], 1);
+    XCTAssertEqual([remaininRefreshTokens count], 0);
 }
 
 - (void)testRemoveAccessToken_whenTokenProvided_shouldRemoveToken

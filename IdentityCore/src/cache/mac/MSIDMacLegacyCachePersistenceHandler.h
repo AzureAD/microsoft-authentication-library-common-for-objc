@@ -21,17 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "AppDelegate.h"
+#import <Foundation/Foundation.h>
+#import "MSIDMacACLKeychainAccessor.h"
+#import "MSIDMacTokenCache.h"
 
-@interface AppDelegate ()
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDMacLegacyCachePersistenceHandler : MSIDMacACLKeychainAccessor <MSIDMacTokenCacheDelegate>
+
+- (nullable instancetype)initWithTrustedApplications:(nullable NSArray *)trustedApplications
+                                         accessLabel:(nonnull NSString *)accessLabel
+                                          attributes:(nonnull NSDictionary *)attributes
+                                               error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 
-@implementation AppDelegate
-
-- (BOOL)application:(__unused UIApplication *)application didFinishLaunchingWithOptions:(__unused NSDictionary *)launchOptions
-{
-    return YES;
-}
-
-@end
+NS_ASSUME_NONNULL_END

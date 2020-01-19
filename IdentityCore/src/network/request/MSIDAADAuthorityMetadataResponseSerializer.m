@@ -61,7 +61,7 @@
                                               nil,
                                               nil,
                                               context.correlationId,
-                                              nil);
+                                              nil, YES);
         if (error)
         {
             *error = oauthError;

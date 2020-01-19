@@ -171,14 +171,14 @@
             }
             else
             {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil);
+                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
                 completionBlock(nil, error, nil);
                 return;
             }
 #else
             [[NSWorkspace sharedWorkspace] openURL:browserURL];
 #endif
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil);
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
             completionBlock(nil, error, nil);
             return;
         }
@@ -276,7 +276,7 @@
                                                   nil,
                                                   nil,
                                                   nil,
-                                                  updatedUserInfo);
+                                                  updatedUserInfo, NO);
             }
             
             completionBlock(nil, validationError, nil);

@@ -47,6 +47,10 @@ static WKWebViewConfiguration *s_webConfig;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         s_webConfig = [WKWebViewConfiguration new];
+        if (@available(iOS 13.0, *))
+        {
+            s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
+        }
     });
 }
 
@@ -84,7 +88,7 @@ static WKWebViewConfiguration *s_webConfig;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"The Application does not have a current ViewController", nil, nil, nil, _context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"The Application does not have a current ViewController", nil, nil, nil, _context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -121,6 +125,12 @@ static WKWebViewConfiguration *s_webConfig;
     
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
+    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *)) {
+        [navController setModalInPresentation:YES];
+    }
+#endif
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [_parentController presentViewController:navController animated:YES completion:nil];

@@ -132,6 +132,34 @@
     XCTAssertEqualObjects(configuration.authorizationEndpoint, expectedAuthorizationEndpoint);
 }
 
+- (void)testWebViewConfiguration_whenInstanceAwareFlagSet_shouldSetInstanceAwareFlagInWebViewConfig
+{
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"scope", nil];
+    
+    MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
+    MSIDOpenIdProviderMetadata *metadata = [MSIDOpenIdProviderMetadata new];
+    metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
+    authority.metadata = metadata;
+
+    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
+                                                                                                   redirectUri:@"redirect"
+                                                                                                      clientId:@"client"
+                                                                                                        scopes:scopes
+                                                                                                    oidcScopes:nil
+                                                                                          extraScopesToConsent:nil
+                                                                                                 correlationId:nil
+                                                                                                telemetryApiId:nil
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new]
+                                                                                                   requestType:MSIDInteractiveRequestLocalType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                                                         error:nil];
+    parameters.instanceAware = YES;
+
+    MSIDWebviewConfiguration *configuration = [[MSIDAADWebviewFactory new] webViewConfigurationWithRequestParameters:parameters];
+    XCTAssertNotNil(configuration);
+    XCTAssertEqual(configuration.instanceAware, YES);
+}
+
 - (void)testResponseWithURL_whenURLSchemeMsauthAndHostWPJ_shouldReturnWPJResponse
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];

@@ -49,7 +49,7 @@
 
 @implementation MSIDAuthenticationSession (ASWebAuth)
 
-- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(ASWebAuthenticationSession *)session
+- (ASPresentationAnchor)presentationAnchorForWebAuthenticationSession:(__unused ASWebAuthenticationSession *)session
 API_AVAILABLE(ios(13.0))
 {
     return [self presentationAnchor];
@@ -179,7 +179,7 @@ API_AVAILABLE(ios(13.0))
         {
             if ([self isErrorCodeCanceledLogin:authError])
             {
-                authError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil);
+                authError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil, YES);
                 [_telemetryEvent setIsCancelled:YES];
             }
             
@@ -216,11 +216,11 @@ API_AVAILABLE(ios(13.0))
 #endif
         }
   
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil);
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, _context.correlationId, nil, YES);
     }
     else
     {
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticationSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil);
+        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUnsupportedFunctionality, @"SFAuthenticationSession/ASWebAuthenticationSession is not available for iOS 10 and older.", nil, nil, nil, _context.correlationId, nil, YES);
     }
     
     [self notifyEndWebAuthWithURL:nil error:error];
@@ -247,7 +247,7 @@ API_AVAILABLE(ios(13.0))
     
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,
-                                     @"Authorization session was cancelled programatically.", nil, nil, nil, _context.correlationId, nil);
+                                     @"Authorization session was cancelled programatically.", nil, nil, nil, _context.correlationId, nil, YES);
     
     [self notifyEndWebAuthWithURL:nil error:error];
     _completionHandler(nil, error);

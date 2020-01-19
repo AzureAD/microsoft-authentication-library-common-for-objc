@@ -55,6 +55,7 @@
 @property (nonatomic) BOOL brokerEnabled;
 @property (nonatomic) NSArray *clientCapabilities;
 @property (nonatomic) NSString *refreshToken;
+@property (nonatomic) BOOL instanceAware;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentController;
 #endif

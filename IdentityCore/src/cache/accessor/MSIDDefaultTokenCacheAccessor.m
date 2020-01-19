@@ -313,7 +313,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong id token type passed.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Wrong id token type passed: %@.", [MSIDCredentialTypeHelpers credentialTypeAsString:idTokenType]);
@@ -401,25 +401,31 @@
         return nil;
     }
     
-    NSSet<NSString *> *filterAccountIds = nil;
-
-    NSError *localError;
-    // we only return accounts for which we have refresh tokens in cache
-    filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
-                                                       clientId:clientId
-                                                       familyId:familyId
-                                         accountCredentialCache:_accountCredentialCache
-                                                        context:context
-                                                          error:&localError];
+    BOOL filterByRT = clientId || familyId;
     
-    if (localError)
+    NSSet<NSString *> *filterAccountIds = nil;
+    
+    if (filterByRT)
     {
-        if (error)
+        NSError *localError;
+        
+        // we only return accounts for which we have refresh tokens in cache if clientId or familyId were provided
+        filterAccountIds = [self homeAccountIdsFromRTsWithAuthority:authority
+                                                           clientId:clientId
+                                                           familyId:familyId
+                                             accountCredentialCache:_accountCredentialCache
+                                                            context:context
+                                                              error:&localError];
+        
+        if (localError)
         {
-            *error = localError;
+            if (error)
+            {
+                *error = localError;
+            }
+            [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
+            return nil;
         }
-        [MSIDTelemetry stopCacheEvent:event withItem:nil success:NO context:context];
-        return nil;
     }
     
     NSArray<MSIDIdToken *> *idTokens = [self idTokensWithAuthority:authority
@@ -431,6 +437,7 @@
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [self filterAndFillIdTokenClaimsForAccounts:allAccounts
                                                                                          authority:authority
                                                                                         accountIds:filterAccountIds
+                                                                                        filterByRT:filterByRT
                                                                                           idTokens:idTokens];
 
     if ([filteredAccountsSet count])
@@ -636,6 +643,16 @@
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_PII_LOG_MASKABLE(tokenInCache));
         return [self removeToken:tokenInCache context:context error:error];
     }
+    
+    // Clear RT from other accessors
+    for (id<MSIDCacheAccessor> accessor in _otherAccessors)
+    {
+        if (![accessor validateAndRemoveRefreshToken:token context:context error:error])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to remove RT from other accessor:  %@, error %@", accessor.class, MSID_PII_LOG_MASKABLE(*error));
+            return NO;
+        }
+    }
 
     return YES;
 }
@@ -652,7 +669,7 @@
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Account identifier is expected for MSDIDefaultTokenCacheFormat", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -1021,6 +1038,7 @@
 - (NSMutableSet<MSIDAccount *> *)filterAndFillIdTokenClaimsForAccounts:(NSArray<MSIDAccountCacheItem *> *)allAccounts
                                                              authority:(MSIDAuthority *)authority
                                                             accountIds:(NSSet<NSString *> *)accountIds
+                                                            filterByRT:(BOOL)filterByRT
                                                               idTokens:(NSArray<MSIDIdToken *> *)idTokens
 {
     NSMutableSet<MSIDAccount *> *filteredAccountsSet = [NSMutableSet new];
@@ -1036,7 +1054,7 @@
     for (MSIDAccountCacheItem *accountCacheItem in allAccounts)
     {
         // If we have accountIds to filter by, only return account if it has an associated refresh token
-        if ([accountIds containsObject:accountCacheItem.homeAccountId])
+        if ([accountIds containsObject:accountCacheItem.homeAccountId] || !filterByRT)
         {
             if (authority.environment)
             {

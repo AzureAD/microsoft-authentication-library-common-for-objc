@@ -88,6 +88,41 @@
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
 
+- (void)testInitBrokerRequest_whenInstanceAwareFlagSet_shouldSendInstanceAwareInEQP
+{
+    MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
+    parameters.instanceAware = YES;
+    
+    NSError *error = nil;
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    
+    NSDictionary *expectedRequest = @{@"authority" : @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id" : @"my_client_id",
+                                      @"correlation_id" : [parameters.correlationId UUIDString],
+                                      @"redirect_uri" : @"my-redirect://com.microsoft.test",
+                                      @"broker_key" : @"brokerKey",
+                                      @"client_version" : [MSIDVersion sdkVersion],
+                                      @"extra_query_param": @"my_eqp1%2C+%2C=my_eqp2&my_eqp3=my_eqp4&instance_aware=true",
+                                      @"client_app_name" : @"MSIDTestsHostApp",
+                                      @"client_app_version" : @"1.0",
+                                      @"scope" : @"myscope1 myscope2",
+                                      @"extra_oidc_scopes" : @"oidcscope1 oidcscope2",
+                                      @"prompt" : @"select_account",
+                                      @"msg_protocol_ver" : @"3",
+                                      //if account set, both of the following should be set
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken"
+                                      };
+    
+    NSURL *actualURL = request.brokerRequestURL;
+    
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidWWWFormURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+}
+
 - (void)testInitBrokerRequest_whenAccountSet_shouldSendHomeAccountIdAndUsername
 {
     MSIDInteractiveRequestParameters *parameters = [self defaultTestParameters];
