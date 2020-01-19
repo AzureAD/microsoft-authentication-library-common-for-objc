@@ -47,6 +47,8 @@
 
 @property (nonatomic, readwrite) BOOL sourceApplicationAvailable;
 @property (nonatomic, readwrite) NSString *brokerNonce;
+@property (nonatomic, readwrite) NSURL *providedAuthority;
+@property (nonatomic, readwrite) BOOL instanceAware;
 
 @end
 
@@ -85,6 +87,9 @@
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
     NSString *keychainGroup = resumeState[@"keychain_group"];
     NSString *oidcScope = resumeState[@"oidc_scope"];
+    NSString *providedAuthorityStr = [resumeState msidStringObjectForKey:@"provided_authority_url"];
+    self.providedAuthority = providedAuthorityStr ? [NSURL URLWithString:providedAuthorityStr] : nil;
+    self.instanceAware = [resumeState msidBoolObjectForKey:@"instance_aware"];
     self.brokerNonce = resumeState[@"broker_nonce"];
     self.sourceApplicationAvailable = sourceApplication != nil;
 
@@ -154,6 +159,8 @@
     
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                             oidcScope:oidcScope
+                                                     requestAuthority:self.providedAuthority
+                                                        instanceAware:self.instanceAware
                                                          oauthFactory:self.oauthFactory
                                                            tokenCache:self.tokenCache
                                                  accountMetadataCache:self.accountMetadataCacheAccessor

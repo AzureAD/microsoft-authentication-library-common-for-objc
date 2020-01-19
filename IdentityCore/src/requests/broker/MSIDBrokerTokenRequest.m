@@ -178,17 +178,16 @@
 
 - (NSDictionary *)defaultResumeDictionaryContents
 {
-    NSDictionary *resumeDictionary =
-    @{
-      @"authority"        : self.requestParameters.authority.url.absoluteString,
-      @"client_id"        : self.requestParameters.clientId,
-      @"redirect_uri"     : self.requestParameters.redirectUri,
-      @"correlation_id"   : self.requestParameters.correlationId.UUIDString,
+    NSMutableDictionary *resumeDictionary = [NSMutableDictionary new];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.clientId forKey:@"client_id"];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.redirectUri forKey:@"redirect_uri"];
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.correlationId.UUIDString forKey:@"correlation_id"];
 #if TARGET_OS_IPHONE
-      @"keychain_group"   : self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup,
-      @"broker_nonce"     : self.brokerNonce
+    [resumeDictionary msidSetNonEmptyString:self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup forKey:@"keychain_group"];
+    [resumeDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
 #endif
-      };
+    
     return resumeDictionary;
 }
 

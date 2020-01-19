@@ -82,7 +82,9 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"instance_aware" : @"NO",
+                                               @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -171,7 +173,9 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce" : brokerNonce,
+                                               @"instance_aware" : @"NO",
+                                               @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -224,7 +228,9 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"instance_aware" : @"NO",
+                                               @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -277,7 +283,9 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"instance_aware" : @"NO",
+                                               @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
