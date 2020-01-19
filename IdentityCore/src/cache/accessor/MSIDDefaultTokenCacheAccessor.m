@@ -472,6 +472,7 @@
 
 - (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                authority:(MSIDAuthority *)authority
+                               realmHint:(NSString *)realmHint
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -496,15 +497,24 @@
         if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
         return nil;
     }
+    
+    MSIDAccount *firstAccount = nil;
 
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
     {
         MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:cacheItem];
-        if (account) return account;
+        if (!account) continue;
+
+        if (realmHint && [account.realm isEqualToString:realmHint])
+        {
+            return account;
+        }
+        
+        if (!firstAccount) firstAccount = account;
     }
 
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
-    return nil;
+    return firstAccount;
 }
 
 #pragma mark - Clear cache

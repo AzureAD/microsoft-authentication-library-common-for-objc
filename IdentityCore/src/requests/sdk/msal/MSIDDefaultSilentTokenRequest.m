@@ -120,6 +120,7 @@
 
     MSIDAccount *account = [self.defaultAccessor getAccountForIdentifier:self.requestParameters.accountIdentifier
                                                                authority:self.requestParameters.authority
+                                                               realmHint:nil
                                                                  context:self.requestParameters
                                                                    error:&cacheError];
 
