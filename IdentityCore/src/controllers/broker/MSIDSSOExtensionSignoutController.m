@@ -62,10 +62,15 @@
             return;
         }
         
+#if TARGET_OS_IPHONE
         [self waitForSceneActivationAndCompleteSignout:completionBlock];
+#else
+        [super executeRequestWithCompletion:completionBlock];
+#endif
     }];
 }
 
+#if TARGET_OS_IPHONE
 - (void)waitForSceneActivationAndCompleteSignout:(MSIDSignoutRequestCompletionBlock)completionBlock
 {
     UIWindowScene *windowScene = self.parameters.parentViewController.view.window.windowScene;
@@ -96,6 +101,7 @@
                                                                                        usingBlock:sceneActivatedBlock];
     }
 }
+#endif
 
 + (BOOL)canPerformRequest
 {
