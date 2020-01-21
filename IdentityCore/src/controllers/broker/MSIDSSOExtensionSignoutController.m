@@ -31,6 +31,7 @@
 @interface MSIDSSOExtensionSignoutController()
 
 @property (nonatomic) MSIDSSOExtensionSignoutRequest *currentSSORequest;
+@property (nonatomic) id sceneNotificationObserver;
 
 @end
 
@@ -55,9 +56,52 @@
             return;
         }
         
+        if (!self.shouldSignoutFromBrowser)
+        {
+            completionBlock(YES, nil);
+            return;
+        }
+        
+#if TARGET_OS_IPHONE
+        [self waitForSceneActivationAndCompleteSignout:completionBlock];
+#else
         [super executeRequestWithCompletion:completionBlock];
+#endif
     }];
 }
+
+#if TARGET_OS_IPHONE
+- (void)waitForSceneActivationAndCompleteSignout:(MSIDSignoutRequestCompletionBlock)completionBlock
+{
+    UIWindowScene *windowScene = self.parameters.parentViewController.view.window.windowScene;
+    
+    if (windowScene.activationState == UISceneActivationStateForegroundActive)
+    {
+        [super executeRequestWithCompletion:completionBlock];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.parameters, @"Current scene is inactive. Waiting for scene activation to complete signout request");
+                
+        void (^sceneActivatedBlock)(NSNotification *note) = ^(NSNotification *note)
+        {
+            if ([note.object isEqual:windowScene])
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.parameters, @"Scene became active. Completing signout request");
+                [[NSNotificationCenter defaultCenter] removeObserver:self.sceneNotificationObserver];
+                self.sceneNotificationObserver = nil;
+                
+                [super executeRequestWithCompletion:completionBlock];
+            }
+        };
+        
+        self.sceneNotificationObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UISceneDidActivateNotification
+                                                                                           object:nil
+                                                                                            queue:[NSOperationQueue mainQueue]
+                                                                                       usingBlock:sceneActivatedBlock];
+    }
+}
+#endif
 
 + (BOOL)canPerformRequest
 {
