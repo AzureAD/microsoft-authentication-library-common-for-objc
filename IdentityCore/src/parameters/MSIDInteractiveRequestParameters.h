@@ -38,6 +38,7 @@
 @property (nonatomic) MSIDWebviewType webviewType;
 @property (nonatomic) WKWebView *customWebview;
 @property (readwrite) NSMutableDictionary<NSString *, NSString *> *customWebviewHeaders;
+@property (readwrite, nonatomic) BOOL shouldValidateResultAccount;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIViewController *parentViewController;
 @property (nonatomic) UIModalPresentationStyle presentationType;
