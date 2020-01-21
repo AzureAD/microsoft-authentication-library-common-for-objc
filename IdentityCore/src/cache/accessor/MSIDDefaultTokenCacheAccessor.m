@@ -505,6 +505,9 @@
         MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:cacheItem];
         if (!account) continue;
 
+        /*
+        Note that lookup by realmHint is a best effort (hence it is a hint), because developer might be requesting token for tenantId not previously requested, in which case there will be no account in cache. We still want to ensure best effort account lookup in that scenario. In case we lookup wrong account (e.g. we find MSA account and developer wanted to get a token for Google B2B account), silent broker request will fail and we fall back to interactive request, which will resolve account correctly. Server side ensures here final account resolution based on which account is present in the tenant, and possibly a user choice during interactive token acquisition.
+         */
         if (realmHint && [account.realm isEqualToString:realmHint])
         {
             return account;
