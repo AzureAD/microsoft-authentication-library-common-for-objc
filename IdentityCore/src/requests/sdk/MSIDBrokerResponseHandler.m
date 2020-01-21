@@ -87,7 +87,7 @@
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
     NSString *keychainGroup = resumeState[@"keychain_group"];
     NSString *oidcScope = resumeState[@"oidc_scope"];
-    NSString *providedAuthorityStr = [resumeState msidStringObjectForKey:@"provided_authority_url"];
+    NSString *providedAuthorityStr = [resumeState msidStringObjectForKey:@"provided_authority_url"] ?: [resumeState msidStringObjectForKey:@"authority"];
     self.providedAuthority = providedAuthorityStr ? [NSURL URLWithString:providedAuthorityStr] : nil;
     self.instanceAware = [resumeState msidBoolObjectForKey:@"instance_aware"];
     self.brokerNonce = resumeState[@"broker_nonce"];

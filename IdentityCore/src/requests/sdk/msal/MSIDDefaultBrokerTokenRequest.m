@@ -68,7 +68,7 @@
     [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.target ?: @"" forKey:@"scope"];
     [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.oidcScope ?: @"" forKey:@"oidc_scope"];
     [protocolResumeDictionary msidSetNonEmptyString:MSID_MSAL_SDK_NAME forKey:MSID_SDK_NAME_KEY];
-    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.providedAuthority.url.absoluteString ?: self.requestParameters.authority.url.absoluteString forKey:@"provided_authority_url"];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.providedAuthority.url.absoluteString forKey:@"provided_authority_url"];
     [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.instanceAware ? @"YES" : @"NO" forKey:@"instance_aware"];
     
     return protocolResumeDictionary;
