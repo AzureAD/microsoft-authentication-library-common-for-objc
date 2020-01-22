@@ -41,12 +41,14 @@
 @property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic) MSIDRequestParameters *requestParameters;
-
+@property (nonatomic) BOOL returnOnlySignedInAccounts;
+ 
 @end
 
 @implementation MSIDSSOExtensionGetAccountsRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                        returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
                                              error:(NSError * _Nullable * _Nullable)error
 {
     self = [super init];
@@ -64,6 +66,7 @@
     if (self)
     {
         _requestParameters = requestParameters;
+        _returnOnlySignedInAccounts = returnOnlySignedInAccounts;
         
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
@@ -105,6 +108,7 @@
 {
     MSIDBrokerOperationGetAccountsRequest *getAccountsRequest = [MSIDBrokerOperationGetAccountsRequest new];
     getAccountsRequest.clientId = self.requestParameters.clientId;
+    getAccountsRequest.returnOnlySignedInAccounts = self.returnOnlySignedInAccounts;
     // TODO: pass familyId, will be addressed in a separate PR
     // TODO: pass returnOnlySignedInAccounts == false, will be addressed in a separate PR
     

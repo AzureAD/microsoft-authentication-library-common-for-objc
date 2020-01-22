@@ -50,7 +50,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     params.clientId = nil;
     
     NSError *error;
-    MSIDSSOExtensionGetAccountsRequest *request = [[MSIDSSOExtensionGetAccountsRequest alloc] initWithRequestParameters:params error:&error];
+    MSIDSSOExtensionGetAccountsRequest *request = [[MSIDSSOExtensionGetAccountsRequest alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:&error];
     XCTAssertNotNil(request);
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Execute request"];
@@ -73,7 +73,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
     
-    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params error:nil];
+    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
     
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
@@ -113,7 +113,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
     
-    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params error:nil];
+    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
     
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
@@ -158,7 +158,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
     
-    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params error:nil];
+    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
     
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
@@ -242,7 +242,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
     
-    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params error:nil];
+    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
     
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
@@ -309,7 +309,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 {
     MSIDRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
     
-    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params error:nil];
+    MSIDSSOExtensionGetAccountsRequestMock *request = [[MSIDSSOExtensionGetAccountsRequestMock alloc] initWithRequestParameters:params returnOnlySignedInAccounts:YES error:nil];
     XCTAssertNotNil(request);
     
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
