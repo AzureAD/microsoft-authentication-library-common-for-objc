@@ -31,6 +31,10 @@ Version 1.3.6
 * Remove amr64e architecture
 * Fixed static analyser warnings
 
+Version 1.3.5-hotfix1
+----------
+* [Broker patch] Fixed account lookups and validation with the same email (#669)
+
 Version 1.3.5
 -----------
 * Update readme.md

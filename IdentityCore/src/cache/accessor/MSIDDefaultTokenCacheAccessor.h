@@ -54,6 +54,7 @@
 
 - (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                authority:(MSIDAuthority *)authority
+                               realmHint:(NSString *)realmHint
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 

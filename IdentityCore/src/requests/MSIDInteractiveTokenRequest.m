@@ -41,6 +41,7 @@
 #import "MSIDWebviewFactory.h"
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDTokenResponseHandler.h"
+#import "MSIDAccount.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
