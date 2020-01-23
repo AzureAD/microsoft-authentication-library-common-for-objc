@@ -75,13 +75,11 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");
             NSString *bundleIdentifier = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoIdentifier];
             CFRelease(selfCode);
-#if DEBUG
             if (!bundleIdentifier)
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve bundle identifier. For debug build, use a dummy identifier instead.");
-                return @"<Debug Team ID>";
+                // Attempt an alternate way of retreiving the bundle ID.
+                return [[NSBundle mainBundle] bundleIdentifier];
             }
-#endif //DEBUG
             return bundleIdentifier;
         }
         
