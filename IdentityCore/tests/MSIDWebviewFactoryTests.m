@@ -101,6 +101,9 @@
                                         @{
                                           @"post_logout_redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
                                           @"state" : requestState.msidBase64UrlEncode,
+                                          @"x-app-name": @"MSIDTestsHostApp",
+                                          @"x-app-ver": @"1.0",
+                                          @"x-client-Ver": @"1.0.0",
                                           }];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
@@ -159,6 +162,9 @@
     
     NSDictionary *expectedRequest = @{@"post_logout_redirect_uri": DEFAULT_TEST_REDIRECT_URI,
                                       @"state" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"x-app-name": @"MSIDTestsHostApp",
+                                      @"x-app-ver": @"1.0",
+                                      @"x-client-Ver": @"1.0.0",
                                       };
 
     NSURL *actualURL = conf.startURL;
