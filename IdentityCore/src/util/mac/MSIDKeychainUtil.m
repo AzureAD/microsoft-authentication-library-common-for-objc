@@ -78,7 +78,13 @@
             if (!bundleIdentifier)
             {
                 // Attempt an alternate way of retreiving the bundle ID.
-                return [[NSBundle mainBundle] bundleIdentifier];
+                bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+            }
+
+            if (!bundleIdentifier)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve bundle identifier. Using process name instead.");
+                return [NSProcessInfo processInfo].processName;
             }
             return bundleIdentifier;
         }
