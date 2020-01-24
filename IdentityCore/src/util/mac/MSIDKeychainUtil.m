@@ -68,19 +68,13 @@
         {
             NSDictionary* signingDic = CFBridgingRelease(cfDic);
             keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
-
-            if (!keychainTeamId)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");
-                keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoIdentifier];
-            }
         }
         CFRelease(selfCode);
     }
     
     if (!keychainTeamId)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Attempt an alternate way of retreiving the bundle ID.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");\
         keychainTeamId = [[NSBundle mainBundle] bundleIdentifier];
 
         if (!keychainTeamId)
