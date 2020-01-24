@@ -63,36 +63,34 @@
         if (!cfDic)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
-            CFRelease(selfCode);
-            return nil;
         }
-        
-        NSDictionary* signingDic = CFBridgingRelease(cfDic);
-        keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
-        
-        if (!keychainTeamId)
+        else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");
-            NSString *bundleIdentifier = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoIdentifier];
-            CFRelease(selfCode);
-            if (!bundleIdentifier)
-            {
-                // Attempt an alternate way of retreiving the bundle ID.
-                bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
-            }
+            NSDictionary* signingDic = CFBridgingRelease(cfDic);
+            keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
 
-            if (!bundleIdentifier)
+            if (!keychainTeamId)
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve bundle identifier. Using process name instead.");
-                return [NSProcessInfo processInfo].processName;
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");
+                keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoIdentifier];
             }
-            return bundleIdentifier;
         }
-        
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
         CFRelease(selfCode);
     }
     
+    if (!keychainTeamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Attempt an alternate way of retreiving the bundle ID.");
+        keychainTeamId = [[NSBundle mainBundle] bundleIdentifier];
+
+        if (!keychainTeamId)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve bundle identifier. Using process name instead.");
+            keychainTeamId = [NSProcessInfo processInfo].processName;
+        }
+    }
+
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
     return keychainTeamId;
 }
 
