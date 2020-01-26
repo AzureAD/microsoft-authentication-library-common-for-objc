@@ -797,6 +797,8 @@
 		B253154523DD763B00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.h in Headers */ = {isa = PBXBuildFile; fileRef = B253154023DD75CE00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.h */; };
 		B253154623DD763E00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m in Sources */ = {isa = PBXBuildFile; fileRef = B253154123DD75CE00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m */; };
 		B253154723DD763E00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m in Sources */ = {isa = PBXBuildFile; fileRef = B253154123DD75CE00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m */; };
+		B253154B23DE31F400432133 /* MSIDBrokerOperationGetDeviceInfoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 60DCA0002374DFAC00AEA52E /* MSIDBrokerOperationGetDeviceInfoRequest.m */; };
+		B253154C23DE31F700432133 /* MSIDBrokerOperationGetDeviceInfoRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 60DC9FFF2374DFAC00AEA52E /* MSIDBrokerOperationGetDeviceInfoRequest.h */; };
 		B253BD7A20487C8A00D07F31 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B23ECF041FF33AE70015FC1D /* MSIDLegacyTokenCacheIntegrationTests.m */; };
 		B2544EEB21684B2B00B4C108 /* MSIDCacheSchemaValidationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2544EEA21684B2B00B4C108 /* MSIDCacheSchemaValidationTests.m */; };
 		B2544EEC21684B2B00B4C108 /* MSIDCacheSchemaValidationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2544EEA21684B2B00B4C108 /* MSIDCacheSchemaValidationTests.m */; };
@@ -4492,6 +4494,7 @@
 				B2000C9A20EC64E50092790A /* MSIDTelemetryPiiOiiRules.h in Headers */,
 				B286B9CA2389DE9D007833AD /* MSIDPRTCacheItem.h in Headers */,
 				232C657A2137684E002A41FE /* MSIDDRSDiscoveryResponseSerializer.h in Headers */,
+				B253154C23DE31F700432133 /* MSIDBrokerOperationGetDeviceInfoRequest.h in Headers */,
 				B286B9E22389DFAB007833AD /* MSIDDRSType.h in Headers */,
 				96F94A39208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h in Headers */,
 				B2000C9920EC64CA0092790A /* MSIDCredentialType.h in Headers */,
@@ -5588,6 +5591,7 @@
 				B28D90A2218FBBA200E230D6 /* MSIDTokenResponseValidator.m in Sources */,
 				B2C708232195285300D917B8 /* MSIDLegacyBrokerTokenRequest.m in Sources */,
 				B2D5625A20CCD50E00FFF59C /* MSIDTelemetry+Cache.m in Sources */,
+				B253154B23DE31F400432133 /* MSIDBrokerOperationGetDeviceInfoRequest.m in Sources */,
 				B2A3C2802145D02E0082525C /* MSIDAadAuthorityCacheRecord.m in Sources */,
 				B28BDA81217E964B003E5670 /* MSIDB2CTokenResponse.m in Sources */,
 				9641B52B1FCF3F3A00AFA0EC /* MSIDKeyedArchiverSerializer.m in Sources */,
