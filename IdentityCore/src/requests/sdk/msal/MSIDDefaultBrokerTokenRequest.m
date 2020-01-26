@@ -26,6 +26,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDPromptType_Internal.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
@@ -63,9 +64,14 @@
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    return @{@"scope": self.requestParameters.target ?: @"",
-             @"oidc_scope": self.requestParameters.oidcScope ?: @"",
-             MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
+    NSMutableDictionary *protocolResumeDictionary = [NSMutableDictionary new];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.target ?: @"" forKey:@"scope"];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.oidcScope ?: @"" forKey:@"oidc_scope"];
+    [protocolResumeDictionary msidSetNonEmptyString:MSID_MSAL_SDK_NAME forKey:MSID_SDK_NAME_KEY];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.providedAuthority.url.absoluteString forKey:@"provided_authority_url"];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.instanceAware ? @"YES" : @"NO" forKey:@"instance_aware"];
+    
+    return protocolResumeDictionary;
 }
 
 @end

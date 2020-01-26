@@ -98,6 +98,8 @@
             {  
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
+                                                                        requestAuthority:self.providedAuthority
+                                                                           instanceAware:self.instanceAware
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor

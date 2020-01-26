@@ -45,10 +45,12 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 @interface MSIDDefaultBrokerResponseHandlerTests : XCTestCase
 
 @property (nonatomic) MSIDDefaultTokenCacheAccessor *cacheAccessor;
+@property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 
 @end
 
@@ -62,6 +64,7 @@
     [dataSource clearWithContext:nil error:nil];
     MSIDLegacyTokenCacheAccessor *otherAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     self.cacheAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
+    self.accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
 }
 
 - (void)tearDown {
@@ -132,6 +135,9 @@
     
     XCTAssertNotNil(result);
     XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(brokerResponseHandler.providedAuthority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqual(brokerResponseHandler.instanceAware, NO);
     
     XCTAssertEqualObjects(result.accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(result.accessToken.scopes, [scopes msidScopeSet]);
@@ -1139,6 +1145,79 @@
     XCTAssertNil(refreshToken.familyId);
 }
 
+- (void)testHandleBrokerResponse_whenValidBrokerResponse_shouldUpdateAccountMetadata
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *idTokenString = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:@"user@contoso.com"
+                                                                        subject:@"mysubject"
+                                                                      givenName:@"myGivenName"
+                                                                     familyName:@"myFamilyName"
+                                                                           name:@"Contoso"
+                                                                        version:@"2.0"
+                                                                            tid:@"contoso.com-guid"];
+    
+    NSDictionary *clientInfo = @{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"};
+    NSString *rawClientInfo = [clientInfo msidBase64UrlJson];
+    
+    NSDate *expiresOn = [NSDate dateWithTimeIntervalSinceNow:3600];
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    
+    NSDate *extExpiresOn = [NSDate dateWithTimeIntervalSinceNow:36000];
+    NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSString *scopes = @"myscope1 myscope2";
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"authority" : @"https://login.microsoftonline.com/common",
+      @"scope" : scopes,
+      @"client_id" : @"my_client_id",
+      @"id_token" : idTokenString,
+      @"client_info" : rawClientInfo,
+      @"home_account_id" : @"1.1234-5678-90abcdefg",
+      @"access_token" : @"i-am-a-access-token",
+      @"token_type" : @"Bearer",
+      @"refresh_token" : @"i-am-a-refresh-token",
+      @"expires_on" : expiresOnString,
+      @"ext_expires_on" : extExpiresOnString,
+      @"correlation_id" : correlationId,
+      @"x-broker-app-ver" : @"1.0.0",
+      @"foci" : @"1",
+      @"success": @YES,
+      @"broker_nonce" : @"nonce"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    
+    XCTAssertNotNil(result);
+    XCTAssertEqualObjects(result.accessToken.accessToken, @"i-am-a-access-token");
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(brokerResponseHandler.providedAuthority.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqual(brokerResponseHandler.instanceAware, NO);
+    
+    // Verify sign in state
+    MSIDAccountMetadataState signInState = [self.accountMetadataCache signInStateForHomeAccountId:@"1.1234-5678-90abcdefg" clientId:@"my_client_id" context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(signInState, MSIDAccountMetadataStateSignedIn);
+    
+    // Verify authority mapping
+    NSURL *retrievedCacheURL = [self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common"]
+                                                            homeAccountId:@"1.1234-5678-90abcdefg"
+                                                                 clientId:@"my_client_id" instanceAware:NO context:nil error:&error];
+    XCTAssertEqualObjects(@"https://login.microsoftonline.com/contoso.com-guid", retrievedCacheURL.absoluteString);
+}
+
 -(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIntiatedByMsalAndHasCompletionBlock_shouldReturnYes
 {
     NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
@@ -1203,7 +1282,9 @@
                                   @"scope" : @"myscope1 myscope2",
                                   @"keychain_group" : @"com.microsoft.adalcache",
                                   @"redirect_uri" : @"x-msauth-test://com.microsoft.testapp",
-                                  @"broker_nonce" : @"nonce"
+                                  @"broker_nonce" : @"nonce",
+                                  @"instance_aware" : @"NO",
+                                  @"provided_authority_url" : authority,
                                   };
     
     [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];

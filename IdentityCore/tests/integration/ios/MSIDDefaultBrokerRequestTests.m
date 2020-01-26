@@ -39,6 +39,7 @@
 - (void)testInitBrokerRequest_whenValidRequest_shouldSendScopeAndPromptAndProtocolVer
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.providedAuthority = parameters.authority;
     
     NSError *error = nil;
     MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
@@ -82,7 +83,9 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"instance_aware" : @"NO",
+                                               @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -91,6 +94,7 @@
 - (void)testInitBrokerRequest_whenInstanceAwareFlagSet_shouldSendInstanceAwareInEQP
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.providedAuthority = parameters.authority;
     parameters.instanceAware = YES;
     
     NSError *error = nil;
@@ -126,6 +130,7 @@
 - (void)testInitBrokerRequest_whenAccountSet_shouldSendHomeAccountIdAndUsername
 {
     MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    parameters.providedAuthority = parameters.authority;
     parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user" homeAccountId:@"myHomeAccountId"];
     
     NSError *error = nil;
@@ -171,7 +176,9 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce" : brokerNonce,
+                                               @"instance_aware" : @"NO",
+                                               @"provided_authority_url" : @"https://login.microsoftonline.com/contoso.com",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -224,7 +231,8 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"instance_aware" : @"NO",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
@@ -277,7 +285,8 @@
                                                @"scope" : @"myscope1 myscope2",
                                                @"oidc_scope" : @"oidcscope1 oidcscope2",
                                                @"sdk_name" : @"msal-objc",
-                                               @"broker_nonce": brokerNonce
+                                               @"broker_nonce": brokerNonce,
+                                               @"instance_aware" : @"NO",
                                                };
     
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
