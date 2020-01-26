@@ -130,6 +130,8 @@
 
 - (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
                                          oidcScope:(NSString *)oidcScope
+                                  requestAuthority:(NSURL *)requestAuthority
+                                     instanceAware:(BOOL)instanceAware
                                       oauthFactory:(MSIDOauth2Factory *)factory
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
                               accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
@@ -186,16 +188,21 @@
                            context:nil
                              error:nil];
     
-    NSError *updateMetadataError = nil;
-    [accountMetadataCache updateSignInStateForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
-                                                   clientId:configuration.clientId
-                                                      state:MSIDAccountMetadataStateSignedIn
-                                                    context:nil
-                                                      error:&updateMetadataError];
-    if (updateMetadataError)
+    //save metadata
+    NSError *authorityError;
+    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:configuration tokenResponse:tokenResponse error:&authorityError];
+    if (authorityError)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to update sign in state in metadata cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create resulting authority for metadata update. Error %@", MSID_PII_LOG_MASKABLE(authorityError));
     }
+    [self updateAccountMetadataForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
+                                       clientId:configuration.clientId
+                                  instanceAware:instanceAware
+                                          state:MSIDAccountMetadataStateSignedIn
+                               requestAuthority:requestAuthority
+                             resultingAuthority:resultingAuthority.url
+                           accountMetadataCache:accountMetadataCache
+                                        context:nil];
 
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating token result.");
     BOOL resultValid = [self validateTokenResult:tokenResult
@@ -237,34 +244,21 @@
     }
     
     //save metadata
-    NSError *updateMetadataError = nil;
-    [accountMetadataCache updateSignInStateForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
-                                                   clientId:parameters.clientId
-                                                      state:MSIDAccountMetadataStateSignedIn
-                                                    context:parameters
-                                                      error:&updateMetadataError];
-    if (updateMetadataError)
+    NSError *authorityError;
+    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&authorityError];
+    if (authorityError)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update sign in state in metadata cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to create resulting authority for metadata update. Error %@", MSID_PII_LOG_MASKABLE(authorityError));
     }
-    
-    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
-    if (resultingAuthority && !updateMetadataError)
-    {
-        MSIDAuthority *providedAuthority = parameters.providedAuthority ?: parameters.authority;
-        [accountMetadataCache updateAuthorityURL:resultingAuthority.url
-                                   forRequestURL:providedAuthority.url
-                                   homeAccountId:tokenResult.account.accountIdentifier.homeAccountId
-                                        clientId:parameters.clientId
-                                   instanceAware:parameters.instanceAware
-                                         context:parameters
-                                           error:&updateMetadataError];
-        
-        if (updateMetadataError)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
-        }
-    }
+    MSIDAuthority *providedAuthority = parameters.providedAuthority ?: parameters.authority;
+    [self updateAccountMetadataForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
+                                       clientId:parameters.clientId
+                                  instanceAware:parameters.instanceAware
+                                          state:MSIDAccountMetadataStateSignedIn
+                               requestAuthority:providedAuthority.url
+                             resultingAuthority:resultingAuthority.url
+                           accountMetadataCache:accountMetadataCache
+                                        context:parameters];
     
     // Note, if there's an error saving result, we log it, but we don't fail validation
     // This is by design because even if we fail to cache, we still should return tokens back to the app
@@ -333,6 +327,45 @@
     }
     
     return isSaved;
+}
+
+- (void)updateAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                     clientId:(NSString *)clientId
+                                instanceAware:(BOOL)instanceAware
+                                        state:(MSIDAccountMetadataState)state
+                             requestAuthority:(NSURL *)requestAuthority
+                           resultingAuthority:(NSURL *)resultingAuthority
+                         accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                      context:(id<MSIDRequestContext>)context
+{
+    //save metadata
+    NSError *updateMetadataError = nil;
+    [accountMetadataCache updateSignInStateForHomeAccountId:homeAccountId
+                                                   clientId:clientId
+                                                      state:state
+                                                    context:context
+                                                      error:&updateMetadataError];
+    if (updateMetadataError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to update sign in state in metadata cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+    }
+    
+    
+    if (requestAuthority && resultingAuthority)
+    {
+        [accountMetadataCache updateAuthorityURL:resultingAuthority
+                                   forRequestURL:requestAuthority
+                                   homeAccountId:homeAccountId
+                                        clientId:clientId
+                                   instanceAware:instanceAware
+                                         context:context
+                                           error:&updateMetadataError];
+        
+        if (updateMetadataError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        }
+    }
 }
 
 @end
