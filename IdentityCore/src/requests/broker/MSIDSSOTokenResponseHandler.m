@@ -42,14 +42,14 @@
 {
     if (operationResponse.authority) requestParameters.cloudAuthority = operationResponse.authority;
     
+    BOOL saveSSOStateOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
+    
     if (operationResponse.additionalTokenResponse)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, requestParameters, @"Saving additional token response...");
         NSError *localError;
         MSIDRequestParameters *parameters = [requestParameters copy];
         parameters.target = operationResponse.additionalTokenResponse.scope;
-        
-        BOOL saveSSOStateOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
         
         [tokenResponseValidator validateAndSaveTokenResponse:operationResponse.additionalTokenResponse
                                                 oauthFactory:oauthFactory
@@ -77,6 +77,7 @@
                    tokenCache:tokenCache
          accountMetadataCache:accountMetadataCache
               validateAccount:validateAccount
+             saveSSOStateOnly:saveSSOStateOnly
                         error:error
               completionBlock:completionBlock];
 }

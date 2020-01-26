@@ -48,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
        accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
             validateAccount:(BOOL)validateAccount
+           saveSSOStateOnly:(BOOL)saveSSOStateOnly
                       error:(nullable NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock;
 
