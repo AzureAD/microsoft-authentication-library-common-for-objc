@@ -24,6 +24,9 @@
 #if MSID_ENABLE_SSO_EXTENSION
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDConstants.h"
+#import "MSIDBrokerOperationRequest.h"
+#import "MSIDRequestParameters.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
 @implementation ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 
@@ -31,6 +34,32 @@
 {
     NSURL *url = [NSURL URLWithString:MSID_DEFAULT_AAD_AUTHORITY];
     return [ASAuthorizationSingleSignOnProvider authorizationProviderWithIdentityProviderURL:url];
+}
+
+- (ASAuthorizationSingleSignOnRequest *)createSSORequestWithOperationRequest:(MSIDBrokerOperationRequest *)operationRequest
+                                                           requestParameters:(MSIDRequestParameters *)requestParameters
+                                                                       error:(NSError **)error
+{
+    [MSIDBrokerOperationRequest fillRequest:operationRequest
+                        keychainAccessGroup:requestParameters.keychainAccessGroup
+                             clientMetadata:requestParameters.appRequestMetadata
+                                    context:requestParameters];
+    
+    ASAuthorizationSingleSignOnRequest *ssoRequest = [self createRequest];
+    ssoRequest.requestedOperation = [operationRequest.class operation];
+    
+    NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
+    
+    if (!jsonDictionary)
+    {
+        NSError *ssoError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for get accounts request", nil, nil, nil, requestParameters.correlationId, nil, YES);
+        if (error) *error = ssoError;
+        return nil;
+    }
+    
+    NSArray<NSURLQueryItem *> *queryItems = [jsonDictionary msidQueryItems];
+    ssoRequest.authorizationOptions = queryItems;
+    return ssoRequest;
 }
 
 @end

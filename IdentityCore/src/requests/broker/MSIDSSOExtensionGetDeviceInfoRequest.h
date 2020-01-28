@@ -21,21 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+
 #if MSID_ENABLE_SSO_EXTENSION
-#import <AuthenticationServices/AuthenticationServices.h>
+
+@class MSIDRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDBrokerOperationRequest;
-@class MSIDRequestParameters;
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionGetDeviceInfoRequest : NSObject
 
-@interface ASAuthorizationSingleSignOnProvider (MSIDExtensions)
+@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
 
-+ (ASAuthorizationSingleSignOnProvider *)msidSharedProvider;
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                             error:(NSError * _Nullable * _Nullable)error;
 
-- (ASAuthorizationSingleSignOnRequest *)createSSORequestWithOperationRequest:(MSIDBrokerOperationRequest *)operationRequest
-                                                           requestParameters:(MSIDRequestParameters *)requestParameters
-                                                                       error:(NSError * _Nullable * _Nullable)error;
+- (void)executeRequestWithCompletion:(nonnull MSIDGetDeviceInfoRequestCompletionBlock)completionBlock;
+
++ (BOOL)canPerformRequest;
 
 @end
 

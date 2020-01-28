@@ -22,22 +22,23 @@
 // THE SOFTWARE.
 
 #if MSID_ENABLE_SSO_EXTENSION
+
+#import "MSIDSSOExtensionGetDeviceInfoRequestMock.h"
 #import <AuthenticationServices/AuthenticationServices.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDSSOExtensionGetDeviceInfoRequestMock
 
-@class MSIDBrokerOperationRequest;
-@class MSIDRequestParameters;
-
-@interface ASAuthorizationSingleSignOnProvider (MSIDExtensions)
-
-+ (ASAuthorizationSingleSignOnProvider *)msidSharedProvider;
-
-- (ASAuthorizationSingleSignOnRequest *)createSSORequestWithOperationRequest:(MSIDBrokerOperationRequest *)operationRequest
-                                                           requestParameters:(MSIDRequestParameters *)requestParameters
-                                                                       error:(NSError * _Nullable * _Nullable)error;
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
+{
+    if (self.authorizationControllerToReturn)
+    {
+        self.authorizationControllerToReturn.request = ssoRequest;
+        return self.authorizationControllerToReturn;
+    }
+    
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
 #endif
