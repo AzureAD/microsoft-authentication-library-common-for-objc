@@ -231,6 +231,7 @@
                                             tokenCache:self.tokenCache
                                   accountMetadataCache:self.accountMetadataCache
                                        validateAccount:YES
+                                      saveSSOStateOnly:NO
                                                  error:error
                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
          {

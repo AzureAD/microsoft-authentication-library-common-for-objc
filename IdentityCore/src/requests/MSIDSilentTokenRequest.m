@@ -426,6 +426,7 @@
                                             tokenCache:self.tokenCache
                                   accountMetadataCache:self.metadataCache
                                        validateAccount:NO
+                                      saveSSOStateOnly:NO
                                                  error:nil
                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
          {
