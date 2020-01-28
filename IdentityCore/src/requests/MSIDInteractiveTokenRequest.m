@@ -39,6 +39,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDWebviewFactory.h"
+#import "MSIDAccount.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -290,7 +291,9 @@
                                                                  correlationID:self.requestParameters.correlationId
                                                                          error:&validationError];
             
-            if (!accountChecked)
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, @"Validated result account with result %d, old account %@, new account %@", accountChecked, MSID_PII_LOG_TRACKABLE(self.requestParameters.accountIdentifier.uid), MSID_PII_LOG_TRACKABLE(tokenResult.account.accountIdentifier.uid));
+            
+            if (!accountChecked && self.requestParameters.shouldValidateResultAccount)
             {
                 completionBlock(nil, validationError, nil);
                 return;
