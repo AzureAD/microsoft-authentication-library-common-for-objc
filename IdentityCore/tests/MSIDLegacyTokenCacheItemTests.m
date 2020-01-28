@@ -25,6 +25,7 @@
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDClientInfo.h"
 #import "NSDictionary+MSIDTestUtil.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
 @interface MSIDLegacyTokenCacheItemTests : XCTestCase
 
@@ -65,7 +66,10 @@
 
     XCTAssertNotNil(data);
 
-    MSIDLegacyTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:data error:nil];
+    XCTAssertNotNil(unarchiver);
+    
+    MSIDLegacyTokenCacheItem *newItem = [unarchiver decodeObjectOfClass:[MSIDLegacyTokenCacheItem class] forKey:NSKeyedArchiveRootObjectKey];
 
     XCTAssertNotNil(newItem);
     XCTAssertEqualObjects(newItem.accessToken, @"at");
@@ -113,14 +117,21 @@
     cacheItem.cachedAt = cachedAt;
     cacheItem.homeAccountId = @"uid.utid";
     cacheItem.speInfo = @"2";
-    NSDictionary *additionalInfo = @{@"test": @"test"};
+    NSDictionary *additionalInfo = @{@"scope": @"user_impersonation",
+                                     @"correlation_id": @"97c58ae8-bf7e-438f-8710-2ad89c69ec1c",
+                                     @"ext_expires_on": [NSDate date],
+                                     @"not_before": @1580181520,
+                                     @"url": [NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/token"]    };
     cacheItem.additionalInfo = additionalInfo;
 
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:cacheItem];
 
     XCTAssertNotNil(data);
 
-    MSIDLegacyTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:data error:nil];
+    XCTAssertNotNil(unarchiver);
+    
+    MSIDLegacyTokenCacheItem *newItem = [unarchiver decodeObjectOfClass:[MSIDLegacyTokenCacheItem class] forKey:NSKeyedArchiveRootObjectKey];
 
     XCTAssertNotNil(newItem);
     XCTAssertEqualObjects(newItem.accessToken, @"at");
@@ -174,7 +185,10 @@
 
     XCTAssertNotNil(data);
 
-    MSIDLegacyTokenCacheItem *newItem = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+    NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:data error:nil];
+    XCTAssertNotNil(unarchiver);
+    
+    MSIDLegacyTokenCacheItem *newItem = [unarchiver decodeObjectOfClass:[MSIDLegacyTokenCacheItem class] forKey:NSKeyedArchiveRootObjectKey];
 
     XCTAssertNotNil(newItem);
     XCTAssertEqualObjects(newItem.refreshToken, @"rt");
