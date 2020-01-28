@@ -41,6 +41,7 @@
 #import "MSIDWebviewFactory.h"
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDTokenResponseHandler.h"
+#import "MSIDAccount.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -230,7 +231,7 @@
                                           oauthFactory:self.oauthFactory
                                             tokenCache:self.tokenCache
                                   accountMetadataCache:self.accountMetadataCache
-                                       validateAccount:YES
+                                       validateAccount:self.requestParameters.shouldValidateResultAccount
                                       saveSSOStateOnly:NO
                                                  error:error
                                        completionBlock:^(MSIDTokenResult *result, NSError *error)

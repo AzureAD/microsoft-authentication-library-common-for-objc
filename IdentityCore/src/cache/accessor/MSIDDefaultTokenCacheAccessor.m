@@ -509,6 +509,7 @@
 
 - (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                authority:(MSIDAuthority *)authority
+                               realmHint:(NSString *)realmHint
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -533,15 +534,27 @@
         if (wipeError) MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to read wipe info with error %@", MSID_PII_LOG_MASKABLE(wipeError));
         return nil;
     }
+    
+    MSIDAccount *firstAccount = nil;
 
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
     {
         MSIDAccount *account = [[MSIDAccount alloc] initWithAccountCacheItem:cacheItem];
-        if (account) return account;
+        if (!account) continue;
+
+        /*
+        Note that lookup by realmHint is a best effort (hence it is a hint), because developer might be requesting token for tenantId not previously requested, in which case there will be no account in cache. We still want to ensure best effort account lookup in that scenario. In case we lookup wrong account (e.g. we find MSA account and developer wanted to get a token for Google B2B account), silent broker request will fail and we fall back to interactive request, which will resolve account correctly. Server side ensures here final account resolution based on which account is present in the tenant, and possibly a user choice during interactive token acquisition.
+         */
+        if (realmHint && [account.realm isEqualToString:realmHint])
+        {
+            return account;
+        }
+        
+        if (!firstAccount) firstAccount = account;
     }
 
     [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
-    return nil;
+    return firstAccount;
 }
 
 #pragma mark - Clear cache
