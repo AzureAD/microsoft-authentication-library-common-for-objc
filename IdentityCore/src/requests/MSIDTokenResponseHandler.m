@@ -40,6 +40,7 @@
                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
        accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
             validateAccount:(BOOL)validateAccount
+           saveSSOStateOnly:(BOOL)saveSSOStateOnly
                       error:(NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
@@ -57,7 +58,7 @@
                                                                              tokenCache:tokenCache
                                                                    accountMetadataCache:accountMetadataCache
                                                                       requestParameters:requestParameters
-                                                                       saveSSOStateOnly:NO
+                                                                       saveSSOStateOnly:saveSSOStateOnly
                                                                                   error:&validationError];
        
     if (!tokenResult)
