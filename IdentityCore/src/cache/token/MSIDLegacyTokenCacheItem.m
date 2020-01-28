@@ -124,17 +124,6 @@
     self.cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
 
-    // We support all bplist types in "additionalServer" property.
-    NSMutableDictionary *additionalServer = [[coder decodePropertyListForKey:@"additionalServer"] mutableCopy];
-    self.extendedExpiresOn = additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-    [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-    self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];
-    [additionalServer removeObjectForKey:MSID_SPE_INFO_CACHE_KEY];
-    if (additionalServer.count)
-    {
-        self.additionalInfo = additionalServer;
-    }
-
     self.accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     self.refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
     self.secret = self.accessToken ? self.accessToken : self.refreshToken;
@@ -154,6 +143,18 @@
     
     self.enrollmentId = [coder decodeObjectOfClass:[NSString class] forKey:@"enrollmentId"];
     self.applicationIdentifier = [coder decodeObjectOfClass:[NSString class] forKey:@"applicationIdentifier"];
+    
+    NSSet *classes = [NSSet setWithObjects:[NSDictionary class], [NSDate class], [NSString class], [NSURL class], [NSNumber class], nil];
+    NSMutableDictionary *additionalServer = [[coder decodeObjectOfClasses:classes forKey:@"additionalServer"] mutableCopy];
+    self.extendedExpiresOn = additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];
+    [additionalServer removeObjectForKey:MSID_SPE_INFO_CACHE_KEY];
+    if (additionalServer.count)
+    {
+        self.additionalInfo = additionalServer;
+    }
+    
     return self;
 }
 
