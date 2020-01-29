@@ -1,3 +1,8 @@
+Version 1.3.12
+-------
+* Keyed unarchiver deserialization fix for iOS 11.2
+* Fixed account lookups and validation with the same email (#669)
+
 Version 1.3.11
 -------
 * Set web config content mode to mobile on iPad
@@ -30,6 +35,10 @@ Version 1.3.6
 * Expose instance_aware flag in MSAL config
 * Remove amr64e architecture
 * Fixed static analyser warnings
+
+Version 1.3.5-hotfix2
+---------
+* [Broker patch] Keyed unarchiver deserialization fix for iOS 11.2
 
 Version 1.3.5-hotfix1
 ----------
