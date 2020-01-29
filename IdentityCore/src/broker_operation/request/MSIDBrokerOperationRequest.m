@@ -75,6 +75,9 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
         
         NSString *uuidString = [json msidStringObjectForKey:MSID_BROKER_CORRELATION_ID_KEY];
         _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
+        
+        NSString *sdkTypeString = [json msidStringObjectForKey:MSID_BROKER_CLIENT_SDK_KEY];
+        _clientSDK = MSIDClientSDKTypeFromString(sdkTypeString);
     }
     
     return self;
@@ -100,6 +103,8 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     json[MSID_BROKER_CLIENT_APP_NAME_KEY] = self.clientAppName;
     json[MSID_BROKER_CORRELATION_ID_KEY] = self.correlationId.UUIDString;
     
+    NSString *sdkTypeString = MSIDClientSDKTypeToString(self.clientSDK);
+    json[MSID_BROKER_CLIENT_SDK_KEY] = sdkTypeString;
     return json;
 }
 

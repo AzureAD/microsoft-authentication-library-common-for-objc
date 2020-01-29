@@ -44,3 +44,4 @@ extern MSIDJsonSerializableType const MSID_JSON_TYPE_PROVIDER_ADFS;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_AADV1_TOKEN_RESPONSE;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE;
 extern MSIDJsonSerializableType const MSID_JSON_TYPE_B2C_TOKEN_RESPONSE;
+

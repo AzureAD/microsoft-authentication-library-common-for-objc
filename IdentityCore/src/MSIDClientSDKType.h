@@ -22,27 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
-#import "MSIDClientSDKType.h"
 
-NS_ASSUME_NONNULL_BEGIN
+typedef NS_ENUM(NSInteger, MSIDClientSDKType)
+{
+    MSIDClientSDKTypeNone,
+    MSIDClientSDKTypeMSAL,
+    MSIDClientSDKTypeADAL
+};
 
-@interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic, class, readonly) NSString *operation;
-@property (nonatomic, nullable) NSString *brokerKey;
-@property (nonatomic) NSInteger protocolVersion;
-@property (nonatomic, nullable) NSString *clientVersion;
-@property (nonatomic, nullable) NSString *clientAppVersion;
-@property (nonatomic, nullable) NSString *clientAppName;
-@property (nonatomic) MSIDClientSDKType clientSDK;
-@property (nonatomic, nullable) NSUUID *correlationId;
-
-+ (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
-keychainAccessGroup:(nullable NSString *)keychainAccessGroup
-     clientMetadata:(nullable NSDictionary *)clientMetadata
-            context:(nullable id<MSIDRequestContext>)context;
-
-@end
-
-NS_ASSUME_NONNULL_END
+extern NSString * _Nonnull MSIDClientSDKTypeToString(MSIDClientSDKType type);
+extern MSIDClientSDKType MSIDClientSDKTypeFromString(NSString * _Nonnull sdkTypeString);
