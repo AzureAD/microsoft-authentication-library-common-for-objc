@@ -51,6 +51,7 @@ extern NSString * _Nonnull const MSID_BROKER_CORRELATION_ID_KEY;
 extern NSString * _Nonnull const MSID_BROKER_REQUEST_PARAMETERS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_LOGIN_HINT_KEY;
 extern NSString * _Nonnull const MSID_BROKER_PROMPT_KEY;
+extern NSString * _Nonnull const MSID_BROKER_CLIENT_SDK_KEY;
 extern NSString * _Nonnull const MSID_BROKER_CLIENT_ID_KEY;
 extern NSString * _Nonnull const MSID_BROKER_FAMILY_ID_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SIGNED_IN_ACCOUNTS_ONLY_KEY;

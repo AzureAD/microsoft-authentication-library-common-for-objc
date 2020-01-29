@@ -21,28 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
 #import "MSIDClientSDKType.h"
+#import "MSIDConstants.h"
 
-NS_ASSUME_NONNULL_BEGIN
+NSString *MSIDClientSDKTypeToString(MSIDClientSDKType type)
+{
+    switch (type)
+    {
+        case MSIDClientSDKTypeMSAL:
+            return MSID_CLIENT_SDK_TYPE_MSAL;
+        case MSIDClientSDKTypeADAL:
+            return MSID_CLIENT_SDK_TYPE_ADAL;
+        default:
+            return nil;
+    }
+}
 
-@interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic, class, readonly) NSString *operation;
-@property (nonatomic, nullable) NSString *brokerKey;
-@property (nonatomic) NSInteger protocolVersion;
-@property (nonatomic, nullable) NSString *clientVersion;
-@property (nonatomic, nullable) NSString *clientAppVersion;
-@property (nonatomic, nullable) NSString *clientAppName;
-@property (nonatomic) MSIDClientSDKType clientSDK;
-@property (nonatomic, nullable) NSUUID *correlationId;
-
-+ (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
-keychainAccessGroup:(nullable NSString *)keychainAccessGroup
-     clientMetadata:(nullable NSDictionary *)clientMetadata
-            context:(nullable id<MSIDRequestContext>)context;
-
-@end
-
-NS_ASSUME_NONNULL_END
+MSIDClientSDKType MSIDClientSDKTypeFromString(NSString * sdkTypeString)
+{
+    if ([sdkTypeString isEqualToString:MSID_CLIENT_SDK_TYPE_MSAL])
+    {
+        return MSIDClientSDKTypeMSAL;
+    }
+    else if ([sdkTypeString isEqualToString:MSID_CLIENT_SDK_TYPE_ADAL])
+    {
+        return MSIDClientSDKTypeADAL;
+    }
+    
+    return MSIDClientSDKTypeNone;
+}
