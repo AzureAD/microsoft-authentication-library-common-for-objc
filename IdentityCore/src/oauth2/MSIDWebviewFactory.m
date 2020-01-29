@@ -201,6 +201,7 @@
     result[MSID_OAUTH2_SIGNOUT_REDIRECT_URI] = parameters.redirectUri;
     result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
     [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
+    [result addEntriesFromDictionary:parameters.appRequestMetadata];
     return result;
 }
 
