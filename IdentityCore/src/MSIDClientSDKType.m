@@ -33,7 +33,7 @@ NSString *MSIDClientSDKTypeToString(MSIDClientSDKType type)
         case MSIDClientSDKTypeADAL:
             return MSID_CLIENT_SDK_TYPE_ADAL;
         default:
-            return @"";
+            return nil;
     }
 }
 
