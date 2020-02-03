@@ -21,30 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTemporaryAccountResponseHandler.h"
-#import "MSIDTestAutomationAccount.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
-@implementation MSIDAutomationTemporaryAccountResponseHandler
+NS_ASSUME_NONNULL_BEGIN
 
-- (id)responseFromData:(NSData *)response
-                 error:(NSError **)error
-{
-    NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
-    if (!jsonDictionary)
-    {
-        return nil;
-    }
-    
-    NSArray *accountsArray = jsonDictionary[@"success"];
-    
-    if (!accountsArray || ![accountsArray count])
-    {
-        return nil;
-    }
-    
-    MSIDTestAutomationAccount *testAccount = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:accountsArray[0] error:nil];
-    testAccount.password = nil;
-    return testAccount;
-}
+@interface MSIDTestAutomationApplication : NSObject <MSIDJsonSerializable>
+
+@property (nonatomic, readonly) NSString *appId;
+@property (nonatomic, readonly) NSString *objectId;
+@property (nonatomic, readonly) BOOL multiTenantApp;
+@property (nonatomic, readonly) NSString *labName;
+@property (nonatomic, readonly) NSOrderedSet *redirectUris;
+@property (nonatomic, readonly) NSOrderedSet *defaultScopes;
+@property (nonatomic, readonly) NSString *defaultRedirectUri;
+
+// Writable properties
+@property (nonatomic) NSString *redirectUriPrefix;
 
 @end
+
+NS_ASSUME_NONNULL_END
+

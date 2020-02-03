@@ -22,15 +22,34 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDAutomationBaseApiRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationBaseApiRequest : NSObject <NSCopying>
+typedef NSString *MSIDTestAppType;
+extern MSIDTestAppType MSIDTestAppTypeCloud;
+extern MSIDTestAppType MSIDTestAppTypeOnPrem;
 
-- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath labAccessPassword:(NSString *)labPassword;
-- (NSString *)keyvaultNameKey;
-+ (MSIDAutomationBaseApiRequest *)requestWithDictionary:(NSDictionary *)dictionary;
+typedef NSString *MSIDTestAppEnvironment;
+extern MSIDTestAppEnvironment MSIDTestAppEnvironmentWWCloud;
+extern MSIDTestAppEnvironment MSIDTestAppEnvironmentChinaCloud;
+extern MSIDTestAppEnvironment MSIDTestAppEnvironmentGermanCloud;
+extern MSIDTestAppEnvironment MSIDTestAppEnvironmentUSGovCloud;
+extern MSIDTestAppEnvironment MSIDTestAppEnvironmentAzureB2C;
+extern MSIDTestAppEnvironment MSIDTestAppEnvironmentPPECloud;
 
+typedef NSString *MSIDTestAppAudience;
+extern MSIDTestAppAudience MSIDTestAppAudienceMyOrg;
+extern MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgs;
+extern MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts;
+
+@interface MSIDTestAutomationAppConfigurationRequest : MSIDAutomationBaseApiRequest
+
+@property (nonatomic) MSIDTestAppType testAppType;
+@property (nonatomic) MSIDTestAppEnvironment testAppEnvironment;
+@property (nonatomic) MSIDTestAppAudience testAppAudience;
+@property (nonatomic) NSDictionary *additionalQueryParameters;
+ 
 @end
 
 NS_ASSUME_NONNULL_END

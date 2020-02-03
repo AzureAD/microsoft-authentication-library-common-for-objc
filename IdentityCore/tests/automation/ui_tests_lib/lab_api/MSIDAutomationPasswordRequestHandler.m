@@ -26,8 +26,8 @@
 
 @implementation MSIDAutomationPasswordRequestHandler
 
-- (void)loadPasswordForAccount:(MSIDTestAccount *)account
-             completionHandler:(void (^)(NSString *password, NSError *error))completionHandler
+- (void)loadPasswordForTestAccount:(MSIDTestAutomationAccount *)account
+                 completionHandler:(void (^)(NSString *password, NSError *error))completionHandler
 {
     if (account.password)
     {

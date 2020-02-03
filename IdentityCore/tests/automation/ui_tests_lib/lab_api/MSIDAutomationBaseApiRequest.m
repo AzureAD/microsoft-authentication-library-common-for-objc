@@ -48,7 +48,11 @@
     NSURLComponents *components = [[NSURLComponents alloc] initWithString:fullAPIPath];
     
     NSMutableArray *queryItems = [NSMutableArray array];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"code" value:labPassword]];
+    
+    if (labPassword)
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"code" value:labPassword]];
+    }
     
     NSArray *extraQueryItems = [self queryItems];
     
@@ -81,6 +85,60 @@
 {
     NSAssert(NO, @"Abstract method, implement in subclasses");
     return nil;
+}
+
++ (MSIDAutomationBaseApiRequest *)requestWithDictionary:(__unused NSDictionary *)dictionary
+{
+    NSAssert(NO, @"Abstract method, implement in subclasses");
+    return nil;
+}
+
+- (BOOL)shouldCacheResponse
+{
+    return NO;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqualToRequest:(MSIDAutomationBaseApiRequest *)request
+{
+    if (!request)
+    {
+        return NO;
+    }
+
+    BOOL result = YES;
+    result &= (!self.requestOperationPath && !request.requestOperationPath) || [self.requestOperationPath isEqualToString:request.requestOperationPath];
+    result &= (!self.queryItems && !request.queryItems) || [self.queryItems isEqualToArray:request.queryItems];
+    result &= (!self.keyvaultNameKey && !request.keyvaultNameKey) || [self.keyvaultNameKey isEqualToString:request.keyvaultNameKey];
+
+    return result;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+
+    if (![object isKindOfClass:MSIDAutomationBaseApiRequest.class])
+    {
+        return NO;
+    }
+
+    return [self isEqualToRequest:(MSIDAutomationBaseApiRequest *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = self.requestOperationPath.hash;
+    hash ^= self.queryItems.hash;
+    hash ^= self.keyvaultNameKey.hash;
+
+    return hash;
 }
 
 @end

@@ -21,30 +21,28 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTemporaryAccountResponseHandler.h"
-#import "MSIDTestAutomationAccount.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
-@implementation MSIDAutomationTemporaryAccountResponseHandler
+NS_ASSUME_NONNULL_BEGIN
 
-- (id)responseFromData:(NSData *)response
-                 error:(NSError **)error
-{
-    NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
-    if (!jsonDictionary)
-    {
-        return nil;
-    }
-    
-    NSArray *accountsArray = jsonDictionary[@"success"];
-    
-    if (!accountsArray || ![accountsArray count])
-    {
-        return nil;
-    }
-    
-    MSIDTestAutomationAccount *testAccount = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:accountsArray[0] error:nil];
-    testAccount.password = nil;
-    return testAccount;
-}
+@interface MSIDTestAutomationAccount : NSObject <MSIDJsonSerializable>
+
+@property (nonatomic, readonly) NSString *objectId;
+@property (nonatomic, readonly) NSString *userType;
+@property (nonatomic, readonly) NSString *upn;
+@property (nonatomic, readonly) NSString *domainUsername;
+@property (nonatomic, readonly) NSString *keyvaultName;
+@property (nonatomic, readonly) NSString *homeObjectId;
+@property (nonatomic, readonly) NSString *targetTenantId;
+@property (nonatomic, readonly) NSString *homeTenantId;
+@property (nonatomic, readonly) NSString *tenantName;
+@property (nonatomic, readonly) NSString *homeTenantName;
+@property (nonatomic, readonly) NSString *homeAccountId;
+
+// Writable properties
+@property (nonatomic, nullable) NSString *password;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -58,10 +58,22 @@
           responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
         completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
+    id cachedResponse = [self.apiCacheHandler cachedResponseForRequest:apiRequest];
+    
+    if (cachedResponse)
+    {
+        if (completionHandler)
+        {
+            completionHandler(cachedResponse, nil);
+        }
+        
+        return;
+    }
+    
     [self passwordForLabAPIWithRequest:apiRequest
                      completionHandler:^(NSString *password, NSError *error) {
        
-                         if (!password)
+                         if (error)
                          {
                              if (completionHandler)
                              {
@@ -84,6 +96,15 @@
 - (void)passwordForLabAPIWithRequest:(MSIDAutomationBaseApiRequest *)apiRequest
                    completionHandler:(void (^)(NSString *password, NSError *error))completionHandler
 {
+    if (!apiRequest.keyvaultNameKey)
+    {
+        if (completionHandler)
+        {
+            completionHandler(nil, nil);
+        }
+        return;
+    }
+
     NSString *cachedPassword = self.labPasswordCache[apiRequest.keyvaultNameKey];
     if (cachedPassword)
     {
@@ -141,7 +162,7 @@
 
 - (void)executeAPIRequestImpl:(MSIDAutomationBaseApiRequest *)request
               responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
-                  apiPassword:(NSString *)apiPassword
+                  apiPassword:(NSString *)apiPassword // TODO: check if API password is still needed anywhere
                   accessToken:(NSString *)accessToken
             completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
@@ -161,11 +182,19 @@
               NSError *responseError = nil;
               id result = [responseHandler responseFromData:data error:&responseError];
               
-              completionHandler(result, responseError);
+              [self.apiCacheHandler cacheResponse:result forRequest:request];
+              
+              dispatch_async(dispatch_get_main_queue(), ^{
+                  completionHandler(result, responseError);
+              });
+              
               return;
           }
           
-          completionHandler(nil, error);
+          dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(nil, error);
+          });
+        
       }] resume];
 }
 

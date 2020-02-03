@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfiguration.h"
 #import "MSIDConstants.h"
 #import "MSIDJsonSerializable.h"
+#import "MSIDTestAutomationAccount.h"
 
 @interface MSIDAutomationTestRequest : NSObject <MSIDJsonSerializable>
 
@@ -44,7 +44,7 @@
 @property (nonatomic, strong) NSString *legacyAccountIdentifierType;
 @property (nonatomic, strong) NSString *loginHint;
 @property (nonatomic, strong) NSString *claims;
-@property (nonatomic, strong) MSIDTestAccount *testAccount;
+@property (nonatomic, strong) MSIDTestAutomationAccount *testAccount;
 @property (nonatomic) BOOL usePassedWebView;
 @property (nonatomic) MSIDWebviewType webViewType;
 @property (nonatomic) BOOL validateAuthority;

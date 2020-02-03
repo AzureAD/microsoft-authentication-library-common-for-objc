@@ -22,17 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationConfigurationRequest.h"
+#import "MSIDAutomationOperationAPIRequestHandler.h"
 
-@class MSIDTestAutomationConfiguration;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationUserAPIRequestHandler : NSObject
+@interface MSIDAutomationOperationAPIInMemoryCacheHandler : NSObject <MSIDAutomationOperationAPICacheHandler>
 
-- (instancetype)initWithAPIPath:(NSString *)apiPath
-           cachedConfigurations:(NSDictionary *)cachedConfigurations;
-
-- (void)executeAPIRequest:(MSIDAutomationConfigurationRequest *)apiRequest
-        completionHandler:(void (^)(MSIDTestAutomationConfiguration *result, NSError *error))completionHandler;
+- (instancetype)initWithDictionary:(NSDictionary *)cachedDictionary;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 @end
 
+NS_ASSUME_NONNULL_END

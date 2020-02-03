@@ -21,30 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTemporaryAccountResponseHandler.h"
-#import "MSIDTestAutomationAccount.h"
+#import "MSIDAutomationOperationAPIInMemoryCacheHandler.h"
+#import "MSIDCache.h"
 
-@implementation MSIDAutomationTemporaryAccountResponseHandler
+@interface MSIDAutomationOperationAPIInMemoryCacheHandler()
 
-- (id)responseFromData:(NSData *)response
-                 error:(NSError **)error
+@property (nonatomic) MSIDCache *cache;
+
+@end
+
+@implementation MSIDAutomationOperationAPIInMemoryCacheHandler
+
+- (instancetype)initWithDictionary:(NSDictionary *)cachedDictionary
 {
-    NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
-    if (!jsonDictionary)
+    self = [super init];
+    
+    if (self)
     {
-        return nil;
+        _cache = [MSIDCache new];
+        
+        for (id dictKey in [cachedDictionary allKeys])
+        {
+            [_cache setObject:cachedDictionary[dictKey] forKey:dictKey];
+        }
     }
     
-    NSArray *accountsArray = jsonDictionary[@"success"];
-    
-    if (!accountsArray || ![accountsArray count])
-    {
-        return nil;
-    }
-    
-    MSIDTestAutomationAccount *testAccount = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:accountsArray[0] error:nil];
-    testAccount.password = nil;
-    return testAccount;
+    return self;
+}
+
+- (id)cachedResponseForRequest:(id)request
+{
+    return [self.cache objectForKey:request];
+}
+
+- (void)cacheResponse:(id)response forRequest:(id)request
+{
+    [self.cache setObject:response forKey:request];
 }
 
 @end
