@@ -21,28 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationOperationResponseHandler.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDTestAutomationAccount : NSObject <MSIDJsonSerializable>
-
-@property (nonatomic, readonly) NSString *objectId;
-@property (nonatomic, readonly) NSString *userType;
-@property (nonatomic, readonly) NSString *upn;
-@property (nonatomic, readonly) NSString *domainUsername;
-@property (nonatomic, readonly) NSString *keyvaultName;
-@property (nonatomic, readonly) NSString *homeObjectId;
-@property (nonatomic, readonly) NSString *targetTenantId;
-@property (nonatomic, readonly) NSString *homeTenantId;
-@property (nonatomic, readonly) NSString *tenantName;
-@property (nonatomic, readonly) NSString *homeTenantName;
-@property (nonatomic, readonly) NSString *homeAccountId;
-@property (nonatomic, readonly) BOOL isHomeAccount;
-
-// Writable properties
-@property (nonatomic, nullable) NSString *password;
+@interface MSIDAutomationOperationAccountResponseHandler : MSIDAutomationOperationResponseHandler
 
 @end
 
