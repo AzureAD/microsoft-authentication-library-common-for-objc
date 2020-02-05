@@ -73,7 +73,7 @@ static NSDictionary *s_tenantMappingDictionary;
         NSString *homeUPN = [json msidStringObjectForKey:@"homeUPN"];
         NSString *guestUPN = [json msidStringObjectForKey:@"upn"];
         _upn = (homeUPN && ![homeUPN isEqualToString:@"None"]) ? homeUPN : guestUPN;
-        _isHomeAccount = [guestUPN containsString:@"#EXT#"];
+        _isHomeAccount = ![guestUPN containsString:@"#EXT#"];
         
         NSString *domainUsername = [json msidStringObjectForKey:@"domainUsername"]; // TODO: check name of this attribute
         _domainUsername = (domainUsername && ![domainUsername isEqualToString:@"None"]) ? domainUsername : _upn;
