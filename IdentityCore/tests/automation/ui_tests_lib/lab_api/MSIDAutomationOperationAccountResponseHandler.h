@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAutomationOperationAccountResponseHandler : MSIDAutomationOperationResponseHandler
 
+@property (nonatomic) BOOL requiresDomainName;
+
 @end
 
 NS_ASSUME_NONNULL_END

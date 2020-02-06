@@ -45,13 +45,23 @@
     {
         if (account.isHomeAccount)
         {
-            homeObjectIdDict[account.upn] = account.objectId;
+            homeObjectIdDict[account.upn.lowercaseString] = account.objectId;
         }
         else if (!account.homeObjectId)
         {
-            [account setValue:homeObjectIdDict[account.upn] forKey:@"homeObjectId"];
+            [account setValue:homeObjectIdDict[account.upn.lowercaseString] forKey:@"homeObjectId"];
             NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", account.homeObjectId, account.homeTenantId];
             [account setValue:homeAccountId forKey:@"homeAccountId"];
+        }
+        
+        if (self.requiresDomainName)
+        {
+            NSArray *components = [account.domainUsername componentsSeparatedByString:@"@"];
+            
+            if ([components count] > 0)
+            {
+                [account setValue:components[0] forKey:@"domainUsername"];
+            }
         }
     }
     

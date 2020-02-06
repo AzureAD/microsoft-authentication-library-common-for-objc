@@ -102,7 +102,7 @@ MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts = @"azure
     MSIDTestAutomationAppConfigurationRequest *request = [MSIDTestAutomationAppConfigurationRequest new];
     request.testAppType = dictionary[@"test_app_type"];
     request.testAppEnvironment = dictionary[@"test_app_environment"];
-    request.testAppAudience = dictionary[@"testp_app_audience"];
+    request.testAppAudience = dictionary[@"test_app_audience"];
     return request;
 }
 

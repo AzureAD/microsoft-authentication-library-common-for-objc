@@ -114,7 +114,7 @@
 
         MSIDAutomationBaseApiRequest *request = [MSIDTestAutomationAppConfigurationRequest requestWithDictionary:requestDict];
         MSIDTestAutomationApplication *appConf = [[MSIDTestAutomationApplication alloc] initWithJSONDictionary:configurationDict error:nil];
-        additionalConfsDictionary[request] = appConf;
+        additionalConfsDictionary[request] = @[appConf];
     }
     
     NSArray *additionalAccountConfs = configurationDictionary[@"additional_account_confs"];

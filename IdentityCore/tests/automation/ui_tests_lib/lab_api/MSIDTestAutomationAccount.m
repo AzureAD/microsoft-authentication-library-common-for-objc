@@ -53,7 +53,12 @@ static NSDictionary *s_tenantMappingDictionary;
         s_tenantMappingDictionary = @{@"msidlab4.com": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
                                       @"msidlab4.onmicrosoft.com": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
                                       @"msidlab3.com": @"8e44f19d-bbab-4a82-b76b-4cd0a6fbc97a",
-                                      @"msidlab3.onmicrosoft.com": @"8e44f19d-bbab-4a82-b76b-4cd0a6fbc97a"
+                                      @"msidlab3.onmicrosoft.com": @"8e44f19d-bbab-4a82-b76b-4cd0a6fbc97a",
+                                      @"msidlab9.com": @"cc0319fa-c0e1-4b2c-ba5f-2cc3b598b01b",
+                                      @"msidlab13.com": @"ec825bad-a705-4570-8eca-fe2461368f4e",
+                                      @"outlook.com": @"9188040d-6c67-4c5b-b112-36a304b66dad",
+                                      @"blfmsidlab1.onmicrosoft.de": @"469fdeb4-d4fd-4fde-991e-308a78e4bea4",
+                                      @"msidlab2.onmicrosoft.com": @"6277510b-7d73-41a4-80c7-716caa59a8f3"
         };
     });
     
@@ -79,6 +84,7 @@ static NSDictionary *s_tenantMappingDictionary;
         _domainUsername = (domainUsername && ![domainUsername isEqualToString:@"None"]) ? domainUsername : _upn;
         
         _keyvaultName = [json msidStringObjectForKey:@"credentialVaultKeyName"];
+        _keyvaultName = [_keyvaultName stringByReplacingOccurrencesOfString:@"/MSIDLAB/" withString:@"/"]; // TODO: remove me once blackforest query gets fixed!
         _password = [json msidStringObjectForKey:@"password"];
         
         _homeObjectId = _isHomeAccount ? _objectId : [json msidStringObjectForKey:@"homeObjectId"]; // TODO: check name of this attribute
@@ -88,12 +94,12 @@ static NSDictionary *s_tenantMappingDictionary;
         
         if (!_targetTenantId)
         {
-            _targetTenantId = [[self.class tenantMappingDictionary] objectForKey:_tenantName]; // TODO: remove me!
+            _targetTenantId = [[self.class tenantMappingDictionary] objectForKey:_tenantName.lowercaseString]; // TODO: remove me!
         }
         
         if (!_homeTenantId)
         {
-            _homeTenantId = [[self.class tenantMappingDictionary] objectForKey:[_upn msidDomainSuffix]]; // TODO: remove me!
+            _homeTenantId = [[self.class tenantMappingDictionary] objectForKey:[_upn msidDomainSuffix].lowercaseString]; // TODO: remove me!
         }
         
         NSString *homeTenantName = [json msidStringObjectForKey:@"homeDomain"];

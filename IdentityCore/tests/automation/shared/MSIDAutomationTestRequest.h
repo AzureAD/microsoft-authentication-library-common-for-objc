@@ -60,6 +60,7 @@
 @property (nonatomic) UIViewController *parentController;
 #endif
 @property (nonatomic) BOOL isIntuneMAMCACapable;
+@property (nonatomic) NSString *targetTenantId;
 
 - (BOOL)usesEmbeddedWebView;
 
