@@ -23,6 +23,8 @@
 
 #import "MSIDTestAutomationApplication.h"
 #import "NSDictionary+MSIDExtensions.h"
+#import "MSIDB2CAuthority.h"
+#import "MSIDAuthority+Internal.h"
 
 @interface MSIDTestAutomationApplication()
 
@@ -49,8 +51,11 @@
         _multiTenantApp = [[json msidStringObjectForKey:@"multiTenantApp"] isEqualToString:@"Yes"];
         _labName = [json msidStringObjectForKey:@"labName"];
         
-        _redirectUris = [[json msidStringObjectForKey:@"redirectUri"] msidScopeSet];
-        _defaultScopes = [[json msidStringObjectForKey:@"defaultScopes"] msidScopeSet];
+        NSString *redirectUriString = [json msidStringObjectForKey:@"redirectUri"];
+        
+        _redirectUris = [redirectUriString msidScopeSet];
+        _defaultScopes = [self msidOrderedSetFromCommaSeparatedString:[json msidStringObjectForKey:@"defaultScopes"]];
+        _defaultAuthorities = [self msidOrderedSetFromCommaSeparatedString:[json msidStringObjectForKey:@"authority"]];
         
         if (!_appId || !_redirectUris.count || !_defaultScopes)
         {
@@ -85,6 +90,39 @@
 - (NSString *)defaultRedirectUri
 {
     return [self redirectUriWithPrefix:self.redirectUriPrefix];
+}
+
+#pragma mark - Helpers
+
+- (NSOrderedSet *)msidOrderedSetFromCommaSeparatedString:(NSString *)string
+{
+    NSCharacterSet *set = [NSCharacterSet punctuationCharacterSet];
+    NSMutableOrderedSet<NSString *> *results = [NSMutableOrderedSet<NSString *> new];
+    NSArray *parts = [string componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]];
+    for (NSString *part in parts)
+    {
+        if (![NSString msidIsStringNilOrBlank:part])
+        {
+            NSString *resultPart = [part stringByTrimmingCharactersInSet:set].msidTrimmedString.lowercaseString;
+            [results addObject:resultPart];
+        }
+    }
+    
+    return results;
+}
+
+- (NSString *)b2cAuthorityForPolicy:(NSString *)policy tenantId:(NSString *)tenantId
+{
+    for (NSString *authority in self.defaultAuthorities.array)
+    {
+        if ([authority containsString:policy.lowercaseString])
+        {
+            MSIDB2CAuthority *msidAuthority = [[MSIDB2CAuthority alloc] initWithURL:[NSURL URLWithString:authority] validateFormat:YES rawTenant:tenantId context:nil error:nil];
+            return msidAuthority.url.absoluteString;
+        }
+    }
+    
+    return nil;
 }
 
 @end

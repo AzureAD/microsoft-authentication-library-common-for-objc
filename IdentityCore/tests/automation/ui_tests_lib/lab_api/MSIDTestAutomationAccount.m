@@ -84,7 +84,6 @@ static NSDictionary *s_tenantMappingDictionary;
         _domainUsername = (domainUsername && ![domainUsername isEqualToString:@"None"]) ? domainUsername : _upn;
         
         _keyvaultName = [json msidStringObjectForKey:@"credentialVaultKeyName"];
-        _keyvaultName = [_keyvaultName stringByReplacingOccurrencesOfString:@"/MSIDLAB/" withString:@"/"]; // TODO: remove me once blackforest query gets fixed!
         _password = [json msidStringObjectForKey:@"password"];
         
         _homeObjectId = _isHomeAccount ? _objectId : [json msidStringObjectForKey:@"homeObjectId"]; // TODO: check name of this attribute
