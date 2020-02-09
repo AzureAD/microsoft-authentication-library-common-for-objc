@@ -58,7 +58,9 @@ static NSDictionary *s_tenantMappingDictionary;
                                       @"msidlab13.com": @"ec825bad-a705-4570-8eca-fe2461368f4e",
                                       @"outlook.com": @"9188040d-6c67-4c5b-b112-36a304b66dad",
                                       @"blfmsidlab1.onmicrosoft.de": @"469fdeb4-d4fd-4fde-991e-308a78e4bea4",
-                                      @"msidlab2.onmicrosoft.com": @"6277510b-7d73-41a4-80c7-716caa59a8f3"
+                                      @"msidlab2.onmicrosoft.com": @"6277510b-7d73-41a4-80c7-716caa59a8f3",
+                                      @"arlmsidlab1.onmicrosoft.us": @"45ff0c17-f8b5-489b-b7fd-2fedebbec0c4",
+                                      @"mncmsidlab1.partner.onmschina.cn": @"9e5e17b6-6e3d-4515-8895-0e7756474486"
         };
     });
     
