@@ -75,13 +75,13 @@
         _intuneApplicationIdentifier = intuneApplicationIdentifier;
         _requestType = requestType;
 
-//        if ([scopes intersectsOrderedSet:oidScopes])
-//        {
-//            NSString *errorMessage = [NSString stringWithFormat:@"%@ are reserved scopes and may not be specified in the acquire token call.", oidScopes];
-//            MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, errorMessage, correlationId);
-//            return nil;
-//        }
-        if (!_authority.supportsClientIDAsScope && [scopes containsObject:clientId])
+        if ([scopes intersectsOrderedSet:oidScopes])
+        {
+            NSString *errorMessage = [NSString stringWithFormat:@"%@ are reserved scopes and may not be specified in the acquire token call.", oidScopes];
+            MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, errorMessage, correlationId);
+            return nil;
+        }
+        else if (!_authority.supportsClientIDAsScope && [scopes containsObject:clientId])
         {
             NSString *errorMessage = [NSString stringWithFormat:@"Passing clientId %@ as scope is not supported by %@. Please remove %@ from your scopes list", clientId, _authority.url, clientId];
             MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, errorMessage, correlationId);
