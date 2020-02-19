@@ -7,15 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "MSIDBrokerOperationRequest.h"
-@class MSIDConfiguration;
+#import "MSIDBaseBrokerOperationRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationBrowserTokenRequest : MSIDBrokerOperationRequest
+@class MSIDAADAuthority;
 
-@property (nonatomic) MSIDConfiguration *configuration;
-@property (nonatomic) NSString *requestURL;
+@interface MSIDBrokerOperationBrowserTokenRequest : MSIDBaseBrokerOperationRequest
+
+@property (nonatomic) NSURL *requestURL;
+@property (nonatomic) NSString *bundleIdentifier;
+@property (nonatomic) MSIDAADAuthority *authority;
+
+- (instancetype)initWithRequest:(NSURL *)requestURL bundleIdentifier:(NSString *)bundleIdentifier;
 
 @end
 

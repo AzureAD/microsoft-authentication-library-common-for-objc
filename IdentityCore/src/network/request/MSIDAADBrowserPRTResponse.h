@@ -12,8 +12,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAADBrowserPRTResponse : NSObject
 
-@property (nonatomic, nullable) NSHTTPURLResponse *httpURLresponse;
-@property (nonatomic, nullable) NSData *body;
+@property (nonatomic, nullable, readonly) NSHTTPURLResponse *response;
+@property (nonatomic, nullable, readonly) NSData *body;
+
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)response bundleIdentifier:(NSData *)body;
 
 @end
 

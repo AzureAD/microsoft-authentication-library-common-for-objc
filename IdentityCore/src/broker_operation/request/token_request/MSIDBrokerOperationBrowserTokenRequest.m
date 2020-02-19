@@ -7,69 +7,54 @@
 //
 
 #import "MSIDBrokerOperationBrowserTokenRequest.h"
-#import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
-#import "NSDictionary+MSIDJsonSerializable.h"
-#import "MSIDConstants.h"
-#import "MSIDConfiguration.h"
+#import "MSIDAADAuthority.h"
+
+static NSArray *_bundleIdentifierWhiteList = nil;
 
 @implementation MSIDBrokerOperationBrowserTokenRequest
 
-+ (void)load
-{
-    if (@available(iOS 13.0, *))
-    {
-        [MSIDJsonSerializableFactory registerClass:self forClassType:self.operation];
-    }
-}
-
-#pragma mark - MSIDBrokerOperationRequest
-
-+ (NSString *)operation
-{
-    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT;
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithRequest:(NSURL *)requestURL bundleIdentifier:(NSString *)bundleIdentifier
 {
     self = [super init];
-    
     if (self)
     {
-        _configuration = [[MSIDConfiguration alloc] initWithJSONDictionary:json error:error];
-        if (!_configuration) return nil;
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_KEY required:YES error:error]) return nil;
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_BROWSER_REQUEST_KEY required:YES error:error]) return nil;
-        self.brokerKey = json[MSID_BROKER_KEY];
-        self.requestURL = json[MSID_BROKER_BROWSER_REQUEST_KEY];
+        _requestURL = requestURL;
+        
+        if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
+        {
+            return nil;
+        }
+        
+        _bundleIdentifier = bundleIdentifier;
+        
+        NSError *error = nil;
+        MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:_requestURL rawTenant:nil context:nil error:&error];
+        
+        if (!authority)
+        {
+            return nil;
+        }
+        
+        _authority = authority;
     }
     
     return self;
 }
 
-- (NSDictionary *)jsonDictionary
++ (void) initialize
 {
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    
-    NSDictionary *configurationJson = [self.configuration jsonDictionary];
-    if (!configurationJson)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, configuration is nil.", self.class);
-        return nil;
-    }
-    
-    [json addEntriesFromDictionary:configurationJson];
-    if (!self.brokerKey)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create json for %@ class, brokerKey is nil.", self.class);
-        return nil;
-    }
-    
-    json[MSID_BROKER_KEY] = self.brokerKey;
-    json[MSID_BROKER_BROWSER_REQUEST_KEY] = self.requestURL;
-    return json;
+  if (self == [MSIDBrokerOperationBrowserTokenRequest class])
+  {
+      _bundleIdentifierWhiteList = @[@"com.apple.mobilesafari"];
+  }
+}
+
+#pragma mark - MSIDBaseBrokerOperationRequest
+
++ (NSString *)operation
+{
+    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT;
 }
 
 @end

@@ -32,10 +32,7 @@
         return nil;
     }
     
-    __auto_type response = [MSIDAADBrowserPRTResponse new];
-    response.body = data;
-    response.httpURLresponse = httpResponse;
-    
+    __auto_type response = [[MSIDAADBrowserPRTResponse alloc] initWithResponse:httpResponse bundleIdentifier:data];
     return response;
 }
 

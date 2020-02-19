@@ -190,6 +190,18 @@
     return nil;
 }
 
+- (NSArray<MSIDPrimaryRefreshToken *> *)getPrimaryRefreshTokensForConfiguration:(MSIDConfiguration *)configuration
+                                                                        context:(id<MSIDRequestContext>)context
+                                                                          error:(NSError **)error
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.environmentAliases = [configuration.authority defaultCacheEnvironmentAliases];
+    query.credentialType = MSIDPrimaryRefreshTokenType;
+
+    NSArray<MSIDPrimaryRefreshToken *> *refreshTokens = (NSArray<MSIDPrimaryRefreshToken *> *)[self getTokensWithEnvironment:configuration.authority.environment cacheQuery:query context:context error:error];
+    return refreshTokens;
+}
+
 - (MSIDRefreshToken *)getRefreshableTokenWithAccount:(MSIDAccountIdentifier *)accountIdentifier
                                             familyId:(NSString *)familyId
                                       credentialType:(MSIDCredentialType)credentialType

@@ -105,4 +105,9 @@
                   context:(id<MSIDRequestContext>)context
                     error:(NSError **)error;
 
+@optional
+- (NSArray<MSIDPrimaryRefreshToken *> *)getPrimaryRefreshTokensForConfiguration:(MSIDConfiguration *)configuration
+                                                                        context:(id<MSIDRequestContext>)context
+                                                                          error:(NSError **)error;
+
 @end

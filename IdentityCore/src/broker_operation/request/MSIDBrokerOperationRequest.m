@@ -30,12 +30,6 @@
 
 @implementation MSIDBrokerOperationRequest
 
-+ (NSString *)operation
-{
-    NSAssert(NO, @"Abstract method.");
-    return @"";
-}
-
 + (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request
 keychainAccessGroup:(NSString *)keychainAccessGroup
      clientMetadata:(NSDictionary *)clientMetadata

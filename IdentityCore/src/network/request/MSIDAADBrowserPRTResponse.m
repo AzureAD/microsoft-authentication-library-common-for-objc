@@ -10,6 +10,16 @@
 
 @implementation MSIDAADBrowserPRTResponse
 
-
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)response bundleIdentifier:(NSData *)body
+{
+    self = [super init];
+    if (self)
+    {
+        _response = response;
+        _body = body;
+    }
+    
+    return self;
+}
 
 @end
