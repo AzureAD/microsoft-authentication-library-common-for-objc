@@ -26,20 +26,19 @@
 
 #if MSID_ENABLE_SSO_EXTENSION
 
-NS_ASSUME_NONNULL_BEGIN
-
 @class MSIDRequestParameters;
 
+NS_ASSUME_NONNULL_BEGIN
+
 API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionGetAccountsRequest : NSObject
+@interface MSIDSSOExtensionGetDeviceInfoRequest : NSObject
 
 @property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                        returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
                                              error:(NSError * _Nullable * _Nullable)error;
 
-- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
+- (void)executeRequestWithCompletion:(nonnull MSIDGetDeviceInfoRequestCompletionBlock)completionBlock;
 
 + (BOOL)canPerformRequest;
 

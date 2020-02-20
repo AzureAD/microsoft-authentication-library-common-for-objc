@@ -22,28 +22,13 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
 
-#if MSID_ENABLE_SSO_EXTENSION
+typedef NS_ENUM(NSInteger, MSIDClientSDKType)
+{
+    MSIDClientSDKTypeNone,
+    MSIDClientSDKTypeMSAL,
+    MSIDClientSDKTypeADAL
+};
 
-NS_ASSUME_NONNULL_BEGIN
-
-@class MSIDRequestParameters;
-
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionGetAccountsRequest : NSObject
-
-@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
-
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                        returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
-                                             error:(NSError * _Nullable * _Nullable)error;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
-
-@end
-
-NS_ASSUME_NONNULL_END
-#endif
+extern NSString * _Nonnull MSIDClientSDKTypeToString(MSIDClientSDKType type);
+extern MSIDClientSDKType MSIDClientSDKTypeFromString(NSString * _Nonnull sdkTypeString);

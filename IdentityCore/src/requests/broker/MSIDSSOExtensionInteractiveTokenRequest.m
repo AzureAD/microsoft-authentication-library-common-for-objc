@@ -83,7 +83,7 @@
                                                          oauthFactory:weakSelf.oauthFactory
                                                            tokenCache:weakSelf.tokenCache
                                                  accountMetadataCache:weakSelf.accountMetadataCache
-                                                      validateAccount:YES
+                                                      validateAccount:weakSelf.requestParameters.shouldValidateResultAccount
                                                                 error:error
                                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
              {

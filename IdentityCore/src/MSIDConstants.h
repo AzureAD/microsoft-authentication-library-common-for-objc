@@ -25,6 +25,7 @@
 
 @class MSIDTokenResult;
 @class MSIDAccount;
+@class MSIDDeviceInfo;
 
 typedef NS_ENUM(NSInteger, MSIDWebviewType)
 {
@@ -76,6 +77,7 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
+typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
 
 #if TARGET_OS_IPHONE
 @compatibility_alias MSIDViewController UIViewController;
@@ -109,3 +111,5 @@ extern NSString * _Nonnull const MSIDTrustedAuthorityCloudGovApi;
 
 extern NSString * _Nonnull const MSID_DEFAULT_AAD_AUTHORITY;
 extern NSString * _Nonnull const MSID_DEFAULT_MSA_TENANTID;
+extern NSString * _Nonnull const MSID_CLIENT_SDK_TYPE_MSAL;
+extern NSString * _Nonnull const MSID_CLIENT_SDK_TYPE_ADAL;

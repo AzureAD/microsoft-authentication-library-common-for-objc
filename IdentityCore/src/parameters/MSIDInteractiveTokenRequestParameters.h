@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *loginHint;
 @property (nonatomic) NSString *extraScopesToConsent;
 @property (nonatomic) MSIDPromptType promptType;
+@property (nonatomic) BOOL shouldValidateResultAccount;
 // Additional request parameters that will only be appended to authorize requests in addition to extraURLQueryParameters from parent class
 @property (nonatomic) NSDictionary *extraAuthorizeURLQueryParameters;
 @property (nonatomic) BOOL enablePkce;

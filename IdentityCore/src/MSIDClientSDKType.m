@@ -21,29 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDClientSDKType.h"
 #import "MSIDConstants.h"
 
-#if MSID_ENABLE_SSO_EXTENSION
+NSString *MSIDClientSDKTypeToString(MSIDClientSDKType type)
+{
+    switch (type)
+    {
+        case MSIDClientSDKTypeMSAL:
+            return MSID_CLIENT_SDK_TYPE_MSAL;
+        case MSIDClientSDKTypeADAL:
+            return MSID_CLIENT_SDK_TYPE_ADAL;
+        default:
+            return nil;
+    }
+}
 
-NS_ASSUME_NONNULL_BEGIN
-
-@class MSIDRequestParameters;
-
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionGetAccountsRequest : NSObject
-
-@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
-
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                        returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
-                                             error:(NSError * _Nullable * _Nullable)error;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
-
-@end
-
-NS_ASSUME_NONNULL_END
-#endif
+MSIDClientSDKType MSIDClientSDKTypeFromString(NSString * sdkTypeString)
+{
+    if ([sdkTypeString isEqualToString:MSID_CLIENT_SDK_TYPE_MSAL])
+    {
+        return MSIDClientSDKTypeMSAL;
+    }
+    else if ([sdkTypeString isEqualToString:MSID_CLIENT_SDK_TYPE_ADAL])
+    {
+        return MSIDClientSDKTypeADAL;
+    }
+    
+    return MSIDClientSDKTypeNone;
+}

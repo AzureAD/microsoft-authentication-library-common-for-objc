@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
 #import "MSIDBaseBrokerOperationRequest.h"
+#import "MSIDClientSDKType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -34,6 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *clientVersion;
 @property (nonatomic, nullable) NSString *clientAppVersion;
 @property (nonatomic, nullable) NSString *clientAppName;
+@property (nonatomic) MSIDClientSDKType clientSDK;
 @property (nonatomic, nullable) NSUUID *correlationId;
 
 + (BOOL)fillRequest:(MSIDBrokerOperationRequest *)request

@@ -42,6 +42,8 @@
 
 - (nullable MSIDTokenResult *)validateAndSaveBrokerResponse:(nonnull MSIDBrokerResponse *)brokerResponse
                                                   oidcScope:(nullable NSString *)oidcScope
+                                           requestAuthority:(nullable NSURL *)requestAuthority
+                                              instanceAware:(BOOL)instanceAware
                                                oauthFactory:(nonnull MSIDOauth2Factory *)factory
                                                  tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                                        accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache

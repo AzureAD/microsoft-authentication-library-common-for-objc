@@ -26,9 +26,16 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class MSIDBrokerOperationRequest;
+@class MSIDRequestParameters;
+
 @interface ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 
 + (ASAuthorizationSingleSignOnProvider *)msidSharedProvider;
+
+- (ASAuthorizationSingleSignOnRequest *)createSSORequestWithOperationRequest:(MSIDBrokerOperationRequest *)operationRequest
+                                                           requestParameters:(MSIDRequestParameters *)requestParameters
+                                                                       error:(NSError * _Nullable * _Nullable)error;
 
 @end
 

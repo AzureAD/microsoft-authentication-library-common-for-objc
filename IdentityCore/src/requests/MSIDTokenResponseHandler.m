@@ -26,6 +26,9 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDExternalAADCacheSeeder.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDTokenResult.h"
+#import "MSIDAccount.h"
 
 @implementation MSIDTokenResponseHandler
 
@@ -37,6 +40,7 @@
                  tokenCache:(id<MSIDCacheAccessor>)tokenCache
        accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
             validateAccount:(BOOL)validateAccount
+           saveSSOStateOnly:(BOOL)saveSSOStateOnly
                       error:(NSError *)error
             completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
@@ -54,7 +58,7 @@
                                                                              tokenCache:tokenCache
                                                                    accountMetadataCache:accountMetadataCache
                                                                       requestParameters:requestParameters
-                                                                       saveSSOStateOnly:NO
+                                                                       saveSSOStateOnly:saveSSOStateOnly
                                                                                   error:&validationError];
        
     if (!tokenResult)
@@ -90,6 +94,8 @@
                                                               tokenResult:tokenResult
                                                             correlationID:requestParameters.correlationId
                                                                     error:&validationError];
+            
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, requestParameters, @"Validated result account with result %d, old account %@, new account %@", accountChecked, MSID_PII_LOG_TRACKABLE(requestParameters.accountIdentifier.uid), MSID_PII_LOG_TRACKABLE(tokenResult.account.accountIdentifier.uid));
             
             if (!accountChecked)
             {

@@ -21,29 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
-
 #if MSID_ENABLE_SSO_EXTENSION
 
-NS_ASSUME_NONNULL_BEGIN
+#import "MSIDSSOExtensionGetDeviceInfoRequestMock.h"
+#import <AuthenticationServices/AuthenticationServices.h>
 
-@class MSIDRequestParameters;
+@implementation MSIDSSOExtensionGetDeviceInfoRequestMock
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionGetAccountsRequest : NSObject
-
-@property (nonatomic, readonly) MSIDRequestParameters *requestParameters;
-
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                        returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
-                                             error:(NSError * _Nullable * _Nullable)error;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
+- (ASAuthorizationController *)controllerWithRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
+{
+    if (self.authorizationControllerToReturn)
+    {
+        self.authorizationControllerToReturn.request = ssoRequest;
+        return self.authorizationControllerToReturn;
+    }
+    
+    return [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+}
 
 @end
 
-NS_ASSUME_NONNULL_END
 #endif

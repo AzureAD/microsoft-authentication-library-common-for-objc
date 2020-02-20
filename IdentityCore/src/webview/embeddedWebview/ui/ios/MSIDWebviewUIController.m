@@ -47,6 +47,12 @@ static WKWebViewConfiguration *s_webConfig;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         s_webConfig = [WKWebViewConfiguration new];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+        if (@available(iOS 13.0, *))
+        {
+            s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
+        }
+#endif
     });
 }
 

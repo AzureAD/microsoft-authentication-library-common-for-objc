@@ -49,3 +49,6 @@ NSString *const MSIDTrustedAuthorityCloudGovApi    = @"login.usgovcloudapi.net";
 
 NSString *const MSID_DEFAULT_AAD_AUTHORITY         = @"https://login.microsoftonline.com/common";
 NSString *const MSID_DEFAULT_MSA_TENANTID          = @"9188040d-6c67-4c5b-b112-36a304b66dad";
+
+NSString *const MSID_CLIENT_SDK_TYPE_MSAL         = @"sdk_msal";
+NSString *const MSID_CLIENT_SDK_TYPE_ADAL         = @"sdk_adal";

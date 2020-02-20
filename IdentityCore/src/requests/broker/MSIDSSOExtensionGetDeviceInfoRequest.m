@@ -23,32 +23,28 @@
 
 #if MSID_ENABLE_SSO_EXTENSION
 
-#import "MSIDSSOExtensionGetAccountsRequest.h"
+#import "MSIDSSOExtensionGetDeviceInfoRequest.h"
 #import "MSIDRequestParameters.h"
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDBrokerOperationResponse.h"
-#import "MSIDBrokerOperationGetAccountsRequest.h"
-#import "NSDictionary+MSIDQueryItems.h"
-#import "MSIDBrokerOperationGetAccountsResponse.h"
+#import "MSIDBrokerOperationGetDeviceInfoRequest.h"
 #import "MSIDDeviceInfo.h"
 
-@interface MSIDSSOExtensionGetAccountsRequest()
+@interface MSIDSSOExtensionGetDeviceInfoRequest()
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
-@property (nonatomic, copy) MSIDGetAccountsRequestCompletionBlock requestCompletionBlock;
+@property (nonatomic, copy) MSIDGetDeviceInfoRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic) MSIDRequestParameters *requestParameters;
-@property (nonatomic) BOOL returnOnlySignedInAccounts;
- 
+
 @end
 
-@implementation MSIDSSOExtensionGetAccountsRequest
+@implementation MSIDSSOExtensionGetDeviceInfoRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                        returnOnlySignedInAccounts:(BOOL)returnOnlySignedInAccounts
                                              error:(NSError * _Nullable * _Nullable)error
 {
     self = [super init];
@@ -66,36 +62,29 @@
     if (self)
     {
         _requestParameters = requestParameters;
-        _returnOnlySignedInAccounts = returnOnlySignedInAccounts;
         
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationResponse *operationResponse, NSError *error)
         {
-            NSArray *resultAccounts = nil;
-            BOOL returnBrokerAccountsOnly = NO;
             NSError *resultError = error;
+            MSIDDeviceInfo *resultDeviceInfo = nil;
             
             if (!operationResponse.success)
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished get accounts request with error %@", MSID_PII_LOG_MASKABLE(error));
-            }
-            else if (![operationResponse isKindOfClass:[MSIDBrokerOperationGetAccountsResponse class]])
-            {
-                resultError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Received incorrect response type for the get accounts request", nil, nil, nil, nil, nil, YES);
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, requestParameters, @"Finished reading device info with error %@", MSID_PII_LOG_MASKABLE(error));
             }
             else
             {
-                MSIDBrokerOperationGetAccountsResponse *response = (MSIDBrokerOperationGetAccountsResponse *)operationResponse;
-                resultAccounts = response.accounts;
-                returnBrokerAccountsOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
+                MSIDBrokerOperationResponse *response = (MSIDBrokerOperationResponse *)operationResponse;
+                resultDeviceInfo = response.deviceInfo;
             }
             
-            MSIDGetAccountsRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+            MSIDGetDeviceInfoRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
             weakSelf.requestCompletionBlock = nil;
             
-            if (completionBlock) completionBlock(resultAccounts, returnBrokerAccountsOnly, resultError);
+            if (completionBlock) completionBlock(resultDeviceInfo, resultError);
         };
         
         _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
@@ -104,22 +93,18 @@
     return self;
 }
 
-- (void)executeRequestWithCompletion:(nonnull MSIDGetAccountsRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(nonnull MSIDGetDeviceInfoRequestCompletionBlock)completionBlock
 {
-    MSIDBrokerOperationGetAccountsRequest *getAccountsRequest = [MSIDBrokerOperationGetAccountsRequest new];
-    getAccountsRequest.clientId = self.requestParameters.clientId;
-    getAccountsRequest.returnOnlySignedInAccounts = self.returnOnlySignedInAccounts;
-    // TODO: pass familyId, will be addressed in a separate PR
-    // TODO: pass returnOnlySignedInAccounts == false, will be addressed in a separate PR
-
+    MSIDBrokerOperationGetDeviceInfoRequest *getDeviceInfoRequest = [MSIDBrokerOperationGetDeviceInfoRequest new];
+    
     NSError *error;
-    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getAccountsRequest
+    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getDeviceInfoRequest
                                                                                           requestParameters:self.requestParameters
                                                                                                       error:&error];
     
     if (!ssoRequest)
     {
-        completionBlock(nil, NO, error);
+        completionBlock(nil, error);
         return;
     }
     
