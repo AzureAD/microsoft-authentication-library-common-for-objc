@@ -39,6 +39,8 @@
 		1E65C47B2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65C47A2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m */; };
 		1E65C47C2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E65C47A2177DC8B00694293 /* MSIDAppMetadataCacheKeyTests.m */; };
 		1E769E4723ECDC9600B7B7D2 /* MSIDBaseBrokerOperationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E769E4623ECDC9600B7B7D2 /* MSIDBaseBrokerOperationRequest.m */; };
+		1E7DC4292405A95000740BAD /* MSIDBaseBrokerOperationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E769E4523ECDC9600B7B7D2 /* MSIDBaseBrokerOperationRequest.h */; };
+		1E7DC42A2405A95400740BAD /* MSIDBaseBrokerOperationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E769E4623ECDC9600B7B7D2 /* MSIDBaseBrokerOperationRequest.m */; };
 		1EA4547023BECE2700567EB0 /* MSIDBrokerOperationBrowserTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA4546F23BECE2700567EB0 /* MSIDBrokerOperationBrowserTokenRequest.m */; };
 		1EA58A0B23CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA58A0A23CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.m */; };
 		1EA58A0E23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA58A0D23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.m */; };
@@ -4597,6 +4599,7 @@
 				D6D9A45B1FBD420300EFA430 /* MSIDDeviceId.h in Headers */,
 				B286B9DC2389DF70007833AD /* MSIDURLFormObject.h in Headers */,
 				23D2049321D1C274009B5975 /* MSIDTokenResponseSerializer.h in Headers */,
+				1E7DC4292405A95000740BAD /* MSIDBaseBrokerOperationRequest.h in Headers */,
 				B2675682228BAD23000F01D7 /* NSURL+MSIDAADUtils.h in Headers */,
 				B28D909A218FA97400E230D6 /* MSIDBaseRequestController.h in Headers */,
 				B286B9C92389DE90007833AD /* MSIDCredentialCacheItem.h in Headers */,
@@ -5524,6 +5527,7 @@
 				968647FF20C76C6700EF7E73 /* MSIDAADV2WebviewFactory.m in Sources */,
 				B27CCDD3229E205C00CAD565 /* NSJSONSerialization+MSIDExtensions.m in Sources */,
 				B20657BB1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
+				1E7DC42A2405A95400740BAD /* MSIDBaseBrokerOperationRequest.m in Sources */,
 				B286B97F2389DC08007833AD /* MSIDBrokerOperationRequest.m in Sources */,
 				23FB5C3122551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.m in Sources */,
 				23B39ACD209CF317000AA905 /* MSIDAADNetworkConfiguration.m in Sources */,
