@@ -18,8 +18,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSURL *requestURL;
 @property (nonatomic) NSString *bundleIdentifier;
 @property (nonatomic) MSIDAADAuthority *authority;
+@property (nonatomic) NSDictionary *headers;
 
-- (instancetype)initWithRequest:(NSURL *)requestURL bundleIdentifier:(NSString *)bundleIdentifier;
+- (instancetype)initWithRequest:(NSURL *)requestURL headers:(NSDictionary *)headers
+               bundleIdentifier:(NSString *)bundleIdentifier;
 
 @end
 

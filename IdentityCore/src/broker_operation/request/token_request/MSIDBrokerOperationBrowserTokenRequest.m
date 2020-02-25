@@ -14,12 +14,15 @@ static NSArray *_bundleIdentifierWhiteList = nil;
 
 @implementation MSIDBrokerOperationBrowserTokenRequest
 
-- (instancetype)initWithRequest:(NSURL *)requestURL bundleIdentifier:(NSString *)bundleIdentifier
+- (instancetype)initWithRequest:(NSURL *)requestURL
+                        headers:(NSDictionary *)headers
+               bundleIdentifier:(NSString *)bundleIdentifier
 {
     self = [super init];
     if (self)
     {
         _requestURL = requestURL;
+        _headers = headers;
         
         if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
         {
