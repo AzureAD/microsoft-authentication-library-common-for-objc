@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 
 @class MSIDAccount;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationGetAccountsResponse : MSIDBrokerOperationResponse
+@interface MSIDBrokerOperationGetAccountsResponse : MSIDBrokerNativeAppOperationResponse
 
 @property (nonatomic, nullable) NSArray<MSIDAccount *> *accounts;
 

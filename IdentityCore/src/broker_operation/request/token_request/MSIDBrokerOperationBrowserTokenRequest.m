@@ -22,6 +22,12 @@ static NSArray *_bundleIdentifierWhiteList = nil;
     if (self)
     {
         _requestURL = requestURL;
+        
+        if (![self isAuthorizeRequest:_requestURL])
+        {
+            return nil;
+        }
+        
         _headers = headers;
         
         if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
@@ -51,6 +57,15 @@ static NSArray *_bundleIdentifierWhiteList = nil;
   {
       _bundleIdentifierWhiteList = @[@"com.apple.mobilesafari"];
   }
+}
+
+- (BOOL)isAuthorizeRequest:(NSURL *)url
+{
+    NSString *request = [url absoluteString];
+    BOOL isV2AuthorizeRequest = ([request rangeOfString:@"oauth2/v2.0/authorize?"].location != NSNotFound);
+    BOOL isV1AuthorizeRequest = ([request rangeOfString:@"oauth2/v1.0/authorize?"].location != NSNotFound);
+    BOOL isAuthorizeRequest = ([request rangeOfString:@"oauth2/authorize?"].location != NSNotFound);
+    return isAuthorizeRequest || isV1AuthorizeRequest || isV2AuthorizeRequest;
 }
 
 #pragma mark - MSIDBaseBrokerOperationRequest

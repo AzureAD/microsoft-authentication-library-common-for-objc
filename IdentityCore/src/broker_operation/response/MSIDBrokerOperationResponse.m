@@ -22,107 +22,18 @@
 // THE SOFTWARE.
 
 #import "MSIDBrokerOperationResponse.h"
-#import "MSIDDeviceInfo.h"
-#import "NSBundle+MSIDExtensions.h"
-#import "MSIDJsonSerializableTypes.h"
-#import "MSIDJsonSerializableFactory.h"
-
-NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
-NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";
-NSString *const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY = @"operation_response_type";
-NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
 
 @implementation MSIDBrokerOperationResponse
 
-+ (void)load
+- (void)handleResponse:(__unused NSURL *)url completeRequestBlock:(__unused void (^)(NSHTTPURLResponse *, NSData *))completeRequestBlock
+            errorBlock:(__unused void (^)(NSError *))errorBlock
 {
-    [MSIDJsonSerializableFactory registerClass:self forClassType:self.responseType];
+    NSAssert(NO, @"Abstract method, implemented in subclasses");
 }
 
-- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo
+- (void)handleError:(__unused NSError *)error errorBlock:(__unused void(^)(NSError *))errorBlock doNotHandleBlock:(__unused void (^)(void))doNotHandleBlock
 {
-    self = [super init];
-    
-    if (self)
-    {
-        _deviceInfo = deviceInfo;
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(NSData *)httpBody error:(NSError *)httpError
-{
-    self = [super init];
-    
-    if (self)
-    {
-        _httpResponse = httpResponse;
-        _httpBody = httpBody;
-        _httpError = httpError;
-        _isBrowserResponse = YES;
-    }
-    
-    return self;
-}
-
-+ (NSString *)responseType
-{
-    return MSID_JSON_TYPE_BROKER_OPERATION_GENERIC_RESPONSE;
-}
-
-- (NSNumber *)httpStatusCode
-{
-    if (!_httpStatusCode) _httpStatusCode = @200;
-    
-    return _httpStatusCode;
-}
-
-- (NSString *)httpVersion
-{
-    if (!_httpVersion) _httpVersion = @"HTTP/1.1";
-    
-    return _httpVersion;
-}
-
-#pragma mark - MSIDJsonSerializable
-
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
-{
-    self = [super init];
-    
-    if (self)
-    {
-        if (![json msidAssertType:NSString.class ofKey:MSID_BROKER_OPERATION_JSON_KEY required:YES error:error]) return nil;
-        _operation = json[MSID_BROKER_OPERATION_JSON_KEY];
-        
-        if (![json msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:MSID_BROKER_OPERATION_RESULT_JSON_KEY required:YES error:error]) return nil;
-        _success = [json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] boolValue];
-        _clientAppVersion = [json msidStringObjectForKey:MSID_BROKER_APP_VERSION_JSON_KEY];
-        _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json error:error];
-    }
-    
-    return self;
-}
-
-- (NSDictionary *)jsonDictionary
-{
-    NSMutableDictionary *json = [NSMutableDictionary new];
-    if (!self.operation)
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, operation is nil.", self.class);
-        return nil;
-    }
-    
-    json[MSID_BROKER_OPERATION_JSON_KEY] = self.operation;
-    json[MSID_BROKER_OPERATION_RESULT_JSON_KEY] = [@(self.success) stringValue];
-    json[MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY] = self.class.responseType;
-    json[MSID_BROKER_APP_VERSION_JSON_KEY] = self.clientAppVersion;
-    
-    NSDictionary *deviceInfoJson = [self.deviceInfo jsonDictionary];
-    if (deviceInfoJson) [json addEntriesFromDictionary:deviceInfoJson];
-    
-    return json;
+    NSAssert(NO, @"Abstract method, implemented in subclasses");
 }
 
 @end
