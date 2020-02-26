@@ -21,16 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDKeychainUtil.h"
+#import "MSIDLoginKeychainUtil.h"
+#import "MSIDKeychainUtil+Internal.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDLoginKeychainUtil
 
-@interface MSIDKeychainUtil ()
-
-@property (readwrite, nullable) NSString *teamId;
-
-- (NSString *)teamIdFromSigningInformation:(NSDictionary *)signingInformation;
+- (NSString *)appIdPrefixFromSigningInformation:(NSDictionary *)signingInformation
+{
+    return nil;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

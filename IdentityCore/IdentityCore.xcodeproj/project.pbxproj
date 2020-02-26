@@ -774,6 +774,8 @@
 		B281B336226BB83C009619AB /* MSIDOAuthRequestConfigurator.m in Sources */ = {isa = PBXBuildFile; fileRef = B281B333226BB83C009619AB /* MSIDOAuthRequestConfigurator.m */; };
 		B281B338226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B281B337226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m */; };
 		B281B339226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B281B337226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m */; };
+		B28686C224065442004E83FC /* MSIDLoginKeychainUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B28686C024065441004E83FC /* MSIDLoginKeychainUtil.m */; };
+		B28686C6240655EF004E83FC /* MSIDLoginKeychainUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = B28686C5240655EF004E83FC /* MSIDLoginKeychainUtil.h */; };
 		B2893CB11FCF6A8C00E348E9 /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */; };
 		B28AC66421A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B28AC66221A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h */; };
 		B28AC66521A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */; };
@@ -1854,6 +1856,8 @@
 		B281B332226BB83C009619AB /* MSIDOAuthRequestConfigurator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOAuthRequestConfigurator.h; sourceTree = "<group>"; };
 		B281B333226BB83C009619AB /* MSIDOAuthRequestConfigurator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuthRequestConfigurator.m; sourceTree = "<group>"; };
 		B281B337226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuthRequestConfiguratorTests.m; sourceTree = "<group>"; };
+		B28686C024065441004E83FC /* MSIDLoginKeychainUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLoginKeychainUtil.m; sourceTree = "<group>"; };
+		B28686C5240655EF004E83FC /* MSIDLoginKeychainUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDLoginKeychainUtil.h; sourceTree = "<group>"; };
 		B2893CAE1FCF68B200E348E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		B28AC66221A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestBrokerResponseHelper.h; sourceTree = "<group>"; };
 		B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestBrokerResponseHelper.m; sourceTree = "<group>"; };
@@ -2261,6 +2265,8 @@
 			isa = PBXGroup;
 			children = (
 				1E62D0E3228B75E3000E2BBC /* MSIDKeychainUtil.m */,
+				B28686C5240655EF004E83FC /* MSIDLoginKeychainUtil.h */,
+				B28686C024065441004E83FC /* MSIDLoginKeychainUtil.m */,
 			);
 			path = mac;
 			sourceTree = "<group>";
@@ -4032,6 +4038,7 @@
 				23AE9DB72148529A00B285F3 /* NSError+MSIDExtensions.h in Headers */,
 				B2EB3AE022F7C74300FA400E /* MSIDBrokerInvocationOptions.h in Headers */,
 				238EF042208FE88C0035ABE6 /* MSIDAADAuthorizationCodeGrantRequest.h in Headers */,
+				B28686C6240655EF004E83FC /* MSIDLoginKeychainUtil.h in Headers */,
 				05566D102204BB8A002DBA40 /* MSIDMacKeychainTokenCache.h in Headers */,
 				B210F4311FDDE7EB005A8F76 /* MSIDTokenResponse.h in Headers */,
 				B2B1D57220425DFD00DD81F0 /* MSIDAccountCacheItem.h in Headers */,
@@ -4746,6 +4753,7 @@
 				23B4CC712181680600DBDBCE /* MSIDIntuneEnrollmentIdsCache.m in Sources */,
 				2308476D207D6D500024CE7C /* NSData+MSIDExtensions.m in Sources */,
 				238F80A622C2C41000437CB1 /* MSIDGetV1IdTokenCacheEvent.m in Sources */,
+				B28686C224065442004E83FC /* MSIDLoginKeychainUtil.m in Sources */,
 				B2C708AF219A612D00D917B8 /* MSIDLegacyBrokerResponseHandler.m in Sources */,
 				60FDA9DC21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */,
 				238D5D8C22B353830091A135 /* MSIDAADV2TokenResponseForV1Request.m in Sources */,
