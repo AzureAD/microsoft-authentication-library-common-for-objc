@@ -50,18 +50,7 @@ static NSDictionary *s_tenantMappingDictionary;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        s_tenantMappingDictionary = @{@"msidlab4.com": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
-                                      @"msidlab4.onmicrosoft.com": @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
-                                      @"msidlab3.com": @"8e44f19d-bbab-4a82-b76b-4cd0a6fbc97a",
-                                      @"msidlab3.onmicrosoft.com": @"8e44f19d-bbab-4a82-b76b-4cd0a6fbc97a",
-                                      @"msidlab9.com": @"cc0319fa-c0e1-4b2c-ba5f-2cc3b598b01b",
-                                      @"msidlab13.com": @"ec825bad-a705-4570-8eca-fe2461368f4e",
-                                      @"outlook.com": @"9188040d-6c67-4c5b-b112-36a304b66dad",
-                                      @"blfmsidlab1.onmicrosoft.de": @"469fdeb4-d4fd-4fde-991e-308a78e4bea4",
-                                      @"msidlab2.onmicrosoft.com": @"6277510b-7d73-41a4-80c7-716caa59a8f3",
-                                      @"arlmsidlab1.onmicrosoft.us": @"45ff0c17-f8b5-489b-b7fd-2fedebbec0c4",
-                                      @"mncmsidlab1.partner.onmschina.cn": @"9e5e17b6-6e3d-4515-8895-0e7756474486"
-        };
+        s_tenantMappingDictionary = @{@"outlook.com": @"9188040d-6c67-4c5b-b112-36a304b66dad"};
     });
     
     return s_tenantMappingDictionary;
@@ -82,26 +71,26 @@ static NSDictionary *s_tenantMappingDictionary;
         _upn = (homeUPN && ![homeUPN isEqualToString:@"None"]) ? homeUPN : guestUPN;
         _isHomeAccount = ![guestUPN containsString:@"#EXT#"];
         
-        NSString *domainUsername = [json msidStringObjectForKey:@"domainUsername"]; // TODO: check name of this attribute
-        _domainUsername = (domainUsername && ![domainUsername isEqualToString:@"None"]) ? domainUsername : _upn;
+        NSString *domainUsername = [json msidStringObjectForKey:@"domainAccount"];
+        _domainUsername = (domainUsername && ![domainUsername isEqualToString:@"None"] && ![NSString msidIsStringNilOrBlank:domainUsername]) ? domainUsername : _upn;
         
         _keyvaultName = [json msidStringObjectForKey:@"credentialVaultKeyName"];
         _password = [json msidStringObjectForKey:@"password"];
         
-        _homeObjectId = _isHomeAccount ? _objectId : [json msidStringObjectForKey:@"homeObjectId"]; // TODO: check name of this attribute
-        _targetTenantId = [json msidStringObjectForKey:@"tenantId"]; // TODO: check name of this attribute
-        _homeTenantId = [json msidStringObjectForKey:@"homeTenantId"]; // TODO: check name of this attribute
+        _homeObjectId = _isHomeAccount ? _objectId : [json msidStringObjectForKey:@"homeObjectID"];
+        _targetTenantId = [json msidStringObjectForKey:@"tenantID"];
         _tenantName = [guestUPN msidDomainSuffix];
         
-        if (!_targetTenantId)
+        // TODO: remove this hack!
+        NSString *mappedTenantId = [[self.class tenantMappingDictionary] objectForKey:_tenantName.lowercaseString];
+        
+        if (mappedTenantId)
         {
-            _targetTenantId = [[self.class tenantMappingDictionary] objectForKey:_tenantName.lowercaseString]; // TODO: remove me!
+            _targetTenantId = mappedTenantId;
         }
         
-        if (!_homeTenantId)
-        {
-            _homeTenantId = [[self.class tenantMappingDictionary] objectForKey:[_upn msidDomainSuffix].lowercaseString]; // TODO: remove me!
-        }
+        NSString *homeTenantId = [json msidStringObjectForKey:@"homeTenantID"];
+        _homeTenantId = [NSString msidIsStringNilOrBlank:homeTenantId] ? _targetTenantId : homeTenantId;
         
         NSString *homeTenantName = [json msidStringObjectForKey:@"homeDomain"];
         _homeTenantName = homeTenantName ? homeTenantName : _tenantName;
