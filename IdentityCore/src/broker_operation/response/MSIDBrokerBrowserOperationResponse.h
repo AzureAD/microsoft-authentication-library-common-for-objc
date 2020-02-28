@@ -13,9 +13,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerBrowserOperationResponse : MSIDBrokerOperationResponse
 
-@property (nonatomic, nullable) NSHTTPURLResponse *httpResponse;
-@property (nonatomic, nullable) NSData *httpBody;
-@property (nonatomic, nullable) NSError *httpError;
+@property (nonatomic, nullable, readonly) NSHTTPURLResponse *httpResponse;
+@property (nonatomic, nullable, readonly) NSData *httpBody;
+@property (nonatomic, nullable, readonly) NSError *httpError;
 
 - (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(NSData *)httpBody;
 - (instancetype)init NS_UNAVAILABLE;

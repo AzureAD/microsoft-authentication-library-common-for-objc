@@ -25,15 +25,4 @@
 
 @implementation MSIDBrokerOperationResponse
 
-- (void)handleResponse:(__unused NSURL *)url completeRequestBlock:(__unused void (^)(NSHTTPURLResponse *, NSData *))completeRequestBlock
-            errorBlock:(__unused void (^)(NSError *))errorBlock
-{
-    NSAssert(NO, @"Abstract method, implemented in subclasses");
-}
-
-- (void)handleError:(__unused NSError *)error errorBlock:(__unused void(^)(NSError *))errorBlock doNotHandleBlock:(__unused void (^)(void))doNotHandleBlock
-{
-    NSAssert(NO, @"Abstract method, implemented in subclasses");
-}
-
 @end

@@ -7,15 +7,19 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MSIDBrokerOperationResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDBrokerOperationResponseHandling <NSObject>
 
-- (void)handleResponse:(NSURL *)url completeRequestBlock:(void (^)(NSHTTPURLResponse *, NSData *))completeRequestBlock
-            errorBlock:(void (^)(NSError *))errorBlock;
+- (void)handleResponse:(MSIDBrokerOperationResponse *)response
+                   url:(NSURL *)url
+  completeRequestBlock:(__unused void (^)(NSHTTPURLResponse *, NSData *))completeRequestBlock
+            errorBlock:(__unused void (^)(NSError *))errorBlock;
 
-- (void)handleError:(NSError *)error errorBlock:(void(^)(NSError *))errorBlock
+- (void)handleError:(NSError *)error
+         errorBlock:(void(^)(NSError *))errorBlock
    doNotHandleBlock:(void (^)(void))doNotHandleBlock;
 
 @end

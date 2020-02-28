@@ -119,30 +119,5 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
     return json;
 }
 
-- (void)handleResponse:(NSURL *)url completeRequestBlock:(void (^)(NSHTTPURLResponse *, NSData *))completeRequestBlock
-            errorBlock:(void (^)(NSError *))errorBlock
-{
-    NSError *localError;
-    NSData *httpBody = [[MSIDJsonSerializer new] toJsonData:self context:nil error:&localError];
-
-    if (localError)
-    {
-        errorBlock(localError);
-        return;
-    }
-
-    __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:url
-                                                           statusCode:[self.httpStatusCode integerValue]
-                                                          HTTPVersion:self.httpVersion
-                                                         headerFields:self.httpHeaders];
-    completeRequestBlock(httpResponse, httpBody);
-}
-
-- (void)handleError:(NSError *)error errorBlock:(void(^)(NSError *))errorBlock
-   doNotHandleBlock:(__unused void (^)(void))doNotHandleBlock
-{
-    errorBlock(error);
-}
-
 @end
 

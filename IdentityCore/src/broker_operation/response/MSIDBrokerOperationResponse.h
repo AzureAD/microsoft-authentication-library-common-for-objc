@@ -22,11 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDBrokerOperationResponseHandling.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationResponse : NSObject <MSIDBrokerOperationResponseHandling>
+@interface MSIDBrokerOperationResponse : NSObject
 
 @property (nonatomic) NSString *operation;
 
