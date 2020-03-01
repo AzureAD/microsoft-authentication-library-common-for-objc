@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSOrderedSet *defaultScopes;
 @property (nonatomic, readonly) NSString *defaultRedirectUri;
 @property (nonatomic, readonly) NSOrderedSet *defaultAuthorities;
+@property (nonatomic, readonly) NSDictionary *b2cAuthorities;
 
 // Writable properties
 @property (nonatomic) NSString *redirectUriPrefix;

@@ -25,6 +25,7 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDB2CAuthority.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonSerializer.h"
 
 @interface MSIDTestAutomationApplication()
 
@@ -34,6 +35,7 @@
 @property (nonatomic) NSString *labName;
 @property (nonatomic) NSOrderedSet *redirectUris;
 @property (nonatomic) NSOrderedSet *defaultScopes;
+@property (nonatomic) NSDictionary *b2cAuthorities;
 
 @end
 
@@ -56,6 +58,34 @@
         _redirectUris = [redirectUriString msidScopeSet];
         _defaultScopes = [self msidOrderedSetFromCommaSeparatedString:[json msidStringObjectForKey:@"defaultScopes"]];
         _defaultAuthorities = [self msidOrderedSetFromCommaSeparatedString:[json msidStringObjectForKey:@"authority"]];
+        
+        NSString *b2cAuthoritiesString = [json msidStringObjectForKey:@"b2cAuthorities"];
+        NSArray *b2cAuthorities = nil;
+        
+        if (b2cAuthoritiesString)
+        {
+            b2cAuthorities = [NSJSONSerialization JSONObjectWithData:[b2cAuthoritiesString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+        }
+
+        if (b2cAuthorities && [b2cAuthorities isKindOfClass:[NSArray class]])
+        {
+            NSMutableDictionary *resultB2CAuthorities = [NSMutableDictionary new];
+            
+            for (NSDictionary *b2cAuthority in b2cAuthorities)
+            {
+                NSString *authorityType = [b2cAuthority msidStringObjectForKey:@"AuthorityType"];
+                NSString *authority = [b2cAuthority msidStringObjectForKey:@"Authority"];
+                
+                if (!authorityType || !authority)
+                {
+                    continue;
+                }
+                
+                resultB2CAuthorities[authorityType] = authority;
+            }
+            
+            _b2cAuthorities = resultB2CAuthorities;
+        }
         
         if (!_appId || !_redirectUris.count || !_defaultScopes)
         {
@@ -113,16 +143,15 @@
 
 - (NSString *)b2cAuthorityForPolicy:(NSString *)policy tenantId:(NSString *)tenantId
 {
-    for (NSString *authority in self.defaultAuthorities.array)
+    NSString *authority = self.b2cAuthorities[policy];
+    
+    if (!authority)
     {
-        if ([authority containsString:policy.lowercaseString])
-        {
-            MSIDB2CAuthority *msidAuthority = [[MSIDB2CAuthority alloc] initWithURL:[NSURL URLWithString:authority] validateFormat:YES rawTenant:tenantId context:nil error:nil];
-            return msidAuthority.url.absoluteString;
-        }
+        return nil;
     }
     
-    return nil;
+    MSIDB2CAuthority *msidAuthority = [[MSIDB2CAuthority alloc] initWithURL:[NSURL URLWithString:authority] validateFormat:YES rawTenant:tenantId context:nil error:nil];
+    return msidAuthority.url.absoluteString;
 }
 
 @end
