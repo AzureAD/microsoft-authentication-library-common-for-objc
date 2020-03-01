@@ -77,11 +77,11 @@ static NSDictionary *s_tenantMappingDictionary;
         _keyvaultName = [json msidStringObjectForKey:@"credentialVaultKeyName"];
         _password = [json msidStringObjectForKey:@"password"];
         
-        _homeObjectId = _isHomeAccount ? _objectId : [json msidStringObjectForKey:@"homeObjectID"];
+        _homeObjectId = _isHomeAccount ? _objectId : [json msidStringObjectForKey:@"homeObjectId"];
         _targetTenantId = [json msidStringObjectForKey:@"tenantID"];
         _tenantName = [guestUPN msidDomainSuffix];
         
-        // TODO: remove this hack!
+        // TODO: remove this hack after MSA migration on lab side is complete!
         NSString *mappedTenantId = [[self.class tenantMappingDictionary] objectForKey:_tenantName.lowercaseString];
         
         if (mappedTenantId)
