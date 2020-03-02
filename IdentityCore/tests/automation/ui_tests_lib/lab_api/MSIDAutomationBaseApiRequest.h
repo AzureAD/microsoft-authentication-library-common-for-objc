@@ -27,9 +27,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAutomationBaseApiRequest : NSObject <NSCopying>
 
-- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath labAccessPassword:(NSString *)labPassword;
-- (NSString *)keyvaultNameKey;
+- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath;
 + (MSIDAutomationBaseApiRequest *)requestWithDictionary:(NSDictionary *)dictionary;
+- (NSString *)httpMethod;
+- (BOOL)shouldCacheResponse;
 
 @end
 

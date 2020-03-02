@@ -53,18 +53,27 @@
 - (id)responseFromData:(NSData *)response
                  error:(NSError **)error
 {
-    NSArray *jsonArray = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
-    if (!jsonArray || ![jsonArray isKindOfClass:[NSArray class]])
+    id jsonResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
+    if (!jsonResponse)
     {
         return nil;
     }
     
     NSMutableArray *resultArray = [NSMutableArray new];
     
-    for (NSDictionary *responseDict in jsonArray)
+    if ([jsonResponse isKindOfClass:[NSDictionary class]])
     {
-        id result = [[self.className alloc] initWithJSONDictionary:responseDict error:nil];
+        id result = [[self.className alloc] initWithJSONDictionary:jsonResponse error:nil];
         if (result) [resultArray addObject:result];
+    }
+    
+    if ([jsonResponse isKindOfClass:[NSArray class]])
+    {
+        for (NSDictionary *responseDict in (NSArray *)jsonResponse)
+        {
+            id result = [[self.className alloc] initWithJSONDictionary:responseDict error:nil];
+            if (result) [resultArray addObject:result];
+        }
     }
     
     return resultArray;

@@ -79,6 +79,12 @@ static NSDictionary *s_tenantMappingDictionary;
         
         _homeObjectId = _isHomeAccount ? _objectId : [json msidStringObjectForKey:@"homeObjectId"];
         _targetTenantId = [json msidStringObjectForKey:@"tenantID"];
+        
+        if (!_targetTenantId)
+        {
+            _targetTenantId = [json msidStringObjectForKey:@"tenantId"];
+        }
+        
         _tenantName = [guestUPN msidDomainSuffix];
         
         // TODO: remove this hack after MSA migration on lab side is complete!

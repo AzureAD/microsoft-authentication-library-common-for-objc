@@ -35,6 +35,7 @@ MSIDTestAccountType MSIDTestAccountTypeB2C = @"b2c";
 MSIDTestAccountMFAType MSIDTestAccountMFATypeNone = @"none";
 MSIDTestAccountMFAType MSIDTestAccountMFATypeManual = @"mfaonall";
 MSIDTestAccountMFAType MSIDTestAccountMFATypeAuto = @"automfaonall";
+MSIDTestAccountMFAType MSIDTestAccountMFAOnSPO = @"mfaonspo";
 
 #pragma mark - MSIDTestAccountProtectionPolicyType;
 MSIDTestAccountProtectionPolicyType MSIDTestAccountProtectionPolicyTypeNone = @"none";
@@ -126,11 +127,6 @@ MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeB2C = @"azureb2cclo
     }
 
     return queryItems;
-}
-
-- (NSString *)keyvaultNameKey
-{
-    return nil;
 }
 
 - (BOOL)shouldCacheResponse

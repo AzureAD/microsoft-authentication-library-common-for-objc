@@ -21,16 +21,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAutomationBaseApiRequest.h"
+#import "MSIDAutomationDeleteDeviceAPIRequest.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDAutomationDeleteDeviceAPIRequest
 
-@interface MSIDAutomationResetAPIRequest : MSIDAutomationBaseApiRequest
+#pragma - Lab Request
 
-@property (nonatomic) NSString *apiOperation;
-@property (nonatomic) NSString *userUPN;
+- (NSString *)requestOperationPath
+{
+    return @"DeleteDevice";
+}
+
+- (NSString *)httpMethod
+{
+    return @"DELETE";
+}
+
+- (NSArray<NSURLQueryItem *> *)queryItems
+{
+    NSMutableArray *queryItems = [NSMutableArray array];
+    
+    if (self.userUPN)
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"upn" value:self.userUPN]];
+    }
+    
+    if (self.deviceGUID)
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"deviceid" value:self.deviceGUID]];
+    }
+    
+    return queryItems;
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = self.userUPN.hash;
+    hash ^= self.deviceGUID.hash;
+
+    return hash;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

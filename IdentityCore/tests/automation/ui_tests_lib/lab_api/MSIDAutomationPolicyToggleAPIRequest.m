@@ -32,9 +32,9 @@
     return self.policyEnabled ? @"EnablePolicy" : @"DisablePolicy";
 }
 
-- (NSString *)keyvaultNameKey
+- (NSString *)httpMethod
 {
-    return self.policyEnabled ? @"enable_policy_api_keyvault" : @"disable_policy_api_keyvault";
+    return @"PUT";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems
@@ -46,7 +46,11 @@
         return nil;
     }
     
-    return @[[[NSURLQueryItem alloc] initWithName:@"Policy" value:policyType]];
+    NSMutableArray *queryItems = [NSMutableArray new];
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"policy" value:policyType]];
+    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"upn" value:self.upn]];
+    
+    return queryItems;
 }
 
 #pragma mark - Helpers

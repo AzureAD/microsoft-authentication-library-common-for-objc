@@ -35,7 +35,7 @@
 
 #pragma mark - MSIDTestAutomationRequest
 
-- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath labAccessPassword:(NSString *)labPassword
+- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath
 {
     NSString *requestOperationPath = [self requestOperationPath];
     
@@ -48,11 +48,6 @@
     NSURLComponents *components = [[NSURLComponents alloc] initWithString:fullAPIPath];
     
     NSMutableArray *queryItems = [NSMutableArray array];
-    
-    if (labPassword)
-    {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"code" value:labPassword]];
-    }
     
     NSArray *extraQueryItems = [self queryItems];
     
@@ -81,10 +76,9 @@
     return nil;
 }
 
-- (NSString *)keyvaultNameKey
+- (NSString *)httpMethod
 {
-    NSAssert(NO, @"Abstract method, implement in subclasses");
-    return nil;
+    return @"GET";
 }
 
 + (MSIDAutomationBaseApiRequest *)requestWithDictionary:(__unused NSDictionary *)dictionary
@@ -110,7 +104,6 @@
     BOOL result = YES;
     result &= (!self.requestOperationPath && !request.requestOperationPath) || [self.requestOperationPath isEqualToString:request.requestOperationPath];
     result &= (!self.queryItems && !request.queryItems) || [self.queryItems isEqualToArray:request.queryItems];
-    result &= (!self.keyvaultNameKey && !request.keyvaultNameKey) || [self.keyvaultNameKey isEqualToString:request.keyvaultNameKey];
 
     return result;
 }
@@ -136,7 +129,6 @@
 {
     NSUInteger hash = self.requestOperationPath.hash;
     hash ^= self.queryItems.hash;
-    hash ^= self.keyvaultNameKey.hash;
 
     return hash;
 }

@@ -40,6 +40,10 @@ MSIDTestAppAudience MSIDTestAppAudienceMyOrg = @"azureadmyorg";
 MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgs = @"azureadmultipleorgs";
 MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts = @"azureadandpersonalmicrosoftaccount";
 
+#pragma mark - MSIDTestAppWhiteListType
+MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeMAMCA = @"app_whitelist_mamca";
+MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
+
 @implementation MSIDTestAutomationAppConfigurationRequest
 
 - (instancetype)init
@@ -78,6 +82,11 @@ MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts = @"azure
     [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"apptype" value:self.testAppType]];
     [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"azureenvironment" value:self.testAppEnvironment]];
     [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"signinaudience" value:self.testAppAudience]];
+    
+    if (self.appWhiteListType)
+    {
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"app_whitelist_type" value:self.appWhiteListType]];
+    }
 
     for (NSString *queryKey in [self.additionalQueryParameters allKeys])
     {
@@ -85,11 +94,6 @@ MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts = @"azure
     }
 
     return queryItems;
-}
-
-- (NSString *)keyvaultNameKey
-{
-    return nil;
 }
 
 - (BOOL)shouldCacheResponse

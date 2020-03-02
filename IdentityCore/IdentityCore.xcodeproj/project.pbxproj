@@ -1247,6 +1247,9 @@
 		B2C708B4219A620E00D917B8 /* MSIDBrokerCryptoProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C708862198DE3900D917B8 /* MSIDBrokerCryptoProvider.h */; };
 		B2C708B5219A621100D917B8 /* MSIDBrokerCryptoProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C708872198DE3900D917B8 /* MSIDBrokerCryptoProvider.m */; };
 		B2C708DF219BC67F00D917B8 /* MSIDDefaultSilentTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C708DE219BC67E00D917B8 /* MSIDDefaultSilentTokenRequestTests.m */; };
+		B2C70D67240CA4AB008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C70D65240CA4AA008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.h */; };
+		B2C70D68240CA4AB008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C70D66240CA4AA008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m */; };
+		B2C70D69240CA4AB008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C70D66240CA4AA008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m */; };
 		B2C7B3B3213C681F009FFCC1 /* MSIDErrorConverter.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C7B3B1213C681F009FFCC1 /* MSIDErrorConverter.h */; };
 		B2C7B3B4213C681F009FFCC1 /* MSIDErrorConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7B3B2213C681F009FFCC1 /* MSIDErrorConverter.m */; };
 		B2C7B3B5213C681F009FFCC1 /* MSIDErrorConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7B3B2213C681F009FFCC1 /* MSIDErrorConverter.m */; };
@@ -2386,6 +2389,8 @@
 		B2C708A8219A5A3D00D917B8 /* MSIDLegacySilentTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLegacySilentTokenRequest.h; sourceTree = "<group>"; };
 		B2C708A9219A5A3D00D917B8 /* MSIDLegacySilentTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLegacySilentTokenRequest.m; sourceTree = "<group>"; };
 		B2C708DE219BC67E00D917B8 /* MSIDDefaultSilentTokenRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultSilentTokenRequestTests.m; sourceTree = "<group>"; };
+		B2C70D65240CA4AA008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSIDAutomationDeleteDeviceAPIRequest.h; sourceTree = "<group>"; };
+		B2C70D66240CA4AA008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAutomationDeleteDeviceAPIRequest.m; sourceTree = "<group>"; };
 		B2C75907207EE5C900C1FE74 /* MSIDClientCredentialHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDClientCredentialHelper.h; sourceTree = "<group>"; };
 		B2C75908207EE5C900C1FE74 /* MSIDClientCredentialHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDClientCredentialHelper.m; sourceTree = "<group>"; };
 		B2C7590B207EE9A400C1FE74 /* MSIDJWTHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDJWTHelper.h; sourceTree = "<group>"; };
@@ -3610,6 +3615,8 @@
 				B248FFB0223C8F4D00628574 /* MSIDAutomationBaseApiRequest.m */,
 				B248FFA1223C88CC00628574 /* MSIDAutomationTemporaryAccountRequest.h */,
 				B248FFA2223C88CC00628574 /* MSIDAutomationTemporaryAccountRequest.m */,
+				B2C70D65240CA4AA008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.h */,
+				B2C70D66240CA4AA008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m */,
 				B23F2847220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.h */,
 				B23F2848220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.m */,
 				B248FFAA223C8DF700628574 /* MSIDAutomationPolicyToggleAPIRequest.h */,
@@ -4492,6 +4499,7 @@
 			files = (
 				B21FA9DD22063CF400806B68 /* MSIDAutomationTestResult.h in Headers */,
 				B25315C923E7A0E800432133 /* MSIDTestAutomationAccountConfigurationRequest.h in Headers */,
+				B2C70D67240CA4AB008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.h in Headers */,
 				B25315BF23E772B000432133 /* MSIDAutomationOperationAPIInMemoryCacheHandler.h in Headers */,
 				B2ED1BBC2204D29400A24E82 /* MSIDAutomationTestRequest.h in Headers */,
 				B2ED1BD72204D35C00A24E82 /* MSIDAutomation-Bridging-Header.h in Headers */,
@@ -5274,6 +5282,7 @@
 				B248FFC3223C97C200628574 /* MSIDAutomationPasswordRequestHandler.m in Sources */,
 				B248FFCC223C9C6800628574 /* MSIDAutomationResetOperationResponseHandler.m in Sources */,
 				B2ED1BBD2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
+				B2C70D68240CA4AB008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m in Sources */,
 				B25315C523E7782A00432133 /* MSIDAutomationOperationResponseHandler.m in Sources */,
 				B23F284A220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.m in Sources */,
 				B248FFBE223C94C300628574 /* MSIDAutomationOperationAPIRequestHandler.m in Sources */,
@@ -5312,6 +5321,7 @@
 				B248FFC4223C97C200628574 /* MSIDAutomationPasswordRequestHandler.m in Sources */,
 				B248FFCD223C9C6800628574 /* MSIDAutomationResetOperationResponseHandler.m in Sources */,
 				B2ED1BBE2204D29C00A24E82 /* MSIDAutomationTestRequest.m in Sources */,
+				B2C70D69240CA4AB008CD2DE /* MSIDAutomationDeleteDeviceAPIRequest.m in Sources */,
 				B25315C623E7782A00432133 /* MSIDAutomationOperationResponseHandler.m in Sources */,
 				B23F284B220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.m in Sources */,
 				B248FFBF223C94C300628574 /* MSIDAutomationOperationAPIRequestHandler.m in Sources */,

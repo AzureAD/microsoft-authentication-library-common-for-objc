@@ -37,6 +37,7 @@ typedef NSString *MSIDTestAccountMFAType;
 extern MSIDTestAccountMFAType MSIDTestAccountMFATypeNone;
 extern MSIDTestAccountMFAType MSIDTestAccountMFATypeManual;
 extern MSIDTestAccountMFAType MSIDTestAccountMFATypeAuto;
+extern MSIDTestAccountMFAType MSIDTestAccountMFAOnSPO;
 
 typedef NSString *MSIDTestAccountProtectionPolicyType;
 extern MSIDTestAccountProtectionPolicyType MSIDTestAccountProtectionPolicyTypeNone;

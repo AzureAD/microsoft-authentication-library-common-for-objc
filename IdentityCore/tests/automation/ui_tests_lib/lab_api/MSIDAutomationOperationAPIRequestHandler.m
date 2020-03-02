@@ -28,7 +28,6 @@
 @interface MSIDAutomationOperationAPIRequestHandler()
 
 @property (nonatomic) NSString *labAPIPath;
-@property (nonatomic) NSMutableDictionary *labPasswordCache;
 @property (nonatomic) NSDictionary *configurationParams;
 
 @end
@@ -46,7 +45,6 @@
     {
         _labAPIPath = apiPath;
         _configurationParams = operationAPIConfiguration;
-        _labPasswordCache = [NSMutableDictionary new];
     }
     
     return self;
@@ -70,72 +68,14 @@
         return;
     }
     
-    [self passwordForLabAPIWithRequest:apiRequest
-                     completionHandler:^(NSString *password, NSError *error) {
-       
-                         if (error)
-                         {
-                             if (completionHandler)
-                             {
-                                 completionHandler(nil, error);
-                             }
-            
-                             return;
-                         }
-        
-                         [self getAccessTokenAndCallLabAPI:apiRequest
-                                               apiPassword:password
-                                           responseHandler:responseHandler
-                                         completionHandler:completionHandler];
-        
-    }];
-}
-
-#pragma mark - Get password
-
-- (void)passwordForLabAPIWithRequest:(MSIDAutomationBaseApiRequest *)apiRequest
-                   completionHandler:(void (^)(NSString *password, NSError *error))completionHandler
-{
-    if (!apiRequest.keyvaultNameKey)
-    {
-        if (completionHandler)
-        {
-            completionHandler(nil, nil);
-        }
-        return;
-    }
-
-    NSString *cachedPassword = self.labPasswordCache[apiRequest.keyvaultNameKey];
-    if (cachedPassword)
-    {
-        completionHandler(cachedPassword, nil);
-        return;
-    }
-    
-    NSURL *url = [NSURL URLWithString:self.configurationParams[apiRequest.keyvaultNameKey]];
-    [Secret getWithUrl:url completion:^(NSError *error, Secret *secret) {
-        
-        if (error)
-        {
-            if (completionHandler)
-            {
-                completionHandler(nil, error);
-            }
-            
-            return;
-        }
-        
-        NSString *password = secret.value;
-        self.labPasswordCache[apiRequest.keyvaultNameKey] = password;
-        
-        if (completionHandler) completionHandler(password, nil);
-    }];
+    [self getAccessTokenAndCallLabAPI:apiRequest
+                      responseHandler:responseHandler
+                    completionHandler:completionHandler];
 }
 
 #pragma mark - Get access token
 
 - (void)getAccessTokenAndCallLabAPI:(MSIDAutomationBaseApiRequest *)request
-                        apiPassword:(NSString *)apiPassword
                     responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
                   completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
@@ -152,7 +92,6 @@
                                              
                                              [self executeAPIRequestImpl:request
                                                          responseHandler:responseHandler
-                                                             apiPassword:apiPassword
                                                              accessToken:accessToken
                                                        completionHandler:completionHandler];
                                          }];
@@ -162,27 +101,30 @@
 
 - (void)executeAPIRequestImpl:(MSIDAutomationBaseApiRequest *)request
               responseHandler:(id<MSIDAutomationOperationAPIResponseHandler>)responseHandler
-                  apiPassword:(NSString *)apiPassword // TODO: check if API password is still needed anywhere
                   accessToken:(NSString *)accessToken
             completionHandler:(void (^)(id result, NSError *error))completionHandler
 {
-    NSURL *resultURL = [request requestURLWithAPIPath:self.labAPIPath labAccessPassword:apiPassword];
+    NSURL *resultURL = [request requestURLWithAPIPath:self.labAPIPath];
     
     NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:resultURL];
     NSString *bearerHeader = [NSString stringWithFormat:@"Bearer %@", accessToken];
     [urlRequest addValue:bearerHeader forHTTPHeaderField:@"Authorization"];
+    [urlRequest setHTTPMethod:request.httpMethod];
     
     [[[NSURLSession sharedSession] dataTaskWithRequest:urlRequest
                                      completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error)
       {
           NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
           
-          if (httpResponse.statusCode == 200)
+          if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300)
           {
               NSError *responseError = nil;
               id result = [responseHandler responseFromData:data error:&responseError];
               
-              [self.apiCacheHandler cacheResponse:result forRequest:request];
+              if (request.shouldCacheResponse)
+              {
+                  [self.apiCacheHandler cacheResponse:result forRequest:request];
+              }
               
               dispatch_async(dispatch_get_main_queue(), ^{
                   completionHandler(result, responseError);

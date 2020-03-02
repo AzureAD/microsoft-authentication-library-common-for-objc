@@ -43,12 +43,17 @@ extern MSIDTestAppAudience MSIDTestAppAudienceMyOrg;
 extern MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgs;
 extern MSIDTestAppAudience MSIDTestAppAudienceMultipleOrgsAndPersonalAccounts;
 
+typedef NSString *MSIDTestAppWhiteListType;
+extern MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeMAMCA;
+extern MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI;
+
 @interface MSIDTestAutomationAppConfigurationRequest : MSIDAutomationBaseApiRequest
 
 @property (nonatomic) MSIDTestAppType testAppType;
 @property (nonatomic) MSIDTestAppEnvironment testAppEnvironment;
 @property (nonatomic) MSIDTestAppAudience testAppAudience;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
+@property (nonatomic) MSIDTestAppWhiteListType appWhiteListType;
  
 @end
 
