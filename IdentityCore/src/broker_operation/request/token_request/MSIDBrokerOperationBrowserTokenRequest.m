@@ -25,6 +25,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         
         if (![self isAuthorizeRequest:_requestURL])
         {
+            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Failed to create browser operation request for %@ class, request is not authorize request", self.class);
             return nil;
         }
         
@@ -32,6 +33,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         
         if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
         {
+            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Failed to create browser operation request for %@ class, bundle identifier %@ is not in the whitelist", self.class, _bundleIdentifier);
             return nil;
         }
         
@@ -42,10 +44,13 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         
         if (!authority)
         {
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create browser operation request for %@ class, authority is not AAD authority", self.class);
             return nil;
         }
         
         _authority = authority;
+        
+        _correlationId = [NSUUID UUID];
     }
     
     return self;

@@ -15,12 +15,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationBrowserTokenRequest : MSIDBaseBrokerOperationRequest
 
-@property (nonatomic) NSURL *requestURL;
-@property (nonatomic) NSString *bundleIdentifier;
-@property (nonatomic) MSIDAADAuthority *authority;
-@property (nonatomic) NSDictionary *headers;
+@property (nonatomic, readonly) NSURL *requestURL;
+@property (nonatomic, readonly) NSString *bundleIdentifier;
+@property (nonatomic, readonly) MSIDAADAuthority *authority;
+@property (nonatomic, readonly) NSDictionary *headers;
+@property (nonatomic, readonly) NSUUID *correlationId;
 
-- (instancetype)initWithRequest:(NSURL *)requestURL headers:(NSDictionary *)headers
+- (instancetype)initWithRequest:(NSURL *)requestURL
+                        headers:(NSDictionary *)headers
                bundleIdentifier:(NSString *)bundleIdentifier;
 
 @end
