@@ -126,7 +126,7 @@
 
         MSIDAutomationBaseApiRequest *request = [MSIDTestAutomationAccountConfigurationRequest requestWithDictionary:requestDict];
         MSIDTestAutomationAccount *accountConf = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:configurationDict error:nil];
-        additionalConfsDictionary[request] = accountConf;
+        additionalConfsDictionary[request] = @[accountConf];
     }
     
     return [self initWithClientCertificateContents:encodedCertificate
