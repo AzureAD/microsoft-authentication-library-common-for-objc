@@ -66,6 +66,7 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
     request.testAppType = [self.testAppType copyWithZone:zone];
     request.testAppEnvironment = [self.testAppEnvironment copyWithZone:zone];
     request.testAppAudience = [self.testAppAudience copyWithZone:zone];
+    request.appWhiteListType = [self.appWhiteListType copyWithZone:zone];
     return request;
 }
 
@@ -107,6 +108,7 @@ MSIDTestAppWhiteListType MSIDTestAppWhiteListTypeFOCI = @"app_whitelist_foci";
     request.testAppType = dictionary[@"test_app_type"];
     request.testAppEnvironment = dictionary[@"test_app_environment"];
     request.testAppAudience = dictionary[@"test_app_audience"];
+    request.appWhiteListType = dictionary[@"app_whitelist_type"];
     return request;
 }
 
