@@ -26,6 +26,11 @@
 /// Collection of utilities to execute methods normally marked as non-application-extension safe. This allows us to produce a single framework that can be marked as application-extension-safe while still exercising capabilites when linked against a main app executable.
 @interface MSIDAppExtensionUtil : NSObject
 
+// Some extensions allow advanced capabilities so we should enable advanced capabilities there
+// When this property is set to YES, all non-extension compliant APIs will be executed
+// This is a process-wide setting
+@property (nonatomic, class) BOOL runningInCompliantExtension;
+
 /// Determine whether or not the host app is an application extension based on the main bundle path
 + (BOOL)isExecutingInAppExtension;
 /// Application extension safe replacement for `[UIApplication sharedApplication]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
