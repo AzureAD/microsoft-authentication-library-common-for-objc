@@ -31,6 +31,7 @@ static NSArray *deviceModeEnumString;
 @implementation MSIDDeviceInfo
 
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
+                  ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
                      brokerVersion:(NSString *)brokerVersion
 {
@@ -39,6 +40,7 @@ static NSArray *deviceModeEnumString;
     if (self)
     {
         _deviceMode = deviceMode;
+        _ssoExtensionMode = ssoExtensionMode;
         _wpjStatus = isWorkPlaceJoined ? MSIDWorkPlaceJoinStatusJoined : MSIDWorkPlaceJoinStatusNotJoined;
         _brokerVersion = brokerVersion;
     }
@@ -55,6 +57,7 @@ static NSArray *deviceModeEnumString;
     if (self)
     {
         _deviceMode = [self deviceModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_DEVICE_MODE_KEY]];
+        _ssoExtensionMode = [self ssoExtensionModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_SSO_EXTENSION_MODE_KEY]];
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
     }
@@ -89,6 +92,14 @@ static NSArray *deviceModeEnumString;
 {
     if ([deviceModeString isEqualToString:@"personal"])    return MSIDDeviceModePersonal;
     if ([deviceModeString isEqualToString:@"shared"])  return MSIDDeviceModeShared;
+
+    return MSIDDeviceModePersonal;
+}
+
+- (MSIDSSOExtensionMode)ssoExtensionModeEnumFromString:(NSString *)ssoExtensionModeString
+{
+    if ([ssoExtensionModeString isEqualToString:@"full"])    return MSIDSSOExtensionModeFull;
+    if ([ssoExtensionModeString isEqualToString:@"silent_only"])  return MSIDSSOExtensionModeSilentOnly;
 
     return MSIDDeviceModePersonal;
 }
