@@ -62,7 +62,9 @@
     {
         if (completionHandler)
         {
-            completionHandler(cachedResponse, nil);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(cachedResponse, nil);
+            });
         }
         
         return;
@@ -87,7 +89,10 @@
                                              
                                              if (!accessToken)
                                              {
-                                                 completionHandler(nil, error);
+                                                 dispatch_async(dispatch_get_main_queue(), ^{
+                                                     completionHandler(nil, error);
+                                                 });
+                                                 return;
                                              }
                                              
                                              [self executeAPIRequestImpl:request
