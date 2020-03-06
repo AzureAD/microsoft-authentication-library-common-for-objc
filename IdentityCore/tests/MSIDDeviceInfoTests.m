@@ -187,6 +187,7 @@
     
     NSDictionary *expectedJson = @{
         MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"full",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
     };
