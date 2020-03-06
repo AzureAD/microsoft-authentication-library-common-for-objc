@@ -31,8 +31,8 @@ typedef NS_ENUM(NSInteger, MSIDDeviceMode)
 
 typedef NS_ENUM(NSInteger, MSIDSSOExtensionMode)
 {
-    MSIDSSOExtensionModeSilentOnly = 0,
-    MSIDSSOExtensionModeFull
+    MSIDSSOExtensionModeFull = 0,
+    MSIDSSOExtensionModeSilentOnly
 };
 
 typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)

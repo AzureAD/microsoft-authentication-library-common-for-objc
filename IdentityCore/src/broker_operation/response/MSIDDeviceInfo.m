@@ -70,6 +70,7 @@ static NSArray *deviceModeEnumString;
     NSMutableDictionary *json = [NSMutableDictionary new];
     
     json[MSID_BROKER_DEVICE_MODE_KEY] = [self deviceModeStringFromEnum:self.deviceMode];
+    json[MSID_BROKER_SSO_EXTENSION_MODE_KEY] = [self ssoExtensionModeStringFromEnum:self.ssoExtensionMode];
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     
@@ -96,12 +97,31 @@ static NSArray *deviceModeEnumString;
     return MSIDDeviceModePersonal;
 }
 
+- (NSString *)ssoExtensionModeStringFromEnum:(MSIDSSOExtensionMode)ssoExtensionMode
+{
+    switch (ssoExtensionMode) {
+        case MSIDSSOExtensionModeFull:
+            return @"full";
+        case MSIDSSOExtensionModeSilentOnly:
+            return @"silent_only";
+        default:
+            return nil;
+    }
+}
+
 - (MSIDSSOExtensionMode)ssoExtensionModeEnumFromString:(NSString *)ssoExtensionModeString
 {
     if ([ssoExtensionModeString isEqualToString:@"full"])    return MSIDSSOExtensionModeFull;
     if ([ssoExtensionModeString isEqualToString:@"silent_only"])  return MSIDSSOExtensionModeSilentOnly;
 
-    return MSIDDeviceModePersonal;
+    if (@available(iOS 13.4, macOS 10.15, *))
+    {
+        return MSIDSSOExtensionModeFull;
+    }
+    else
+    {
+        return MSIDSSOExtensionModeSilentOnly;
+    }
 }
 
 - (NSString *)wpjStatusStringFromEnum:(MSIDWorkPlaceJoinStatus)wpjStatus
