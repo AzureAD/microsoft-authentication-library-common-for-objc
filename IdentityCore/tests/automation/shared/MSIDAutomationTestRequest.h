@@ -61,6 +61,7 @@
 #endif
 @property (nonatomic) BOOL isIntuneMAMCACapable;
 @property (nonatomic) NSString *targetTenantId;
+@property (nonatomic) BOOL ssoExtensionHooksEnabled;
 
 - (BOOL)usesEmbeddedWebView;
 

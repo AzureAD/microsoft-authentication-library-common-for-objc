@@ -86,6 +86,7 @@
         _isIntuneMAMCACapable = [json[@"intune_mam_ca_capable"] boolValue];
         _instanceAware = [json[@"instance_aware"] boolValue];
         _targetTenantId = json[@"target_tenant_id"];
+        _ssoExtensionHooksEnabled = [json[@"ssoExtensionHooksEnabled"] boolValue];
     }
 
     return self;
@@ -146,6 +147,7 @@
     json[@"client_capabilities"] = _clientCapabilities;
     json[@"user_identifier_type"] = _legacyAccountIdentifierType;
     json[@"instance_aware"] = @(_instanceAware);
+    json[@"ssoExtensionHooksEnabled"] = @(_ssoExtensionHooksEnabled);
 
     return json;
 }
