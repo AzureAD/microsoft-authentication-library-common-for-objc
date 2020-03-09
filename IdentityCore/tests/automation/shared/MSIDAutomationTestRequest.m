@@ -87,6 +87,8 @@
         _instanceAware = [json[@"instance_aware"] boolValue];
         _targetTenantId = json[@"target_tenant_id"];
         _ssoExtensionHooksEnabled = [json[@"ssoExtensionHooksEnabled"] boolValue];
+        _ssoExtensionSharedDeviceMode = [json[@"ssoExtensionSharedDeviceMode"] integerValue];
+        _ssoExtensionInteractiveMode = [json[@"ssoExtensionInteractiveMode"] integerValue];
     }
 
     return self;
@@ -148,6 +150,8 @@
     json[@"user_identifier_type"] = _legacyAccountIdentifierType;
     json[@"instance_aware"] = @(_instanceAware);
     json[@"ssoExtensionHooksEnabled"] = @(_ssoExtensionHooksEnabled);
+    json[@"ssoExtensionSharedDeviceMode"] = @(_ssoExtensionSharedDeviceMode);
+    json[@"ssoExtensionInteractiveMode"] = @(_ssoExtensionInteractiveMode);
 
     return json;
 }
