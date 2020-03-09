@@ -67,10 +67,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
 - (BOOL)isAuthorizeRequest:(NSURL *)url
 {
     NSString *request = [url absoluteString];
-    BOOL isV2AuthorizeRequest = ([request rangeOfString:@"oauth2/v2.0/authorize?"].location != NSNotFound);
-    BOOL isV1AuthorizeRequest = ([request rangeOfString:@"oauth2/v1.0/authorize?"].location != NSNotFound);
-    BOOL isAuthorizeRequest = ([request rangeOfString:@"oauth2/authorize?"].location != NSNotFound);
-    return isAuthorizeRequest || isV1AuthorizeRequest || isV2AuthorizeRequest;
+    return ([request rangeOfString:@"oauth2" options:NSCaseInsensitiveSearch].location != NSNotFound);
 }
 
 #pragma mark - MSIDBaseBrokerOperationRequest

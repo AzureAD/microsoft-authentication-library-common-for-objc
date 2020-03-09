@@ -63,4 +63,3 @@ NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION   = @"3";
 NSString *const MSID_AUTHENTICATOR_REDIRECT_URI    = @"urn:ietf:wg:oauth:2.0:oob";
 NSString *const MSID_BROKER_SDK_CAPABILITIES_KEY   = @"sdk_broker_capabilities";
 NSString *const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY    = @"sso_extension";
-NSString *const MSID_BROKER_BROWSER_REQUEST_KEY    = @"request_url";
