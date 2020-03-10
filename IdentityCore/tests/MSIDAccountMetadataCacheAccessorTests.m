@@ -31,6 +31,7 @@
 #import "MSIDTestCacheDataSource.h"
 #import "MSIDMetadataCache.h"
 #import "MSIDAccountIdentifier.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDAccountMetadataCacheAccessorTests : XCTestCase
 
@@ -378,6 +379,7 @@
     
     [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId
                                                 principalAccountId:testAccountId
+                                       principalAccountEnvironment:@"login.myenv.com"
                                                            context:nil
                                                              error:nil];
     
@@ -388,6 +390,10 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(accountIdentifier.displayableId, @"test@upn.com");
     XCTAssertEqualObjects(accountIdentifier.homeAccountId, @"uid.utid");
+
+    MSIDAccountMetadataCacheItem *accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:clientId context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(accountMetadataCacheItem.principalAccountEnvironment, @"login.myenv.com");
 }
 
 - (void)testUpdatePrincipalAccountId_whenNilClientId_shouldReturnError
@@ -395,7 +401,7 @@
     NSString *clientId = nil;
 
     NSError *error;
-    BOOL result = [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId principalAccountId:nil context:nil error:&error];
+    BOOL result = [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId principalAccountId:nil principalAccountEnvironment:@"login.myenv.com" context:nil error:&error];
     
     XCTAssertFalse(result);
     XCTAssertNotNil(error);
@@ -413,12 +419,13 @@
     // Save first time
     [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId
                                                 principalAccountId:testAccountId
+                                       principalAccountEnvironment:@"login.myenv.com"
                                                            context:nil
                                                              error:nil];
     
     // Save with nil
     NSError *error;
-    BOOL result = [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId principalAccountId:nil context:nil error:&error];
+    BOOL result = [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId principalAccountId:nil principalAccountEnvironment:@"login.myenv.com" context:nil error:&error];
     
     XCTAssertTrue(result);
     XCTAssertNil(error);
