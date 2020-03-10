@@ -227,6 +227,7 @@
 
 - (BOOL)updatePrincipalAccountIdForClientId:(NSString *)clientId
                          principalAccountId:(MSIDAccountIdentifier *)principalAccountId
+                principalAccountEnvironment:(NSString *)principalAccountEnvironment
                                     context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error
 {
@@ -245,6 +246,7 @@
     }
     
     cacheItem.principalAccountId = principalAccountId;
+    cacheItem.principalAccountEnvironment = principalAccountEnvironment;
     
     MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:clientId];
     

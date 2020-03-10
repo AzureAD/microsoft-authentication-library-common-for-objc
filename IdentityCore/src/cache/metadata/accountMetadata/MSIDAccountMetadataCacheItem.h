@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSString *clientId;
 @property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
+@property (nonatomic, nullable) NSString *principalAccountEnvironment;
 
 - (nullable instancetype)initWithClientId:(NSString *)clientId;
 
