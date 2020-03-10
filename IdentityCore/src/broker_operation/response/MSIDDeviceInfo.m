@@ -114,14 +114,7 @@ static NSArray *deviceModeEnumString;
     if ([ssoExtensionModeString isEqualToString:@"full"])    return MSIDSSOExtensionModeFull;
     if ([ssoExtensionModeString isEqualToString:@"silent_only"])  return MSIDSSOExtensionModeSilentOnly;
 
-    if (@available(iOS 13.4, macOS 10.15, *))
-    {
-        return MSIDSSOExtensionModeFull;
-    }
-    else
-    {
-        return MSIDSSOExtensionModeSilentOnly;
-    }
+    return MSIDSSOExtensionModeFull;
 }
 
 - (NSString *)wpjStatusStringFromEnum:(MSIDWorkPlaceJoinStatus)wpjStatus
