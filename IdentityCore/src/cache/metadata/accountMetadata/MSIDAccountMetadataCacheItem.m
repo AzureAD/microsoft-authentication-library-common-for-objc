@@ -192,7 +192,7 @@
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= ([_accountMetadataMap isEqualToDictionary:item->_accountMetadataMap]);
     result &= (!self.principalAccountId && !item.principalAccountId) || [self.principalAccountId isEqual:item.principalAccountId];
-    result &= (!self.principalAccountEnvironment && !item.principalAccountEnvironment) || [self.principalAccountEnvironment isEqual:item.principalAccountEnvironment];
+    result &= (!self.principalAccountEnvironment && !item.principalAccountEnvironment) || [self.principalAccountEnvironment isEqualToString:item.principalAccountEnvironment];
     
     return result;
 }
