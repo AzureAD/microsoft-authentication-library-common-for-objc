@@ -23,14 +23,6 @@ static NSArray *_bundleIdentifierWhiteList = nil;
     {
         _requestURL = requestURL;
         
-        if (![self isAuthorizeRequest:_requestURL])
-        {
-            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Failed to create browser operation request for %@ class, request is not authorize request", self.class);
-            return nil;
-        }
-        
-        _headers = headers;
-        
         if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
         {
             MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Failed to create browser operation request for %@ class, bundle identifier %@ is not in the whitelist", self.class, _bundleIdentifier);
@@ -38,6 +30,14 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         }
         
         _bundleIdentifier = bundleIdentifier;
+        
+        if (![self isAuthorizeRequest:_requestURL])
+        {
+            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Failed to create browser operation request for %@ class, request is not authorize request", self.class);
+            return nil;
+        }
+        
+        _headers = headers;
         
         NSError *error = nil;
         MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:_requestURL rawTenant:nil context:nil error:&error];
