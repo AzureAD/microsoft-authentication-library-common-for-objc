@@ -46,6 +46,7 @@ struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams
 {
     MSIDAccountIdentifier * _Nullable principalAccountId;
     NSString * _Nullable clientId;
+    NSString * _Nullable accountEnvironment;
 };
 
 @interface MSIDAccountMetadataCacheAccessorMock : MSIDAccountMetadataCacheAccessor

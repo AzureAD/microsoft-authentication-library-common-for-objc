@@ -138,6 +138,7 @@ NSString *const MSID_GENERAL_CACHE_ITEM_TYPE             = @"general_cache_item"
 NSString *const MSID_APP_METADATA_CACHE_TYPE             = @"appmetadata";
 NSString *const MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY = @"principal_home_account_id";
 NSString *const MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY  = @"principal_username";
+NSString *const MSID_PRINCIPAL_ACCOUNT_ENVIRONMENT_CACHE_KEY    = @"principal_account_environment";
 NSString *const MSID_APP_METADATA_AUTHORITY_MAP_TYPE     = @"authority_map";
 NSString *const MSID_DEVICE_ID_CACHE_KEY                 = @"device_id";
 

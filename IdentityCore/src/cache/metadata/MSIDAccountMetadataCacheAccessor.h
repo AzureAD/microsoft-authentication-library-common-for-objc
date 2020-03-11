@@ -30,6 +30,7 @@
 @protocol MSIDRequestContext;
 @protocol MSIDMetadataCacheDataSource;
 @class MSIDAccountIdentifier;
+@class MSIDAccountMetadataCacheItem;
 
 @interface MSIDAccountMetadataCacheAccessor : NSObject
 
@@ -67,6 +68,11 @@
 
 - (BOOL)updatePrincipalAccountIdForClientId:(NSString *)clientId
                          principalAccountId:(MSIDAccountIdentifier *)principalAccountId
+                principalAccountEnvironment:(NSString *)principalAccountEnvironment
                                     context:(id<MSIDRequestContext>)context
                                       error:(NSError **)error;
+
+- (MSIDAccountMetadataCacheItem *)retrieveAccountMetadataCacheItemForClientId:(NSString *)clientId
+                                                                      context:(id<MSIDRequestContext>)context
+                                                                        error:(NSError **)error;
 @end
