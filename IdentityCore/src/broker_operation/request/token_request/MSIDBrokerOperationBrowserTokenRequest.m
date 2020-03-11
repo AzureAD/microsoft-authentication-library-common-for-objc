@@ -77,4 +77,10 @@ static NSArray *_bundleIdentifierWhiteList = nil;
     return MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT;
 }
 
+- (NSString *)description
+{
+    NSString *baseDescription = [super description];
+    return [baseDescription stringByAppendingFormat:@"(requestUrl=%@, bundle_identifier=%@)", self.requestURL, self.bundleIdentifier];
+}
+
 @end
