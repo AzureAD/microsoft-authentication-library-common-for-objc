@@ -16,4 +16,10 @@
     return @"";
 }
 
+- (id)logInfo
+{
+    NSAssert(NO, @"Abstract method.");
+    return @"";
+}
+
 @end

@@ -27,6 +27,7 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
+#import "NSDictionary+MSIDLogging.h"
 
 @implementation MSIDBrokerOperationRequest
 
@@ -100,6 +101,11 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
     NSString *sdkTypeString = MSIDClientSDKTypeToString(self.clientSDK);
     json[MSID_BROKER_CLIENT_SDK_KEY] = sdkTypeString;
     return json;
+}
+
+-(id)logInfo
+{
+    return [self.jsonDictionary maskedRequestDictionary];
 }
 
 @end

@@ -14,6 +14,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, class, readonly) NSString *operation;
 
+- (id)logInfo;
+
 @end
 
 NS_ASSUME_NONNULL_END
