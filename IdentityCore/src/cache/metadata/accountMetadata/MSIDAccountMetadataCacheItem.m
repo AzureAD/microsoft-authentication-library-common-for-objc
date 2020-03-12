@@ -105,6 +105,8 @@
         _principalAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:principalDisplayableId homeAccountId:principalHomeAccountId];
     }
     
+    _principalAccountEnvironment = [json msidStringObjectForKey:MSID_PRINCIPAL_ACCOUNT_ENVIRONMENT_CACHE_KEY];
+    
     NSDictionary *accountMetaMapJson = [json msidObjectForKey:MSID_ACCOUNT_METADATA_MAP_CACHE_KEY ofClass:NSDictionary.class];
     for (NSString *key in accountMetaMapJson)
     {
@@ -131,6 +133,7 @@
     dictionary[MSID_CLIENT_ID_CACHE_KEY] = self.clientId;
     dictionary[MSID_PRINCIPAL_HOME_ACCOUNT_ID_CACHE_KEY] = self.principalAccountId.homeAccountId;
     dictionary[MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY] = self.principalAccountId.displayableId;
+    dictionary[MSID_PRINCIPAL_ACCOUNT_ENVIRONMENT_CACHE_KEY] = self.principalAccountEnvironment;
     
     NSMutableDictionary *accountMetadataMapJson = [NSMutableDictionary new];
     for (NSString *key in _accountMetadataMap)
@@ -150,6 +153,7 @@
     item->_clientId = [self.clientId copyWithZone:zone];
     item->_accountMetadataMap = [self->_accountMetadataMap mutableDeepCopy];
     item->_principalAccountId = [self->_principalAccountId copyWithZone:zone];
+    item->_principalAccountEnvironment = [self.principalAccountEnvironment copyWithZone:zone];
     
     return item;
 }
@@ -160,6 +164,7 @@
     hash = hash * 31 + self.clientId.hash;
     hash = hash * 31 + _accountMetadataMap.hash;
     hash = hash * 31 + self.principalAccountId.hash;
+    hash = hash * 31 + self.principalAccountEnvironment.hash;
     
     return hash;
 }
@@ -187,6 +192,7 @@
     result &= (!self.clientId && !item.clientId) || [self.clientId isEqualToString:item.clientId];
     result &= ([_accountMetadataMap isEqualToDictionary:item->_accountMetadataMap]);
     result &= (!self.principalAccountId && !item.principalAccountId) || [self.principalAccountId isEqual:item.principalAccountId];
+    result &= (!self.principalAccountEnvironment && !item.principalAccountEnvironment) || [self.principalAccountEnvironment isEqualToString:item.principalAccountEnvironment];
     
     return result;
 }
