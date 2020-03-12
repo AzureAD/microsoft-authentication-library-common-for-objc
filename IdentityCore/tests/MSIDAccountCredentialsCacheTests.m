@@ -1969,7 +1969,7 @@
     XCTAssertTrue([results count] == 0);
 }
 
-#pragma mark - removeCredetialsWithQuery
+#pragma mark - removeCredentialsWithQuery
 
 - (void)testRemoveCredetialsWithQuery_whenQueryIsExactMatch_andAccessTokensQuery_shouldRemoveItem
 {
@@ -1991,7 +1991,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -2021,7 +2021,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -2052,7 +2052,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -2081,7 +2081,7 @@
     XCTAssertFalse(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 

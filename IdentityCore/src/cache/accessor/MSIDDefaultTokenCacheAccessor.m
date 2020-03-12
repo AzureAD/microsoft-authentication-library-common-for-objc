@@ -617,7 +617,7 @@
         query.matchAnyCredentialType = YES;
 
         NSError *credentialRemovalError;
-        result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:&credentialRemovalError];
+        result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:&credentialRemovalError];
         
         if (!result)
         {
@@ -786,7 +786,7 @@
     query.credentialType = MSIDAccessTokenType;
     query.applicationIdentifier = accessToken.applicationIdentifier;
 
-    BOOL result = [_accountCredentialCache removeCredetialsWithQuery:query context:context error:error];
+    BOOL result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:error];
 
     if (!result)
     {
