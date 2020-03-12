@@ -29,6 +29,12 @@ typedef NS_ENUM(NSInteger, MSIDDeviceMode)
     MSIDDeviceModeShared
 };
 
+typedef NS_ENUM(NSInteger, MSIDSSOExtensionMode)
+{
+    MSIDSSOExtensionModeFull = 0,
+    MSIDSSOExtensionModeSilentOnly
+};
+
 typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)
 {
     MSIDWorkPlaceJoinStatusNotJoined = 0,
@@ -40,10 +46,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDDeviceInfo : NSObject <MSIDJsonSerializable>
 
 @property (nonatomic) MSIDDeviceMode deviceMode;
+@property (nonatomic) MSIDSSOExtensionMode ssoExtensionMode;
 @property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
 @property (nonatomic, nullable) NSString *brokerVersion;
 
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
+                  ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
                      brokerVersion:(NSString *)brokerVersion;
 

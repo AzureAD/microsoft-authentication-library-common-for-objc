@@ -40,6 +40,7 @@
 - (void)testInitWithJSONDictionary_whenJsonValid_shouldInitWithJson {
     NSDictionary *json = @{
         MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"silent_only",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
     };
@@ -49,6 +50,7 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModeShared);
+    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeSilentOnly);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
 }
@@ -64,6 +66,7 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModePersonal);
+    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
 }
@@ -72,6 +75,7 @@
     NSDictionary *json = @{
         MSID_BROKER_DEVICE_MODE_KEY : @"P_ersonal",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"silent-only",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
     };
     
@@ -80,6 +84,7 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModePersonal);
+    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
 }
@@ -87,6 +92,7 @@
 - (void)testInitWithJSONDictionary_whenDeviceInfoWrongValueType_shouldInitWithDefaultValue {
     NSDictionary *json = @{
         MSID_BROKER_DEVICE_MODE_KEY : @5,
+        MSID_BROKER_DEVICE_MODE_KEY : @2,
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
     };
@@ -96,12 +102,14 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModePersonal);
+    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
 }
 
 - (void)testInitWithJSONDictionary_whenDeviceInfoEmptyString_shouldInitWithDefaultValue {
     NSDictionary *json = @{
+        MSID_BROKER_DEVICE_MODE_KEY : @"",
         MSID_BROKER_DEVICE_MODE_KEY : @"",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
@@ -112,6 +120,7 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModePersonal);
+    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
 }
@@ -127,6 +136,7 @@
     
     XCTAssertNil(error);
     XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModePersonal);
+    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeFull);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusNotJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
 }
@@ -187,6 +197,7 @@
     
     NSDictionary *expectedJson = @{
         MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"full",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
     };
