@@ -130,10 +130,10 @@
         
         if (@available(iOS 13.0, *))
         {
+            brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
+            
             if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
             {
-                brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
-                
                 return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
                                                                                                   tokenRequestProvider:tokenRequestProvider
                                                                                                     fallbackController:brokerController

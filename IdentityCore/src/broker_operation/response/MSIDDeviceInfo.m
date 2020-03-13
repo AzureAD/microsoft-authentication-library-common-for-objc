@@ -31,6 +31,7 @@ static NSArray *deviceModeEnumString;
 @implementation MSIDDeviceInfo
 
 - (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
+                  ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
                  isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
                      brokerVersion:(NSString *)brokerVersion
 {
@@ -39,6 +40,7 @@ static NSArray *deviceModeEnumString;
     if (self)
     {
         _deviceMode = deviceMode;
+        _ssoExtensionMode = ssoExtensionMode;
         _wpjStatus = isWorkPlaceJoined ? MSIDWorkPlaceJoinStatusJoined : MSIDWorkPlaceJoinStatusNotJoined;
         _brokerVersion = brokerVersion;
     }
@@ -55,6 +57,7 @@ static NSArray *deviceModeEnumString;
     if (self)
     {
         _deviceMode = [self deviceModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_DEVICE_MODE_KEY]];
+        _ssoExtensionMode = [self ssoExtensionModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_SSO_EXTENSION_MODE_KEY]];
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
     }
@@ -67,6 +70,7 @@ static NSArray *deviceModeEnumString;
     NSMutableDictionary *json = [NSMutableDictionary new];
     
     json[MSID_BROKER_DEVICE_MODE_KEY] = [self deviceModeStringFromEnum:self.deviceMode];
+    json[MSID_BROKER_SSO_EXTENSION_MODE_KEY] = [self ssoExtensionModeStringFromEnum:self.ssoExtensionMode];
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
     
@@ -91,6 +95,26 @@ static NSArray *deviceModeEnumString;
     if ([deviceModeString isEqualToString:@"shared"])  return MSIDDeviceModeShared;
 
     return MSIDDeviceModePersonal;
+}
+
+- (NSString *)ssoExtensionModeStringFromEnum:(MSIDSSOExtensionMode)ssoExtensionMode
+{
+    switch (ssoExtensionMode) {
+        case MSIDSSOExtensionModeFull:
+            return @"full";
+        case MSIDSSOExtensionModeSilentOnly:
+            return @"silent_only";
+        default:
+            return nil;
+    }
+}
+
+- (MSIDSSOExtensionMode)ssoExtensionModeEnumFromString:(NSString *)ssoExtensionModeString
+{
+    if ([ssoExtensionModeString isEqualToString:@"full"])    return MSIDSSOExtensionModeFull;
+    if ([ssoExtensionModeString isEqualToString:@"silent_only"])  return MSIDSSOExtensionModeSilentOnly;
+
+    return MSIDSSOExtensionModeFull;
 }
 
 - (NSString *)wpjStatusStringFromEnum:(MSIDWorkPlaceJoinStatus)wpjStatus

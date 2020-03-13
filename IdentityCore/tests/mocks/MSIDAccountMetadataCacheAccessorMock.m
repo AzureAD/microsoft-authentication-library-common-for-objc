@@ -83,6 +83,7 @@
 
 - (BOOL)updatePrincipalAccountIdForClientId:(NSString *)clientId
                          principalAccountId:(MSIDAccountIdentifier *)principalAccountId
+                principalAccountEnvironment:(NSString *)principalAccountEnvironment
                                     context:(__unused id<MSIDRequestContext>)context
                                       error:(NSError **)error
 {
@@ -91,6 +92,7 @@
     struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams s  = self.updatePrincipalAccountIdParams;
     s.principalAccountId = principalAccountId;
     s.clientId = clientId;
+    s.accountEnvironment = principalAccountEnvironment;
     self.updatePrincipalAccountIdParams = s;
     
     self.updatePrincipalAccountIdInvokedCount++;
