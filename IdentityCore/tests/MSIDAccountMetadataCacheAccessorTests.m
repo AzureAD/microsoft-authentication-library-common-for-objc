@@ -420,7 +420,7 @@
     
     
     NSError *error;
-    self.accountMetadataCache.skipCacheForAccountMetadata = YES;
+    self.accountMetadataCache.skipMemoryCacheForAccountMetadata = YES;
     MSIDAccountIdentifier *accountIdentifier = [self.accountMetadataCache principalAccountIdForClientId:clientId context:nil error:&error];
     
     XCTAssertNotNil(accountIdentifier);
