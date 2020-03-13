@@ -105,7 +105,7 @@
 /*
  Removes credentials matching parameters specified in the query
  */
-- (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
+- (BOOL)removeCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                           context:(nullable id<MSIDRequestContext>)context
                             error:(NSError * _Nullable * _Nullable)error;
 
