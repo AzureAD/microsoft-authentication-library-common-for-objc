@@ -47,4 +47,9 @@
                                                           context:(id<MSIDRequestContext>)context
                                                             error:(NSError **)error;
 
+- (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
+                                                        skipCache:(BOOL)skipCache
+                                                          context:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error;
+
 @end
