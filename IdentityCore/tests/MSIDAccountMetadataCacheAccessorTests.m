@@ -36,6 +36,7 @@
 @interface MSIDAccountMetadataCacheAccessorTests : XCTestCase
 
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
+@property (nonatomic) MSIDAccountMetadataCacheAccessor *secondAccountMetadataCache;
 
 @end
 
@@ -49,6 +50,7 @@
     __auto_type dataSource = [[MSIDTestCacheDataSource alloc] init];
 #endif
     self.accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    self.secondAccountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
 }
 
 - (void)tearDown {
@@ -390,6 +392,41 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(accountIdentifier.displayableId, @"test@upn.com");
     XCTAssertEqualObjects(accountIdentifier.homeAccountId, @"uid.utid");
+
+    MSIDAccountMetadataCacheItem *accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:clientId context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(accountMetadataCacheItem.principalAccountEnvironment, @"login.myenv.com");
+}
+
+- (void)testPrincipalAccountIfForClientId_whenAllParametersPassed_andSkipCacheYES_andValueChangedInParallel_shouldReturnCorrectValue
+{
+    NSString *clientId = @"myclientId";
+    
+    MSIDAccountIdentifier *testAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"test@upn.com" homeAccountId:@"uid.utid"];
+    
+    [self.accountMetadataCache updatePrincipalAccountIdForClientId:clientId
+                                                principalAccountId:testAccountId
+                                       principalAccountEnvironment:@"login.myenv.com"
+                                                           context:nil
+                                                             error:nil];
+    
+    MSIDAccountIdentifier *secondTestAccountId = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"test2@upn.com" homeAccountId:@"uid2.utid2"];
+    
+    [self.secondAccountMetadataCache updatePrincipalAccountIdForClientId:clientId
+                                                      principalAccountId:secondTestAccountId
+                                             principalAccountEnvironment:@"login.myenv.com"
+                                                                 context:nil
+                                                                   error:nil];
+    
+    
+    NSError *error;
+    self.accountMetadataCache.skipCacheForAccountMetadata = YES;
+    MSIDAccountIdentifier *accountIdentifier = [self.accountMetadataCache principalAccountIdForClientId:clientId context:nil error:&error];
+    
+    XCTAssertNotNil(accountIdentifier);
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(accountIdentifier.displayableId, @"test2@upn.com");
+    XCTAssertEqualObjects(accountIdentifier.homeAccountId, @"uid2.utid2");
 
     MSIDAccountMetadataCacheItem *accountMetadataCacheItem = [self.accountMetadataCache retrieveAccountMetadataCacheItemForClientId:clientId context:nil error:&error];
     XCTAssertNil(error);
