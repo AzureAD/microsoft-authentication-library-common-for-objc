@@ -1969,9 +1969,9 @@
     XCTAssertTrue([results count] == 0);
 }
 
-#pragma mark - removeCredetialsWithQuery
+#pragma mark - removeCredentialsWithQuery
 
-- (void)testRemoveCredetialsWithQuery_whenQueryIsExactMatch_andAccessTokensQuery_shouldRemoveItem
+- (void)testRemoveCredentialsWithQuery_whenQueryIsExactMatch_andAccessTokensQuery_shouldRemoveItem
 {
     [self saveItem:[self createTestAccessTokenCacheItem]];
 
@@ -1991,7 +1991,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -2003,7 +2003,7 @@
     XCTAssertTrue([remainignItems containsObject:[self createTestRefreshTokenCacheItem]]);
 }
 
-- (void)testRemoveCredetialsWithQuery_whenQueryIsExactMatch_andRefreshTokensQuery_shouldRemoveItem
+- (void)testRemoveCredentialsWithQuery_whenQueryIsExactMatch_andRefreshTokensQuery_shouldRemoveItem
 {
     [self saveItem:[self createTestRefreshTokenCacheItem]];
 
@@ -2021,7 +2021,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -2033,7 +2033,7 @@
     XCTAssertTrue([remainignItems containsObject:[self createTestIDTokenCacheItem]]);
 }
 
-- (void)testRemoveCredetialsWithQuery_whenQueryIsExactMatch_andIDTokensQuery_shouldRemoveItem
+- (void)testRemoveCredentialsWithQuery_whenQueryIsExactMatch_andIDTokensQuery_shouldRemoveItem
 {
     [self saveItem:[self createTestIDTokenCacheItem]];
 
@@ -2052,7 +2052,7 @@
     XCTAssertTrue(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
@@ -2064,7 +2064,7 @@
     XCTAssertTrue([remainignItems containsObject:[self createTestIDTokenCacheItem]]);
 }
 
-- (void)testRemoveCredetialsWithQuery_whenQueryIsNotExactMatch_andAccessTokensQuery_shouldRemoveAllItems
+- (void)testRemoveCredentialsWithQuery_whenQueryIsNotExactMatch_andAccessTokensQuery_shouldRemoveAllItems
 {
     [self saveItem:[self createTestAccessTokenCacheItem]];
 
@@ -2081,7 +2081,7 @@
     XCTAssertFalse(query.exactMatch);
 
     NSError *error = nil;
-    BOOL result = [self.cache removeCredetialsWithQuery:query context:nil error:&error];
+    BOOL result = [self.cache removeCredentialsWithQuery:query context:nil error:&error];
     XCTAssertTrue(result);
     XCTAssertNil(error);
 
