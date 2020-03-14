@@ -147,7 +147,7 @@
     }
     
     NSError *localError;
-    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipCacheForAccountMetadata context:context error:&localError];
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:&localError];
     if (localError)
     {
         if (error) *error = localError;
@@ -173,7 +173,7 @@
     }
     
     NSError *localError;
-    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipCacheForAccountMetadata context:context error:&localError];
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:&localError];
     if (localError)
     {
         if (error) *error = localError;
@@ -215,7 +215,7 @@
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipCacheForAccountMetadata context:context error:error];
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:error];
     
     if (!cacheItem)
     {
@@ -232,7 +232,7 @@
                                       error:(NSError **)error
 {
     NSError *accountMetadataError;
-    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipCacheForAccountMetadata context:context error:&accountMetadataError];
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:&accountMetadataError];
     
     if (accountMetadataError)
     {
