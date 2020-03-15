@@ -33,26 +33,10 @@
 
 + (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
 {
-    return [MSIDPkeyAuthHelper computeThumbprint:data isSha2:NO];
-}
-
-
-+ (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
-                                 isSha2:(BOOL)isSha2
-{
-    //compute SHA-1 thumbprint
-    int length = CC_SHA1_DIGEST_LENGTH;
-    if(isSha2){
-        length = CC_SHA256_DIGEST_LENGTH;
-    }
+    int length = CC_SHA256_DIGEST_LENGTH;
     
     unsigned char dataBuffer[length];
-    if(!isSha2){
-        CC_SHA1(data.bytes, (CC_LONG)data.length, dataBuffer);
-    }
-    else{
-        CC_SHA256(data.bytes, (CC_LONG)data.length, dataBuffer);
-    }
+    CC_SHA256(data.bytes, (CC_LONG)data.length, dataBuffer);
     
     NSMutableString *fingerprint = [NSMutableString stringWithCapacity:length * 3];
     for (int i = 0; i < length; ++i)
@@ -79,7 +63,6 @@
     if (info && challengeData)
     {
         NSString *certAuths = [challengeData valueForKey:@"CertAuthorities"];
-        NSString *expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
         
         if (certAuths)
         {
@@ -87,14 +70,6 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
-                info = nil;
-            }
-        }
-        else if (expectedThumbprint)
-        {
-            if (![expectedThumbprint isEqualToString:[MSIDPkeyAuthHelper computeThumbprint:[info certificateData]]])
-            {
-                MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
                 info = nil;
             }
         }
