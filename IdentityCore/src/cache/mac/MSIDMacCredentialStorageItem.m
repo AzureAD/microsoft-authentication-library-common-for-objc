@@ -23,6 +23,7 @@
 
 
 #import "MSIDMacCredentialStorageItem.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 static NSString *keyDelimiter = @"-";
 

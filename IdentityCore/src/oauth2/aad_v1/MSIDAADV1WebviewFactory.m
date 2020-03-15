@@ -22,27 +22,21 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV1WebviewFactory.h"
-#import "MSIDWebviewConfiguration.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDAADV1WebviewFactory
 
-- (NSMutableDictionary<NSString *,NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                                                                         pkce:(MSIDPkce *)pkce
+                                                                                 requestState:(NSString *)state
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [super authorizationParametersFromConfiguration:configuration
+    NSMutableDictionary<NSString *, NSString *> *result = [super authorizationParametersFromRequestParameters:parameters
+                                                                                                         pkce:pkce
                                                                                                  requestState:state];
-    
-    parameters[MSID_OAUTH2_RESOURCE] = configuration.resource;
-    
-    return parameters;
-}
-
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
-{
-    MSIDWebviewConfiguration *configuration = [super webViewConfigurationWithRequestParameters:parameters];
-
-    // TODO: implement me for ADAL
-    return configuration;
+    result[MSID_OAUTH2_SCOPE] = parameters.oidcScope;
+    result[MSID_OAUTH2_RESOURCE] = parameters.target;
+    return result;
 }
 
 @end

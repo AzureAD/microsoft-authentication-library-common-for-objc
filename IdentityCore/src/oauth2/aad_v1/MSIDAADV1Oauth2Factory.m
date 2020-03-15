@@ -28,7 +28,7 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
@@ -42,6 +42,11 @@
 #import "MSIDRefreshTokenGrantRequest.h"
 
 @implementation MSIDAADV1Oauth2Factory
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV1;
+}
 
 #pragma mark - Helpers
 

@@ -109,7 +109,7 @@
     {
         NSDictionary *intuneResponseDictionary = @{@"response": encryptedParams[@"intune_mam_token"],
                                                    @"hash": encryptedParams[@"intune_mam_token_hash"],
-                                                   MSID_BROKER_PROTOCOL_VERSION_KEY: encryptedParams[MSID_BROKER_PROTOCOL_VERSION_KEY] ?: @2};
+                                                   MSID_BROKER_PROTOCOL_VERSION_KEY: encryptedParams[MSID_BROKER_PROTOCOL_VERSION_KEY] ?: @(MSID_BROKER_PROTOCOL_VERSION_2)};
 
         NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:intuneResponseDictionary
                                                                              correlationId:correlationID
@@ -124,9 +124,13 @@
         MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:&intuneError];
         MSIDTokenResult *intuneResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                          oidcScope:oidcScope
+                                                                                  requestAuthority:self.providedAuthority
+                                                                                     instanceAware:self.instanceAware
                                                                                       oauthFactory:self.oauthFactory
                                                                                         tokenCache:self.tokenCache
+                                                                              accountMetadataCache:self.accountMetadataCacheAccessor
                                                                                      correlationID:correlationID
+                                                                                  saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                                              error:&intuneError];
 
         if (!intuneResult)
@@ -195,6 +199,12 @@
     NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, errorResponse.subError, nil, correlationId, userInfo, NO);
 
     return brokerError;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    return nil;
 }
 
 - (BOOL)canHandleBrokerResponse:(NSURL *)response

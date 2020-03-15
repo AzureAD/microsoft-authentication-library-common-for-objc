@@ -27,6 +27,7 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonSerializing.h"
 #import "MSIDCacheKey.h"
+#import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDAccountMetadataCacheItem.h"
 
 @implementation MSIDMetadataCache
@@ -55,10 +56,10 @@
     return self;
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
-                        key:(MSIDCacheKey *)key
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (BOOL)saveAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
+                                 key:(MSIDCacheKey *)key
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
     if (!item || !key)
     {
@@ -97,17 +98,17 @@
     return saveSuccess;
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
-                                                 context:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error
+- (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
+                                                          context:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error
 {
     if (!key)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
         }
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Get account metadata with invalid key.");
         return nil;
     }
 
@@ -140,9 +141,9 @@
     return [item copy];
 }
 
-- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+- (BOOL)removeAccountMetadataCacheItemForKey:(MSIDCacheKey *)key
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error
 {
     if (!key)
     {

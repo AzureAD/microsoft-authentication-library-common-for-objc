@@ -21,12 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDAccountMetadata.h"
+
 @class MSIDRequestParameters;
 @class MSIDTokenResponse;
 @class MSIDAuthority;
 @class MSIDConfiguration;
 @protocol MSIDRequestContext;
 @protocol MSIDMetadataCacheDataSource;
+@class MSIDAccountIdentifier;
+@class MSIDAccountMetadataCacheItem;
 
 @interface MSIDAccountMetadataCacheAccessor : NSObject
 
@@ -47,9 +51,28 @@
                    context:(id<MSIDRequestContext>)context
                      error:(NSError **)error;
 
-- (BOOL)clearForHomeAccountId:(NSString *)homeAccountId
-                     clientId:(NSString *)clientId
-                      context:(id<MSIDRequestContext>)context
-                        error:(NSError **)error;
+- (MSIDAccountMetadataState)signInStateForHomeAccountId:(NSString *)homeAccountId
+                                               clientId:(NSString *)clientId
+                                                context:(id<MSIDRequestContext>)context
+                                                  error:(NSError **)error;
 
+- (BOOL)updateSignInStateForHomeAccountId:(NSString *)homeAccountId
+                                 clientId:(NSString *)clientId
+                                    state:(MSIDAccountMetadataState)state
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error;
+
+- (MSIDAccountIdentifier *)principalAccountIdForClientId:(NSString *)clientId
+                                                 context:(id<MSIDRequestContext>)context
+                                                   error:(NSError **)error;
+
+- (BOOL)updatePrincipalAccountIdForClientId:(NSString *)clientId
+                         principalAccountId:(MSIDAccountIdentifier *)principalAccountId
+                principalAccountEnvironment:(NSString *)principalAccountEnvironment
+                                    context:(id<MSIDRequestContext>)context
+                                      error:(NSError **)error;
+
+- (MSIDAccountMetadataCacheItem *)retrieveAccountMetadataCacheItemForClientId:(NSString *)clientId
+                                                                      context:(id<MSIDRequestContext>)context
+                                                                        error:(NSError **)error;
 @end

@@ -28,9 +28,8 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
-#import "MSIDURLResponseHandling.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting, MSIDURLResponseHandling>
+@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
            parentController:(UIViewController *)parentController
@@ -39,6 +38,7 @@
 
 @property (readonly) NSURL *startURL;
 @property (weak, nonatomic) UIViewController *parentController;
+@property (nonatomic) NSArray<UIActivity *> *appActivities;
 
 @end
 #endif

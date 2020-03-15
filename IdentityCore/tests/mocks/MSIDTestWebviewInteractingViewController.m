@@ -51,6 +51,11 @@
     
 }
 
+- (void)dismiss
+{
+    
+}
+
 
 - (BOOL)isKindOfClass:(Class)aClass
 {

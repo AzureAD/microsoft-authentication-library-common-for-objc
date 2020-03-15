@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRequestContext.h"
 #import "MSIDCacheAccessor.h"
+#import "MSIDConstants.h"
 
 @class MSIDAuthority;
 @class MSIDAccountIdentifier;
@@ -32,7 +33,7 @@
 @class MSIDConfiguration;
 @class MSIDClaimsRequest;
 
-@interface MSIDRequestParameters : NSObject <MSIDRequestContext>
+@interface MSIDRequestParameters : NSObject <NSCopying, MSIDRequestContext>
 
 @property (nonatomic) MSIDAuthority *authority;
 /*
@@ -54,6 +55,7 @@
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
+@property (nonatomic) MSIDRequestType requestType;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;
@@ -92,6 +94,7 @@
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
+                      requestType:(MSIDRequestType)requestType
                             error:(NSError **)error;
 
 @end

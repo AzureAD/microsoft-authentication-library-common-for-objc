@@ -113,4 +113,6 @@
 /* Use this method to log sensitive information like password, access token etc. */
 - (NSString *)msidSecretLoggingHash;
 
+- (NSString *)msidDomainSuffix;
+
 @end

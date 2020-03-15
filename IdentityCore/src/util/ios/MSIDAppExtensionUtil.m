@@ -24,7 +24,19 @@
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
 
+static BOOL s_isRunningInCompliantExtension = NO;
+
 @implementation MSIDAppExtensionUtil
+
++ (BOOL)runningInCompliantExtension
+{
+    return s_isRunningInCompliantExtension;
+}
+
++ (void)setRunningInCompliantExtension:(BOOL)runningInCompliantExtension
+{
+    s_isRunningInCompliantExtension = runningInCompliantExtension;
+}
 
 + (BOOL)isExecutingInAppExtension
 {
@@ -37,7 +49,7 @@
         return NO;
     }
     
-    return [mainBundlePath hasSuffix:@"appex"];
+    return [mainBundlePath hasSuffix:@"appex"] && !self.runningInCompliantExtension;
 }
 
 #pragma mark - UIApplication

@@ -86,9 +86,4 @@ MSID_FORM_ACCESSOR(@"scope", scope);
     return self.errorMetadata[@"http_response_headers"];
 }
 
-- (NSString *)username
-{
-    return self.errorMetadata[@"username"];
-}
-
 @end

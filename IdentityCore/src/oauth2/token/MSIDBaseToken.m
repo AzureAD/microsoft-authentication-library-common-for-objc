@@ -25,7 +25,6 @@
 #import "MSIDUserInformation.h"
 #import "MSIDAADTokenResponse.h"
 #import "MSIDTelemetryEventStrings.h"
-#import "MSIDClientInfo.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
 

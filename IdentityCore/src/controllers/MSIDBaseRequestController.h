@@ -31,6 +31,9 @@
 typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error);
 
 @interface MSIDBaseRequestController : NSObject
+{
+    id<MSIDRequestControlling> _fallbackController;
+}
 
 @property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readonly, nullable) id<MSIDTokenRequestProviding> tokenRequestProvider;
