@@ -26,7 +26,7 @@
 
 @implementation MSIDLoginKeychainUtil
 
-- (NSString *)appIdPrefixFromSigningInformation:(NSDictionary *)signingInformation
+- (NSString *)appIdPrefixFromSigningInformation:(__unused NSDictionary *)signingInformation
 {
     return nil;
 }
