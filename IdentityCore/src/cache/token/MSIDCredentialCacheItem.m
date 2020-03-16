@@ -163,7 +163,7 @@
 
     if (!_secret)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No secret present in the credential");
+        if (_credentialType != MSIDCredentialTypeOther) MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No secret present in the credential");
         return nil;
     }
 
