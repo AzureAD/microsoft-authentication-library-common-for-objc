@@ -663,9 +663,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                 [tokenItems addObject:tokenItem];
             }
         }
-        else
+        else if ([attrs objectForKey:(id)kSecAttrType])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize token item.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to deserialize token item.");
         }
     }
     
