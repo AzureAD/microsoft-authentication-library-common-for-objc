@@ -28,8 +28,8 @@
 #import "MSIDConstants.h"
 #if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
 #import "MSIDSFAuthenticationSessionHandler.h"
-#endif
 #import "MSIDSafariViewController.h"
+#endif
 
 @implementation MSIDSystemWebViewControllerFactory
 
