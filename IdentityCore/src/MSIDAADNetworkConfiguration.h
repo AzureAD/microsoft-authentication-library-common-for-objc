@@ -30,7 +30,7 @@
 
 @property (nonatomic, nonnull) id<MSIDAADEndpointProviding> endpointProvider;
 
-@property (nonatomic, nullable) NSString *aadApiVersion;
+@property (nonatomic, nullable, readonly) NSString *aadApiVersion;
 
 @property (nonatomic, nullable) NSString *aadAuthorityDiscoveryApiVersion;
 

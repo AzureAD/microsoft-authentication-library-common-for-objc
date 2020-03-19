@@ -22,10 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDDefaultBrokerTokenRequest.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDPromptType_Internal.h"
+#import "MSIDAuthority.h"
 
 @implementation MSIDDefaultBrokerTokenRequest
 
@@ -40,7 +41,7 @@
     
     if (self.requestParameters.instanceAware)
     {
-        extraQueryParameters[@"instance_aware"] = @"true";
+        extraQueryParameters[MSID_BROKER_INSTANCE_AWARE_KEY] = @"true";
     }
 
     NSString *extraQueryParametersString = [extraQueryParameters count] ? [extraQueryParameters msidWWWFormURLEncode] : @"";
@@ -48,24 +49,29 @@
     // if value is nil, it won't appear in the dictionary
     NSMutableDictionary *contents = [NSMutableDictionary new];
     [contents msidSetNonEmptyString:self.requestParameters.target forKey:@"scope"];
-    [contents msidSetNonEmptyString:self.requestParameters.oidcScope forKey:@"extra_oidc_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.oidcScope forKey:MSID_BROKER_EXTRA_OIDC_SCOPES_KEY];
     [contents msidSetNonEmptyString:homeAccountId forKey:@"home_account_id"];
     [contents msidSetNonEmptyString:username forKey:@"username"];
-    [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:@"login_hint"];
-    [contents msidSetNonEmptyString:extraQueryParametersString forKey:@"extra_query_param"];
-    [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:@"extra_consent_scopes"];
+    [contents msidSetNonEmptyString:self.requestParameters.loginHint forKey:MSID_BROKER_LOGIN_HINT_KEY];
+    [contents msidSetNonEmptyString:extraQueryParametersString forKey:MSID_BROKER_EXTRA_QUERY_PARAM_KEY];
+    [contents msidSetNonEmptyString:self.requestParameters.extraScopesToConsent forKey:MSID_BROKER_EXTRA_CONSENT_SCOPES_KEY];
     NSString *promptParam = MSIDPromptParamFromType(self.requestParameters.promptType);
-    [contents msidSetNonEmptyString:promptParam forKey:@"prompt"];
-    [contents setValue:@"3" forKey:MSID_BROKER_PROTOCOL_VERSION_KEY];
+    [contents msidSetNonEmptyString:promptParam forKey:MSID_BROKER_PROMPT_KEY];
+    [contents setValue:@(MSID_BROKER_PROTOCOL_VERSION_3) forKey:MSID_BROKER_PROTOCOL_VERSION_KEY];
     
     return contents;
 }
 
 - (NSDictionary *)protocolResumeDictionaryContents
 {
-    return @{@"scope": self.requestParameters.target ?: @"",
-             @"oidc_scope": self.requestParameters.oidcScope ?: @"",
-             MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
+    NSMutableDictionary *protocolResumeDictionary = [NSMutableDictionary new];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.target ?: @"" forKey:@"scope"];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.oidcScope ?: @"" forKey:@"oidc_scope"];
+    [protocolResumeDictionary msidSetNonEmptyString:MSID_MSAL_SDK_NAME forKey:MSID_SDK_NAME_KEY];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.providedAuthority.url.absoluteString forKey:@"provided_authority_url"];
+    [protocolResumeDictionary msidSetNonEmptyString:self.requestParameters.instanceAware ? @"YES" : @"NO" forKey:@"instance_aware"];
+    
+    return protocolResumeDictionary;
 }
 
 @end

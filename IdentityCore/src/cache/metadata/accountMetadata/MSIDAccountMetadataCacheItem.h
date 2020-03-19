@@ -21,26 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+@class MSIDAccountMetadata;
+
 #import "MSIDJsonSerializable.h"
 #import "MSIDKeyGenerator.h"
 
+@class MSIDAccountIdentifier;
+
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDAccountMetadataCacheItem : NSObject <MSIDJsonSerializable, NSCopying, MSIDKeyGenerator>
 
-@property (nonatomic, readonly) NSString *homeAccountId;
 @property (nonatomic, readonly) NSString *clientId;
-@property (nonatomic, readonly) NSDictionary *internalMap;
+@property (nonatomic, nullable) MSIDAccountIdentifier *principalAccountId;
+@property (nonatomic, nullable) NSString *principalAccountEnvironment;
 
-+ (instancetype)new NS_UNAVAILABLE;
-- (instancetype)init NS_UNAVAILABLE;
+- (nullable instancetype)initWithClientId:(NSString *)clientId;
 
-- (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
-                             clientId:(NSString *)clientId;
+- (nullable MSIDAccountMetadata *)accountMetadataForHomeAccountId:(NSString *)homeAccountId;
 
-// Authority map caching
-- (BOOL)setCachedURL:(NSURL *)cachedURL
-       forRequestURL:(NSURL *)requestURL
-       instanceAware:(BOOL)instanceAware
-               error:(NSError **)error;
-- (NSURL *)cachedURL:(NSURL *)requestURL instanceAware:(BOOL)instanceAware;
+- (BOOL)addAccountMetadata:(MSIDAccountMetadata *)accountMetadata
+          forHomeAccountId:(NSString *)homeAccountId
+                     error:(NSError **)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

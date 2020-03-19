@@ -24,10 +24,12 @@
 #import "MSIDBrokerResponse.h"
 
 @class MSIDTokenResponse;
+@class MSIDDeviceInfo;
 
 @interface MSIDBrokerResponse ()
 
 @property (readwrite) MSIDTokenResponse *tokenResponse;
 @property (readwrite) MSIDAuthority *msidAuthority;
+@property (readwrite) MSIDDeviceInfo *deviceInfo;
 
 @end

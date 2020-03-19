@@ -25,8 +25,17 @@
 #import "MSIDB2CAuthorityResolver.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDProviderType.h"
 
 @implementation MSIDB2CAuthority
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_B2C_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_B2C kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_B2C_AUTHORITY];
+}
 
 - (nullable instancetype)initWithURL:(NSURL *)url
                       validateFormat:(BOOL)validateFormat

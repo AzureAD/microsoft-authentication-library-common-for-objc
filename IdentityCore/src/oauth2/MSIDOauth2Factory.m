@@ -30,7 +30,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
@@ -40,14 +40,19 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDRefreshTokenGrantRequest.h"
-#import "MSIDWebviewConfiguration.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
 
 @implementation MSIDOauth2Factory
+
++ (MSIDProviderType)providerType
+{
+    @throw @"Abstract method was invoked.";
+}
 
 #pragma mark - Response
 
@@ -76,6 +81,9 @@
     {
         if (error)
         {
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
+            
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
                                      response.errorDescription,
@@ -83,7 +91,7 @@
                                      nil,
                                      nil,
                                      context.correlationId,
-                                     nil, NO);
+                                     userInfo, NO);
         }
         return NO;
     }

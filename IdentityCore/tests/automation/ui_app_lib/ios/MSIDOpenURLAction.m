@@ -45,7 +45,7 @@
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
-                containerController:(MSIDAutomationMainViewController *)containerController
+                containerController:(__unused MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
     NSString *urlString = parameters.extraQueryParameters[@"url"];

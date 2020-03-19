@@ -134,6 +134,7 @@
                                                                        correlationId:nil
                                                                       telemetryApiId:nil
                                                                  intuneAppIdentifier:nil
+                                                                         requestType:MSIDRequestLocalType
                                                                                error:nil];
     // Mock network request to token endpoint.
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
@@ -230,6 +231,7 @@
                                                                        correlationId:nil
                                                                       telemetryApiId:nil
                                                                  intuneAppIdentifier:nil
+                                                                         requestType:MSIDRequestLocalType
                                                                                error:nil];
     
     // Save v1 id token.

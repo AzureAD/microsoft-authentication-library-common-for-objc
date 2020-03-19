@@ -30,6 +30,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAADAuthorityMetadataResponse.h"
 #import "NSError+MSIDExtensions.h"
+#import "MSIDConstants.h"
 
 static dispatch_queue_t s_aadValidationQueue;
 

@@ -27,6 +27,7 @@
 #import "MSIDJsonSerializer.h"
 #import "MSIDJsonSerializing.h"
 #import "MSIDCacheKey.h"
+#import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDAccountMetadataCacheItem.h"
 
 @implementation MSIDMetadataCache
@@ -55,10 +56,10 @@
     return self;
 }
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
-                        key:(MSIDCacheKey *)key
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error
+- (BOOL)saveAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
+                                 key:(MSIDCacheKey *)key
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error
 {
     if (!item || !key)
     {
@@ -97,17 +98,25 @@
     return saveSuccess;
 }
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
-                                                 context:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error
+- (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
+                                                          context:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error
+{
+    return [self accountMetadataCacheItemWithKey:key skipCache:NO context:context error:error];
+}
+
+- (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
+                                                        skipCache:(BOOL)skipCache
+                                                          context:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error
 {
     if (!key)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account metadata key is not valid.", nil, nil, nil, context.correlationId, nil, NO);
         }
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Set keychain item with invalid key.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Get account metadata with invalid key.");
         return nil;
     }
 
@@ -116,7 +125,12 @@
     __block BOOL updatedItem = NO;
 
     dispatch_sync(_synchronizationQueue, ^{
-        item = _memoryCache[key];
+        
+        if (!skipCache)
+        {
+            item = _memoryCache[key];
+        }
+        
         if (!item)
         {
             item = [_dataSource accountMetadataWithKey:key serializer:_jsonSerializer context:context error:&localError];
@@ -140,9 +154,9 @@
     return [item copy];
 }
 
-- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error
+- (BOOL)removeAccountMetadataCacheItemForKey:(MSIDCacheKey *)key
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error
 {
     if (!key)
     {

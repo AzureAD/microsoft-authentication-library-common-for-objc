@@ -55,7 +55,7 @@
 
 #pragma mark - MSIDTokenRequestProviding
 
-- (MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
     return [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                              oauthFactory:self.oauthFactory
@@ -74,16 +74,30 @@
                                                                 tokenCache:self.tokenCache];
 }
 
-- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                             brokerKey:(nonnull NSString *)brokerKey
                                                brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
+                                                      sdkCapabilities:(NSArray *)sdkCapabilities
                                                                 error:(NSError * _Nullable * _Nullable)error
 {
     return [[MSIDLegacyBrokerTokenRequest alloc] initWithRequestParameters:parameters
                                                                  brokerKey:brokerKey
                                                     brokerApplicationToken:brokerApplicationToken
+                                                           sdkCapabilities:sdkCapabilities
                                                                      error:error];
 }
 
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+{
+    // TODO: not implemented yet.
+    return nil;
+}
+
+- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
+                                                            forceRefresh:(__unused BOOL)forceRefresh
+{
+    // TODO: not implemented yet.
+    return nil;
+}
 
 @end

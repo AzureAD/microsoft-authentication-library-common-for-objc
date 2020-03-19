@@ -31,10 +31,8 @@
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
-
-#if TARGET_OS_IPHONE
+#import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
-#endif
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -97,12 +95,16 @@
             MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
             
             if (!additionalTokensError)
-            {
+            {  
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
+                                                                        requestAuthority:self.providedAuthority
+                                                                           instanceAware:self.instanceAware
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
+                                                                    accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
+                                                                        saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
                                                                                    error:&additionalTokensError];
             }
         }
@@ -169,6 +171,25 @@
     
     return nil;
 #endif
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
+    
+    if (!dataSource)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    return accountMetadataCache;
 }
 
 - (NSError *)resultFromBrokerErrorResponse:(MSIDAADV2BrokerResponse *)errorResponse

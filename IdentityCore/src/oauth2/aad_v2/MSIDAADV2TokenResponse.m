@@ -26,22 +26,30 @@
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDAuthority.h"
 #import "MSIDTokenResponse+Internal.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDAADV2TokenResponse
 
-- (BOOL)initIdToken:(NSError *__autoreleasing *)error
++ (void)load
 {
-    if (![NSString msidIsStringNilOrBlank:self.idToken])
-    {
-        self.idTokenObj = [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:self.idToken error:error];
-        return self.idTokenObj != nil;
-    }
-    return YES;
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV2 kindOfClass:MSIDTokenResponse.class toClassType:MSID_JSON_TYPE_AADV2_TOKEN_RESPONSE];
+}
+
+- (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
+{
+    return [[MSIDAADV2IdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
 }
 
 - (MSIDAccountType)accountType
 {
     return MSIDAccountTypeMSSTS;
+}
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV2;
 }
 
 @end

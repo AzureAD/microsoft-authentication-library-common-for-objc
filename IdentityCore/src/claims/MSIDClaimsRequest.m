@@ -163,14 +163,7 @@
                 return nil;
             }
             
-            if (![json msidAssertType:NSDictionary.class
-                              ofField:key
-                              context:nil
-                            errorCode:MSIDErrorInvalidDeveloperParameter
-                                error:error])
-            {
-                return nil;
-            }
+            if (![json msidAssertTypeIsOneOf:@[NSDictionary.class] ofKey:key required:YES context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
             
             NSDictionary *claimRequestsJson = json[key];
             for (NSString *key in [claimRequestsJson allKeys])

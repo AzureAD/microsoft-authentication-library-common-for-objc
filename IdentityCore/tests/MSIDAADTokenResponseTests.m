@@ -102,6 +102,23 @@
     XCTAssertNil(expiryDate);
 }
 
+- (void)testExpiryDate_whenExpiresOnNull_shouldReturnNil
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_on": [NSNull new],
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    NSDate *expiryDate = [response expiryDate];
+    XCTAssertNil(expiryDate);
+}
+
 - (void)testExtExpiresIn_whenStringExtExpiresIn_shouldReturnValue
 {
     NSDictionary *jsonInput = @{@"access_token": @"at",
@@ -234,6 +251,26 @@
     
     XCTAssertEqualObjects(response.clientInfo.rawClientInfo, clientInfoString);
     XCTAssertEqualObjects(response.refreshToken, @"rt");
+}
+
+- (void)testInitWithJson_andRefreshTokenNull_shouldReturnNilRefreshToken
+{
+    NSString *clientInfoString = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
+    
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Bearer",
+                                @"expires_in": @"3600",
+                                @"refresh_token": [NSNull new],
+                                @"client_info": clientInfoString
+                                };
+    
+    NSError *error = nil;
+    MSIDAADTokenResponse *response = [[MSIDAADTokenResponse alloc] initWithJSONDictionary:jsonInput
+                                                                                    error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    XCTAssertNil(response.refreshToken);
 }
 
 @end

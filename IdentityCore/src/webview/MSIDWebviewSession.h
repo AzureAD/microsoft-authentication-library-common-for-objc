@@ -30,19 +30,18 @@
 @protocol MSIDWebviewInteracting;
 
 @class MSIDWebviewFactory;
+@class MSIDBaseWebRequestConfiguration;
 
 @interface MSIDWebviewSession : NSObject
 
-@property NSObject<MSIDWebviewInteracting> *webviewController;
-@property MSIDWebviewFactory *factory;
-@property NSString *requestState;
-@property BOOL ignoreInvalidState;
+@property (nonatomic) NSObject<MSIDWebviewInteracting> *webviewController;
+@property (nonatomic) MSIDWebviewFactory *factory;
+@property (nonatomic) MSIDBaseWebRequestConfiguration *webViewConfiguration;
 
 - (instancetype)init NS_UNAVAILABLE;
 
 - (instancetype)initWithWebviewController:(NSObject<MSIDWebviewInteracting> *)webviewController
                                   factory:(MSIDWebviewFactory *)factory
-                             requestState:(NSString *)state
-                       ignoreInvalidState:(BOOL)ignoreInvalidState;
+                            configuration:(MSIDBaseWebRequestConfiguration *)configuration;
 
 @end

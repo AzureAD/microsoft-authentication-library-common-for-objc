@@ -176,7 +176,7 @@
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDOAuthErrorDomain);
     XCTAssertEqual(error.code, MSIDErrorServerProtectionPoliciesRequired);
-    XCTAssertEqual(error.userInfo[MSIDUserDisplayableIdkey], @"");
+    XCTAssertNil(error.userInfo[MSIDUserDisplayableIdkey]);
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthSubErrorKey], MSID_PROTECTION_POLICY_REQUIRED);
 }
 
@@ -202,7 +202,7 @@
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
     XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, homeAccountId);
     XCTAssertEqualObjects(token.speInfo, @"1");
-    XCTAssertNil(token.additionalServerInfo);
+    XCTAssertEqualObjects(token.additionalServerInfo, @{@"provider_type": @"provider_aad_v1"});
 }
 
 - (void)testBaseTokenFromResponse_whenOIDCTokenResponse_shouldReturnNil

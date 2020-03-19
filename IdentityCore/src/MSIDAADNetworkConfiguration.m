@@ -24,6 +24,7 @@
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAADEndpointProvider.h"
 #import "MSIDConstants.h"
+#import "MSIDVersion.h"
 
 static MSIDAADNetworkConfiguration *s_defaultConfiguration;
 static NSSet<NSString *> *s_trustedHostList;
@@ -55,6 +56,7 @@ static NSSet<NSString *> *s_trustedHostList;
         _endpointProvider = [MSIDAADEndpointProvider new];
         _aadAuthorityDiscoveryApiVersion = @"1.1";
         _drsDiscoveryApiVersion = @"1.0";
+        _aadApiVersion = [MSIDVersion aadApiVersion];
     }
     
     return self;

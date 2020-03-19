@@ -23,7 +23,6 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDLegacyTokenCacheItem.h"
-#import "MSIDClientInfo.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 

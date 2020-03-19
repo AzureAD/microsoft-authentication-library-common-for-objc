@@ -25,6 +25,7 @@
 
 @protocol MSIDJsonSerializable;
 @class MSIDCacheKey;
+@class MSIDAccountMetadataCacheItem;
 
 @interface MSIDMetadataCache : NSObject
 
@@ -33,17 +34,22 @@
 
 - (instancetype)initWithPersistentDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item
-                        key:(MSIDCacheKey *)key
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
+- (BOOL)saveAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
+                                 key:(MSIDCacheKey *)key
+                             context:(id<MSIDRequestContext>)context
+                               error:(NSError **)error;
 
-- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key
-                            context:(id<MSIDRequestContext>)context
-                              error:(NSError **)error;
+- (BOOL)removeAccountMetadataCacheItemForKey:(MSIDCacheKey *)key
+                                     context:(id<MSIDRequestContext>)context
+                                       error:(NSError **)error;
 
-- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key
-                                                 context:(id<MSIDRequestContext>)context
-                                                   error:(NSError **)error;
+- (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
+                                                          context:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error;
+
+- (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
+                                                        skipCache:(BOOL)skipCache
+                                                          context:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error;
 
 @end

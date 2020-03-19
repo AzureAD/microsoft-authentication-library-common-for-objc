@@ -58,6 +58,7 @@
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
+                      requestType:(MSIDRequestType)requestType
                             error:(NSError **)error
 {
     self = [super init];
@@ -72,6 +73,7 @@
         _correlationId = correlationId ?: [NSUUID new];
         _telemetryApiId = telemetryApiId;
         _intuneApplicationIdentifier = intuneApplicationIdentifier;
+        _requestType = requestType;
 
         if ([scopes intersectsOrderedSet:oidScopes])
         {
@@ -164,6 +166,12 @@
     [self updateMSIDConfiguration];
 }
 
+- (void)setCloudAuthority:(MSIDAuthority *)cloudAuthority
+{
+    _cloudAuthority = cloudAuthority;
+    [self updateMSIDConfiguration];
+}
+
 - (void)setClientId:(NSString *)clientId
 {
     _clientId = clientId;
@@ -241,6 +249,40 @@
     }
 
     return YES;
+}
+
+#pragma mark - NSCopying
+
+- (instancetype)copyWithZone:(NSZone*)zone
+{
+    __auto_type parameters = [[MSIDRequestParameters allocWithZone:zone] init];
+    parameters->_authority = [_authority copyWithZone:zone];
+    parameters->_providedAuthority = [_providedAuthority copyWithZone:zone];
+    parameters->_cloudAuthority = [_cloudAuthority copyWithZone:zone];
+    parameters->_redirectUri = [_redirectUri copyWithZone:zone];
+    parameters->_clientId = [_clientId copyWithZone:zone];
+    parameters->_target = [_target copyWithZone:zone];
+    parameters->_oidcScope = [_oidcScope copyWithZone:zone];
+    parameters->_accountIdentifier = [_accountIdentifier copyWithZone:zone];
+    parameters->_validateAuthority = _validateAuthority;
+    parameters->_extraTokenRequestParameters = [_extraTokenRequestParameters copyWithZone:zone];
+    parameters->_extraURLQueryParameters = [_extraURLQueryParameters copyWithZone:zone];
+    parameters->_tokenExpirationBuffer = _tokenExpirationBuffer;
+    parameters->_extendedLifetimeEnabled = _extendedLifetimeEnabled;
+    parameters->_instanceAware = _instanceAware;
+    parameters->_intuneApplicationIdentifier = [_intuneApplicationIdentifier copyWithZone:zone];
+    parameters->_requestType = _requestType;
+    parameters->_correlationId = [_correlationId copyWithZone:zone];
+    parameters->_logComponent = [_logComponent copyWithZone:zone];
+    parameters->_telemetryRequestId = [_telemetryRequestId copyWithZone:zone];
+    parameters->_appRequestMetadata = [_appRequestMetadata copyWithZone:zone];
+    parameters->_telemetryApiId = [_telemetryApiId copyWithZone:zone];
+    parameters->_claimsRequest = [_claimsRequest copyWithZone:zone];
+    parameters->_clientCapabilities = [_clientCapabilities copyWithZone:zone];
+    parameters->_msidConfiguration = [_msidConfiguration copyWithZone:zone];
+    parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
+
+    return parameters;
 }
 
 @end
