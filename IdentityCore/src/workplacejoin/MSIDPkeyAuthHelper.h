@@ -29,8 +29,7 @@
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSString *)authorizationServer
                                   challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context;
-
-+ (nonnull NSString *)computeThumbprint:(nonnull NSData *)data
-                                 isSha2:(BOOL)isSha2;
+// Computes a SHA-2 thumbprint
++ (nonnull NSString *)computeThumbprint:(nonnull NSData *)data;
 
 @end

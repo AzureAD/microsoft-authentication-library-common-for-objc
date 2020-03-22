@@ -36,6 +36,7 @@
     [super setUp];
     [[MSIDTestLogger sharedLogger] reset];
     [MSIDTestLogger sharedLogger].callbackInvoked = NO;
+    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
 }
 
 #pragma mark - Basic logging
