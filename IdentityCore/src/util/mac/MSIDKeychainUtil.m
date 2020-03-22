@@ -23,6 +23,7 @@
 
 #import "MSIDKeychainUtil.h"
 #import "MSIDKeychainUtil+Internal.h"
+#import "MSIDKeychainUtil+MacInternal.h"
 
 static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
 
@@ -124,8 +125,12 @@ static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
     {
         NSString *firstGroup = keychainGroups[0];
         NSArray *components = [firstGroup componentsSeparatedByString:@"."];
-        NSString *bundleSeedID = [components firstObject];
-        keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
+        
+        if ([components count] > 1)
+        {
+            NSString *bundleSeedID = [components firstObject];
+            keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
+        }
     }
     
     return keychainTeamId;
