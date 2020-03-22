@@ -30,5 +30,5 @@ typedef NS_ENUM(NSInteger, MSIDClientSDKType)
     MSIDClientSDKTypeADAL
 };
 
-extern NSString * _Nonnull MSIDClientSDKTypeToString(MSIDClientSDKType type);
+extern NSString * _Nullable MSIDClientSDKTypeToString(MSIDClientSDKType type);
 extern MSIDClientSDKType MSIDClientSDKTypeFromString(NSString * _Nonnull sdkTypeString);
