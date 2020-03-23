@@ -68,5 +68,11 @@
 @property (class, nonatomic, readwrite) NSInteger retryCountSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval retryIntervalSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval requestTimeoutInterval;
+@property (nonatomic, nonnull) NSURLCache *cache;
+
+- (nullable NSCachedURLResponse *)cachedResponse;
+
+- (void)setCachedResponse:(nonnull NSCachedURLResponse *)cachedResponse
+               forRequest:(nonnull NSURLRequest *)request;
 
 @end

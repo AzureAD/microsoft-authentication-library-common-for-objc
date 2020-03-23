@@ -59,4 +59,20 @@
     return self;
 }
 
+- (NSCachedURLResponse *)cachedResponse
+{
+    NSCachedURLResponse *response = [self.cache cachedResponseForRequest:self.urlRequest];
+    if (response)
+    {
+        return response;
+    }
+    
+    return nil;
+}
+
+- (void)setCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request
+{
+    [self.cache storeCachedResponse:cachedResponse forRequest:request];
+}
+
 @end

@@ -53,6 +53,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         _retryCounter = s_retryCount;
         _retryInterval = s_retryInterval;
         _requestTimeoutInterval = s_requestTimeoutInterval;
+        _cache = [NSURLCache sharedURLCache];
     }
     
     return self;
@@ -67,6 +68,18 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     [requestConfigurator configure:self];
     
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
+    NSCachedURLResponse *response = [self cachedResponse];
+    if (response)
+    {
+        NSError *error = nil;
+        id responseObject = [self.responseSerializer responseObjectForResponse:(NSHTTPURLResponse *)response.response
+                                                                          data:response.data
+                                                                       context:self.context
+                                                                         error:&error];
+                 
+        if (completionBlock) { completionBlock(responseObject, error); }
+        return;
+    }
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
     
@@ -95,6 +108,9 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
               
               MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
+              
+              NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:response data:data];
+              [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               
               if (completionBlock) { completionBlock(responseObject, error); }
           }
@@ -128,5 +144,15 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 + (void)setRetryIntervalSetting:(NSTimeInterval)retryIntervalSetting { s_retryInterval = retryIntervalSetting; }
 + (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
 + (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
+
+- (NSCachedURLResponse *)cachedResponse
+{
+    return nil;
+}
+
+-(void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
+{
+    return;
+}
 
 @end
