@@ -102,6 +102,14 @@
                                                           context:(id<MSIDRequestContext>)context
                                                             error:(NSError **)error
 {
+    return [self accountMetadataCacheItemWithKey:key skipCache:NO context:context error:error];
+}
+
+- (MSIDAccountMetadataCacheItem *)accountMetadataCacheItemWithKey:(MSIDCacheKey *)key
+                                                        skipCache:(BOOL)skipCache
+                                                          context:(id<MSIDRequestContext>)context
+                                                            error:(NSError **)error
+{
     if (!key)
     {
         if (error)
@@ -117,7 +125,12 @@
     __block BOOL updatedItem = NO;
 
     dispatch_sync(_synchronizationQueue, ^{
-        item = _memoryCache[key];
+        
+        if (!skipCache)
+        {
+            item = _memoryCache[key];
+        }
+        
         if (!item)
         {
             item = [_dataSource accountMetadataWithKey:key serializer:_jsonSerializer context:context error:&localError];

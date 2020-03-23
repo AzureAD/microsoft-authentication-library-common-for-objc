@@ -34,6 +34,8 @@
 
 @interface MSIDAccountMetadataCacheAccessor : NSObject
 
+@property (nonatomic) BOOL skipMemoryCacheForAccountMetadata;
+
 - (instancetype)initWithDataSource:(id<MSIDMetadataCacheDataSource>)dataSource;
 
 - (NSURL *)getAuthorityURL:(NSURL *)requestAuthorityURL
