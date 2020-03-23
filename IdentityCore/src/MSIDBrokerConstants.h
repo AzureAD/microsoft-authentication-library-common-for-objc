@@ -66,6 +66,7 @@ extern NSString * _Nonnull const MSID_BROKER_REMOVE_ACCOUNT_SCOPE;
 extern NSString * _Nonnull const MSID_BROKER_CLAIMS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_APPLICATION_TOKEN_TAG;
 extern NSString * _Nonnull const MSID_BROKER_DEVICE_MODE_KEY;
+extern NSString * _Nonnull const MSID_BROKER_SSO_EXTENSION_MODE_KEY;
 extern NSString * _Nonnull const MSID_BROKER_WPJ_STATUS_KEY;
 extern NSString * _Nonnull const MSID_BROKER_BROKER_VERSION_KEY;
 extern NSString * _Nonnull const MSID_ADAL_BROKER_MESSAGE_VERSION;

@@ -21,39 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonSerializable.h"
-
-typedef NS_ENUM(NSInteger, MSIDDeviceMode)
-{
-    MSIDDeviceModePersonal = 0,
-    MSIDDeviceModeShared
-};
-
-typedef NS_ENUM(NSInteger, MSIDSSOExtensionMode)
-{
-    MSIDSSOExtensionModeFull = 0,
-    MSIDSSOExtensionModeSilentOnly
-};
-
-typedef NS_ENUM(NSInteger, MSIDWorkPlaceJoinStatus)
-{
-    MSIDWorkPlaceJoinStatusNotJoined = 0,
-    MSIDWorkPlaceJoinStatusJoined
-};
+#import "MSIDKeychainUtil.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDeviceInfo : NSObject <MSIDJsonSerializable>
+@interface MSIDKeychainUtil ()
 
-@property (nonatomic) MSIDDeviceMode deviceMode;
-@property (nonatomic) MSIDSSOExtensionMode ssoExtensionMode;
-@property (nonatomic) MSIDWorkPlaceJoinStatus wpjStatus;
-@property (nonatomic, nullable) NSString *brokerVersion;
-
-- (instancetype)initWithDeviceMode:(MSIDDeviceMode)deviceMode
-                  ssoExtensionMode:(MSIDSSOExtensionMode)ssoExtensionMode
-                 isWorkPlaceJoined:(BOOL)isWorkPlaceJoined
-                     brokerVersion:(NSString *)brokerVersion;
+- (nullable NSString *)teamIdFromSigningInformation:(NSDictionary *)signingInformation;
+- (nullable NSString *)appIdPrefixFromSigningInformation:(NSDictionary *)signingInformation;
 
 @end
 

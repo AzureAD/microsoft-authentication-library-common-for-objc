@@ -56,6 +56,7 @@ NSString *const MSID_BROKER_CLIENT_CAPABILITIES_KEY = @"client_capabilities";
 NSString *const MSID_BROKER_CLAIMS_KEY             = @"claims";
 NSString *const MSID_BROKER_APPLICATION_TOKEN_TAG  = @"com.microsoft.adBrokerAppToken";
 NSString *const MSID_BROKER_DEVICE_MODE_KEY        = @"device_mode";
+NSString *const MSID_BROKER_SSO_EXTENSION_MODE_KEY = @"sso_extension_mode";
 NSString *const MSID_BROKER_WPJ_STATUS_KEY         = @"wpj_status";
 NSString *const MSID_BROKER_BROKER_VERSION_KEY     = @"broker_version";
 NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION   = @"2";

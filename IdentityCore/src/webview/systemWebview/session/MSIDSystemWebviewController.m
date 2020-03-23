@@ -27,15 +27,15 @@
 #if !MSID_EXCLUDE_SYSTEMWV
 
 #import "MSIDSystemWebviewController.h"
-#import "MSIDSafariViewController.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDNotifications.h"
-#import "MSIDURLResponseHandling.h"
 #import "MSIDSystemWebViewControllerFactory.h"
 #if TARGET_OS_IPHONE
 #import "MSIDBackgroundTaskManager.h"
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDSafariViewController.h"
+#import "MSIDURLResponseHandling.h"
 #endif
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryUIEvent.h"

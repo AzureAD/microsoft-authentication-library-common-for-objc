@@ -58,7 +58,6 @@
     else
     {
         NSString *certAuths = [challengeData valueForKey:@"CertAuthorities"];
-        NSString *expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
         
         if (certAuths)
         {
@@ -66,17 +65,7 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
-                info = nil;
-            }
-        }
-        else if (expectedThumbprint)
-        {
-            NSString *thumbprint = [[[info certificateData] msidSHA1] msidHexString];
-            thumbprint = [[thumbprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] uppercaseString];
-
-            if (![expectedThumbprint isEqualToString:thumbprint])
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Issuer of certificate in keychain %@, requested cert authorities in the challenge %@", issuerOU, certAuths);
                 info = nil;
             }
         }

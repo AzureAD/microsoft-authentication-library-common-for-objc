@@ -61,7 +61,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(17, json.allKeys.count);
+    XCTAssertEqual(18, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
@@ -78,6 +78,7 @@
     XCTAssertEqualObjects(json[@"token_type"], @"Bearer");
     XCTAssertEqualObjects(json[@"additional_token_reponse"], @"{\"token_type\":\"Bearer\",\"scope\":\"scope 1\",\"ext_expires_in\":\"0\",\"provider_type\":\"provider_aad_v2\",\"ext_expires_on\":\"0\",\"expires_on\":\"0\",\"id_token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ\",\"access_token\":\"access_token\",\"expires_in\":\"300\"}");
     XCTAssertEqualObjects(json[@"device_mode"], @"personal");
+    XCTAssertEqualObjects(json[@"sso_extension_mode"], @"full");
     XCTAssertEqualObjects(json[@"wpj_status"], @"notJoined");
 }
 
@@ -100,7 +101,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(16, json.allKeys.count);
+    XCTAssertEqual(17, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
@@ -168,7 +169,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(16, json.allKeys.count);
+    XCTAssertEqual(17, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
@@ -201,7 +202,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(15, json.allKeys.count);
+    XCTAssertEqual(16, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");

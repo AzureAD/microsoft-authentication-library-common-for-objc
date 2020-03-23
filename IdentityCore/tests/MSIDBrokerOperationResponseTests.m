@@ -66,16 +66,17 @@
     response.operation = @"login";
     response.success = true;
     response.clientAppVersion = @"1.0";
-    response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared isWorkPlaceJoined:YES brokerVersion:@"1.2.3"];
+    response.deviceInfo = [[MSIDDeviceInfo alloc] initWithDeviceMode:MSIDDeviceModeShared ssoExtensionMode:MSIDSSOExtensionModeSilentOnly isWorkPlaceJoined:YES brokerVersion:@"1.2.3"];
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(7, json.allKeys.count);
+    XCTAssertEqual(8, json.allKeys.count);
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");
     XCTAssertEqualObjects(json[@"success"], @"1");
     XCTAssertEqualObjects(json[MSID_BROKER_DEVICE_MODE_KEY], @"shared");
+    XCTAssertEqualObjects(json[MSID_BROKER_SSO_EXTENSION_MODE_KEY], @"silent_only");
     XCTAssertEqualObjects(json[MSID_BROKER_WPJ_STATUS_KEY], @"joined");
     XCTAssertEqualObjects(json[MSID_BROKER_BROKER_VERSION_KEY], @"1.2.3");
 }
@@ -88,7 +89,7 @@
     
     NSDictionary *json = [response jsonDictionary];
     
-    XCTAssertEqual(5, json.allKeys.count);
+    XCTAssertEqual(6, json.allKeys.count);
     XCTAssertEqualObjects(json[@"operation"], @"login");
     XCTAssertEqualObjects(json[@"operation_response_type"], @"test_response");
     XCTAssertEqualObjects(json[@"success"], @"1");
