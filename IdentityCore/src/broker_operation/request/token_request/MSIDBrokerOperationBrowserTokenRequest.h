@@ -38,7 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers
-               bundleIdentifier:(NSString *)bundleIdentifier;
+               bundleIdentifier:(NSString *)bundleIdentifier
+                          error:(NSError **)error;
 
 @end
 

@@ -32,6 +32,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers
                bundleIdentifier:(NSString *)bundleIdentifier
+                          error:(NSError **)error
 {
     self = [super init];
     if (self)
@@ -40,7 +41,12 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         
         if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
         {
-            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Failed to create browser operation request for %@ class, bundle identifier %@ is not in the whitelist", self.class, _bundleIdentifier);
+            if (error)
+            {
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, bundle identifier %@ is not in the whitelist", _bundleIdentifier];
+                *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
+            }
+                   
             return nil;
         }
         
@@ -48,18 +54,21 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         
         if (![self isAuthorizeRequest:_requestURL])
         {
-            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, self.correlationId, @"Failed to create browser operation request for %@ class, request is not authorize request", self.class);
+            if (error)
+            {
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not authorize request", [_requestURL absoluteString]];
+                *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
+            }
+                   
             return nil;
         }
         
         _headers = headers;
         
-        NSError *error = nil;
-        MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:_requestURL rawTenant:nil context:nil error:&error];
+        MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:_requestURL rawTenant:nil context:nil error:error];
         
         if (!authority)
         {
-            MSID_LOG_WITH_CORR(MSIDLogLevelError, self.correlationId, @"Failed to create browser operation request for %@ class, authority is not AAD authority", self.class);
             return nil;
         }
         
@@ -82,7 +91,9 @@ static NSArray *_bundleIdentifierWhiteList = nil;
 - (BOOL)isAuthorizeRequest:(NSURL *)url
 {
     NSString *request = [url absoluteString];
-    return ([request rangeOfString:@"oauth2" options:NSCaseInsensitiveSearch].location != NSNotFound);
+    BOOL isAuthorizeRequest = ([request rangeOfString:@"/oauth2/authorize?" options:NSCaseInsensitiveSearch].location != NSNotFound);
+    BOOL isV2AuthorizeRequest = ([request rangeOfString:@"/oauth2/v2.0/authorize?" options:NSCaseInsensitiveSearch].location != NSNotFound);
+    return isAuthorizeRequest || isV2AuthorizeRequest;
 }
 
 #pragma mark - MSIDBaseBrokerOperationRequest

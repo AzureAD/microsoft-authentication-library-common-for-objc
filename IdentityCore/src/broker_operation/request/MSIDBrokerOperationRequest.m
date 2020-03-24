@@ -105,7 +105,7 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
 
 -(id)logInfo
 {
-    return [self.jsonDictionary maskedRequestDictionary];
+    return [self.jsonDictionary msidMaskedRequestDictionary];
 }
 
 @end
