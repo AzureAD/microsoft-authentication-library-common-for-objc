@@ -37,13 +37,24 @@ static NSArray *_bundleIdentifierWhiteList = nil;
     self = [super init];
     if (self)
     {
+        if (![requestURL isKindOfClass:[NSURL class]])
+        {
+            if (error)
+            {
+               NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request due to invalid request url %@",requestURL];
+               *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
+            }
+                  
+           return nil;
+        }
+        
         _requestURL = requestURL;
         
         if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
         {
             if (error)
             {
-                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, bundle identifier %@ is not in the whitelist", _bundleIdentifier];
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, bundle identifier %@ is not in the whitelist", bundleIdentifier];
                 *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
             }
                    
@@ -56,7 +67,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         {
             if (error)
             {
-                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not authorize request", [_requestURL absoluteString]];
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not authorize request", [requestURL absoluteString]];
                 *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
             }
                    
@@ -84,7 +95,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
 {
   if (self == [MSIDBrokerOperationBrowserTokenRequest class])
   {
-      _bundleIdentifierWhiteList = @[@"com.apple.mobilesafari"];
+      _bundleIdentifierWhiteList = @[@"com.apple.mobilesafari", @"com.apple.SafariViewService"];
   }
 }
 
