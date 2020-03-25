@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADBrowserPRTResponse.h"
+#import "MSIDUrlResponse.h"
 
-@implementation MSIDAADBrowserPRTResponse
+@implementation MSIDUrlResponse
 
 - (instancetype)initWithResponse:(NSHTTPURLResponse *)response body:(NSData *)body
 {

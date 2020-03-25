@@ -31,7 +31,7 @@
     return @"";
 }
 
-- (id)logInfo
+- (NSString *)logInfo
 {
     NSAssert(NO, @"Abstract method.");
     return @"";

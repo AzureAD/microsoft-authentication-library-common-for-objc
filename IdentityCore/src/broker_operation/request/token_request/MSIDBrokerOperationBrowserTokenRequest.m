@@ -25,8 +25,6 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDAADAuthority.h"
 
-static NSArray *_bundleIdentifierWhiteList = nil;
-
 @implementation MSIDBrokerOperationBrowserTokenRequest
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
@@ -50,19 +48,6 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         
         _requestURL = requestURL;
         
-        if (![_bundleIdentifierWhiteList containsObject:bundleIdentifier])
-        {
-            if (error)
-            {
-                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, bundle identifier %@ is not in the whitelist", bundleIdentifier];
-                *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
-            }
-                   
-            return nil;
-        }
-        
-        _bundleIdentifier = bundleIdentifier;
-        
         if (![self isAuthorizeRequest:_requestURL])
         {
             if (error)
@@ -75,6 +60,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
         }
         
         _headers = headers;
+        _bundleIdentifier = bundleIdentifier;
         
         MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:_requestURL rawTenant:nil context:nil error:error];
         
@@ -89,14 +75,6 @@ static NSArray *_bundleIdentifierWhiteList = nil;
     }
     
     return self;
-}
-
-+ (void) initialize
-{
-  if (self == [MSIDBrokerOperationBrowserTokenRequest class])
-  {
-      _bundleIdentifierWhiteList = @[@"com.apple.mobilesafari", @"com.apple.SafariViewService"];
-  }
 }
 
 - (BOOL)isAuthorizeRequest:(NSURL *)url
@@ -114,7 +92,7 @@ static NSArray *_bundleIdentifierWhiteList = nil;
     return MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT;
 }
 
-- (id)logInfo
+- (NSString *)logInfo
 {
     return [NSString stringWithFormat:@"(requestUrl=%@, bundle_identifier=%@)", self.requestURL, self.bundleIdentifier];
 }

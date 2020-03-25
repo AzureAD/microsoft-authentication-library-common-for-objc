@@ -21,16 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDHttpResponseSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAADBrowserPRTResponse : NSObject
-
-@property (nonatomic, nullable, readonly) NSHTTPURLResponse *response;
-@property (nonatomic, nullable, readonly) NSData *body;
-
-- (instancetype)initWithResponse:(NSHTTPURLResponse *)response body:(NSData *)body;
+@interface MSIDUrlResponseSerializer : MSIDHttpResponseSerializer
 
 @end
 

@@ -67,7 +67,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
     
-    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
+    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
     NSCachedURLResponse *response = [self cachedResponse];
     if (response)
     {

@@ -30,7 +30,7 @@
     static NSArray *s_blackListedKeys = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        s_blackListedKeys = @[@"broker_key"];
+        s_blackListedKeys = @[@"broker_key", @"application_token"];
     });
     
     return s_blackListedKeys;

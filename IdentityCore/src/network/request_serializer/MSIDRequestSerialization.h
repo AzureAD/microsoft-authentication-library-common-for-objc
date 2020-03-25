@@ -25,6 +25,6 @@
 
 @protocol MSIDRequestSerialization <NSObject>
 
-- (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters;
+- (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters headers:(NSDictionary *)headers;
 
 @end

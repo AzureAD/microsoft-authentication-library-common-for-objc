@@ -21,19 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrowserUrlRequestSerializer.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDBrowserUrlRequestSerializer
+NS_ASSUME_NONNULL_BEGIN
 
-- (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters
-{
-    NSParameterAssert(request);
-    
-    if (!parameters) return request;
-    
-    NSMutableURLRequest *mutableRequest = [request mutableCopy];
-    mutableRequest.allHTTPHeaderFields = parameters;
-    return mutableRequest;
-}
+@interface MSIDUrlResponse : NSObject
+
+@property (nonatomic, nullable, readonly) NSHTTPURLResponse *response;
+@property (nonatomic, nullable, readonly) NSData *body;
+
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)response body:(NSData *)body;
 
 @end
+
+NS_ASSUME_NONNULL_END

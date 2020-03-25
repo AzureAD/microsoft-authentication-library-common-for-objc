@@ -26,13 +26,17 @@
 
 @implementation MSIDUrlRequestSerializer
 
-- (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters
+- (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters headers:(NSDictionary *)headers
 {
     NSParameterAssert(request);
-    
-    if (!parameters) return request;
-    
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
+    
+    if ([headers count])
+    {
+        mutableRequest.allHTTPHeaderFields = headers;
+    }
+    
+    if (!parameters) return mutableRequest;
     
     if ([self shouldEncodeParametersInURL:request])
     {

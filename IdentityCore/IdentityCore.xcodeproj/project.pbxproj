@@ -52,9 +52,8 @@
 		1E7DC4292405A95000740BAD /* MSIDBaseBrokerOperationRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E769E4523ECDC9600B7B7D2 /* MSIDBaseBrokerOperationRequest.h */; };
 		1E7DC42A2405A95400740BAD /* MSIDBaseBrokerOperationRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E769E4623ECDC9600B7B7D2 /* MSIDBaseBrokerOperationRequest.m */; };
 		1EA4547023BECE2700567EB0 /* MSIDBrokerOperationBrowserTokenRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA4546F23BECE2700567EB0 /* MSIDBrokerOperationBrowserTokenRequest.m */; };
-		1EA58A0B23CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA58A0A23CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.m */; };
-		1EA58A0E23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA58A0D23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.m */; };
-		1EA58A1623CDABC100CAE2D2 /* MSIDBrowserUrlRequestSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA58A1523CDABC100CAE2D2 /* MSIDBrowserUrlRequestSerializer.m */; };
+		1EA58A0B23CD479000CAE2D2 /* MSIDUrlResponseSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA58A0A23CD479000CAE2D2 /* MSIDUrlResponseSerializer.m */; };
+		1EA58A0E23CD47AD00CAE2D2 /* MSIDUrlResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EA58A0D23CD47AD00CAE2D2 /* MSIDUrlResponse.m */; };
 		1EFD58C622B44BA000ECD86E /* MSIDMacCredentialStorageItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */; };
 		1EFD58C722B44BA200ECD86E /* MSIDMacCredentialStorageItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */; };
 		230016402371126E00F7D19C /* MSIDProviderType.h in Headers */ = {isa = PBXBuildFile; fileRef = 2300163E2371126E00F7D19C /* MSIDProviderType.h */; };
@@ -1546,12 +1545,10 @@
 		1E76EAF922D568F100DBE9AD /* MSIDKeyGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDKeyGenerator.h; sourceTree = "<group>"; };
 		1EA4546E23BECE2700567EB0 /* MSIDBrokerOperationBrowserTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrokerOperationBrowserTokenRequest.h; sourceTree = "<group>"; };
 		1EA4546F23BECE2700567EB0 /* MSIDBrokerOperationBrowserTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerOperationBrowserTokenRequest.m; sourceTree = "<group>"; };
-		1EA58A0923CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADBrowserPRTResponseSerializer.h; sourceTree = "<group>"; };
-		1EA58A0A23CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADBrowserPRTResponseSerializer.m; sourceTree = "<group>"; };
-		1EA58A0C23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADBrowserPRTResponse.h; sourceTree = "<group>"; };
-		1EA58A0D23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAADBrowserPRTResponse.m; sourceTree = "<group>"; };
-		1EA58A1423CDABC100CAE2D2 /* MSIDBrowserUrlRequestSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBrowserUrlRequestSerializer.h; sourceTree = "<group>"; };
-		1EA58A1523CDABC100CAE2D2 /* MSIDBrowserUrlRequestSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrowserUrlRequestSerializer.m; sourceTree = "<group>"; };
+		1EA58A0923CD479000CAE2D2 /* MSIDUrlResponseSerializer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDUrlResponseSerializer.h; sourceTree = "<group>"; };
+		1EA58A0A23CD479000CAE2D2 /* MSIDUrlResponseSerializer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDUrlResponseSerializer.m; sourceTree = "<group>"; };
+		1EA58A0C23CD47AD00CAE2D2 /* MSIDUrlResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDUrlResponse.h; sourceTree = "<group>"; };
+		1EA58A0D23CD47AD00CAE2D2 /* MSIDUrlResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDUrlResponse.m; sourceTree = "<group>"; };
 		1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMacCredentialStorageItem.h; sourceTree = "<group>"; };
 		1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacCredentialStorageItem.m; sourceTree = "<group>"; };
 		2300163E2371126E00F7D19C /* MSIDProviderType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDProviderType.h; sourceTree = "<group>"; };
@@ -2908,8 +2905,6 @@
 				238E19C92086FC87004DF483 /* MSIDRequestSerialization.h */,
 				238E19C82086FC87004DF483 /* MSIDUrlRequestSerializer.h */,
 				238E19CA2086FC87004DF483 /* MSIDUrlRequestSerializer.m */,
-				1EA58A1423CDABC100CAE2D2 /* MSIDBrowserUrlRequestSerializer.h */,
-				1EA58A1523CDABC100CAE2D2 /* MSIDBrowserUrlRequestSerializer.m */,
 			);
 			path = request_serializer;
 			sourceTree = "<group>";
@@ -2951,10 +2946,10 @@
 				23AE9DA2213A159C00B285F3 /* MSIDAADOpenIdConfigurationInfoResponseSerializer.m */,
 				607123BF210FCA7400B91068 /* MSIDAADAuthorityValidationRequest.h */,
 				607123C0210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m */,
-				1EA58A0923CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.h */,
-				1EA58A0A23CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.m */,
-				1EA58A0C23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.h */,
-				1EA58A0D23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.m */,
+				1EA58A0923CD479000CAE2D2 /* MSIDUrlResponseSerializer.h */,
+				1EA58A0A23CD479000CAE2D2 /* MSIDUrlResponseSerializer.m */,
+				1EA58A0C23CD47AD00CAE2D2 /* MSIDUrlResponse.h */,
+				1EA58A0D23CD47AD00CAE2D2 /* MSIDUrlResponse.m */,
 			);
 			path = request;
 			sourceTree = "<group>";
@@ -6152,10 +6147,9 @@
 				238EF039208FDBA20035ABE6 /* MSIDAADV1RefreshTokenGrantRequest.m in Sources */,
 				23B3A4522187AFD3009070B2 /* MSIDJsonSerializer.m in Sources */,
 				23FB5C2A225517AA002BF1EB /* MSIDClaimsRequest.m in Sources */,
-				1EA58A1623CDABC100CAE2D2 /* MSIDBrowserUrlRequestSerializer.m in Sources */,
 				B4A5ACD221F7F25400D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */,
 				232C65892138BDC5002A41FE /* MSIDAADAuthorityMetadataResponse.m in Sources */,
-				1EA58A0B23CD479000CAE2D2 /* MSIDAADBrowserPRTResponseSerializer.m in Sources */,
+				1EA58A0B23CD479000CAE2D2 /* MSIDUrlResponseSerializer.m in Sources */,
 				238E19C42086FC38004DF483 /* MSIDHttpResponseSerializer.m in Sources */,
 				1E707FDA2406FA7900716148 /* MSIDBrokerNativeAppOperationResponse.m in Sources */,
 				232173EC2182B195009852C6 /* MSIDIntuneUserDefaultsCacheDataSource.m in Sources */,
@@ -6221,7 +6215,7 @@
 				96A3E9B9208941D700BE5262 /* MSIDSystemWebviewController.m in Sources */,
 				238E19CD2086FC87004DF483 /* MSIDUrlRequestSerializer.m in Sources */,
 				96F21B0520A4FB27002B87C3 /* MSIDAppExtensionUtil.m in Sources */,
-				1EA58A0E23CD47AD00CAE2D2 /* MSIDAADBrowserPRTResponse.m in Sources */,
+				1EA58A0E23CD47AD00CAE2D2 /* MSIDUrlResponse.m in Sources */,
 				238E19DE2086FE28004DF483 /* MSIDTokenRequest.m in Sources */,
 				96F94A3420817C1A0034676C /* MSIDNTLMHandler.m in Sources */,
 				6068303A20A3560F00CCA6AB /* MSIDPKeyAuthHandler.m in Sources */,

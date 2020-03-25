@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, class, readonly) NSString *operation;
 
-- (__nullable id)logInfo;
+- (nullable NSString *)logInfo;
 
 @end
 

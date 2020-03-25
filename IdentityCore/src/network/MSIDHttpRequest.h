@@ -36,6 +36,7 @@
 @protected
     NSDictionary<NSString *, NSString *> *_parameters;
     NSURLRequest *_urlRequest;
+    NSDictionary *_headers;
     id<MSIDRequestSerialization> _requestSerializer;
     id<MSIDResponseSerialization> _responseSerializer;
     id<MSIDHttpRequestTelemetryHandling> _telemetry;
@@ -46,6 +47,8 @@
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
+
+@property (nonatomic, nullable) NSDictionary *headers;
 
 @property (nonatomic, nullable) NSURLRequest *urlRequest;
 

@@ -21,17 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADBrowserPRTResponseSerializer.h"
-#import "MSIDAADBrowserPRTResponse.h"
+#import "MSIDUrlResponseSerializer.h"
+#import "MSIDUrlResponse.h"
 
-@implementation MSIDAADBrowserPRTResponseSerializer
+@implementation MSIDUrlResponseSerializer
 
 - (id)responseObjectForResponse:(NSHTTPURLResponse *)httpResponse
                            data:(NSData *)data
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    if (!httpResponse || !data)
+    if (!httpResponse && !data)
     {
         NSError *localError = MSIDCreateError(MSIDErrorDomain,
                                               MSIDErrorAuthorizationFailed,
@@ -47,7 +47,7 @@
         return nil;
     }
     
-    __auto_type response = [[MSIDAADBrowserPRTResponse alloc] initWithResponse:httpResponse body:data];
+    __auto_type response = [[MSIDUrlResponse alloc] initWithResponse:httpResponse body:data];
     return response;
 }
 
