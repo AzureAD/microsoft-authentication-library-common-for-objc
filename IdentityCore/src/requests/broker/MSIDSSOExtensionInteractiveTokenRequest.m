@@ -39,6 +39,10 @@
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
 
+#if TARGET_OS_IPHONE
+#import "MSIDBackgroundTaskManager.h"
+#endif
+
 @interface MSIDSSOExtensionInteractiveTokenRequest () <ASAuthorizationControllerPresentationContextProviding>
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
@@ -74,6 +78,10 @@
         __weak typeof(self) weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
+#if TARGET_OS_IPHONE
+            [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
+            
 #if TARGET_OS_OSX
             weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
 #endif
@@ -153,6 +161,10 @@
         __auto_type queryItems = [jsonDictionary msidQueryItems];
         ssoRequest.authorizationOptions = queryItems;
         
+#if TARGET_OS_IPHONE
+        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
+        
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
         self.authorizationController.delegate = self.extensionDelegate;
         self.authorizationController.presentationContextProvider = self;
@@ -182,6 +194,15 @@
     }
     
     return self.requestParameters.parentViewController.view.window;
+}
+
+#pragma mark - Dealloc
+
+- (void)dealloc
+{
+#if TARGET_OS_IPHONE
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
 }
 
 @end

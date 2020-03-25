@@ -56,9 +56,15 @@
     if (!self.completionBlock) return;
     
     NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+    
     if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == MSIDSSOExtensionUnderlyingError && underlyingError)
     {
         self.completionBlock(nil, underlyingError);
+    }
+    else if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == ASAuthorizationErrorCanceled)
+    {
+        NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"SSO extension authorization was canceled", nil, nil, nil, nil, nil, YES);
+        self.completionBlock(nil, cancelledError);
     }
     else
     {

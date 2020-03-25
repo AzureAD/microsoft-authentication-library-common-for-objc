@@ -93,20 +93,43 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     [self waitForExpectations:@[expectation] timeout:1];
 }
 
-- (void)testExecuteRequest_whenErrorResponseFromSSOExtension_shouldReturnNilResultAndFillError
+- (void)testExecuteRequest_whenCancelledErrorResponseFromSSOExtension_shouldReturnNilResultAndFillError
 {
-    MSIDInteractiveRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
-    params.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid"];
-    
-    MSIDSSOExtensionSignoutRequestMock *request = [[MSIDSSOExtensionSignoutRequestMock alloc] initWithRequestParameters:params
-                                                                                               shouldSignoutFromBrowser:YES
-                                                                                                           oauthFactory:[MSIDAADV2Oauth2Factory new]];
-    
-    XCTAssertNotNil(request);
-    
     MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
     
-    request.authorizationControllerToReturn = authorizationControllerMock;
+    MSIDSSOExtensionSignoutRequestMock *request = [self defaultSignoutRequestWithAuthorizationControllerMock:authorizationControllerMock];
+    XCTAssertNotNil(request);
+    
+    XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
+    XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
+    
+    [request executeRequestWithCompletion:^(BOOL success, NSError * _Nullable error) {
+        
+        XCTAssertFalse(success);
+        XCTAssertNotNil(error);
+        XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+        XCTAssertEqual(error.code, MSIDErrorUserCancel);
+        
+        [executeRequestExpectation fulfill];
+    }];
+    
+    [self waitForExpectations:@[expectation] timeout:1];
+    
+    XCTAssertNotNil(authorizationControllerMock.delegate);
+    XCTAssertNotNil(authorizationControllerMock.request);
+    
+    NSError *error = [NSError errorWithDomain:ASAuthorizationErrorDomain code:ASAuthorizationErrorCanceled userInfo:nil];
+    
+    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
+    [self waitForExpectations:@[executeRequestExpectation] timeout:1];
+}
+
+- (void)testExecuteRequest_whenErrorResponseFromSSOExtension_shouldReturnNilResultAndFillError
+{
+    MSIDAuthorizationControllerMock *authorizationControllerMock = [[MSIDAuthorizationControllerMock alloc] initWithAuthorizationRequests:@[[[ASAuthorizationSingleSignOnProvider msidSharedProvider] createRequest]]];
+    
+    MSIDSSOExtensionSignoutRequestMock *request = [self defaultSignoutRequestWithAuthorizationControllerMock:authorizationControllerMock];
+    XCTAssertNotNil(request);
     
     XCTestExpectation *expectation = [self keyValueObservingExpectationForObject:authorizationControllerMock keyPath:@"performRequestsCalledCount" expectedValue:@1];
     XCTestExpectation *executeRequestExpectation = [self expectationWithDescription:@"Execute request"];
@@ -178,6 +201,21 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
     [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
+}
+
+- (MSIDSSOExtensionSignoutRequestMock *)defaultSignoutRequestWithAuthorizationControllerMock:(MSIDAuthorizationControllerMock *)mock
+{
+    MSIDInteractiveRequestParameters *params = [MSIDTestParametersProvider testInteractiveParameters];
+    params.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid"];
+    
+    MSIDSSOExtensionSignoutRequestMock *request = [[MSIDSSOExtensionSignoutRequestMock alloc] initWithRequestParameters:params
+                                                                                               shouldSignoutFromBrowser:YES
+                                                                                                           oauthFactory:[MSIDAADV2Oauth2Factory new]];
+    
+    XCTAssertNotNil(request);
+    
+    request.authorizationControllerToReturn = mock;
+    return request;
 }
 
 #endif
