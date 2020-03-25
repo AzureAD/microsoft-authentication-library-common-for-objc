@@ -1049,6 +1049,11 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                    error:(NSError **)error
 
 {
+    // Clear in-memory cache
+    self.appStorageItem = [MSAIMSIDMacCredentialStorageItem new];
+    self.sharedStorageItem = [MSAIMSIDMacCredentialStorageItem new];
+
+    // Clear disk cache
     return [self clearWithAttributes:self.defaultCacheQuery context:context error:error];
 }
 
