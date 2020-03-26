@@ -803,7 +803,7 @@
     XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
 }
 
-- (void)testHandleBrokerResponse_whenBrokerErrorResponseWithHttpHeaders_shouldReturnNilResultAndErrorWithHeaders
+- (void)testHandleBrokerResponse_whenBrokerErrorResponseWithHttpHeadersAsEncodedString_shouldReturnNilResultAndErrorWithHeaders
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
     
@@ -864,6 +864,68 @@
     
     XCTAssertEqualObjects(error.userInfo[MSIDHTTPHeadersKey], expectedHeaders);
 }
+
+- (void)testHandleBrokerResponse_whenBrokerErrorResponseWithHttpHeadersAsDictionary_shouldReturnNilResultAndErrorWithHeaders
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *headers = @{
+        @"Access-Control-Allow-Origin" : @"*",
+        @"Cache-Control" : @"private",
+        @"Content-Length" : @"975",
+        @"Content-Type" : @"application/json; charset=utf-8",
+        @"Date" : @"Sat, 17 Nov 2018 23:20:03 GMT",
+        @"P3P" : @"CP=\"DSP CUR OTPi IND OTRi ONL FIN\"",
+        @"Strict-Transport-Security" : @"max-age=31536000; includeSubDomains",
+        @"X-Content-Type-Options" : @"nosniff",
+        @"client-request-id" : @"14202594-2dfc-4ee8-a908-d337ca2b266b",
+        @"x-ms-request-id" : @"1739e4e0-4b6e-4aba-b404-4979a0d41c00" };
+    
+    NSDictionary *errorMetadata =
+    @{
+      @"http_response_code" : @429,
+      @"http_response_headers" : headers,
+      };
+    NSString *errorMetaDataString = [errorMetadata msidJSONSerializeWithContext:nil];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"broker_error_code" : @"111",
+      @"broker_error_domain" : @"NSURLErrorDomain",
+      @"correlation_id" : correlationId,
+      @"x-broker-app-ver" : @"1.0.0",
+      @"error_metadata" : errorMetaDataString,
+      @"error_description" : @"Error occured",
+      @"success": @NO
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 111);
+    XCTAssertEqualObjects(error.domain, @"NSURLErrorDomain");
+    XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], correlationId);
+    XCTAssertEqualObjects(error.userInfo[MSIDBrokerVersionKey], @"1.0.0");
+    XCTAssertEqualObjects(error.userInfo[MSIDHTTPResponseCodeKey], @429);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Error occured");
+    XCTAssertNil(error.userInfo[MSIDUserDisplayableIdkey]);
+    XCTAssertNil(error.userInfo[MSIDOAuthErrorKey]);
+    XCTAssertNil(error.userInfo[MSIDOAuthSubErrorKey]);
+    XCTAssertNil(error.userInfo[MSIDDeclinedScopesKey]);
+    XCTAssertNil(error.userInfo[MSIDGrantedScopesKey]);
+    XCTAssertEqualObjects(error.userInfo[MSIDHTTPHeadersKey], headers);
+}
+
 
 - (void)testHandleBrokerResponse_whenBrokerIntuneErrorResponse_withNoAdditionalToken_shouldReturnNilResultAndError
 {
