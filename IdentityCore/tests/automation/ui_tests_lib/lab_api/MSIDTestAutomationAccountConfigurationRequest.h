@@ -74,6 +74,8 @@ extern MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeUSGovCloud;
 extern MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypePPE;
 extern MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeB2C;
 
+typedef NSString *MSIDTestAccountTypeUserRoleType;
+extern MSIDTestAccountTypeUserRoleType MSIDTestAccountTypeUserRoleTypeCloudAdministrator;
 
 @interface MSIDTestAutomationAccountConfigurationRequest : MSIDAutomationBaseApiRequest
 
@@ -84,6 +86,7 @@ extern MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeB2C;
 @property (nonatomic) MSIDTestAccountFederationProviderType federationProviderType;
 @property (nonatomic) MSIDTestAccountEnvironmentType environmentType;
 @property (nonatomic) NSDictionary *additionalQueryParameters;
+@property (nonatomic) MSIDTestAccountTypeUserRoleType userRole;
 
 @end
 

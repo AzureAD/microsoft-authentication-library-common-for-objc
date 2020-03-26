@@ -72,6 +72,9 @@ MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeUSGovCloud = @"azur
 MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypePPE = @"azureppe";
 MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeB2C = @"azureb2ccloud";
 
+#pragma mark - MSIDTestAccountTypeUserRoleType
+MSIDTestAccountTypeUserRoleType MSIDTestAccountTypeUserRoleTypeCloudAdministrator = @"CloudDeviceAdministrator";
+
 @implementation MSIDTestAutomationAccountConfigurationRequest
 
 - (instancetype)init
@@ -99,6 +102,7 @@ MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeB2C = @"azureb2cclo
     request.b2cProviderType = [self.b2cProviderType copyWithZone:zone];
     request.federationProviderType = [self.federationProviderType copyWithZone:zone];
     request.environmentType = [self.environmentType copyWithZone:zone];
+    request.userRole = [self.userRole copyWithZone:zone];
     return request;
 }
 
@@ -119,6 +123,7 @@ MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeB2C = @"azureb2cclo
     if (self.b2cProviderType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"b2cprovider" value:self.b2cProviderType]];
     if (self.federationProviderType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"federationprovider" value:self.federationProviderType]];
     if (self.environmentType) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"azureenvironment" value:self.environmentType]];
+    if (self.userRole) [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"userrole" value:self.userRole]];
     
     
     for (NSString *queryKey in [self.additionalQueryParameters allKeys])
@@ -143,6 +148,7 @@ MSIDTestAccountEnvironmentType MSIDTestAccountEnvironmentTypeB2C = @"azureb2cclo
     request.b2cProviderType = dictionary[@"b2cprovider"];
     request.federationProviderType = dictionary[@"federationprovider"];
     request.environmentType = dictionary[@"azureenvironment"];
+    request.userRole = dictionary[@"userrole"];
     return request;
 }
 

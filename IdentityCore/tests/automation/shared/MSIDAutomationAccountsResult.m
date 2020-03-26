@@ -54,6 +54,14 @@
         }
 
         _accounts = results;
+        
+        NSDictionary *previousAccount = json[@"prev_account"];
+        
+        if (previousAccount)
+        {
+            MSIDAutomationUserInformation *userInfo = [[MSIDAutomationUserInformation alloc] initWithJSONDictionary:previousAccount error:nil];
+            _previousAccount = userInfo;
+        }
     }
 
     return self;
@@ -72,6 +80,7 @@
     }
 
     json[@"accounts"] = accountsJSON;
+    json[@"prev_account"] = [self.previousAccount jsonDictionary];
     return json;
 }
 
