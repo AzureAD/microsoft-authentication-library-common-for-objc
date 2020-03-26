@@ -21,14 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDLoginKeychainUtil.h"
+#import "MSIDKeychainUtil+Internal.h"
 
-typedef NS_ENUM(NSInteger, MSIDClientSDKType)
+@implementation MSIDLoginKeychainUtil
+
+- (NSString *)appIdPrefixFromSigningInformation:(__unused NSDictionary *)signingInformation
 {
-    MSIDClientSDKTypeNone,
-    MSIDClientSDKTypeMSAL,
-    MSIDClientSDKTypeADAL
-};
+    return nil;
+}
 
-extern NSString * _Nullable MSIDClientSDKTypeToString(MSIDClientSDKType type);
-extern MSIDClientSDKType MSIDClientSDKTypeFromString(NSString * _Nonnull sdkTypeString);
+@end

@@ -28,15 +28,6 @@
 
 @implementation NSData (MSIDExtensions)
 
-- (NSData *)msidSHA1
-{
-    unsigned char hash[CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(self.bytes, (CC_LONG)self.length, hash);
-    
-    return [NSData dataWithBytes:hash length:CC_SHA1_DIGEST_LENGTH];
-}
-
-
 - (NSData *)msidSHA256
 {
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];

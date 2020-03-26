@@ -224,7 +224,7 @@
         }
     }
     //Special handling for non-string error metadata
-    NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
+    NSDictionary *httpHeaders = errorResponse.httpHeaders;
     if (httpHeaders)
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
     
