@@ -30,30 +30,33 @@
 {
     NSParameterAssert(request);
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
+    NSMutableDictionary *requestHeaders = [NSMutableDictionary new];
     
     if ([headers count])
     {
-        mutableRequest.allHTTPHeaderFields = headers;
+        [requestHeaders addEntriesFromDictionary:headers];
     }
     
-    if (!parameters) return mutableRequest;
-    
-    if ([self shouldEncodeParametersInURL:request])
+    if ([parameters count])
     {
-        NSAssert(mutableRequest.URL, NULL);
-        
-        NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
-        NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
-        [urlParameters addEntriesFromDictionary:parameters];
-        urlComponents.percentEncodedQuery = [urlParameters msidURLEncode];
-        mutableRequest.URL = urlComponents.URL;
-    }
-    else
-    {
-        mutableRequest.HTTPBody = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
-        [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+       if ([self shouldEncodeParametersInURL:request])
+       {
+           NSAssert(mutableRequest.URL, NULL);
+           
+           NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
+           NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
+           [urlParameters addEntriesFromDictionary:parameters];
+           urlComponents.percentEncodedQuery = [urlParameters msidURLEncode];
+           mutableRequest.URL = urlComponents.URL;
+       }
+       else
+       {
+           mutableRequest.HTTPBody = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
+           [requestHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+       }
     }
     
+    mutableRequest.allHTTPHeaderFields = requestHeaders;
     return mutableRequest;
 }
 
