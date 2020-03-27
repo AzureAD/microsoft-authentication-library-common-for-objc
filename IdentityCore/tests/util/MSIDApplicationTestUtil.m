@@ -56,7 +56,7 @@ static NSArray *s_canOpenURLSchemes = nil;
 @end
 
 
-#pragma push
+#pragma mark push
 #pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
 @implementation UIApplication (TestOverride)
 
@@ -87,6 +87,6 @@ completionHandler:(void (^ __nullable)(BOOL success))completionHandler
     completionHandler(s_onOpenUrl(url, options));
 }
 
-#pragma pop
+#pragma mark pop
 
 @end
