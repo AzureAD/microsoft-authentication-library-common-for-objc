@@ -2,3 +2,6 @@ PRODUCT_NAME = IdentityCore
 GCC_PREFIX_HEADER = src/IdentityCore.pch
 GCC_PRECOMPILE_PREFIX_HEADER = YES
 GENERATE_MASTER_OBJECT_FILE = YES
+
+// Enable warnings
+OTHER_CFLAGS=$(inherited) -Wunknown-pragmas
