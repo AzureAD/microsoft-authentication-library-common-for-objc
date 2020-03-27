@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDKeychainUtil ()
 
-@property (readwrite, nullable) NSString *teamId;
+@property (readwrite, nullable, nonatomic) NSString *teamId;
 
 @end
 

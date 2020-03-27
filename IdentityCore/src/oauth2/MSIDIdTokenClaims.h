@@ -53,14 +53,14 @@
 @property (readonly) NSString *email;
 
 // Derived properties
-@property (readonly) NSString *uniqueId;
-@property (readonly) NSString *userId;
-@property (readonly) BOOL userIdDisplayable;
-@property (readonly) NSString *alternativeAccountId;
-@property (readonly) MSIDAuthority *issuerAuthority;
+@property (readonly, nonatomic) NSString *uniqueId;
+@property (readonly, nonatomic) NSString *userId;
+@property (readonly, nonatomic) BOOL userIdDisplayable;
+@property (readonly, nonatomic) NSString *alternativeAccountId;
+@property (readonly, nonatomic) MSIDAuthority *issuerAuthority;
 
 // Convinience properties
-@property (readonly) NSString *rawIdToken;
+@property (readonly, nonatomic) NSString *rawIdToken;
 @property (readonly) NSString *realm;
 
 - (instancetype)initWithRawIdToken:(NSString *)rawIdTokenString error:(NSError * __autoreleasing *)error;

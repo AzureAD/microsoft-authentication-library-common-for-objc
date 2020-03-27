@@ -35,30 +35,30 @@
 
 @interface MSIDAccount : NSObject <NSCopying, MSIDJsonSerializable>
 
-@property (readwrite) MSIDAccountType accountType;
-@property (readwrite) NSString *localAccountId;
+@property (readwrite, nonatomic) MSIDAccountType accountType;
+@property (readwrite, nonatomic) NSString *localAccountId;
 
 /*
  'storageEnvironment' is used only for latter token deletion.
  We can not use 'environment' because cache item could be saved with
  'preferred authority' and it might not be equal to provided 'authority'.
  */
-@property (readwrite) NSString *storageEnvironment;
-@property (readwrite) NSString *environment;
-@property (readwrite) NSString *realm;
+@property (readwrite, nonatomic) NSString *storageEnvironment;
+@property (readwrite, nonatomic) NSString *environment;
+@property (readwrite, nonatomic) NSString *realm;
 /*
  'idTokenClaims' is used to convey corresponding the id token claims for the account.
  */
-@property (readwrite) MSIDIdTokenClaims *idTokenClaims;
+@property (readwrite, nonatomic) MSIDIdTokenClaims *idTokenClaims;
 
-@property (readwrite) NSString *username;
-@property (readwrite) NSString *givenName;
-@property (readwrite) NSString *middleName;
-@property (readwrite) NSString *familyName;
-@property (readwrite) NSString *name;
-@property (readwrite) MSIDAccountIdentifier *accountIdentifier;
-@property (readwrite) MSIDClientInfo *clientInfo;
-@property (readwrite) NSString *alternativeAccountId;
+@property (readwrite, nonatomic) NSString *username;
+@property (readwrite, nonatomic) NSString *givenName;
+@property (readwrite, nonatomic) NSString *middleName;
+@property (readwrite, nonatomic) NSString *familyName;
+@property (readwrite, nonatomic) NSString *name;
+@property (readwrite, nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (readwrite, nonatomic) MSIDClientInfo *clientInfo;
+@property (readwrite, nonatomic) NSString *alternativeAccountId;
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
 - (MSIDAccountCacheItem *)accountCacheItem;

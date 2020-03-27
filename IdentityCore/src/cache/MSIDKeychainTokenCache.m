@@ -44,9 +44,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 
 @interface MSIDKeychainTokenCache ()
 
-@property (readwrite, nonnull) NSString *keychainGroup;
-@property (readwrite, nonnull) NSDictionary *defaultKeychainQuery;
-@property (readwrite, nonnull) NSDictionary *defaultWipeQuery;
+@property (readwrite, nonnull, nonatomic) NSString *keychainGroup;
+@property (readwrite, nonnull, nonatomic) NSDictionary *defaultKeychainQuery;
+@property (readwrite, nonnull, nonatomic) NSDictionary *defaultWipeQuery;
 
 @end
 

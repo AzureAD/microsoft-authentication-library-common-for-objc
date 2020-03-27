@@ -28,7 +28,7 @@
 
 @interface MSIDLegacyAccessToken : MSIDAccessToken <MSIDLegacyCredentialCacheCompatible>
 
-@property (readwrite) NSString *accessTokenType;
-@property (readwrite) NSString *idToken;
+@property (readwrite, nonatomic) NSString *accessTokenType;
+@property (readwrite, nonatomic) NSString *idToken;
 
 @end

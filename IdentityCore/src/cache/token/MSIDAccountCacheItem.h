@@ -30,21 +30,21 @@
 
 @interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
-@property (readwrite) MSIDAccountType accountType;
-@property (readwrite, nonnull) NSString *homeAccountId;
-@property (readwrite, nonnull) NSString *environment;
-@property (readwrite, nullable) NSString *localAccountId;
-@property (readwrite, nullable) NSString *username;
-@property (readwrite, nullable) NSString *givenName;
-@property (readwrite, nullable) NSString *middleName;
-@property (readwrite, nullable) NSString *familyName;
-@property (readwrite, nullable) NSString *name;
-@property (readwrite, nullable) NSString *realm;
-@property (readwrite, nullable) MSIDClientInfo *clientInfo;
-@property (readwrite, nullable) NSString *alternativeAccountId;
+@property (readwrite, nonatomic) MSIDAccountType accountType;
+@property (readwrite, nonnull, nonatomic) NSString *homeAccountId;
+@property (readwrite, nonnull, nonatomic) NSString *environment;
+@property (readwrite, nullable, nonatomic) NSString *localAccountId;
+@property (readwrite, nullable, nonatomic) NSString *username;
+@property (readwrite, nullable, nonatomic) NSString *givenName;
+@property (readwrite, nullable, nonatomic) NSString *middleName;
+@property (readwrite, nullable, nonatomic) NSString *familyName;
+@property (readwrite, nullable, nonatomic) NSString *name;
+@property (readwrite, nullable, nonatomic) NSString *realm;
+@property (readwrite, nullable, nonatomic) MSIDClientInfo *clientInfo;
+@property (readwrite, nullable, nonatomic) NSString *alternativeAccountId;
 
 // Last Modification info (currently used on macOS only)
-@property (readwrite, nullable) NSDate *lastModificationTime;
-@property (readwrite, nullable) NSString *lastModificationApp;
+@property (readwrite, nullable, nonatomic) NSDate *lastModificationTime;
+@property (readwrite, nullable, nonatomic) NSString *lastModificationApp;
 
 @end

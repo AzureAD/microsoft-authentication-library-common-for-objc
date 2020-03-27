@@ -30,7 +30,7 @@
 
 @interface MSIDWebAADAuthCodeResponse : MSIDWebOAuth2AuthCodeResponse
 
-@property (readonly) NSString *cloudHostName;
-@property (readonly) MSIDClientInfo *clientInfo;
+@property (readonly, nonatomic) NSString *cloudHostName;
+@property (readonly, nonatomic) MSIDClientInfo *clientInfo;
 
 @end

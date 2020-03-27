@@ -27,7 +27,7 @@
 
 @interface MSIDAppMetadataCacheItem()
 
-@property (readwrite) NSDictionary *json;
+@property (readwrite, nonatomic) NSDictionary *json;
 
 @end
 

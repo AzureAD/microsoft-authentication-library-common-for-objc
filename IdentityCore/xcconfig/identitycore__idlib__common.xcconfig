@@ -4,4 +4,4 @@ GCC_PRECOMPILE_PREFIX_HEADER = YES
 GENERATE_MASTER_OBJECT_FILE = YES
 
 // Enable warnings
-OTHER_CFLAGS=$(inherited) -Wunknown-pragmas
+OTHER_CFLAGS=$(inherited) -Wunknown-pragmas -Wimplicit-atomic-properties

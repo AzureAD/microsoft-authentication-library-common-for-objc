@@ -35,9 +35,9 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 
 @interface MSIDConfiguration()
 
-@property (readwrite) NSString *resource;
-@property (readwrite) NSString *target;
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (readwrite, nonatomic) NSString *resource;
+@property (readwrite, nonatomic) NSString *target;
+@property (readwrite, nonatomic) NSOrderedSet<NSString *> *scopes;
 
 @end
 

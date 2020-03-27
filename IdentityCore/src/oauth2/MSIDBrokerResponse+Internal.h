@@ -28,8 +28,8 @@
 
 @interface MSIDBrokerResponse ()
 
-@property (readwrite) MSIDTokenResponse *tokenResponse;
-@property (readwrite) MSIDAuthority *msidAuthority;
-@property (readwrite) MSIDDeviceInfo *deviceInfo;
+@property (readwrite, nonatomic) MSIDTokenResponse *tokenResponse;
+@property (readwrite, nonatomic) MSIDAuthority *msidAuthority;
+@property (readwrite, nonatomic) MSIDDeviceInfo *deviceInfo;
 
 @end

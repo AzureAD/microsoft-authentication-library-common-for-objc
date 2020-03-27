@@ -54,20 +54,20 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
 /*!
  The minimum log level for messages to be passed onto the log callback.
  */
-@property (readwrite) MSIDLogLevel level;
+@property (readwrite, nonatomic) MSIDLogLevel level;
 
 /*!
  Set to YES to allow messages possibly containing Personally Identifiable Information (PII) to be
  sent to the logging callback.
  */
-@property (readwrite) BOOL PiiLoggingEnabled;
+@property (readwrite, nonatomic) BOOL PiiLoggingEnabled;
 
-@property (readwrite) BOOL NSLoggingEnabled;
+@property (readwrite, nonatomic) BOOL NSLoggingEnabled;
 
 /*!
  Set to YES to add <file>:<line> info to log messages.
  */
-@property (readwrite) BOOL SourceLineLoggingEnabled;
+@property (readwrite, nonatomic) BOOL SourceLineLoggingEnabled;
 
 /*!
  Sets the callback block to send MSID log messages to.

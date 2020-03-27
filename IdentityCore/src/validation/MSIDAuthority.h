@@ -45,9 +45,9 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 @property (readonly, nonnull) NSURL *url;
 
-@property (readonly, nonnull) NSString *environment;
+@property (readonly, nonnull, nonatomic) NSString *environment;
 
-@property (readonly, nonnull) NSString *realm;
+@property (readonly, nonnull, nonatomic) NSString *realm;
 
 @property (readonly, nullable) NSURL *openIdConfigurationEndpoint;
 

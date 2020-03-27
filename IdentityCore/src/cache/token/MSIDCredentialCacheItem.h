@@ -31,49 +31,49 @@
 @interface MSIDCredentialCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
 // Client id
-@property (readwrite, nonnull) NSString *clientId;
+@property (readwrite, nonnull, nonatomic) NSString *clientId;
 
 // Token type
-@property (readwrite) MSIDCredentialType credentialType;
+@property (readwrite, nonatomic) MSIDCredentialType credentialType;
 
 // Token
-@property (readwrite, nonnull) NSString *secret;
+@property (readwrite, nonnull, nonatomic) NSString *secret;
 
 // Target
-@property (readwrite, nullable) NSString *target;
+@property (readwrite, nullable, nonatomic) NSString *target;
 
 // Realm
-@property (readwrite, nullable) NSString *realm;
+@property (readwrite, nullable, nonatomic) NSString *realm;
 
 // Environment
-@property (readwrite, nullable) NSString *environment;
+@property (readwrite, nullable, nonatomic) NSString *environment;
 
 // Dates
-@property (readwrite, nullable) NSDate *expiresOn;
-@property (readwrite, nullable) NSDate *extendedExpiresOn;
-@property (readwrite, nullable) NSDate *cachedAt;
+@property (readwrite, nullable, nonatomic) NSDate *expiresOn;
+@property (readwrite, nullable, nonatomic) NSDate *extendedExpiresOn;
+@property (readwrite, nullable, nonatomic) NSDate *cachedAt;
 
 // Family ID
-@property (readwrite, nullable) NSString *familyId;
+@property (readwrite, nullable, nonatomic) NSString *familyId;
 
 // Unique user ID
-@property (readwrite, nonnull) NSString *homeAccountId;
+@property (readwrite, nonnull, nonatomic) NSString *homeAccountId;
 
 // Enrollment ID (access tokens only)
-@property (readwrite, nullable) NSString *enrollmentId;
+@property (readwrite, nullable, nonatomic) NSString *enrollmentId;
 
 // speInfo
-@property (readwrite, nullable) NSString *speInfo;
+@property (readwrite, nullable, nonatomic) NSString *speInfo;
 
 // Storing for latter token deletion purpose, not serialized
-@property (readwrite, nullable) NSString *appKey;
+@property (readwrite, nullable, nonatomic) NSString *appKey;
 
 // Application identifier
-@property (readwrite, nullable) NSString *applicationIdentifier;
+@property (readwrite, nullable, nonatomic) NSString *applicationIdentifier;
 
 // Last Modification info (currently used on macOS only)
-@property (readwrite, nullable) NSDate *lastModificationTime;
-@property (readwrite, nullable) NSString *lastModificationApp;
+@property (readwrite, nullable, nonatomic) NSDate *lastModificationTime;
+@property (readwrite, nullable, nonatomic) NSString *lastModificationApp;
 
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 

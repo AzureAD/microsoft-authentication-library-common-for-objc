@@ -30,9 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAppMetadataCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
-@property (nonnull) NSString *clientId;
-@property (nonnull) NSString *environment;
-@property (nullable) NSString *familyId;
+@property (nonnull, nonatomic) NSString *clientId;
+@property (nonnull, nonatomic) NSString *environment;
+@property (nullable, nonatomic) NSString *familyId;
 
 - (BOOL)matchesWithClientId:(nullable NSString *)clientId
                 environment:(nullable NSString *)environment

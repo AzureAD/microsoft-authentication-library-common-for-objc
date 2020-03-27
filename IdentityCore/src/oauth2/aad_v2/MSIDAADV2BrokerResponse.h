@@ -26,7 +26,7 @@
 @interface MSIDAADV2BrokerResponse : MSIDBrokerResponse
 
 @property (readonly) NSString *scope;
-@property (readonly) NSDictionary *errorMetadata;
+@property (readonly, nonatomic) NSDictionary *errorMetadata;
 
 @property (readonly) NSString *oauthErrorCode;
 @property (readonly) NSString *errorDescription;

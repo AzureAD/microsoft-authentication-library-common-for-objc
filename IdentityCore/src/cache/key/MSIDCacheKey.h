@@ -34,22 +34,22 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /* Corresponds to kSecAttrAccount */
-@property (nullable, readonly) NSString *account;
+@property (nullable, readonly, nonatomic) NSString *account;
 
 /* Corresponds to kSecAttrService */
-@property (nullable, readonly) NSString *service;
+@property (nullable, readonly, nonatomic) NSString *service;
 
 /* Corresponds to kSecAttrType */
-@property (nullable, readonly) NSNumber *type;
+@property (nullable, readonly, nonatomic) NSNumber *type;
 
 /* Corresponds to kSecAttrGeneric */
-@property (nullable, readonly) NSData *generic;
+@property (nullable, readonly, nonatomic) NSData *generic;
 
 /* Application key for keychain isolation */
-@property (nullable, readwrite) NSString *appKey;
+@property (nullable, readwrite, nonatomic) NSString *appKey;
 
 /* OSX specific property. Determines if an item is shared across apps.  */
-@property (readonly) BOOL isShared;
+@property (readonly, nonatomic) BOOL isShared;
 
 - (nullable id)initWithAccount:(nullable NSString *)account
                        service:(nullable NSString *)service

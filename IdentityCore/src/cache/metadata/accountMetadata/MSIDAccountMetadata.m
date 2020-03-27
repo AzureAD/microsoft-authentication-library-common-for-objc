@@ -33,7 +33,7 @@ static const NSString *AccountMetadataURLMapKey = @"URLMap";
 
 @interface MSIDAccountMetadata()
 
-@property NSMutableDictionary *auhtorityMap;
+@property (nonatomic) NSMutableDictionary *auhtorityMap;
 
 @end
 

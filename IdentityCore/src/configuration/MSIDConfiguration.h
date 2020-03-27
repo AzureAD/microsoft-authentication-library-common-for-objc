@@ -32,12 +32,12 @@ extern NSString * const MSID_SCOPE_JSON_KEY;
 @interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
 // Commonly used or needed properties
-@property (readwrite) MSIDAuthority *authority;
-@property (readwrite) NSString *redirectUri;
-@property (readwrite) NSString *clientId;
+@property (readwrite, nonatomic) MSIDAuthority *authority;
+@property (readwrite, nonatomic) NSString *redirectUri;
+@property (readwrite, nonatomic) NSString *clientId;
 @property (readonly) NSString *target;
 
-@property (readwrite) NSString *applicationIdentifier;
+@property (readwrite, nonatomic) NSString *applicationIdentifier;
 
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;

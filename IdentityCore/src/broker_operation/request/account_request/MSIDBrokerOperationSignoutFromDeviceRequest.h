@@ -34,8 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationSignoutFromDeviceRequest : MSIDBrokerOperationRemoveAccountRequest
 
-@property (readwrite) MSIDAuthority *authority;
-@property (readwrite) NSString *redirectUri;
+@property (readwrite, nonatomic) MSIDAuthority *authority;
+@property (readwrite, nonatomic) NSString *redirectUri;
 @property (nonatomic) MSIDProviderType providerType;
 @property (nonatomic) BOOL signoutFromBrowser;
 

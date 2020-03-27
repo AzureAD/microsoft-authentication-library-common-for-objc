@@ -28,22 +28,22 @@
     NSString *_accessToken;
 }
 
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
-@property (readwrite) NSDate *cachedAt;
-@property (readwrite) NSString *accessToken;
+@property (readwrite, nonatomic) NSDate *expiresOn;
+@property (readwrite, nonatomic) NSDate *extendedExpiresOn;
+@property (readwrite, nonatomic) NSDate *cachedAt;
+@property (readwrite, nonatomic) NSString *accessToken;
 
 // v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource;
+@property (readwrite, nonatomic) NSString *resource;
 
 // v2 access tokens are scoped down to resources
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (readwrite, nonatomic) NSOrderedSet<NSString *> *scopes;
 
 // Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
-@property (readwrite) NSString *enrollmentId;
+@property (readwrite, nonatomic) NSString *enrollmentId;
 
 // Unique app identifier used for cases when access token storage needs to be partitioned per application
-@property (readwrite) NSString *applicationIdentifier;
+@property (readwrite, nonatomic) NSString *applicationIdentifier;
 
 - (BOOL)isExpired;
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
