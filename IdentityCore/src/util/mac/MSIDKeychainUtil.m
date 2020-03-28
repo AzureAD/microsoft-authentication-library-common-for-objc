@@ -23,6 +23,9 @@
 
 #import "MSIDKeychainUtil.h"
 #import "MSIDKeychainUtil+Internal.h"
+#import "MSIDKeychainUtil+MacInternal.h"
+
+static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
 
 @implementation MSIDKeychainUtil
 
@@ -66,8 +69,9 @@
         }
         else
         {
-            NSDictionary* signingDic = CFBridgingRelease(cfDic);
-            keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+            NSDictionary *signingDic = CFBridgingRelease(cfDic);
+            NSString *appIdPrefix = [self appIdPrefixFromSigningInformation:signingDic];
+            keychainTeamId = appIdPrefix ? appIdPrefix : [self teamIdFromSigningInformation:signingDic];
         }
         CFRelease(selfCode);
     }
@@ -101,6 +105,35 @@
     }
     
     return [[NSString alloc] initWithFormat:@"%@.%@", self.teamId, group];
+}
+
+#pragma mark - Signing group prefix
+
+- (NSString *)teamIdFromSigningInformation:(NSDictionary *)signingInformation
+{
+    return [signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+}
+
+- (NSString *)appIdPrefixFromSigningInformation:(NSDictionary *)signingInformation
+{
+    NSDictionary *entitlementsDictionary = [signingInformation msidObjectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict ofClass:[NSDictionary class]];
+    NSArray *keychainGroups = [entitlementsDictionary msidObjectForKey:MSIDKeychainAccessGroupEntitlement ofClass:[NSArray class]];
+    
+    NSString *keychainTeamId = nil;
+    
+    if (keychainGroups && [keychainGroups count])
+    {
+        NSString *firstGroup = keychainGroups[0];
+        NSArray *components = [firstGroup componentsSeparatedByString:@"."];
+        
+        if ([components count] > 1)
+        {
+            NSString *bundleSeedID = [components firstObject];
+            keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
+        }
+    }
+    
+    return keychainTeamId;
 }
 
 @end
