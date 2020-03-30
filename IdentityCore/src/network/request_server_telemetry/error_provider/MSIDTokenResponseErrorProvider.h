@@ -21,18 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDHttpResponseErrorProvider.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestProtocol <NSObject>
-
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@interface MSIDTokenResponseErrorProvider : MSIDHttpResponseErrorProvider
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -23,16 +23,15 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestProtocol <NSObject>
+@protocol MSIDResponseErrorProviding <NSObject>
 
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (nullable NSString *)errorForResponse:(nullable NSHTTPURLResponse *)httpResponse
+                                   data:(nullable NSData *)data
+                                context:(nullable id <MSIDRequestContext>)context
+                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

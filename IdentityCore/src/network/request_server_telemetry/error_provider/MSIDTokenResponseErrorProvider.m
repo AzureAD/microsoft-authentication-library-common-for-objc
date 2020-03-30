@@ -21,18 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTokenResponseErrorProvider.h"
+#import "MSIDOAuth2Constants.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+@implementation MSIDTokenResponseErrorProvider
 
-@protocol MSIDHttpRequestProtocol <NSObject>
-
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (NSString *)errorForResponse:(__unused NSHTTPURLResponse *)httpResponse
+                          data:(__unused NSData *)data
+                       context:(__unused id<MSIDRequestContext>)context
+                         error:(__unused NSError **)error
+{
+    if (httpResponse.statusCode == 400)
+    {
+        NSError *localError;
+        NSDictionary *jsonObject = [NSJSONSerialization JSONObjectWithData:data options:0 error:&localError];
+        NSString *oauthError = jsonObject[MSID_OAUTH2_ERROR];
+        
+        //TODO: localError???
+        
+        if (oauthError) return oauthError;
+    }
+    
+    
+    return [super errorForResponse:httpResponse data:data context:context error:error];
+}
 
 @end

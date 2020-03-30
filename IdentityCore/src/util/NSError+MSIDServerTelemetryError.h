@@ -23,16 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestProtocol <NSObject>
+@interface NSError (MSIDServerTelemetryError)
 
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (NSString *)msidServerTelemetryErrorString;
 
 @end
+
+NS_ASSUME_NONNULL_END

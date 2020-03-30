@@ -22,17 +22,15 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDHttpRequestServerTelemetryHandling.h"
+#import "MSIDHttpRequestProtocol.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestProtocol <NSObject>
+@interface MSIDHttpRequestServerTelemetry : NSObject <MSIDHttpRequestServerTelemetryHandling>
 
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@property (nonatomic) id<MSIDResponseErrorProviding> responseErrorProvider;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -23,16 +23,14 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestProtocol <NSObject>
+@protocol MSIDTelemetryStringSerializable <NSObject>
 
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (instancetype)initWithTelemetryString:(NSString *)telemetryString
+                                  error:(NSError * __autoreleasing *)error;
+- (NSString *)telemetryString;
 
 @end
+
+NS_ASSUME_NONNULL_END

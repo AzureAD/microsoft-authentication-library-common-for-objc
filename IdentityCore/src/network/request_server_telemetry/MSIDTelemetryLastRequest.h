@@ -22,17 +22,35 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTelemetryStringSerializable.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+@interface MSIDTelemetryErrorInfo : NSObject
 
-@protocol MSIDHttpRequestProtocol <NSObject>
-
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
 @property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@property (nonatomic, nonnull) NSUUID *correlationId;
+@property (nonatomic, nonnull) NSString *error;
 
 @end
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDTelemetryLastRequest : NSObject <MSIDTelemetryStringSerializable>
+
+@property (nonatomic, readonly) NSInteger schemaVersion;
+@property (nonatomic, readonly) NSInteger silentSuccessfulCount;
+@property (nonatomic, nullable, readonly) NSArray<MSIDTelemetryErrorInfo *> *errorsInfo;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
++ (instancetype)sharedInstance;
+
+- (void)updateWithApiId:(NSInteger)apiId
+            errorString:(nullable NSString *)errorString
+                context:(nullable id<MSIDRequestContext>)context;
+
+- (void)increaseSilentSuccessfulCount;
+
+@end
+
+NS_ASSUME_NONNULL_END

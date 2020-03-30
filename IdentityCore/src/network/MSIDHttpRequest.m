@@ -31,6 +31,7 @@
 #import "MSIDURLSessionManager.h"
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDOAuthRequestConfigurator.h"
+#import "MSIDHttpRequestServerTelemetryHandling.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -69,56 +70,59 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
+    [self.serverTelemetry setTelemetryToRequest:self];
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
     
     [[self.sessionManager.session dataTaskWithRequest:self.urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
       {
-          MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
-          
-          if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
-          
-          __auto_type httpResponse = (NSHTTPURLResponse *)response;
-          
-          [self.telemetry responseReceivedEventWithContext:self.context
-                                                urlRequest:self.urlRequest
-                                              httpResponse:httpResponse
-                                                      data:data
-                                                     error:error];
-          
-          if (error)
-          {
-              if (completionBlock) { completionBlock(nil, error); }
-          }
-          else if (httpResponse.statusCode == 200)
-          {
-              id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
-              
-              MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
-              
-              if (completionBlock) { completionBlock(responseObject, error); }
-          }
-          else
-          {
-              if (self.errorHandler)
-              {
-                  id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;
-                  
-                  [self.errorHandler handleError:error
-                                    httpResponse:httpResponse
-                                            data:data
-                                     httpRequest:self
-                              responseSerializer:responseSerializer
-                                         context:self.context
-                                 completionBlock:completionBlock];
-              }
-              else
-              {
-                  if (completionBlock) { completionBlock(nil, error); }
-              }
-          }
-
-      }] resume];
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, self.context, @"Received network response: %@, error %@", _PII_NULLIFY(response), _PII_NULLIFY(error));
+        
+        if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
+        
+        __auto_type httpResponse = (NSHTTPURLResponse *)response;
+        
+        [self.telemetry responseReceivedEventWithContext:self.context
+                                              urlRequest:self.urlRequest
+                                            httpResponse:httpResponse
+                                                    data:data
+                                                   error:error];
+        
+        [self.serverTelemetry handleHttpResponse:httpResponse data:data forRequest:self context:self.context];
+        
+        if (error)
+        {
+            if (completionBlock) { completionBlock(nil, error); }
+        }
+        else if (httpResponse.statusCode == 200)
+        {
+            id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
+            
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
+            
+            if (completionBlock) { completionBlock(responseObject, error); }
+        }
+        else
+        {
+            if (self.errorHandler)
+            {
+                id<MSIDResponseSerialization> responseSerializer = self.errorResponseSerializer ? self.errorResponseSerializer : self.responseSerializer;
+                
+                [self.errorHandler handleError:error
+                                  httpResponse:httpResponse
+                                          data:data
+                                   httpRequest:self
+                            responseSerializer:responseSerializer
+                                       context:self.context
+                               completionBlock:completionBlock];
+            }
+            else
+            {
+                if (completionBlock) { completionBlock(nil, error); }
+            }
+        }
+        
+    }] resume];
 }
 
 + (NSInteger)retryCountSetting { return s_retryCount; }

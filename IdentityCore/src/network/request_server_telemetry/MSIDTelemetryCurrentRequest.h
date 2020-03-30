@@ -22,17 +22,16 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDTelemetryStringSerializable.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestProtocol <NSObject>
+@interface MSIDTelemetryCurrentRequest : NSObject <MSIDTelemetryStringSerializable>
 
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
+@property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic) BOOL forceRefresh;
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
-
 @end
+
+NS_ASSUME_NONNULL_END

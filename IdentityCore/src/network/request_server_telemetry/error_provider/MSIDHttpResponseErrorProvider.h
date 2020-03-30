@@ -22,17 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDResponseErrorProviding.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDHttpRequestProtocol <NSObject>
-
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+@interface MSIDHttpResponseErrorProvider : NSObject<MSIDResponseErrorProviding>
 
 @end
+
+NS_ASSUME_NONNULL_END

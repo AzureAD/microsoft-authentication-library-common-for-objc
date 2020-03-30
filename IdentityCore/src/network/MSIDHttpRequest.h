@@ -29,6 +29,7 @@
 @protocol MSIDRequestContext;
 @protocol MSIDHttpRequestTelemetryHandling;
 @protocol MSIDHttpRequestErrorHandling;
+@protocol MSIDHttpRequestServerTelemetryHandling;
 @class MSIDURLSessionManager;
 
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
@@ -57,9 +58,14 @@
 
 @property (nonatomic, nullable) id<MSIDHttpRequestTelemetryHandling> telemetry;
 
+@property (nonatomic, nullable) id<MSIDHttpRequestServerTelemetryHandling> serverTelemetry;
+
 @property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 
 @property (nonatomic, nullable) id<MSIDRequestContext> context;
+
+@property (nonatomic) NSInteger apiId;
+@property (nonatomic) BOOL forceRefresh;
 
 @property (nonatomic) NSInteger retryCounter;
 @property (nonatomic) NSTimeInterval retryInterval;

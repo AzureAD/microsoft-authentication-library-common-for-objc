@@ -21,18 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDTelemetryCurrentRequest.h"
 
-typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
+@implementation MSIDTelemetryCurrentRequest
 
-@protocol MSIDHttpRequestProtocol <NSObject>
+#pragma mark - MSIDTelemetryStringSerializable
 
-@property (nonatomic) NSInteger retryCounter;
-@property (nonatomic) NSTimeInterval retryInterval;
-@property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
+- (NSString *)telemetryString
+{
+    return @"";
+}
 
-- (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
+- (instancetype)initWithTelemetryString:(__unused NSString *)csvString error:(__unused NSError **)error
+{
+    self = [super init];
+    if (self)
+    {
+        
+    }
+    return self;
+}
 
 @end
