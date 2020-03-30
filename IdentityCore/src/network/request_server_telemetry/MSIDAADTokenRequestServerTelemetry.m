@@ -21,32 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpRequestServerTelemetry.h"
-#import "MSIDTelemetryCurrentRequest.h"
-#import "MSIDTelemetryLastRequest.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
+#import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDLastRequestTelemetry.h"
 #import "MSIDResponseErrorProviding.h"
 
-@interface MSIDHttpRequestServerTelemetry()
+@interface MSIDAADTokenRequestServerTelemetry()
 
-@property (nonatomic) MSIDTelemetryLastRequest *lastRequestTelemetry;
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 
 @end
 
-@implementation MSIDHttpRequestServerTelemetry
+@implementation MSIDAADTokenRequestServerTelemetry
 
 - (instancetype)init
 {
     self = [super init];
     if (self)
     {
-        _lastRequestTelemetry = [MSIDTelemetryLastRequest sharedInstance];
+        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
     return self;
 }
-
+// TODO: unused param
 - (void)handleHttpResponse:(NSHTTPURLResponse *)httpResponse
                       data:(NSData *)data
-                forRequest:(id<MSIDHttpRequestProtocol>)request
+                forRequest:(__unused id<MSIDHttpRequestProtocol>)request
                    context:(id<MSIDRequestContext>)context
 {
     NSError *error;
@@ -55,7 +55,7 @@
                                                                  context:context
                                                                    error:&error];
     
-    [self.lastRequestTelemetry updateWithApiId:request.apiId
+    [self.lastRequestTelemetry updateWithApiId:self.apiId
                                    errorString:errorString
                                        context:context];
 }
@@ -64,10 +64,10 @@
 {
     NSParameterAssert(request.urlRequest);
     
-    MSIDTelemetryCurrentRequest *currentRequestTelemetry = [MSIDTelemetryCurrentRequest new];
+    MSIDCurrentRequestTelemetry *currentRequestTelemetry = [MSIDCurrentRequestTelemetry new];
     currentRequestTelemetry.schemaVersion = 2;
-    currentRequestTelemetry.forceRefresh = request.forceRefresh;
-    currentRequestTelemetry.apiId = request.apiId;
+    currentRequestTelemetry.forceRefresh = self.forceRefresh;
+    currentRequestTelemetry.apiId = self.apiId;
     
     NSString *currentRequestTelemetryString = [currentRequestTelemetry telemetryString];
     

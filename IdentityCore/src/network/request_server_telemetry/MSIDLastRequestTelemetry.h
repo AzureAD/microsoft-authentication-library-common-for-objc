@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTelemetryStringSerializable.h"
 
-@interface MSIDTelemetryErrorInfo : NSObject
+@interface MSIDRequestTelemetryErrorInfo : NSObject
 
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic, nonnull) NSUUID *correlationId;
@@ -34,11 +34,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDTelemetryLastRequest : NSObject <MSIDTelemetryStringSerializable>
+@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
 
 @property (nonatomic, readonly) NSInteger schemaVersion;
 @property (nonatomic, readonly) NSInteger silentSuccessfulCount;
-@property (nonatomic, nullable, readonly) NSArray<MSIDTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

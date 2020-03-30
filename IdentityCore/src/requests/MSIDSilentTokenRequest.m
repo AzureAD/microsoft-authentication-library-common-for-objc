@@ -38,7 +38,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponseHandler.h"
-#import "MSIDTelemetryLastRequest.h"
+#import "MSIDLastRequestTelemetry.h"
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
@@ -52,7 +52,7 @@
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
-@property (nonatomic) MSIDTelemetryLastRequest *lastRequestTelemetry;
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 
 @end
 
@@ -72,7 +72,7 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
-        _lastRequestTelemetry = [MSIDTelemetryLastRequest sharedInstance];
+        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
 
     return self;
@@ -388,9 +388,8 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
+                                                                                                forceRefresh:self.forceRefresh
                                                                                                 refreshToken:refreshToken.refreshToken];
-    tokenRequest.apiId = [self.requestParameters.telemetryApiId integerValue];
-    tokenRequest.forceRefresh = self.forceRefresh;
 
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {

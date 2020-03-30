@@ -30,8 +30,6 @@ typedef void (^MSIDHttpRequestDidCompleteBlock)(id response, NSError *error);
 @property (nonatomic) NSInteger retryCounter;
 @property (nonatomic) NSTimeInterval retryInterval;
 @property (nonatomic) NSURLRequest *urlRequest;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
 
 - (void)sendWithBlock:(MSIDHttpRequestDidCompleteBlock)completionBlock;
 

@@ -79,6 +79,7 @@
                                                                         homeAccountId:(NSString *)homeAccountId;
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              forceRefresh:(BOOL)forceRefresh
                                                               refreshToken:(NSString *)refreshToken;
 
 - (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration

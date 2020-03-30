@@ -40,4 +40,6 @@
                                       scope:(nullable NSString *)scope
                                     context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
+@property (nonatomic) NSInteger apiId;
+
 @end

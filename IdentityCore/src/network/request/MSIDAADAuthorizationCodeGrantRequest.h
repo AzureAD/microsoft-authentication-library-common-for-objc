@@ -39,6 +39,28 @@
                                      claims:(nullable NSString *)claims
                                codeVerifier:(nullable NSString *)codeVerifier
                             extraParameters:(nullable NSDictionary *)extraParameters
+                                      apiId:(NSInteger)apiId
                                     context:(nullable id<MSIDRequestContext>)context;
+
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                      scope:(nullable NSString *)scope
+                                redirectUri:(nonnull NSString *)redirectUri
+                                       code:(nonnull NSString *)code
+                                     claims:(nullable NSString *)claims
+                               codeVerifier:(nullable NSString *)codeVerifier
+                            extraParameters:(nullable NSDictionary *)extraParameters
+                                      apiId:(NSInteger)apiId
+                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
+
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                      scope:(nullable NSString *)scope
+                                redirectUri:(nonnull NSString *)redirectUri
+                                       code:(nonnull NSString *)code
+                                     claims:(nullable NSString *)claims
+                               codeVerifier:(nullable NSString *)codeVerifier
+                            extraParameters:(nullable NSDictionary *)extraParameters
+                                    context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

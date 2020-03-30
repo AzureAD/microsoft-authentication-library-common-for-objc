@@ -220,6 +220,7 @@
 }
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(__unused MSIDRequestParameters *)parameters
+                                                              forceRefresh:(__unused BOOL)forceRefresh
                                                               refreshToken:(__unused NSString *)refreshToken
 {
     // TODO: implement me for ADAL

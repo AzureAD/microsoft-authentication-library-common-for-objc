@@ -192,6 +192,7 @@
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
                                                                                                         extraParameters:parameters.extraTokenRequestParameters
+                                                                                                                 apiId:[parameters.telemetryApiId integerValue]
                                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 
@@ -199,6 +200,7 @@
 }
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
+                                                              forceRefresh:(BOOL)forceRefresh
                                                               refreshToken:(NSString *)refreshToken
 {
     MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
@@ -218,7 +220,10 @@
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
                                                                                               extraParameters:parameters.extraTokenRequestParameters
+                                                                                                        apiId:[parameters.telemetryApiId integerValue]
+                                                                                                 forceRefresh:forceRefresh
                                                                                                       context:parameters];
+    
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
 
     return tokenRequest;

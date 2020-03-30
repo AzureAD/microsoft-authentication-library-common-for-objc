@@ -21,20 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTelemetryLastRequest.h"
+#import "MSIDLastRequestTelemetry.h"
 
-@implementation MSIDTelemetryErrorInfo
+@implementation MSIDRequestTelemetryErrorInfo
 @end
 
-@interface MSIDTelemetryLastRequest()
+@interface MSIDLastRequestTelemetry()
 
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
-@property (nonatomic) NSArray<MSIDTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 
 @end
 
-@implementation MSIDTelemetryLastRequest
+@implementation MSIDLastRequestTelemetry
 
 #pragma mark - Init
 
@@ -50,10 +50,10 @@
 + (instancetype)sharedInstance
 {
     static dispatch_once_t once;
-    static MSIDTelemetryLastRequest *singleton = nil;
+    static MSIDLastRequestTelemetry *singleton = nil;
     
     dispatch_once(&once, ^{
-        singleton = [[MSIDTelemetryLastRequest alloc] initInternal];
+        singleton = [[MSIDLastRequestTelemetry alloc] initInternal];
     });
     
     return singleton;
@@ -68,7 +68,7 @@
     {
         NSMutableArray *errorsInfo = self.errorsInfo ? [self.errorsInfo mutableCopy] : [NSMutableArray new];
         
-        __auto_type errorInfo = [MSIDTelemetryErrorInfo new];
+        __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
         errorInfo.apiId = apiId;
         errorInfo.error = errorString;
         errorInfo.correlationId = context.correlationId;

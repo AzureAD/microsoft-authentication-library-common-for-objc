@@ -42,6 +42,7 @@
     id<MSIDHttpRequestTelemetryHandling> _telemetry;
     id<MSIDHttpRequestErrorHandling> _errorHandler;
     id<MSIDRequestContext> _context;
+    id<MSIDHttpRequestServerTelemetryHandling> _serverTelemetry;
 }
 
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;
@@ -63,9 +64,6 @@
 @property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 
 @property (nonatomic, nullable) id<MSIDRequestContext> context;
-
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
 
 @property (nonatomic) NSInteger retryCounter;
 @property (nonatomic) NSTimeInterval retryInterval;

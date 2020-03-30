@@ -21,17 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTelemetryStringSerializable.h"
+#import "MSIDCurrentRequestTelemetry.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDCurrentRequestTelemetry
 
-@interface MSIDTelemetryCurrentRequest : NSObject <MSIDTelemetryStringSerializable>
+#pragma mark - MSIDTelemetryStringSerializable
 
-@property (nonatomic) NSInteger schemaVersion;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
+- (NSString *)telemetryString
+{
+    return @"";
+}
+
+- (instancetype)initWithTelemetryString:(__unused NSString *)csvString error:(__unused NSError **)error
+{
+    self = [super init];
+    if (self)
+    {
+        
+    }
+    return self;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

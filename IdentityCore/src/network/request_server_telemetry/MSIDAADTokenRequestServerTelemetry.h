@@ -27,9 +27,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDHttpRequestServerTelemetry : NSObject <MSIDHttpRequestServerTelemetryHandling>
+@interface MSIDAADTokenRequestServerTelemetry : NSObject <MSIDHttpRequestServerTelemetryHandling>
 
 @property (nonatomic) id<MSIDResponseErrorProviding> responseErrorProvider;
+@property (nonatomic) NSInteger apiId;
+@property (nonatomic) BOOL forceRefresh;
 
 @end
 

@@ -42,7 +42,7 @@
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDAccount.h"
-#import "MSIDTelemetryLastRequest.h"
+#import "MSIDLastRequestTelemetry.h"
 #import "NSError+MSIDServerTelemetryError.h"
 
 #if TARGET_OS_IPHONE
@@ -58,7 +58,7 @@
 @property (nonatomic) MSIDAuthorizeWebRequestConfiguration *webViewConfiguration;
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
-@property (nonatomic) MSIDTelemetryLastRequest *lastRequestTelemetry;
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 
 @end
 
@@ -80,7 +80,7 @@
         _tokenCache = tokenCache;
         _accountMetadataCache = accountMetadataCache;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
-        _lastRequestTelemetry = [MSIDTelemetryLastRequest sharedInstance];
+        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
 
     return self;

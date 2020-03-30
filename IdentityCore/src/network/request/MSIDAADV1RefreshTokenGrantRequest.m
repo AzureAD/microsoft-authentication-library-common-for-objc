@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV1RefreshTokenGrantRequest.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADV1RefreshTokenGrantRequest
 
@@ -31,12 +32,26 @@
                     refreshToken:(NSString *)refreshToken
                         resource:(NSString *)resource
                  extraParameters:(NSDictionary *)extraParameters
+                           apiId:(NSInteger)apiId
+                    forceRefresh:(BOOL)forceRefresh
                          context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken extraParameters:extraParameters context:context];
+    self = [super initWithEndpoint:endpoint
+                          clientId:clientId
+                             scope:scope
+                      refreshToken:refreshToken
+                   extraParameters:extraParameters
+                             apiId:apiId
+                      forceRefresh:forceRefresh
+                           context:context];
     if (self)
     {
         NSParameterAssert(resource);
+        
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.apiId = apiId;
+        serverTelemetry.forceRefresh = forceRefresh;
+        _serverTelemetry = serverTelemetry;
         
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_RESOURCE] = resource;
