@@ -88,7 +88,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                                     data:data
                                                    error:error];
         
-        [self.serverTelemetry handleHttpResponse:httpResponse data:data forRequest:self context:self.context];
+        [self.serverTelemetry handleHttpResponse:httpResponse data:data context:self.context];
         
         if (error)
         {

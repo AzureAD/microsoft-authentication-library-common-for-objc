@@ -43,10 +43,9 @@
     }
     return self;
 }
-// TODO: unused param
+
 - (void)handleHttpResponse:(NSHTTPURLResponse *)httpResponse
                       data:(NSData *)data
-                forRequest:(__unused id<MSIDHttpRequestProtocol>)request
                    context:(id<MSIDRequestContext>)context
 {
     NSError *error;

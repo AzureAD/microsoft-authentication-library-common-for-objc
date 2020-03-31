@@ -34,7 +34,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)handleHttpResponse:(NSHTTPURLResponse *)httpResponse
                       data:(nullable NSData *)data
-                forRequest:(id<MSIDHttpRequestProtocol>)request
                    context:(id<MSIDRequestContext>)context;
 
 - (void)setTelemetryToRequest:(id<MSIDHttpRequestProtocol>)request;
