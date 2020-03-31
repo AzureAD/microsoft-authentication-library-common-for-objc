@@ -1,3 +1,11 @@
+Version 1.4.1
+------
+* Fixed macOS cache on 10.15 when App Identifier Prefix is different from TeamId (#697)
+* Remove SHA-1 dependency from production library (#695)
+* Fixed SSO extension + MSIT MFA (#704)
+* Fixed SSO extension swipe down cancellation case (#703)
+* Handle http headers coming from iOS broker when it is either a NSDictionary or NSString (#706)
+
 Version 1.4.0
 ------
 * iOS 13 SSO extension support
