@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, readonly) NSData *httpBody;
 @property (nonatomic, nullable, readonly) NSError *httpError;
 
-- (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(NSData *)httpBody;
+- (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(nullable NSData *)httpBody;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

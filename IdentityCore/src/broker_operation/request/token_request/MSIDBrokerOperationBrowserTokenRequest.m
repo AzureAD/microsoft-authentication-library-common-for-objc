@@ -24,6 +24,9 @@
 #import "MSIDBrokerOperationBrowserTokenRequest.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDAuthority+Internal.h"
+#import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDAADNetworkConfiguration.h"
 
 @implementation MSIDBrokerOperationBrowserTokenRequest
 
@@ -70,6 +73,10 @@
         }
         
         _authority = authority;
+        __auto_type tokenEndpoint = [MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider oauth2TokenEndpointWithUrl:_authority.url];
+        
+        authority.metadata = [MSIDOpenIdProviderMetadata new];
+        authority.metadata.tokenEndpoint = tokenEndpoint;
         
         _correlationId = [NSUUID UUID];
     }
@@ -80,8 +87,8 @@
 - (BOOL)isAuthorizeRequest:(NSURL *)url
 {
     NSString *request = [url absoluteString];
-    BOOL isAuthorizeRequest = ([request rangeOfString:@"/oauth2/authorize?" options:NSCaseInsensitiveSearch].location != NSNotFound);
-    BOOL isV2AuthorizeRequest = ([request rangeOfString:@"/oauth2/v2.0/authorize?" options:NSCaseInsensitiveSearch].location != NSNotFound);
+    BOOL isAuthorizeRequest = ([request rangeOfString:@"/oauth2/authorize" options:NSCaseInsensitiveSearch].location != NSNotFound);
+    BOOL isV2AuthorizeRequest = ([request rangeOfString:@"/oauth2/v2.0/authorize" options:NSCaseInsensitiveSearch].location != NSNotFound);
     return isAuthorizeRequest || isV2AuthorizeRequest;
 }
 

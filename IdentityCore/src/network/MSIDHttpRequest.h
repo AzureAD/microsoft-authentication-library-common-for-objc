@@ -42,6 +42,7 @@
     id<MSIDHttpRequestTelemetryHandling> _telemetry;
     id<MSIDHttpRequestErrorHandling> _errorHandler;
     id<MSIDRequestContext> _context;
+    BOOL _shouldCacheResponse;
 }
 
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;
@@ -72,10 +73,5 @@
 @property (class, nonatomic, readwrite) NSTimeInterval retryIntervalSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval requestTimeoutInterval;
 @property (nonatomic, nonnull) NSURLCache *cache;
-
-- (nullable NSCachedURLResponse *)cachedResponse;
-
-- (void)setCachedResponse:(nonnull NSCachedURLResponse *)cachedResponse
-               forRequest:(nonnull NSURLRequest *)request;
 
 @end

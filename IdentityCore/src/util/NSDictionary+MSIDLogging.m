@@ -25,7 +25,7 @@
 
 @implementation NSDictionary (MSIDLogging)
 
-+ (NSArray *)secretRequestKeys
++ (NSArray *)msidSecretRequestKeys
 {
     static NSArray *s_blackListedKeys = nil;
     static dispatch_once_t onceToken;
@@ -39,7 +39,7 @@
 - (NSDictionary *)msidMaskedRequestDictionary
 {
     NSMutableDictionary *mutableRequestDict = [self mutableCopy];
-    [mutableRequestDict removeObjectsForKeys:[[self class] secretRequestKeys]];
+    [mutableRequestDict removeObjectsForKeys:[[self class] msidSecretRequestKeys]];
     return mutableRequestDict;
 }
 

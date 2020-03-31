@@ -31,7 +31,7 @@
                         context:(id <MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    if (!httpResponse && !data)
+    if (!httpResponse)
     {
         NSError *localError = MSIDCreateError(MSIDErrorDomain,
                                               MSIDErrorAuthorizationFailed,
