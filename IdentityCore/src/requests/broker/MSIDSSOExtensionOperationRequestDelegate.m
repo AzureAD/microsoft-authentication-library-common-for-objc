@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
@@ -60,3 +61,4 @@
 }
 
 @end
+#endif
