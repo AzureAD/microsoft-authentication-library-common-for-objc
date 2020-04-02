@@ -26,6 +26,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "NSURL+MSIDAADUtils.h"
 #import "MSIDAADNetworkConfiguration.h"
 
 @implementation MSIDBrokerOperationBrowserTokenRequest
@@ -42,7 +43,7 @@
         {
             if (error)
             {
-               NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request due to invalid request url %@",requestURL];
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request due to invalid request url %@",requestURL.class];
                *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
             }
                   
@@ -51,11 +52,11 @@
         
         _requestURL = requestURL;
         
-        if (![self isAuthorizeRequest:_requestURL])
+        if (![self shouldHandleURL:_requestURL])
         {
             if (error)
             {
-                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not authorize request", [requestURL absoluteString]];
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not a request URL we should handle", requestURL.host];
                 *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
             }
                    
@@ -84,12 +85,25 @@
     return self;
 }
 
-- (BOOL)isAuthorizeRequest:(NSURL *)url
+- (BOOL)shouldHandleURL:(NSURL *)url
 {
-    NSString *request = [url absoluteString];
-    BOOL isAuthorizeRequest = ([request rangeOfString:@"/oauth2/authorize" options:NSCaseInsensitiveSearch].location != NSNotFound);
-    BOOL isV2AuthorizeRequest = ([request rangeOfString:@"/oauth2/v2.0/authorize" options:NSCaseInsensitiveSearch].location != NSNotFound);
-    return isAuthorizeRequest || isV2AuthorizeRequest;
+    if (![url msidContainsCaseInsensitivePath:@"oauth2"])
+    {
+        return NO;
+    }
+    
+    if ([url msidContainsCaseInsensitivePath:@"/oauth2/authorize"])
+    {
+        return YES;
+    }
+    
+    if ([url msidContainsCaseInsensitivePath:@"/oauth2/v2.0/authorize"])
+    {
+        return YES;
+    }
+        
+    BOOL isLogoutRequest = [url msidContainsCaseInsensitivePath:@"logout"] && [url msidContainsPathComponent:@"logout"];
+    return isLogoutRequest;
 }
 
 #pragma mark - MSIDBaseBrokerOperationRequest
