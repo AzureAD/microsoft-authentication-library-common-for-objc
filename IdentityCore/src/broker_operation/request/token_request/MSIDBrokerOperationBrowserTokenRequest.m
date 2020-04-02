@@ -42,7 +42,7 @@
         {
             if (error)
             {
-               NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request due to invalid request url %@",requestURL];
+               NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request due to invalid request url %@",_PII_NULLIFY(requestURL)];
                *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
             }
                   
@@ -55,7 +55,7 @@
         {
             if (error)
             {
-                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not authorize request", [requestURL absoluteString]];
+                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not authorize request", _PII_NULLIFY([requestURL absoluteString])];
                 *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
             }
                    

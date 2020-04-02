@@ -25,13 +25,12 @@
 
 @implementation MSIDBrokerBrowserOperationResponse
 
-- (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(NSData *)httpBody
+- (instancetype)initWithURLResponse:(MSIDUrlResponse *)urlResponse
 {
     self = [super init];
     if (self)
     {
-        _httpResponse = httpResponse;
-        _httpBody = httpBody;
+        _urlResponse = urlResponse;
     }
     
     return self;
@@ -40,7 +39,7 @@
 - (void)handleResponse:(__unused NSURL *)url completeRequestBlock:(void (^)(NSHTTPURLResponse *, NSData *))completeRequestBlock
             errorBlock:(__unused void (^)(NSError *))errorBlock
 {
-    completeRequestBlock(self.httpResponse, self.httpBody);
+    completeRequestBlock(self.urlResponse.response, self.urlResponse.body);
 }
 
 - (void)handleError:(__unused NSError *)error errorBlock:(__unused void(^)(NSError *))errorBlock

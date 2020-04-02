@@ -81,6 +81,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         if (!responseObject)
         {
             [self.cache removeCachedResponseForRequest:self.urlRequest];
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Removing invalid response from cache %@, response: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(response.response));
         }
         else
         {
@@ -158,13 +159,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 
 - (NSCachedURLResponse *)cachedResponse
 {
-    NSCachedURLResponse *response = [self.cache cachedResponseForRequest:self.urlRequest];
-    if (response)
-    {
-        return response;
-    }
-    
-    return nil;
+    return [self.cache cachedResponseForRequest:self.urlRequest];
 }
 
 -(void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
