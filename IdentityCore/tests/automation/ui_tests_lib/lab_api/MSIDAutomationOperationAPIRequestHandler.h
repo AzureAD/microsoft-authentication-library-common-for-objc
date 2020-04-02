@@ -31,7 +31,16 @@
 
 @end
 
+@protocol MSIDAutomationOperationAPICacheHandler <NSObject>
+
+- (id)cachedResponseForRequest:(id)request;
+- (void)cacheResponse:(id)response forRequest:(id)request;
+
+@end
+
 @interface MSIDAutomationOperationAPIRequestHandler : NSObject
+
+@property (nonatomic) id<MSIDAutomationOperationAPICacheHandler> apiCacheHandler;
 
 - (instancetype)initWithAPIPath:(NSString *)apiPath
       operationAPIConfiguration:(NSDictionary *)operationAPIConfiguration;

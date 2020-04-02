@@ -34,7 +34,7 @@
     if (!httpResponse)
     {
         NSError *localError = MSIDCreateError(MSIDErrorDomain,
-                                              MSIDErrorAuthorizationFailed,
+                                              MSIDErrorServerInvalidResponse,
                                               nil,
                                               nil,
                                               nil,

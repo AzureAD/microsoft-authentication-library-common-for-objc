@@ -21,16 +21,42 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAutomationBaseApiRequest.h"
+#import "MSIDAutomationOperationAPIInMemoryCacheHandler.h"
+#import "MSIDCache.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDAutomationOperationAPIInMemoryCacheHandler()
 
-@interface MSIDAutomationResetAPIRequest : MSIDAutomationBaseApiRequest
-
-@property (nonatomic) NSString *apiOperation;
-@property (nonatomic) NSString *userUPN;
+@property (nonatomic) MSIDCache *cache;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@implementation MSIDAutomationOperationAPIInMemoryCacheHandler
+
+- (instancetype)initWithDictionary:(NSDictionary *)cachedDictionary
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _cache = [MSIDCache new];
+        
+        for (id dictKey in [cachedDictionary allKeys])
+        {
+            [_cache setObject:cachedDictionary[dictKey] forKey:dictKey];
+        }
+    }
+    
+    return self;
+}
+
+- (id)cachedResponseForRequest:(id)request
+{
+    return [self.cache objectForKey:request];
+}
+
+- (void)cacheResponse:(id)response forRequest:(id)request
+{
+    [self.cache setObject:response forKey:request];
+}
+
+@end

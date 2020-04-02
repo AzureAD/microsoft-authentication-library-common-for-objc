@@ -22,19 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationConfigurationRequest.h"
-#import "MSIDTestAutomationConfiguration.h"
 #import "MSIDAutomationTestRequest.h"
-#import "MSIDAutomationUserAPIRequestHandler.h"
 #import "MSIDAutomationOperationAPIRequestHandler.h"
 #import "MSIDAutomationPasswordRequestHandler.h"
+#import "MSIDTestAutomationAppConfigurationRequest.h"
+
+@class MSIDTestAutomationApplication;
 
 @interface MSIDTestConfigurationProvider : NSObject
 
 @property (nonatomic, strong) NSString *wwEnvironment;
 @property (nonatomic) int stressTestInterval;
 
-@property (nonatomic, readonly) MSIDAutomationUserAPIRequestHandler *userAPIRequestHandler;
 @property (nonatomic, readonly) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
 @property (nonatomic, readonly) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;
 
@@ -42,27 +41,15 @@
 
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
 
-// Default configuration
-- (MSIDAutomationTestRequest *)defaultFociRequestWithBroker;
-- (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker;
-- (MSIDAutomationTestRequest *)sharepointFociRequestWithBroker;
-- (MSIDAutomationTestRequest *)outlookFociRequestWithBroker;
+- (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
+                                  targetTenantId:(NSString *)targetTenantId;
 
-- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest:(NSString *)environment
-                                              targetTenantId:(NSString *)targetTenantId;
-
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequestWithTenantId:(NSString *)targetTenantId;
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
-                                           targetTenantId:(NSString *)targetTenantId;
-
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
-                                           targetTenantId:(NSString *)targetTenantId
-                                            brokerEnabled:(BOOL)brokerEnabled;
-
-- (MSIDAutomationTestRequest *)defaultAppRequest;
-- (MSIDAutomationTestRequest *)defaultInstanceAwareAppRequest;
+- (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
+                                  targetTenantId:(NSString *)targetTenantId
+                                   brokerEnabled:(BOOL)brokerEnabled;
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
+
 // Environment configuration
 - (NSString *)defaultEnvironmentForIdentifier:(NSString *)environmentIDentifier;
 - (NSString *)defaultAuthorityForIdentifier:(NSString *)environmentIdentifier;
@@ -72,8 +59,7 @@
                                  policy:(NSString *)policy;
 // Fill default params
 - (MSIDAutomationTestRequest *)fillDefaultRequestParams:(MSIDAutomationTestRequest *)request
-                                                 config:(MSIDTestAutomationConfiguration *)configuration
-                                                account:(MSIDTestAccount *)account;
+                                              appConfig:(MSIDTestAutomationApplication *)appConfig;
 
 - (NSString *)oidcScopes;
 - (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type;

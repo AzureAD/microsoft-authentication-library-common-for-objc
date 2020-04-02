@@ -29,6 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAutomationAccountsResult : MSIDAutomationTestResult
 
 @property (nonatomic) NSArray<MSIDAutomationUserInformation *> *accounts;
+@property (nonatomic) MSIDAutomationUserInformation *previousAccount;
 
 - (instancetype)initWithAction:(NSString *)actionId
                       accounts:(NSArray<MSIDAutomationUserInformation *> *)accounts

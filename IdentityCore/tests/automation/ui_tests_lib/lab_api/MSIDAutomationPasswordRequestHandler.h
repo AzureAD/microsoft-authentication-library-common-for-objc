@@ -22,11 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDTestAutomationAccount.h"
 
 @interface MSIDAutomationPasswordRequestHandler : NSObject
 
-- (void)loadPasswordForAccount:(MSIDTestAccount *)account
-             completionHandler:(void (^)(NSString *password, NSError *error))completionHandler;
+- (void)loadPasswordForTestAccount:(MSIDTestAutomationAccount *)account
+                 completionHandler:(void (^)(NSString *password, NSError *error))completionHandler;
 
 @end

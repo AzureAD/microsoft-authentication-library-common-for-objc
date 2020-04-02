@@ -22,15 +22,28 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationBaseApiRequest.h"
+#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationResetAPIRequest : MSIDAutomationBaseApiRequest
+@interface MSIDTestAutomationApplication : NSObject <MSIDJsonSerializable>
 
-@property (nonatomic) NSString *apiOperation;
-@property (nonatomic) NSString *userUPN;
+@property (nonatomic, readonly) NSString *appId;
+@property (nonatomic, readonly) NSString *objectId;
+@property (nonatomic, readonly) BOOL multiTenantApp;
+@property (nonatomic, readonly) NSString *labName;
+@property (nonatomic, readonly) NSOrderedSet *redirectUris;
+@property (nonatomic, readonly) NSOrderedSet *defaultScopes;
+@property (nonatomic, readonly) NSString *defaultRedirectUri;
+@property (nonatomic, readonly) NSOrderedSet *defaultAuthorities;
+@property (nonatomic, readonly) NSDictionary *b2cAuthorities;
+
+// Writable properties
+@property (nonatomic) NSString *redirectUriPrefix;
+
+- (NSString *)b2cAuthorityForPolicy:(NSString *)policy tenantId:(nullable NSString *)tenantId;
 
 @end
 
 NS_ASSUME_NONNULL_END
+

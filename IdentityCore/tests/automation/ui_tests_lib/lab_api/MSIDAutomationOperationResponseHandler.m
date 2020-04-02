@@ -21,30 +21,62 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAutomationTemporaryAccountResponseHandler.h"
+#import "MSIDAutomationOperationResponseHandler.h"
+#import "MSIDJsonSerializable.h"
 #import "MSIDTestAutomationAccount.h"
 
-@implementation MSIDAutomationTemporaryAccountResponseHandler
+@interface MSIDAutomationOperationResponseHandler()
+
+@property (nonatomic) Class className;
+
+@end
+
+@implementation MSIDAutomationOperationResponseHandler
+
+- (instancetype)initWithClass:(Class<MSIDJsonSerializable>)className
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _className = className;
+        
+        if (![className conformsToProtocol:@protocol(MSIDJsonSerializable)])
+        {
+            return nil;
+        }
+    }
+    
+    return self;
+}
 
 - (id)responseFromData:(NSData *)response
                  error:(NSError **)error
 {
-    NSDictionary *jsonDictionary = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
-    if (!jsonDictionary)
+    id jsonResponse = [NSJSONSerialization JSONObjectWithData:response options:0 error:error];
+    if (!jsonResponse)
     {
         return nil;
     }
     
-    NSArray *accountsArray = jsonDictionary[@"success"];
+    NSMutableArray *resultArray = [NSMutableArray new];
     
-    if (!accountsArray || ![accountsArray count])
+    if ([jsonResponse isKindOfClass:[NSDictionary class]])
     {
-        return nil;
+        id result = [[self.className alloc] initWithJSONDictionary:jsonResponse error:nil];
+        if (result) [resultArray addObject:result];
     }
     
-    MSIDTestAutomationAccount *testAccount = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:accountsArray[0] error:nil];
-    testAccount.password = nil;
-    return testAccount;
+    if ([jsonResponse isKindOfClass:[NSArray class]])
+    {
+        for (NSDictionary *responseDict in (NSArray *)jsonResponse)
+        {
+            id result = [[self.className alloc] initWithJSONDictionary:responseDict error:nil];
+            if (result) [resultArray addObject:result];
+        }
+    }
+    
+    return resultArray;
 }
 
 @end

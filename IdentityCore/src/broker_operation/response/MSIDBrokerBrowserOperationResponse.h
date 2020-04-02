@@ -23,16 +23,15 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDBrokerOperationResponse.h"
+#import "MSIDUrlResponse.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerBrowserOperationResponse : MSIDBrokerOperationResponse
 
-@property (nonatomic, nullable, readonly) NSHTTPURLResponse *httpResponse;
-@property (nonatomic, nullable, readonly) NSData *httpBody;
-@property (nonatomic, nullable, readonly) NSError *httpError;
+@property (nonatomic, nullable, readonly) MSIDUrlResponse *urlResponse;
 
-- (instancetype)initWithURLResponse:(NSHTTPURLResponse *)httpResponse body:(nullable NSData *)httpBody;
+- (instancetype)initWithURLResponse:(MSIDUrlResponse *)urlResponse;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

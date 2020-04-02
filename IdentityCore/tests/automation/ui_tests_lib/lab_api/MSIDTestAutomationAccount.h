@@ -22,14 +22,27 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationBaseApiRequest.h"
+#import "MSIDJsonSerializable.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationResetAPIRequest : MSIDAutomationBaseApiRequest
+@interface MSIDTestAutomationAccount : NSObject <MSIDJsonSerializable>
 
-@property (nonatomic) NSString *apiOperation;
-@property (nonatomic) NSString *userUPN;
+@property (nonatomic, readonly) NSString *objectId;
+@property (nonatomic, readonly) NSString *userType;
+@property (nonatomic, readonly) NSString *upn;
+@property (nonatomic, readonly) NSString *domainUsername;
+@property (nonatomic, readonly) NSString *keyvaultName;
+@property (nonatomic, readonly) NSString *homeObjectId;
+@property (nonatomic, readonly) NSString *targetTenantId;
+@property (nonatomic, readonly) NSString *homeTenantId;
+@property (nonatomic, readonly) NSString *tenantName;
+@property (nonatomic, readonly) NSString *homeTenantName;
+@property (nonatomic, readonly) NSString *homeAccountId;
+@property (nonatomic, readonly) BOOL isHomeAccount;
+
+// Writable properties
+@property (nonatomic, nullable) NSString *password;
 
 @end
 
