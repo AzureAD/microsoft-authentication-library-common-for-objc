@@ -21,20 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
-
-@class MSIDTokenResponse;
-@class MSIDAuthority;
+#import <Foundation/Foundation.h>
+#import "MSIDBaseBrokerOperationRequest.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerNativeAppOperationResponse
+@class MSIDAADAuthority;
 
-@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
+@interface MSIDBrokerOperationBrowserTokenRequest : MSIDBaseBrokerOperationRequest
 
-@property (nonatomic, nullable) MSIDAuthority *authority;
+@property (nonatomic, readonly) NSURL *requestURL;
+@property (nonatomic, readonly) NSString *bundleIdentifier;
+@property (nonatomic, readonly) MSIDAADAuthority *authority;
+@property (nonatomic, readonly) NSDictionary *headers;
+@property (nonatomic, readonly) NSUUID *correlationId;
 
-@property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
+- (instancetype)initWithRequest:(NSURL *)requestURL
+                        headers:(NSDictionary *)headers
+               bundleIdentifier:(NSString *)bundleIdentifier
+                          error:(NSError **)error;
 
 @end
 

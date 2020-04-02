@@ -21,21 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+#import "MSIDBrokerBrowserOperationResponse.h"
 
-@class MSIDTokenResponse;
-@class MSIDAuthority;
+@implementation MSIDBrokerBrowserOperationResponse
 
-NS_ASSUME_NONNULL_BEGIN
+- (instancetype)initWithURLResponse:(MSIDUrlResponse *)urlResponse
+{
+    self = [super init];
+    if (self)
+    {
+        _urlResponse = urlResponse;
+    }
+    
+    return self;
+}
 
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerNativeAppOperationResponse
+- (void)handleResponse:(__unused NSURL *)url completeRequestBlock:(void (^)(NSHTTPURLResponse *, NSData *))completeRequestBlock
+            errorBlock:(__unused void (^)(NSError *))errorBlock
+{
+    completeRequestBlock(self.urlResponse.response, self.urlResponse.body);
+}
 
-@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
-
-@property (nonatomic, nullable) MSIDAuthority *authority;
-
-@property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
+- (void)handleError:(__unused NSError *)error errorBlock:(__unused void(^)(NSError *))errorBlock
+   doNotHandleBlock:(void (^)(void))doNotHandleBlock
+{
+    doNotHandleBlock();
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

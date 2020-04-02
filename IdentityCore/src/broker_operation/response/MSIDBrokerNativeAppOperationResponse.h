@@ -21,20 +21,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+#import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
+#import "MSIDBrokerOperationResponse.h"
 
-@class MSIDTokenResponse;
-@class MSIDAuthority;
+@class MSIDDeviceInfo;
+
+extern NSString * _Nonnull const MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerNativeAppOperationResponse
+@interface MSIDBrokerNativeAppOperationResponse : MSIDBrokerOperationResponse <MSIDJsonSerializable>
 
-@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
+@property (nonatomic, class, readonly) NSString *responseType;
+@property (nonatomic) BOOL success;
+@property (nonatomic, nullable) NSString *clientAppVersion;
 
-@property (nonatomic, nullable) MSIDAuthority *authority;
+@property (nonatomic) MSIDDeviceInfo *deviceInfo;
 
-@property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
+@property (nonatomic) NSNumber *httpStatusCode;
+@property (nonatomic, nullable) NSDictionary *httpHeaders;
+@property (nonatomic) NSString *httpVersion;
+
+- (instancetype)initWithDeviceInfo:(MSIDDeviceInfo *)deviceInfo;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
 
 @end
 

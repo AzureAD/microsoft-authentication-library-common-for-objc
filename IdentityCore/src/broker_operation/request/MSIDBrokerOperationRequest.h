@@ -23,13 +23,13 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDJsonSerializable.h"
+#import "MSIDBaseBrokerOperationRequest.h"
 #import "MSIDClientSDKType.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationRequest : NSObject <MSIDJsonSerializable>
+@interface MSIDBrokerOperationRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>
 
-@property (nonatomic, class, readonly) NSString *operation;
 @property (nonatomic, nullable) NSString *brokerKey;
 @property (nonatomic) NSInteger protocolVersion;
 @property (nonatomic, nullable) NSString *clientVersion;

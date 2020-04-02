@@ -99,4 +99,8 @@
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error;
 
+- (NSArray<MSIDPrimaryRefreshToken *> *)getPrimaryRefreshTokensForConfiguration:(MSIDConfiguration *)configuration
+                                                                        context:(id<MSIDRequestContext>)context
+                                                                          error:(NSError **)error;
+
 @end

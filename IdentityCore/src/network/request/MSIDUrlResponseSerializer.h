@@ -21,20 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
-
-@class MSIDTokenResponse;
-@class MSIDAuthority;
+#import "MSIDHttpResponseSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerNativeAppOperationResponse
-
-@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
-
-@property (nonatomic, nullable) MSIDAuthority *authority;
-
-@property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
+@interface MSIDUrlResponseSerializer : MSIDHttpResponseSerializer
 
 @end
 

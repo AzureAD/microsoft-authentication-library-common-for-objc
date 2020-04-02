@@ -32,7 +32,7 @@
 #import "MSIDBrokerOperationSignoutFromDeviceRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDBrokerOperationRequest.h"
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDConfiguration.h"
 
 @interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerPresentationContextProviding, ASAuthorizationControllerDelegate>
@@ -72,7 +72,7 @@
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = parameters;
         __weak typeof(self) weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationResponse *operationResponse, NSError *error)
+        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
             if (!operationResponse.success)
             {

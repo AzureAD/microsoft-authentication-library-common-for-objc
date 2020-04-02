@@ -53,6 +53,8 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         _retryCounter = s_retryCount;
         _retryInterval = s_retryInterval;
         _requestTimeoutInterval = s_requestTimeoutInterval;
+        _cache = [NSURLCache sharedURLCache];
+        _shouldCacheResponse = NO;
     }
     
     return self;
@@ -66,7 +68,27 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     requestConfigurator.timeoutInterval = _requestTimeoutInterval;
     [requestConfigurator configure:self];
     
-    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters];
+    self.urlRequest = [self.requestSerializer serializeWithRequest:self.urlRequest parameters:self.parameters headers:self.headers];
+    NSCachedURLResponse *response = _shouldCacheResponse ? [self cachedResponse] : nil;
+    if (response)
+    {
+        NSError *error = nil;
+        id responseObject = [self.responseSerializer responseObjectForResponse:(NSHTTPURLResponse *)response.response
+                                                                          data:response.data
+                                                                       context:self.context
+                                                                         error:&error];
+        
+        if (!responseObject)
+        {
+            [self.cache removeCachedResponseForRequest:self.urlRequest];
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Removing invalid response from cache %@, response: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(response.response));
+        }
+        else
+        {
+            if (completionBlock) { completionBlock(responseObject, error); }
+            return;
+        }
+    }
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
     
@@ -95,6 +117,12 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               id responseObject = [self.responseSerializer responseObjectForResponse:httpResponse data:data context:self.context error:&error];
               
               MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
+              
+              if (responseObject && _shouldCacheResponse)
+              {
+                  NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:response data:data];
+                  [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
+              }
               
               if (completionBlock) { completionBlock(responseObject, error); }
           }
@@ -128,5 +156,15 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
 + (void)setRetryIntervalSetting:(NSTimeInterval)retryIntervalSetting { s_retryInterval = retryIntervalSetting; }
 + (void)setRequestTimeoutInterval:(NSTimeInterval)requestTimeoutInterval { s_requestTimeoutInterval = requestTimeoutInterval; }
 + (NSTimeInterval)requestTimeoutInterval { return s_requestTimeoutInterval; }
+
+- (NSCachedURLResponse *)cachedResponse
+{
+    return [self.cache cachedResponseForRequest:self.urlRequest];
+}
+
+-(void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
+{
+   [self.cache storeCachedResponse:cachedResponse forRequest:request];
+}
 
 @end

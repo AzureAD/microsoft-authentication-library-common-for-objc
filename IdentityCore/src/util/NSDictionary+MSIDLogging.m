@@ -21,21 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBrokerNativeAppOperationResponse.h"
+#import "NSDictionary+MSIDLogging.h"
 
-@class MSIDTokenResponse;
-@class MSIDAuthority;
+@implementation NSDictionary (MSIDLogging)
 
-NS_ASSUME_NONNULL_BEGIN
++ (NSArray *)msidSecretRequestKeys
+{
+    static NSArray *s_blackListedKeys = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        s_blackListedKeys = @[@"broker_key", @"application_token"];
+    });
+    
+    return s_blackListedKeys;
+}
 
-@interface MSIDBrokerOperationTokenResponse : MSIDBrokerNativeAppOperationResponse
-
-@property (nonatomic, nullable) MSIDTokenResponse *tokenResponse;
-
-@property (nonatomic, nullable) MSIDAuthority *authority;
-
-@property (nonatomic, nullable) MSIDTokenResponse *additionalTokenResponse;
+- (NSDictionary *)msidMaskedRequestDictionary
+{
+    NSMutableDictionary *mutableRequestDict = [self mutableCopy];
+    [mutableRequestDict removeObjectsForKeys:[[self class] msidSecretRequestKeys]];
+    return mutableRequestDict;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
