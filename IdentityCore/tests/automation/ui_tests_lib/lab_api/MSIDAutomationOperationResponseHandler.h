@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDAutomationBaseApiRequest.h"
+#import "MSIDJsonSerializable.h"
+#import "MSIDAutomationOperationAPIRequestHandler.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationResetAPIRequest : MSIDAutomationBaseApiRequest
+@interface MSIDAutomationOperationResponseHandler : NSObject <MSIDAutomationOperationAPIResponseHandler>
 
-@property (nonatomic) NSString *apiOperation;
-@property (nonatomic) NSString *userUPN;
+- (instancetype)initWithClass:(Class<MSIDJsonSerializable>)className;
 
 @end
 

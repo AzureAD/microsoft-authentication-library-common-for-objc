@@ -26,10 +26,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationResetAPIRequest : MSIDAutomationBaseApiRequest
+@interface MSIDAutomationDeleteDeviceAPIRequest : MSIDAutomationBaseApiRequest
 
-@property (nonatomic) NSString *apiOperation;
 @property (nonatomic) NSString *userUPN;
+@property (nonatomic) NSString *deviceGUID;
 
 @end
 
