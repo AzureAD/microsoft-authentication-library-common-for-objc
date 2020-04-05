@@ -1,0 +1,1 @@
+..//cache/serializers/MSIDExtendedCacheItemSerializing.h

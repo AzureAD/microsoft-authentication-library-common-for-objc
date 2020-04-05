@@ -5068,6 +5068,7 @@
 				D626FF571FBA6E9500EE4487 /* Sources */,
 				D626FF581FBA6E9500EE4487 /* Frameworks */,
 				D626FF591FBA6E9500EE4487 /* Headers */,
+				B2432CCD243AA3A6002B0D4C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -5138,6 +5139,7 @@
 				D68FB4831FBA698A005308BB /* Sources */,
 				D68FB4841FBA698A005308BB /* Frameworks */,
 				D68FB4851FBA698A005308BB /* CopyFiles */,
+				B2432CCB243AA2FC002B0D4C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -5266,6 +5268,43 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B2432CCB243AA2FC002B0D4C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd src\nrm -r public\nmkdir public\ncd public\n\nfind ../ -type f -name \"*.h\" -maxdepth 10 -print0 | while read -d $'\\0' file\ndo\n    ln -s $file $basename\ndone\n";
+		};
+		B2432CCD243AA3A6002B0D4C /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd src\nrm -r public\nmkdir public\ncd public\n\nfind ../ -type f -name \"*.h\" -maxdepth 10 -print0 | while read -d $'\\0' file\ndo\n    ln -s $file $basename\ndone\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		231CE9991FE86EA300E95D3E /* Sources */ = {

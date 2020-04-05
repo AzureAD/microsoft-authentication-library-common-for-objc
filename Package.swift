@@ -91,12 +91,6 @@ let macOSExcludedFolders = [    "src/util/ios",
                                 "src/webview/background/ios",
                                 "src/webview/embeddedWebview/ui/ios"]
 
-#if os(iOS)
-
-#else
-
-#endif
-
 let package = Package(
     name: "IdentityCore",
     platforms: [.iOS(.v10)],
@@ -107,8 +101,9 @@ let package = Package(
         .target(
             name: "IdentityCore",
             path: "IdentityCore",
+            exclude: ["public"],
             sources: ["src"],
-            publicHeadersPath: "src",
+            publicHeadersPath: "public",
             cSettings: crossPlatHeaders
         )
     ]
