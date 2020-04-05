@@ -101,9 +101,9 @@ let package = Package(
         .target(
             name: "IdentityCore",
             path: "IdentityCore",
-            exclude: ["src/public"],
+            exclude: ["public"],
             sources: ["src"],
-            publicHeadersPath: "public",
+            publicHeadersPath: "src/public",
             cSettings: crossPlatHeaders
         )
     ]
