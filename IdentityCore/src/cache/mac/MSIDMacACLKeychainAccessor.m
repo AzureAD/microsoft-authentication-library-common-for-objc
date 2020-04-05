@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_OSX
 #import "MSIDMacACLKeychainAccessor.h"
 #import "MSIDLogger+Trace.h"
 #import "MSIDLogger+Internal.h"
@@ -343,3 +344,4 @@ static dispatch_queue_t s_synchronizationQueue;
 }
 
 @end
+#endif

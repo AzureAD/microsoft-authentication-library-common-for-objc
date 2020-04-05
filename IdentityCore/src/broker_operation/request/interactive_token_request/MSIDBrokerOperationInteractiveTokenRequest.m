@@ -29,6 +29,9 @@
 #import "MSIDPromptType_Internal.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDBrokerOperationInteractiveTokenRequest
 

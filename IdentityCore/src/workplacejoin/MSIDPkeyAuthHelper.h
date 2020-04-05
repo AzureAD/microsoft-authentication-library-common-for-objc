@@ -24,6 +24,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRegistrationInformation.h"
 
+@protocol MSIDRequestContext;
+
 @interface MSIDPkeyAuthHelper : NSObject
 
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer

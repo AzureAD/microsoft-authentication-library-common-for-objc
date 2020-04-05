@@ -27,6 +27,9 @@
 
 #import "MSIDWebviewResponse.h"
 #import "NSURL+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDWebviewResponse
 

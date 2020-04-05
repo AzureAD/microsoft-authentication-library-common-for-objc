@@ -24,6 +24,9 @@
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDAuthority.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 #define MSID_INTUNE_RESOURCE_ID @"intune_mam_resource_V"
 #define MSID_INTUNE_RESOURCE_ID_VERSION @"1"

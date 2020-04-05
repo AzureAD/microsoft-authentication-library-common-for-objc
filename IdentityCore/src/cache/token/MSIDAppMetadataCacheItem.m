@@ -25,6 +25,10 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDAppMetadataCacheKey.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @interface MSIDAppMetadataCacheItem()
 
 @property (readwrite) NSDictionary *json;

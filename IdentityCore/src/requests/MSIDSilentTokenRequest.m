@@ -38,6 +38,9 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponseHandler.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"

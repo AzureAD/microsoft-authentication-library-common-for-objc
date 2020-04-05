@@ -25,6 +25,7 @@
 
 @class MSIDTelemetryCacheEvent;
 @class MSIDBaseToken;
+@protocol MSIDRequestContext;
 
 @interface MSIDTelemetry (Cache)
 

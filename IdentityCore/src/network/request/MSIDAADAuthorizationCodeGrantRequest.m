@@ -23,6 +23,9 @@
 
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDAADAuthorizationCodeGrantRequest
 

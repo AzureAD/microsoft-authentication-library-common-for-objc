@@ -28,6 +28,9 @@
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDRequestParameters.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 static const NSString *AccountMetadataURLMapKey = @"URLMap";
 

@@ -46,6 +46,9 @@
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDOauth2Factory
 

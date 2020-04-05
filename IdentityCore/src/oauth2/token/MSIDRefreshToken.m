@@ -24,6 +24,9 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAADTokenResponse.h"
 #import "MSIDUserInformation.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDRefreshToken
 

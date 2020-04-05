@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_OSX
+
 #import "MSIDKeychainUtil.h"
 #import "MSIDKeychainUtil+Internal.h"
 #import "MSIDKeychainUtil+MacInternal.h"
@@ -137,3 +139,4 @@ static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
 }
 
 @end
+#endif

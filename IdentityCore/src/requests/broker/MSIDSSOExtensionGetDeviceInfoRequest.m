@@ -31,6 +31,9 @@
 #import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDBrokerOperationGetDeviceInfoRequest.h"
 #import "MSIDDeviceInfo.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDSSOExtensionGetDeviceInfoRequest()
 

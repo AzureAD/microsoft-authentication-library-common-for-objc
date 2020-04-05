@@ -22,6 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV1RefreshTokenGrantRequest.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDAADV1RefreshTokenGrantRequest
 

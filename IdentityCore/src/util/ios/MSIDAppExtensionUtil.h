@@ -21,7 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_IPHONE
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 /// Collection of utilities to execute methods normally marked as non-application-extension safe. This allows us to produce a single framework that can be marked as application-extension-safe while still exercising capabilites when linked against a main app executable.
 @interface MSIDAppExtensionUtil : NSObject
@@ -44,3 +46,4 @@
                completionHandler:(void (^ __nullable)(BOOL success))completionHandler;
 
 @end
+#endif

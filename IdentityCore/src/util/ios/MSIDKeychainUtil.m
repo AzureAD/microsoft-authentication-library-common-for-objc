@@ -23,6 +23,9 @@
 
 #import "MSIDKeychainUtil.h"
 #import "MSIDKeychainUtil+Internal.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDKeychainUtil
 

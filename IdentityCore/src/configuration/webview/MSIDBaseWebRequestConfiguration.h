@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDWebviewResponse;
 @class MSIDWebviewFactory;
+@protocol MSIDRequestContext;
 
 @interface MSIDBaseWebRequestConfiguration : NSObject
 

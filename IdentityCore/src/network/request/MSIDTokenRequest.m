@@ -22,6 +22,9 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenRequest.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDTokenRequest
 

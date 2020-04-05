@@ -27,6 +27,9 @@
 
 
 #import "MSIDURLFormObject.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDURLFormObject
 

@@ -30,6 +30,10 @@
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 #define CURRENT_WRAPPER_CACHE_VERSION 1.0
 
 #define RETURN_ERROR_IF_CONDITION_FALSE(_cond, _code, _details) { \

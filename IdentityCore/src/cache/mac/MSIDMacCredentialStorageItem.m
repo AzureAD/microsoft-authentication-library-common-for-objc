@@ -24,6 +24,9 @@
 
 #import "MSIDMacCredentialStorageItem.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 static NSString *keyDelimiter = @"-";
 

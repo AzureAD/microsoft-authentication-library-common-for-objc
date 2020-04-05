@@ -23,6 +23,9 @@
 
 #import "MSIDBrokerInvocationOptions.h"
 #import "MSIDConstants.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #endif

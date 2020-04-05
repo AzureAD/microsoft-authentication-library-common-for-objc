@@ -37,6 +37,10 @@
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "MSIDJsonObject.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;

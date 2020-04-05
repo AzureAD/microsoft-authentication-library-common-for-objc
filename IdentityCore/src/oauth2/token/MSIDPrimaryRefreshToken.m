@@ -27,6 +27,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAuthority.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDPrimaryRefreshToken
 

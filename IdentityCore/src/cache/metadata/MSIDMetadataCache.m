@@ -30,6 +30,10 @@
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDAccountMetadataCacheItem.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDMetadataCache
 {
     NSMutableDictionary *_memoryCache;

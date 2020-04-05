@@ -25,6 +25,9 @@
 #import "MSIDNTLMHandler.h"
 #import "MSIDChallengeHandler.h"
 #import "MSIDNTLMUIPrompt.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDNTLMHandler
 

@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_OSX
+
 #import "MSIDNegotiateHandler.h"
 #import "MSIDChallengeHandler.h"
 #include <GSS/GSS.h>
@@ -142,3 +144,4 @@ static void releaseName(gss_name_t *name)
 }
 
 @end
+#endif

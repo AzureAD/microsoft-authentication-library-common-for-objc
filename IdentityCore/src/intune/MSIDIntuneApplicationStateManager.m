@@ -24,6 +24,9 @@
 #import "MSIDIntuneApplicationStateManager.h"
 #import "MSIDAuthority.h"
 #import "MSIDIntuneMAMResourcesCache.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDIntuneApplicationStateManager
 

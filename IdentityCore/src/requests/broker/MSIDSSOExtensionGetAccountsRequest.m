@@ -33,6 +33,9 @@
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDBrokerOperationGetAccountsResponse.h"
 #import "MSIDDeviceInfo.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDSSOExtensionGetAccountsRequest()
 

@@ -26,6 +26,9 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDWebAADAuthCodeResponse.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDWebAADAuthCodeResponse
 

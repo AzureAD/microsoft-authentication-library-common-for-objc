@@ -24,6 +24,10 @@
 #import "MSIDIndividualClaimRequest.h"
 #import "MSIDIndividualClaimRequestAdditionalInfo.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDIndividualClaimRequest
 
 - (instancetype)initWithName:(NSString *)name

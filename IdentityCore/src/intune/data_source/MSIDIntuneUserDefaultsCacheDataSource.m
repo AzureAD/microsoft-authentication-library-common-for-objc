@@ -24,6 +24,9 @@
 #import "MSIDIntuneUserDefaultsCacheDataSource.h"
 #import "MSIDJsonSerializer.h"
 #import "NSDictionary+MSIDJsonSerializable.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDIntuneUserDefaultsCacheDataSource ()
 

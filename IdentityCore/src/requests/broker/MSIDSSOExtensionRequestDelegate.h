@@ -25,6 +25,8 @@
 #import <Foundation/Foundation.h>
 #import <AuthenticationServices/AuthenticationServices.h>
 
+@protocol MSIDRequestContext;
+
 typedef void (^MSIDSSOExtensionRequestDelegateCompletionBlock)(_Nullable id response, NSError  * _Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN

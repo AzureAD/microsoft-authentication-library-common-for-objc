@@ -22,9 +22,16 @@
 // THE SOFTWARE.
 
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
+
+#if MSID_ENABLE_SSO_EXTENSION
+
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
+#import <AuthenticationServices/AuthenticationServices.h>
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDSSOExtensionOperationRequestDelegate
 
@@ -60,3 +67,5 @@
 }
 
 @end
+
+#endif

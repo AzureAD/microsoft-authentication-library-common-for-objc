@@ -9,6 +9,9 @@
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "NSString+MSIDTelemetryExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDAADJsonResponsePreprocessor
 

@@ -23,6 +23,9 @@
 
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 NSString *const MSID_INTUNE_ENROLLMENT_ID_ARRAY = @"enrollment_ids";
 NSString *const MSID_INTUNE_USER_ID = @"user_id";

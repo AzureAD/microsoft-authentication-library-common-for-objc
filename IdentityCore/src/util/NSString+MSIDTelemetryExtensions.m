@@ -24,6 +24,9 @@
 #import "NSString+MSIDTelemetryExtensions.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDVersion.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 #define MSID_CLIENT_TELEMETRY_VERSION_NUMBER @"1"
 

@@ -30,6 +30,9 @@
 #import "MSIDBrokerConstants.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 NSString *const MSID_SIGNOUT_FROM_BROWSER_KEY = @"signout_from_browser";
 

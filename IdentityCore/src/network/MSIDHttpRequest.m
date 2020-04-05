@@ -31,6 +31,9 @@
 #import "MSIDURLSessionManager.h"
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDOAuthRequestConfigurator.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;

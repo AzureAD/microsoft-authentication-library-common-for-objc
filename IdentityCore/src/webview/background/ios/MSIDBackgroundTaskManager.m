@@ -25,9 +25,14 @@
 //
 //------------------------------------------------------------------------------
 
+#if TARGET_OS_IPHONE
+
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDCache.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDBackgroundTaskManager()
 
@@ -117,3 +122,4 @@
 }
 
 @end
+#endif

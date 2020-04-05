@@ -34,6 +34,9 @@
 #import "MSIDBrokerOperationRequest.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDConfiguration.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDSSOExtensionSignoutRequest() <ASAuthorizationControllerPresentationContextProviding, ASAuthorizationControllerDelegate>
 

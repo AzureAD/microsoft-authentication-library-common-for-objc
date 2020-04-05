@@ -24,6 +24,9 @@
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDHelpers.h"
 #import "NSURL+MSIDAADUtils.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 //A special attribute to write, instead of nil/empty one.
 NSString *const MSID_LEGACY_CACHE_NIL_KEY = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";

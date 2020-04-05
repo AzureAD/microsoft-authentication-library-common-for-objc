@@ -24,6 +24,9 @@
 #import "NSURL+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation NSURL (MSIDExtensions)      
 

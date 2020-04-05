@@ -23,6 +23,10 @@
 
 #import "MSIDAccountCacheItem+MSIDAccountMatchers.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDAccountCacheItem (MSIDAccountMatchers)
 
 #pragma mark - Query

@@ -33,6 +33,9 @@
 #import "MSIDJsonSerializer.h"
 #import "NSDictionary+MSIDJsonSerializable.h"
 #import "MSIDClaimsRequest.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDBrokerOperationTokenRequest
 

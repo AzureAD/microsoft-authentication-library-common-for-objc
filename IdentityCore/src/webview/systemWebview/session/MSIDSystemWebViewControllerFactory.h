@@ -29,6 +29,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol MSIDRequestContext;
+
 @interface MSIDSystemWebViewControllerFactory : NSObject
 
 + (MSIDWebviewType)availableWebViewTypeWithPreferredType:(MSIDWebviewType)preferredType;

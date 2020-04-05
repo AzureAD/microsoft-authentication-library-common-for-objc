@@ -36,6 +36,8 @@ enum {
 
 #endif
 
+@protocol MSIDRequestContext;
+
 @interface MSIDBrokerKeyProvider : NSObject
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup;

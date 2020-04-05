@@ -26,6 +26,11 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSData+MSIDExtensions.h"
 
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDPRTCacheItem
 
 #pragma mark - NSSecureCoding

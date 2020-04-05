@@ -22,6 +22,10 @@
 // THE SOFTWARE.
 
 #import "MSIDWebOAuth2Response.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDWebOAuth2Response
 

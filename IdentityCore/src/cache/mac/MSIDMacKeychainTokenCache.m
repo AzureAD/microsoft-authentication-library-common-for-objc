@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#if TARGET_OS_OSX
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAccountType.h"
 #import "MSIDCredentialCacheItem.h"
@@ -1125,3 +1126,4 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 }
 
 @end
+#endif

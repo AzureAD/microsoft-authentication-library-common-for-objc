@@ -30,6 +30,9 @@
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDRequestParameters+Broker.h"
 #import "MSIDOIDCSignoutRequest.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDSignoutController()
 

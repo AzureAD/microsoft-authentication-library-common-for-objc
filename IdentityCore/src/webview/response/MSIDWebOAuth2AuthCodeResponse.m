@@ -27,6 +27,10 @@
 
 #import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "NSURL+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDWebOAuth2AuthCodeResponse
 

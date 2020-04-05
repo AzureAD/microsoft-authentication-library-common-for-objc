@@ -25,6 +25,9 @@
 #import <CommonCrypto/CommonDigest.h>
 #import <Security/Security.h>
 #import <Security/SecKey.h>
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation NSData (JWT)
 

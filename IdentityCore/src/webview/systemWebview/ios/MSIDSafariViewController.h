@@ -28,8 +28,9 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDSystemWebviewController.h"
+#import "MSIDWebviewInteracting.h"
 
-@interface MSIDSafariViewController : NSObject<MSIDWebviewInteracting>
+@interface MSIDSafariViewController : NSObject <MSIDWebviewInteracting>
 
 - (instancetype)initWithURL:(NSURL *)url
            parentController:(UIViewController *)parentController

@@ -30,6 +30,7 @@
 #import "MSIDCache.h"
 
 @class MSIDAADAuthority;
+@protocol MSIDRequestContext;
 
 @interface MSIDAadAuthorityCache : MSIDCache
 

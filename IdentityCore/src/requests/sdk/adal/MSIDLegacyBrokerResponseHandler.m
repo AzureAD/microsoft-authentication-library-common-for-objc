@@ -38,6 +38,9 @@
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
 #endif
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDLegacyBrokerResponseHandler
 

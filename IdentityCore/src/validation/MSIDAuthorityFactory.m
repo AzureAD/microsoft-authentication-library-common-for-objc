@@ -27,6 +27,9 @@
 #import "MSIDB2CAuthority.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDAuthorityFactory
 

@@ -27,6 +27,9 @@
 
 #import "MSIDPkce.h"
 #import "NSData+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 #define CHALLENGE_SHA256    @"S256"
 

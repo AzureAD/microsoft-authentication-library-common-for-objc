@@ -25,6 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
+#import <Foundation/Foundation.h>
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDAADV2IdTokenClaims.h"
 #import "MSIDAADV1IdTokenClaims.h"
@@ -37,7 +38,7 @@
 
     NSDictionary *allClaims = [claims jsonDictionary];
     NSString *idTokenVersionClaim = allClaims[@"ver"];
-    CGFloat idTokenVersion = [idTokenVersionClaim floatValue];
+    float idTokenVersion = [idTokenVersionClaim floatValue];
 
     // If version claim is returned, determine ID token version based on the version claim
     if (![NSString msidIsStringNilOrBlank:idTokenVersionClaim])

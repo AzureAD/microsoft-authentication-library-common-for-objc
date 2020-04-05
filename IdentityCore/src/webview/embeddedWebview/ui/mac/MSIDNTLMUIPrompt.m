@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_OSX
+
 #import <AppKit/AppKit.h>
 #import "MSIDNTLMUIPrompt.h"
 #import "MSIDCredentialCollectionController.h"
@@ -88,3 +90,4 @@ __weak static NSAlert *_presentedPrompt = nil;
 }
 
 @end
+#endif

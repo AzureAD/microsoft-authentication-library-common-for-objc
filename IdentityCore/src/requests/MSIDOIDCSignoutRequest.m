@@ -30,6 +30,9 @@
 #import "MSIDWebviewFactory.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDMainThreadUtil.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDOIDCSignoutRequest()
 

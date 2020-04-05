@@ -29,6 +29,9 @@
 #import "MSIDTokenResponse+Internal.h"
 #import "MSIDProviderType.h"
 #import "MSIDConstants.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDTokenResponse
 

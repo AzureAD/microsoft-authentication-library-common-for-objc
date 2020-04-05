@@ -29,6 +29,8 @@
 
 typedef void (^ChallengeCompletionHandler)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential);
 
+@protocol MSIDRequestContext;
+
 @protocol MSIDChallengeHandling
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge

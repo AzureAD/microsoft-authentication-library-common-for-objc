@@ -28,6 +28,9 @@
 #import "NSData+MSIDExtensions.h"
 #import "MSIDConstants.h"
 #import "MSIDKeychainUtil.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDBrokerKeyProvider()
 

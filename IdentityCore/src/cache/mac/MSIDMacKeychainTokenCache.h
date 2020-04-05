@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#if TARGET_OS_OSX
 #import "MSIDExtendedTokenCacheDataSource.h"
 #import "MSIDMacACLKeychainAccessor.h"
 
@@ -75,3 +76,4 @@
 
 
 @end
+#endif

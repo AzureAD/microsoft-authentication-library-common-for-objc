@@ -23,6 +23,10 @@
 
 #import <Foundation/Foundation.h>
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#endif
+
 @interface MSIDNTLMUIPrompt : NSObject
 
 #if TARGET_OS_IPHONE

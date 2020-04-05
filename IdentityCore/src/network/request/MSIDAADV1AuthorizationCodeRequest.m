@@ -21,6 +21,9 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV1AuthorizationCodeRequest.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDAADV1AuthorizationCodeRequest
 

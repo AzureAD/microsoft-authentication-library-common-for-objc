@@ -28,6 +28,7 @@
 #import "MSIDIdTokenClaims.h"
 #import "MSIDHelpers.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDJsonObject.h"
 
 #define ID_TOKEN_SUBJECT             @"sub"
 #define ID_TOKEN_PERFERRED_USERNAME  @"preferred_username"

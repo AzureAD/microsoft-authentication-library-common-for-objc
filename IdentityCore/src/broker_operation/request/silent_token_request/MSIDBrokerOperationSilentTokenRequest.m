@@ -29,6 +29,9 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDJsonSerializableTypes.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 

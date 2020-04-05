@@ -24,6 +24,9 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
 #import "NSURL+MSIDAADUtils.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 static NSString *s_tenantIdPlaceholder = @"{tenantid}";
 

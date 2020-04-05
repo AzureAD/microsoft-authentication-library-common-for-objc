@@ -21,8 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_IPHONE
+
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 static BOOL s_isRunningInCompliantExtension = NO;
 
@@ -103,3 +108,4 @@ static BOOL s_isRunningInCompliantExtension = NO;
 }
 
 @end
+#endif

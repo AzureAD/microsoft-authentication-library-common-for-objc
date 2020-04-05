@@ -24,6 +24,10 @@
 #import "MSIDIndividualClaimRequestAdditionalInfo.h"
 #import "NSDictionary+MSIDExtensions.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 static NSString *const kEssentialJsonParam = @"essential";
 static NSString *const kValueJsonParam = @"value";
 static NSString *const kValuesJsonParam = @"values";

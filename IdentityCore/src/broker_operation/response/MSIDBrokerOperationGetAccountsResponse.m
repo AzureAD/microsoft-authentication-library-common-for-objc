@@ -27,6 +27,9 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDJsonSerializer.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDBrokerOperationGetAccountsResponse
 

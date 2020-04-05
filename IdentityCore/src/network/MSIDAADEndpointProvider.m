@@ -23,6 +23,9 @@
 
 #import "MSIDAADEndpointProvider.h"
 #import "MSIDAADNetworkConfiguration.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDAADEndpointProvider
 

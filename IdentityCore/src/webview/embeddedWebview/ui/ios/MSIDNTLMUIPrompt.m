@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_IPHONE
+
 #import "MSIDNTLMUIPrompt.h"
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
@@ -103,4 +105,4 @@ __weak static UIAlertController *_presentedPrompt = nil;
 }
 
 @end
-
+#endif

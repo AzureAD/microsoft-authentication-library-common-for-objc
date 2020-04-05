@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
@@ -78,3 +79,4 @@
 }
 
 @end
+#endif

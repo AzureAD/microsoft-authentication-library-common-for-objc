@@ -23,6 +23,9 @@
 
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDCacheKey.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 static NSInteger kAuthorityMapMetadataType = 5001;
 

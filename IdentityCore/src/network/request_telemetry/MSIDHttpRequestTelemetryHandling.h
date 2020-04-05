@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol MSIDRequestContext;
+
 @protocol MSIDHttpRequestTelemetryHandling <NSObject>
 
 - (void)sendRequestEventWithId:(NSString *)telemetryRequestId;

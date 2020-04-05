@@ -29,6 +29,10 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDProviderType.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 NSString *const MSID_REDIRECT_URI_JSON_KEY = @"redirect_uri";
 NSString *const MSID_CLIENT_ID_JSON_KEY = @"client_id";
 NSString *const MSID_SCOPE_JSON_KEY = @"scope";

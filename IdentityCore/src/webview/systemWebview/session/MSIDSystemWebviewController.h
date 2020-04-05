@@ -31,6 +31,7 @@
 #import "MSIDConstants.h"
 
 @class MSIDOauth2Factory;
+@protocol MSIDRequestContext;
 
 @interface MSIDSystemWebviewController : NSObject<MSIDWebviewInteracting>
 

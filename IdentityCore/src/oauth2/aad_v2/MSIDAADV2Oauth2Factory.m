@@ -44,6 +44,9 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDAADAuthority.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDAADV2Oauth2Factory
 

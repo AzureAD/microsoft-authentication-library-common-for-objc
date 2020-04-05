@@ -27,6 +27,9 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDAuthority.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDDefaultBrokerTokenRequest
 

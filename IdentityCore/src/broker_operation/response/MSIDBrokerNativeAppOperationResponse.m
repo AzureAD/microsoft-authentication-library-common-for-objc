@@ -35,6 +35,9 @@
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializer.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 NSString *const MSID_BROKER_OPERATION_JSON_KEY = @"operation";
 NSString *const MSID_BROKER_OPERATION_RESULT_JSON_KEY = @"success";

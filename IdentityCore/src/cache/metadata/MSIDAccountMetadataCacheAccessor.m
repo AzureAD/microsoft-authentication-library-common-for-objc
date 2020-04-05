@@ -29,6 +29,10 @@
 #import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheItem.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDAccountMetadataCacheAccessor
 {
     MSIDMetadataCache *_metadataCache;

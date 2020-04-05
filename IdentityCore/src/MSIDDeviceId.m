@@ -25,6 +25,9 @@
 #import "MSIDVersion.h"
 #import "MSIDConstants.h"
 #import "MSIDOAuth2Constants.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 #if !TARGET_OS_IPHONE
 #include <CoreFoundation/CoreFoundation.h>

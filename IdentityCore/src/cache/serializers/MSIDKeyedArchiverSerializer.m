@@ -32,6 +32,10 @@
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDKeyedArchiverSerializer
 {
     // class mapping for maintaining backward compatibility

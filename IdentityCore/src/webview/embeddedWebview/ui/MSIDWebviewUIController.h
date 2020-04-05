@@ -25,6 +25,9 @@
 
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDWebviewUIController :
 #if TARGET_OS_IPHONE

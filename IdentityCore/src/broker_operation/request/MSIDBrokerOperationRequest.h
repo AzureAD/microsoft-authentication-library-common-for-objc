@@ -26,6 +26,8 @@
 #import "MSIDBaseBrokerOperationRequest.h"
 #import "MSIDClientSDKType.h"
 
+@protocol MSIDRequestContext;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationRequest : MSIDBaseBrokerOperationRequest <MSIDJsonSerializable>

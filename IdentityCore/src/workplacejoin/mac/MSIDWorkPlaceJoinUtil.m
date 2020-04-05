@@ -21,10 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_OSX
+
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDRegistrationInformation.h"
+
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 // Convenience macro to release CF objects
 
@@ -159,3 +165,4 @@
 }
 
 @end
+#endif

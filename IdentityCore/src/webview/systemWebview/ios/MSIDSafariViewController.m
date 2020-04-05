@@ -25,7 +25,7 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_SYSTEMWV
+#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
 
 #import "MSIDSafariViewController.h"
 #import "MSIDSystemWebviewController.h"
@@ -34,6 +34,9 @@
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDMainThreadUtil.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 

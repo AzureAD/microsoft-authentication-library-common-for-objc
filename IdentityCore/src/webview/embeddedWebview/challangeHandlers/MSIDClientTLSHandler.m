@@ -25,6 +25,9 @@
 #import "MSIDClientTLSHandler.h"
 #import "MSIDCertAuthHandler.h"
 #import "MSIDWPJChallengeHandler.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDClientTLSHandler
 

@@ -26,6 +26,9 @@
 #import "MSIDAccessToken.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDLegacySilentTokenRequest()
 

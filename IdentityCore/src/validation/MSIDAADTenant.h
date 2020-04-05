@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol MSIDRequestContext;
+
 // See more info here: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-v2-protocols#endpoints
 typedef NS_ENUM(NSInteger, MSIDAADTenantType)
 {

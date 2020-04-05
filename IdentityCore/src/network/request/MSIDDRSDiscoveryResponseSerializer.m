@@ -22,6 +22,9 @@
 
 #import "MSIDDRSDiscoveryResponseSerializer.h"
 #import "MSIDAADJsonResponsePreprocessor.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDDRSDiscoveryResponseSerializer
 

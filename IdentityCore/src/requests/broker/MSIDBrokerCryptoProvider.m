@@ -27,6 +27,9 @@
 #import <CommonCrypto/CommonCrypto.h>
 #import "NSData+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDBrokerCryptoProvider()
 

@@ -22,6 +22,9 @@
 // THE SOFTWARE.
 
 #import "NSURL+MSIDAADUtils.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation NSURL (MSIDAADUtils)
 

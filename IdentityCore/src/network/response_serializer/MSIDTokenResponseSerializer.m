@@ -9,6 +9,9 @@
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDOauth2Factory.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDTokenResponseSerializer()
 

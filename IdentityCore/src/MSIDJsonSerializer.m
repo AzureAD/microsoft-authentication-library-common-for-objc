@@ -28,6 +28,9 @@
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "NSJSONSerialization+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDJsonSerializer
 

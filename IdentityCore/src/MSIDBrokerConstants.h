@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
+
 extern NSString * _Nonnull const MSID_BROKER_RESUME_DICTIONARY_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SYMMETRIC_KEY_TAG;
 extern NSString * _Nonnull const MSID_BROKER_ADAL_SCHEME;

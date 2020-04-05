@@ -23,6 +23,9 @@
 
 
 #import "MSIDAADTenant.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 NSString *const MSIDAADTenantTypeCommonRawValue = @"common";
 NSString *const MSIDAADTenantTypeOrganizationsRawValue = @"organizations";

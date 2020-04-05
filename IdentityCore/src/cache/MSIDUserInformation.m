@@ -26,6 +26,10 @@
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDUserInformation
 
 #pragma mark - NSSecureCoding

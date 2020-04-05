@@ -30,6 +30,9 @@
 #import "MSIDDeviceId.h"
 #import "MSIDConstants.h"
 #import "NSDictionary+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDPKeyAuthHandler
 

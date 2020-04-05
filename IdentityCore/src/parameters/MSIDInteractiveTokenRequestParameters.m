@@ -24,6 +24,9 @@
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDInteractiveTokenRequestParameters
 

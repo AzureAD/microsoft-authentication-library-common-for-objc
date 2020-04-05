@@ -26,6 +26,10 @@
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
+
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
 - (instancetype)initWithInteractiveRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters

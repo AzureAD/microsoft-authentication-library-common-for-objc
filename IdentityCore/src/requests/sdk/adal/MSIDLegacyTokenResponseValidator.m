@@ -29,6 +29,9 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDLegacyTokenResponseValidator
 

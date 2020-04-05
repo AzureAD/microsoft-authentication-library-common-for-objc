@@ -27,6 +27,9 @@
 #import "MSIDTokenResponse.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDDeviceInfo.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDSSOTokenResponseHandler
 

@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_OSX
+
 #import <SecurityInterface/SFChooseIdentityPanel.h>
 #import "MSIDCertificateChooser.h"
 #import "MSIDMainThreadUtil.h"
@@ -118,3 +120,4 @@
 }
 
 @end
+#endif

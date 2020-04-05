@@ -32,6 +32,9 @@
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDRequestParameters+Broker.h"
 #endif
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 #if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDSSOExtensionSignoutController.h"
 #endif

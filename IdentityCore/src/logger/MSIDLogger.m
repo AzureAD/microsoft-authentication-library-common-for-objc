@@ -25,6 +25,9 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDVersion.h"
 #import "MSIDDeviceId.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 #import <pthread.h>
 
 static long s_maxQueueSize = 1000;

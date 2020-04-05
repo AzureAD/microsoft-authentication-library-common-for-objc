@@ -26,6 +26,9 @@
 #import "MSIDAADTokenResponse.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDLegacyTokenCacheItem.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDLegacySingleResourceToken
 

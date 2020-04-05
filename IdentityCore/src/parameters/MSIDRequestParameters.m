@@ -33,6 +33,9 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDRequestParameters
 

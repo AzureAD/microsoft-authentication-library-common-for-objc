@@ -28,6 +28,7 @@
 #import "MSIDB2CIdTokenClaims.h"
 #import "MSIDHelpers.h"
 #import "MSIDB2CAuthority.h"
+#import "MSIDJsonObject.h"
 
 @implementation MSIDB2CIdTokenClaims
 

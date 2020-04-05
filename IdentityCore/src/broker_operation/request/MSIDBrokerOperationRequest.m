@@ -28,6 +28,9 @@
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDVersion.h"
 #import "NSDictionary+MSIDLogging.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDBrokerOperationRequest
 

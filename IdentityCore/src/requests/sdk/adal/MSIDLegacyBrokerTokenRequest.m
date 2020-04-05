@@ -27,6 +27,9 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDConstants.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDLegacyBrokerTokenRequest
 

@@ -36,6 +36,9 @@
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
 #import "MSIDExtendedTokenCacheDataSource.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDAccountCredentialCache()
 {

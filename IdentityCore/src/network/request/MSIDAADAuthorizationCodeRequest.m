@@ -24,6 +24,9 @@
 #import "MSIDAADAuthorizationCodeRequest.h"
 #import "MSIDHttpRequest.h"
 #import "MSIDAADRequestConfigurator.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDAADAuthorizationCodeRequest
 

@@ -21,10 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !MSID_EXCLUDE_WEBKIT && !TARGET_OS_MACCATALYST
+#if !MSID_EXCLUDE_WEBKIT && !TARGET_OS_MACCATALYST && TARGET_OS_IPHONE
 
 #import "MSIDSFAuthenticationSessionHandler.h"
 #import <SafariServices/SafariServices.h>
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDSFAuthenticationSessionHandler()
 

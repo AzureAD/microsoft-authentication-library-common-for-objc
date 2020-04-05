@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_OSX
+
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
@@ -33,3 +35,4 @@
 @property (strong) IBOutlet NSTextField *passwordLabel;
 
 @end
+#endif

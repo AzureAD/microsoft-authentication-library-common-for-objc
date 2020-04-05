@@ -26,6 +26,9 @@
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDAuthority.h"
 #import "MSIDAccountIdentifier.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation MSIDLegacyRefreshToken
 

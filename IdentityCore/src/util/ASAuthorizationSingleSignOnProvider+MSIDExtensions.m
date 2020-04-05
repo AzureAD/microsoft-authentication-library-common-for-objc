@@ -27,6 +27,9 @@
 #import "MSIDBrokerOperationRequest.h"
 #import "MSIDRequestParameters.h"
 #import "NSDictionary+MSIDQueryItems.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation ASAuthorizationSingleSignOnProvider (MSIDExtensions)
 

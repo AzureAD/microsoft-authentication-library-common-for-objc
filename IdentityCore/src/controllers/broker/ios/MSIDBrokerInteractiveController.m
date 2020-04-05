@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#if TARGET_OS_IPHONE
+
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDBrokerTokenRequest.h"
@@ -538,3 +540,4 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
 }
 
 @end
+#endif

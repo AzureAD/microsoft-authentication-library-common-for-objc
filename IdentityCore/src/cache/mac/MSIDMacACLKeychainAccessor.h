@@ -22,8 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#if TARGET_OS_OSX
 
 NS_ASSUME_NONNULL_BEGIN
+
+@protocol MSIDRequestContext;
 
 @interface MSIDMacACLKeychainAccessor : NSObject
 
@@ -68,3 +71,4 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+#endif

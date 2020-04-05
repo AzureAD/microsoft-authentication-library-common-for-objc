@@ -22,6 +22,9 @@
 // THE SOFTWARE.
 
 #import "NSMutableDictionary+MSIDExtensions.h"
+#ifdef ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @implementation NSMutableDictionary (MSIDExtensions)
 

@@ -24,6 +24,9 @@
 #import "MSIDAADV1WebviewFactory.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#ifdef ENABLE_SPM
+#import "MSIDOAuth2Constants.h"
+#endif
 
 @implementation MSIDAADV1WebviewFactory
 
