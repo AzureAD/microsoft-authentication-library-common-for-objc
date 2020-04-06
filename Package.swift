@@ -75,25 +75,12 @@ let crossPlatHeaders = [CSetting.headerSearchPath("src"),
                         CSetting.headerSearchPath("src/webview/embeddedWebview/challangeHandlers/mac", .when(platforms: [.macOS])),
                         CSetting.headerSearchPath("src/webview/embeddedWebview/ui/mac", .when(platforms: [.macOS])),
                         CSetting.headerSearchPath("src/workplacejoin/mac", .when(platforms: [.macOS])),
-                        CSetting.define("ENABLE_SPM")]
-
-let iOSExcludedFolders = [      "src/cache/mac",
-                                "src/util/mac",
-                                "src/webview/embeddedWebview/challangeHandlers/mac",
-                                "src/webview/embeddedWebview/ui/mac",
-                                "src/workplacejoin/mac"]
-
-let macOSExcludedFolders = [    "src/util/ios",
-                                "src/workplacejoin/ios",
-                                "src/controllers/broker/ios",
-                                "src/webview/systemWebview/ios",
-                                "src/webview/embeddedWebview/challangeHandlers/ios",
-                                "src/webview/background/ios",
-                                "src/webview/embeddedWebview/ui/ios"]
+                        CSetting.define("ENABLE_SPM"),
+                        CSetting.define("TARGET_OS_IPHONE", to: "1", .when(platforms: [.iOS]))]
 
 let package = Package(
     name: "IdentityCore",
-    platforms: [.iOS(.v10)],
+    platforms: [.iOS(.v10), .macOS(.v10_12)],
     products: [
         .library(name: "IdentityCore", targets: ["IdentityCore"])
     ],
@@ -101,7 +88,6 @@ let package = Package(
         .target(
             name: "IdentityCore",
             path: "IdentityCore",
-            exclude: ["public"],
             sources: ["src"],
             publicHeadersPath: "src/public",
             cSettings: crossPlatHeaders
