@@ -25,17 +25,13 @@
 //
 //------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 120000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500)
+#if !MSID_EXCLUDE_WEBKIT
 
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDConstants.h"
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
 @interface MSIDASWebAuthenticationSessionHandler () <ASWebAuthenticationPresentationContextProviding>
-#else
-@interface MSIDASWebAuthenticationSessionHandler ()
-#endif
 @property (weak, nonatomic) MSIDViewController *parentController;
 @property (nonatomic) NSURL *startURL;
 @property (nonatomic) NSString *callbackURLScheme;
@@ -96,13 +92,11 @@
                                                         callbackURLScheme:self.callbackURLScheme
                                                         completionHandler:authCompletion];
     
-    #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        if (@available(iOS 13.0, macOS 10.15, *))
-        {
-            self.webAuthSession.presentationContextProvider = self;
-            self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
-        }
-    #endif
+    if (@available(iOS 13.0, macOS 10.15, *))
+    {
+        self.webAuthSession.presentationContextProvider = self;
+        self.webAuthSession.prefersEphemeralWebBrowserSession = self.useEmpheralSession;
+    }
     
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {
@@ -121,8 +115,6 @@
     self.sessionDismissed = YES;
     [self cancel];
 }
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
 
 #pragma mark - ASWebAuthenticationPresentationContextProviding
 
