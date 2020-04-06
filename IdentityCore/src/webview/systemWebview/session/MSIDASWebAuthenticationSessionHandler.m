@@ -30,6 +30,9 @@
 #import "MSIDASWebAuthenticationSessionHandler.h"
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDConstants.h"
+#if ENABLE_SPM
+#import "IdentityCore_Internal.h"
+#endif
 
 @interface MSIDASWebAuthenticationSessionHandler () <ASWebAuthenticationPresentationContextProviding>
 @property (weak, nonatomic) MSIDViewController *parentController;
@@ -141,8 +144,6 @@
     return self.parentController.view.window;
 #endif
 }
-
-#endif
 
 @end
 
