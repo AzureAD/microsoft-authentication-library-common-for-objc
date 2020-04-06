@@ -76,7 +76,8 @@ let crossPlatHeaders = [CSetting.headerSearchPath("src"),
                         CSetting.headerSearchPath("src/webview/embeddedWebview/ui/mac", .when(platforms: [.macOS])),
                         CSetting.headerSearchPath("src/workplacejoin/mac", .when(platforms: [.macOS])),
                         CSetting.define("ENABLE_SPM"),
-                        CSetting.define("TARGET_OS_IPHONE", to: "1", .when(platforms: [.iOS]))]
+                        CSetting.define("TARGET_OS_IPHONE", to: "1", .when(platforms: [.iOS])),
+                        CSetting.define("MSID_ENABLE_SSO_EXTENSION", to: "1")]
 
 let package = Package(
     name: "IdentityCore",
