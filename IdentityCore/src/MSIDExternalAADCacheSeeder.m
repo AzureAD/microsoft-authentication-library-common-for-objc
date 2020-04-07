@@ -140,7 +140,6 @@
     
     factory = [MSIDAADV2Oauth2FactoryForV1Request new];
     MSIDRefreshTokenGrantRequest *tokenRequest = [factory refreshTokenRequestWithRequestParameters:requestParameters
-                                                                                      forceRefresh:YES
                                                                                       refreshToken:refreshToken.refreshToken];
 
     [self.telemetry startEvent:requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_HTTP_V1_IDTOKEN_REQUEST];

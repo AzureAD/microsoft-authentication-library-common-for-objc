@@ -81,13 +81,11 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         if (response) NSAssert([response isKindOfClass:NSHTTPURLResponse.class], NULL);
         
         __auto_type httpResponse = (NSHTTPURLResponse *)response;
-        
         [self.telemetry responseReceivedEventWithContext:self.context
                                               urlRequest:self.urlRequest
                                             httpResponse:httpResponse
                                                     data:data
                                                    error:error];
-        
         [self.serverTelemetry handleHttpResponse:httpResponse data:data context:self.context];
         
         if (error)

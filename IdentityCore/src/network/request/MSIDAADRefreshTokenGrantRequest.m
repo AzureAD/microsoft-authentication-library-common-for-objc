@@ -23,7 +23,6 @@
 
 #import "MSIDAADRefreshTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
-#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADRefreshTokenGrantRequest
 
@@ -34,18 +33,9 @@
                     refreshToken:(NSString *)refreshToken
                           claims:(NSString *)claims
                  extraParameters:(NSDictionary *)extraParameters
-                           apiId:(NSInteger)apiId
-                    forceRefresh:(BOOL)forceRefresh
                          context:(nullable id<MSIDRequestContext>)context
 {
-    self = [self initWithEndpoint:endpoint
-                         clientId:clientId
-                            scope:scope
-                     refreshToken:refreshToken
-                  extraParameters:extraParameters
-                            apiId:apiId
-                     forceRefresh:forceRefresh
-                          context:context];
+    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken extraParameters:extraParameters context:context];
     if (self)
     {
         __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
@@ -57,32 +47,6 @@
         parameters[MSID_ENROLLMENT_ID] = enrollmentId;
         
         _parameters = parameters;
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken
-                 extraParameters:(NSDictionary *)extraParameters
-                           apiId:(NSInteger)apiId
-                    forceRefresh:(BOOL)forceRefresh
-                         context:(id<MSIDRequestContext>)context
-{
-    self = [super initWithEndpoint:endpoint
-                         clientId:clientId
-                            scope:scope
-                     refreshToken:refreshToken
-                  extraParameters:extraParameters
-                          context:context];
-    if (self)
-    {
-        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
-        serverTelemetry.apiId = apiId;
-        serverTelemetry.forceRefresh = forceRefresh;
-        _serverTelemetry = serverTelemetry;
     }
     
     return self;

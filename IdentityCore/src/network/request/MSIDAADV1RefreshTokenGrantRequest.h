@@ -32,17 +32,12 @@
                                refreshToken:(nonnull NSString *)refreshToken
                                    resource:(nonnull NSString *)resource
                             extraParameters:(nullable NSDictionary *)extraParameters
-                                      apiId:(NSInteger)apiId
-                               forceRefresh:(BOOL)forceRefresh
                                     context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
-- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
-                                  clientId:(nonnull NSString *)clientId
-                                     scope:(nullable NSString *)scope
-                              refreshToken:(nonnull NSString *)refreshToken
-                           extraParameters:(nullable NSDictionary *)extraParameters
-                                     apiId:(NSInteger)apiId
-                              forceRefresh:(BOOL)forceRefresh
-                                   context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
+- (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                   clientId:(nonnull NSString *)clientId
+                                      scope:(nullable NSString *)scope
+                               refreshToken:(nonnull NSString *)refreshToken
+                                    context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

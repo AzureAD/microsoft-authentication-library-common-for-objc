@@ -25,13 +25,14 @@
 #import "MSIDHttpRequestServerTelemetryHandling.h"
 #import "MSIDHttpRequestProtocol.h"
 
+@class MSIDCurrentRequestTelemetry;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAADTokenRequestServerTelemetry : NSObject <MSIDHttpRequestServerTelemetryHandling>
 
 @property (nonatomic) id<MSIDResponseErrorProviding> responseErrorProvider;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
+@property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 
 @end
 

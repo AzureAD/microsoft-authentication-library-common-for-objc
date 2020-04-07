@@ -44,6 +44,10 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDTokenResponseErrorProvider.h"
+#import "MSIDLastRequestTelemetry.h"
+#import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -192,15 +196,22 @@
                                                                                                                  claims:claims
                                                                                                            codeVerifier:pkceCodeVerifier
                                                                                                         extraParameters:parameters.extraTokenRequestParameters
-                                                                                                                 apiId:[parameters.telemetryApiId integerValue]
                                                                                                                 context:parameters];
+
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.responseErrorProvider = [MSIDHttpResponseErrorProvider new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
 }
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                              forceRefresh:(BOOL)forceRefresh
                                                               refreshToken:(NSString *)refreshToken
 {
     MSIDClaimsRequest *claimsRequest = [MSIDClaimsRequest claimsRequestFromCapabilities:parameters.clientCapabilities
@@ -220,11 +231,17 @@
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
                                                                                               extraParameters:parameters.extraTokenRequestParameters
-                                                                                                        apiId:[parameters.telemetryApiId integerValue]
-                                                                                                 forceRefresh:forceRefresh
                                                                                                       context:parameters];
     
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.responseErrorProvider = [MSIDTokenResponseErrorProvider new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
 }

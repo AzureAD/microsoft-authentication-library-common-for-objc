@@ -37,24 +37,6 @@
                               refreshToken:(nonnull NSString *)refreshToken
                                     claims:(nullable NSString *)claims
                            extraParameters:(nullable NSDictionary *)extraParameters
-                                     apiId:(NSInteger)apiId
-                              forceRefresh:(BOOL)forceRefresh
                                    context:(nullable id<MSIDRequestContext>)context;
-
-- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
-                                  clientId:(nonnull NSString *)clientId
-                                     scope:(nullable NSString *)scope
-                              refreshToken:(nonnull NSString *)refreshToken
-                           extraParameters:(nullable NSDictionary *)extraParameters
-                                     apiId:(NSInteger)apiId
-                              forceRefresh:(BOOL)forceRefresh
-                                   context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
-
-- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
-                                  clientId:(nonnull NSString *)clientId
-                                     scope:(nullable NSString *)scope
-                              refreshToken:(nonnull NSString *)refreshToken
-                           extraParameters:(nullable NSDictionary *)extraParameters
-                                   context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
 
 @end

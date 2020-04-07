@@ -440,7 +440,6 @@
 }
 
 - (MSIDRefreshTokenGrantRequest *)refreshTokenRequestWithRequestParameters:(MSIDRequestParameters *)parameters
-                                                              forceRefresh:(__unused BOOL)forceRefresh
                                                               refreshToken:(NSString *)refreshToken
 {
     NSString *allScopes = [parameters allTokenRequestScopes];

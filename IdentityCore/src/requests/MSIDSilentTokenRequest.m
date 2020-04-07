@@ -388,7 +388,6 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Acquiring Access token via Refresh token...");
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
-                                                                                                forceRefresh:self.forceRefresh
                                                                                                 refreshToken:refreshToken.refreshToken];
 
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)

@@ -32,7 +32,6 @@
 {
     if (httpResponse.statusCode >= 400)
     {
-        // TODO:?
         return [@(httpResponse.statusCode) stringValue];
     }
     

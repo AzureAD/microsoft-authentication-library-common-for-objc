@@ -43,6 +43,7 @@
     self = [super init];
     if (self)
     {
+        _schemaVersion = 2;
     }
     return self;
 }
@@ -62,8 +63,6 @@
             errorString:(NSString *)errorString
                 context:(id<MSIDRequestContext>)context
 {
-    self.schemaVersion = 2;
-    
     if (errorString)
     {
         NSMutableArray *errorsInfo = self.errorsInfo ? [self.errorsInfo mutableCopy] : [NSMutableArray new];

@@ -23,7 +23,6 @@
 
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
-#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADAuthorizationCodeGrantRequest
 
@@ -36,44 +35,6 @@
                           claims:(NSString *)claims
                     codeVerifier:(NSString *)codeVerifier
                  extraParameters:(NSDictionary *)extraParameters
-                           apiId:(NSInteger)apiId
-                         context:(nullable id<MSIDRequestContext>)context
-{
-    self = [self initWithEndpoint:endpoint
-                          clientId:clientId
-                             scope:scope
-                       redirectUri:redirectUri
-                              code:code
-                            claims:claims
-                      codeVerifier:codeVerifier
-                   extraParameters:extraParameters
-                            apiId:apiId
-                           context:context];
-    if (self)
-    {
-        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
-        [requestConfigurator configure:self];
-        
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
-        parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
-        parameters[MSID_OAUTH2_CLAIMS] = claims;
-        parameters[MSID_ENROLLMENT_ID] = enrollmentId;
-        
-        _parameters = parameters;
-    }
-    
-    return self;
-}
-
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                     redirectUri:(NSString *)redirectUri
-                            code:(NSString *)code
-                          claims:(NSString *)claims
-                    codeVerifier:(NSString *)codeVerifier
-                 extraParameters:(NSDictionary *)extraParameters
-                           apiId:(NSInteger)apiId
                          context:(nullable id<MSIDRequestContext>)context
 {
     self = [super initWithEndpoint:endpoint
@@ -87,10 +48,15 @@
                            context:context];
     if (self)
     {
-        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
-        serverTelemetry.apiId = apiId;
-        serverTelemetry.forceRefresh = NO;
-        _serverTelemetry = serverTelemetry;
+        __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];
+        [requestConfigurator configure:self];
+        
+        NSMutableDictionary *parameters = [_parameters mutableCopy];
+        parameters[MSID_OAUTH2_CLIENT_INFO] = @YES;
+        parameters[MSID_OAUTH2_CLAIMS] = claims;
+        parameters[MSID_ENROLLMENT_ID] = enrollmentId;
+        
+        _parameters = parameters;
     }
     
     return self;

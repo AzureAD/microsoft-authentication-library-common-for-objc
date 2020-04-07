@@ -54,7 +54,7 @@
                                                                  context:context
                                                                    error:&error];
     
-    [self.lastRequestTelemetry updateWithApiId:self.apiId
+    [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
                                    errorString:errorString
                                        context:context];
 }
@@ -63,13 +63,7 @@
 {
     NSParameterAssert(request.urlRequest);
     
-    MSIDCurrentRequestTelemetry *currentRequestTelemetry = [MSIDCurrentRequestTelemetry new];
-    currentRequestTelemetry.schemaVersion = 2;
-    currentRequestTelemetry.forceRefresh = self.forceRefresh;
-    currentRequestTelemetry.apiId = self.apiId;
-    
-    NSString *currentRequestTelemetryString = [currentRequestTelemetry telemetryString];
-    
+    NSString *currentRequestTelemetryString = [self.currentRequestTelemetry telemetryString];
     NSString *lastRequestTelemetryString = [self.lastRequestTelemetry telemetryString];
     
     NSMutableURLRequest *mutableUrlRequest = [request.urlRequest mutableCopy];
