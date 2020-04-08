@@ -61,6 +61,5 @@ NSString *const MSID_BROKER_WPJ_STATUS_KEY         = @"wpj_status";
 NSString *const MSID_BROKER_BROKER_VERSION_KEY     = @"broker_version";
 NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION   = @"2";
 NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION   = @"3";
-NSString *const MSID_AUTHENTICATOR_REDIRECT_URI    = @"urn:ietf:wg:oauth:2.0:oob";
 NSString *const MSID_BROKER_SDK_CAPABILITIES_KEY   = @"sdk_broker_capabilities";
 NSString *const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY    = @"sso_extension";
