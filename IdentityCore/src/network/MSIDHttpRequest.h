@@ -43,6 +43,7 @@
     id<MSIDHttpRequestErrorHandling> _errorHandler;
     id<MSIDRequestContext> _context;
     BOOL _shouldCacheResponse;
+    MSIDURLSessionManager *_sessionManager;
 }
 
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;

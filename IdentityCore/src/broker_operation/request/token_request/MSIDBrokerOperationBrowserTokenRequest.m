@@ -26,6 +26,7 @@
 #import "MSIDAADAuthority.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "NSURL+MSIDAADUtils.h"
 #import "MSIDAADNetworkConfiguration.h"
 
 @implementation MSIDBrokerOperationBrowserTokenRequest
@@ -51,7 +52,7 @@
         
         _requestURL = requestURL;
         
-        if (![self isAuthorizeRequest:_requestURL])
+        if (![self shouldHandleURL:_requestURL])
         {
             if (error)
             {
@@ -84,12 +85,25 @@
     return self;
 }
 
-- (BOOL)isAuthorizeRequest:(NSURL *)url
+- (BOOL)shouldHandleURL:(NSURL *)url
 {
-    NSString *request = [url absoluteString];
-    BOOL isAuthorizeRequest = ([request rangeOfString:@"/oauth2/authorize" options:NSCaseInsensitiveSearch].location != NSNotFound);
-    BOOL isV2AuthorizeRequest = ([request rangeOfString:@"/oauth2/v2.0/authorize" options:NSCaseInsensitiveSearch].location != NSNotFound);
-    return isAuthorizeRequest || isV2AuthorizeRequest;
+    if (![url msidContainsCaseInsensitivePath:@"oauth2"])
+    {
+        return NO;
+    }
+    
+    if ([url msidContainsCaseInsensitivePath:@"/oauth2/authorize"])
+    {
+        return YES;
+    }
+    
+    if ([url msidContainsCaseInsensitivePath:@"/oauth2/v2.0/authorize"])
+    {
+        return YES;
+    }
+        
+    BOOL isLogoutRequest = [url msidContainsCaseInsensitivePath:@"logout"] && [url msidContainsPathComponent:@"logout"];
+    return isLogoutRequest;
 }
 
 #pragma mark - MSIDBaseBrokerOperationRequest
