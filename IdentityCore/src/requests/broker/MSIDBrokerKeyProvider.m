@@ -87,14 +87,19 @@
 
     NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
-    NSDictionary *symmetricKeyQuery =
-    @{
+    NSMutableDictionary *symmetricKeyQuery =
+    [@{
       (id)kSecClass : (id)kSecClassKey,
       (id)kSecAttrApplicationTag : symmetricTag,
       (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
       (id)kSecReturnData : @(YES),
       (id)kSecAttrAccessGroup : self.keychainAccessGroup
-      };
+      } mutableCopy];
+    
+    if (@available(macOS 10.15, *))
+    {
+        symmetricKeyQuery[(id)kSecUseDataProtectionKeychain] = @YES;
+    }
 
     // Get the key bits.
     CFDataRef symmetricKey = nil;
@@ -192,8 +197,8 @@
 
     NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
-    NSDictionary *symmetricKeyAttr =
-    @{
+    NSMutableDictionary *symmetricKeyAttr =
+    [@{
       (id)kSecClass : (id)kSecClassKey,
       (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric,
       (id)kSecAttrApplicationTag : (id)symmetricTag,
@@ -205,7 +210,12 @@
       (id)kSecValueData : keyData,
       (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
       (id)kSecAttrAccessGroup : self.keychainAccessGroup
-      };
+      } mutableCopy];
+    
+    if (@available(macOS 10.15, *))
+    {
+        symmetricKeyAttr[(id)kSecUseDataProtectionKeychain] = @YES;
+    }
 
     // First delete current symmetric key.
     if (![self deleteSymmetricKeyWithError:error])

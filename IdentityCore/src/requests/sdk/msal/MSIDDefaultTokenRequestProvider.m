@@ -30,8 +30,8 @@
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #if TARGET_OS_IOS
 #import "MSIDSSOExtensionSilentTokenRequest.h"
-#import "MSIDSSOExtensionInteractiveTokenRequest.h"
 #endif
+#import "MSIDSSOExtensionInteractiveTokenRequest.h"
 
 @implementation MSIDDefaultTokenRequestProvider
 
@@ -102,8 +102,7 @@
 
 - (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
 {
-#if TARGET_OS_IOS
-    if (@available(iOS 13.0, *))
+    if (@available(iOS 13.0, macOS 10.15, *))
     {
         __auto_type request = [[MSIDSSOExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
                                                                                             oauthFactory:self.oauthFactory
@@ -112,7 +111,6 @@
                                                                                     accountMetadataCache:self.accountMetadataCache];
         return request;
     }
-#endif
     
     return nil;
 }
