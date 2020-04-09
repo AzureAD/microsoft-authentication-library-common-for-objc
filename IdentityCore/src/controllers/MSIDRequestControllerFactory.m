@@ -164,6 +164,8 @@
     {
         return brokerController;
     }
+    
+    return nil;
 }
 #else
 + (nullable id<MSIDRequestControlling>)brokerController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters

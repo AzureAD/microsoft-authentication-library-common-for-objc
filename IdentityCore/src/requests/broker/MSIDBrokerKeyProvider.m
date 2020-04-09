@@ -96,10 +96,12 @@
       (id)kSecAttrAccessGroup : self.keychainAccessGroup
       } mutableCopy];
     
+#if !TARGET_OS_IPHONE
     if (@available(macOS 10.15, *))
     {
         symmetricKeyQuery[(id)kSecUseDataProtectionKeychain] = @YES;
     }
+#endif
 
     // Get the key bits.
     CFDataRef symmetricKey = nil;
@@ -212,10 +214,12 @@
       (id)kSecAttrAccessGroup : self.keychainAccessGroup
       } mutableCopy];
     
+#if !TARGET_OS_IPHONE
     if (@available(macOS 10.15, *))
     {
         symmetricKeyAttr[(id)kSecUseDataProtectionKeychain] = @YES;
     }
+#endif
 
     // First delete current symmetric key.
     if (![self deleteSymmetricKeyWithError:error])
