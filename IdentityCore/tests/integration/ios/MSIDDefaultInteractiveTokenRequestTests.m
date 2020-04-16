@@ -612,7 +612,7 @@
 
         XCTAssertNil(result);
         XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, MSIDErrorAuthorizationFailed);
+        XCTAssertEqual(error.code, MSIDErrorServerAccessDenied);
         XCTAssertEqualObjects(error.domain, MSIDOAuthErrorDomain);
         XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"access_denied");
         XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"MyError");
