@@ -1,3 +1,10 @@
+Version 1.5.0
+------
+* Added Safari SSO support for AAD SSO extension
+* Switched to new lab API
+* Convert access denied error to cancelled
+* Removed default urn redirect uri dependency
+
 Version 1.4.1
 ------
 * Fixed macOS cache on 10.15 when App Identifier Prefix is different from TeamId (#697)
