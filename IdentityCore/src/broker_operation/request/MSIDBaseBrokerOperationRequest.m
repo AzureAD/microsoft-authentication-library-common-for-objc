@@ -21,18 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDAutomationConfigurationRequest.h"
+#import "MSIDBaseBrokerOperationRequest.h"
 
-@class MSIDTestAutomationConfiguration;
+@implementation MSIDBaseBrokerOperationRequest
 
-@interface MSIDAutomationUserAPIRequestHandler : NSObject
++ (NSString *)operation
+{
+    NSAssert(NO, @"Abstract method.");
+    return @"";
+}
 
-- (instancetype)initWithAPIPath:(NSString *)apiPath
-           cachedConfigurations:(NSDictionary *)cachedConfigurations;
-
-- (void)executeAPIRequest:(MSIDAutomationConfigurationRequest *)apiRequest
-        completionHandler:(void (^)(MSIDTestAutomationConfiguration *result, NSError *error))completionHandler;
+- (NSString *)logInfo
+{
+    NSAssert(NO, @"Abstract method.");
+    return @"";
+}
 
 @end
-

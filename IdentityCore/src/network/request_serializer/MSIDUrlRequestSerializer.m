@@ -26,30 +26,37 @@
 
 @implementation MSIDUrlRequestSerializer
 
-- (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters
+- (NSURLRequest *)serializeWithRequest:(NSURLRequest *)request parameters:(NSDictionary *)parameters headers:(NSDictionary *)headers
 {
     NSParameterAssert(request);
-    
-    if (!parameters) return request;
-    
     NSMutableURLRequest *mutableRequest = [request mutableCopy];
+    NSMutableDictionary *requestHeaders = [NSMutableDictionary new];
     
-    if ([self shouldEncodeParametersInURL:request])
+    if ([headers count])
     {
-        NSAssert(mutableRequest.URL, NULL);
-        
-        NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
-        NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
-        [urlParameters addEntriesFromDictionary:parameters];
-        urlComponents.percentEncodedQuery = [urlParameters msidURLEncode];
-        mutableRequest.URL = urlComponents.URL;
-    }
-    else
-    {
-        mutableRequest.HTTPBody = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
-        [mutableRequest setValue:@"application/x-www-form-urlencoded" forHTTPHeaderField:@"Content-Type"];
+        [requestHeaders addEntriesFromDictionary:headers];
     }
     
+    if ([parameters count])
+    {
+       if ([self shouldEncodeParametersInURL:request])
+       {
+           NSAssert(mutableRequest.URL, NULL);
+           
+           NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:mutableRequest.URL resolvingAgainstBaseURL:NO];
+           NSMutableDictionary *urlParameters = [[mutableRequest.URL msidQueryParameters] mutableCopy] ?: [NSMutableDictionary new];
+           [urlParameters addEntriesFromDictionary:parameters];
+           urlComponents.percentEncodedQuery = [urlParameters msidURLEncode];
+           mutableRequest.URL = urlComponents.URL;
+       }
+       else
+       {
+           mutableRequest.HTTPBody = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
+           [requestHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+       }
+    }
+    
+    mutableRequest.allHTTPHeaderFields = requestHeaders;
     return mutableRequest;
 }
 

@@ -28,17 +28,19 @@
 #import "NSURL+MSIDExtensions.h"
 #import "MSIDAutomationResetAPIRequest.h"
 #import "MSIDClientCredentialHelper.h"
+#import "MSIDTestAutomationAppConfigurationRequest.h"
+#import "MSIDTestAutomationApplication.h"
+#import "MSIDAutomationOperationAPIInMemoryCacheHandler.h"
+#import "MSIDTestAutomationAccountConfigurationRequest.h"
 
 @interface MSIDTestConfigurationProvider()
 
 @property (nonatomic, strong) NSDictionary *appInstallLinks;
-@property (nonatomic, strong) NSDictionary *defaultClients;
 @property (nonatomic, strong) NSDictionary *defaultEnvironments;
 @property (nonatomic, strong) NSDictionary *defaultScopes;
 @property (nonatomic, strong) NSDictionary *defaultResources;
 
 @property (nonatomic, readwrite) KeyvaultAuthentication *keyvaultAuthentication;
-@property (nonatomic, readwrite) MSIDAutomationUserAPIRequestHandler *userAPIRequestHandler;
 @property (nonatomic, readwrite) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
 @property (nonatomic, readwrite) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;
 
@@ -50,8 +52,6 @@
                               certificatePassword:(NSString *)password
                          additionalConfigurations:(NSDictionary *)additionalConfigurations
                                   appInstallLinks:(NSDictionary *)appInstallLinks
-                                      userAPIPath:(NSString *)userAPIPath
-                                   defaultClients:(NSDictionary *)defaultClients
                               defaultEnvironments:(NSDictionary *)defaultEnvironments
                             wwEnvironmentIdenfier:(NSString *)wwEnrivonmentIdentifier
                                stressTestInterval:(int)stressTestInterval
@@ -65,18 +65,17 @@
     {
         _keyvaultAuthentication = [[KeyvaultAuthentication alloc] initWithCertContents:certificate certPassword:password];
         _appInstallLinks = appInstallLinks;
-        _defaultClients = defaultClients;
         _defaultEnvironments = defaultEnvironments;
         _wwEnvironment = wwEnrivonmentIdentifier;
         _defaultScopes = defaultScopes;
         _defaultResources = defaultResources;
         _stressTestInterval = stressTestInterval;
         
-        _userAPIRequestHandler = [[MSIDAutomationUserAPIRequestHandler alloc] initWithAPIPath:userAPIPath
-                                                                         cachedConfigurations:additionalConfigurations];
+        MSIDAutomationOperationAPIInMemoryCacheHandler *cacheHandler = [[MSIDAutomationOperationAPIInMemoryCacheHandler alloc] initWithDictionary:additionalConfigurations];
         
         _operationAPIRequestHandler = [[MSIDAutomationOperationAPIRequestHandler alloc] initWithAPIPath:operationAPIConfiguration[@"operation_api_path"]
                                                                               operationAPIConfiguration:operationAPIConfiguration];
+        _operationAPIRequestHandler.apiCacheHandler = cacheHandler;
         
         _passwordRequestHandler = [MSIDAutomationPasswordRequestHandler new];
     }
@@ -101,30 +100,39 @@
         return nil;
     }
 
-    NSString *apiPath = configurationDictionary[@"api_path"];
     NSString *certificatePassword = configurationDictionary[@"certificate_password"];
     NSString *encodedCertificate = configurationDictionary[@"certificate_data"];
 
-    NSArray *additionalConfs = configurationDictionary[@"additional_confs"];
-
     NSMutableDictionary *additionalConfsDictionary = [NSMutableDictionary dictionary];
-
-    for (NSDictionary *additionalConf in additionalConfs)
+    
+    NSArray *additionalAppConfs = configurationDictionary[@"additional_app_confs"];
+    
+    for (NSDictionary *additionalConf in additionalAppConfs)
     {
         NSDictionary *requestDict = additionalConf[@"request"];
-        NSDictionary *configurationDict = additionalConf[@"configuration"];
+        NSDictionary *configurationDict = additionalConf[@"response"];
 
-        MSIDAutomationConfigurationRequest *request = [MSIDAutomationConfigurationRequest requestWithDictionary:requestDict];
-        MSIDTestAutomationConfiguration *configuration = [[MSIDTestAutomationConfiguration alloc] initWithJSONDictionary:configurationDict];
-        additionalConfsDictionary[request] = configuration;
+        MSIDAutomationBaseApiRequest *request = [MSIDTestAutomationAppConfigurationRequest requestWithDictionary:requestDict];
+        MSIDTestAutomationApplication *appConf = [[MSIDTestAutomationApplication alloc] initWithJSONDictionary:configurationDict error:nil];
+        additionalConfsDictionary[request] = @[appConf];
     }
+    
+    NSArray *additionalAccountConfs = configurationDictionary[@"additional_account_confs"];
+    
+    for (NSDictionary *additionalConf in additionalAccountConfs)
+    {
+        NSDictionary *requestDict = additionalConf[@"request"];
+        NSDictionary *configurationDict = additionalConf[@"response"];
 
+        MSIDAutomationBaseApiRequest *request = [MSIDTestAutomationAccountConfigurationRequest requestWithDictionary:requestDict];
+        MSIDTestAutomationAccount *accountConf = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:configurationDict error:nil];
+        additionalConfsDictionary[request] = @[accountConf];
+    }
+    
     return [self initWithClientCertificateContents:encodedCertificate
                                certificatePassword:certificatePassword
                           additionalConfigurations:additionalConfsDictionary
                                    appInstallLinks:configurationDictionary[@"app_install_urls"]
-                                       userAPIPath:apiPath
-                                    defaultClients:configurationDictionary[@"default_clients"]
                                defaultEnvironments:configurationDictionary[@"environments"]
                              wwEnvironmentIdenfier:configurationDictionary[@"default_environment"]
                                 stressTestInterval:[configurationDictionary[@"stress_test_interval"] intValue]
@@ -150,113 +158,29 @@
 #endif
 }
 
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequestWithTenantId:(NSString *)targetTenantId
+- (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
+                                  targetTenantId:(NSString *)targetTenantId
 {
-    return [self defaultConvergedAppRequestWithTenantId:targetTenantId];
+    return [self defaultAppRequest:environment targetTenantId:targetTenantId brokerEnabled:NO];
 }
 
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
-                                           targetTenantId:(NSString *)targetTenantId
-{
-    return [self defaultConvergedAppRequest:environment targetTenantId:targetTenantId brokerEnabled:NO];
-}
-
-- (MSIDAutomationTestRequest *)defaultConvergedAppRequest:(NSString *)environment
-                                           targetTenantId:(NSString *)targetTenantId
-                                            brokerEnabled:(BOOL)brokerEnabled
-{
-    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSString *confName = brokerEnabled ? @"brokered_converged" : @"default_converged";
-    NSDictionary *defaultConf = self.defaultClients[confName];
-    
-    if (defaultConf)
-    {
-        request.clientId = defaultConf[@"client_id"];
-        request.redirectUri = defaultConf[@"redirect_uri"];
-        request.validateAuthority = YES;
-        request.webViewType = self.defaultWebviewTypeForPlatform;
-        
-        NSString *testEnvironment = environment ? environment : self.wwEnvironment;
-        
-        request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
-        request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
-        request.configurationAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
-        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
-        request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
-        request.brokerEnabled = brokerEnabled;
-    }
-    
-    return request;
-}
-
-- (MSIDAutomationTestRequest *)defaultNonConvergedAppRequest:(NSString *)environment
-                                              targetTenantId:(NSString *)targetTenantId
-{
-    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSDictionary *defaultConf = self.defaultClients[@"default_nonconverged"];
-
-    if (defaultConf)
-    {
-        request.clientId = defaultConf[@"client_id"];
-        request.redirectUri = defaultConf[@"redirect_uri"];
-        request.validateAuthority = YES;
-        request.webViewType = self.defaultWebviewTypeForPlatform;
-        
-        NSString *testEnvironment = environment ? environment : self.wwEnvironment;
-        
-        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
-        request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
-    }
-
-    return request;
-}
-
-- (MSIDAutomationTestRequest *)defaultAppRequest
+- (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
+                                  targetTenantId:(NSString *)targetTenantId
+                                   brokerEnabled:(BOOL)brokerEnabled
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
     request.validateAuthority = YES;
     request.webViewType = self.defaultWebviewTypeForPlatform;
-    request.configurationAuthority = [self defaultAuthorityForIdentifier:nil];
-    return request;
-}
-
-- (MSIDAutomationTestRequest *)defaultInstanceAwareAppRequest
-{
-    return [self requestWithIdentifier:@"default_sovereign"];
-}
-
-- (MSIDAutomationTestRequest *)defaultFociRequestWithoutBroker
-{
-    return [self requestWithIdentifier:@"default_foci_nobroker"];
-}
-
-- (MSIDAutomationTestRequest *)defaultFociRequestWithBroker
-{
-    return [self requestWithIdentifier:@"default_foci_broker"];
-}
-
-- (MSIDAutomationTestRequest *)sharepointFociRequestWithBroker
-{
-    return [self requestWithIdentifier:@"default_foci_sharepoint"];
-}
-
-- (MSIDAutomationTestRequest *)outlookFociRequestWithBroker
-{
-    return [self requestWithIdentifier:@"default_foci_outlook"];
-}
-
-- (MSIDAutomationTestRequest *)requestWithIdentifier:(NSString *)requestIdentifier
-{
-    MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
-    NSDictionary *defaultConf = self.defaultClients[requestIdentifier];
     
-    if (defaultConf)
-    {
-        request.clientId = defaultConf[@"client_id"];
-        request.redirectUri = defaultConf[@"redirect_uri"];
-        request.validateAuthority = YES;
-        request.webViewType = self.defaultWebviewTypeForPlatform;
-    }
+    NSString *testEnvironment = environment ? environment : self.wwEnvironment;
+    
+    request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
+    request.requestResource = [self resourceForEnvironment:testEnvironment type:@"ms_graph"];
+    request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
+    request.configurationAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
+    request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+    request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+    request.brokerEnabled = brokerEnabled;
     
     return request;
 }
@@ -321,18 +245,10 @@
 }
 
 - (MSIDAutomationTestRequest *)fillDefaultRequestParams:(MSIDAutomationTestRequest *)request
-                                                 config:(MSIDTestAutomationConfiguration *)configuration
-                                                account:(MSIDTestAccount *)account
+                                              appConfig:(MSIDTestAutomationApplication *)appConfig
 {
-    if (!request.clientId) request.clientId = configuration.clientId;
-    if (!request.redirectUri) request.redirectUri = configuration.redirectUri;
-    if (!request.requestResource) request.requestResource = configuration.resource;
-    if (!request.requestScopes) request.requestScopes = [configuration.resource stringByAppendingString:@"/.default"];
-    if (!request.configurationAuthority)
-    {
-        request.configurationAuthority = [self authorityWithHost:configuration.authorityHost tenantId:account.homeTenantId];
-        
-    }
+    if (!request.clientId) request.clientId = appConfig.appId;
+    if (!request.redirectUri) request.redirectUri = appConfig.defaultRedirectUri;
     return request;
 }
 

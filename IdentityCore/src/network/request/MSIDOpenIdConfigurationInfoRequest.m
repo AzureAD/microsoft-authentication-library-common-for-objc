@@ -51,6 +51,7 @@
         __auto_type responseSerializer = [MSIDAADOpenIdConfigurationInfoResponseSerializer new];
         responseSerializer.endpoint = endpoint;
         _responseSerializer = responseSerializer;
+        _shouldCacheResponse = YES;
     }
     
     return self;

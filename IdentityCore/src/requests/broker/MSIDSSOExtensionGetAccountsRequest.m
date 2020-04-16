@@ -28,7 +28,7 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDBrokerOperationGetAccountsRequest.h"
 #import "NSDictionary+MSIDQueryItems.h"
 #import "MSIDBrokerOperationGetAccountsResponse.h"
@@ -71,7 +71,7 @@
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
         __weak typeof(self) weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationResponse *operationResponse, NSError *error)
+        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
             NSArray *resultAccounts = nil;
             BOOL returnBrokerAccountsOnly = NO;

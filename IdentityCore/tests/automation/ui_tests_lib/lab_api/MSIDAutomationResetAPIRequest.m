@@ -29,12 +29,12 @@
 
 - (NSString *)requestOperationPath
 {
-    return @"LabReset";
+    return @"Reset";
 }
 
-- (NSString *)keyvaultNameKey
+- (NSString *)httpMethod
 {
-    return @"reset_api_keyvault";
+    return @"PUT";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems
@@ -43,17 +43,12 @@
     
     if (self.apiOperation)
     {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"Operation" value:self.apiOperation]];
+        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"operation" value:self.apiOperation]];
     }
     
     if (self.userUPN)
     {
         [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"upn" value:self.userUPN]];
-    }
-    
-    if (self.deviceGUID)
-    {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"DeviceID" value:self.deviceGUID]];
     }
     
     return queryItems;

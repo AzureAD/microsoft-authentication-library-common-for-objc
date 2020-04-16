@@ -36,16 +36,21 @@
 @protected
     NSDictionary<NSString *, NSString *> *_parameters;
     NSURLRequest *_urlRequest;
+    NSDictionary *_headers;
     id<MSIDRequestSerialization> _requestSerializer;
     id<MSIDResponseSerialization> _responseSerializer;
     id<MSIDHttpRequestTelemetryHandling> _telemetry;
     id<MSIDHttpRequestErrorHandling> _errorHandler;
     id<MSIDRequestContext> _context;
+    BOOL _shouldCacheResponse;
+    MSIDURLSessionManager *_sessionManager;
 }
 
 @property (nonatomic, nonnull) MSIDURLSessionManager *sessionManager;
 
 @property (nonatomic, nullable) NSDictionary<NSString *, NSString *> *parameters;
+
+@property (nonatomic, nullable) NSDictionary *headers;
 
 @property (nonatomic, nullable) NSURLRequest *urlRequest;
 
@@ -68,5 +73,6 @@
 @property (class, nonatomic, readwrite) NSInteger retryCountSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval retryIntervalSetting;
 @property (class, nonatomic, readwrite) NSTimeInterval requestTimeoutInterval;
+@property (nonatomic, nonnull) NSURLCache *cache;
 
 @end

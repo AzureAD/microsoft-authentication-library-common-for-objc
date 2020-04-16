@@ -28,7 +28,7 @@
 #import <AuthenticationServices/AuthenticationServices.h>
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDBrokerOperationGetDeviceInfoRequest.h"
 #import "MSIDDeviceInfo.h"
 
@@ -66,7 +66,7 @@
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
         __weak typeof(self) weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerOperationResponse *operationResponse, NSError *error)
+        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
             NSError *resultError = error;
             MSIDDeviceInfo *resultDeviceInfo = nil;
@@ -77,7 +77,7 @@
             }
             else
             {
-                MSIDBrokerOperationResponse *response = (MSIDBrokerOperationResponse *)operationResponse;
+                MSIDBrokerNativeAppOperationResponse *response = (MSIDBrokerNativeAppOperationResponse *)operationResponse;
                 resultDeviceInfo = response.deviceInfo;
             }
             

@@ -52,7 +52,7 @@
     urlRequest.HTTPMethod = @"POST";;
     __auto_type expectedBody = [[parameters msidWWWFormURLEncode] dataUsingEncoding:NSUTF8StringEncoding];
     
-    __auto_type newUrlRequest = [self.urlRequestSerializer serializeWithRequest:urlRequest parameters:parameters];
+    __auto_type newUrlRequest = [self.urlRequestSerializer serializeWithRequest:urlRequest parameters:parameters headers:nil];
     
     XCTAssertEqualObjects(expectedBody, newUrlRequest.HTTPBody);
     XCTAssertEqualObjects(baseUrl, newUrlRequest.URL);
@@ -67,7 +67,7 @@
     NSMutableURLRequest *urlRequest = [NSMutableURLRequest requestWithURL:baseUrl];
     urlRequest.HTTPMethod = @"GET";;
     
-    __auto_type newUrlRequest = [self.urlRequestSerializer serializeWithRequest:urlRequest parameters:parameters];
+    __auto_type newUrlRequest = [self.urlRequestSerializer serializeWithRequest:urlRequest parameters:parameters headers:nil];
     
     XCTAssertNil(newUrlRequest.HTTPBody);
     XCTAssertEqualObjects(@"https://fake.url?p2=v2&p1=v1", newUrlRequest.URL.absoluteString);
