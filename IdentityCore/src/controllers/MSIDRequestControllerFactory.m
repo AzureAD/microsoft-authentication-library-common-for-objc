@@ -109,10 +109,15 @@
     
     if ([parameters shouldUseBroker])
     {
-        return [self brokerController:parameters
-                 tokenRequestProvider:tokenRequestProvider
-                   fallbackController:localController
-                                error:error];
+        id<MSIDRequestControlling> brokerController = [self brokerController:parameters
+                                                        tokenRequestProvider:tokenRequestProvider
+                                                          fallbackController:localController
+                                                                       error:error];
+        
+        if (brokerController)
+        {
+            return brokerController;
+        }
     }
 
     return localController;
