@@ -28,8 +28,8 @@
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerInteractiveController.h"
-#import "MSIDSSOExtensionSilentTokenRequestController.h"
 #endif
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDSSOExtensionSignoutController.h"
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDRequestParameters+Broker.h"
@@ -45,10 +45,9 @@
 {
     MSIDSilentController *brokerController;
     
-#if TARGET_OS_IPHONE
     if ([parameters shouldUseBroker])
     {
-        if (@available(iOS 13.0, *))
+        if (@available(iOS 13.0, macOS 10.15, *))
         {
             if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
             {
@@ -59,7 +58,6 @@
             }
         }
     }
-#endif
     
     // TODO: Performance optimization: check account source.
     // if (parameters.accountIdentifier.source == BROKER) return brokerController;
@@ -239,7 +237,6 @@
                                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
                                                              error:(NSError **)error
 {
-#if TARGET_OS_IPHONE && MSID_ENABLE_SSO_EXTENSION
     if ([parameters shouldUseBroker])
     {
         if (@available(iOS 13.0, macos 10.15, *))
@@ -253,7 +250,6 @@
             }
         }
     }
-    #endif
     
     return [[MSIDSignoutController alloc] initWithRequestParameters:parameters
                                            shouldSignoutFromBrowser:shouldSignoutFromBrowser

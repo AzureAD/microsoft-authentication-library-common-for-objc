@@ -28,9 +28,7 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
-#if TARGET_OS_IOS
 #import "MSIDSSOExtensionSilentTokenRequest.h"
-#endif
 #import "MSIDSSOExtensionInteractiveTokenRequest.h"
 
 @implementation MSIDDefaultTokenRequestProvider
@@ -118,8 +116,7 @@
 - (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
                                                             forceRefresh:(__unused BOOL)forceRefresh
 {
-#if TARGET_OS_IOS
-    if (@available(iOS 13.0, *))
+    if (@available(iOS 13.0, macOS 10.15, *))
     {
         __auto_type request = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:parameters
                                                                                        forceRefresh:forceRefresh
@@ -129,7 +126,6 @@
                                                                                accountMetadataCache:self.accountMetadataCache];
         return request;
     }
-#endif
     
     return nil;
 }
