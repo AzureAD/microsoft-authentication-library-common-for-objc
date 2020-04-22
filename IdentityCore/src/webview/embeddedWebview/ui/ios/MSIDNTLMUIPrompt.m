@@ -25,6 +25,7 @@
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDMainThreadUtil.h"
+#import <WebKit/WebKit.h>
 
 @implementation MSIDNTLMUIPrompt
 
@@ -45,7 +46,6 @@ __weak static UIAlertController *_presentedPrompt = nil;
 + (void)presentPromptInParentController:(UIViewController *)parentViewController
                       completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))block
 {
-    
     if ([MSIDAppExtensionUtil isExecutingInAppExtension])
     {
         block(nil, nil, YES);

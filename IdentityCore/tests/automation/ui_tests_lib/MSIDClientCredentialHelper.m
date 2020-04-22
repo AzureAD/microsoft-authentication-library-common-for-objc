@@ -314,7 +314,6 @@
 {
     unsigned char hash[CC_SHA1_DIGEST_LENGTH];
     CC_SHA1(inputData.bytes, (CC_LONG)inputData.length, hash);
-    
     return [NSData dataWithBytes:hash length:CC_SHA1_DIGEST_LENGTH];
 }
 

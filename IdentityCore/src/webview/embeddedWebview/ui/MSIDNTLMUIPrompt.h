@@ -23,13 +23,15 @@
 
 #import <Foundation/Foundation.h>
 
+@class WKWebView;
+
 @interface MSIDNTLMUIPrompt : NSObject
 
 #if TARGET_OS_IPHONE
 + (void)presentPromptInParentController:(UIViewController *)parentViewController
                       completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
 #else
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
++ (void)presentPromptWithWebView:(WKWebView *)webview completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
 #endif
 
 + (void)dismissPrompt;

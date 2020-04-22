@@ -58,7 +58,7 @@
 #if TARGET_OS_IPHONE
         [MSIDNTLMUIPrompt presentPromptInParentController:parentViewController completionHandler:^(NSString *username, NSString *password, BOOL cancel)
 #else
-        [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password, BOOL cancel)
+        [MSIDNTLMUIPrompt presentPromptWithWebView:webview completion:^(NSString *username, NSString *password, BOOL cancel)
 #endif
          {
              if (cancel)
