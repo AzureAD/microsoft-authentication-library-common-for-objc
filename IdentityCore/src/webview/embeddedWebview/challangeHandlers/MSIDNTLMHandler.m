@@ -53,7 +53,7 @@
         MSID_LOG_INFO(nil, @"Attempting to handle NTLM challenge");
         MSID_LOG_INFO_PII(nil, @"Attempting to handle NTLM challenge host: %@", challenge.protectionSpace.host);
         
-        [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password, BOOL cancel)
+        [MSIDNTLMUIPrompt presentPromptWithWebView:webview completion:^(NSString *username, NSString *password, BOOL cancel)
          {
              if (cancel)
              {
