@@ -53,6 +53,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 @property (readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
 
+@property (nonatomic) BOOL isDeveloperKnown;
+
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;
 
