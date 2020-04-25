@@ -173,7 +173,7 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 - (BOOL)isKnown
 {
     // TODO: Can we move it out from here? What about ADFS & B2C?
-    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString];
+    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString] || self.isDeveloperKnown;
 }
 
 - (BOOL)supportsBrokeredAuthentication

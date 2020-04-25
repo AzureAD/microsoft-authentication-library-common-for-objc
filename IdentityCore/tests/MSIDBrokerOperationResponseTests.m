@@ -23,11 +23,11 @@
 
 #if MSID_ENABLE_SSO_EXTENSION
 #import <XCTest/XCTest.h>
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDDeviceInfo.h"
 #import "MSIDBrokerConstants.h"
 
-@interface MSIDBrokerOperationTestResponse : MSIDBrokerOperationResponse
+@interface MSIDBrokerOperationTestResponse : MSIDBrokerNativeAppOperationResponse
 
 @end
 

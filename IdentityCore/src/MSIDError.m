@@ -93,6 +93,10 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     {
         return MSIDErrorInteractionRequired;
     }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame)
+    {
+        return MSIDErrorServerAccessDenied;
+    }
     
     return defaultCode;
 }

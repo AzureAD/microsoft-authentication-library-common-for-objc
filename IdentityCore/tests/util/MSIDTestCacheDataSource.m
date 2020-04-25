@@ -34,6 +34,7 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAccountMetadata.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -531,7 +532,7 @@
     return YES;
 }
 
-- (MSIDAccountMetadata *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     if (!serializer)
     {
@@ -544,10 +545,10 @@
     }
     
     NSData *data = [self itemDataWithKey:key keysDictionary:_accountKeys contentDictionary:_accountContents context:context error:error];
-    return (MSIDAccountMetadata *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadata class]];
+    return (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
 }
 
-- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     if (!serializer)
     {
@@ -564,7 +565,7 @@
     NSMutableArray *metadataItems = [NSMutableArray new];
     for(NSData *data in items)
     {
-        MSIDAccountMetadata *metadata = (MSIDAccountMetadata *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadata class]];
+        MSIDAccountMetadataCacheItem *metadata = (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
         if (metadata)
         {
             [metadataItems addObject:metadata];

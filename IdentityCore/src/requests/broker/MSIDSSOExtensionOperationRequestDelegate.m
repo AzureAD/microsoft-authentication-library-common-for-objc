@@ -24,7 +24,7 @@
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
 #import "MSIDSSOExtensionRequestDelegate+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
-#import "MSIDBrokerOperationResponse.h"
+#import "MSIDBrokerNativeAppOperationResponse.h"
 
 @implementation MSIDSSOExtensionOperationRequestDelegate
 
@@ -48,7 +48,7 @@
         return;
     }
     
-    __auto_type operationResponse = (MSIDBrokerOperationResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationResponse.class error:&error];
+    __auto_type operationResponse = (MSIDBrokerNativeAppOperationResponse *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_BROKER_OPERATION_RESPONSE_TYPE_JSON_KEY assertKindOfClass:MSIDBrokerOperationResponse.class error:&error];
 
     if (!operationResponse)
     {

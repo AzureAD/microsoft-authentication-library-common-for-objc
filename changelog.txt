@@ -1,3 +1,25 @@
+Version 1.5.0
+------
+* Added Safari SSO support for AAD SSO extension
+* Switched to new lab API
+* Convert access denied error to cancelled
+* Removed default urn redirect uri dependency
+
+Version 1.4.1
+------
+* Fixed macOS cache on 10.15 when App Identifier Prefix is different from TeamId (#697)
+* Remove SHA-1 dependency from production library (#695)
+* Fixed SSO extension + MSIT MFA (#704)
+* Fixed SSO extension swipe down cancellation case (#703)
+* Handle http headers coming from iOS broker when it is either a NSDictionary or NSString (#706)
+
+Version 1.4.0
+------
+* iOS 13 SSO extension support
+* FLW shared device mode support
+* macOS 10.15 system webview support (ASWebAuthenticationSession)
+* Account sign-in state tracking
+
 Version 1.3.12
 -------
 * Keyed unarchiver deserialization fix for iOS 11.2

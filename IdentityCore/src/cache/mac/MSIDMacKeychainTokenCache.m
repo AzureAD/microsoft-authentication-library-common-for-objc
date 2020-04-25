@@ -45,6 +45,7 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDConstants.h"
+#import "MSIDLoginKeychainUtil.h"
 
 /**
  This Mac cache stores serialized cache credentials in the macOS "login" Keychain.
@@ -409,7 +410,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
-        MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+        MSIDKeychainUtil *keychainUtil = [MSIDLoginKeychainUtil sharedInstance];
         
         if (!keychainUtil.teamId)
         {
@@ -1048,6 +1049,11 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                    error:(NSError **)error
 
 {
+    // Clear in-memory cache
+    self.appStorageItem = [MSIDMacCredentialStorageItem new];
+    self.sharedStorageItem = [MSIDMacCredentialStorageItem new];
+
+    // Clear disk cache
     return [self clearWithAttributes:self.defaultCacheQuery context:context error:error];
 }
 
