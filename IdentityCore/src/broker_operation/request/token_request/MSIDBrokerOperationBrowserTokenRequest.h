@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers
-                           body:(NSData *)httpBody
+                           body:(nullable NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
                           error:(NSError **)error;
