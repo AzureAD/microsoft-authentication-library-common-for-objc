@@ -46,7 +46,7 @@
     }
 }
 
-- (void)cancel
+- (void)cancelProgramatically
 {
     
 }
@@ -56,6 +56,10 @@
     
 }
 
+- (void)userCancel
+{
+    
+}
 
 - (BOOL)isKindOfClass:(Class)aClass
 {

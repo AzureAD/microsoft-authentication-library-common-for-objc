@@ -37,6 +37,9 @@
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+#if TARGET_OS_OSX
+          customWindow:(NSRect)windowRect
+#endif
                context:(id<MSIDRequestContext>)context
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
@@ -57,12 +60,14 @@
     return [super initWithStartURL:startURL endURL:endURL
                            webview:webview
                      customHeaders:headers
+#if TARGET_OS_OSX
+                      customWindow:windowRect
+#endif
                            context:context];
 }
 
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+- (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
+                           decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
@@ -77,7 +82,7 @@
         [self completeWebAuthWithURL:url];
         
         decisionHandler(WKNavigationActionPolicyCancel);
-        return;
+        return YES;
     }
     
 #if TARGET_OS_IPHONE
@@ -97,10 +102,21 @@
                                }
                                [self loadRequest:challengeResponse];
                            }];
-        return;
+        return YES;
     }
-#endif
-    
+    #endif
+    return NO;
+}
+
+- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+                                webview:(WKWebView *)webView
+                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    if([self decidePolicyAADForNavigationAction:navigationAction decisionHandler:decisionHandler])
+    {
+         return;
+    }
+
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
 

@@ -105,6 +105,9 @@
                                                              endURL:[NSURL URLWithString:configuration.endRedirectUrl]
                                                             webview:webview
                                                       customHeaders:configuration.customHeaders
+#if TARGET_OS_OSX
+                                                       customWindow:NSZeroRect
+#endif
                                                             context:context];
     
 #if TARGET_OS_IPHONE

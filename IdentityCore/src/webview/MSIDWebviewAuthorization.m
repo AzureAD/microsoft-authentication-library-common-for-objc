@@ -149,7 +149,7 @@ static MSIDWebviewSession *s_currentSession = nil;
     {
         if (s_currentSession)
         {
-            [s_currentSession.webviewController cancel];
+            [s_currentSession.webviewController cancelProgramatically];
             s_currentSession = nil;
         }
     }

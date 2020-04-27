@@ -88,15 +88,19 @@
     
 }
 
-- (void)cancel
+- (void)cancelProgramatically
 {
     [self.webAuthSession cancel];
+}
+
+- (void)userCancel {
+     [self cancelProgramatically];
 }
 
 - (void)dismiss
 {
     self.sessionDismissed = YES;
-    [self cancel];
+    [self cancelProgramatically];
 }
 
 @end

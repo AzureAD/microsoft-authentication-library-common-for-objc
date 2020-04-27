@@ -41,6 +41,9 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+#if TARGET_OS_OSX
+          customWindow:(NSRect)customWindow
+#endif
                context:(id<MSIDRequestContext>)context;
 
 - (void)loadRequest:(NSURLRequest *)request;

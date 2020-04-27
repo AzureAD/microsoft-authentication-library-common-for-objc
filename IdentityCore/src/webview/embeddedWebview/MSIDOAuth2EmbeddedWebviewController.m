@@ -55,12 +55,13 @@
     MSIDTelemetryUIEvent *_telemetryEvent;
 }
 
-
-
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+#if TARGET_OS_OSX
+          customWindow:(NSRect)customWindow
+#endif
                context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -75,8 +76,12 @@
         return nil;
     }
     
-    self = [super initWithContext:context];
-    
+    self = [super initWithContext:context
+    #if TARGET_OS_OSX
+                customizedWindowRect:customWindow
+    #endif
+    ];
+
     if (self)
     {
         self.webView = webview;
@@ -134,7 +139,7 @@
     }];
 }
 
-- (void)cancel
+- (void)cancelProgramatically
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
     
@@ -147,7 +152,7 @@
 
 - (void)dismiss
 {
-    [self cancel];
+    [self cancelProgramatically];
 }
 
 - (void)userCancel

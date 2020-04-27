@@ -40,9 +40,16 @@ NSWindowController
 #if TARGET_OS_IPHONE
 @property (nonatomic, weak) UIViewController *parentController;
 @property (nonatomic) UIModalPresentationStyle presentationType;
+#else
+@property (nonatomic, readonly) NSRect customizedWindowRect;
 #endif
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
+
+#if TARGET_OS_OSX
+- (id)initWithContext:(id<MSIDRequestContext>)context
+ customizedWindowRect: (NSRect)windowRect;
+#endif
 
 - (BOOL)loadView:(NSError **)error;
 - (void)presentView;

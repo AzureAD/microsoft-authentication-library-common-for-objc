@@ -111,15 +111,20 @@
     }
 }
 
-- (void)cancel
+- (void)cancelProgramatically
 {
     [self.webAuthSession cancel];
+}
+
+- (void)userCancel
+{
+    [self cancelProgramatically];
 }
 
 - (void)dismiss
 {
     self.sessionDismissed = YES;
-    [self cancel];
+    [self cancelProgramatically];
 }
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
