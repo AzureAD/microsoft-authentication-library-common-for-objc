@@ -50,10 +50,7 @@
 
 - (void)testLog_whenLogLevelErrorMessageNil_shouldNotThrow
 {
-    __auto_type expectation = [self keyValueObservingExpectationForObject:[MSIDTestLogger sharedLogger] keyPath:@"callbackInvoked" expectedValue:@1];
-    [expectation setInverted:YES];
     XCTAssertNoThrow([[MSIDLogger sharedLogger] logLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO format:nil]);
-    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 #pragma mark - PII flag
