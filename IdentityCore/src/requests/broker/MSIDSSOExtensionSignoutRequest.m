@@ -43,6 +43,7 @@
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @property (nonatomic, readonly) MSIDProviderType providerType;
 @property (nonatomic) BOOL shouldSignoutFromBrowser;
+@property (nonatomic) BOOL clearSSOExtensionCookies;
 
 @end
 
@@ -50,6 +51,7 @@
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                          clearSSOExtensionCookies:(BOOL)clearSSOExtensionCookies
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
 {
     self = [self initWithRequestParameters:parameters oauthFactory:oauthFactory];
@@ -57,6 +59,7 @@
     if (self)
     {
         _shouldSignoutFromBrowser = shouldSignoutFromBrowser;
+        _clearSSOExtensionCookies = clearSSOExtensionCookies;
     }
     
     return self;
@@ -111,6 +114,7 @@
     signoutRequest.providerType = self.providerType;
     signoutRequest.accountIdentifier = self.requestParameters.accountIdentifier;
     signoutRequest.signoutFromBrowser = self.shouldSignoutFromBrowser;
+    signoutRequest.clearSSOExtensionCookies = self.clearSSOExtensionCookies;
     
     [MSIDBrokerOperationRequest fillRequest:signoutRequest
                         keychainAccessGroup:self.requestParameters.keychainAccessGroup
