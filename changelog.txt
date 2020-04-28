@@ -121,6 +121,15 @@ Version 1.1.0
 ------------
 * Added Auth broker support to common core
 
+Version 1.0.17
+-------------
+* Remove SHA-1 dependency for ADAL (#696)
+
+Version 1.0.16
+-------------
+* Fix a presentation bug when both parent controller and webview are set
+* Set default WKWebView content mode
+
 Version 1.0.15
 -------------
 * Support removing RTs from other accessors
