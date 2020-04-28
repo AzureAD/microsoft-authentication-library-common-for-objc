@@ -109,11 +109,17 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                               httpResponse:httpResponse
                                                       data:data
                                                      error:error];
-          [self.serverTelemetry handleHttpResponse:httpResponse data:data context:self.context];
+        
+        void (^completeBlockWrapper)(id, NSError *) = ^(id response, NSError *error)
+        {
+            [self.serverTelemetry handleHttpResponse:httpResponse data:data context:self.context];
+            
+            if (completionBlock) { completionBlock(response, error); }
+        };
           
           if (error)
           {
-              if (completionBlock) { completionBlock(nil, error); }
+              completeBlockWrapper(nil, error);
           }
           else if (httpResponse.statusCode == 200)
           {
@@ -127,7 +133,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               }
               
-              if (completionBlock) { completionBlock(responseObject, error); }
+              completeBlockWrapper(responseObject, error);
           }
           else
           {
@@ -141,11 +147,11 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                      httpRequest:self
                               responseSerializer:responseSerializer
                                          context:self.context
-                                 completionBlock:completionBlock];
+                                 completionBlock:completeBlockWrapper];
               }
               else
               {
-                  if (completionBlock) { completionBlock(nil, error); }
+                  completeBlockWrapper(nil, error);
               }
           }
 
