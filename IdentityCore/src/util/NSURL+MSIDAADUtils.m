@@ -124,6 +124,21 @@
     return NO;
 }
 
+- (BOOL)msidContainsPathComponents:(NSArray *)allowedPathComponents
+{
+    NSArray *pathComponents = self.pathComponents;
+    
+    for (NSString *component in pathComponents)
+    {
+        if ([allowedPathComponents containsObject:component.lowercaseString])
+        {
+            return YES;
+        }
+    }
+    
+    return NO;
+}
+
 - (BOOL)msidContainsCaseInsensitivePath:(NSString *)caseInsensitivePath
 {
     return [self.absoluteString rangeOfString:caseInsensitivePath options:NSCaseInsensitiveSearch].location != NSNotFound;

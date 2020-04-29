@@ -22,28 +22,12 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDBaseBrokerOperationRequest.h"
-#import "MSIDBrowserRequestValidating.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDAADAuthority;
+@protocol MSIDBrowserRequestValidating <NSObject>
 
-@interface MSIDBrokerOperationBrowserTokenRequest : MSIDBaseBrokerOperationRequest
-
-@property (nonatomic, readonly) NSURL *requestURL;
-@property (nonatomic, readonly) NSString *bundleIdentifier;
-@property (nonatomic, readonly) MSIDAADAuthority *authority;
-@property (nonatomic, readonly) NSDictionary *headers;
-@property (nonatomic, readonly) NSUUID *correlationId;
-@property (nonatomic, readonly) NSData *httpBody;
-
-- (instancetype)initWithRequest:(NSURL *)requestURL
-                        headers:(NSDictionary *)headers
-                           body:(nullable NSData *)httpBody
-               bundleIdentifier:(NSString *)bundleIdentifier
-               requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
-                          error:(NSError **)error;
+- (BOOL)shouldHandleURL:(NSURL *)url;
 
 @end
 
