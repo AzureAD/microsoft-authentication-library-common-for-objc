@@ -46,7 +46,7 @@
     }
 }
 
-- (void)cancelProgramatically
+- (void)cancelProgrammatically
 {
     
 }

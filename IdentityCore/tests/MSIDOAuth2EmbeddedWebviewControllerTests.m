@@ -70,9 +70,6 @@
                                                             endURL:nil
                                                            webview:nil
                                                      customHeaders:nil
-#if TARGET_OS_OSX
-                                                      customWindow:NSZeroRect
-#endif
                                                            context:nil];
     XCTAssertNil(webVC);
     
@@ -86,9 +83,6 @@
                                                             endURL:[NSURL URLWithString:@"endurl://host"]
                                                            webview:nil
                                                      customHeaders:nil
-#if TARGET_OS_OSX
-                                                      customWindow:NSZeroRect
-#endif
                                                            context:nil];
     XCTAssertNotNil(webVC);
     

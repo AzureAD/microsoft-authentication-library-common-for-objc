@@ -59,9 +59,6 @@
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-#if TARGET_OS_OSX
-          customWindow:(NSRect)customWindow
-#endif
                context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -76,11 +73,7 @@
         return nil;
     }
     
-    self = [super initWithContext:context
-    #if TARGET_OS_OSX
-                customizedWindowRect:customWindow
-    #endif
-    ];
+    self = [super initWithContext:context];
 
     if (self)
     {
@@ -98,6 +91,28 @@
     
     return self;
 }
+
+#if TARGET_OS_OSX
+- (id)initWithStartURL:(NSURL *)startURL
+                endURL:(NSURL *)endURL
+               webview:(WKWebView *)webview
+         customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+          customWindow:(NSRect)customWindow
+               context:(id<MSIDRequestContext>)context
+{
+    self = [self initWithStartURL:startURL
+                           endURL:endURL
+                          webview:webview
+                    customHeaders:customHeaders
+                          context:context];
+    if(self)
+    {
+        self.customizedWindowRect = customWindow;
+    }
+
+    return self;
+}
+#endif
 
 -(void)dealloc
 {
@@ -139,7 +154,7 @@
     }];
 }
 
-- (void)cancelProgramatically
+- (void)cancelProgrammatically
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
     
@@ -152,7 +167,7 @@
 
 - (void)dismiss
 {
-    [self cancelProgramatically];
+    [self cancelProgrammatically];
 }
 
 - (void)userCancel

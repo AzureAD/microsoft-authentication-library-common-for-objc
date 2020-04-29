@@ -64,7 +64,7 @@ static WKWebViewConfiguration *s_webConfig;
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
-    customizedWindowRect: (NSRect)windowRect
+ customizedWindowRect: (NSRect)windowRect
 {
     _customizedWindowRect = windowRect;
     return [self initWithContext:context];

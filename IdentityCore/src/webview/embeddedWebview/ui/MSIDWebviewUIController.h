@@ -41,7 +41,7 @@ NSWindowController
 @property (nonatomic, weak) UIViewController *parentController;
 @property (nonatomic) UIModalPresentationStyle presentationType;
 #else
-@property (nonatomic, readonly) NSRect customizedWindowRect;
+@property (nonatomic) NSRect customizedWindowRect;
 #endif
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;

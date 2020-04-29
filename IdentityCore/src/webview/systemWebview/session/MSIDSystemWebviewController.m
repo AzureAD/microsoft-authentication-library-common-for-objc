@@ -150,13 +150,13 @@
     [self.telemetryEvent setIsCancelled:YES];
     [[MSIDTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:self.telemetryEvent];
     
-    [self.session cancelProgramatically];
+    [self.session cancelProgrammatically];
     
     [self notifyEndWebAuthWithURL:nil error:error];
     self.completionHandler(nil, error);
 }
 
-- (void)cancelProgramatically
+- (void)cancelProgrammatically
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Authorization session was cancelled programatically");
     NSError *error = MSIDCreateError(MSIDErrorDomain,

@@ -34,7 +34,7 @@ typedef void (^MSIDWebUICompletionHandler)(NSURL *callbackURL, NSError *error);
 @protocol MSIDWebviewInteracting
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler;
-- (void)cancelProgramatically;
+- (void)cancelProgrammatically;
 - (void)dismiss;
 - (void)userCancel;
 
