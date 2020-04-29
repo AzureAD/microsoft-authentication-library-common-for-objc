@@ -215,9 +215,31 @@
                                                                      configuration:configuration];
     refreshToken.idToken = idToken.rawIdToken;
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Saving refresh token in external cache.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Checking refresh token existence in external cache.");
     
     NSError *error;
+    MSIDRefreshToken *existingRefreshToken = [self.externalLegacyAccessor getRefreshTokenWithAccount:refreshToken.accountIdentifier
+                                                                                            familyId:refreshToken.familyId
+                                                                                       configuration:configuration
+                                                                                             context:context
+                                                                                               error:&error];
+    
+    if (error)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to read refresh token from external cache, error: %@", MSID_PII_LOG_MASKABLE(error));
+        completionBlock(NO);
+        return;
+    }
+    
+    if (existingRefreshToken)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found existing refresh token in external cache. Returning early.");
+        completionBlock(YES);
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Saving refresh token in external cache.");
+    
     BOOL result = [self.externalLegacyAccessor saveRefreshToken:refreshToken
                                                   configuration:configuration
                                                         context:context
