@@ -75,7 +75,7 @@
         _ssoTokenResponseHandler = [MSIDSSOTokenResponseHandler new];
         _extensionDelegate = [MSIDSSOExtensionTokenRequestDelegate new];
         _extensionDelegate.context = parameters;
-        __weak typeof(self) weakSelf = self;
+        __typeof__(self) __weak weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
 #if TARGET_OS_OSX
