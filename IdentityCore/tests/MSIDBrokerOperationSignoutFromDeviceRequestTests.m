@@ -76,6 +76,7 @@
     request.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"upn@upn.com" homeAccountId:@"uid.utid"];
     request.brokerKey = @"key";
     request.protocolVersion = 99;
+    request.clearSSOExtensionCookies = YES;
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -88,7 +89,8 @@
                                    @"provider_type": @"provider_aad_v2",
                                    @"redirect_uri": @"myredirect",
                                    @"signout_from_browser": @YES,
-                                   @"username": @"upn@upn.com"
+                                   @"username": @"upn@upn.com",
+                                   @"clear_sso_extension_cookies": @YES
     };
     
     XCTAssertTrue([json compareAndPrintDiff:expectedJson]);
