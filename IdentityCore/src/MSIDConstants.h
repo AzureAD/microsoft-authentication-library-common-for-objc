@@ -80,8 +80,10 @@ typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _
 typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
 
 #if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
 @compatibility_alias MSIDViewController UIViewController;
 #else
+#import <AppKit/AppKit.h>
 @compatibility_alias MSIDViewController NSViewController;
 #endif
 

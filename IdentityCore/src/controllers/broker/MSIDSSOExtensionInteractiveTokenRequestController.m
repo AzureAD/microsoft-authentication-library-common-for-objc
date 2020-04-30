@@ -50,7 +50,7 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
-    __weak typeof(self) weakSelf = self;
+    __typeof__(self) __weak weakSelf = self;
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);

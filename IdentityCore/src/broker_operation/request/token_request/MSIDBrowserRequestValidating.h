@@ -23,17 +23,12 @@
 
 #import <Foundation/Foundation.h>
 
-@class WKWebView;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDNTLMUIPrompt : NSObject
+@protocol MSIDBrowserRequestValidating <NSObject>
 
-#if TARGET_OS_IPHONE
-+ (void)presentPromptInParentController:(UIViewController *)parentViewController
-                      completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
-#else
-+ (void)presentPromptWithWebView:(WKWebView *)webview completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
-#endif
-
-+ (void)dismissPrompt;
+- (BOOL)shouldHandleURL:(NSURL *)url;
 
 @end
+
+NS_ASSUME_NONNULL_END

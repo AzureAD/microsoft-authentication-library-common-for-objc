@@ -71,7 +71,7 @@
     {
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = parameters;
-        __weak typeof(self) weakSelf = self;
+        __typeof__(self) __weak weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
             if (!operationResponse.success)
