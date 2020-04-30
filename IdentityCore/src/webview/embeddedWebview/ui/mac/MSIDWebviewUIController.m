@@ -64,10 +64,16 @@ static WKWebViewConfiguration *s_webConfig;
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
- customizedWindowRect: (NSRect)windowRect
+       platformParams:(MSIDWebViewPlatformParams *)platformParams
 {
-    _customizedWindowRect = windowRect;
-    return [self initWithContext:context];
+    self = [super init];
+    if (self)
+    {
+        _context = context;
+        _platformParams = platformParams;
+    }
+
+    return self;
 }
 
 - (BOOL)loadView:(__unused NSError **)error
@@ -125,9 +131,9 @@ static WKWebViewConfiguration *s_webConfig;
 - (NSWindow *)obtainSignInWindow
 {
     NSRect contentRect;
-    if (!NSIsEmptyRect(_customizedWindowRect))
+    if (_platformParams && !NSIsEmptyRect([_platformParams customWindowRect]))
     {
-        contentRect = _customizedWindowRect;
+        contentRect = [_platformParams customWindowRect];
     }
     else
     {
@@ -143,7 +149,7 @@ static WKWebViewConfiguration *s_webConfig;
             windowRect = [[NSScreen mainScreen] frame];
         }
         // Calculate the center of the current main window so we can position our window in the center of it
-        contentRect = NSIsEmptyRect(_customizedWindowRect) ? [self getCenterRect:windowRect rect2:NSMakeRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)] : _customizedWindowRect;
+        contentRect = [self getCenterRect:windowRect rect2:NSMakeRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)];
     }
 
     NSWindow *window = [[NSWindow alloc] initWithContentRect:contentRect
@@ -183,8 +189,15 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (NSProgressIndicator *)prepareLoadingIndicator
 {
-    CGFloat windowWidth = NSIsEmptyRect(_customizedWindowRect) ? DEFAULT_WINDOW_WIDTH : _customizedWindowRect.size.width;
-    CGFloat windowHeight = NSIsEmptyRect(_customizedWindowRect) ? DEFAULT_WINDOW_HEIGHT : _customizedWindowRect.size.height;
+    CGFloat windowWidth = DEFAULT_WINDOW_WIDTH;
+    CGFloat windowHeight = DEFAULT_WINDOW_HEIGHT;
+    if (_platformParams && !NSIsEmptyRect([_platformParams customWindowRect]))
+    {
+        NSRect window = [_platformParams customWindowRect];
+        windowWidth = window.size.width;
+        windowHeight =window.size.height;
+    }
+
     NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - 16, windowHeight / 2 - 16, 32, 32)];
     [loadingIndicator setStyle:NSProgressIndicatorSpinningStyle];
     // Keep the item centered in the window even if it's resized.

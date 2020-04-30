@@ -37,9 +37,7 @@
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
-#if TARGET_OS_OSX
-          customWindow:(NSRect)windowRect
-#endif
+          platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
@@ -60,9 +58,7 @@
     return [super initWithStartURL:startURL endURL:endURL
                            webview:webview
                      customHeaders:headers
-#if TARGET_OS_OSX
-                      customWindow:windowRect
-#endif
+                    platfromParams:platformParams
                            context:context];
 }
 
