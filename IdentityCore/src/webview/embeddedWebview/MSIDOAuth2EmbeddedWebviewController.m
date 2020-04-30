@@ -74,7 +74,8 @@
         return nil;
     }
     
-    self = [super initWithContext:context];
+    self = [super initWithContext:context
+                   platformParams:platformParams];
 
     if (self)
     {
