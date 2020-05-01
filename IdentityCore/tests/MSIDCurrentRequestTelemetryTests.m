@@ -7,6 +7,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "MSIDCurrentRequestTelemetry.h"
 
 @interface MSIDCurrentRequestTelemetryTests : XCTestCase
 
@@ -22,9 +23,63 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (void)testInitWithTelemetryString_whenValidString_shouldInit
+{
+    NSString *testString = @"2|82,0|";
+    NSError *error;
+    MSIDCurrentRequestTelemetry *telemetryObject = [[MSIDCurrentRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
+    
+    
+    XCTAssertNotNil(telemetryObject);
+    XCTAssertEqual(telemetryObject.schemaVersion, 2);
+    XCTAssertEqual(telemetryObject.apiId, 82);
+    XCTAssertEqual(telemetryObject.forceRefresh, 0);
+}
+
+- (void)testInitWithTelemetryString_whenNullString_shouldReturnNil
+{
+    NSString *testString = nil;
+    NSError *error;
+    MSIDCurrentRequestTelemetry *telemetryObject = [[MSIDCurrentRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
+    
+    
+    XCTAssertNil(telemetryObject);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Initialized server telemetry string with nil or empty string");
+}
+
+- (void)testInitWithTelemetryString_whenEmptyString_shouldError
+{
+    NSString *testString = @"";
+    NSError *error;
+    MSIDCurrentRequestTelemetry *telemetryObject = [[MSIDCurrentRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
+    
+    
+    XCTAssertNil(telemetryObject);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Initialized server telemetry string with nil or empty string");
+}
+
+- (void)testInitWithTelemetryString_whenInvalidString_shouldError
+{
+    NSString *testString = @"sjsdjasdkdsjsdlkdsfsdf";
+    NSError *error;
+    MSIDCurrentRequestTelemetry *telemetryObject = [[MSIDCurrentRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
+    
+    
+    XCTAssertNil(telemetryObject);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Initialized server telemetry string with invalid string format");
+}
+
+-(void)testTelemetryString_whenValidProperties_shouldCreateString
+{
+    NSString *testString = @"2|82,0|";
+    NSError *error;
+    MSIDCurrentRequestTelemetry *telemetryObject = [[MSIDCurrentRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|82,0|");
 }
 
 - (void)testPerformanceExample {
