@@ -26,6 +26,8 @@
 #define DEFAULT_TEST_HOME_ACCOUNT_ID DEFAULT_TEST_UID@"."DEFAULT_TEST_UTID
 #define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
 #define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
+#define DEFAULT_TEST_AUTHORITY_GUID @"https://login.microsoftonline.com/"DEFAULT_TEST_UTID
+#define DEFAULT_TEST_TOKEN_ENDPOINT_GUID @"https://login.microsoftonline.com/"DEFAULT_TEST_UTID@"/oauth2/v2.0/token"
 #define DEFAULT_TEST_AUTHORIZATION_ENDPOINT @"https://login.microsoftonline.com/common/common/oauth2/authorize"
 #define DEFAULT_TEST_ENVIRONMENT @"login.microsoftonline.com"
 #define DEFAULT_TEST_CLIENT_ID @"test_client_id"
