@@ -29,17 +29,69 @@
 
 - (NSString *)telemetryString
 {
-    return @"";
+    return [self serializeCurrentTelemetryString];
 }
 
-- (instancetype)initWithTelemetryString:(__unused NSString *)csvString error:(__unused NSError **)error
+- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
 {
     self = [super init];
     if (self)
     {
+        NSError *internalError;
+        [self deserializeCurrentTelemetryString:telemetryString error:&internalError];
         
+        if (internalError) {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to initialize server telemetry, error: %@", MSID_PII_LOG_MASKABLE(internalError));
+            if (error) *error = internalError;
+            return nil;
+        }
     }
     return self;
 }
+
+#pragma mark - Private
+
+-(NSString *)serializeCurrentTelemetryString
+{
+    int forceRefreshValue = (self.forceRefresh ? 1 : 0);
+    NSString *telemetryString = [NSString stringWithFormat:@"%ld|%ld,%d|", self.schemaVersion, self.apiId, forceRefreshValue];
+    
+    // Make sure string to be returned is less than 4kB in size
+    if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000) {
+        return nil;
+    }
+    
+    return telemetryString;
+}
+
+-(void)deserializeCurrentTelemetryString:(NSString *)telemetryString error:(NSError **)error
+{
+    if ([telemetryString length] == 0)
+    {
+        NSString *errorDescription = @"Initialized server telemetry string with nil or empty string";
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        return;
+    }
+    
+    NSCharacterSet *charSet = [NSCharacterSet characterSetWithCharactersInString:@"|,"];
+    NSArray *telemetryItems = [telemetryString componentsSeparatedByCharactersInSet:charSet];
+    
+    // Pipe symbol in final position creates one extra element at the end of componentsSeparatedByString array
+    // Hardcoded value of 4 will be changed based on the number of platform fields added in future releases
+    if ([telemetryItems count] == 4)
+    {
+        self.schemaVersion = [telemetryItems[0] intValue];
+        self.apiId = [telemetryItems[1] intValue];
+        self.forceRefresh = [telemetryItems[2] boolValue];
+    }
+    else
+    {
+        NSString *errorDescription = @"Initialized server telemetry string with invalid string format";
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        return;
+    }
+    
+}
+
 
 @end
