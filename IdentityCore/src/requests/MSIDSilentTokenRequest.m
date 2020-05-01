@@ -38,6 +38,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponseHandler.h"
+#import "MSIDLastRequestTelemetry.h"
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
@@ -51,6 +52,7 @@
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 
 @end
 
@@ -70,6 +72,7 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
+        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
 
     return self;
@@ -182,6 +185,7 @@
             
             if (tokenResult)
             {
+                [self.lastRequestTelemetry increaseSilentSuccessfulCount];
                 completionBlock(tokenResult, nil);
                 return;
             }

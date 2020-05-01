@@ -21,11 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponsePreprocessor.h"
+#import <Foundation/Foundation.h>
+
+@protocol MSIDHttpRequestProtocol;
+@protocol MSIDResponseErrorProviding;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAADJsonResponsePreprocessor : MSIDJsonResponsePreprocessor
+@protocol MSIDHttpRequestServerTelemetryHandling <NSObject>
+
+@property (nonatomic) id<MSIDResponseErrorProviding> responseErrorProvider;
+
+- (void)handleHttpResponse:(NSHTTPURLResponse *)httpResponse
+                      data:(nullable NSData *)data
+                   context:(id<MSIDRequestContext>)context;
+
+- (void)setTelemetryToRequest:(id<MSIDHttpRequestProtocol>)request;
 
 @end
 

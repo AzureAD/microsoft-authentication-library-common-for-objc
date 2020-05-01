@@ -21,11 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponsePreprocessor.h"
+#import <Foundation/Foundation.h>
+#import "MSIDTelemetryStringSerializable.h"
+
+@interface MSIDRequestTelemetryErrorInfo : NSObject
+
+@property (nonatomic) NSInteger apiId;
+@property (nonatomic, nonnull) NSUUID *correlationId;
+@property (nonatomic, nonnull) NSString *error;
+
+@end
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAADJsonResponsePreprocessor : MSIDJsonResponsePreprocessor
+@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
+
+@property (nonatomic, readonly) NSInteger schemaVersion;
+@property (nonatomic, readonly) NSInteger silentSuccessfulCount;
+@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
++ (instancetype)sharedInstance;
+
+- (void)updateWithApiId:(NSInteger)apiId
+            errorString:(nullable NSString *)errorString
+                context:(nullable id<MSIDRequestContext>)context;
+
+- (void)increaseSilentSuccessfulCount;
 
 @end
 

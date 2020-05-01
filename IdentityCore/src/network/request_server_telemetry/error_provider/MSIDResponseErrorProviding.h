@@ -21,11 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponsePreprocessor.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAADJsonResponsePreprocessor : MSIDJsonResponsePreprocessor
+@protocol MSIDResponseErrorProviding <NSObject>
+
+- (nullable NSString *)errorForResponse:(nullable NSHTTPURLResponse *)httpResponse
+                                   data:(nullable NSData *)data
+                                context:(nullable id <MSIDRequestContext>)context
+                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
 

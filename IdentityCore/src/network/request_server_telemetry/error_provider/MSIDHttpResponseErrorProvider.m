@@ -21,12 +21,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponsePreprocessor.h"
+#import "MSIDHttpResponseErrorProvider.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDHttpResponseErrorProvider
 
-@interface MSIDAADJsonResponsePreprocessor : MSIDJsonResponsePreprocessor
+- (NSString *)errorForResponse:(NSHTTPURLResponse *)httpResponse
+                          data:(__unused NSData *)data
+                       context:(__unused id<MSIDRequestContext>)context
+                         error:(__unused NSError **)error
+{
+    if (httpResponse.statusCode >= 400)
+    {
+        return [@(httpResponse.statusCode) stringValue];
+    }
+    
+    return nil;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

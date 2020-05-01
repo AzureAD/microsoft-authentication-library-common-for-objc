@@ -21,11 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonResponsePreprocessor.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAADJsonResponsePreprocessor : MSIDJsonResponsePreprocessor
+@protocol MSIDTelemetryStringSerializable <NSObject>
+
+- (instancetype)initWithTelemetryString:(NSString *)telemetryString
+                                  error:(NSError * __autoreleasing *)error;
+- (NSString *)telemetryString;
 
 @end
 
