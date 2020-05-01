@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#define DEFAULT_TEST_UID @"1"
-#define DEFAULT_TEST_UTID @"1234-5678-90abcdefg"
-#define DEFAULT_TEST_HOME_ACCOUNT_ID @"1.1234-5678-90abcdefg"
+#define DEFAULT_TEST_UID @"fedcba98-7654-3210-0000-000000000000"
+#define DEFAULT_TEST_UTID @"00000000-1234-5678-90abcdefffff"
+#define DEFAULT_TEST_HOME_ACCOUNT_ID DEFAULT_TEST_UID@"."DEFAULT_TEST_UTID
 #define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
 #define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
 #define DEFAULT_TEST_AUTHORIZATION_ENDPOINT @"https://login.microsoftonline.com/common/common/oauth2/authorize"
