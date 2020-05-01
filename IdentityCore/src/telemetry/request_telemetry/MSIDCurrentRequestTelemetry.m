@@ -57,7 +57,8 @@
     NSString *telemetryString = [NSString stringWithFormat:@"%ld|%ld,%d|", self.schemaVersion, self.apiId, forceRefreshValue];
     
     // Make sure string to be returned is less than 4kB in size
-    if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000) {
+    if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000)
+    {
         return nil;
     }
     

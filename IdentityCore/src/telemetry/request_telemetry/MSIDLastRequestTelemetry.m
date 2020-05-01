@@ -131,9 +131,14 @@
         NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@", self.errorsInfo[lastIndex].apiId, self.errorsInfo[lastIndex].correlationId];
         NSString *currentErrorMessage = [NSString stringWithFormat:@"%@", self.errorsInfo[lastIndex].error];
         
-        failedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
-        errorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
-        
+        // Only add error info into string if the resulting string smaller than 4KB
+        if ([currentFailedRequest lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
+                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < 4000)
+        {
+            failedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
+            errorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
+        }
+
         // Fill in remaining errors with comma at the end of each error
         for (int i = lastIndex - 1; i >= 0; i--)
         {
@@ -146,13 +151,15 @@
             // Only add next error into string if the resulting string smaller than 4KB, otherwise stop building
             // the string
             if ([newFailedRequestsString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength > 4000)
+                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < 4000)
+            {
+                failedRequestsString = newFailedRequestsString;
+                errorMessagesString = newErrorMessagesString;
+            }
+            else
             {
                 break;
             }
-            
-            failedRequestsString = newFailedRequestsString;
-            errorMessagesString = newErrorMessagesString;
         }
     }
     
@@ -183,16 +190,14 @@
         NSMutableArray *errorsInfo = [NSMutableArray<MSIDRequestTelemetryErrorInfo *> new];
         
         // Each failed request has 2 types ID and 1 error code
-        if ([failedRequests count] == 2 * [errors count]) {
+        if ([failedRequests count] == 2 * [errors count])
+        {
             
             int i; int j;
-            for (i = 0, j = 0; i < [errors count] && j < [failedRequests count]; i++, j+=2) {
+            for (i = 0, j = 0; i < [errors count] && j < [failedRequests count]; i++, j+=2)
+            {
                 __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
-                //errorInfo.apiId = [failedRequests[j] isEqual:@""] ? nil : (NSInteger)[failedRequests[j] intValue];
-                if (![failedRequests[j] isEqual:@""])
-                {
-                    errorInfo.apiId = [failedRequests[j] intValue];
-                }
+                errorInfo.apiId = [failedRequests[j] intValue];
                 errorInfo.correlationId = failedRequests[j+1];
                 errorInfo.error = errors[i];
                 [errorsInfo addObject:errorInfo];
