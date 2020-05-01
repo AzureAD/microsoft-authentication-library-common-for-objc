@@ -145,20 +145,33 @@
     [self.session startWithCompletionHandler:authCompletion];
 }
 
-- (void)cancel
+- (void)cancel:(NSError *)error
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Authorization session was cancelled programatically");
     [self.telemetryEvent setIsCancelled:YES];
     [[MSIDTelemetry sharedInstance] stopEvent:self.telemetryRequestId event:self.telemetryEvent];
     
-    [self.session cancel];
-    
-    NSError *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorSessionCanceledProgrammatically,
-                                     @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil, YES);
+    [self.session cancelProgrammatically];
     
     [self notifyEndWebAuthWithURL:nil error:error];
     self.completionHandler(nil, error);
+}
+
+- (void)cancelProgrammatically
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Authorization session was cancelled programatically");
+    NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorSessionCanceledProgrammatically,
+                                     @"Authorization session was cancelled programatically.", nil, nil, nil, self.context.correlationId, nil, YES);
+    [self cancel:error];
+}
+
+- (void)userCancel
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled authorization session by the user.");
+    NSError *error = MSIDCreateError(MSIDErrorDomain,
+                                     MSIDErrorSessionCanceledProgrammatically,
+                                     @"Canceled authorization session by the user.", nil, nil, nil, self.context.correlationId, nil, YES);
+    [self cancel:error];
 }
 
 - (BOOL)handleURLResponse:(NSURL *)url

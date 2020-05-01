@@ -86,12 +86,20 @@
     return self;
 }
 
-- (void)cancel
+- (void)cancelProgrammatically
 {
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically", nil, nil, nil, _context.correlationId, nil, YES);
     
     [self completeSessionWithResponse:nil context:_context error:error];
 }
+
+- (void)userCancel
+{
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, _context.correlationId, nil, YES);
+
+    [self completeSessionWithResponse:nil context:_context error:error];
+}
+
 
 - (void)startWithCompletionHandler:(MSIDWebUICompletionHandler)completionHandler
 {
