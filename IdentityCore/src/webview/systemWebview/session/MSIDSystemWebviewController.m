@@ -165,7 +165,8 @@
     [self cancel:error];
 }
 
-- (void)userCancel {
+- (void)userCancel
+{
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled authorization session by the user.");
     NSError *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorSessionCanceledProgrammatically,
