@@ -195,7 +195,7 @@ static WKWebViewConfiguration *s_webConfig;
     {
         NSRect window = [_platformParams customWindowRect];
         windowWidth = window.size.width;
-        windowHeight =window.size.height;
+        windowHeight = window.size.height;
     }
 
     NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - 16, windowHeight / 2 - 16, 32, 32)];

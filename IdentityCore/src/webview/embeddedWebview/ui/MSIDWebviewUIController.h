@@ -38,7 +38,7 @@ NSWindowController
 @property (nonatomic) id<MSIDRequestContext> context;
 @property (nonatomic) BOOL loading;
 @property (nonatomic) BOOL complete;
-@property (nonatomic) MSIDWebViewPlatformParams *platformParams;
+@property (nonatomic, readonly) MSIDWebViewPlatformParams *platformParams;
 #if TARGET_OS_IPHONE
 @property (nonatomic, weak) UIViewController *parentController;
 @property (nonatomic) UIModalPresentationStyle presentationType;

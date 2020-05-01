@@ -26,7 +26,8 @@
 
 @implementation MSIDWebViewPlatformParams
 
--(id)initWithCoustomWindowRect: (NSRect)customWindowRect {
+-(id)initWithCoustomWindowRect:(NSRect)customWindowRect
+{
     self = [super init];
     if (self)
     {

@@ -30,7 +30,7 @@
 
 @property (nonatomic, readonly) NSRect customWindowRect;
 
--(id)initWithCoustomWindowRect: (NSRect)customWindowRect;
+-(id)initWithCoustomWindowRect:(NSRect)customWindowRect;
 
 #endif
 
