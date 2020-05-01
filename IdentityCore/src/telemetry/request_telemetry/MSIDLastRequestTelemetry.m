@@ -95,7 +95,7 @@
     return [self serializeCurrentTelemetryString];
 }
 
-- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
+- (instancetype)initWithTelemetryString:(NSString *)telemetryString error:(NSError **)error
 {
     self = [super init];
     if (self)
