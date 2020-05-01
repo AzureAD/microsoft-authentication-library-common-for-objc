@@ -33,6 +33,9 @@
 
 - (id)init NS_UNAVAILABLE;
 
+- (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
+                           decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
+
 @end
 
 #endif
