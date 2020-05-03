@@ -40,7 +40,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 - (void)setUp
 {
-    [self swizzleMethod:@selector(getRegistrationInformation:urlChallenge:)
+    [self swizzleMethod:@selector(getRegistrationInformation:workplacejoinChallenge:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
              withMethod:@selector(getRegistrationInformationMock:urlChallenge:)
               fromClass:[self class]
@@ -51,7 +51,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 - (void)tearDown
 {
-    [self swizzleMethod:@selector(getRegistrationInformation:urlChallenge:)
+    [self swizzleMethod:@selector(getRegistrationInformation:workplacejoinChallenge:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
              withMethod:@selector(getRegistrationInformationMock:urlChallenge:)
               fromClass:[self class]
