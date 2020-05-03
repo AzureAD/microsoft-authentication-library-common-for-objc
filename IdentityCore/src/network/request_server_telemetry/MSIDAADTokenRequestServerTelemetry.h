@@ -21,42 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebViewPlatformParams.h"
+#import "MSIDHttpRequestServerTelemetryHandling.h"
+#import "MSIDHttpRequestProtocol.h"
 
-@interface MSIDWebviewUIController :
-#if TARGET_OS_IPHONE
-UIViewController
-#else
-NSWindowController
-#endif
+@class MSIDCurrentRequestTelemetry;
 
-@property (nonatomic) WKWebView *webView;
-@property (nonatomic) id<MSIDRequestContext> context;
-@property (nonatomic) BOOL loading;
-@property (nonatomic) BOOL complete;
-@property (nonatomic, readonly) MSIDWebViewPlatformParams *platformParams;
-#if TARGET_OS_IPHONE
-@property (nonatomic, weak) UIViewController *parentController;
-@property (nonatomic) UIModalPresentationStyle presentationType;
-#endif
+NS_ASSUME_NONNULL_BEGIN
 
-- (id)initWithContext:(id<MSIDRequestContext>)context;
+@interface MSIDAADTokenRequestServerTelemetry : NSObject <MSIDHttpRequestServerTelemetryHandling>
 
-- (id)initWithContext:(id<MSIDRequestContext>)context
-       platformParams:(MSIDWebViewPlatformParams *)platformParams;
-
-- (BOOL)loadView:(NSError **)error;
-- (void)presentView;
-- (void)dismissWebview:(void (^)(void))completion;
-- (void)showLoadingIndicator;
-- (void)dismissLoadingIndicator;
-- (void)cancel;
-- (void)userCancel;
+@property (nonatomic) id<MSIDResponseErrorProviding> responseErrorProvider;
+@property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 
 @end
 
-#endif
+NS_ASSUME_NONNULL_END

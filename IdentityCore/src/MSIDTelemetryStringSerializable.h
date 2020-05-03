@@ -21,42 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#if !MSID_EXCLUDE_WEBKIT
-
 #import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebViewPlatformParams.h"
 
-@interface MSIDWebviewUIController :
-#if TARGET_OS_IPHONE
-UIViewController
-#else
-NSWindowController
-#endif
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) WKWebView *webView;
-@property (nonatomic) id<MSIDRequestContext> context;
-@property (nonatomic) BOOL loading;
-@property (nonatomic) BOOL complete;
-@property (nonatomic, readonly) MSIDWebViewPlatformParams *platformParams;
-#if TARGET_OS_IPHONE
-@property (nonatomic, weak) UIViewController *parentController;
-@property (nonatomic) UIModalPresentationStyle presentationType;
-#endif
+@protocol MSIDTelemetryStringSerializable <NSObject>
 
-- (id)initWithContext:(id<MSIDRequestContext>)context;
-
-- (id)initWithContext:(id<MSIDRequestContext>)context
-       platformParams:(MSIDWebViewPlatformParams *)platformParams;
-
-- (BOOL)loadView:(NSError **)error;
-- (void)presentView;
-- (void)dismissWebview:(void (^)(void))completion;
-- (void)showLoadingIndicator;
-- (void)dismissLoadingIndicator;
-- (void)cancel;
-- (void)userCancel;
+- (instancetype)initWithTelemetryString:(NSString *)telemetryString
+                                  error:(NSError * __autoreleasing *)error;
+- (NSString *)telemetryString;
 
 @end
 
-#endif
+NS_ASSUME_NONNULL_END

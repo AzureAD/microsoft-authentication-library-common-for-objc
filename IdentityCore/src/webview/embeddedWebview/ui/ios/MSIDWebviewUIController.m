@@ -67,6 +67,19 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
+- (id)initWithContext:(id<MSIDRequestContext>)context
+       platformParams:(MSIDWebViewPlatformParams *)platformParams
+{
+    self = [super init];
+    if (self)
+    {
+        _context = context;
+        _platformParams = platformParams;
+    }
+
+    return self;
+}
+
 - (void)dealloc
 {
     [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];

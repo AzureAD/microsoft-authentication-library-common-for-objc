@@ -38,6 +38,7 @@
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+          platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
@@ -52,12 +53,12 @@
     return [super initWithStartURL:startURL endURL:endURL
                            webview:webview
                      customHeaders:headers
+                    platfromParams:platformParams
                            context:context];
 }
 
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+- (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
+                           decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
@@ -72,7 +73,7 @@
         [self completeWebAuthWithURL:url];
         
         decisionHandler(WKNavigationActionPolicyCancel);
-        return;
+        return YES;
     }
     
     // check for pkeyauth challenge.
@@ -91,9 +92,21 @@
                                }
                                [self loadRequest:challengeResponse];
                            }];
-        return;
+        return YES;
     }
     
+    return NO;
+}
+
+- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+                                webview:(WKWebView *)webView
+                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    if ([self decidePolicyAADForNavigationAction:navigationAction decisionHandler:decisionHandler])
+    {
+         return;
+    }
+
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
 

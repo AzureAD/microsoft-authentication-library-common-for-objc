@@ -33,7 +33,9 @@
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers
+                           body:(NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
+               requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
                           error:(NSError **)error
 {
     self = [super init];
@@ -52,7 +54,7 @@
         
         _requestURL = requestURL;
         
-        if (![self shouldHandleURL:_requestURL])
+        if (![requestValidator shouldHandleURL:_requestURL])
         {
             if (error)
             {
@@ -64,6 +66,7 @@
         }
         
         _headers = headers;
+        _httpBody = httpBody;
         _bundleIdentifier = bundleIdentifier;
         
         MSIDAADAuthority *authority = [[MSIDAADAuthority alloc] initWithURL:_requestURL rawTenant:nil context:nil error:error];
@@ -83,27 +86,6 @@
     }
     
     return self;
-}
-
-- (BOOL)shouldHandleURL:(NSURL *)url
-{
-    if (![url msidContainsCaseInsensitivePath:@"oauth2"])
-    {
-        return NO;
-    }
-    
-    if ([url msidContainsCaseInsensitivePath:@"/oauth2/authorize"])
-    {
-        return YES;
-    }
-    
-    if ([url msidContainsCaseInsensitivePath:@"/oauth2/v2.0/authorize"])
-    {
-        return YES;
-    }
-        
-    BOOL isLogoutRequest = [url msidContainsCaseInsensitivePath:@"logout"] && [url msidContainsPathComponent:@"logout"];
-    return isLogoutRequest;
 }
 
 #pragma mark - MSIDBaseBrokerOperationRequest

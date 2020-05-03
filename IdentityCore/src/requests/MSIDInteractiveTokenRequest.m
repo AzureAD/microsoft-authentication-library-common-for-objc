@@ -42,6 +42,8 @@
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDAccount.h"
+#import "MSIDLastRequestTelemetry.h"
+#import "NSError+MSIDServerTelemetryError.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -56,6 +58,7 @@
 @property (nonatomic) MSIDAuthorizeWebRequestConfiguration *webViewConfiguration;
 @property (nonatomic) MSIDClientInfo *authCodeClientInfo;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 
 @end
 
@@ -77,6 +80,7 @@
         _tokenCache = tokenCache;
         _accountMetadataCache = accountMetadataCache;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
+        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
 
     return self;
@@ -116,9 +120,22 @@
 {
     void (^webAuthCompletion)(MSIDWebviewResponse *, NSError *) = ^void(MSIDWebviewResponse *response, NSError *error)
     {
+        void (^returnErrorBlock)(NSError *) = ^(NSError *error)
+        {
+            NSString *errorString = [error msidServerTelemetryErrorString];
+            if (errorString)
+            {
+                [self.lastRequestTelemetry updateWithApiId:[self.requestParameters.telemetryApiId integerValue]
+                                               errorString:errorString
+                                                   context:self.requestParameters];
+            }
+            
+            completionBlock(nil, error, nil);
+        };
+        
         if (error)
         {
-            completionBlock(nil, error, nil);
+            returnErrorBlock(error);
             return;
         }
 
@@ -152,7 +169,7 @@
                 return;
             }
 
-            completionBlock(nil, oauthResponse.oauthError, nil);
+            returnErrorBlock(oauthResponse.oauthError);
             return;
         }
         else if ([response isKindOfClass:MSIDWebWPJResponse.class])
@@ -172,14 +189,14 @@
             else
             {
                 NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-                completionBlock(nil, error, nil);
+                returnErrorBlock(error);
                 return;
             }
 #else
             [[NSWorkspace sharedWorkspace] openURL:browserURL];
 #endif
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-            completionBlock(nil, error, nil);
+            returnErrorBlock(error);
             return;
         }
     };
