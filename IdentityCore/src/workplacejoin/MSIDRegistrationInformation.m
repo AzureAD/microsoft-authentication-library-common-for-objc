@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDRegistrationInformation.h"
+#import "MSIDKeychainUtil.h"
 
 @implementation MSIDRegistrationInformation
 
@@ -40,14 +41,18 @@
                     privateKey:(SecKeyRef)privateKey
 
 {
-    if (!(identity && certificateIssuer && certificate && certificateSubject && certificateData && privateKey)) return nil;
+    if (!(certificateIssuer && certificate && certificateSubject && certificateData && privateKey)) return nil;
     
     if (!(self = [super init])) return nil;
     
     // ARC is not aware of Core Foundation objects, so they still have to be
     // manually retained and released.
-    _securityIdentity = identity;
-    CFRetain(identity);
+    if (identity)
+    {
+        _securityIdentity = identity;
+        CFRetain(identity);
+    }
+    
     _certificate = certificate;
     CFRetain(certificate);
     _privateKey = privateKey;
@@ -62,16 +67,9 @@
 
 - (void)dealloc
 {
-    // ARC is not aware of Core Foundation objects, so they still have to be
-    // manually retained and released.
-    CFRelease(_securityIdentity);
-    _securityIdentity = NULL;
-    
-    CFRelease(_certificate);
-    _certificate = NULL;
-    
-    CFRelease(_privateKey);
-    _privateKey = NULL;
+    CFReleaseNull(_securityIdentity);
+    CFReleaseNull(_certificate);
+    CFReleaseNull(_privateKey);
 }
 
 - (BOOL)isWorkPlaceJoined

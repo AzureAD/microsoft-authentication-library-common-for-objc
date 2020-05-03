@@ -26,13 +26,14 @@
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDError.h"
+#import "MSIDWorkplaceJoinChallenge.h"
 
 @implementation MSIDWorkPlaceJoinUtil
 
 // Convenience macro to release CF objects
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                               urlChallenge:(__unused NSURLAuthenticationChallenge *)challenge
+                                     workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     

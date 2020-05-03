@@ -23,12 +23,14 @@
 
 #import <Foundation/Foundation.h>
 
-@class MSIDRegistrationInformation;
-@class MSIDWorkplaceJoinChallenge;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDWorkPlaceJoinUtil : NSObject
+@interface MSIDWorkplaceJoinChallenge : NSObject
 
-+ (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                     workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
+@property (nonatomic, readonly, nullable) NSArray<NSData *> *certAuthorities;
+
+- (instancetype)initWithURLChallenge:(NSURLAuthenticationChallenge *)urlChallenge;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -29,6 +29,7 @@
 #import "MSIDError.h"
 #import "MSIDJWTHelper.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDWorkplaceJoinChallenge.h"
 
 @implementation MSIDPkeyAuthHelper
 
@@ -37,7 +38,7 @@
                                         context:(nullable id<MSIDRequestContext>)context
 {
     MSIDRegistrationInformation *info =
-    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil];
+    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context workplacejoinChallenge:nil];
     NSString *authToken = @"";
     NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
     NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";

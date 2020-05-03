@@ -28,6 +28,7 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
+#import "MSIDWorkPlaceJoinUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -45,15 +46,9 @@
         [headers addEntriesFromDictionary:customHeaders];
     }
     
-#if TARGET_OS_IPHONE
-    // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
-    // It swallows the challenge response rather than sending it to server.
-    // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
-
+    // Declare our client as PkeyAuth-capable
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
-    
-#endif
-    
+        
     return [super initWithStartURL:startURL endURL:endURL
                            webview:webview
                      customHeaders:headers
@@ -80,7 +75,6 @@
         return;
     }
     
-#if TARGET_OS_IPHONE
     // check for pkeyauth challenge.
     NSString *requestURLString = [requestURL.absoluteString lowercaseString];
     
@@ -99,7 +93,6 @@
                            }];
         return;
     }
-#endif
     
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }

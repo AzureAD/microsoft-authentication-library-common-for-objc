@@ -21,14 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDWorkplaceJoinChallenge.h"
 
-@class MSIDRegistrationInformation;
-@class MSIDWorkplaceJoinChallenge;
+@implementation MSIDWorkplaceJoinChallenge
 
-@interface MSIDWorkPlaceJoinUtil : NSObject
-
-+ (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                     workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
+- (instancetype)initWithURLChallenge:(NSURLAuthenticationChallenge *)urlChallenge
+{
+    self = [super init];
+    
+    if (self)
+    {
+        _certAuthorities = urlChallenge.protectionSpace.distinguishedNames;
+    }
+    
+    return self;
+}
 
 @end
