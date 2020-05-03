@@ -35,9 +35,7 @@
                                      workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {
     MSIDRegistrationInformation *info = nil;
-    
-    NSDate *perfDate = [NSDate new];
-    
+        
     if (![workplacejoinChallenge.certAuthorities count])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No cert authorities provided in the request. Looking up default WPJ certificate");
@@ -50,7 +48,6 @@
                                                     context:context];
     }
     
-    NSLog(@"PERF test %f", [[NSDate date] timeIntervalSinceDate:perfDate]);
     return info;
 }
 
