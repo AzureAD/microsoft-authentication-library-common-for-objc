@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #define DEFAULT_TEST_UID @"fedcba98-7654-3210-0000-000000000000"
-#define DEFAULT_TEST_UTID @"00000000-1234-5678-90abcdefffff"
+#define DEFAULT_TEST_UTID @"00000000-0000-1234-5678-90abcdefffff"
 #define DEFAULT_TEST_HOME_ACCOUNT_ID DEFAULT_TEST_UID@"."DEFAULT_TEST_UTID
 #define DEFAULT_TEST_RESOURCE @"https://graph.microsoft.com/"
 #define DEFAULT_TEST_AUTHORITY @"https://login.microsoftonline.com/common"
