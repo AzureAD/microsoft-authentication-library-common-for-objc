@@ -43,7 +43,9 @@
 
 - (void)testLog_whenLogLevelNothingMessageValid_shouldNotThrow
 {
+    [self keyValueObservingExpectationForObject:[MSIDTestLogger sharedLogger] keyPath:@"callbackInvoked" expectedValue:@1];
     XCTAssertNoThrow([[MSIDLogger sharedLogger] logLevel:MSIDLogLevelNothing context:nil correlationId:nil isPII:NO format:@"Message"]);
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testLog_whenLogLevelErrorMessageNil_shouldNotThrow

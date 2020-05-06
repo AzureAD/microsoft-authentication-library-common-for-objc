@@ -23,9 +23,11 @@
 
 #import <Foundation/Foundation.h>
 
+@class WKWebView;
+
 @interface MSIDNTLMUIPrompt : NSObject
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
++ (void)presentPromptWithWebView:(WKWebView *)webview completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler;
 + (void)dismissPrompt;
 
 @end

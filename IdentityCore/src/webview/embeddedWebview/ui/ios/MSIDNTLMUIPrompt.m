@@ -25,6 +25,7 @@
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDMainThreadUtil.h"
+#import <WebKit/WebKit.h>
 
 @implementation MSIDNTLMUIPrompt
 
@@ -42,9 +43,8 @@ __weak static UIAlertController *_presentedPrompt = nil;
     }];
 }
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))block
++ (void)presentPromptWithWebView:(__unused WKWebView *)webview completion:(void (^)(NSString *username, NSString *password, BOOL cancel))block
 {
-    
     if ([MSIDAppExtensionUtil isExecutingInAppExtension])
     {
         block(nil, nil, YES);
