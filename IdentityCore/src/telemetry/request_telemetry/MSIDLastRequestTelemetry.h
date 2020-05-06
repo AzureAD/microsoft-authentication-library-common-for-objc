@@ -34,11 +34,14 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class MSIDRequestTelemetrySerializedItems;
+
 @interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
 
 @property (nonatomic, readonly) NSInteger schemaVersion;
 @property (nonatomic, readonly) NSInteger silentSuccessfulCount;
 @property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic) MSIDRequestTelemetrySerializedItems* serializedItems;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;

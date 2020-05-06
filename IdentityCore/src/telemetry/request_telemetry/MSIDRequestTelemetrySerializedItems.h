@@ -22,18 +22,20 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTelemetryStringSerializable.h"
+#import "MSIDLastRequestTelemetry.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDRequestTelemetrySerializedItems;
+@interface MSIDRequestTelemetrySerializedItems : NSObject
 
-@interface MSIDCurrentRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
+@property (nonatomic) NSArray<NSObject *> *defaultFields;
+@property (nonatomic) NSArray<NSObject *> *platformFields;
+@property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 
-@property (nonatomic) NSInteger schemaVersion;
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
-@property (nonatomic) MSIDRequestTelemetrySerializedItems* serializedItems;
+- (instancetype)initWithDefaultFields:(NSArray * _Nullable )defaultFields errorInfo:(NSArray * _Nullable )errorsInfo platformFields:(NSArray * _Nullable )platformFields;
+- (NSString *)serializedDefaultFields;
+- (NSString *)serializedErrorsInfoWithCurrentStringSize:(NSUInteger)startLength;
+- (NSString *)serializedPlatformFields;
 
 @end
 

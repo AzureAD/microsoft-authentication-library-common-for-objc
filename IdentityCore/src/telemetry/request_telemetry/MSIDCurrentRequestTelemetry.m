@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDRequestTelemetrySerializedItems.h"
 
 @implementation MSIDCurrentRequestTelemetry
 
@@ -53,10 +54,13 @@
 
 -(NSString *)serializeCurrentTelemetryString
 {
-    int forceRefreshValue = (self.forceRefresh ? 1 : 0);
-    NSString *telemetryString = [NSString stringWithFormat:@"%ld|%ld,%d|", self.schemaVersion, self.apiId, forceRefreshValue];
+    if (self.serializedItems == nil)
+    {
+        [self createSerializedItems];
+    }
     
-    // Make sure string to be returned is less than 4kB in size
+    NSString *telemetryString = [NSString stringWithFormat:@"%ld|%@|%@", self.schemaVersion, [self.serializedItems serializedDefaultFields], [self.serializedItems serializedPlatformFields]];
+    
     if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000)
     {
         return nil;
@@ -84,6 +88,8 @@
         self.schemaVersion = [telemetryItems[0] intValue];
         self.apiId = [telemetryItems[1] intValue];
         self.forceRefresh = [telemetryItems[2] boolValue];
+        
+        [self createSerializedItems];
     }
     else
     {
@@ -92,6 +98,12 @@
         return;
     }
     
+}
+
+-(void)createSerializedItems
+{
+    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
+    self.serializedItems = [[MSIDRequestTelemetrySerializedItems alloc] initWithDefaultFields:defaultFields errorInfo:nil platformFields:nil];
 }
 
 

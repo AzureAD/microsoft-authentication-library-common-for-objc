@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDLastRequestTelemetry.h"
+#import "MSIDRequestTelemetrySerializedItems.h"
 
 @implementation MSIDRequestTelemetryErrorInfo
 @end
@@ -92,7 +93,7 @@
 
 - (NSString *)telemetryString
 {
-    return [self serializeCurrentTelemetryString];
+    return [self serializeLastTelemetryString];
 }
 
 - (instancetype)initWithTelemetryString:(NSString *)telemetryString error:(NSError **)error
@@ -103,7 +104,8 @@
         NSError *internalError;
         [self deserializeLastTelemetryString:telemetryString error:&internalError];
         
-        if (internalError) {
+        if (internalError)
+        {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to initialize server telemetry, error: %@", MSID_PII_LOG_MASKABLE(internalError));
             if (error) *error = internalError;
             return nil;
@@ -114,56 +116,21 @@
 
 #pragma mark - Private
 
--(NSString *)serializeCurrentTelemetryString
+-(NSString *)serializeLastTelemetryString
 {
-    // Errors are serialized in chronological order. Least recently logged errors are removed when string reaches
-    // 4kB limit
-    NSString *telemetryString = [NSString stringWithFormat:@"%ld|%ld|", self.schemaVersion, self.silentSuccessfulCount];
-    NSString *failedRequestsString = @"";
-    NSString *errorMessagesString = @"";
-    
-    if (self.errorsInfo.count > 0)
+    if (self.serializedItems == nil)
     {
-        NSUInteger startLength = [telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-        int lastIndex = (int)self.errorsInfo.count - 1;
-        
-        // Set first post in fencepost structure -- last item in string doesn't have comma at the end
-        NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@", self.errorsInfo[lastIndex].apiId, self.errorsInfo[lastIndex].correlationId];
-        NSString *currentErrorMessage = [NSString stringWithFormat:@"%@", self.errorsInfo[lastIndex].error];
-        
-        // Only add error info into string if the resulting string smaller than 4KB
-        if ([currentFailedRequest lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < 4000)
-        {
-            failedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
-            errorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
-        }
-
-        // Fill in remaining errors with comma at the end of each error
-        for (int i = lastIndex - 1; i >= 0; i--)
-        {
-            NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@,", self.errorsInfo[i].apiId, self.errorsInfo[i].correlationId];
-            NSString *currentErrorMessage = [NSString stringWithFormat:@"%@,", self.errorsInfo[i].error];
-            
-            NSString *newFailedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
-            NSString *newErrorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
-            
-            // Only add next error into string if the resulting string smaller than 4KB, otherwise stop building
-            // the string
-            if ([newFailedRequestsString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < 4000)
-            {
-                failedRequestsString = newFailedRequestsString;
-                errorMessagesString = newErrorMessagesString;
-            }
-            else
-            {
-                break;
-            }
-        }
+        [self createSerializedItems];
     }
     
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@|%@|", failedRequestsString, errorMessagesString];
+    NSString *telemetryString = [NSString stringWithFormat:@"%ld|", self.schemaVersion];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self.serializedItems serializedDefaultFields]];
+    
+    NSUInteger startLength = [telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self.serializedItems serializedErrorsInfoWithCurrentStringSize:startLength]];
+    
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@", [self.serializedItems serializedPlatformFields]];
+    
     return telemetryString;
 }
 
@@ -204,6 +171,7 @@
             }
             
             self.errorsInfo = errorsInfo;
+            [self createSerializedItems];
             
         }
         else
@@ -220,6 +188,12 @@
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
         return;
     }
+}
+
+-(void)createSerializedItems
+{
+    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
+    self.serializedItems = [[MSIDRequestTelemetrySerializedItems alloc] initWithDefaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
 }
 
 @end
