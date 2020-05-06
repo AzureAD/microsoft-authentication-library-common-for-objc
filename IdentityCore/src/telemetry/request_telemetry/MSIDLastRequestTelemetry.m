@@ -138,8 +138,11 @@
 {
     if ([telemetryString length] == 0)
     {
-        NSString *errorDescription = @"Initialized server telemetry string with nil or empty string";
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        if (error)
+        {
+            NSString *errorDescription = @"Initialized server telemetry string with nil or empty string";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        }
         return;
     }
     
@@ -176,16 +179,22 @@
         }
         else
         {
-            NSString *errorDescription = @"String used for server telemetry initialization missing delimiters";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+            if (error)
+            {
+                NSString *errorDescription = @"String used for server telemetry initialization missing delimiters";
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+            }
             return;
         }
         
     }
     else
     {
-        NSString *errorDescription = @"Initialized server telemetry string with invalid string format";
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        if (error)
+        {
+            NSString *errorDescription = @"Initialized server telemetry string with invalid string format";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        }
         return;
     }
 }

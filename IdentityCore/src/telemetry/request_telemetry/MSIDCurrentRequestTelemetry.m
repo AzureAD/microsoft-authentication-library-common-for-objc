@@ -41,7 +41,8 @@
         NSError *internalError;
         [self deserializeCurrentTelemetryString:telemetryString error:&internalError];
         
-        if (internalError) {
+        if (internalError)
+        {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to initialize server telemetry, error: %@", MSID_PII_LOG_MASKABLE(internalError));
             if (error) *error = internalError;
             return nil;
@@ -73,8 +74,11 @@
 {
     if ([telemetryString length] == 0)
     {
-        NSString *errorDescription = @"Initialized server telemetry string with nil or empty string";
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        if (error)
+        {
+            NSString *errorDescription = @"Initialized server telemetry string with nil or empty string";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        }
         return;
     }
     
@@ -93,8 +97,11 @@
     }
     else
     {
-        NSString *errorDescription = @"Initialized server telemetry string with invalid string format";
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        if (error)
+        {
+            NSString *errorDescription = @"Initialized server telemetry string with invalid string format";
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+        }
         return;
     }
     
