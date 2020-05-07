@@ -96,7 +96,7 @@
 {
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
-    NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    NSString *rawClientInfo = [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID} msidBase64UrlJson];
     MSIDB2CTokenResponse *response = [[MSIDB2CTokenResponse alloc] initWithJSONDictionary:@{@"access_token":@"fake_access_token",
                                                                                             @"refresh_token":@"fake_refresh_token",
                                                                                                 @"client_info":rawClientInfo
@@ -161,7 +161,7 @@
                                          @"refresh_token":DEFAULT_TEST_REFRESH_TOKEN,
                                          @"scope": DEFAULT_TEST_SCOPE,
                                          @"id_token": idToken,
-                                         @"client_info": [@{ @"uid" : @"1", @"utid" : utid ? utid : @"1234-5678-90abcdefg"} msidBase64UrlJson]
+                                         @"client_info": [@{ @"uid" : DEFAULT_TEST_UID, @"utid" : utid ? utid : DEFAULT_TEST_UTID} msidBase64UrlJson]
                                          };
 
     MSIDB2CTokenResponse *response = [[MSIDB2CTokenResponse alloc] initWithJSONDictionary:responseDictionary error:nil];
@@ -172,7 +172,7 @@
 {
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
-    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
+    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:DEFAULT_TEST_UTID];
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithB2CAuthority:@"https://login.microsoftonline.com/tfp/test_tenantid/policy"
                                                                                    clientId:DEFAULT_TEST_CLIENT_ID
                                                                                 redirectUri:nil
@@ -181,7 +181,7 @@
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.realm, DEFAULT_TEST_UTID);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -208,7 +208,7 @@
     MSIDAccessToken *token = [factory accessTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.realm, DEFAULT_TEST_UTID);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -235,7 +235,7 @@
     MSIDRefreshToken *token = [factory refreshTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.realm, DEFAULT_TEST_UTID);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -250,7 +250,7 @@
 {
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
-    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
+    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:DEFAULT_TEST_UTID];
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithB2CAuthority:@"https://login.microsoftonline.com/tfp/test_tenantid/policy"
                                                                                    clientId:DEFAULT_TEST_CLIENT_ID
                                                                                 redirectUri:nil
@@ -259,7 +259,7 @@
     MSIDIdToken *token = [factory idTokenFromResponse:response configuration:configuration];
 
     XCTAssertEqualObjects(token.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(token.realm, @"1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.realm, DEFAULT_TEST_UTID);
     XCTAssertEqualObjects(token.clientId, configuration.clientId);
 
     NSString *homeAccountId = [NSString stringWithFormat:@"%@.%@", DEFAULT_TEST_UID, DEFAULT_TEST_UTID];
@@ -273,7 +273,7 @@
 {
     MSIDB2COauth2Factory *factory = [MSIDB2COauth2Factory new];
 
-    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:@"1234-5678-90abcdefg"];
+    MSIDB2CTokenResponse *response = [self testB2CTokenResponseWithTenantId:@"test_tenantid" utid:DEFAULT_TEST_UTID];
     
     MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithB2CAuthority:@"https://login.microsoftonline.com/tfp/test_tenantid/policy"
                                                                                    clientId:@"client id"
@@ -282,7 +282,7 @@
 
     MSIDAccount *account = [factory accountFromResponse:response configuration:configuration];
     XCTAssertNotNil(account);
-    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.accountIdentifier.homeAccountId, DEFAULT_TEST_HOME_ACCOUNT_ID);
     XCTAssertNotNil(account.clientInfo);
     XCTAssertEqual(account.accountType, MSIDAccountTypeMSSTS);
     XCTAssertEqualObjects(account.username, @"Missing from the token response");
@@ -290,7 +290,7 @@
     XCTAssertEqualObjects(account.familyName, @"family");
     XCTAssertEqualObjects(account.name, @"name");
     XCTAssertEqualObjects(account.environment, @"login.microsoftonline.com");
-    XCTAssertEqualObjects(account.realm, @"1234-5678-90abcdefg");
+    XCTAssertEqualObjects(account.realm, DEFAULT_TEST_UTID);
 }
 
 

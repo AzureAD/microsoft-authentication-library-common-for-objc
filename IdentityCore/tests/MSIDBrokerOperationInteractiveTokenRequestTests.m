@@ -106,7 +106,7 @@
     XCTAssertEqualObjects(json[@"extra_consent_scopes"], @"scope 3");
     XCTAssertEqualObjects(json[@"extra_oidc_scopes"], @"profile");
     XCTAssertEqualObjects(json[@"extra_query_param"], @"qp1=value1");
-    XCTAssertEqualObjects(json[@"home_account_id"], @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(json[@"home_account_id"], DEFAULT_TEST_HOME_ACCOUNT_ID);
     XCTAssertEqualObjects(json[@"instance_aware"], @"1");
     XCTAssertEqualObjects(json[@"intune_enrollment_ids"], @"{\"enrollment_ids\":[{\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\"}]}");
     XCTAssertEqualObjects(json[@"intune_mam_resource"], @"{\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}");
@@ -158,7 +158,7 @@
         @"extra_consent_scopes": @"scope 3",
         @"extra_oidc_scopes": @"profile",
         @"extra_query_param": @"qp1=value1",
-        @"home_account_id": @"1.1234-5678-90abcdefg",
+        @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
         @"instance_aware": @"1",
         @"intune_enrollment_ids": @"{\"enrollment_ids\":[{\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\"}]}",
         @"intune_mam_resource": @"{\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}",

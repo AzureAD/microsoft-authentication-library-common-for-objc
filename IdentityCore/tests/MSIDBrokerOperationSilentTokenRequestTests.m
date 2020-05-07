@@ -61,7 +61,7 @@
         @"extra_consent_scopes": @"scope 3",
         @"extra_oidc_scopes": @"profile",
         @"extra_query_param": @"qp1=value1",
-        @"home_account_id": @"1.1234-5678-90abcdefg",
+        @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
         @"instance_aware": @"1",
         @"intune_enrollment_ids": @"{\"enrollment_ids\":[{\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\"}]}",
         @"intune_mam_resource": @"{\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}",
@@ -154,7 +154,7 @@
     XCTAssertEqualObjects(json[@"correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(json[@"extra_oidc_scopes"], @"profile");
     XCTAssertEqualObjects(json[@"extra_query_param"], @"qp1=value1");
-    XCTAssertEqualObjects(json[@"home_account_id"], @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(json[@"home_account_id"], DEFAULT_TEST_HOME_ACCOUNT_ID);
     XCTAssertEqualObjects(json[@"instance_aware"], @"1");
     XCTAssertEqualObjects(json[@"intune_enrollment_ids"], @"{\"enrollment_ids\":[{\"tid\":\"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1\"}]}");
     XCTAssertEqualObjects(json[@"intune_mam_resource"], @"{\"login.microsoftonline.com\":\"https:\\/\\/www.microsoft.com\\/intune\",\"login.microsoftonline.de\":\"https:\\/\\/www.microsoft.com\\/intune-de\"}");
@@ -186,7 +186,7 @@
     XCTAssertEqualObjects(json[@"authority"], @"https://login.microsoftonline.com/common");
     XCTAssertEqualObjects(json[@"broker_key"], @"broker_key_value");
     XCTAssertEqualObjects(json[@"client_id"], @"client id");
-    XCTAssertEqualObjects(json[@"home_account_id"], @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(json[@"home_account_id"], DEFAULT_TEST_HOME_ACCOUNT_ID);
     XCTAssertEqualObjects(json[@"instance_aware"], @"0");
     XCTAssertEqualObjects(json[@"msg_protocol_ver"], @"99");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v1");
@@ -205,7 +205,7 @@
         @"provider_type": @"provider_aad_v1",
         @"redirect_uri": @"redirect uri",
         @"scope": @"scope scope2",
-        @"home_account_id": @"1.1234-5678-90abcdefg",
+        @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
     };
     
     NSError *error;
