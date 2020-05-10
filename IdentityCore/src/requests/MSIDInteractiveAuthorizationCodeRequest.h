@@ -22,33 +22,25 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDInteractiveAuthorizationCodeRequest.h"
-#import "MSIDInteractiveRequestControlling.h"
+#import "MSIDAuthorizationCodeResult.h"
 
-@protocol MSIDCacheAccessor;
-@class MSIDTokenResponseValidator;
-@class MSIDAccountMetadataCacheAccessor;
-@class MSIDTokenResult;
-@class MSIDWebWPJResponse;
 @class MSIDInteractiveTokenRequestParameters;
 @class MSIDOauth2Factory;
-#if TARGET_OS_OSX
-@class MSIDExternalAADCacheSeeder;
-#endif
+@class MSIDWebWPJResponse;
+
+typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDInteractiveTokenRequest : MSIDInteractiveAuthorizationCodeRequest <MSIDInteractiveRequestControlling>
+@interface MSIDInteractiveAuthorizationCodeRequest : NSObject
 
-#if TARGET_OS_OSX
-@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
-#endif
+@property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
+@property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
-                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
-                            tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
-                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory;
+
+- (void)getAuthCodeWithCompletion:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock;
 
 @end
 

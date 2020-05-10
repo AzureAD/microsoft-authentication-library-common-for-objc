@@ -24,13 +24,12 @@
 #import "MSIDInteractiveTokenRequest.h"
 
 @class MSIDTokenResponse;
+@class MSIDAuthorizeWebRequestConfiguration;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDInteractiveTokenRequest()
 
-@property (nonatomic) MSIDInteractiveTokenRequestParameters *requestParameters;
-@property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
