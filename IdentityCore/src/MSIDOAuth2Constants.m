@@ -65,6 +65,7 @@ NSString *const MSID_OAUTH2_CLIENT_TELEMETRY    = @"x-ms-clitelem";
 NSString *const MSID_OAUTH2_PROMPT              = @"prompt";
 NSString *const MSID_OAUTH2_PROMPT_NONE         = @"none";
 NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI    = @"post_logout_redirect_uri";
+NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION = @"req_cnf";
 
 NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
 NSString *const MSID_OAUTH2_EXT_EXPIRES_IN      = @"ext_expires_in";

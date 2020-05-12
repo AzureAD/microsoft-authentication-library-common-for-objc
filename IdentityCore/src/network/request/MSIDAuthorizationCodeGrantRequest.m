@@ -22,6 +22,13 @@
 // THE SOFTWARE.
 
 #import "MSIDAuthorizationCodeGrantRequest.h"
+#import "MSIDDevicePopManager.h"
+
+@interface MSIDAuthorizationCodeGrantRequest()
+
+@property (nonatomic) MSIDDevicePopManager *popManager;
+
+@end
 
 @implementation MSIDAuthorizationCodeGrantRequest
 
@@ -53,10 +60,32 @@
             [parameters addEntriesFromDictionary:extraParameters];
         }
         
+        self.popManager = [MSIDDevicePopManager sharedManager];
+        
+        NSError *localError = nil;
+        NSString *popTokenHeader = [self popAuthorizationHeader:&localError];
+        if (popTokenHeader)
+        {
+            parameters[MSID_OAUTH2_REQUEST_CONFIRMATION] = popTokenHeader;
+            parameters[MSID_OAUTH2_TOKEN_TYPE] = @"pop";
+        }
+        
         _parameters = parameters;
     }
     
     return self;
+}
+
+- (NSString *)popAuthorizationHeader:(NSError **)error
+{
+    NSString *requestConf = [self.popManager getRequestConfirmation:error];
+    
+    if (!requestConf)
+    {
+        return nil;
+    }
+    
+    return requestConf;
 }
 
 @end

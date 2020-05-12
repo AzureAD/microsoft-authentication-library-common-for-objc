@@ -113,3 +113,6 @@ extern NSString * _Nonnull const MSID_DEFAULT_AAD_AUTHORITY;
 extern NSString * _Nonnull const MSID_DEFAULT_MSA_TENANTID;
 extern NSString * _Nonnull const MSID_CLIENT_SDK_TYPE_MSAL;
 extern NSString * _Nonnull const MSID_CLIENT_SDK_TYPE_ADAL;
+
+extern NSString * _Nonnull const MSID_BROKER_SDK_POP_TOKEN_PRIVATE_KEY;
+extern NSString * _Nonnull const MSID_BROKER_SDK_POP_TOKEN_PUBLIC_KEY;
