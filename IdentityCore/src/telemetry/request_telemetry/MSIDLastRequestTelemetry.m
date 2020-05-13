@@ -32,6 +32,7 @@
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
 @property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
 
@@ -66,34 +67,45 @@
 {
     if (errorString)
     {
-        NSMutableArray *errorsInfo = self.errorsInfo ? [self.errorsInfo mutableCopy] : [NSMutableArray new];
-        
-        __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
-        errorInfo.apiId = apiId;
-        errorInfo.error = errorString;
-        errorInfo.correlationId = context.correlationId;
-        
-        [errorsInfo addObject:errorInfo];
-        
-        self.errorsInfo = errorsInfo;
+        dispatch_barrier_async(self.synchronizationQueue, ^{
+            NSMutableArray *errorsInfo = self.errorsInfo ? [self.errorsInfo mutableCopy] : [NSMutableArray new];
+            
+            __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
+            errorInfo.apiId = apiId;
+            errorInfo.error = errorString;
+            errorInfo.correlationId = context.correlationId;
+            
+            [errorsInfo addObject:errorInfo];
+            
+            self.errorsInfo = errorsInfo;
+        });
     }
     else
     {
-        self.silentSuccessfulCount = 0;
-        self.errorsInfo = nil;
+        dispatch_barrier_async(self.synchronizationQueue, ^{
+            self.silentSuccessfulCount = 0;
+            self.errorsInfo = nil;
+        });
     }
 }
 
 - (void)increaseSilentSuccessfulCount
 {
-    self.silentSuccessfulCount = self.silentSuccessfulCount + 1;
+    dispatch_barrier_async(self.synchronizationQueue, ^{
+        self.silentSuccessfulCount = self.silentSuccessfulCount + 1;
+    });
 }
 
 #pragma mark - MSIDTelemetryStringSerializable
 
 - (NSString *)telemetryString
 {
-    return [self serializeLastTelemetryString];
+    __block NSString *result;
+    dispatch_sync(self.synchronizationQueue, ^{
+        result = [self serializeLastTelemetryString];
+    });
+    
+    return result;
 }
 
 - (instancetype)initWithTelemetryString:(NSString *)telemetryString error:(NSError **)error
@@ -110,6 +122,9 @@
             if (error) *error = internalError;
             return nil;
         }
+        
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
+        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
@@ -118,10 +133,7 @@
 
 -(NSString *)serializeLastTelemetryString
 {
-    if (self.serializedItems == nil)
-    {
-        [self createSerializedItems];
-    }
+    [self createSerializedItems];
     
     NSString *telemetryString = [NSString stringWithFormat:@"%ld|", self.schemaVersion];
     telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self.serializedItems serializedDefaultFields]];

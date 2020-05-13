@@ -105,4 +105,45 @@
     XCTAssertEqualObjects(result, @"0|0|0,|error|");
 }
 
+-(void)testUpdateTelemetryString_whenUpdatesFromDifferentThreads_shouldBeThreadSafe
+{
+    NSString *testString = @"1|1|1,1|error1|";
+    NSError *error;
+    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
+    
+    dispatch_queue_t testQ1 = dispatch_queue_create([@"testQ1" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    dispatch_queue_t testQ2 = dispatch_queue_create([@"testQ2" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    
+    XCTestExpectation *expQ1 = [[XCTestExpectation alloc] initWithDescription:@"Dispatch queue 1"];
+    expQ1.expectedFulfillmentCount = 2;
+    XCTestExpectation *expQ2 = [[XCTestExpectation alloc] initWithDescription:@"Dispatch queue 2"];
+    expQ2.expectedFulfillmentCount = 2;
+    
+    NSArray<XCTestExpectation *> *expectations = @[expQ1, expQ2];
+    
+    dispatch_async(testQ1, ^{
+        [telemetryObject updateWithApiId:2 errorString:@"error2" context:nil];
+        [expQ1 fulfill];
+    });
+    
+    dispatch_sync(testQ2, ^{
+        [telemetryObject updateWithApiId:3 errorString:@"error3" context:nil];
+        [expQ2 fulfill];
+    });
+    
+    dispatch_async(testQ1, ^{
+        [telemetryObject updateWithApiId:4 errorString:@"error4" context:nil];
+        [expQ1 fulfill];
+    });
+    
+    dispatch_async(testQ2, ^{
+        [telemetryObject updateWithApiId:5 errorString:@"error5" context:nil];
+        [expQ2 fulfill];
+    });
+    
+    [self waitForExpectations:expectations timeout:5];
+    
+    XCTAssertEqual(telemetryObject.errorsInfo.count, 5);
+}
+
 @end
