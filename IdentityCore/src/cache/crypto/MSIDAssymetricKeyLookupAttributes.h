@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable) NSString *privateKeyIdentifier;
 @property (nonatomic, nullable) NSString *publicKeyIdentifier;
 @property (nonatomic, nullable) NSString *keyDisplayableLabel;
-@property (nonatomic, nullable) NSString *certLabel;
 
 - (NSDictionary *)assymetricKeyPairAttributes;
 - (NSDictionary *)privateKeyAttributes;
