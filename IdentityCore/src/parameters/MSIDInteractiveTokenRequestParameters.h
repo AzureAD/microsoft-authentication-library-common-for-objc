@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSDictionary *extraAuthorizeURLQueryParameters;
 @property (nonatomic) BOOL enablePkce;
 @property (nonatomic) MSIDBrokerInvocationOptions *brokerInvocationOptions;
+@property (nonatomic) MSIDAuthenticationScheme *authenticationScheme;
 
 - (NSOrderedSet *)allAuthorizeRequestScopes;
 - (NSDictionary *)allAuthorizeRequestExtraParameters;
