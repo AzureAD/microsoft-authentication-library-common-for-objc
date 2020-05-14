@@ -23,6 +23,14 @@
 
 #import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
+@interface MSIDCurrentRequestTelemetrySerializedItem()
+
+@property (nonatomic) NSNumber *schemaVersion;
+@property (nonatomic) NSArray<NSObject *> *defaultFields;
+@property (nonatomic) NSArray<NSObject *> *platformFields;
+
+@end
+
 @implementation MSIDCurrentRequestTelemetrySerializedItem
 
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray *)defaultFields platformFields:(NSArray *)platformFields

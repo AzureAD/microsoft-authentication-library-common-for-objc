@@ -47,12 +47,12 @@
 
 - (NSString *)serializeCurrentTelemetryString
 {
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItems];
+    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
     
     return [currentTelemetryFields serialize];
 }
 
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItems
+- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
     return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];

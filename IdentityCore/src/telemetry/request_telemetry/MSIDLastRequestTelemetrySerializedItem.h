@@ -28,8 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDLastRequestTelemetrySerializedItem : MSIDCurrentRequestTelemetrySerializedItem
 
-@property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
-
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray * _Nullable)defaultFields errorInfo:(NSArray * _Nullable)errorsInfo platformFields:(NSArray * _Nullable)platformFields;
 
 @end

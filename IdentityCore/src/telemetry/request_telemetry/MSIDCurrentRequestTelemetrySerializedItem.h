@@ -28,10 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDCurrentRequestTelemetrySerializedItem : NSObject
 
-@property (nonatomic) NSNumber *schemaVersion;
-@property (nonatomic) NSArray<NSObject *> *defaultFields;
-@property (nonatomic) NSArray<NSObject *> *platformFields;
-
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray * _Nullable)defaultFields platformFields:(NSArray * _Nullable)platformFields;
 - (NSString *)serialize;
 

@@ -24,6 +24,12 @@
 #import "MSIDCurrentRequestTelemetrySerializedItem+Internal.h"
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 
+@interface MSIDLastRequestTelemetrySerializedItem()
+
+@property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+
+@end
+
 @implementation MSIDLastRequestTelemetrySerializedItem
 
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray *)defaultFields errorInfo:(NSArray *)errorsInfo platformFields:(NSArray *)platformFields
@@ -41,7 +47,7 @@
 - (NSString *)serialize
 {
     NSString *telemetryString = [NSString stringWithFormat:@"%@|", self.schemaVersion];
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [super serializeFields: self.defaultFields]];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [super serializeFields: super.defaultFields]];
     
     NSUInteger startLength = [telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
     telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self serializeErrorsInfoWithCurrentStringSize:startLength]];

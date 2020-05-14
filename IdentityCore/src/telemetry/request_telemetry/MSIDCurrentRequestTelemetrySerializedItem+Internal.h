@@ -25,6 +25,10 @@
 
 @interface MSIDCurrentRequestTelemetrySerializedItem()
 
+@property (nonatomic) NSNumber *schemaVersion;
+@property (nonatomic) NSArray<NSObject *> *defaultFields;
+@property (nonatomic) NSArray<NSObject *> *platformFields;
+
 - (NSString *)serializeFields:(NSArray *)fields;
 
 @end

@@ -125,12 +125,12 @@
 
 - (NSString *)serializeLastTelemetryString
 {
-    MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItems];
+    MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItem];
     
     return [lastTelemetryFields serialize];
 }
 
-- (MSIDLastRequestTelemetrySerializedItem *)createSerializedItems
+- (MSIDLastRequestTelemetrySerializedItem *)createSerializedItem
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
     return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
