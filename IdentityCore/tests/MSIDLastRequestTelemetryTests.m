@@ -23,8 +23,11 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDLastRequestTelemetry.h"
+#import "MSIDTestContext.h"
 
 @interface MSIDLastRequestTelemetryTests : XCTestCase
+
+@property (nonatomic) MSIDTestContext *context;
 
 @end
 
@@ -32,84 +35,21 @@
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
+    __auto_type context = [MSIDTestContext new];
+    context.correlationId = [[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000001"];
+    self.context = context;
+    
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testInitWithTelemetryString_whenValidString_shouldInit
-{
-    NSString *testString = @"2|0|300,48432850-c45c-486c-a50a-a84cdb220c06,82,a4e7dfa8-5883-426a-96b5-81a325d0abd5|interaction_required,user_cancelled|";
-    NSError *error;
-    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
-    
-    XCTAssertNotNil(telemetryObject);
-    XCTAssertEqual(telemetryObject.schemaVersion, 2);
-    XCTAssertEqual(telemetryObject.silentSuccessfulCount, 0);
-    XCTAssertEqual(telemetryObject.errorsInfo[0].apiId, 300);
-    XCTAssertEqualObjects(telemetryObject.errorsInfo[0].correlationId, @"48432850-c45c-486c-a50a-a84cdb220c06");
-    XCTAssertEqualObjects(telemetryObject.errorsInfo[0].error, @"interaction_required");
-    XCTAssertEqual(telemetryObject.errorsInfo[1].apiId, 82);
-    XCTAssertEqualObjects(telemetryObject.errorsInfo[1].correlationId, @"a4e7dfa8-5883-426a-96b5-81a325d0abd5");
-    XCTAssertEqualObjects(telemetryObject.errorsInfo[1].error, @"user_cancelled");
-}
-
-- (void)testInitWithTelemetryString_whenNullString_shouldError
-{
-    NSString *testString = nil;
-    NSError *error;
-    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
-    
-    XCTAssertNil(telemetryObject);
-}
-
-- (void)testInitWithTelemetryString_whenEmptyString_shouldError
-{
-    NSString *testString = @"";
-    NSError *error;
-    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
-    
-    XCTAssertNil(telemetryObject);
-}
-
-- (void)testInitWithTelemetryString_whenInvalidString_shouldError
-{
-    NSString *testString = @"sjsdjasdkdsjsdlkdsfsdf";
-    NSError *error;
-    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
-    
-    XCTAssertNil(telemetryObject);
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Initialized server telemetry string with invalid string format");
-}
-
--(void)testTelemetryString_whenValidProperties_shouldCreateString
-{
-    NSString *testString = @"2|0|300,48432850-c45c-486c-a50a-a84cdb220c06,82,a4e7dfa8-5883-426a-96b5-81a325d0abd5|interaction_required, user_cancelled|";
-    NSError *error;
-    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
-    NSString *result = [telemetryObject telemetryString];
-    
-    XCTAssertEqualObjects(result, @"2|0|300,48432850-c45c-486c-a50a-a84cdb220c06,82,a4e7dfa8-5883-426a-96b5-81a325d0abd5|interaction_required, user_cancelled|");
-}
-
--(void)testTelemetryString_whenEmptyProperties_shouldCreateString
-{
-    NSString *testString = @"0|0|,|error|";
-    NSError *error;
-    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
-    NSString *result = [telemetryObject telemetryString];
-    
-    // MSIDLastRequestTelemetry.ErrorsInfo.apiId is an NSInteger in our code, so it will be 0 instead of null
-    XCTAssertEqualObjects(result, @"0|0|0,|error|");
-}
-
 -(void)testUpdateTelemetryString_whenUpdatesFromDifferentThreads_shouldBeThreadSafe
 {
-    NSString *testString = @"1|1|1,1|error1|";
-    NSError *error;
-    MSIDLastRequestTelemetry *telemetryObject = [[MSIDLastRequestTelemetry alloc] initWithTelemetryString:testString error:&error];
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     
     dispatch_queue_t testQ1 = dispatch_queue_create([@"testQ1" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     dispatch_queue_t testQ2 = dispatch_queue_create([@"testQ2" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
@@ -122,28 +62,55 @@
     NSArray<XCTestExpectation *> *expectations = @[expQ1, expQ2];
     
     dispatch_async(testQ1, ^{
-        [telemetryObject updateWithApiId:2 errorString:@"error2" context:nil];
+        [telemetryObject updateWithApiId:1 errorString:@"error1" context:nil];
         [expQ1 fulfill];
     });
     
     dispatch_sync(testQ2, ^{
-        [telemetryObject updateWithApiId:3 errorString:@"error3" context:nil];
+        [telemetryObject updateWithApiId:2 errorString:@"error2" context:nil];
         [expQ2 fulfill];
     });
     
     dispatch_async(testQ1, ^{
-        [telemetryObject updateWithApiId:4 errorString:@"error4" context:nil];
+        [telemetryObject updateWithApiId:3 errorString:@"error3" context:nil];
         [expQ1 fulfill];
     });
     
     dispatch_async(testQ2, ^{
-        [telemetryObject updateWithApiId:5 errorString:@"error5" context:nil];
+        [telemetryObject updateWithApiId:4 errorString:@"error4" context:nil];
         [expQ2 fulfill];
     });
     
     [self waitForExpectations:expectations timeout:5];
     
-    XCTAssertEqual(telemetryObject.errorsInfo.count, 5);
+    XCTAssertEqual(telemetryObject.errorsInfo.count, 4);
+}
+
+-(void)testSerialization_whenValidProperties_shouldCreateString
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|0|30,00000000-0000-0000-0000-000000000001|error|");
+}
+
+-(void)testSerialization_whenEmptyError_shouldCreateString
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:30 errorString:@"" context:nil];
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|0|30,||");
+}
+
+-(void)testSerialization_whenNilError_shouldCreateString
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:30 errorString:nil context:nil];
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|0|||");
 }
 
 @end

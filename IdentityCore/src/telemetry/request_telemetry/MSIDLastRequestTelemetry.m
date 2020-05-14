@@ -111,23 +111,12 @@
     return result;
 }
 
-- (instancetype)initWithTelemetryString:(NSString *)telemetryString error:(NSError **)error
+- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
 {
     self = [super init];
     if (self)
     {
-        NSError *internalError;
-        [self deserializeLastTelemetryString:telemetryString error:&internalError];
         
-        if (internalError)
-        {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to initialize server telemetry, error: %@", MSID_PII_LOG_MASKABLE(internalError));
-            if (error) *error = internalError;
-            return nil;
-        }
-        
-        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
-        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
@@ -139,70 +128,6 @@
     MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItems];
     
     return [lastTelemetryFields serialize];
-}
-
-- (void)deserializeLastTelemetryString:(NSString *)telemetryString error:(NSError **)error
-{
-    if ([telemetryString length] == 0)
-    {
-        if (error)
-        {
-            NSString *errorDescription = @"Initialized server telemetry string with nil or empty string";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-        }
-        return;
-    }
-    
-    NSArray *telemetryItems = [telemetryString componentsSeparatedByString:@"|"];
-    
-    // Pipe symbol in final position creates one extra element at the end of componentsSeparatedByString array
-    // Hardcoded value of 5 will be changed based on the number of platform fields added in future releases
-    if ([telemetryItems count] == 5)
-    {
-        self.schemaVersion = [telemetryItems[0] intValue];
-        self.silentSuccessfulCount = [telemetryItems[1] intValue];
-        
-        NSArray *failedRequests = [telemetryItems[2] componentsSeparatedByString:@","];
-        NSArray *errors = [telemetryItems[3] componentsSeparatedByString:@","];
-        NSMutableArray *errorsInfo = [NSMutableArray<MSIDRequestTelemetryErrorInfo *> new];
-        
-        // Each failed request has 2 types ID and 1 error code
-        if ([failedRequests count] == 2 * [errors count])
-        {
-            
-            int i; int j;
-            for (i = 0, j = 0; i < [errors count] && j < [failedRequests count]; i++, j+=2)
-            {
-                __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
-                errorInfo.apiId = [failedRequests[j] intValue];
-                errorInfo.correlationId = failedRequests[j+1];
-                errorInfo.error = errors[i];
-                [errorsInfo addObject:errorInfo];
-            }
-            
-            self.errorsInfo = errorsInfo;
-            
-        }
-        else
-        {
-            if (error)
-            {
-                NSString *errorDescription = @"String used for server telemetry initialization missing delimiters";
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-            }
-            return;
-        }
-        
-    }
-    else
-    {
-        if (error)
-        {
-            NSString *errorDescription = @"Initialized server telemetry string with invalid string format";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-        }
-        return;
-    }
 }
 
 - (MSIDLastRequestTelemetrySerializedItem *)createSerializedItems

@@ -33,20 +33,12 @@
     return [self serializeCurrentTelemetryString];
 }
 
-- (instancetype)initWithTelemetryString:(NSString *)telemetryString error:(NSError **)error
+- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
 {
     self = [super init];
     if (self)
     {
-        NSError *internalError;
-        [self deserializeCurrentTelemetryString:telemetryString error:&internalError];
         
-        if (internalError)
-        {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to initialize server telemetry, error: %@", MSID_PII_LOG_MASKABLE(internalError));
-            if (error) *error = internalError;
-            return nil;
-        }
     }
     return self;
 }
@@ -58,41 +50,6 @@
     MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItems];
     
     return [currentTelemetryFields serialize];
-}
-
-- (void)deserializeCurrentTelemetryString:(NSString *)telemetryString error:(NSError **)error
-{
-    if ([telemetryString length] == 0)
-    {
-        if (error)
-        {
-            NSString *errorDescription = @"Initialized server telemetry string with nil or empty string";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-        }
-        return;
-    }
-    
-    NSCharacterSet *charSet = [NSCharacterSet characterSetWithCharactersInString:@"|,"];
-    NSArray *telemetryItems = [telemetryString componentsSeparatedByCharactersInSet:charSet];
-    
-    // Pipe symbol in final position creates one extra element at the end of componentsSeparatedByString array
-    // Hardcoded value of 4 will be changed based on the number of platform fields added in future releases
-    if ([telemetryItems count] == 4)
-    {
-        self.schemaVersion = [telemetryItems[0] intValue];
-        self.apiId = [telemetryItems[1] intValue];
-        self.forceRefresh = [telemetryItems[2] boolValue];
-    }
-    else
-    {
-        if (error)
-        {
-            NSString *errorDescription = @"Initialized server telemetry string with invalid string format";
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-        }
-        return;
-    }
-    
 }
 
 - (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItems
