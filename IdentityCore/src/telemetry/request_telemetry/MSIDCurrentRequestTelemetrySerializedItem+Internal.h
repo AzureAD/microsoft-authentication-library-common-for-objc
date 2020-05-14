@@ -25,7 +25,6 @@
 
 @interface MSIDCurrentRequestTelemetrySerializedItem()
 
-- (NSString *)serializedDefaultFields;
-- (NSString *)serializedPlatformFields;
+- (NSString *)serializeFields:(NSArray *)fields;
 
 @end

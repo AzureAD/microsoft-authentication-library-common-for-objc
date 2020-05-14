@@ -41,7 +41,7 @@
 // specified in the current telemetry string schema
 - (NSString *)serialize
 {
-    NSString *telemetryString = [NSString stringWithFormat:@"%@|%@|%@", self.schemaVersion, [self serializedDefaultFields], [self serializedPlatformFields]];
+    NSString *telemetryString = [NSString stringWithFormat:@"%@|%@|%@", self.schemaVersion, [self serializeFields: self.defaultFields], [self serializeFields: self.platformFields]];
     
     if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000)
     {
@@ -53,23 +53,11 @@
 
 #pragma mark - Helper
 
-- (NSString *)serializedDefaultFields
+- (NSString *)serializeFields:(NSArray *)fields
 {
-    if (self.defaultFields)
+    if (fields)
     {
-        return [self.defaultFields componentsJoinedByString:@","];
-    }
-    else
-    {
-        return @"";
-    }
-}
-
-- (NSString *)serializedPlatformFields
-{
-    if (self.platformFields)
-    {
-        return [self.platformFields componentsJoinedByString:@","];
+        return [fields componentsJoinedByString:@","];
     }
     else
     {

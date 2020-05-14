@@ -28,10 +28,9 @@
 
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray *)defaultFields errorInfo:(NSArray *)errorsInfo platformFields:(NSArray *)platformFields
 {
-    self = [super init];
+    self = [super initWithSchemaVersion:schemaVersion defaultFields:defaultFields platformFields:platformFields];
     if (self)
     {
-        self = [super initWithSchemaVersion:schemaVersion defaultFields:defaultFields platformFields:platformFields];
         _errorsInfo = errorsInfo;
     }
     return self;
@@ -42,17 +41,19 @@
 - (NSString *)serialize
 {
     NSString *telemetryString = [NSString stringWithFormat:@"%@|", self.schemaVersion];
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [super serializedDefaultFields]];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [super serializeFields: self.defaultFields]];
     
     NSUInteger startLength = [telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self serializedErrorsInfoWithCurrentStringSize:startLength]];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self serializeErrorsInfoWithCurrentStringSize:startLength]];
     
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@", [super serializedPlatformFields]];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@", [super serializeFields: self.platformFields]];
     
     return telemetryString;
 }
 
-- (NSString *)serializedErrorsInfoWithCurrentStringSize:(NSUInteger)startLength
+#pragma mark Helper
+
+- (NSString *)serializeErrorsInfoWithCurrentStringSize:(NSUInteger)startLength
 {
     NSString *failedRequestsString = @"";
     NSString *errorMessagesString = @"";
