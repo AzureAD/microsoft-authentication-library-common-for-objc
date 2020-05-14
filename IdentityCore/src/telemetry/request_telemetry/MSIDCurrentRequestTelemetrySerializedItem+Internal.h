@@ -21,22 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDLastRequestTelemetry.h"
+#import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface MSIDCurrentRequestTelemetrySerializedItem()
 
-@interface MSIDRequestTelemetrySerializedItems : NSObject
-
-@property (nonatomic) NSArray<NSObject *> *defaultFields;
-@property (nonatomic) NSArray<NSObject *> *platformFields;
-@property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
-
-- (instancetype)initWithDefaultFields:(NSArray * _Nullable )defaultFields errorInfo:(NSArray * _Nullable )errorsInfo platformFields:(NSArray * _Nullable )platformFields;
 - (NSString *)serializedDefaultFields;
-- (NSString *)serializedErrorsInfoWithCurrentStringSize:(NSUInteger)startLength;
 - (NSString *)serializedPlatformFields;
 
 @end
-
-NS_ASSUME_NONNULL_END

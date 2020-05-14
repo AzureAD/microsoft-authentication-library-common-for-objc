@@ -21,28 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRequestTelemetrySerializedItems.h"
+#import "MSIDCurrentRequestTelemetrySerializedItem+Internal.h"
+#import "MSIDLastRequestTelemetrySerializedItem.h"
 
-@implementation MSIDRequestTelemetrySerializedItems
+@implementation MSIDLastRequestTelemetrySerializedItem
 
-- (instancetype)initWithDefaultFields:(NSArray *)defaultFields errorInfo:(NSArray *)errorsInfo platformFields:(NSArray *)platformFields
+- (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray *)defaultFields errorInfo:(NSArray *)errorsInfo platformFields:(NSArray *)platformFields
 {
-    _defaultFields = defaultFields;
-    _errorsInfo = errorsInfo;
-    _platformFields = platformFields;
+    self = [super init];
+    if (self)
+    {
+        self = [super initWithSchemaVersion:schemaVersion defaultFields:defaultFields platformFields:platformFields];
+        _errorsInfo = errorsInfo;
+    }
     return self;
 }
 
-- (NSString *)serializedDefaultFields
+// Builds last telemetry string using default serialization of each set of fields
+// specified in the last telemetry string schema
+- (NSString *)serialize
 {
-    if (self.defaultFields)
-    {
-        return [self.defaultFields componentsJoinedByString:@","];
-    }
-    else
-    {
-        return @"";
-    }
+    NSString *telemetryString = [NSString stringWithFormat:@"%@|", self.schemaVersion];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [super serializedDefaultFields]];
+    
+    NSUInteger startLength = [telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self serializedErrorsInfoWithCurrentStringSize:startLength]];
+    
+    telemetryString = [telemetryString stringByAppendingFormat:@"%@", [super serializedPlatformFields]];
+    
+    return telemetryString;
 }
 
 - (NSString *)serializedErrorsInfoWithCurrentStringSize:(NSUInteger)startLength
@@ -52,7 +59,6 @@
     
     if (self.errorsInfo.count > 0)
     {
-        //NSUInteger startLength = [telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
         int lastIndex = (int)self.errorsInfo.count - 1;
         
         // Set first post in fencepost structure -- last item in string doesn't have comma at the end
@@ -92,18 +98,6 @@
     }
     NSString *telemetryString = [NSString stringWithFormat:@"%@|%@", failedRequestsString, errorMessagesString];
     return telemetryString;
-}
-
-- (NSString *)serializedPlatformFields
-{
-    if (self.platformFields)
-    {
-        return [self.platformFields componentsJoinedByString:@","];
-    }
-    else
-    {
-        return @"";
-    }
 }
 
 @end

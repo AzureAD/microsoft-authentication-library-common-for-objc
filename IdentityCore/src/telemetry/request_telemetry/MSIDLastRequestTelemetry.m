@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDLastRequestTelemetry.h"
-#import "MSIDRequestTelemetrySerializedItems.h"
+#import "MSIDLastRequestTelemetrySerializedItem.h"
 
 @implementation MSIDRequestTelemetryErrorInfo
 @end
@@ -46,6 +46,9 @@
     if (self)
     {
         _schemaVersion = 2;
+        
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
+        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
@@ -131,22 +134,14 @@
 
 #pragma mark - Private
 
--(NSString *)serializeLastTelemetryString
+- (NSString *)serializeLastTelemetryString
 {
-    [self createSerializedItems];
+    MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItems];
     
-    NSString *telemetryString = [NSString stringWithFormat:@"%ld|", self.schemaVersion];
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self.serializedItems serializedDefaultFields]];
-    
-    NSUInteger startLength = [telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@|", [self.serializedItems serializedErrorsInfoWithCurrentStringSize:startLength]];
-    
-    telemetryString = [telemetryString stringByAppendingFormat:@"%@", [self.serializedItems serializedPlatformFields]];
-    
-    return telemetryString;
+    return [lastTelemetryFields serialize];
 }
 
--(void)deserializeLastTelemetryString:(NSString *)telemetryString error:(NSError **)error
+- (void)deserializeLastTelemetryString:(NSString *)telemetryString error:(NSError **)error
 {
     if ([telemetryString length] == 0)
     {
@@ -186,7 +181,6 @@
             }
             
             self.errorsInfo = errorsInfo;
-            [self createSerializedItems];
             
         }
         else
@@ -211,10 +205,10 @@
     }
 }
 
--(void)createSerializedItems
+- (MSIDLastRequestTelemetrySerializedItem *)createSerializedItems
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
-    self.serializedItems = [[MSIDRequestTelemetrySerializedItems alloc] initWithDefaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
+    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
 }
 
 @end

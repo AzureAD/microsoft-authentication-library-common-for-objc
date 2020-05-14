@@ -26,14 +26,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDRequestTelemetrySerializedItems;
+@class MSIDCurrentRequestTelemetrySerializedItem;
 
 @interface MSIDCurrentRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
 
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic) BOOL forceRefresh;
-@property (nonatomic) MSIDRequestTelemetrySerializedItems* serializedItems;
 
 @end
 

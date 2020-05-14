@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDRequestTelemetrySerializedItems.h"
+#import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
 @implementation MSIDCurrentRequestTelemetry
 
@@ -53,24 +53,14 @@
 
 #pragma mark - Private
 
--(NSString *)serializeCurrentTelemetryString
+- (NSString *)serializeCurrentTelemetryString
 {
-    if (self.serializedItems == nil)
-    {
-        [self createSerializedItems];
-    }
+    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItems];
     
-    NSString *telemetryString = [NSString stringWithFormat:@"%ld|%@|%@", self.schemaVersion, [self.serializedItems serializedDefaultFields], [self.serializedItems serializedPlatformFields]];
-    
-    if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000)
-    {
-        return nil;
-    }
-    
-    return telemetryString;
+    return [currentTelemetryFields serialize];
 }
 
--(void)deserializeCurrentTelemetryString:(NSString *)telemetryString error:(NSError **)error
+- (void)deserializeCurrentTelemetryString:(NSString *)telemetryString error:(NSError **)error
 {
     if ([telemetryString length] == 0)
     {
@@ -92,8 +82,6 @@
         self.schemaVersion = [telemetryItems[0] intValue];
         self.apiId = [telemetryItems[1] intValue];
         self.forceRefresh = [telemetryItems[2] boolValue];
-        
-        [self createSerializedItems];
     }
     else
     {
@@ -107,11 +95,10 @@
     
 }
 
--(void)createSerializedItems
+- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItems
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    self.serializedItems = [[MSIDRequestTelemetrySerializedItems alloc] initWithDefaultFields:defaultFields errorInfo:nil platformFields:nil];
+    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
 }
-
 
 @end
