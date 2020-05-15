@@ -88,13 +88,27 @@
     XCTAssertEqual(telemetryObject.errorsInfo.count, 4);
 }
 
--(void)testSerialization_whenValidProperties_shouldCreateString
+-(void)testSerialization_whenSingleValidProperty_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
     NSString *result = [telemetryObject telemetryString];
     
     XCTAssertEqualObjects(result, @"2|0|30,00000000-0000-0000-0000-000000000001|error|");
+}
+
+-(void)testSerialization_whenValidProperties_shouldCreateString
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
+    [telemetryObject updateWithApiId:40 errorString:@"error2" context:self.context];
+    [telemetryObject updateWithApiId:50 errorString:@"error3" context:self.context];
+    [telemetryObject updateWithApiId:60 errorString:@"error4" context:self.context];
+    [telemetryObject updateWithApiId:70 errorString:@"error5" context:self.context];
+    
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|0|30,00000000-0000-0000-0000-000000000001,40,00000000-0000-0000-0000-000000000001,50,00000000-0000-0000-0000-000000000001,60,00000000-0000-0000-0000-000000000001,70,00000000-0000-0000-0000-000000000001|error,error2,error3,error4,error5|");
 }
 
 -(void)testSerialization_whenEmptyError_shouldCreateString
@@ -106,6 +120,17 @@
     XCTAssertEqualObjects(result, @"2|0|30,||");
 }
 
+-(void)testSerialization_whenEmptyErrors_shouldCreateString
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:30 errorString:@"" context:nil];
+    [telemetryObject updateWithApiId:40 errorString:@"" context:nil];
+    [telemetryObject updateWithApiId:50 errorString:@"" context:nil];
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|0|30,,40,,50,|,,|");
+}
+
 -(void)testSerialization_whenNilError_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
@@ -113,6 +138,41 @@
     NSString *result = [telemetryObject telemetryString];
     
     XCTAssertEqualObjects(result, @"2|0|||");
+}
+
+-(void)testSerialization_whenNilErrors_shouldCreateString
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:30 errorString:nil context:nil];
+    [telemetryObject updateWithApiId:30 errorString:nil context:nil];
+    [telemetryObject updateWithApiId:30 errorString:nil context:nil];
+    [telemetryObject updateWithApiId:30 errorString:nil context:nil];
+    [telemetryObject updateWithApiId:30 errorString:nil context:nil];
+    
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|0|||");
+}
+
+-(void)testSerialization_whenValidandNilProperties_shouldCreateString
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    
+    [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
+    
+    // Telemetry object update with nil error: errorsInfo is set to nil and
+    // silentSuccessful count back down to 0
+    [telemetryObject updateWithApiId:0 errorString:nil context:nil];
+    
+    [telemetryObject updateWithApiId:50 errorString:@"error3" context:self.context];
+    [telemetryObject updateWithApiId:0 errorString:nil context:nil];
+    
+    // "error5" should be only error serialzed, because it was added after a nil error
+    [telemetryObject updateWithApiId:70 errorString:@"error5" context:self.context];
+    
+    NSString *result = [telemetryObject telemetryString];
+    
+    XCTAssertEqualObjects(result, @"2|0|70,00000000-0000-0000-0000-000000000001|error5|");
 }
 
 @end
