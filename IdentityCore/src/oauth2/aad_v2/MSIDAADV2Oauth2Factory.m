@@ -47,7 +47,6 @@
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
-#import "MSIDHttpResponseErrorProvider.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -203,7 +202,6 @@
     if (parameters.currentRequestTelemetry)
     {
         __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
-        serverTelemetry.responseErrorProvider = [MSIDHttpResponseErrorProvider new];
         serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
         tokenRequest.serverTelemetry = serverTelemetry;
     }
@@ -238,7 +236,6 @@
     if (parameters.currentRequestTelemetry)
     {
         __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
-        serverTelemetry.responseErrorProvider = [MSIDHttpResponseErrorProvider new];
         serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
         tokenRequest.serverTelemetry = serverTelemetry;
     }
