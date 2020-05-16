@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDLastRequestTelemetry.h"
+#import "MSIDLastRequestTelemetrySerializedItem.h"
 
 @implementation MSIDRequestTelemetryErrorInfo
 @end
@@ -31,6 +32,7 @@
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
 @property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
 
@@ -44,6 +46,9 @@
     if (self)
     {
         _schemaVersion = 2;
+        
+        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
+        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     }
     return self;
 }
@@ -65,37 +70,48 @@
 {
     if (errorString)
     {
-        NSMutableArray *errorsInfo = self.errorsInfo ? [self.errorsInfo mutableCopy] : [NSMutableArray new];
-        
-        __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
-        errorInfo.apiId = apiId;
-        errorInfo.error = errorString;
-        errorInfo.correlationId = context.correlationId;
-        
-        [errorsInfo addObject:errorInfo];
-        
-        self.errorsInfo = errorsInfo;
+        dispatch_barrier_async(self.synchronizationQueue, ^{
+            NSMutableArray *errorsInfo = self.errorsInfo ? [self.errorsInfo mutableCopy] : [NSMutableArray new];
+            
+            __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
+            errorInfo.apiId = apiId;
+            errorInfo.error = errorString;
+            errorInfo.correlationId = context.correlationId;
+            
+            [errorsInfo addObject:errorInfo];
+            
+            self.errorsInfo = errorsInfo;
+        });
     }
     else
     {
-        self.silentSuccessfulCount = 0;
-        self.errorsInfo = nil;
+        dispatch_barrier_async(self.synchronizationQueue, ^{
+            self.silentSuccessfulCount = 0;
+            self.errorsInfo = nil;
+        });
     }
 }
 
 - (void)increaseSilentSuccessfulCount
 {
-    self.silentSuccessfulCount = self.silentSuccessfulCount + 1;
+    dispatch_barrier_async(self.synchronizationQueue, ^{
+        self.silentSuccessfulCount = self.silentSuccessfulCount + 1;
+    });
 }
 
 #pragma mark - MSIDTelemetryStringSerializable
 
 - (NSString *)telemetryString
 {
-    return @"";
+    __block NSString *result;
+    dispatch_sync(self.synchronizationQueue, ^{
+        result = [self serializeLastTelemetryString];
+    });
+    
+    return result;
 }
 
-- (instancetype)initWithTelemetryString:(__unused NSString *)csvString error:(__unused NSError **)error
+- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
 {
     self = [super init];
     if (self)
@@ -103,6 +119,21 @@
         
     }
     return self;
+}
+
+#pragma mark - Private
+
+- (NSString *)serializeLastTelemetryString
+{
+    MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItem];
+    
+    return [lastTelemetryFields serialize];
+}
+
+- (MSIDLastRequestTelemetrySerializedItem *)createSerializedItem
+{
+    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
+    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
 }
 
 @end

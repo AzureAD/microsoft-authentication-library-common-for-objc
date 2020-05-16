@@ -21,41 +21,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
-@implementation MSIDCurrentRequestTelemetry
+@interface MSIDCurrentRequestTelemetrySerializedItem()
 
-#pragma mark - MSIDTelemetryStringSerializable
+@property (nonatomic) NSNumber *schemaVersion;
+@property (nonatomic) NSArray<NSObject *> *defaultFields;
+@property (nonatomic) NSArray<NSObject *> *platformFields;
 
-- (NSString *)telemetryString
-{
-    return [self serializeCurrentTelemetryString];
-}
+@end
 
-- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
+@implementation MSIDCurrentRequestTelemetrySerializedItem
+
+- (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray *)defaultFields platformFields:(NSArray *)platformFields
 {
     self = [super init];
     if (self)
     {
-        
+        _schemaVersion = schemaVersion;
+        _defaultFields = defaultFields;
+        _platformFields = platformFields;
     }
     return self;
 }
 
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
+// Builds current telemetry string using default serialization of each set of fields
+// specified in the current telemetry string schema
+- (NSString *)serialize
 {
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
+    NSString *telemetryString = [NSString stringWithFormat:@"%@|%@|%@", self.schemaVersion, [self serializeFields: self.defaultFields], [self serializeFields: self.platformFields]];
     
-    return [currentTelemetryFields serialize];
+    if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000)
+    {
+        return nil;
+    }
+    
+    return telemetryString;
 }
 
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
+#pragma mark - Helper
+
+- (NSString *)serializeFields:(NSArray *)fields
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
+    if (fields)
+    {
+        return [fields componentsJoinedByString:@","];
+    }
+    else
+    {
+        return @"";
+    }
 }
 
 @end

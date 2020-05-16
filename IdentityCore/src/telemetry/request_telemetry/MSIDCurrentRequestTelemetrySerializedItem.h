@@ -21,41 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import <Foundation/Foundation.h>
+#import "MSIDLastRequestTelemetry.h"
 
-@implementation MSIDCurrentRequestTelemetry
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - MSIDTelemetryStringSerializable
+@interface MSIDCurrentRequestTelemetrySerializedItem : NSObject
 
-- (NSString *)telemetryString
-{
-    return [self serializeCurrentTelemetryString];
-}
-
-- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
-{
-    self = [super init];
-    if (self)
-    {
-        
-    }
-    return self;
-}
-
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
-{
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
-    
-    return [currentTelemetryFields serialize];
-}
-
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
-{
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
-}
+- (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray * _Nullable)defaultFields platformFields:(NSArray * _Nullable)platformFields;
+- (NSString *)serialize;
 
 @end
+
+NS_ASSUME_NONNULL_END

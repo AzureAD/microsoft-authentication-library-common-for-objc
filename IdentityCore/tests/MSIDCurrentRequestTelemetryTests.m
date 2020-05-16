@@ -15,47 +15,48 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import <XCTest/XCTest.h>
 #import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
-@implementation MSIDCurrentRequestTelemetry
+@interface MSIDCurrentRequestTelemetryTests : XCTestCase
 
-#pragma mark - MSIDTelemetryStringSerializable
+@end
 
-- (NSString *)telemetryString
+@implementation MSIDCurrentRequestTelemetryTests
+
+- (void)setUp
 {
-    return [self serializeCurrentTelemetryString];
+    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
+- (void)tearDown
 {
-    self = [super init];
-    if (self)
-    {
-        
-    }
-    return self;
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
+-(void)testSerialization_whenValidProperties_shouldCreateString
 {
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
+    MSIDCurrentRequestTelemetry *telemetryObject = [MSIDCurrentRequestTelemetry new];
+    telemetryObject.schemaVersion = 2;
+    telemetryObject.forceRefresh = NO;
+    telemetryObject.apiId = 30;
     
-    return [currentTelemetryFields serialize];
+    NSString *result = [telemetryObject telemetryString];
+    XCTAssertEqualObjects(result, @"2|30,0|");
 }
 
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
+-(void)testSerialization_whenNilProperties_shouldCreateString
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
+    MSIDCurrentRequestTelemetry *telemetryObject = [MSIDCurrentRequestTelemetry new];
+    
+    NSString *result = [telemetryObject telemetryString];
+    XCTAssertEqualObjects(result, @"0|0,0|");
 }
 
 @end
