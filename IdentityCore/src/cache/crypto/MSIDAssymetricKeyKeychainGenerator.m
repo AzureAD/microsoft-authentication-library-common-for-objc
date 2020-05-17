@@ -81,14 +81,7 @@
     }
     
     NSMutableDictionary *defaultKeychainQuery = [@{(id)kSecAttrAccessGroup : self.keychainGroup} mutableCopy];
-    
-#ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
-#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    if (@available(macOS 10.15, *)) {
-        defaultKeychainQuery[(id)kSecUseDataProtectionKeychain] = @YES;
-    }
-#endif
-#endif
+    [defaultKeychainQuery addEntriesFromDictionary:[self additionalPlatformKeychainAttributes]];
     
     self.defaultKeychainQuery = defaultKeychainQuery;
     return self;
@@ -118,7 +111,9 @@
     // 1. Generate keypair
     NSDictionary *keyPairAttr = [self keychainQueryWithAttributes:[attributes assymetricKeyPairAttributes]];
     
-    OSStatus status = SecKeyGeneratePair((__bridge CFDictionaryRef)keyPairAttr, NULL, NULL);
+    SecKeyRef publicKeyRef = NULL;
+    SecKeyRef privateKeyRef = NULL;
+    OSStatus status = SecKeyGeneratePair((__bridge CFDictionaryRef)keyPairAttr, &publicKeyRef, &privateKeyRef);
     
     if (status != errSecSuccess)
     {
@@ -127,7 +122,12 @@
     }
     
     // 2. Return keys
-    return [self readKeyPairForAttributes:attributes error:error];
+    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef];
+    
+    if (privateKeyRef) CFRelease(privateKeyRef);
+    if (publicKeyRef) CFRelease(publicKeyRef);
+    
+    return keyPair;
 }
 
 - (MSIDAssymetricKeyPair *)readOrGenerateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
@@ -243,6 +243,21 @@
     NSMutableDictionary *keyPairAttr = [self.defaultKeychainQuery mutableCopy];
     [keyPairAttr addEntriesFromDictionary:attributes];
     return keyPairAttr;
+}
+
+#pragma mark - Platform
+
+- (NSDictionary *)additionalPlatformKeychainAttributes
+{
+    #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+    #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+        if (@available(macOS 10.15, *)) {
+            return @{(id)kSecUseDataProtectionKeychain : @YES};
+        }
+    #endif
+    #endif
+    
+    return nil;
 }
 
 #pragma mark - Utils

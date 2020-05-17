@@ -25,6 +25,9 @@
 #import "MSIDAssymetricKeyKeychainGenerator.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
+#if !TARGET_OS_IPHONE
+#import "MSIDAssymetricKeyLoginKeychainGenerator.h"
+#endif
 
 @interface MSIDAssymetricKeychainGeneratorTests : XCTestCase
 
@@ -36,7 +39,7 @@
 {
     MSIDAssymetricKeyLookupAttributes *attr = nil;
     
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
@@ -51,7 +54,7 @@
 {
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
@@ -74,7 +77,7 @@
     attr.privateKeyIdentifier = privateKeyIdentifier;
     attr.publicKeyIdentifier = publicKeyIdentifier;
     
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
@@ -101,7 +104,7 @@
     attr.publicKeyIdentifier = publicKeyIdentifier;
     
     // Generate first time
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
@@ -134,7 +137,7 @@
 {
     MSIDAssymetricKeyLookupAttributes *attr = nil;
     
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator readKeyPairForAttributes:attr error:&error];
@@ -149,7 +152,7 @@
 {
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator readKeyPairForAttributes:attr error:&error];
@@ -171,7 +174,7 @@
     attr.keyDisplayableLabel = @"My key";
     
     // First generate key
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
@@ -195,7 +198,7 @@
 
 - (void)testReadKeyForAttributes_whenKeyDoesntExist_shouldReturnNilAndNilError
 {
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSString *privateKeyIdentifier = @"com.msal.unittest.privateKey";
     NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
@@ -216,7 +219,7 @@
 
 - (void)testReadKeyForAttributes_whenOnlyPrivateKeyExists_shouldReturnNilAndFillError
 {
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSString *privateKeyIdentifier = @"com.msal.unittest.privateKey";
     NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
@@ -244,7 +247,7 @@
 {
     MSIDAssymetricKeyLookupAttributes *attr = nil;
     
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator readOrGenerateKeyPairForAttributes:attr error:&error];
@@ -266,7 +269,7 @@
     attr.keyDisplayableLabel = @"My key";
     
     // First generate key
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
@@ -299,7 +302,7 @@
     attr.keyDisplayableLabel = @"My key";
     
     // First generate key
-    MSIDAssymetricKeyKeychainGenerator *generator = [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
@@ -348,6 +351,15 @@
     if (keyExists) CFRelease(result);
     
     return keyExists;
+}
+
+- (MSIDAssymetricKeyKeychainGenerator *)keyGenerator
+{
+#if TARGET_OS_IPHONE
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+#else
+    return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithGroup:nil error:nil];
+#endif
 }
 
 @end
