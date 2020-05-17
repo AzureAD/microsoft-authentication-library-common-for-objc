@@ -918,6 +918,7 @@
 		B274DEC821FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B274DEC621FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m */; };
 		B27551C22081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
 		B27551C32081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
+		B27893732470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B27893722470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m */; };
 		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */; };
@@ -1483,6 +1484,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		231CE9B51FE86F1E00E95D3E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 231CE99C1FE86EA300E95D3E;
+			remoteInfo = MSIDTestsHostApp;
+		};
+		B27893752470C42200627C28 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
 			proxyType = 1;
@@ -2303,6 +2311,7 @@
 		B27551FD208182BE00AA7A38 /* AuthHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthHeader.swift; sourceTree = "<group>"; };
 		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
 		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
+		B27893722470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeychainGeneratorTests.m; sourceTree = "<group>"; };
 		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
 		B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskManager.h; sourceTree = "<group>"; };
 		B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskManager.m; sourceTree = "<group>"; };
@@ -4639,6 +4648,7 @@
 				23419F7E239B33E400EA78C5 /* MSIDAADV2TokenResponseTests.m */,
 				23419F81239B36F500EA78C5 /* MSIDAccountIdentifierTests.m */,
 				B217860D23A578BE00839CE8 /* MSIDBrokerOperationSignoutFromDeviceRequestTests.m */,
+				B27893722470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -5226,6 +5236,7 @@
 			dependencies = (
 				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
+				B27893762470C42200627C28 /* PBXTargetDependency */,
 			);
 			name = "IdentityCoreTests Mac";
 			productName = IdentityCoreTests;
@@ -5678,6 +5689,7 @@
 				6080B9A523886DD9009B1322 /* MSIDBrokerOperationGetDeviceInfoRequestTests.m in Sources */,
 				96D3A44E20E6F7D8001BD428 /* MSIDPkceTests.m in Sources */,
 				B286BA02238A0919007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
+				B27893732470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */,
 				23B3A4552187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m in Sources */,
 				B2936F7420ABEFC10050C585 /* MSIDAccessTokenTests.m in Sources */,
 				B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
@@ -6527,6 +6539,11 @@
 			target = 231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */;
 			targetProxy = 231CE9B51FE86F1E00E95D3E /* PBXContainerItemProxy */;
 		};
+		B27893762470C42200627C28 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */;
+			targetProxy = B27893752470C42200627C28 /* PBXContainerItemProxy */;
+		};
 		D626FF511FBA6DFD00EE4487 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D68FB4861FBA698A005308BB /* IdentityCore iOS */;
@@ -7171,6 +7188,7 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
@@ -7181,6 +7199,7 @@
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
@@ -7217,7 +7236,7 @@
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Debug;
 		};
@@ -7226,7 +7245,7 @@
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Release;
 		};

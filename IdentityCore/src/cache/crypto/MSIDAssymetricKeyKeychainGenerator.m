@@ -99,6 +99,13 @@
 - (MSIDAssymetricKeyPair *)generateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                                   error:(NSError **)error
 {
+    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier]
+        || [NSString msidIsStringNilOrBlank:attributes.publicKeyIdentifier])
+    {
+        [self logAndFillError:@"Invalid key generation attributes provided" status:-1 error:error];
+        return nil;
+    }
+    
     // 0. Cleanup any previous state
     BOOL cleanupResult = [self cleanupKeychainForAttributes:attributes error:error];
     
@@ -120,14 +127,14 @@
     }
     
     // 2. Return keys
-    return [self getKeyPairForAttributes:attributes error:error];
+    return [self readKeyPairForAttributes:attributes error:error];
 }
 
 - (MSIDAssymetricKeyPair *)readOrGenerateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                                         error:(NSError **)error
 {
     NSError *readError = nil;
-    MSIDAssymetricKeyPair *keyPair = [self getKeyPairForAttributes:attributes error:&readError];
+    MSIDAssymetricKeyPair *keyPair = [self readKeyPairForAttributes:attributes error:&readError];
     
     if (keyPair || readError)
     {
@@ -138,9 +145,16 @@
     return [self generateKeyPairForAttributes:attributes error:error];
 }
 
-- (MSIDAssymetricKeyPair *)getKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
+- (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                              error:(NSError **)error
 {
+    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier]
+        || [NSString msidIsStringNilOrBlank:attributes.publicKeyIdentifier])
+    {
+        [self logAndFillError:@"Invalid key lookup attributes provided" status:-1 error:error];
+        return nil;
+    }
+    
     NSDictionary *privateKeyAttributes = [self keyAttributesWithQueryDictionary:[attributes privateKeyAttributes] keyTitle:@"private key" error:error];
     
     if (!privateKeyAttributes)
