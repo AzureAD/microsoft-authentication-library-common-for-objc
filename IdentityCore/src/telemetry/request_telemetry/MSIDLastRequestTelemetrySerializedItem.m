@@ -69,7 +69,7 @@
         int lastIndex = (int)self.errorsInfo.count - 1;
         
         // Set first post in fencepost structure -- last item in string doesn't have comma at the end
-        NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@", self.errorsInfo[lastIndex].apiId, self.errorsInfo[lastIndex].correlationId ?: @""];
+        NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@", (long)self.errorsInfo[lastIndex].apiId, self.errorsInfo[lastIndex].correlationId ?: @""];
         NSString *currentErrorMessage = [NSString stringWithFormat:@"%@", self.errorsInfo[lastIndex].error ?: @""];
         
         // Only add error info into string if the resulting string smaller than 4KB
@@ -83,7 +83,7 @@
         // Fill in remaining errors with comma at the end of each error
         for (int i = lastIndex - 1; i >= 0; i--)
         {
-            NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@,", self.errorsInfo[i].apiId, self.errorsInfo[i].correlationId ?: @""];
+            NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@,", (long)self.errorsInfo[i].apiId, self.errorsInfo[i].correlationId ?: @""];
             NSString *currentErrorMessage = [NSString stringWithFormat:@"%@,", self.errorsInfo[i].error ?: @""];
             
             NSString *newFailedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
