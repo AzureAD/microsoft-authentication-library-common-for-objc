@@ -24,6 +24,8 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 
 NSString *const kMSIDPrivateKeyIdentifier               = @"com.microsoft.workplacejoin.privatekey\0";
+NSString *const kMSIDTenantKeyIdentifier                = @"com.microsoft.workplacejoin.tenantId";
+NSString *const kMSIDUPNKeyIdentifier                   = @"com.microsoft.workplacejoin.registeredUserPrincipalName";
 NSString *const kMSIDProtectionSpaceDistinguishedName   = @"MS-Organization-Access";
 NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAuth?";
 NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth";
