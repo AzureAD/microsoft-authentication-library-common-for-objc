@@ -74,10 +74,10 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
     MSIDPromptTypeDefault = MSIDPromptTypePromptIfNecessary
 };
 
-typedef NS_ENUM(NSInteger, MSIDAuthenticationScheme)
+typedef NS_ENUM(NSInteger, MSIDAuthScheme)
 {
-    MSIDAuthenticationSchemeBearer,
-    MSIDAuthenticationSchemePop,
+    MSIDAuthSchemeBearer,
+    MSIDAuthSchemePop,
 };
 
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
