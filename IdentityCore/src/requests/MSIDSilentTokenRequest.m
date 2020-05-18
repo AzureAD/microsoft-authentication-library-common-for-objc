@@ -142,6 +142,11 @@
             }
             
             enrollmentIdMatch = currentEnrollmentId && [currentEnrollmentId isEqualToString:accessToken.enrollmentId];
+            
+            if (!enrollmentIdMatch)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id mismatch, access token's enrollment id : %@, cached enrollment id: %@, ", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
+            }
         }
         
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch)
@@ -201,7 +206,15 @@
         }
         else if (accessToken)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
+            if (!enrollmentIdMatch)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached enrollment id is different from access token's enrollment id, removing it..");
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
+            }
+            
             NSError *removalError = nil;
             BOOL removalResult = [self.tokenCache removeAccessToken:accessToken
                                                             context:self.requestParameters
