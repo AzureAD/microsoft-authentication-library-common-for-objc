@@ -56,31 +56,31 @@
     dispatch_queue_t testQ1 = dispatch_queue_create([@"testQ1" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     dispatch_queue_t testQ2 = dispatch_queue_create([@"testQ2" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
     
-    XCTestExpectation *expQ1 = [[XCTestExpectation alloc] initWithDescription:@"Dispatch queue 1"];
-    expQ1.expectedFulfillmentCount = 2;
-    XCTestExpectation *expQ2 = [[XCTestExpectation alloc] initWithDescription:@"Dispatch queue 2"];
-    expQ2.expectedFulfillmentCount = 2;
+    XCTestExpectation *exp1 = [[XCTestExpectation alloc] initWithDescription:@"Expectation 1"];
+    XCTestExpectation *exp2 = [[XCTestExpectation alloc] initWithDescription:@"Expectation 2"];
+    XCTestExpectation *exp3 = [[XCTestExpectation alloc] initWithDescription:@"Expectation 3"];
+    XCTestExpectation *exp4 = [[XCTestExpectation alloc] initWithDescription:@"Expectation 4"];
     
-    NSArray<XCTestExpectation *> *expectations = @[expQ1, expQ2];
+    NSArray<XCTestExpectation *> *expectations = @[exp1, exp2, exp3, exp4];
     
     dispatch_async(testQ1, ^{
         [telemetryObject updateWithApiId:1 errorString:@"error1" context:nil];
-        [expQ1 fulfill];
+        [exp1 fulfill];
     });
     
-    dispatch_sync(testQ2, ^{
+    dispatch_async(testQ2, ^{
         [telemetryObject updateWithApiId:2 errorString:@"error2" context:nil];
-        [expQ2 fulfill];
+        [exp2 fulfill];
     });
     
     dispatch_async(testQ1, ^{
         [telemetryObject updateWithApiId:3 errorString:@"error3" context:nil];
-        [expQ1 fulfill];
+        [exp3 fulfill];
     });
     
     dispatch_async(testQ2, ^{
         [telemetryObject updateWithApiId:4 errorString:@"error4" context:nil];
-        [expQ2 fulfill];
+        [exp4 fulfill];
     });
     
     [self waitForExpectations:expectations timeout:5];
