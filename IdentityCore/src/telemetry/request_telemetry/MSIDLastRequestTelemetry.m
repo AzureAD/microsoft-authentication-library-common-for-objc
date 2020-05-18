@@ -111,16 +111,6 @@
     return result;
 }
 
-- (instancetype)initWithTelemetryString:(__unused NSString *)telemetryString error:(__unused NSError **)error
-{
-    self = [super init];
-    if (self)
-    {
-        
-    }
-    return self;
-}
-
 #pragma mark - Private
 
 - (NSString *)serializeLastTelemetryString
