@@ -27,8 +27,7 @@
 
 - (NSString *)msidServerTelemetryErrorString
 {
-    // TODO: ?
-    return @"";
+    return [NSString stringWithFormat:@"%@_%ld", self.domain, (long)self.code];
 }
 
 @end

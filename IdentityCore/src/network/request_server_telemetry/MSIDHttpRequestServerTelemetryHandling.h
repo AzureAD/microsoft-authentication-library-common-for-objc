@@ -24,17 +24,13 @@
 #import <Foundation/Foundation.h>
 
 @protocol MSIDHttpRequestProtocol;
-@protocol MSIDResponseErrorProviding;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDHttpRequestServerTelemetryHandling <NSObject>
 
-@property (nonatomic) id<MSIDResponseErrorProviding> responseErrorProvider;
-
-- (void)handleHttpResponse:(NSHTTPURLResponse *)httpResponse
-                      data:(nullable NSData *)data
-                   context:(id<MSIDRequestContext>)context;
+- (void)handleError:(NSError *)error
+            context:(id<MSIDRequestContext>)context;
 
 - (void)setTelemetryToRequest:(id<MSIDHttpRequestProtocol>)request;
 
