@@ -21,31 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
-@implementation MSIDCurrentRequestTelemetry
+@interface MSIDCurrentRequestTelemetrySerializedItem()
 
-#pragma mark - MSIDTelemetryStringSerializable
+@property (nonatomic) NSNumber *schemaVersion;
+@property (nonatomic) NSArray<NSObject *> *defaultFields;
+@property (nonatomic) NSArray<NSObject *> *platformFields;
 
-- (NSString *)telemetryString
-{
-    return [self serializeCurrentTelemetryString];
-}
-
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
-{
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
-    
-    return [currentTelemetryFields serialize];
-}
-
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
-{
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
-}
+- (NSString *)serializeFields:(NSArray *)fields;
 
 @end

@@ -34,6 +34,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class MSIDCurrentRequestTelemetrySerializedItem;
+
 @interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
 
 @property (nonatomic, readonly) NSInteger schemaVersion;
