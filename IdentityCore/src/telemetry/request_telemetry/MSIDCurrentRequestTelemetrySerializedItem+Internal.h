@@ -21,21 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpResponseErrorProvider.h"
+#import "MSIDCurrentRequestTelemetrySerializedItem.h"
 
-@implementation MSIDHttpResponseErrorProvider
+@interface MSIDCurrentRequestTelemetrySerializedItem()
 
-- (NSString *)errorForResponse:(NSHTTPURLResponse *)httpResponse
-                          data:(__unused NSData *)data
-                       context:(__unused id<MSIDRequestContext>)context
-                         error:(__unused NSError **)error
-{
-    if (httpResponse.statusCode >= 400)
-    {
-        return [@(httpResponse.statusCode) stringValue];
-    }
-    
-    return nil;
-}
+@property (nonatomic) NSNumber *schemaVersion;
+@property (nonatomic) NSArray<NSObject *> *defaultFields;
+@property (nonatomic) NSArray<NSObject *> *platformFields;
+
+- (NSString *)serializeFields:(NSArray *)fields;
 
 @end
