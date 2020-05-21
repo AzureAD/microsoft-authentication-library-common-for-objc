@@ -673,7 +673,7 @@
     XCTAssertEqual(items.count, 1);
     XCTAssertTrue([items containsObject:token3]);
     XCTAssertNil(error);
-}
+} 
 
 - (void)testSaveAccount_whenAccountSaved_shouldSaveValidLastModInfo
 {
