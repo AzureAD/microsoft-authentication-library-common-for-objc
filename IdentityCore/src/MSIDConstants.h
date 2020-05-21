@@ -80,6 +80,17 @@ typedef NS_ENUM(NSInteger, MSIDAuthScheme)
     MSIDAuthSchemePop,
 };
 
+typedef NS_ENUM(NSUInteger, MSIDHttpMethod)
+{
+    /*
+        Http Method for the pop resource
+    */
+    MSIDHttpMethodGET,
+    
+    MSIDHttpMethodPOST,
+    
+};
+
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
