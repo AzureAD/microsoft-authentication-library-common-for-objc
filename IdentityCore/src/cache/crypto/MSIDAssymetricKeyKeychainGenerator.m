@@ -231,6 +231,8 @@
                             error:error];
         }
         
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Failed to find key with query %@ with status %ld", keychainQuery, (long)status);
+        
         return nil;
     }
     
