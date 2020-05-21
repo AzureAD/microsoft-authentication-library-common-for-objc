@@ -112,7 +112,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
         
         void (^completeBlockWrapper)(id, NSError *) = ^(id response, NSError *error)
         {
-            [self.serverTelemetry handleHttpResponse:httpResponse data:data context:self.context];
+            [self.serverTelemetry handleError:error context:self.context];
             
             if (completionBlock) { completionBlock(response, error); }
         };

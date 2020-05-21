@@ -22,15 +22,14 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDLastRequestTelemetry.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDResponseErrorProviding <NSObject>
+@interface MSIDCurrentRequestTelemetrySerializedItem : NSObject
 
-- (nullable NSString *)errorForResponse:(nullable NSHTTPURLResponse *)httpResponse
-                                   data:(nullable NSData *)data
-                                context:(nullable id <MSIDRequestContext>)context
-                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray * _Nullable)defaultFields platformFields:(NSArray * _Nullable)platformFields;
+- (NSString *)serialize;
 
 @end
 
