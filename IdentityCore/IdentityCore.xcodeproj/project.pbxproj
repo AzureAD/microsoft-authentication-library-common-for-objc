@@ -925,6 +925,13 @@
 		B274DEC821FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B274DEC621FC002300DB7757 /* MSIDInteractiveRequestParametersTests.m */; };
 		B27551C22081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
 		B27551C32081705300AA7A38 /* MSIDJWTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C7590C207EE9A400C1FE74 /* MSIDJWTHelper.m */; };
+		B27893732470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B27893722470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m */; };
+		B278937C2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = B278937A2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.h */; };
+		B278937D2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B278937B2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.m */; };
+		B278937E2470CC6D00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B27893722470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m */; };
+		B27893812470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = B278937F2470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h */; };
+		B27893822470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */; };
+		B27893832470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */; };
 		B279835A20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B279835B20D33A0A0051167F /* MSIDIdTokenClaimsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */; };
 		B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */; };
@@ -1242,6 +1249,19 @@
 		B2BE926821A25F8300F5AB8C /* MSIDTestBrokerResponseHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BE926421A25F7200F5AB8C /* MSIDTestBrokerResponseHandler.m */; };
 		B2BE926921A25F8300F5AB8C /* MSIDTestBrokerResponseHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BE926421A25F7200F5AB8C /* MSIDTestBrokerResponseHandler.m */; };
 		B2BE926F21A2668600F5AB8C /* MSIDBrokerInteractiveControllerIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BE926E21A2668600F5AB8C /* MSIDBrokerInteractiveControllerIntegrationTests.m */; };
+		B2C07481246B70F70008D701 /* MSIDAssymetricKeyPair.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C0747F246B70F70008D701 /* MSIDAssymetricKeyPair.h */; };
+		B2C07482246B70F70008D701 /* MSIDAssymetricKeyPair.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C07480246B70F70008D701 /* MSIDAssymetricKeyPair.m */; };
+		B2C07483246B70F70008D701 /* MSIDAssymetricKeyPair.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C07480246B70F70008D701 /* MSIDAssymetricKeyPair.m */; };
+		B2C07486246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C07484246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h */; };
+		B2C07487246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C07485246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m */; };
+		B2C07488246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C07485246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m */; };
+		B2C0748B246B71300008D701 /* MSIDAssymetricKeyPairWithCert.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C07489246B71300008D701 /* MSIDAssymetricKeyPairWithCert.h */; };
+		B2C0748C246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C0748A246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m */; };
+		B2C0748D246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C0748A246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m */; };
+		B2C0748F246B71470008D701 /* MSIDAssymetricKeyGenerating.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C0748E246B71470008D701 /* MSIDAssymetricKeyGenerating.h */; };
+		B2C07492246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.h in Headers */ = {isa = PBXBuildFile; fileRef = B2C07490246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.h */; };
+		B2C07493246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C07491246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m */; };
+		B2C07494246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C07491246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m */; };
 		B2C17AEC1FC796E60070A514 /* MSIDDeviceId.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CAD1FC4F14B0029C097 /* MSIDDeviceId.m */; };
 		B2C17AED1FC796FE0070A514 /* MSIDOAuth2Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B20E3CB51FC4FE400029C097 /* MSIDOAuth2Constants.m */; };
 		B2C17AF01FC7A1BF0070A514 /* MSIDLoggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */; };
@@ -2301,6 +2321,11 @@
 		B27551FD208182BE00AA7A38 /* AuthHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthHeader.swift; sourceTree = "<group>"; };
 		B275520A208185E600AA7A38 /* KeyvaultAuthentication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyvaultAuthentication.swift; sourceTree = "<group>"; };
 		B275520D208186F500AA7A38 /* MSIDAutomation-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MSIDAutomation-Bridging-Header.h"; sourceTree = "<group>"; };
+		B27893722470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeychainGeneratorTests.m; sourceTree = "<group>"; };
+		B278937A2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAssymetricKeyLoginKeychainGenerator.h; sourceTree = "<group>"; };
+		B278937B2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeyLoginKeychainGenerator.m; sourceTree = "<group>"; };
+		B278937F2470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAssymetricKeyGeneratorFactory.h; sourceTree = "<group>"; };
+		B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeyGeneratorFactory.m; sourceTree = "<group>"; };
 		B279835920D33A090051167F /* MSIDIdTokenClaimsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDIdTokenClaimsTests.m; sourceTree = "<group>"; };
 		B27ACA6822EBC4450049ACE0 /* MSIDBackgroundTaskManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDBackgroundTaskManager.h; sourceTree = "<group>"; };
 		B27ACA6922EBC4450049ACE0 /* MSIDBackgroundTaskManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBackgroundTaskManager.m; sourceTree = "<group>"; };
@@ -2440,6 +2465,15 @@
 		B2BE926A21A2620400F5AB8C /* MSIDTestBrokerTokenRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestBrokerTokenRequest.h; sourceTree = "<group>"; };
 		B2BE926B21A2620400F5AB8C /* MSIDTestBrokerTokenRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestBrokerTokenRequest.m; sourceTree = "<group>"; };
 		B2BE926E21A2668600F5AB8C /* MSIDBrokerInteractiveControllerIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDBrokerInteractiveControllerIntegrationTests.m; sourceTree = "<group>"; };
+		B2C0747F246B70F70008D701 /* MSIDAssymetricKeyPair.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAssymetricKeyPair.h; sourceTree = "<group>"; };
+		B2C07480246B70F70008D701 /* MSIDAssymetricKeyPair.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeyPair.m; sourceTree = "<group>"; };
+		B2C07484246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAssymetricKeyLookupAttributes.h; sourceTree = "<group>"; };
+		B2C07485246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeyLookupAttributes.m; sourceTree = "<group>"; };
+		B2C07489246B71300008D701 /* MSIDAssymetricKeyPairWithCert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAssymetricKeyPairWithCert.h; sourceTree = "<group>"; };
+		B2C0748A246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeyPairWithCert.m; sourceTree = "<group>"; };
+		B2C0748E246B71470008D701 /* MSIDAssymetricKeyGenerating.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAssymetricKeyGenerating.h; sourceTree = "<group>"; };
+		B2C07490246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAssymetricKeyKeychainGenerator.h; sourceTree = "<group>"; };
+		B2C07491246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeyKeychainGenerator.m; sourceTree = "<group>"; };
 		B2C17AE91FC790420070A514 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		B2C17AEF1FC7A1BF0070A514 /* MSIDLoggerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLoggerTests.m; sourceTree = "<group>"; };
 		B2C17AF21FC7A56C0070A514 /* MSIDTestLogger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestLogger.h; sourceTree = "<group>"; };
@@ -3364,6 +3398,7 @@
 		9641B4FF1FCF3E1400AFA0EC /* cache */ = {
 			isa = PBXGroup;
 			children = (
+				B2C0747E246B70DC0008D701 /* crypto */,
 				609E74BA228CA3C2005E3FED /* metadata */,
 				B226D85B1FFB07840012BF8B /* token */,
 				B214C39B1FE854CE0070C4F2 /* accessor */,
@@ -3880,6 +3915,15 @@
 			path = keyvault;
 			sourceTree = "<group>";
 		};
+		B27893792470CAF200627C28 /* mac */ = {
+			isa = PBXGroup;
+			children = (
+				B278937A2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.h */,
+				B278937B2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.m */,
+			);
+			path = mac;
+			sourceTree = "<group>";
+		};
 		B27ACA6722EBC42E0049ACE0 /* background */ = {
 			isa = PBXGroup;
 			children = (
@@ -4019,6 +4063,25 @@
 				B2BE923A21A0FD2B00F5AB8C /* MSIDTestSwizzle.m */,
 			);
 			path = swizzle;
+			sourceTree = "<group>";
+		};
+		B2C0747E246B70DC0008D701 /* crypto */ = {
+			isa = PBXGroup;
+			children = (
+				B27893792470CAF200627C28 /* mac */,
+				B2C0748E246B71470008D701 /* MSIDAssymetricKeyGenerating.h */,
+				B2C07490246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.h */,
+				B2C07491246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m */,
+				B2C0747F246B70F70008D701 /* MSIDAssymetricKeyPair.h */,
+				B2C07480246B70F70008D701 /* MSIDAssymetricKeyPair.m */,
+				B2C07484246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h */,
+				B2C07485246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m */,
+				B2C07489246B71300008D701 /* MSIDAssymetricKeyPairWithCert.h */,
+				B2C0748A246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m */,
+				B278937F2470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h */,
+				B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */,
+			);
+			path = crypto;
 			sourceTree = "<group>";
 		};
 		B2C707EB219247AD00D917B8 /* msal */ = {
@@ -4605,6 +4668,7 @@
 				23419F7E239B33E400EA78C5 /* MSIDAADV2TokenResponseTests.m */,
 				23419F81239B36F500EA78C5 /* MSIDAccountIdentifierTests.m */,
 				B217860D23A578BE00839CE8 /* MSIDBrokerOperationSignoutFromDeviceRequestTests.m */,
+				B27893722470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m */,
 				74043F7C245CC84B00D3E7C1 /* MSIDCurrentRequestTelemetryTests.m */,
 				74043F7F245CC88800D3E7C1 /* MSIDLastRequestTelemetryTests.m */,
 			);
@@ -4790,6 +4854,7 @@
 				B214C3A31FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.h in Headers */,
 				B286B9952389DC7F007833AD /* MSIDDefaultBrokerResponseHandler.h in Headers */,
 				B286B9D12389DF09007833AD /* MSIDLogger.h in Headers */,
+				B27893812470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h in Headers */,
 				2338ECD0208A69BE00809B9E /* MSIDHttpRequestProtocol.h in Headers */,
 				239D30192421AEB300CDA9EF /* MSIDTelemetryStringSerializable.h in Headers */,
 				B286B9BE2389DDFD007833AD /* MSIDAADEndpointProvider.h in Headers */,
@@ -4883,6 +4948,7 @@
 				23AE9DB72148529A00B285F3 /* NSError+MSIDExtensions.h in Headers */,
 				23AD4A32237E298C0094B87E /* NSBundle+MSIDExtensions.h in Headers */,
 				23AE209A2342DD3F00108F76 /* MSIDLocalInteractiveController+Internal.h in Headers */,
+				B2C07492246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.h in Headers */,
 				B2EB3AE022F7C74300FA400E /* MSIDBrokerInvocationOptions.h in Headers */,
 				B286B9B22389DD75007833AD /* MSIDWebOAuth2AuthCodeResponse.h in Headers */,
 				238EF042208FE88C0035ABE6 /* MSIDAADAuthorizationCodeGrantRequest.h in Headers */,
@@ -4901,6 +4967,7 @@
 				B210F4551FDDFA7B005A8F76 /* MSIDBrokerResponse.h in Headers */,
 				968647FD20C76C6700EF7E73 /* MSIDAADV2WebviewFactory.h in Headers */,
 				B286B9D92389DF53007833AD /* ASAuthorizationSingleSignOnProvider+MSIDExtensions.h in Headers */,
+				B278937C2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.h in Headers */,
 				238F80A122C2BE1600437CB1 /* MSIDGetV1IdTokenHttpEvent.h in Headers */,
 				23FB5C2F22551866002BF1EB /* MSIDClaimsRequest+ClientCapabilities.h in Headers */,
 				B28BDABF221F7F230055FFE6 /* MSIDCBAWebAADAuthResponse.h in Headers */,
@@ -4920,12 +4987,15 @@
 				B286B96223861852007833AD /* MSIDSignoutWebRequestConfiguration.h in Headers */,
 				B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */,
 				B297E1EB20A1388E00F370EC /* MSIDDefaultAccountCacheQuery.h in Headers */,
+				B2C0748B246B71300008D701 /* MSIDAssymetricKeyPairWithCert.h in Headers */,
 				B286B9562385F01A007833AD /* MSIDOIDCSignoutRequest.h in Headers */,
 				B2C708B0219A614C00D917B8 /* MSIDDefaultBrokerTokenRequest.h in Headers */,
 				B286B9D52389DF2E007833AD /* MSIDRegistrationInformation.h in Headers */,
 				B2E2A93D2392F91100BA2EA3 /* MSIDInteractiveTokenRequestParameters.h in Headers */,
+				B2C07486246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h in Headers */,
 				B2000C7820EC47860092790A /* NSData+JWT.h in Headers */,
 				23D2048E21D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.h in Headers */,
+				B2C07481246B70F70008D701 /* MSIDAssymetricKeyPair.h in Headers */,
 				B2CDB57C1FE33EC1003A4B5C /* MSIDIdTokenClaims.h in Headers */,
 				B2BE924B21A2331A00F5AB8C /* MSIDTelemetryAuthorityValidationEvent.h in Headers */,
 				23B3A4512187AFD3009070B2 /* MSIDJsonSerializer.h in Headers */,
@@ -5001,6 +5071,7 @@
 				B286B9C62389DE7B007833AD /* MSIDAccountMetadataCacheKey.h in Headers */,
 				B286B9DB2389DF59007833AD /* MSIDJsonSerializable.h in Headers */,
 				23B39A8120993302000AA905 /* MSIDAadAuthorityResolver.h in Headers */,
+				B2C0748F246B71470008D701 /* MSIDAssymetricKeyGenerating.h in Headers */,
 				B286B9AE2389DD5E007833AD /* MSIDChallengeHandling.h in Headers */,
 				B2C7089221991CED00D917B8 /* MSIDAADV1BrokerResponse.h in Headers */,
 				239E3BBE23E1004F00F7A50A /* MSIDClientSDKType.h in Headers */,
@@ -5190,6 +5261,7 @@
 			dependencies = (
 				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
+				B27893762470C42200627C28 /* PBXTargetDependency */,
 			);
 			name = "IdentityCoreTests Mac";
 			productName = IdentityCoreTests;
@@ -5644,6 +5716,7 @@
 				6080B9A523886DD9009B1322 /* MSIDBrokerOperationGetDeviceInfoRequestTests.m in Sources */,
 				96D3A44E20E6F7D8001BD428 /* MSIDPkceTests.m in Sources */,
 				B286BA02238A0919007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
+				B27893732470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */,
 				23B3A4552187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m in Sources */,
 				B2936F7420ABEFC10050C585 /* MSIDAccessTokenTests.m in Sources */,
 				B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
@@ -5679,6 +5752,7 @@
 				B2EB3ADF22F7C74000FA400E /* MSIDBrokerInvocationOptions.m in Sources */,
 				B2000C9620EC64620092790A /* MSIDIdTokenClaims.m in Sources */,
 				B2C708192195283500D917B8 /* MSIDBrokerTokenRequest.m in Sources */,
+				B2C07488246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m in Sources */,
 				B28D909C218FA97400E230D6 /* MSIDBaseRequestController.m in Sources */,
 				23D2048B21D1B2E4009B5975 /* MSIDJsonResponsePreprocessor.m in Sources */,
 				B2A3C27E2145CFAC0082525C /* MSIDWebWPJResponse.m in Sources */,
@@ -5700,11 +5774,13 @@
 				B25A356F1FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				B2C7088F2198E48E00D917B8 /* NSData+AES.m in Sources */,
 				96F21B3320A65896002B87C3 /* MSIDWebviewAuthorization.m in Sources */,
+				B27893832470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m in Sources */,
 				238E19D92086FE28004DF483 /* MSIDAADRefreshTokenGrantRequest.m in Sources */,
 				233E96E42265279B007FCE2A /* MSIDTelemetryDefaultEvent.m in Sources */,
 				60F7BEA221DA698C00F1BBA1 /* MSIDPRTCacheItem.m in Sources */,
 				B210F44C1FDDF5A7005A8F76 /* MSIDClientInfo.m in Sources */,
 				23B37D1C20C9ECFB0018722F /* MSIDCache.m in Sources */,
+				B2C07494246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m in Sources */,
 				1EFD58C722B44BA200ECD86E /* MSIDMacCredentialStorageItem.m in Sources */,
 				235480C820DDF81000246F72 /* MSIDAuthorityFactory.m in Sources */,
 				968647FF20C76C6700EF7E73 /* MSIDAADV2WebviewFactory.m in Sources */,
@@ -5726,6 +5802,7 @@
 				B28D90AC218FD1F800E230D6 /* MSIDDefaultTokenResponseValidator.m in Sources */,
 				23F9FD4D22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m in Sources */,
 				B2C7089421991CED00D917B8 /* MSIDAADV1BrokerResponse.m in Sources */,
+				B2C07483246B70F70008D701 /* MSIDAssymetricKeyPair.m in Sources */,
 				B266903F243706DB00FB0117 /* MSIDBrokerBrowserOperationResponse.m in Sources */,
 				B2AF1D3A218BCF140080C1A0 /* MSIDRequestControllerFactory.m in Sources */,
 				B28BDAC1221F7F230055FFE6 /* MSIDCBAWebAADAuthResponse.m in Sources */,
@@ -5797,6 +5874,7 @@
 				D6D9A4521FBD3FB800EFA430 /* NSURL+MSIDExtensions.m in Sources */,
 				B23ECEF11FF2F6270015FC1D /* MSIDAADV2IdTokenClaims.m in Sources */,
 				239EED6A242D8FAD00162F0F /* MSIDAADTokenRequestServerTelemetry.m in Sources */,
+				B2C0748D246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m in Sources */,
 				9641B5251FCF3EEF00AFA0EC /* MSIDMacTokenCache.m in Sources */,
 				962EA03E2190D4930049C4C8 /* MSIDCertAuthHandler.m in Sources */,
 				238EF03F208FE4740035ABE6 /* MSIDRefreshTokenGrantRequest.m in Sources */,
@@ -5814,6 +5892,7 @@
 				B286B9812389DC0F007833AD /* MSIDBrokerOperationTokenRequest.m in Sources */,
 				B28D90A2218FBBA200E230D6 /* MSIDTokenResponseValidator.m in Sources */,
 				B2C708232195285300D917B8 /* MSIDLegacyBrokerTokenRequest.m in Sources */,
+				B278937D2470CB0D00627C28 /* MSIDAssymetricKeyLoginKeychainGenerator.m in Sources */,
 				B2D5625A20CCD50E00FFF59C /* MSIDTelemetry+Cache.m in Sources */,
 				B253154B23DE31F400432133 /* MSIDBrokerOperationGetDeviceInfoRequest.m in Sources */,
 				B2A3C2802145D02E0082525C /* MSIDAadAuthorityCacheRecord.m in Sources */,
@@ -5982,6 +6061,7 @@
 				B252913C2096698100E78695 /* MSIDAADIdTokenClaimsFactoryTests.m in Sources */,
 				B2DD5B98204756580084313F /* MSIDAccountTypeTests.m in Sources */,
 				23419F5E23973AAD00EA78C5 /* MSIDBrokerOperationRequestTests.m in Sources */,
+				B278937E2470CC6D00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */,
 				238EF08420913D760035ABE6 /* MSIDAADRequestConfiguratorTests.m in Sources */,
 				B29F7806213DFA5600D61FC8 /* MSIDErrorTests.m in Sources */,
 				B217860F23A578BE00839CE8 /* MSIDBrokerOperationSignoutFromDeviceRequestTests.m in Sources */,
@@ -6254,6 +6334,7 @@
 				B25A35701FC4D70300C7FD43 /* MSIDLogger.m in Sources */,
 				B210F4321FDDE7EB005A8F76 /* MSIDTokenResponse.m in Sources */,
 				600D19AE20964CC00004CD43 /* MSIDRegistrationInformation.m in Sources */,
+				B2C07482246B70F70008D701 /* MSIDAssymetricKeyPair.m in Sources */,
 				B227035F22A367A000030ADC /* MSIDMaskedHashableLogParameter.m in Sources */,
 				B2C7B3B4213C681F009FFCC1 /* MSIDErrorConverter.m in Sources */,
 				B2C7089821991D0000D917B8 /* MSIDAADV2BrokerResponse.m in Sources */,
@@ -6269,6 +6350,7 @@
 				B28D90A6218FD1E800E230D6 /* MSIDLegacyTokenResponseValidator.m in Sources */,
 				B20657BA1FC9248000412B7D /* MSIDTelemetryAPIEvent.m in Sources */,
 				1EA4547023BECE2700567EB0 /* MSIDBrokerOperationBrowserTokenRequest.m in Sources */,
+				B2C07493246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m in Sources */,
 				04930F951FEDB2E100FC4DCD /* MSIDAuthority.m in Sources */,
 				60FDA9DB21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */,
 				600D19B220964CE70004CD43 /* MSIDPkeyAuthHelper.m in Sources */,
@@ -6327,6 +6409,7 @@
 				23AD4A33237E298C0094B87E /* NSBundle+MSIDExtensions.m in Sources */,
 				23AE9DA4213A159C00B285F3 /* MSIDAADOpenIdConfigurationInfoResponseSerializer.m in Sources */,
 				B2C708222195285300D917B8 /* MSIDLegacyBrokerTokenRequest.m in Sources */,
+				B2C07487246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.m in Sources */,
 				B2D5625920CCD50E00FFF59C /* MSIDTelemetry+Cache.m in Sources */,
 				235480D520DDF88200246F72 /* MSIDAADAuthority.m in Sources */,
 				23D2048F21D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.m in Sources */,
@@ -6392,6 +6475,7 @@
 				B297E1DD20A0F5D600F370EC /* MSIDDefaultCredentialCacheQuery.m in Sources */,
 				60A504702374917B00648AC5 /* MSIDBrokerOperationGetAccountsResponse.m in Sources */,
 				B281B335226BB83C009619AB /* MSIDOAuthRequestConfigurator.m in Sources */,
+				B27893822470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m in Sources */,
 				B2115828202BD5F3005CE586 /* MSIDCacheKey.m in Sources */,
 				23B0187F2355481800207FEC /* MSIDSSOExtensionRequestDelegate.m in Sources */,
 				B28BDAC0221F7F230055FFE6 /* MSIDCBAWebAADAuthResponse.m in Sources */,
@@ -6421,6 +6505,7 @@
 				233E970222655E97007FCE2A /* MSIDTestTelemetryEventsObserver.m in Sources */,
 				B2DD4B2220A7D2F90047A66E /* MSIDLegacyAccessToken.m in Sources */,
 				23B3A44D21868766009070B2 /* MSIDCacheItemJsonSerializer.m in Sources */,
+				B2C0748C246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m in Sources */,
 				B2E2A92F239238DC00BA2EA3 /* MSIDSSOExtensionSignoutRequest.m in Sources */,
 				607123C1210FCAAD00B91068 /* MSIDAADAuthorityValidationRequest.m in Sources */,
 				B251CC4C204105A7005E0179 /* MSIDIdToken.m in Sources */,
@@ -7133,6 +7218,7 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
@@ -7143,6 +7229,7 @@
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
 				DEVELOPMENT_TEAM = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
@@ -7179,7 +7266,7 @@
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Debug;
 		};
@@ -7188,7 +7275,7 @@
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 			};
 			name = Release;
 		};
