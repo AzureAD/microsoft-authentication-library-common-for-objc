@@ -47,15 +47,11 @@
 - (void)handleError:(NSError *)error
             context:(id<MSIDRequestContext>)context
 {
-    if (!error) return;
-    
     NSString *errorString = [error msidServerTelemetryErrorString];
-    if (errorString)
-    {
-        [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
-                                       errorString:errorString
-                                           context:context];
-    }
+    
+    [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
+                                   errorString:errorString
+                                       context:context];
 }
 
 - (void)setTelemetryToRequest:(id<MSIDHttpRequestProtocol>)request
