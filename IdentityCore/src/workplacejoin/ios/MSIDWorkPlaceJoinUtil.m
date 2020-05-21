@@ -132,7 +132,7 @@
     return identityRef;
 }
 
-+ (nullable NSString*) getWPJStringData:(id<MSIDRequestContext>)context
++ (nullable NSString*)getWPJStringData:(id<MSIDRequestContext>)context
                           identifier:(nonnull NSString*)identifier
                           error:(NSError*__nullable*__nullable)error
 {
@@ -165,11 +165,6 @@
             *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
         }
 
-        if (result)
-        {
-            CFRelease(result);
-        }
-
         return nil;
     }
 
@@ -180,7 +175,7 @@
         CFRelease(result);
     }
 
-    if (!stringData || [[stringData stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]] length] == 0)
+    if (!stringData || stringData.msidTrimmedString.length == 0)
     {
         if (error)
         {
