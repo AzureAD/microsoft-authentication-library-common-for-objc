@@ -43,6 +43,7 @@
     
     self.currentSSORequest = [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:self.parameters
                                                                       shouldSignoutFromBrowser:NO
+                                                                      clearSSOExtensionCookies:NO
                                                                                   oauthFactory:self.factory];
         
     [self.currentSSORequest executeRequestWithCompletion:^(BOOL success, NSError * _Nullable error) {

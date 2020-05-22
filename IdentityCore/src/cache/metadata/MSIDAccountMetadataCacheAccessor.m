@@ -147,7 +147,7 @@
     }
     
     NSError *localError;
-    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:&localError];
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:YES context:context error:&localError];
     if (localError)
     {
         if (error) *error = localError;
@@ -173,7 +173,7 @@
     }
     
     NSError *localError;
-    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:self.skipMemoryCacheForAccountMetadata context:context error:&localError];
+    MSIDAccountMetadataCacheItem *cacheItem = [self retrieveAccountMetadataCacheItemForClientId:clientId skipCache:YES context:context error:&localError];
     if (localError)
     {
         if (error) *error = localError;

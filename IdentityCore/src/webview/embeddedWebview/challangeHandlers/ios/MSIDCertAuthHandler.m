@@ -162,7 +162,7 @@ static BOOL s_useAuthSession = NO;
         }];
     }];
     
-    // Cancel the Cert Auth Challenge happened in UIWebview, as we have already handled it in SFSafariViewController
+    // Cancel the Cert Auth Challenge happened in the webview, as we have already handled it in SFSafariViewController
     completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
     
     return YES;

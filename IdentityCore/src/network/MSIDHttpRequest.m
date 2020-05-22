@@ -31,6 +31,7 @@
 #import "MSIDURLSessionManager.h"
 #import "MSIDJsonResponsePreprocessor.h"
 #import "MSIDOAuthRequestConfigurator.h"
+#import "MSIDHttpRequestServerTelemetryHandling.h"
 
 static NSInteger s_retryCount = 1;
 static NSTimeInterval s_retryInterval = 0.5;
@@ -91,6 +92,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
     }
     
     [self.telemetry sendRequestEventWithId:self.context.telemetryRequestId];
+    [self.serverTelemetry setTelemetryToRequest:self];
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Sending network request: %@, headers: %@", _PII_NULLIFY(self.urlRequest), _PII_NULLIFY(self.urlRequest.allHTTPHeaderFields));
     
@@ -107,10 +109,17 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                               httpResponse:httpResponse
                                                       data:data
                                                      error:error];
+        
+        void (^completeBlockWrapper)(id, NSError *) = ^(id response, NSError *error)
+        {
+            [self.serverTelemetry handleError:error context:self.context];
+            
+            if (completionBlock) { completionBlock(response, error); }
+        };
           
           if (error)
           {
-              if (completionBlock) { completionBlock(nil, error); }
+              completeBlockWrapper(nil, error);
           }
           else if (httpResponse.statusCode == 200)
           {
@@ -124,7 +133,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];
               }
               
-              if (completionBlock) { completionBlock(responseObject, error); }
+              completeBlockWrapper(responseObject, error);
           }
           else
           {
@@ -138,11 +147,11 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
                                      httpRequest:self
                               responseSerializer:responseSerializer
                                          context:self.context
-                                 completionBlock:completionBlock];
+                                 completionBlock:completeBlockWrapper];
               }
               else
               {
-                  if (completionBlock) { completionBlock(nil, error); }
+                  completeBlockWrapper(nil, error);
               }
           }
 

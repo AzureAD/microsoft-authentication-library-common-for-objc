@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readwrite) NSString *redirectUri;
 @property (nonatomic) MSIDProviderType providerType;
 @property (nonatomic) BOOL signoutFromBrowser;
+@property (nonatomic) BOOL clearSSOExtensionCookies;
 
 @end
 

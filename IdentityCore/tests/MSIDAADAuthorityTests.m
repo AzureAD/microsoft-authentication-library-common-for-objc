@@ -536,6 +536,14 @@
     XCTAssertFalse([authority isKnown]);
 }
 
+- (void)testIsKnownHost_whenAADAuhorityAndHostIsNotInListOfKnownHost_butAuthorityIsDeclaredAsKnownByDeveloper_shouldReturnYES
+{
+    NSURL *authorityUrl = [[NSURL alloc] initWithString:@"https://some.net/common"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
+    authority.isDeveloperKnown = YES;
+    XCTAssertTrue([authority isKnown]);
+}
+
 #pragma mark - legacyAccessTokenLookupAuthorities
 
 - (void)testLegacyAccessTokenLookupAuthorities_whenAuthorityProvided_shouldReturnAllAliases
