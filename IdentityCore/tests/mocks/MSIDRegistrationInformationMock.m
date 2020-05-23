@@ -31,7 +31,7 @@
     if (self)
     {
         _securityIdentity = (SecIdentityRef)@"";
-        _certificate = (SecCertificateRef)@"";
+        _certificateRef = (SecCertificateRef)@"";
         _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
     }
     return self;
@@ -39,7 +39,7 @@
 
 - (void)setPrivateKey:(SecKeyRef)privateKey
 {
-    _privateKey = privateKey;
+    _privateKeyRef = privateKey;
 }
 
 - (void)setCertificateIssuer:(NSString *)certificateIssuer

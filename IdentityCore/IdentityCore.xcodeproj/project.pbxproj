@@ -5267,7 +5267,6 @@
 			dependencies = (
 				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
-				B27893762470C42200627C28 /* PBXTargetDependency */,
 			);
 			name = "IdentityCoreTests Mac";
 			productName = IdentityCoreTests;

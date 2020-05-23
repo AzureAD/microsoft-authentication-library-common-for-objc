@@ -25,9 +25,10 @@
 
 @implementation MSIDAssymetricKeyPairWithCert
 
-- (instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                         publicKey:(SecKeyRef)publicKey
-                       certificate:(SecCertificateRef)certificate
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(NSString *)issuer
 {
     if (!certificate)
     {
@@ -47,6 +48,9 @@
     {
         _certificateRef = certificate;
         CFRetain(_certificateRef);
+        
+        _certificateSubject = (__bridge_transfer NSString *)(SecCertificateCopySubjectSummary(_certificateRef));
+        _certificateIssuer = issuer;
     }
     
     return self;
@@ -54,8 +58,11 @@
 
 - (void)dealloc
 {
-    CFRelease(_certificateRef);
-    _certificateRef = NULL;
+    if (_certificateRef)
+    {
+        CFRelease(_certificateRef);
+        _certificateRef = NULL;
+    }
 }
 
 @end

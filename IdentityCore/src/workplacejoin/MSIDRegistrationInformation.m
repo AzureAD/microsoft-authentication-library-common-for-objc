@@ -26,41 +26,27 @@
 
 @implementation MSIDRegistrationInformation
 
-@synthesize securityIdentity = _securityIdentity;
-@synthesize certificate = _certificate;
-@synthesize certificateSubject = _certificateSubject;
-@synthesize certificateData = _certificateData;
-@synthesize certificateIssuer = _certificateIssuer;
-@synthesize privateKey = _privateKey;
-
-- (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             certificateIssuer:(NSString *)certificateIssuer
-                   certificate:(SecCertificateRef)certificate
-            certificateSubject:(NSString *)certificateSubject
-               certificateData:(NSData *)certificateData
-                    privateKey:(SecKeyRef)privateKey
-
+- (instancetype)initWithIdentity:(SecIdentityRef)identity
+                      privateKey:(SecKeyRef)privateKey
+                       publicKey:(SecKeyRef)publicKey
+                     certificate:(SecCertificateRef)certificate
+               certificateIssuer:(NSString *)issuer
 {
-    if (!(certificateIssuer && certificate && certificateSubject && certificateData && privateKey)) return nil;
-    
-    if (!(self = [super init])) return nil;
-    
-    // ARC is not aware of Core Foundation objects, so they still have to be
-    // manually retained and released.
-    if (identity)
+    if (!identity)
     {
-        _securityIdentity = identity;
-        CFRetain(identity);
+        return nil;
     }
     
-    _certificate = certificate;
-    CFRetain(certificate);
-    _privateKey = privateKey;
-    CFRetain(privateKey);
+    self = [super initWithPrivateKey:privateKey
+                           publicKey:publicKey
+                         certificate:certificate
+                   certificateIssuer:issuer];
     
-    _certificateSubject = certificateSubject;
-    _certificateData = certificateData;
-    _certificateIssuer = certificateIssuer;
+    if (self)
+    {
+        _securityIdentity = identity;
+        CFRetain(_securityIdentity);
+    }
     
     return self;
 }
@@ -68,13 +54,11 @@
 - (void)dealloc
 {
     CFReleaseNull(_securityIdentity);
-    CFReleaseNull(_certificate);
-    CFReleaseNull(_privateKey);
 }
 
 - (BOOL)isWorkPlaceJoined
 {
-    return _certificate != nil;
+    return self.certificateRef != nil;
 }
 
 @end

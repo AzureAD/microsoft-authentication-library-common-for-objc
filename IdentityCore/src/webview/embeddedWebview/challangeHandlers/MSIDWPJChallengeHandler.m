@@ -100,7 +100,7 @@
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Responding to WPJ cert challenge. host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
     
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
-                                                        certificates:@[(__bridge id)info.certificate]
+                                                        certificates:@[(__bridge id)info.certificateRef]
                                                          persistence:NSURLCredentialPersistenceNone];
     
     completionHandler(NSURLSessionAuthChallengeUseCredential, creds);

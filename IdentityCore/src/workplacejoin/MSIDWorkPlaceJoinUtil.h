@@ -25,10 +25,13 @@
 
 @class MSIDRegistrationInformation;
 @class MSIDWorkplaceJoinChallenge;
+@class MSIDAssymetricKeyPairWithCert;
 
 @interface MSIDWorkPlaceJoinUtil : NSObject
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
                                      workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
+
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context;
 
 @end

@@ -26,13 +26,25 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAssymetricKeyPairWithCert : MSIDAssymetricKeyPair
+{
+    SecCertificateRef _certificateRef;
+    NSData *_certificateData;
+    NSString *_certificateSubject;
+    NSString *_certificateIssuer;
+}
 
 @property (nonatomic, readonly) SecCertificateRef certificateRef;
 @property (nonatomic, readonly) NSData *certificateData;
+@property (nonatomic, readonly) NSString *certificateSubject;
+@property (nonatomic, readonly) NSString *certificateIssuer;
 
-- (instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                         publicKey:(SecKeyRef)publicKey
-                       certificate:(SecCertificateRef)certificate;
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(NSString *)issuer;
+
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey NS_UNAVAILABLE;
 
 @end
 
