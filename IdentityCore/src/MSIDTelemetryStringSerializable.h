@@ -27,8 +27,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDTelemetryStringSerializable <NSObject>
 
-- (instancetype)initWithTelemetryString:(NSString *)telemetryString
-                                  error:(NSError * __autoreleasing *)error;
 - (NSString *)telemetryString;
 
 @end

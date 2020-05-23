@@ -21,31 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import "MSIDAssymetricKeyPair.h"
 
-@implementation MSIDCurrentRequestTelemetry
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - MSIDTelemetryStringSerializable
+@interface MSIDAssymetricKeyPairWithCert : MSIDAssymetricKeyPair
 
-- (NSString *)telemetryString
-{
-    return [self serializeCurrentTelemetryString];
-}
+@property (nonatomic, readonly) SecCertificateRef certificateRef;
+@property (nonatomic, readonly) NSData *certificateData;
 
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
-{
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
-    
-    return [currentTelemetryFields serialize];
-}
-
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
-{
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
-}
+- (instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                         publicKey:(SecKeyRef)publicKey
+                       certificate:(SecCertificateRef)certificate;
 
 @end
+
+NS_ASSUME_NONNULL_END

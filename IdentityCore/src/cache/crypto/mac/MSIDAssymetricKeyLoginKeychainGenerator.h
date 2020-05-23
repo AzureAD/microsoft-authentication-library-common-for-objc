@@ -21,31 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import "MSIDAssymetricKeyKeychainGenerator.h"
 
-@implementation MSIDCurrentRequestTelemetry
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - MSIDTelemetryStringSerializable
+@interface MSIDAssymetricKeyLoginKeychainGenerator : MSIDAssymetricKeyKeychainGenerator
 
-- (NSString *)telemetryString
-{
-    return [self serializeCurrentTelemetryString];
-}
-
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
-{
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
-    
-    return [currentTelemetryFields serialize];
-}
-
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
-{
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
-}
+- (instancetype)initWithAccessRef:(nullable SecAccessRef)accessRef error:(NSError * _Nullable * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

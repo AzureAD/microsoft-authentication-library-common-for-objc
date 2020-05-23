@@ -65,6 +65,9 @@
     MSIDAccountCacheItem* _accountA;
     MSIDAccountCacheItem* _accountB;
     MSIDAccountCacheItem* _accountC;
+    NSString* _homeAccountIdA;
+    NSString* _homeAccountIdB;
+    NSString* _homeAccountIdC;
     MSIDDefaultAccountCacheKey *_keyA;
     MSIDDefaultAccountCacheKey *_keyB;
     MSIDDefaultAccountCacheKey *_keyC;
@@ -84,6 +87,10 @@
     _serializer = [MSIDCacheItemJsonSerializer new];
     [_cache clearWithContext:nil error:nil];
 
+    _homeAccountIdA = @"aaaaaaaa-0000-0000-0000-000000000000.00000000-0000-0000-0000-aaaaaaaaaaaa";
+    _homeAccountIdB = @"bbbbbbbb-0000-0000-0000-000000000000.00000000-0000-0000-0000-bbbbbbbbbbbb";
+    _homeAccountIdC = @"aaaaaaaa-0000-0000-0000-000000000000.00000000-0000-0000-0000-cccccccccccc";
+
     NSDictionary *accountDictionary = @{@"authority_type": @"MSSTS",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"contoso.com",
@@ -92,7 +99,7 @@
                                          @"family_name": @"Last name",
                                          @"test": @"test2",
                                          @"test3": @"test4",
-                                         @"home_account_id": @"uid.utid",
+                                         @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
                                          @"username": @"username",
                                          @"alternative_account_id": @"alt",
                                          @"name": @"test user"
@@ -112,7 +119,7 @@
                                          @"given_name": @"GivenNameA",
                                          @"family_name": @"FamilyNameA",
                                          @"middle_name": @"MiddleNameA",
-                                         @"home_account_id": @"uidA.utidA",
+                                         @"home_account_id": _homeAccountIdA,
                                          @"username": @"usernameA",
                                          @"alternative_account_id": @"AltIdA",
                                          @"name": @"NameA"
@@ -124,7 +131,7 @@
                                          @"given_name": @"GivenNameB",
                                          @"family_name": @"FamilyNameB",
                                          @"middle_name": @"MiddleNameB",
-                                         @"home_account_id": @"uidB.utidB",
+                                         @"home_account_id": _homeAccountIdB,
                                          @"username": @"usernameB",
                                          @"alternative_account_id": @"AltIdB",
                                          @"name": @"NameB"
@@ -136,7 +143,7 @@
                                          @"given_name": @"GivenNameC",
                                          @"family_name": @"FamilyNameC",
                                          @"middle_name": @"MiddleNameC",
-                                         @"home_account_id": @"uidA.utidC",
+                                         @"home_account_id": _homeAccountIdC,
                                          @"username": @"usernameC",
                                          @"alternative_account_id": @"AltIdC",
                                          @"name": @"NameC"
@@ -284,7 +291,7 @@
                                          @"given_name": @"GivenNameA",
                                          @"family_name": @"FamilyNameA",
                                          @"middle_name": @"MiddleNameA",
-                                         @"home_account_id": @"uidA.utidA",
+                                         @"home_account_id": _homeAccountIdA,
                                          @"username": @"usernameA",
                                          @"alternative_account_id": @"AltIdA",
                                          @"name": @"NameA",
@@ -614,11 +621,11 @@
     MSIDCredentialCacheItem *token1 = [MSIDCredentialCacheItem new];
     token1.clientId = @"clientId";
     token1.environment = @"environment";
-    token1.homeAccountId = @"uid.utid";
+    token1.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     token1.secret = @"secret1";
     token1.target = @"user.read user.write";
     token1.credentialType = MSIDAccessTokenType;
-    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"environment"
                                                                                               clientId:@"clientId"
                                                                                         credentialType:MSIDAccessTokenType];
@@ -629,11 +636,11 @@
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
     token2.clientId = @"clientId";
     token2.environment = @"environment";
-    token2.homeAccountId = @"uid.utid";
+    token2.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     token2.secret = @"secret2";
     token2.credentialType = MSIDIDTokenType;
     
-    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"environment"
                                                                                               clientId:@"clientId"
                                                                                         credentialType:MSIDIDTokenType];
@@ -645,17 +652,17 @@
     token3.secret = @"secret3";
     token3.clientId = @"clientId";
     token3.environment = @"environment";
-    token3.homeAccountId = @"uid.utid";
+    token3.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     token3.credentialType = MSIDRefreshTokenType;
     
-    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"environment"
                                                                                               clientId:@"clientId"
                                                                                         credentialType:MSIDRefreshTokenType];
     
     [_dataSource saveToken:token3 key:key3 serializer:_serializer context:nil error:nil];
     
-    MSIDDefaultCredentialCacheKey *query = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *query = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                             environment:@"environment"
                                                                                                clientId:@"clientId"
                                                                                          credentialType:MSIDRefreshTokenType];
@@ -673,7 +680,7 @@
     MSIDAccountCacheItem *account = [MSIDAccountCacheItem new];
     account.environment = DEFAULT_TEST_ENVIRONMENT;
     account.realm = @"Contoso.COM";
-    account.homeAccountId = @"uid.utid";
+    account.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     account.localAccountId = @"homeAccountIdA";
     account.accountType = MSIDAccountTypeAADV1;
     account.username = @"UsernameA";
@@ -727,10 +734,10 @@
     token.secret = @"secret";
     token.clientId = @"clientId";
     token.environment = @"login.microsoftonline.com";
-    token.homeAccountId = @"uid.utid";
+    token.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     token.credentialType = MSIDRefreshTokenType;
     
-    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                           environment:@"login.microsoftonline.com"
                                                                                              clientId:@"clientId"
                                                                                        credentialType:MSIDRefreshTokenType];
@@ -773,7 +780,7 @@
 {
     // Item 1.
     MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
-    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"login.microsoftonline.com"
                                                                                               clientId:@"client"
                                                                                         credentialType:MSIDAccessTokenType];
@@ -783,7 +790,7 @@
     
     // Item 2.
     MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
-    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"login.microsoftonline.com"
                                                                                               clientId:@"client"
                                                                                         credentialType:MSIDIDTokenType];
@@ -793,7 +800,7 @@
     
     // Item 3.
     MSIDCredentialCacheItem *refreshToken = [self createTestRefreshToken:nil];
-    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"login.microsoftonline.com"
                                                                                               clientId:@"client"
                                                                                         credentialType:MSIDRefreshTokenType];
@@ -810,10 +817,10 @@
     [_dataSource saveAppMetadata:appMetadata1 key:key4 serializer:_serializer context:nil error:nil];
     
     //Item 5
-    MSIDDefaultAccountCacheKey *key5 = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"login.microsoftonline.com" realm:@"realm" type:MSIDAccountTypeMSSTS];
+    MSIDDefaultAccountCacheKey *key5 = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID environment:@"login.microsoftonline.com" realm:@"realm" type:MSIDAccountTypeMSSTS];
     
     MSIDAccountCacheItem *account = [MSIDAccountCacheItem new];
-    account.homeAccountId = @"uid.utid";
+    account.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     account.environment = @"login.microsoftonline.com";
     account.accountType = MSIDAccountTypeMSSTS;
     [_dataSource saveAccount:account key:key5 serializer:_serializer context:nil error:nil];
@@ -834,7 +841,7 @@
 {
     // Item 1.
     MSIDCredentialCacheItem *accessToken = [self createTestAccessTokenCacheItem];
-    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key1 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"login.microsoftonline.com"
                                                                                               clientId:@"client"
                                                                                         credentialType:MSIDAccessTokenType];
@@ -844,7 +851,7 @@
     
     // Item 2.
     MSIDCredentialCacheItem *idToken = [self createTestIDTokenCacheItem];
-    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key2 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"login.microsoftonline.com"
                                                                                               clientId:@"client"
                                                                                         credentialType:MSIDIDTokenType];
@@ -854,7 +861,7 @@
     
     // Item 3.
     MSIDCredentialCacheItem *refreshToken = [self createTestRefreshToken:nil];
-    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+    MSIDDefaultCredentialCacheKey *key3 = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID
                                                                                            environment:@"login.microsoftonline.com"
                                                                                               clientId:@"client"
                                                                                         credentialType:MSIDRefreshTokenType];
@@ -871,16 +878,16 @@
     [_dataSource saveAppMetadata:appMetadata1 key:key4 serializer:_serializer context:nil error:nil];
     
     //Item 5
-    MSIDDefaultAccountCacheKey *key5 = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:@"uid.utid" environment:@"login.microsoftonline.com" realm:@"realm" type:MSIDAccountTypeMSSTS];
+    MSIDDefaultAccountCacheKey *key5 = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID environment:@"login.microsoftonline.com" realm:@"realm" type:MSIDAccountTypeMSSTS];
     
     MSIDAccountCacheItem *account = [MSIDAccountCacheItem new];
-    account.homeAccountId = @"uid.utid";
+    account.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     account.environment = @"login.microsoftonline.com";
     account.accountType = MSIDAccountTypeMSSTS;
     [_dataSource saveAccount:account key:key5 serializer:_serializer context:nil error:nil];
     
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
-    query.homeAccountId = @"uid.utid";
+    query.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     query.environment = @"login.microsoftonline.com";
     query.matchAnyCredentialType = YES;
     NSArray<MSIDCredentialCacheItem *> *items = [_dataSource tokensWithKey:query serializer:_serializer context:nil error:nil];
@@ -906,7 +913,7 @@
 {
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDAccessTokenType;
-    item.homeAccountId = @"uid.utid";
+    item.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     item.environment = @"login.microsoftonline.com";
     item.realm = @"contoso.com";
     item.clientId = @"client";
@@ -924,7 +931,7 @@
 {
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDIDTokenType;
-    item.homeAccountId = @"uid.utid";
+    item.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     item.environment = @"login.microsoftonline.com";
     item.clientId = @"client";
     item.realm = @"contoso.com";
@@ -948,7 +955,7 @@
 {
     MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
     item.credentialType = MSIDRefreshTokenType;
-    item.homeAccountId = @"uid.utid";
+    item.homeAccountId = DEFAULT_TEST_HOME_ACCOUNT_ID;
     item.environment = @"login.microsoftonline.com";
     item.clientId = @"client";
     item.familyId = familyId;

@@ -24,7 +24,7 @@
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDCurrentRequestTelemetry.h"
 #import "MSIDLastRequestTelemetry.h"
-#import "MSIDResponseErrorProviding.h"
+#import "NSError+MSIDServerTelemetryError.h"
 
 @interface MSIDAADTokenRequestServerTelemetry()
 
@@ -44,19 +44,18 @@
     return self;
 }
 
-- (void)handleHttpResponse:(NSHTTPURLResponse *)httpResponse
-                      data:(NSData *)data
-                   context:(id<MSIDRequestContext>)context
+- (void)handleError:(NSError *)error
+            context:(id<MSIDRequestContext>)context
 {
-    NSError *error;
-    NSString *errorString = [self.responseErrorProvider errorForResponse:httpResponse
-                                                                    data:data
-                                                                 context:context
-                                                                   error:&error];
+    if (!error) return;
     
-    [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
-                                   errorString:errorString
-                                       context:context];
+    NSString *errorString = [error msidServerTelemetryErrorString];
+    if (errorString)
+    {
+        [self.lastRequestTelemetry updateWithApiId:self.currentRequestTelemetry.apiId
+                                       errorString:errorString
+                                           context:context];
+    }
 }
 
 - (void)setTelemetryToRequest:(id<MSIDHttpRequestProtocol>)request
