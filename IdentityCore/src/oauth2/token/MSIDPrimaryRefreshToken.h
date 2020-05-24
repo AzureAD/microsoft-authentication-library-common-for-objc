@@ -30,5 +30,8 @@
 
 @property (nonatomic) NSData *sessionKey;
 @property (nonatomic) NSString *deviceID;
+@property (nonatomic) NSString *prtProtocolVersion;
+
+- (BOOL)isDevicelessPRT;
 
 @end
