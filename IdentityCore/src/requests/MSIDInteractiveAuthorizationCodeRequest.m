@@ -32,13 +32,16 @@
 #import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
-#import "MSIDAppExtensionUtil.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDWebviewFactory.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAuthorizationCodeResult.h"
 #import "MSIDPkce.h"
+
+#if TARGET_OS_IPHONE
+#import "MSIDAppExtensionUtil.h"
+#endif
 
 @interface MSIDInteractiveAuthorizationCodeRequest()
 
