@@ -21,31 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 
-@implementation MSIDCurrentRequestTelemetry
+@interface MSIDAssymetricKeyLoginKeychainGenerator()
 
-#pragma mark - MSIDTelemetryStringSerializable
+@property (nonatomic) SecAccessRef accessRef;
 
-- (NSString *)telemetryString
+@end
+
+@implementation MSIDAssymetricKeyLoginKeychainGenerator
+
+- (instancetype)initWithAccessRef:(SecAccessRef)accessRef error:(NSError **)error
 {
-    return [self serializeCurrentTelemetryString];
-}
-
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
-{
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
+    self = [super initWithGroup:nil error:error];
     
-    return [currentTelemetryFields serialize];
+    if (self)
+    {
+        _accessRef = accessRef;
+    }
+    
+    return self;
 }
 
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
+- (NSDictionary *)additionalPlatformKeychainAttributes
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
+    if (self.accessRef)
+    {
+        return @{(__bridge id)kSecAttrAccess : (__bridge id)(self.accessRef)};
+    }
+    
+    return nil;
 }
 
 @end

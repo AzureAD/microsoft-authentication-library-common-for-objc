@@ -23,14 +23,21 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDAssymetricKeyPair;
+@class MSIDAssymetricKeyLookupAttributes;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDResponseErrorProviding <NSObject>
+@protocol MSIDAssymetricKeyGenerating <NSObject>
 
-- (nullable NSString *)errorForResponse:(nullable NSHTTPURLResponse *)httpResponse
-                                   data:(nullable NSData *)data
-                                context:(nullable id <MSIDRequestContext>)context
-                                  error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+- (MSIDAssymetricKeyPair *)generateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
+                                                  error:(NSError **)error;
+
+- (MSIDAssymetricKeyPair *)readOrGenerateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
+                                                        error:(NSError **)error;
+
+- (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
+                                              error:(NSError **)error;
 
 @end
 

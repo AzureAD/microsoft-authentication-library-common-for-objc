@@ -41,6 +41,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDWebWPJResponse.h"
+#import "MSIDTestIdentifiers.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
 #endif
@@ -109,7 +110,7 @@
     parameters.oidcScope = @"openid profile offline_access";
     parameters.promptType = MSIDPromptTypeConsent;
     parameters.authority.openIdConfigurationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"];
-    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:@"1.1234-5678-90abcdefg"];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     parameters.enablePkce = YES;
 
     MSIDInteractiveTokenRequest *request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters oauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new] tokenCache:self.tokenCache accountMetadataCache:self.metadataCache];
@@ -179,7 +180,7 @@
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://login.microsoftonline.com/1234-5678-90abcdefg");
+        XCTAssertEqualObjects(result.authority.url.absoluteString, DEFAULT_TEST_AUTHORITY_GUID);
         XCTAssertNil(installBrokerResponse);
         XCTAssertNil(error);
 
@@ -278,7 +279,7 @@
         XCTAssertEqualObjects(result.accessToken.accessToken, @"i am a access token!");
         XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil defaultV2IdToken]);
         XCTAssertFalse(result.extendedLifeTimeToken);
-        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://contoso.onmicrosoft.cn/1234-5678-90abcdefg");
+        XCTAssertEqualObjects(result.authority.url.absoluteString, @"https://contoso.onmicrosoft.cn/"DEFAULT_TEST_UTID);
         XCTAssertNil(installBrokerResponse);
         XCTAssertNil(error);
 

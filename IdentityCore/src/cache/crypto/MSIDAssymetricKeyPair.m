@@ -21,21 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDHttpResponseErrorProvider.h"
+#import "MSIDAssymetricKeyPair.h"
 
-@implementation MSIDHttpResponseErrorProvider
+@implementation MSIDAssymetricKeyPair
 
-- (NSString *)errorForResponse:(NSHTTPURLResponse *)httpResponse
-                          data:(__unused NSData *)data
-                       context:(__unused id<MSIDRequestContext>)context
-                         error:(__unused NSError **)error
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey
 {
-    if (httpResponse.statusCode >= 400)
+    if (!privateKey || !publicKey)
     {
-        return [@(httpResponse.statusCode) stringValue];
+        return nil;
     }
     
-    return nil;
+    self = [super init];
+    
+    if (self)
+    {
+        _privateKeyRef = privateKey;
+        CFRetain(_privateKeyRef);
+        
+        _publicKeyRef = publicKey;
+        CFRetain(_publicKeyRef);
+    }
+    
+    return self;
+}
+
+- (void)dealloc
+{
+    CFRelease(_privateKeyRef);
+    _privateKeyRef = NULL;
+    
+    CFRelease(_publicKeyRef);
+    _publicKeyRef = NULL;
 }
 
 @end

@@ -21,31 +21,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import "MSIDAssymetricKeyPairWithCert.h"
 
-@implementation MSIDCurrentRequestTelemetry
+@implementation MSIDAssymetricKeyPairWithCert
 
-#pragma mark - MSIDTelemetryStringSerializable
-
-- (NSString *)telemetryString
+- (instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                         publicKey:(SecKeyRef)publicKey
+                       certificate:(SecCertificateRef)certificate
 {
-    return [self serializeCurrentTelemetryString];
-}
-
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
-{
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
+    if (!certificate)
+    {
+        return nil;
+    }
     
-    return [currentTelemetryFields serialize];
+    _certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
+    
+    if (!_certificateData)
+    {
+        return nil;
+    }
+    
+    self = [super initWithPrivateKey:privateKey publicKey:publicKey];
+    
+    if (self)
+    {
+        _certificateRef = certificate;
+        CFRetain(_certificateRef);
+    }
+    
+    return self;
 }
 
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
+- (void)dealloc
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
+    CFRelease(_certificateRef);
+    _certificateRef = NULL;
 }
 
 @end

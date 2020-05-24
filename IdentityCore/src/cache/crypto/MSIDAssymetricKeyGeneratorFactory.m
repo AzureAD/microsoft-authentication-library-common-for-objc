@@ -21,31 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import "MSIDAssymetricKeyGeneratorFactory.h"
+#import "MSIDAssymetricKeyKeychainGenerator.h"
+#if !TARGET_OS_IPHONE
+#import "MSIDAssymetricKeyLoginKeychainGenerator.h"
+#endif
 
-@implementation MSIDCurrentRequestTelemetry
+@implementation MSIDAssymetricKeyGeneratorFactory
 
-#pragma mark - MSIDTelemetryStringSerializable
-
-- (NSString *)telemetryString
++ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithError:(NSError **)error
 {
-    return [self serializeCurrentTelemetryString];
+#if TARGET_OS_IPHONE
+    return [self iOSDefaultKeyGeneratorWithError:error];
+#else
+    return [self macDefaultKeyGeneratorWithError:error];
+#endif
 }
 
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
++ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithError:(NSError **)error
 {
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
-    
-    return [currentTelemetryFields serialize];
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
 }
 
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
+#if !TARGET_OS_IPHONE
++ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithError:(NSError **)error
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
+    if (@available(macOS 10.15, *))
+    {
+        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
+    }
+    else
+    {
+        return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithAccessRef:nil error:error];
+    }
 }
+#endif
 
 @end

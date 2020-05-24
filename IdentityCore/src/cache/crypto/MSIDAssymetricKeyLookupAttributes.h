@@ -21,31 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDCurrentRequestTelemetry.h"
-#import "MSIDCurrentRequestTelemetrySerializedItem.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDCurrentRequestTelemetry
+NS_ASSUME_NONNULL_BEGIN
 
-#pragma mark - MSIDTelemetryStringSerializable
+@interface MSIDAssymetricKeyLookupAttributes : NSObject
 
-- (NSString *)telemetryString
-{
-    return [self serializeCurrentTelemetryString];
-}
+@property (nonatomic, nullable) NSString *privateKeyIdentifier;
+@property (nonatomic, nullable) NSString *publicKeyIdentifier;
+@property (nonatomic, nullable) NSString *keyDisplayableLabel;
 
-#pragma mark - Private
-
-- (NSString *)serializeCurrentTelemetryString
-{
-    MSIDCurrentRequestTelemetrySerializedItem *currentTelemetryFields = [self createSerializedItem];
-    
-    return [currentTelemetryFields serialize];
-}
-
-- (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
-{
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
-    return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
-}
+- (NSDictionary *)assymetricKeyPairAttributes;
+- (NSDictionary *)privateKeyAttributes;
+- (NSDictionary *)publicKeyAttributes;
 
 @end
+
+NS_ASSUME_NONNULL_END

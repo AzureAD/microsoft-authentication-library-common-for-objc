@@ -148,6 +148,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
         enrollmentId = [self enrollmentIdForHomeAccountId:homeAccountId context:context error:error];
         if (enrollmentId)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Enrollment id read from intune cache : %@.", MSID_PII_LOG_MASKABLE(enrollmentId));
             return enrollmentId;
         }
     }
@@ -158,6 +159,7 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
         enrollmentId = [self enrollmentIdForUserId:legacyUserId context:context error:error];
         if (enrollmentId)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Enrollment id read from intune cache : %@.", MSID_PII_LOG_MASKABLE(enrollmentId));
             return enrollmentId;
         }
     }
@@ -174,8 +176,9 @@ static MSIDIntuneEnrollmentIdsCache *s_sharedCache;
     
     NSArray *enrollIds = [jsonDictionary objectForKey:MSID_INTUNE_ENROLLMENT_ID_ARRAY];
     NSDictionary *enrollIdDic = enrollIds.firstObject;
-    
-    return enrollIdDic[MSID_INTUNE_ENROLL_ID];
+    NSString *enrollmentId = enrollIdDic[MSID_INTUNE_ENROLL_ID];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Enrollment id read from intune cache : %@.", enrollmentId ? MSID_PII_LOG_MASKABLE(enrollmentId) : enrollmentId);
+    return enrollmentId;
 }
 
 - (BOOL)setEnrollmentIdsJsonDictionary:(NSDictionary *)jsonDictionary

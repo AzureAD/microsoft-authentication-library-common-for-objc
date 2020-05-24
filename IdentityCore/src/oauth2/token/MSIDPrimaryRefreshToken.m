@@ -168,7 +168,7 @@
 
 #pragma mark - Utils
 
-- (BOOL)isDevicelessPRT
+ - (BOOL)isDevicelessPRT
 {
     CGFloat prtVersion = [self.prtProtocolVersion floatValue];
     return prtVersion >= 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];

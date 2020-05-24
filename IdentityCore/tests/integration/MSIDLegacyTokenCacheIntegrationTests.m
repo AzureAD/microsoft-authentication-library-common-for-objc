@@ -537,7 +537,7 @@
     
     XCTAssertNil(error);
     XCTAssertNotNil(token);
-    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, @"1.1234-5678-90abcdefg");
+    XCTAssertEqualObjects(token.accountIdentifier.homeAccountId, DEFAULT_TEST_HOME_ACCOUNT_ID);
     
     NSArray *allAccessTokens = [MSIDTestCacheAccessorHelper getAllLegacyAccessTokens:_legacyAccessor];
     XCTAssertEqual([allAccessTokens count], 2);
@@ -820,7 +820,7 @@
     XCTAssertTrue(result);
     
     account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
-                                                       homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                       homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     
     // Check that correct token is returned
     MSIDRefreshToken *returnedToken = [_legacyAccessor getRefreshTokenWithAccount:account
