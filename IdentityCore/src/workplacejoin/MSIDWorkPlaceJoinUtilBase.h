@@ -21,18 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDWorkPlaceJoinUtilBase_h
+#define MSIDWorkPlaceJoinUtilBase_h
+
 #import <Foundation/Foundation.h>
-#import "MSIDWorkPlaceJoinUtilBase.h"
 
-@class MSIDRegistrationInformation;
+@interface MSIDWorkPlaceJoinUtilBase : NSObject
 
-@interface MSIDWorkPlaceJoinUtil : MSIDWorkPlaceJoinUtilBase
++ (nullable NSString*)getKeyChainValueWithSecAttrService:(id<MSIDRequestContext>_Nullable)context
+                                 query:(NSMutableDictionary*_Nonnull)query
+                                 error:(NSError*__nullable*__nullable)error;
 
-
-+ (MSIDRegistrationInformation *_Nullable)getRegistrationInformation:(id<MSIDRequestContext>_Nullable)context
-                                                        urlChallenge:(NSURLAuthenticationChallenge *_Nullable)challenge;
-
-+ (nullable NSString*)getWPJStringData:(id<MSIDRequestContext>_Nullable)context
-                         identifier:(nonnull NSString*)identifier
-                         error:(NSError*__nullable*__nullable)error;
 @end
+
+#endif /* MSIDWorkPlaceJoinUtilBase_h */

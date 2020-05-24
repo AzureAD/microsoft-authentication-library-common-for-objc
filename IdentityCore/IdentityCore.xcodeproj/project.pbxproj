@@ -507,6 +507,8 @@
 		74F04D4A246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 74F04D48246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m */; };
 		74F04D4B246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 74F04D48246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m */; };
 		74F04D4D246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F04D4C246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h */; };
+		80878AEF247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */; };
+		80878AF0247A9961000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */; };
 		960196FC208E579600D962D3 /* MSIDSafariViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 960196FB208E579600D962D3 /* MSIDSafariViewController.m */; };
 		96090D9820E59B2000E42B37 /* MSIDNotifications.h in Headers */ = {isa = PBXBuildFile; fileRef = 96090D9620E59B2000E42B37 /* MSIDNotifications.h */; };
 		96090D9920E59B2000E42B37 /* MSIDNotifications.m in Sources */ = {isa = PBXBuildFile; fileRef = 96090D9720E59B2000E42B37 /* MSIDNotifications.m */; };
@@ -1987,6 +1989,8 @@
 		74F04D47246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLastRequestTelemetrySerializedItem.h; sourceTree = "<group>"; };
 		74F04D48246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLastRequestTelemetrySerializedItem.m; sourceTree = "<group>"; };
 		74F04D4C246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDCurrentRequestTelemetrySerializedItem+Internal.h"; sourceTree = "<group>"; };
+		80878AED247A7BBF000BC522 /* MSIDWorkPlaceJoinUtilBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWorkPlaceJoinUtilBase.h; sourceTree = "<group>"; };
+		80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtilBase.m; sourceTree = "<group>"; };
 		960196FA208E579600D962D3 /* MSIDSafariViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSafariViewController.h; sourceTree = "<group>"; };
 		960196FB208E579600D962D3 /* MSIDSafariViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSafariViewController.m; sourceTree = "<group>"; };
 		96090D9620E59B2000E42B37 /* MSIDNotifications.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDNotifications.h; sourceTree = "<group>"; };
@@ -3207,6 +3211,8 @@
 				600D19B120964CE70004CD43 /* MSIDPkeyAuthHelper.m */,
 				600D19B420964D0C0004CD43 /* MSIDWorkPlaceJoinConstants.h */,
 				600D19B520964D2F0004CD43 /* MSIDWorkPlaceJoinConstants.m */,
+				80878AED247A7BBF000BC522 /* MSIDWorkPlaceJoinUtilBase.h */,
+				80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */,
 				600D19B820964D520004CD43 /* MSIDWorkPlaceJoinUtil.h */,
 				600D19B920964D560004CD43 /* ios */,
 				600D19BA20964D5C0004CD43 /* mac */,
@@ -5662,6 +5668,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				80878AF0247A9961000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */,
 				B217863523A5948D00839CE8 /* MSIDSignoutController.m in Sources */,
 				1E707FE12407336D00716148 /* MSIDBrokerNativeAppOperationResponse.m in Sources */,
 				B251CC3A2041058D005E0179 /* MSIDLegacySingleResourceToken.m in Sources */,
@@ -6202,6 +6209,7 @@
 				23BDA66E1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m in Sources */,
 				B27ACA6B22EBC4450049ACE0 /* MSIDBackgroundTaskManager.m in Sources */,
 				96891A972190F15E00D7F437 /* MSIDWPJChallengeHandler.m in Sources */,
+				80878AEF247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */,
 				23B018802355481800207FEC /* MSIDSSOExtensionTokenRequestDelegate.m in Sources */,
 				1E74094824197E8900133EF7 /* NSDictionary+MSIDLogging.m in Sources */,
 				238E19DB2086FE28004DF483 /* MSIDAuthorizationCodeGrantRequest.m in Sources */,

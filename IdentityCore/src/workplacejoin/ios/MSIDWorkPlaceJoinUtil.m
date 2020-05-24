@@ -155,35 +155,7 @@
     [query setObject:(id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
     [query setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
 
-    CFDictionaryRef result = nil;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
-    if (status != errSecSuccess)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"String Data not found for identifier %@ in shared access group: %@ with error code:%d", identifier, sharedAccessGroup, (int) status);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
-        }
-
-        return nil;
-    }
-
-    NSString *stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
-
-    if (result)
-    {
-        CFRelease(result);
-    }
-
-    if (!stringData || stringData.msidTrimmedString.length == 0)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Found empty keychain item.", nil, nil, nil, context.correlationId, nil, NO);
-        }
-    }
-
-    return stringData;
+    return [self getKeyChainValueWithSecAttrService:context query:query error:error];
 }
 
 @end
