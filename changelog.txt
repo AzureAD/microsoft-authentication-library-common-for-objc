@@ -1,3 +1,14 @@
+Version 1.5.1
+------
+* Support client side telemetry in ESTS requests (#740, #732, #712)
+* Add logging for enrollment id mismatch for access tokens (#743)
+* Fix signout state caching in account metadata (#736)
+* Change unit test constants to use a GUID for home account (#733)
+* Support clearing SSO extension cookies (#726)
+* Protect legacy macOS cache when MSAL writes into ADAL cache (#729)
+* Fix NTLM crash when window is not key (#724)
+* Fixed authority validation for developer known authorities (#722)
+
 Version 1.5.0
 ------
 * Added Safari SSO support for AAD SSO extension

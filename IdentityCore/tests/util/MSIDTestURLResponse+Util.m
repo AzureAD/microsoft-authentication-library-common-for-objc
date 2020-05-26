@@ -42,9 +42,7 @@
         headers[@"Accept"] = @"application/json";
         headers[@"x-app-name"] = [MSIDTestRequireValueSentinel new];
         headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel new];
-#if TARGET_OS_IPHONE
         headers[@"x-ms-PkeyAuth"] = [MSIDTestRequireValueSentinel new];
-#endif
 
         s_msidHeaders = [headers copy];
     });

@@ -24,7 +24,6 @@
 #import "MSIDDeviceInfo.h"
 #import "MSIDConstants.h"
 #import "MSIDWorkPlaceJoinUtil.h"
-#import "MSIDRegistrationInformation.h"
 
 static NSArray *deviceModeEnumString;
 

@@ -26,13 +26,17 @@
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDError.h"
+#import "MSIDWorkplaceJoinChallenge.h"
 
 @implementation MSIDWorkPlaceJoinUtil
 
-// Convenience macro to release CF objects
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context
+{
+    return [self getRegistrationInformation:context workplacejoinChallenge:nil];
+}
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                               urlChallenge:(__unused NSURLAuthenticationChallenge *)challenge
+                                     workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     
@@ -48,10 +52,8 @@
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;
     SecKeyRef privateKey = NULL;
-    NSString *certificateSubject = nil;
-    NSData *certificateData = nil;
-    NSString *certificateIssuer = nil;
     OSStatus status = noErr;
+    NSString *certificateIssuer = nil;
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group.", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
     
@@ -75,27 +77,28 @@
     
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ private key reference retrieved with result %ld", (long)status);
     
-    certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
-    certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
+    // Get the public key
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
+    SecKeyRef publicKey = SecKeyCopyPublicKey(privateKey);
     
-    if (!(certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
+    if (!(certificate && publicKey && privateKey && certificateIssuer))
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid.");
     }
     else
     {
-        info = [[MSIDRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                           certificateIssuer:certificateIssuer
-                                                                 certificate:certificate
-                                                          certificateSubject:certificateSubject
-                                                             certificateData:certificateData
-                                                                  privateKey:privateKey];
+        info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
+                                                          privateKey:privateKey
+                                                           publicKey:publicKey
+                                                         certificate:certificate
+                                                   certificateIssuer:certificateIssuer];
         
     }
     
     CFReleaseNull(identity);
     CFReleaseNull(certificate);
     CFReleaseNull(privateKey);
+    CFReleaseNull(publicKey);
     
     return info;
 }

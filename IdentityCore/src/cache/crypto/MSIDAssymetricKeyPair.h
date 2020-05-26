@@ -26,6 +26,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAssymetricKeyPair : NSObject
+{
+    SecKeyRef _privateKeyRef;
+    SecKeyRef _publicKeyRef;
+}
 
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
 @property (nonatomic, readonly) SecKeyRef publicKeyRef;

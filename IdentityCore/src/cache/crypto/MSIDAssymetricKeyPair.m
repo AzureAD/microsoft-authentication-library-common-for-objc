@@ -49,11 +49,17 @@
 
 - (void)dealloc
 {
-    CFRelease(_privateKeyRef);
-    _privateKeyRef = NULL;
+    if (_privateKeyRef)
+    {
+        CFRelease(_privateKeyRef);
+        _privateKeyRef = NULL;
+    }
     
-    CFRelease(_publicKeyRef);
-    _publicKeyRef = NULL;
+    if (_publicKeyRef)
+    {
+        CFRelease(_publicKeyRef);
+        _publicKeyRef = NULL;
+    }
 }
 
 @end
