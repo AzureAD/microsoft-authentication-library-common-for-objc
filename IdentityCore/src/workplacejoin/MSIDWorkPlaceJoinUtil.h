@@ -24,10 +24,14 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDRegistrationInformation;
+@class MSIDWorkplaceJoinChallenge;
+@class MSIDAssymetricKeyPairWithCert;
 
 @interface MSIDWorkPlaceJoinUtil : NSObject
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                               urlChallenge:(NSURLAuthenticationChallenge *)challenge;
+                                     workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
+
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context;
 
 @end
