@@ -28,11 +28,7 @@
 
 @interface MSIDWorkPlaceJoinUtil : MSIDWorkPlaceJoinUtilBase
 
-
 + (MSIDRegistrationInformation *_Nullable)getRegistrationInformation:(id<MSIDRequestContext>_Nullable)context
                                                         urlChallenge:(NSURLAuthenticationChallenge *_Nullable)challenge;
 
-+ (nullable NSString*)getWPJStringData:(id<MSIDRequestContext>_Nullable)context
-                         identifier:(nonnull NSString*)identifier
-                         error:(NSError*__nullable*__nullable)error;
 @end

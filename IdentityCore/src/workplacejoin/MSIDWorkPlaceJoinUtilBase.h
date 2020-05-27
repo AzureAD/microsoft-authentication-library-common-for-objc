@@ -28,9 +28,9 @@
 
 @interface MSIDWorkPlaceJoinUtilBase : NSObject
 
-+ (nullable NSString*)getKeyChainValueWithSecAttrService:(id<MSIDRequestContext>_Nullable)context
-                                 query:(NSMutableDictionary*_Nonnull)query
-                                 error:(NSError*__nullable*__nullable)error;
++ (nullable NSString *)getWPJStringData:(id<MSIDRequestContext>_Nullable)context
+                             identifier:(nonnull NSString*)identifier
+                                  error:(NSError*__nullable*__nullable)error;
 
 @end
 

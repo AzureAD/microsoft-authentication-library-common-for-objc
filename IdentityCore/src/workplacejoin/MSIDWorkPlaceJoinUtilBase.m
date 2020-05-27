@@ -21,23 +21,43 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinUtilBase.h"
 
 @implementation MSIDWorkPlaceJoinUtilBase
 
-+ (NSString *)getKeyChainValueWithSecAttrService:(id<MSIDRequestContext>_Nullable)context
-                                    query:(NSMutableDictionary*)query
-                                    error:(NSError*__nullable*__nullable)error
++ (nullable NSString *)getWPJStringData:(id<MSIDRequestContext>)context
+                             identifier:(nonnull NSString *)identifier
+                                  error:(NSError*__nullable*__nullable)error
 {
+    #if TARGET_OS_IPHONE
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+
+    if (!teamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
+        return nil;
+    }
+    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Shared access group: %@.", sharedAccessGroup);
+    #endif
+
+    // Building dictionary to retrieve given identifier from the keychain
+    NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
+    [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
+    [query setObject:identifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
+    [query setObject:(id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
+
+    #if TARGET_OS_IPHONE
+    [query setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    #endif
+
     CFDictionaryRef result = nil;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
     if (status != errSecSuccess)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"String Data not found with error code:%d", (int) status);
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to get items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
-        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"String Data not found with error code:%d", (int)status);
 
         return nil;
     }

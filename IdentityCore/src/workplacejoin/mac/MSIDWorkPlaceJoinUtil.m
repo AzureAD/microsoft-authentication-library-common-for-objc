@@ -158,17 +158,4 @@
     return identityRef; //Caller must call CFRelease
 }
 
-+ (nullable NSString*)getWPJStringData:(id<MSIDRequestContext>)context
-                          identifier:(nonnull NSString*)identifier
-                          error:(NSError*__nullable*__nullable)error
-{
-    // Building dictionary to retrieve given identifier from the keychain
-    NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
-    [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
-    [query setObject:identifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
-    [query setObject:(id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-
-    return [self getKeyChainValueWithSecAttrService:context query:query error:error];
-}
-
 @end
