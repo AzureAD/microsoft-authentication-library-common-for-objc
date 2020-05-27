@@ -426,6 +426,7 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                       authScheme:parameters.authScheme
                                                                                                          clientId:parameters.clientId
                                                                                                             scope:allScopes
                                                                                                       redirectUri:parameters.redirectUri
@@ -445,6 +446,7 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDRefreshTokenGrantRequest *tokenRequest = [[MSIDRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                             authScheme:parameters.authScheme
                                                                                                clientId:parameters.clientId
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken

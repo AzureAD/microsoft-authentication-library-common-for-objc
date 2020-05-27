@@ -51,6 +51,7 @@
 }
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                       authScheme:(MSIDAuthenticationScheme *)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -66,7 +67,7 @@
     if (self)
     {
         [self initDefaultSettings];
-
+        
         _authority = authority;
         _redirectUri = redirectUri;
         _clientId = clientId;
@@ -91,6 +92,8 @@
         _target = [scopes msidToString];
 
         if (oidScopes) _oidcScope = [oidScopes msidToString];
+        
+        _authScheme = authScheme;
     }
 
     return self;
