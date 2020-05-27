@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDInteractiveRequestControlling.h"
 
 @class MSIDInteractiveTokenRequest;
 @class MSIDSilentTokenRequest;
@@ -32,7 +33,7 @@
 
 @protocol MSIDTokenRequestProviding <NSObject>
 
-- (nullable MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
+- (nullable id<MSIDInteractiveRequestControlling>)interactiveTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters;
 - (nullable MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(nonnull MSIDRequestParameters *)parameters
                                                          forceRefresh:(BOOL)forceRefresh;
 
