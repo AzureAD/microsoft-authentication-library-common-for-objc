@@ -22,18 +22,12 @@
 // THE SOFTWARE.
 
 #import "MSIDAuthorizationCodeGrantRequest.h"
-#import "MSIDDevicePopManager.h"
-
-@interface MSIDAuthorizationCodeGrantRequest()
-
-@property (nonatomic) MSIDDevicePopManager *popManager;
-
-@end
+#import "MSIDAuthenticationSchemeProtocol.h"
 
 @implementation MSIDAuthorizationCodeGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(MSIDAuthenticationScheme *)authScheme
+                      authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri
@@ -61,32 +55,16 @@
             [parameters addEntriesFromDictionary:extraParameters];
         }
         
-        self.popManager = [MSIDDevicePopManager sharedManager];
-        
-        NSError *localError = nil;
-        NSString *popTokenHeader = [self popAuthorizationHeader:&localError];
-        if (popTokenHeader)
+        NSDictionary *authHeaders = [authScheme getAuthHeaders];
+        if ([authHeaders count] > 0)
         {
-            parameters[MSID_OAUTH2_REQUEST_CONFIRMATION] = popTokenHeader;
-            parameters[MSID_OAUTH2_TOKEN_TYPE] = @"pop";
+            [parameters addEntriesFromDictionary:authHeaders];
         }
         
         _parameters = parameters;
     }
     
     return self;
-}
-
-- (NSString *)popAuthorizationHeader:(NSError **)error
-{
-    NSString *requestConf = [self.popManager getRequestConfirmation:error];
-    
-    if (!requestConf)
-    {
-        return nil;
-    }
-    
-    return requestConf;
 }
 
 @end

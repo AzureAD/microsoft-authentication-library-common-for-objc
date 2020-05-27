@@ -46,6 +46,7 @@
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDAuthenticationSchemeProtocol.h"
 
 @implementation MSIDOauth2Factory
 
@@ -243,7 +244,7 @@
 
     // We want to keep case as it comes from the server side
     token.scopes = [response.target msidScopeSet];
-    token.accessToken = response.accessToken;
+    token.accessToken = [configuration.authScheme createAccessTokenFromResponse:response];
     
     if (!token.accessToken)
     {

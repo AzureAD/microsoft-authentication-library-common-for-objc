@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,35 +17,28 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#import "MSIDAADV1RefreshTokenGrantRequest.h"
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+#import "MSIDTokenResponse.h"
 
-@implementation MSIDAADV1RefreshTokenGrantRequest
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken
-                        resource:(NSString *)resource
-                 extraParameters:(NSDictionary *)extraParameters
-                         context:(nullable id<MSIDRequestContext>)context
-{
-    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope refreshToken:refreshToken extraParameters:extraParameters context:context];
-    if (self)
-    {
-        NSParameterAssert(resource);
-        
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
-        parameters[MSID_OAUTH2_RESOURCE] = resource;
-        _parameters = parameters;
-    }
-    
-    return self;
-}
+@protocol MSIDAuthenticationSchemeProtocol <NSObject>
+
+@property (nonatomic) MSIDAuthScheme scheme;
+
+- (NSDictionary *)getAuthHeaders;
+
+- (NSString *)createAccessTokenFromResponse:(MSIDTokenResponse *)response;
+
 @end
+
+NS_ASSUME_NONNULL_END

@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAuthority.h"
 #import "MSIDJsonSerializable.h"
+@protocol MSIDAuthenticationSchemeProtocol;
 
 extern NSString * const MSID_REDIRECT_URI_JSON_KEY;
 extern NSString * const MSID_CLIENT_ID_JSON_KEY;
@@ -36,6 +37,7 @@ extern NSString * const MSID_SCOPE_JSON_KEY;
 @property (readwrite) NSString *redirectUri;
 @property (readwrite) NSString *clientId;
 @property (readonly) NSString *target;
+@property id<MSIDAuthenticationSchemeProtocol> authScheme;
 
 @property (readwrite) NSString *applicationIdentifier;
 

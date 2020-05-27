@@ -26,7 +26,7 @@
 @implementation MSIDTokenRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(MSIDAuthenticationScheme *)authScheme
+                      authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                          context:(nullable id<MSIDRequestContext>)context

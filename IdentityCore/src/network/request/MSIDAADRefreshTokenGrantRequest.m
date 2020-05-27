@@ -27,7 +27,7 @@
 @implementation MSIDAADRefreshTokenGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(MSIDAuthenticationScheme *)authScheme
+                      authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                         clientId:(NSString *)clientId
                     enrollmentId:(NSString *)enrollmentId
                            scope:(NSString *)scope

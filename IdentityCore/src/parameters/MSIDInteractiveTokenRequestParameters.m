@@ -28,7 +28,7 @@
 @implementation MSIDInteractiveTokenRequestParameters
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                       authScheme:(MSIDAuthenticationScheme *)authScheme
+                       authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes

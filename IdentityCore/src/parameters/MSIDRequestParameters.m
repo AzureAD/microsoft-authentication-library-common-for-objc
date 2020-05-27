@@ -51,7 +51,7 @@
 }
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                       authScheme:(MSIDAuthenticationScheme *)authScheme
+                       authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -199,6 +199,12 @@
     return [requestScopes msidToString];
 }
 
+- (void)setAuthScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+{
+    _authScheme = authScheme;
+    [self updateMSIDConfiguration];
+}
+
 - (void)updateMSIDConfiguration
 {
     MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
@@ -210,6 +216,7 @@
     
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];
+    config.authScheme = self.authScheme;
     _msidConfiguration = config;
 }
 

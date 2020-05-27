@@ -25,37 +25,55 @@
 //
 //------------------------------------------------------------------------------
 
-#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDDevicePopManager.h"
+#import "MSIDOAuth2Constants.h"
+#import "MSIDHttpMethod.h"
 
-@implementation MSIDAuthenticationScheme
+@interface MSIDAuthenticationSchemePop ()
 
-- (instancetype)init
-{
-    return [self initWithScheme:MSIDAuthSchemeBearer];
-}
+@property MSIDDevicePopManager *popManager;
 
-- (instancetype)initWithScheme:(MSIDAuthScheme)scheme
+@end
+
+@implementation MSIDAuthenticationSchemePop
+
+- (instancetype)initWithHttpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl
 {
     self = [super init];
     if (self)
     {
-        _scheme = scheme;
+        _scheme = MSIDAuthSchemePop;
+        _httpMethod = httpMethod;
+        _requestUrl = requestUrl;
+        _nonce = [[NSUUID UUID] UUIDString];
+        _popManager = [MSIDDevicePopManager sharedManager];
     }
-    
+
     return self;
 }
 
-- (instancetype)initWithHttpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl nonce:(NSString *)nonce
+- (nonnull NSDictionary *)getAuthHeaders
 {
-    self = [self initWithScheme:MSIDAuthSchemePop];
-    if (self)
+    NSMutableDictionary *headers = [NSMutableDictionary new];
+    [headers setObject:@"Pop" forKey:MSID_OAUTH2_TOKEN_TYPE];
+    NSString *requestConf = [self.popManager getRequestConfirmation:nil];
+    if (requestConf)
     {
-        _httpMethod = httpMethod;
-        _requestUrl = requestUrl;
-        _nonce = nonce;
+        [headers setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     }
     
-    return self;
+    return headers;
+}
+
+- (NSString *)createAccessTokenFromResponse:(MSIDTokenResponse *)response
+{
+    NSError *localError = nil;
+    return [self.popManager createSignedAccessToken:response.accessToken
+                                         httpMethod:MSIDHttpMethodFromType(self.httpMethod)
+                                         requestUrl:self.requestUrl.absoluteString
+                                              nonce:self.nonce
+                                              error:&localError];
 }
 
 @end

@@ -20,7 +20,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)getRequestConfirmation:(NSError **)error;
 
 - (NSString *)createSignedAccessToken:(NSString *)accessToken
-                            timeStamp:(NSUInteger)timeStamp
                            httpMethod:(NSString *)httpMethod
                            requestUrl:(NSString *)requestUrl
                                 nonce:(NSString *)nonce

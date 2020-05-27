@@ -32,12 +32,12 @@
 @class MSIDTokenResponseValidator;
 @class MSIDConfiguration;
 @class MSIDClaimsRequest;
-@class MSIDAuthenticationScheme;
+@protocol MSIDAuthenticationSchemeProtocol;
 
 @interface MSIDRequestParameters : NSObject <NSCopying, MSIDRequestContext>
 
 @property (nonatomic) MSIDAuthority *authority;
-@property (nonatomic) MSIDAuthenticationScheme *authScheme;
+@property (nonatomic) id<MSIDAuthenticationSchemeProtocol> authScheme;
 /*
  Authority provided by the developer. It could be different from the `authority` property.
  */
@@ -89,7 +89,7 @@
 
 #pragma mark - Init
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                       authScheme:(MSIDAuthenticationScheme *)authScheme
+                       authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes

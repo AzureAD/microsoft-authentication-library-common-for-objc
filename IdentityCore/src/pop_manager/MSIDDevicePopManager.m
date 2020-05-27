@@ -262,7 +262,6 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
 }
 
 - (NSString *)createSignedAccessToken:(NSString *)accessToken
-                            timeStamp:(NSUInteger)timeStamp
                            httpMethod:(NSString *)httpMethod
                            requestUrl:(NSString *)requestUrl
                                 nonce:(NSString *)nonce

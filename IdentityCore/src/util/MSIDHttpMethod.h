@@ -21,23 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDTokenRequest.h"
-@protocol MSIDAuthenticationSchemeProtocol;
+#import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
-@interface MSIDRefreshTokenGrantRequest : MSIDTokenRequest
-
-- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
-                                authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)authScheme
-                                  clientId:(nonnull NSString *)clientId
-                                     scope:(nullable NSString *)scope
-                              refreshToken:(nonnull NSString *)refreshToken
-                           extraParameters:(nullable NSDictionary *)extraParameters
-                                   context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
-
-- (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
-                                authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)authScheme
-                                  clientId:(nonnull NSString *)clientId
-                                     scope:(nullable NSString *)scope
-                                   context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;
-
-@end
+extern NSString * MSIDHttpMethodFromType(MSIDHttpMethod type);
+extern MSIDHttpMethod MSIDHttpMethodFromString(NSString *httpMethodString);

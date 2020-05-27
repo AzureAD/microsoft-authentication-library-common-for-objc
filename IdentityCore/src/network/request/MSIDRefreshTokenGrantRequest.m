@@ -26,7 +26,7 @@
 @implementation MSIDRefreshTokenGrantRequest
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
-                                authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
+                                authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)authScheme
                                   clientId:(nonnull NSString *)clientId
                                      scope:(nullable NSString *)scope
                               refreshToken:(nonnull NSString *)refreshToken
