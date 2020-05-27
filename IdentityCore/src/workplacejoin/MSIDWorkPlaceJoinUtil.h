@@ -24,6 +24,10 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWorkPlaceJoinUtilBase.h"
 
+extern NSString * _Nonnull const MSID_DEVICE_INFORMATION_UPN_ID_KEY;
+extern NSString * _Nonnull const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY;
+extern NSString * _Nonnull const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY;
+
 @class MSIDRegistrationInformation;
 
 @interface MSIDWorkPlaceJoinUtil : MSIDWorkPlaceJoinUtilBase

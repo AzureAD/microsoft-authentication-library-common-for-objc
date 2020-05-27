@@ -84,12 +84,22 @@
     }
     else
     {
+        NSString *upn = [self getWPJStringData:nil identifier:kMSIDUPNKeyIdentifier error:nil];
+        NSString *tenantID = [self getWPJStringData:nil identifier:kMSIDTenantKeyIdentifier error:nil];
+
+        NSMutableDictionary *registeredDeviceMetadata = [NSMutableDictionary new];
+        // Certificate subject is nothing but the AAD deviceID
+        [registeredDeviceMetadata setValue:certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
+        [registeredDeviceMetadata setValue:upn forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
+        [registeredDeviceMetadata setValue:tenantID forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
+
         info = [[MSIDRegistrationInformation alloc] initWithSecurityIdentity:identity
                                                            certificateIssuer:certificateIssuer
                                                                  certificate:certificate
                                                           certificateSubject:certificateSubject
                                                              certificateData:certificateData
-                                                                  privateKey:privateKey];
+                                                                  privateKey:privateKey
+                                                    registeredDeviceMetadata:registeredDeviceMetadata];
         
     }
     

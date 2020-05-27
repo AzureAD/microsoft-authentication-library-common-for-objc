@@ -24,11 +24,15 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinUtilBase.h"
 
+NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY        = @"userPrincipleName";
+NSString *const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY = @"aadDeviceIdentifier";
+NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifier";
+
 @implementation MSIDWorkPlaceJoinUtilBase
 
 + (nullable NSString *)getWPJStringData:(id<MSIDRequestContext>)context
                              identifier:(nonnull NSString *)identifier
-                                  error:(NSError*__nullable*__nullable)error
+                                  error:(NSError *__nullable*__nullable)error
 {
     #if TARGET_OS_IPHONE
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];

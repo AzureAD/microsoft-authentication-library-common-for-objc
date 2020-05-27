@@ -32,6 +32,7 @@
     NSString *_certificateIssuer;
     NSData *_certificateData;
     SecKeyRef _privateKey;
+    NSDictionary *_registeredDeviceMetadata;
 }
 
 @property (nonatomic, readonly) SecIdentityRef securityIdentity;
@@ -40,13 +41,15 @@
 @property (nonatomic, readonly) NSString *certificateIssuer;
 @property (nonatomic, readonly) NSData *certificateData;
 @property (nonatomic, readonly) SecKeyRef privateKey;
+@property (nonatomic, readonly) NSDictionary *registeredDeviceMetadata;
 
 - (id)initWithSecurityIdentity:(SecIdentityRef)identity
              certificateIssuer:(NSString *)certificateIssuer
                    certificate:(SecCertificateRef)certificate
             certificateSubject:(NSString *)certificateSubject
                certificateData:(NSData *)certificateData
-                    privateKey:(SecKeyRef)privateKey;
+                    privateKey:(SecKeyRef)privateKey
+      registeredDeviceMetadata:(NSDictionary *)registeredDeviceMetadata;
 
 - (BOOL)isWorkPlaceJoined;
 

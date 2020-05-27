@@ -29,7 +29,7 @@
 @interface MSIDWorkPlaceJoinUtilBase : NSObject
 
 + (nullable NSString *)getWPJStringData:(id<MSIDRequestContext>_Nullable)context
-                             identifier:(nonnull NSString*)identifier
+                             identifier:(nonnull NSString *)identifier
                                   error:(NSError*__nullable*__nullable)error;
 
 @end

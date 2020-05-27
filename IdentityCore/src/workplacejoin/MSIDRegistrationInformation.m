@@ -31,6 +31,7 @@
 @synthesize certificateData = _certificateData;
 @synthesize certificateIssuer = _certificateIssuer;
 @synthesize privateKey = _privateKey;
+@synthesize registeredDeviceMetadata = _registeredDeviceMetadata;
 
 - (id)initWithSecurityIdentity:(SecIdentityRef)identity
              certificateIssuer:(NSString *)certificateIssuer
@@ -38,7 +39,7 @@
             certificateSubject:(NSString *)certificateSubject
                certificateData:(NSData *)certificateData
                     privateKey:(SecKeyRef)privateKey
-
+      registeredDeviceMetadata:(NSDictionary *)registeredDeviceMetadata
 {
     if (!(identity && certificateIssuer && certificate && certificateSubject && certificateData && privateKey)) return nil;
     
@@ -56,6 +57,7 @@
     _certificateSubject = certificateSubject;
     _certificateData = certificateData;
     _certificateIssuer = certificateIssuer;
+    _registeredDeviceMetadata = registeredDeviceMetadata;
     
     return self;
 }
