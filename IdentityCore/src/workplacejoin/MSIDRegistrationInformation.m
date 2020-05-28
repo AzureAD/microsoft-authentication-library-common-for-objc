@@ -22,63 +22,42 @@
 // THE SOFTWARE.
 
 #import "MSIDRegistrationInformation.h"
+#import "MSIDKeychainUtil.h"
 
 @implementation MSIDRegistrationInformation
 
-@synthesize securityIdentity = _securityIdentity;
-@synthesize certificate = _certificate;
-@synthesize certificateSubject = _certificateSubject;
-@synthesize certificateData = _certificateData;
-@synthesize certificateIssuer = _certificateIssuer;
-@synthesize privateKey = _privateKey;
-@synthesize registeredDeviceMetadata = _registeredDeviceMetadata;
-
-- (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             certificateIssuer:(NSString *)certificateIssuer
-                   certificate:(SecCertificateRef)certificate
-            certificateSubject:(NSString *)certificateSubject
-               certificateData:(NSData *)certificateData
-                    privateKey:(SecKeyRef)privateKey
-      registeredDeviceMetadata:(NSDictionary *)registeredDeviceMetadata
+- (instancetype)initWithIdentity:(SecIdentityRef)identity
+                      privateKey:(SecKeyRef)privateKey
+                       publicKey:(SecKeyRef)publicKey
+                     certificate:(SecCertificateRef)certificate
+               certificateIssuer:(NSString *)issuer
 {
-    if (!(identity && certificateIssuer && certificate && certificateSubject && certificateData && privateKey)) return nil;
+    if (!identity)
+    {
+        return nil;
+    }
     
-    if (!(self = [super init])) return nil;
-    
-    // ARC is not aware of Core Foundation objects, so they still have to be
-    // manually retained and released.
-    _securityIdentity = identity;
-    CFRetain(identity);
-    _certificate = certificate;
-    CFRetain(certificate);
-    _privateKey = privateKey;
-    CFRetain(privateKey);
-    
-    _certificateSubject = certificateSubject;
-    _certificateData = certificateData;
-    _certificateIssuer = certificateIssuer;
-    _registeredDeviceMetadata = registeredDeviceMetadata;
+    self = [super initWithPrivateKey:privateKey
+                           publicKey:publicKey
+                         certificate:certificate
+                   certificateIssuer:issuer];
+    if (self)
+    {
+        _securityIdentity = identity;
+        CFRetain(_securityIdentity);
+    }
     
     return self;
 }
 
 - (void)dealloc
 {
-    // ARC is not aware of Core Foundation objects, so they still have to be
-    // manually retained and released.
-    CFRelease(_securityIdentity);
-    _securityIdentity = NULL;
-    
-    CFRelease(_certificate);
-    _certificate = NULL;
-    
-    CFRelease(_privateKey);
-    _privateKey = NULL;
+    CFReleaseNull(_securityIdentity);
 }
 
 - (BOOL)isWorkPlaceJoined
 {
-    return _certificate != nil;
+    return self.certificateRef != nil;
 }
 
 @end

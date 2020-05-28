@@ -21,35 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDRegistrationInformationMock
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    return self;
-}
+@interface MSIDAssymetricKeyLookupAttributes : NSObject
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
+@property (nonatomic, nullable) NSString *privateKeyIdentifier;
+@property (nonatomic, nullable) NSString *publicKeyIdentifier;
+@property (nonatomic, nullable) NSString *keyDisplayableLabel;
 
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
+- (NSDictionary *)assymetricKeyPairAttributes;
+- (NSDictionary *)privateKeyAttributes;
+- (NSDictionary *)publicKeyAttributes;
 
 @end
+
+NS_ASSUME_NONNULL_END

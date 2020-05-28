@@ -21,35 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDRegistrationInformationMock
+@class MSIDTokenResult;
+@class MSIDWebWPJResponse;
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    return self;
-}
+typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
+@protocol MSIDInteractiveRequestControlling <NSObject>
 
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
+- (void)executeRequestWithCompletion:(MSIDInteractiveRequestCompletionBlock)completionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -21,35 +21,48 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import "MSIDAssymetricKeyPairWithCert.h"
 
-@implementation MSIDRegistrationInformationMock
+@implementation MSIDAssymetricKeyPairWithCert
 
-- (instancetype)init
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(NSString *)issuer
 {
-    self = [super init];
+    if (!certificate)
+    {
+        return nil;
+    }
+    
+    _certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
+    
+    if (!_certificateData)
+    {
+        return nil;
+    }
+    
+    self = [super initWithPrivateKey:privateKey publicKey:publicKey];
+    
     if (self)
     {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
+        _certificateRef = certificate;
+        CFRetain(_certificateRef);
+        
+        _certificateSubject = (__bridge_transfer NSString *)(SecCertificateCopySubjectSummary(_certificateRef));
+        _certificateIssuer = issuer;
     }
+    
     return self;
 }
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
+- (void)dealloc
 {
-    _privateKeyRef = privateKey;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
+    if (_certificateRef)
+    {
+        CFRelease(_certificateRef);
+        _certificateRef = NULL;
+    }
 }
 
 @end

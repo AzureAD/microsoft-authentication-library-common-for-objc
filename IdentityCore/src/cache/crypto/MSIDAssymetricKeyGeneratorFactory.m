@@ -21,35 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import "MSIDAssymetricKeyGeneratorFactory.h"
+#import "MSIDAssymetricKeyKeychainGenerator.h"
+#if !TARGET_OS_IPHONE
+#import "MSIDAssymetricKeyLoginKeychainGenerator.h"
+#endif
 
-@implementation MSIDRegistrationInformationMock
+@implementation MSIDAssymetricKeyGeneratorFactory
 
-- (instancetype)init
++ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithError:(NSError **)error
 {
-    self = [super init];
-    if (self)
+#if TARGET_OS_IPHONE
+    return [self iOSDefaultKeyGeneratorWithError:error];
+#else
+    return [self macDefaultKeyGeneratorWithError:error];
+#endif
+}
+
++ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithError:(NSError **)error
+{
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
+}
+
+#if !TARGET_OS_IPHONE
++ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithError:(NSError **)error
+{
+    if (@available(macOS 10.15, *))
     {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
+        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
     }
-    return self;
+    else
+    {
+        return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithAccessRef:nil error:error];
+    }
 }
-
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
+#endif
 
 @end

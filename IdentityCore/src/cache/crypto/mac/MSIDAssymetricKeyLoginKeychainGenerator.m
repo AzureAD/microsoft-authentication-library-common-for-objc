@@ -21,35 +21,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 
-@implementation MSIDRegistrationInformationMock
+@interface MSIDAssymetricKeyLoginKeychainGenerator()
 
-- (instancetype)init
+@property (nonatomic) SecAccessRef accessRef;
+
+@end
+
+@implementation MSIDAssymetricKeyLoginKeychainGenerator
+
+- (instancetype)initWithAccessRef:(SecAccessRef)accessRef error:(NSError **)error
 {
-    self = [super init];
+    self = [super initWithGroup:nil error:error];
+    
     if (self)
     {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
+        _accessRef = accessRef;
     }
+    
     return self;
 }
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
+- (NSDictionary *)additionalPlatformKeychainAttributes
 {
-    _privateKeyRef = privateKey;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
+    if (self.accessRef)
+    {
+        return @{(__bridge id)kSecAttrAccess : (__bridge id)(self.accessRef)};
+    }
+    
+    return nil;
 }
 
 @end

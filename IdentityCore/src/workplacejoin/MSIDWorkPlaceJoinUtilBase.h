@@ -28,9 +28,11 @@
 
 @interface MSIDWorkPlaceJoinUtilBase : NSObject
 
-+ (nullable NSString *)getWPJStringData:(id<MSIDRequestContext>_Nullable)context
-                             identifier:(nonnull NSString *)identifier
-                                  error:(NSError*__nullable*__nullable)error;
++ (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(id<MSIDRequestContext>_Nullable)context
+                                               error:(NSError*__nullable*__nullable)error;
+
++ (NSDictionary *_Nullable)getRegisteredDeviceMetadataInformation:(id<MSIDRequestContext>_Nullable)context;
 
 @end
 

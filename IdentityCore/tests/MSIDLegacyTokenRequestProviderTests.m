@@ -40,7 +40,7 @@
 {
     MSIDLegacyTokenRequestProvider *provider = [[MSIDLegacyTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] legacyAccessor:[MSIDLegacyTokenCacheAccessor new]];
 
-    MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveTokenRequestParameters new]];
+    id<MSIDInteractiveRequestControlling> interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveTokenRequestParameters new]];
     XCTAssertNotNil(interactiveRequest);
 }
 

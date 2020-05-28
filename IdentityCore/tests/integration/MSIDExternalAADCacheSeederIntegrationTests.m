@@ -145,6 +145,7 @@
     headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel sentinel];
     headers[@"client-request-id"] = [MSIDTestRequireValueSentinel sentinel];
     headers[@"return-client-request-id"] = @"true";
+    headers[@"x-ms-PkeyAuth"] = [MSIDTestRequireValueSentinel sentinel];
     NSMutableDictionary *requestBody = [@{
                                           @"client_id": @"some id",
                                           @"client_info": @"1",

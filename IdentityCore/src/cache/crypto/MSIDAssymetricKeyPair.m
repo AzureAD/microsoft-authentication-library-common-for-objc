@@ -21,35 +21,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import "MSIDAssymetricKeyPair.h"
 
-@implementation MSIDRegistrationInformationMock
+@implementation MSIDAssymetricKeyPair
 
-- (instancetype)init
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey
 {
+    if (!privateKey || !publicKey)
+    {
+        return nil;
+    }
+    
     self = [super init];
+    
     if (self)
     {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
+        _privateKeyRef = privateKey;
+        CFRetain(_privateKeyRef);
+        
+        _publicKeyRef = publicKey;
+        CFRetain(_publicKeyRef);
     }
+    
     return self;
 }
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
+- (void)dealloc
 {
-    _privateKeyRef = privateKey;
-}
-
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
-
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
+    if (_privateKeyRef)
+    {
+        CFRelease(_privateKeyRef);
+        _privateKeyRef = NULL;
+    }
+    
+    if (_publicKeyRef)
+    {
+        CFRelease(_publicKeyRef);
+        _publicKeyRef = NULL;
+    }
 }
 
 @end

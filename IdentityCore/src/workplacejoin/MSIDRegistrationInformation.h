@@ -22,35 +22,30 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDAssymetricKeyPairWithCert.h"
 
-@interface MSIDRegistrationInformation : NSObject
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDRegistrationInformation : MSIDAssymetricKeyPairWithCert
 {
-@protected
     SecIdentityRef _securityIdentity;
-    SecCertificateRef _certificate;
-    NSString *_certificateSubject;
-    NSString *_certificateIssuer;
-    NSData *_certificateData;
-    SecKeyRef _privateKey;
-    NSDictionary *_registeredDeviceMetadata;
 }
 
 @property (nonatomic, readonly) SecIdentityRef securityIdentity;
-@property (nonatomic, readonly) SecCertificateRef certificate;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) SecKeyRef privateKey;
-@property (nonatomic, readonly) NSDictionary *registeredDeviceMetadata;
 
-- (id)initWithSecurityIdentity:(SecIdentityRef)identity
-             certificateIssuer:(NSString *)certificateIssuer
-                   certificate:(SecCertificateRef)certificate
-            certificateSubject:(NSString *)certificateSubject
-               certificateData:(NSData *)certificateData
-                    privateKey:(SecKeyRef)privateKey
-      registeredDeviceMetadata:(NSDictionary *)registeredDeviceMetadata;
+- (instancetype)initWithIdentity:(SecIdentityRef)identity
+                      privateKey:(SecKeyRef)privateKey
+                       publicKey:(SecKeyRef)publicKey
+                     certificate:(SecCertificateRef)certificate
+               certificateIssuer:(NSString *)issuer;
+
+- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
+                                  publicKey:(SecKeyRef)publicKey
+                                certificate:(SecCertificateRef)certificate
+                          certificateIssuer:(NSString *)issuer NS_UNAVAILABLE;
 
 - (BOOL)isWorkPlaceJoined;
 
 @end
+
+NS_ASSUME_NONNULL_END

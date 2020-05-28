@@ -24,15 +24,15 @@
 #import <Foundation/Foundation.h>
 #import "MSIDWorkPlaceJoinUtilBase.h"
 
-extern NSString * _Nonnull const MSID_DEVICE_INFORMATION_UPN_ID_KEY;
-extern NSString * _Nonnull const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY;
-extern NSString * _Nonnull const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY;
-
 @class MSIDRegistrationInformation;
+@class MSIDWorkplaceJoinChallenge;
+@class MSIDAssymetricKeyPairWithCert;
 
 @interface MSIDWorkPlaceJoinUtil : MSIDWorkPlaceJoinUtilBase
 
 + (MSIDRegistrationInformation *_Nullable)getRegistrationInformation:(id<MSIDRequestContext>_Nullable)context
-                                                        urlChallenge:(NSURLAuthenticationChallenge *_Nullable)challenge;
+                                              workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *_Nullable)workplacejoinChallenge;
+
++ (MSIDAssymetricKeyPairWithCert *_Nullable)getWPJKeysWithContext:(id<MSIDRequestContext>_Nullable)context;
 
 @end

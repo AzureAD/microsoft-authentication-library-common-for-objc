@@ -21,35 +21,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRegistrationInformationMock.h"
+#import <Foundation/Foundation.h>
+#import "MSIDAuthorizationCodeResult.h"
 
-@implementation MSIDRegistrationInformationMock
+@class MSIDInteractiveTokenRequestParameters;
+@class MSIDOauth2Factory;
+@class MSIDWebWPJResponse;
 
-- (instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _securityIdentity = (SecIdentityRef)@"";
-        _certificateRef = (SecCertificateRef)@"";
-        _certificateData = [@"fake data" dataUsingEncoding:NSUTF8StringEncoding];
-    }
-    return self;
-}
+typedef void (^MSIDInteractiveAuthorizationCodeCompletionBlock)(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
 
-- (void)setPrivateKey:(SecKeyRef)privateKey
-{
-    _privateKeyRef = privateKey;
-}
+NS_ASSUME_NONNULL_BEGIN
 
-- (void)setCertificateIssuer:(NSString *)certificateIssuer
-{
-    _certificateIssuer = certificateIssuer;
-}
+@interface MSIDInteractiveAuthorizationCodeRequest : NSObject
 
-- (BOOL)isWorkPlaceJoined
-{
-    return self.isWorkPlaceJoinedFlag;
-}
+@property (nonatomic, readonly) MSIDInteractiveTokenRequestParameters *requestParameters;
+@property (nonatomic, readonly) MSIDOauth2Factory *oauthFactory;
+
+- (nullable instancetype)initWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory;
+
+- (void)getAuthCodeWithCompletion:(MSIDInteractiveAuthorizationCodeCompletionBlock)completionBlock;
 
 @end
+
+NS_ASSUME_NONNULL_END
