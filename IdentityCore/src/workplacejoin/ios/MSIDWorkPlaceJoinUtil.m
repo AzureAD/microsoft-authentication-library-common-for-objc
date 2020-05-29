@@ -135,8 +135,8 @@
     return identityRef;
 }
 
-+ (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
-                                             context:(id<MSIDRequestContext>_Nullable)context
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(nullable id<MSIDRequestContext>)context
                                                error:(NSError*__nullable*__nullable)error
 {
     NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];

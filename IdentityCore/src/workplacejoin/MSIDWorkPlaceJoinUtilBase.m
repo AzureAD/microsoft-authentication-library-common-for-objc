@@ -76,7 +76,7 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
     return stringData;
 }
 
-+ (NSDictionary *_Nullable)getRegisteredDeviceMetadataInformation:(id<MSIDRequestContext>_Nullable)context
++ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context
 {
     MSIDAssymetricKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithContext:context];
 

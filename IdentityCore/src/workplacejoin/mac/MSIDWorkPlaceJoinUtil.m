@@ -275,7 +275,7 @@
     return keyPair;
 }
 
-+ (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
                                              context:(id<MSIDRequestContext>_Nullable)context
                                                error:(NSError*__nullable*__nullable)error
 {
