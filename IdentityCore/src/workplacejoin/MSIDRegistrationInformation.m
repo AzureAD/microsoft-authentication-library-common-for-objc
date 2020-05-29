@@ -41,7 +41,6 @@
                            publicKey:publicKey
                          certificate:certificate
                    certificateIssuer:issuer];
-    
     if (self)
     {
         _securityIdentity = identity;

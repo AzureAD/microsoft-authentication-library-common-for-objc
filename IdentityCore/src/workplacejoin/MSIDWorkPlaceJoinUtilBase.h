@@ -21,16 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#ifndef MSIDWorkPlaceJoinUtilBase_h
+#define MSIDWorkPlaceJoinUtilBase_h
+
 #import <Foundation/Foundation.h>
 
-#pragma once
+@interface MSIDWorkPlaceJoinUtilBase : NSObject
 
-extern NSString *const kMSIDPrivateKeyIdentifier;
-extern NSString *const kMSIDTenantKeyIdentifier;
-extern NSString *const kMSIDUPNKeyIdentifier;
-extern NSString *const kMSIDProtectionSpaceDistinguishedName;
-extern NSString *const kMSIDPKeyAuthUrn;
-extern NSString *const kMSIDPKeyAuthHeader;
-extern NSString *const kMSIDPKeyAuthHeaderVersion;
-extern NSString *const kMSIDWwwAuthenticateHeader;
-extern NSString *const kMSIDPKeyAuthName;
++ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context;
+
+@end
+
+#endif /* MSIDWorkPlaceJoinUtilBase_h */

@@ -27,6 +27,7 @@
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDAssymetricKeyPairWithCert.h"
+#import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 
 // Convenience macro to release CF objects
 
@@ -96,6 +97,7 @@
     }
     else
     {
+        // We found all the required WPJ information.
         info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
                                                           privateKey:privateKeyRef
                                                            publicKey:publicKeyRef
@@ -271,6 +273,13 @@
     CFReleaseNull(certRef);
     CFReleaseNull(publicKeyRef);
     return keyPair;
+}
+
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(id<MSIDRequestContext>_Nullable)context
+                                               error:(NSError*__nullable*__nullable)error
+{
+    return [self getWPJStringDataForIdentifier:identifier accessGroup:nil context:context error:error];
 }
 
 @end

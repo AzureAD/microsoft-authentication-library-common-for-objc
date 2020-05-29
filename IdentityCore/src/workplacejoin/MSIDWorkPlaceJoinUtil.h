@@ -22,16 +22,21 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDWorkPlaceJoinUtilBase.h"
 
 @class MSIDRegistrationInformation;
 @class MSIDWorkplaceJoinChallenge;
 @class MSIDAssymetricKeyPairWithCert;
 
-@interface MSIDWorkPlaceJoinUtil : NSObject
+@interface MSIDWorkPlaceJoinUtil : MSIDWorkPlaceJoinUtilBase
 
-+ (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                     workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
++ (nullable MSIDRegistrationInformation *)getRegistrationInformation:(nullable id<MSIDRequestContext>)context
+                                              workplacejoinChallenge:(nullable MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
 
-+ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context;
++ (nullable MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(nullable id<MSIDRequestContext>)context;
+
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(nullable id<MSIDRequestContext>)context
+                                               error:(NSError*__nullable*__nullable)error;
 
 @end
