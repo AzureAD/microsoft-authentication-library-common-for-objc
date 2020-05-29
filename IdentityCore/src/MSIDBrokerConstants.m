@@ -26,8 +26,13 @@ NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG      = @"com.microsoft.adBrokerKey
 NSString *const MSID_BROKER_ADAL_SCHEME            = @"msauth";
 NSString *const MSID_BROKER_MSAL_SCHEME            = @"msauthv2";
 NSString *const MSID_BROKER_NONCE_SCHEME           = @"msauthv3";
-NSString *const MSID_BROKER_APP_BUNDLE_ID          = @"com.microsoft.azureauthenticator";
-NSString *const MSID_BROKER_APP_BUNDLE_ID_DF       = @"com.microsoft.azureauthenticator-df";
+#if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
+    NSString *const MSID_BROKER_APP_BUNDLE_ID          = @"com.microsoft.azureauthenticator";
+    NSString *const MSID_BROKER_APP_BUNDLE_ID_DF       = @"com.microsoft.azureauthenticator-df";
+#elif TARGET_OS_OSX
+    NSString *const MSID_BROKER_APP_BUNDLE_ID          = @"com.microsoft.CompanyPortalMac";
+    NSString *const MSID_BROKER_APP_BUNDLE_ID_DF       = @"com.microsoft.CompanyPortalMac";
+#endif
 NSString *const MSID_BROKER_MAX_PROTOCOL_VERSION   = @"max_protocol_ver";
 NSString *const MSID_BROKER_PROTOCOL_VERSION_KEY   = @"msg_protocol_ver";
 NSInteger const MSID_BROKER_PROTOCOL_VERSION_2     = 2;
