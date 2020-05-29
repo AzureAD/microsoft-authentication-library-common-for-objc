@@ -27,6 +27,7 @@
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDAssymetricKeyPairWithCert.h"
+#import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 
 // Convenience macro to release CF objects
 
@@ -272,6 +273,13 @@
     CFReleaseNull(certRef);
     CFReleaseNull(publicKeyRef);
     return keyPair;
+}
+
++ (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(id<MSIDRequestContext>_Nullable)context
+                                               error:(NSError*__nullable*__nullable)error
+{
+    return [self getWPJStringDataForIdentifier:identifier accessGroup:nil context:context error:error];
 }
 
 @end

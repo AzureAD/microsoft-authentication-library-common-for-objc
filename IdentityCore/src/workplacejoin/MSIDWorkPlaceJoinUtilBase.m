@@ -24,6 +24,7 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDWorkPlaceJoinUtilBase.h"
+#import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAssymetricKeyPairWithCert.h"
 
@@ -34,31 +35,19 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 @implementation MSIDWorkPlaceJoinUtilBase
 
 + (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                         accessGroup:(nullable NSString *)accessGroup
                                              context:(id<MSIDRequestContext>_Nullable)context
                                                error:(NSError*__nullable*__nullable)error
 {
-    #if TARGET_OS_IPHONE
-    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
-
-    if (!teamId)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
-        return nil;
-    }
-    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
-
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Shared access group: %@.", sharedAccessGroup);
-    #endif
-
     // Building dictionary to retrieve given identifier from the keychain
     NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
     [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
     [query setObject:identifier forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
     [query setObject:(id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-
-    #if TARGET_OS_IPHONE
-    [query setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
-    #endif
+    if (accessGroup)
+    {
+        [query setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    }
 
     CFDictionaryRef result = nil;
     OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)query, (CFTypeRef *)&result);
@@ -93,8 +82,8 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
     if (wpjCerts)
     {
-        NSString *userPrincipalName = [self getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
-        NSString *tenantId = [self getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+        NSString *userPrincipalName = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
+        NSString *tenantId = [MSIDWorkPlaceJoinUtil getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
         NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
 
         // Certificate subject is nothing but the AAD deviceID

@@ -27,6 +27,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDError.h"
 #import "MSIDWorkplaceJoinChallenge.h"
+#import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 
 @implementation MSIDWorkPlaceJoinUtil
 
@@ -132,6 +133,22 @@
     
     SecIdentityRef identityRef = (__bridge_retained SecIdentityRef)[resultDict objectForKey:(__bridge NSString*)kSecValueRef];
     return identityRef;
+}
+
++ (NSString *_Nullable)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(id<MSIDRequestContext>_Nullable)context
+                                               error:(NSError*__nullable*__nullable)error
+{
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+
+    if (!teamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
+        return nil;
+    }
+    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+
+    return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
 }
 
 @end

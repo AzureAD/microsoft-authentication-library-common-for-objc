@@ -779,7 +779,6 @@
 		B23F284B220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = B23F2848220E0EDE004ADA72 /* MSIDAutomationResetAPIRequest.m */; };
 		B24130DC247A1C5E002E70C4 /* MSIDPrimaryRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24130D9247A1C3E002E70C4 /* MSIDPrimaryRefreshTokenTests.m */; };
 		B24130DD247A1C5F002E70C4 /* MSIDPrimaryRefreshTokenTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B24130D9247A1C3E002E70C4 /* MSIDPrimaryRefreshTokenTests.m */; };
-        B2432AFC243962E3002B0D4C /* MSIDURLSessionDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 238AB2A820BF473F00CD8675 /* MSIDURLSessionDelegateTests.m */; };
 		B245C2F92106ABDC00CD5A52 /* MSIDTestIdTokenUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = B245C2F72106ABDB00CD5A52 /* MSIDTestIdTokenUtil.h */; };
 		B245C2FA2106ABDC00CD5A52 /* MSIDTestIdTokenUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B245C2F82106ABDB00CD5A52 /* MSIDTestIdTokenUtil.m */; };
 		B245C2FB2106ABDC00CD5A52 /* MSIDTestIdTokenUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = B245C2F82106ABDB00CD5A52 /* MSIDTestIdTokenUtil.m */; };
@@ -2024,6 +2023,7 @@
 		74F04D4C246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDCurrentRequestTelemetrySerializedItem+Internal.h"; sourceTree = "<group>"; };
 		80878AED247A7BBF000BC522 /* MSIDWorkPlaceJoinUtilBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWorkPlaceJoinUtilBase.h; sourceTree = "<group>"; };
 		80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtilBase.m; sourceTree = "<group>"; };
+		809B38212480C3C8001DF9D4 /* MSIDWorkPlaceJoinUtilBase+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDWorkPlaceJoinUtilBase+Internal.h"; sourceTree = "<group>"; };
 		80B6BF3B2480A3E30031BFE8 /* MSIDWorkPlaceJoinUtilTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWorkPlaceJoinUtilTests.m; sourceTree = "<group>"; };
 		960196FA208E579600D962D3 /* MSIDSafariViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSafariViewController.h; sourceTree = "<group>"; };
 		960196FB208E579600D962D3 /* MSIDSafariViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSafariViewController.m; sourceTree = "<group>"; };
@@ -3267,6 +3267,7 @@
 				600D19B120964CE70004CD43 /* MSIDPkeyAuthHelper.m */,
 				600D19B420964D0C0004CD43 /* MSIDWorkPlaceJoinConstants.h */,
 				600D19B520964D2F0004CD43 /* MSIDWorkPlaceJoinConstants.m */,
+				809B38212480C3C8001DF9D4 /* MSIDWorkPlaceJoinUtilBase+Internal.h */,
 				80878AED247A7BBF000BC522 /* MSIDWorkPlaceJoinUtilBase.h */,
 				80878AEE247A84C1000BC522 /* MSIDWorkPlaceJoinUtilBase.m */,
 				600D19B820964D520004CD43 /* MSIDWorkPlaceJoinUtil.h */,

@@ -21,15 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#ifndef MSIDWorkPlaceJoinUtilBase_h
-#define MSIDWorkPlaceJoinUtilBase_h
+#ifndef MSIDWorkPlaceJoinUtilBase_Internal_h
+#define MSIDWorkPlaceJoinUtilBase_Internal_h
 
 #import <Foundation/Foundation.h>
 
-@interface MSIDWorkPlaceJoinUtilBase : NSObject
+@interface MSIDWorkPlaceJoinUtilBase()
 
-+ (nullable NSDictionary *)getRegisteredDeviceMetadataInformation:(nullable id<MSIDRequestContext>)context;
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                         accessGroup:(nullable NSString *)accessGroup
+                                             context:(nullable id<MSIDRequestContext>)context
+                                               error:(NSError*__nullable*__nullable)error;
 
 @end
 
-#endif /* MSIDWorkPlaceJoinUtilBase_h */
+#endif /* MSIDWorkPlaceJoinUtilBase_Internal_h */

@@ -35,4 +35,8 @@
 
 + (nullable MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(nullable id<MSIDRequestContext>)context;
 
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(nullable id<MSIDRequestContext>)context
+                                               error:(NSError*__nullable*__nullable)error;
+
 @end
