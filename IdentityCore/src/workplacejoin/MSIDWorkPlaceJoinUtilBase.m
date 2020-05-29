@@ -27,7 +27,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDAssymetricKeyPairWithCert.h"
 
-NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY        = @"userPrincipleName";
+NSString *const MSID_DEVICE_INFORMATION_UPN_ID_KEY        = @"userPrincipalName";
 NSString *const MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY = @"aadDeviceIdentifier";
 NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifier";
 
@@ -89,24 +89,22 @@ NSString *const MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY = @"aadTenantIdentifie
 
 + (NSDictionary *_Nullable)getRegisteredDeviceMetadataInformation:(id<MSIDRequestContext>_Nullable)context
 {
-    NSDictionary *deviceMetadata = nil;
+    MSIDAssymetricKeyPairWithCert *wpjCerts = [MSIDWorkPlaceJoinUtil getWPJKeysWithContext:context];
 
-    NSString *userPrincipleName = [self getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
-    NSString *tenantId = [self getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
-    MSIDAssymetricKeyPairWithCert *wpjKeys = [MSIDWorkPlaceJoinUtil getWPJKeysWithContext:context];
-
-    if (userPrincipleName || tenantId || wpjKeys)
+    if (wpjCerts)
     {
-        NSMutableDictionary *_deviceMetadata = [NSMutableDictionary new];
+        NSString *userPrincipalName = [self getWPJStringDataForIdentifier:kMSIDUPNKeyIdentifier context:context error:nil];
+        NSString *tenantId = [self getWPJStringDataForIdentifier:kMSIDTenantKeyIdentifier context:context error:nil];
+        NSMutableDictionary *registrationInfoMetadata = [NSMutableDictionary new];
 
         // Certificate subject is nothing but the AAD deviceID
-        [_deviceMetadata setValue:wpjKeys.certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
-        [_deviceMetadata setValue:userPrincipleName forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
-        [_deviceMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
-        deviceMetadata = _deviceMetadata;
+        [registrationInfoMetadata setValue:wpjCerts.certificateSubject forKey:MSID_DEVICE_INFORMATION_AAD_DEVICE_ID_KEY];
+        [registrationInfoMetadata setValue:userPrincipalName forKey:MSID_DEVICE_INFORMATION_UPN_ID_KEY];
+        [registrationInfoMetadata setValue:tenantId forKey:MSID_DEVICE_INFORMATION_AAD_TENANT_ID_KEY];
+        return registrationInfoMetadata;
     }
 
-    return deviceMetadata;
+    return nil;
 }
 
 @end

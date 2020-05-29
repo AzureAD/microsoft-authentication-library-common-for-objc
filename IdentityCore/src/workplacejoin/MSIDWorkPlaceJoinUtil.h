@@ -30,9 +30,9 @@
 
 @interface MSIDWorkPlaceJoinUtil : MSIDWorkPlaceJoinUtilBase
 
-+ (MSIDRegistrationInformation *_Nullable)getRegistrationInformation:(id<MSIDRequestContext>_Nullable)context
-                                              workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *_Nullable)workplacejoinChallenge;
++ (nullable MSIDRegistrationInformation *)getRegistrationInformation:(nullable id<MSIDRequestContext>)context
+                                              workplacejoinChallenge:(nullable MSIDWorkplaceJoinChallenge *)workplacejoinChallenge;
 
-+ (MSIDAssymetricKeyPairWithCert *_Nullable)getWPJKeysWithContext:(id<MSIDRequestContext>_Nullable)context;
++ (nullable MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(nullable id<MSIDRequestContext>)context;
 
 @end
