@@ -103,7 +103,7 @@
 {
     NSString *regexString = @"OU=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     keychainCertIssuer = [keychainCertIssuer uppercaseString];
-    certAuths = [certAuths uppercaseString];
+    certAuths = [certAuths.msidURLDecode uppercaseString];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
     
     for (NSTextCheckingResult *myMatch in [regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])]){
