@@ -29,6 +29,7 @@
 @protocol MSIDRequestContext;
 @protocol MSIDHttpRequestTelemetryHandling;
 @protocol MSIDHttpRequestErrorHandling;
+@protocol MSIDHttpRequestServerTelemetryHandling;
 @class MSIDURLSessionManager;
 
 @interface MSIDHttpRequest : NSObject <MSIDHttpRequestProtocol>
@@ -42,6 +43,7 @@
     id<MSIDHttpRequestTelemetryHandling> _telemetry;
     id<MSIDHttpRequestErrorHandling> _errorHandler;
     id<MSIDRequestContext> _context;
+    id<MSIDHttpRequestServerTelemetryHandling> _serverTelemetry;
     BOOL _shouldCacheResponse;
     MSIDURLSessionManager *_sessionManager;
 }
@@ -61,6 +63,8 @@
 @property (nonatomic, nonnull) id<MSIDResponseSerialization> errorResponseSerializer;
 
 @property (nonatomic, nullable) id<MSIDHttpRequestTelemetryHandling> telemetry;
+
+@property (nonatomic, nullable) id<MSIDHttpRequestServerTelemetryHandling> serverTelemetry;
 
 @property (nonatomic, nullable) id<MSIDHttpRequestErrorHandling> errorHandler;
 

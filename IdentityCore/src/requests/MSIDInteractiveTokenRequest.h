@@ -22,6 +22,8 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDInteractiveAuthorizationCodeRequest.h"
+#import "MSIDInteractiveRequestControlling.h"
 
 @protocol MSIDCacheAccessor;
 @class MSIDTokenResponseValidator;
@@ -34,11 +36,9 @@
 @class MSIDExternalAADCacheSeeder;
 #endif
 
-typedef void (^MSIDInteractiveRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse);
-
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDInteractiveTokenRequest : NSObject
+@interface MSIDInteractiveTokenRequest : MSIDInteractiveAuthorizationCodeRequest <MSIDInteractiveRequestControlling>
 
 #if TARGET_OS_OSX
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
@@ -49,8 +49,6 @@ NS_ASSUME_NONNULL_BEGIN
                             tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
                               accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
-
-- (void)executeRequestWithCompletion:(MSIDInteractiveRequestCompletionBlock)completionBlock;
 
 @end
 

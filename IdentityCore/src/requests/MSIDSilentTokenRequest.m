@@ -38,6 +38,7 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponseHandler.h"
+#import "MSIDLastRequestTelemetry.h"
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
@@ -51,6 +52,7 @@
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 
 @end
 
@@ -70,6 +72,7 @@
         _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
+        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
 
     return self;
@@ -139,6 +142,9 @@
             }
             
             enrollmentIdMatch = currentEnrollmentId && [currentEnrollmentId isEqualToString:accessToken.enrollmentId];
+            
+
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id match result = %@, access token's enrollment id : %@, cached enrollment id: %@, ", enrollmentIdMatch ? @"True" : @"False", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
         }
         
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch)
@@ -182,6 +188,7 @@
             
             if (tokenResult)
             {
+                [self.lastRequestTelemetry increaseSilentSuccessfulCount];
                 completionBlock(tokenResult, nil);
                 return;
             }
@@ -197,7 +204,15 @@
         }
         else if (accessToken)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
+            if (!enrollmentIdMatch)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached enrollment id is different from access token's enrollment id, removing it..");
+            }
+            else
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
+            }
+            
             NSError *removalError = nil;
             BOOL removalResult = [self.tokenCache removeAccessToken:accessToken
                                                             context:self.requestParameters

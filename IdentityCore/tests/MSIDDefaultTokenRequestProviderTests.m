@@ -42,7 +42,7 @@
 {
     MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
-    MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveTokenRequestParameters new]];
+    id<MSIDInteractiveRequestControlling> interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveTokenRequestParameters new]];
     XCTAssertNotNil(interactiveRequest);
 }
 

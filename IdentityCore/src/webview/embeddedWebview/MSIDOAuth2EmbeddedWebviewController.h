@@ -32,6 +32,7 @@
 #import "MSIDWebviewInteracting.h"
 #import "MSIDWebviewUIController.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDWebViewPlatformParams.h"
 
 @interface MSIDOAuth2EmbeddedWebviewController :
 MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
@@ -41,6 +42,7 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+        platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context;
 
 - (void)loadRequest:(NSURLRequest *)request;

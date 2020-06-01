@@ -31,7 +31,6 @@
 
 - (BOOL)shouldUseBroker
 {
-#if TARGET_OS_IPHONE
     if (self.requestType != MSIDRequestBrokeredType) return NO;
 
     if (!self.authority.supportsBrokeredAuthentication) return NO;
@@ -39,9 +38,6 @@
     if (!self.validateAuthority) return NO;
 
     return YES;
-#else
-    return NO;
-#endif
 }
 
 @end

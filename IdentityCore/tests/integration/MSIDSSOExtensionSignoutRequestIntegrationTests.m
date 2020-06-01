@@ -49,6 +49,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequest *request = [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:params
                                                                                        shouldSignoutFromBrowser:YES
+                                                                                       clearSSOExtensionCookies:NO
                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(request);
     
@@ -76,6 +77,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequest *request = [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:params
                                                                                        shouldSignoutFromBrowser:YES
+                                                                                       clearSSOExtensionCookies:NO
                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(request);
     
@@ -166,6 +168,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequestMock *request = [[MSIDSSOExtensionSignoutRequestMock alloc] initWithRequestParameters:params
                                                                                                shouldSignoutFromBrowser:YES
+                                                                                               clearSSOExtensionCookies:NO
                                                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]];
     
     XCTAssertNotNil(request);
@@ -210,6 +213,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequestMock *request = [[MSIDSSOExtensionSignoutRequestMock alloc] initWithRequestParameters:params
                                                                                                shouldSignoutFromBrowser:YES
+                                                                                               clearSSOExtensionCookies:NO
                                                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]];
     
     XCTAssertNotNil(request);

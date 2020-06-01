@@ -473,4 +473,29 @@
     XCTAssertNil(error);
 }
 
+- (void)testSignInStateForHomeAccountId_whenMultipleCaches_shouldReadStateFromDisc
+{
+    [self.accountMetadataCache updateSignInStateForHomeAccountId:@"id1"
+                                                        clientId:@"clientId1"
+                                                           state:MSIDAccountMetadataStateSignedIn
+                                                         context:nil
+                                                           error:nil];
+    MSIDAccountMetadataState state = [self.secondAccountMetadataCache signInStateForHomeAccountId:@"id1"
+                                                                                         clientId:@"clientId1"
+                                                                                          context:nil
+                                                                                            error:nil];
+    [self.accountMetadataCache updateSignInStateForHomeAccountId:@"id1"
+                                                        clientId:@"clientId1"
+                                                           state:MSIDAccountMetadataStateSignedOut
+                                                         context:nil
+                                                           error:nil];
+    
+    state = [self.secondAccountMetadataCache signInStateForHomeAccountId:@"id1"
+                                                                clientId:@"clientId1"
+                                                                 context:nil
+                                                                   error:nil];
+    
+    XCTAssertEqual(MSIDAccountMetadataStateSignedOut, state);
+}
+
 @end

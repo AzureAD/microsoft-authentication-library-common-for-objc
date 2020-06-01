@@ -44,6 +44,7 @@
 #import "MSIDAggregatedDispatcher.h"
 #import "MSIDTestTelemetryEventsObserver.h"
 #import "MSIDTelemetry+Internal.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @interface MSIDExternalAADCacheSeederIntegrationTests : XCTestCase
 
@@ -144,6 +145,7 @@
     headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel sentinel];
     headers[@"client-request-id"] = [MSIDTestRequireValueSentinel sentinel];
     headers[@"return-client-request-id"] = @"true";
+    headers[@"x-ms-PkeyAuth"] = [MSIDTestRequireValueSentinel sentinel];
     NSMutableDictionary *requestBody = [@{
                                           @"client_id": @"some id",
                                           @"client_info": @"1",
@@ -177,11 +179,109 @@
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
     XCTAssertEqual(eventInfo.count, 12);
-    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @4);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @5);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.get_v1_id_token_http_event_count"], @1);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.http_event_count"], @1);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.oauth_error_code"], @"");
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.response_code"], @"200");
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.correlation_id"]);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.external_cache_seeding_status"], @"yes");
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_cpu"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_os"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_sku"]);
+    XCTAssertNotNil(eventInfo[@"Microsoft.Test.x_client_ver"]);
+}
+
+- (void)testSeedv2TokenResponse_whenLegacyIdTokenInCache_andLegacyRefreshTokenInCache_shouldGetLegacyIdTokenFromCacheAndSkipSeeding
+{
+    __auto_type seeder = [[MSIDExternalAADCacheSeeder alloc] initWithDefaultAccessor:self.defaultAccessor
+                                                              externalLegacyAccessor:self.externalLegacyAccessor];
+    
+    // Create v2 token response.
+    NSString *clientInfoRaw = [@{ @"uid" : @"29f3807a-4fb0-42f2-a44a-236aa0cb3f97", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    NSDictionary *jsonInput = @{
+                                @"access_token": @"at",
+                                @"client_info": clientInfoRaw,
+                                @"expires_in": @599,
+                                @"ext_expires_in": @599,
+                                @"foci": @"1",
+                                @"id_token": [MSIDTestIdTokenUtil defaultV2IdToken],
+                                @"refresh_token": @"rt",
+                                @"scope": @"scope1 scope2",
+                                };
+    __auto_type tokenResponse = [[MSIDAADV2TokenResponse alloc] initWithJSONDictionary:jsonInput error:nil];
+    
+    // Create factory.
+    __auto_type factory = [MSIDAADV2Oauth2Factory new];
+    
+    // Create request parameters.
+    __auto_type authorityUrl = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common"];
+    __auto_type metadata = [MSIDOpenIdProviderMetadata new];
+    metadata.tokenEndpoint = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/token"];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl rawTenant:nil context:nil error:nil];
+    authority.metadata = metadata;
+    __auto_type redirectUri = @"myapp://com.example";
+    __auto_type clientId = @"some id";
+    __auto_type scopes = [[NSOrderedSet alloc] initWithArray:@[@"scope1", @"scope2"]];
+    __auto_type oidcScopes = [[NSOrderedSet alloc] initWithArray:@[@"openid", @"profile", @"offline_access"]];
+    __auto_type requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                         redirectUri:redirectUri
+                                                                            clientId:clientId
+                                                                              scopes:scopes
+                                                                          oidcScopes:oidcScopes
+                                                                       correlationId:nil
+                                                                      telemetryApiId:nil
+                                                                 intuneAppIdentifier:nil
+                                                                         requestType:MSIDRequestLocalType
+                                                                               error:nil];
+    
+    // Save v1 id token.
+    __auto_type legacyIdToken = [MSIDV1IdToken new];
+    legacyIdToken.clientId = @"some id";
+    legacyIdToken.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
+                                                                             homeAccountId:@"29f3807a-4fb0-42f2-a44a-236aa0cb3f97.1234-5678-90abcdefg"];
+    legacyIdToken.storageEnvironment = @"login.microsoftonline.com";
+    legacyIdToken.environment = @"login.microsoftonline.com";
+    legacyIdToken.realm = @"1234-5678-90abcdefg";
+    legacyIdToken.rawIdToken = [MSIDTestIdTokenUtil defaultV1IdToken];
+    BOOL result = [self.defaultAccessor saveToken:legacyIdToken context:requestParameters error:nil];
+    XCTAssertTrue(result);
+    
+    // Save refresh token
+    __auto_type legacyRefreshToken = [MSIDLegacyRefreshToken new];
+    legacyRefreshToken.clientId = @"some second client";
+    legacyRefreshToken.accountIdentifier = legacyIdToken.accountIdentifier;
+    legacyRefreshToken.familyId = @"1";
+    legacyRefreshToken.storageEnvironment = @"login.microsoftonline.com";
+    legacyRefreshToken.environment = @"login.microsoftonline.com";
+    legacyRefreshToken.refreshToken = @"old rt";
+    legacyRefreshToken.idToken = [MSIDTestIdTokenUtil defaultV1IdToken];
+    BOOL refreshSaveResult = [self.externalLegacyAccessor saveRefreshToken:legacyRefreshToken configuration:requestParameters.msidConfiguration context:nil error:nil];
+    XCTAssertTrue(refreshSaveResult);
+    
+    // Seed token response.
+    XCTestExpectation *expectation = [self expectationWithDescription:@"Seed Token Response."];
+    [seeder seedTokenResponse:tokenResponse factory:factory requestParameters:requestParameters completionBlock:^{
+        __auto_type tokens = [self.externalLegacyDataSource allLegacyRefreshTokens];
+        XCTAssertEqual(tokens.count, 2);
+        MSIDRefreshToken *token = tokens[0];
+        XCTAssertEqualObjects(token.refreshToken, @"old rt");
+        MSIDRefreshToken *secondToken = tokens[1];
+        XCTAssertEqualObjects(secondToken.refreshToken, @"old rt");
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    [[MSIDTelemetry sharedInstance] flush:[requestParameters telemetryRequestId]];
+    
+    XCTAssertNotNil(self.receivedEvents);
+    XCTAssertEqual(self.receivedEvents.count, 1);
+    NSDictionary *eventInfo = self.receivedEvents.firstObject;
+    XCTAssertEqual(eventInfo.count, 9);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @4);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.get_v1_id_token_cache_event_count"], @1);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.correlation_id"]);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.external_cache_seeding_status"], @"yes");
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.request_id"]);
@@ -262,7 +362,7 @@
     XCTAssertEqual(self.receivedEvents.count, 1);
     NSDictionary *eventInfo = self.receivedEvents.firstObject;
     XCTAssertEqual(eventInfo.count, 9);
-    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @4);
+    XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.cache_event_count"], @5);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.get_v1_id_token_cache_event_count"], @1);
     XCTAssertNotNil(eventInfo[@"Microsoft.Test.correlation_id"]);
     XCTAssertEqualObjects(eventInfo[@"Microsoft.Test.external_cache_seeding_status"], @"yes");

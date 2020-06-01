@@ -100,6 +100,7 @@
                                                                   endURL:[NSURL URLWithString:configuration.endRedirectUrl]
                                                                  webview:webview
                                                            customHeaders:configuration.customHeaders
+                                                          platfromParams:nil
                                                                  context:context];
     
 #if TARGET_OS_IPHONE

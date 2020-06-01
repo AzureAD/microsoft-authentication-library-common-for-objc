@@ -33,6 +33,7 @@
 @class MSIDConfiguration;
 @class MSIDClaimsRequest;
 @protocol MSIDAuthenticationSchemeProtocol;
+@class MSIDCurrentRequestTelemetry;
 
 @interface MSIDRequestParameters : NSObject <NSCopying, MSIDRequestContext>
 
@@ -58,6 +59,7 @@
 @property (nonatomic) BOOL instanceAware;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
 @property (nonatomic) MSIDRequestType requestType;
+@property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;

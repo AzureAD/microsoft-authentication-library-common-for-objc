@@ -40,9 +40,9 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 - (void)setUp
 {
-    [self swizzleMethod:@selector(getRegistrationInformation:urlChallenge:)
+    [self swizzleMethod:@selector(getWPJKeysWithContext:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
-             withMethod:@selector(getRegistrationInformationMock:urlChallenge:)
+             withMethod:@selector(getWPJKeysWithContext:)
               fromClass:[self class]
      ];
     
@@ -51,9 +51,9 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
 - (void)tearDown
 {
-    [self swizzleMethod:@selector(getRegistrationInformation:urlChallenge:)
+    [self swizzleMethod:@selector(getWPJKeysWithContext:)
                 inClass:[MSIDWorkPlaceJoinUtil class]
-             withMethod:@selector(getRegistrationInformationMock:urlChallenge:)
+             withMethod:@selector(getWPJKeysWithContext:)
               fromClass:[self class]
      ];
     
@@ -180,8 +180,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     method_exchangeImplementations(originalMethod, mockMethod);
 }
 
-+ (MSIDRegistrationInformation *)getRegistrationInformationMock:(__unused id<MSIDRequestContext>)context
-                                                   urlChallenge:(__unused NSURLAuthenticationChallenge *)challenge
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context
 {
     return s_registrationInformationToReturn;
 }

@@ -142,6 +142,7 @@ NSString *const MSID_PRINCIPAL_DISPLAYABLE_ID_CACHE_KEY  = @"principal_username"
 NSString *const MSID_PRINCIPAL_ACCOUNT_ENVIRONMENT_CACHE_KEY    = @"principal_account_environment";
 NSString *const MSID_APP_METADATA_AUTHORITY_MAP_TYPE     = @"authority_map";
 NSString *const MSID_DEVICE_ID_CACHE_KEY                 = @"device_id";
+NSString *const MSID_PRT_PROTOCOL_VERSION_CACHE_KEY      = @"prt_protocol_version";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
 NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";

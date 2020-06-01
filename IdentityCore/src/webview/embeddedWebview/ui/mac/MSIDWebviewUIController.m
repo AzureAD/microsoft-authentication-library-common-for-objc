@@ -63,6 +63,19 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
+- (id)initWithContext:(id<MSIDRequestContext>)context
+       platformParams:(MSIDWebViewPlatformParams *)platformParams
+{
+    self = [super init];
+    if (self)
+    {
+        _context = context;
+        _platformParams = platformParams;
+    }
+
+    return self;
+}
+
 - (BOOL)loadView:(__unused NSError **)error
 {
     if (_webView)
@@ -117,22 +130,29 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (NSWindow *)obtainSignInWindow
 {
-    NSWindow *mainWindow = [NSApp mainWindow];
-    NSRect windowRect;
-    if (mainWindow)
+    NSRect contentRect;
+    if (_platformParams && !NSIsEmptyRect([_platformParams customWindowRect]))
     {
-        windowRect = mainWindow.frame;
+        contentRect = [_platformParams customWindowRect];
     }
     else
     {
-        // If we didn't get a main window then center it in the screen
-        windowRect = [[NSScreen mainScreen] frame];
+        NSWindow *mainWindow = [NSApp mainWindow];
+        NSRect windowRect;
+        if (mainWindow)
+        {
+            windowRect = mainWindow.frame;
+        }
+        else
+        {
+            // If we didn't get a main window then center it in the screen
+            windowRect = [[NSScreen mainScreen] frame];
+        }
+        // Calculate the center of the current main window so we can position our window in the center of it
+        contentRect = [self getCenterRect:windowRect rect2:NSMakeRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)];
     }
-    
-    // Calculate the center of the current main window so we can position our window in the center of it
-    NSRect centerRect = [self getCenterRect:windowRect rect2:NSMakeRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)];
-    
-    NSWindow *window = [[NSWindow alloc] initWithContentRect:centerRect
+
+    NSWindow *window = [[NSWindow alloc] initWithContentRect:contentRect
                                                    styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES];
@@ -169,7 +189,16 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (NSProgressIndicator *)prepareLoadingIndicator
 {
-    NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(DEFAULT_WINDOW_WIDTH / 2 - 16, DEFAULT_WINDOW_HEIGHT / 2 - 16, 32, 32)];
+    CGFloat windowWidth = DEFAULT_WINDOW_WIDTH;
+    CGFloat windowHeight = DEFAULT_WINDOW_HEIGHT;
+    if (_platformParams && !NSIsEmptyRect([_platformParams customWindowRect]))
+    {
+        NSRect window = [_platformParams customWindowRect];
+        windowWidth = window.size.width;
+        windowHeight = window.size.height;
+    }
+
+    NSProgressIndicator *loadingIndicator = [[NSProgressIndicator alloc] initWithFrame:NSMakeRect(windowWidth / 2 - 16, windowHeight / 2 - 16, 32, 32)];
     [loadingIndicator setStyle:NSProgressIndicatorSpinningStyle];
     // Keep the item centered in the window even if it's resized.
     [loadingIndicator setAutoresizingMask:NSViewMinXMargin | NSViewMaxXMargin | NSViewMinYMargin | NSViewMaxYMargin];

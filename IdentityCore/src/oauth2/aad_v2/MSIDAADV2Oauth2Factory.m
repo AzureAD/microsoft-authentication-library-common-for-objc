@@ -44,6 +44,9 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDLastRequestTelemetry.h"
+#import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADV2Oauth2Factory
 
@@ -194,7 +197,15 @@
                                                                                                            codeVerifier:pkceCodeVerifier
                                                                                                         extraParameters:parameters.extraTokenRequestParameters
                                                                                                                 context:parameters];
+
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
 }
@@ -221,7 +232,15 @@
                                                                                                        claims:claims
                                                                                               extraParameters:parameters.extraTokenRequestParameters
                                                                                                       context:parameters];
+    
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
 }

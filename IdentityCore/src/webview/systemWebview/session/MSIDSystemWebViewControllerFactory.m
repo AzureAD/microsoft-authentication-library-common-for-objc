@@ -28,6 +28,9 @@
 #import "MSIDConstants.h"
 #if TARGET_OS_IPHONE && !TARGET_OS_MACCATALYST
 #import "MSIDSFAuthenticationSessionHandler.h"
+#endif
+
+#if TARGET_OS_IPHONE
 #import "MSIDSafariViewController.h"
 #endif
 
@@ -94,7 +97,6 @@
 }
 
 #if TARGET_OS_IPHONE
-
 + (id<MSIDWebviewInteracting>)systemWebviewControllerWithParentController:(MSIDViewController *)parentController
                                                                  startURL:(NSURL *)startURL
                                                            callbackScheme:(NSString *)callbackURLScheme
