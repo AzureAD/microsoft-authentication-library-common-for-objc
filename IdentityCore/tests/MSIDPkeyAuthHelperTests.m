@@ -108,6 +108,29 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     }
 }
 
+- (void)testCreateDeviceAuthResponse_whenDeviceIsWPJAndAuthServerUrlWihtQueryParams_andCertAuthoritiesURLEncoded_shouldCreateProperResponse
+{
+    if (@available(iOS 10.0, *))
+    {
+        __auto_type challengeData = @{@"Context": @"some context",
+                                      @"Version": @"1.0",
+                                      @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                      @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+"};
+        __auto_type regInfo = [MSIDRegistrationInformationMock new];
+        regInfo.isWorkPlaceJoinedFlag = YES;
+        [regInfo setPrivateKey:[self privateKey]];
+        [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+        s_registrationInformationToReturn = regInfo;
+        __auto_type url = [[NSURL alloc] initWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/token?slice=testslice"];
+        
+        __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+        
+        __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9sb2dpbi5taWNyb3NvZnRvbmxpbmUuY29tXC9jb21tb25cL29hdXRoMlwvdjIuMFwvdG9rZW4iLAogICJub25jZSIgOiAiWE5tZTZabG5uWmdJUzRiTUhQelk0Umloa0hGcUNINnMxaG5SZ2p2OFkwUSIsCiAgImlhdCIgOiAiNSIKfQ.HMgqNP2ZkDFZC7u_jo4Vlc6lMozr1x05rCTyMaJwvCIQx6vO9bPjhJ2f-fXrd_W9syrAa4TNRQZELfQPm-3dCVzHBpRJzDrH-Z3S3zYE4egWBq59BwNsrSbtgevlyeusd6h9z-WLDOVMZN1n79v4K6sSux0WEwaxGPjU0haTIBZmqaT0NEsLADDdeAMJCLN9Exd4VFi4GeZ9jsTw3_bzHS_2I8lyj5r8lr4yHUpPdxw0rFvOacJepbPqd_vW7jKl2tSZRVDw9iWRA9CxWWgVp3eZrPUesx7oLnkAnp7mIfKuhI4bL3yxAkg1ouErYqlIhJUgK7jR1OPZOKhBXSV98Q\", Context=\"some context\", Version=\"1.0\"";
+        
+        XCTAssertEqualObjects(expectedResponse, response);
+    }
+}
+
 - (void)testCreateDeviceAuthResponse_whenDeviceIsNotWPJ_shouldCreateProperResponse
 {
     if (@available(iOS 10.0, *))
