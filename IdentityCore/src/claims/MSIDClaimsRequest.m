@@ -81,7 +81,7 @@
         return NO;
     }
     
-    __auto_type key = [[NSNumber alloc] initWithInt:target];
+    __auto_type key = [[NSNumber alloc] initWithInt:(int)target];
     
     NSMutableSet *requests = self.claimsRequestsDict[key] ?: [NSMutableSet new];
     
@@ -98,7 +98,7 @@
 {
     if (!self.claimsRequestsDict) return nil;
     
-    __auto_type key = [[NSNumber alloc] initWithInt:target];
+    __auto_type key = [[NSNumber alloc] initWithInt:(int)target];
     NSArray *requests = [self.claimsRequestsDict[key] allObjects] ?: [NSArray new];
     
     return requests;
@@ -123,7 +123,7 @@
         return NO;
     }
     
-    __auto_type key = [[NSNumber alloc] initWithInt:target];
+    __auto_type key = [[NSNumber alloc] initWithInt:(int)target];
     if (!self.claimsRequestsDict[key]) return NO;
     
     NSMutableSet *requests = self.claimsRequestsDict[key];
