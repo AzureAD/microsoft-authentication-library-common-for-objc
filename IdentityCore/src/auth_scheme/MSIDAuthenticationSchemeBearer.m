@@ -42,7 +42,7 @@
     return self;
 }
 
-- (nonnull NSDictionary *)getAuthHeaders
+- (NSDictionary *)getAuthHeaders
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
     [headers setObject:@"Bearer" forKey:MSID_OAUTH2_TOKEN_TYPE];
@@ -51,7 +51,12 @@
 
 - (MSIDAccessToken *)getAccessToken
 { 
-    return [[MSIDAccessToken alloc] init];
+    return [[MSIDAccessToken alloc] initWithAuthScheme:self];
+}
+
+- (NSString *)getRawAccessToken:(MSIDAccessToken *)accessToken
+{
+    return accessToken.accessToken;
 }
 
 

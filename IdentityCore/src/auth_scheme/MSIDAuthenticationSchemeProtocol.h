@@ -40,6 +40,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (MSIDAccessToken *)getAccessToken;
 
+- (NSString *)getRawAccessToken:(MSIDAccessToken *)accessToken;
+
 @end
 
 NS_ASSUME_NONNULL_END

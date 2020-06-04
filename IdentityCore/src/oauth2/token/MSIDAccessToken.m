@@ -28,6 +28,7 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDUserInformation.h"
 #import "NSDate+MSIDExtensions.h"
+#import "MSIDAuthenticationSchemeProtocol.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static NSUInteger s_expirationBuffer = 300;
@@ -41,6 +42,17 @@ static NSUInteger s_expirationBuffer = 300;
 @implementation MSIDAccessToken
 
 #pragma mark - NSCopying
+
+- (instancetype)initWithAuthScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+{
+    self = [super init];
+    if (self)
+    {
+        _authScheme = authScheme;
+    }
+    
+    return self;
+}
 
 - (id)copyWithZone:(NSZone *)zone
 {

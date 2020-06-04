@@ -54,7 +54,7 @@
     return self;
 }
 
-- (nonnull NSDictionary *)getAuthHeaders
+- (NSDictionary *)getAuthHeaders
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
     [headers setObject:@"Pop" forKey:MSID_OAUTH2_TOKEN_TYPE];
@@ -69,9 +69,18 @@
 
 - (MSIDAccessToken *)getAccessToken
 {
-    MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
+    MSIDAccessTokenWithAuthScheme *accessToken = [[MSIDAccessTokenWithAuthScheme alloc] initWithAuthScheme:self];
     accessToken.kid = [self.popManager getPublicKeyJWK];
     return accessToken;
+}
+
+- (NSString *)getRawAccessToken:(MSIDAccessToken *)accessToken
+{
+    return [self.popManager createSignedAccessToken:accessToken.accessToken
+                                         httpMethod:MSIDHttpMethodFromType(self.httpMethod)
+                                         requestUrl:self.requestUrl.absoluteString
+                                              nonce:self.nonce
+                                              error:nil];
 }
 
 @end
