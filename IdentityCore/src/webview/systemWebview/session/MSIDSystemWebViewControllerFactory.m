@@ -78,9 +78,10 @@
     if (@available(iOS 12.0, macOS 10.15, *))
     {
         return [[MSIDASWebAuthenticationSessionHandler alloc] initWithParentController:parentController
-                                                                              startURL:startURL
-                                                                        callbackScheme:callbackURLScheme
-                                                                    useEmpheralSession:useEmpheralSession];
+                                                                               startURL:startURL
+                                                                         callbackScheme:callbackURLScheme
+                                                                    useEmpheralSession:useEmpheralSession
+                                                                               context:context];
     }
 #endif
     
@@ -88,7 +89,9 @@
     
     if (@available(iOS 11.0, *))
     {
-        return [[MSIDSFAuthenticationSessionHandler alloc] initWithStartURL:startURL callbackScheme:callbackURLScheme];
+        return [[MSIDSFAuthenticationSessionHandler alloc] initWithStartURL:startURL
+                                                             callbackScheme:callbackURLScheme
+                                                                    context:context];
     }
     
 #endif

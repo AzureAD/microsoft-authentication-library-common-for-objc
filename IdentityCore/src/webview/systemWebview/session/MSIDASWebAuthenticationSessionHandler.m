@@ -42,6 +42,7 @@
 @property (nonatomic) ASWebAuthenticationSession *webAuthSession;
 @property (nonatomic) BOOL useEmpheralSession;
 @property (nonatomic) BOOL sessionDismissed;
+@property (nonatomic) id<MSIDRequestContext> context;
 
 @end
 
@@ -53,6 +54,7 @@
                                 startURL:(NSURL *)startURL
                           callbackScheme:(NSString *)callbackURLScheme
                       useEmpheralSession:(BOOL)useEmpheralSession
+                                 context:(id<MSIDRequestContext>)context
 {
     self = [super init];
     
@@ -62,6 +64,7 @@
         _startURL = startURL;
         _callbackURLScheme = callbackURLScheme;
         _useEmpheralSession = useEmpheralSession;
+        _context = context;
     }
     
     return self;
@@ -81,7 +84,7 @@
         
         if (authError.code == ASWebAuthenticationSessionErrorCodeCanceledLogin)
         {
-            NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, nil, nil, YES);
+            NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"User cancelled the authorization session.", nil, nil, nil, self.context.correlationId, nil, YES);
             
             self.webAuthSession = nil;
             if (completionHandler) completionHandler(nil, cancelledError);
@@ -106,7 +109,7 @@
     
     if (![self.webAuthSession start] && !self.sessionDismissed)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, nil, nil, YES);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractiveSessionStartFailure, @"Failed to start an interactive session", nil, nil, nil, self.context.correlationId, nil, YES);
         if (completionHandler) completionHandler(nil, error);
     }
 }

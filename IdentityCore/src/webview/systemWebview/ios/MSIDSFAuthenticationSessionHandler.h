@@ -32,7 +32,8 @@ API_AVAILABLE(ios(11.0))
 @interface MSIDSFAuthenticationSessionHandler : NSObject <MSIDWebviewInteracting>
 
 - (instancetype)initWithStartURL:(NSURL *)startURL
-                  callbackScheme:(NSString *)callbackURLScheme;
+                  callbackScheme:(NSString *)callbackURLScheme
+                         context:(id<MSIDRequestContext>)context;
 
 @end
 

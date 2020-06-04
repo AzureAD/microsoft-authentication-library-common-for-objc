@@ -43,7 +43,8 @@ API_AVAILABLE(ios(12.0))
 - (instancetype)initWithParentController:(MSIDViewController *)parentController
                                 startURL:(NSURL *)startURL
                           callbackScheme:(NSString *)callbackURLScheme
-                      useEmpheralSession:(BOOL)useEmpheralSession;
+                      useEmpheralSession:(BOOL)useEmpheralSession
+                                 context:(id<MSIDRequestContext>)context;
 
 @end
 
