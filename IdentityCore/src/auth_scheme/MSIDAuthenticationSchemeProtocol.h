@@ -29,6 +29,7 @@
 #import "MSIDConstants.h"
 #import "MSIDTokenResponse.h"
 
+@class MSIDAccessToken;
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDAuthenticationSchemeProtocol <NSObject>
@@ -37,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)getAuthHeaders;
 
-- (NSString *)createAccessTokenFromResponse:(MSIDTokenResponse *)response;
+- (MSIDAccessToken *)getAccessToken;
 
 @end
 

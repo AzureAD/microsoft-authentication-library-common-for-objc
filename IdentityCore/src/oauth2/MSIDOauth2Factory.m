@@ -130,7 +130,7 @@
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
                                configuration:(MSIDConfiguration *)configuration
 {
-    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
+    MSIDAccessToken *accessToken = [configuration.authScheme getAccessToken];
     
     BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
@@ -244,7 +244,8 @@
 
     // We want to keep case as it comes from the server side
     token.scopes = [response.target msidScopeSet];
-    token.accessToken = [configuration.authScheme createAccessTokenFromResponse:response];
+    token.accessToken = response.accessToken;
+    token.tokenType = response.tokenType;
     
     if (!token.accessToken)
     {

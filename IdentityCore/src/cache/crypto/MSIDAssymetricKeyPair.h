@@ -29,13 +29,16 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SecKeyRef _privateKeyRef;
     SecKeyRef _publicKeyRef;
+    NSData *_publicKeyBits;
 }
 
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
 @property (nonatomic, readonly) SecKeyRef publicKeyRef;
+@property (nonatomic, readonly) NSData *publicKeyBits;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
+                                  publicKey:(SecKeyRef)publicKey
+                              publicKeyBits:(NSData *)publicKeyBits;
 
 @end
 

@@ -146,7 +146,7 @@ static NSUInteger s_expirationBuffer = 300;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
     cacheItem.enrollmentId = self.enrollmentId;
-    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.credentialType = [self credentialType];
     cacheItem.enrollmentId = self.enrollmentId;
     cacheItem.applicationIdentifier = self.applicationIdentifier;
     return cacheItem;

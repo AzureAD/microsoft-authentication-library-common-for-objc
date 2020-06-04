@@ -122,7 +122,15 @@
     }
     
     // 2. Return keys
-    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef];
+    NSData *publicKeyBits = [self keyBitsAttributesWithQueryDictionary:[attributes publicKeyAttributes] keyTitle:@"public key" error:error];
+    
+    if (!publicKeyBits)
+    {
+        [self logAndFillError:@"Error occurred in reading public key bits" status:-1 error:error];
+        return nil;
+    }
+    
+    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef publicKeyBits:publicKeyBits];
     
     if (privateKeyRef) CFRelease(privateKeyRef);
     if (publicKeyRef) CFRelease(publicKeyRef);
@@ -178,8 +186,17 @@
         return nil;
     }
     
+    NSData *publicKeyBits = [self keyBitsAttributesWithQueryDictionary:[attributes publicKeyAttributes] keyTitle:@"public key" error:error];
+    
+    if (!publicKeyBits)
+    {
+        [self logAndFillError:@"Error occurred in reading public key bits" status:-1 error:error];
+        return nil;
+    }
+    
     MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
-                                                                             publicKey:publicKeyRef];
+                                                                             publicKey:publicKeyRef
+                                                                         publicKeyBits:publicKeyBits];
 
     
     return keypair;
@@ -238,6 +255,33 @@
     
     NSDictionary *privateKeyDict = CFBridgingRelease(keyCFDict);
     return privateKeyDict;
+}
+
+- (NSData *)keyBitsAttributesWithQueryDictionary:(NSDictionary *)queryDictionary keyTitle:(NSString *)keyTitle error:(NSError **)error
+{
+    NSMutableDictionary *keychainQuery = [[self keychainQueryWithAttributes:queryDictionary] mutableCopy];
+    [keychainQuery setObject:[NSNumber numberWithBool:YES] forKey:(id)kSecReturnData];
+    
+    CFTypeRef keyBits = NULL;
+    
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)keychainQuery, (CFTypeRef*)&keyBits);
+    
+    if (status != errSecSuccess)
+    {
+        if (status != errSecItemNotFound)
+        {
+            [self logAndFillError:[NSString stringWithFormat:@"Failed to find %@", keyTitle]
+                           status:status
+                            error:error];
+        }
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Failed to find key with query %@ with status %ld", keychainQuery, (long)status);
+        
+        return nil;
+    }
+    
+    NSData *publicKeyBits = CFBridgingRelease(keyBits);
+    return publicKeyBits;
 }
 
 - (NSDictionary *)keychainQueryWithAttributes:(NSDictionary *)attributes

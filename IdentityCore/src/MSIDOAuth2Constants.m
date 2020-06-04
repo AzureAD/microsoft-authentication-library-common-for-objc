@@ -126,6 +126,7 @@ NSString *const MSID_LAST_MOD_TIME_CACHE_KEY             = @"last_modification_t
 NSString *const MSID_LAST_MOD_APP_CACHE_KEY              = @"last_modification_app";
 NSString *const MSID_APPLICATION_IDENTIFIER_CACHE_KEY    = @"application_cache_identifier";
 NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
+NSString *const MSID_ACCESS_TOKEN_WITH_AUTH_SCHEME_CACHE_TYPE             = @"accesstoken_with_authscheme";
 NSString *const MSID_ACCOUNT_CACHE_TYPE                  = @"Account";
 NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";
 NSString *const MSID_APPLICATION_METADATA_CACHE_TYPE     = @"AppMetadata";

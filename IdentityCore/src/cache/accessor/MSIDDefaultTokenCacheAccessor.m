@@ -795,7 +795,7 @@
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
     query.targetMatchingOptions = MSIDIntersect;
-    query.credentialType = MSIDAccessTokenType;
+    query.credentialType = accessToken.credentialType;
     query.applicationIdentifier = accessToken.applicationIdentifier;
 
     BOOL result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:error];

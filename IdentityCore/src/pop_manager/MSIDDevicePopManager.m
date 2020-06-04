@@ -1,175 +1,78 @@
+// Copyright (c) Microsoft Corporation.
+// All rights reserved.
 //
-//  MSIDDevicePopManager.m
-//  IdentityCore
+// This code is licensed under the MIT License.
 //
-//  Created by Rohit Narula on 4/28/20.
-//  Copyright © 2020 Microsoft. All rights reserved.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files(the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions :
 //
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 #import "MSIDDevicePopManager.h"
 #import "MSIDConstants.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDJWTHelper.h"
+#import "MSIDAssymetricKeyGeneratorFactory.h"
+#import "MSIDAssymetricKeyLookupAttributes.h"
+#import "MSIDAssymetricKeyPair.h"
 
 static NSString *jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
 static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
-#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
+
+@interface MSIDDevicePopManager()
+
+@property id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
+@property MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
+@property MSIDAssymetricKeyPair *keyPair;
+
+@end
 
 @implementation MSIDDevicePopManager
 
-+ (instancetype)sharedManager
++ (MSIDDevicePopManager *)sharedInstance
 {
-    static dispatch_once_t onceToken;
-    static MSIDDevicePopManager *popManager;
-    dispatch_once(&onceToken, ^{
-        popManager = [[MSIDDevicePopManager alloc] init];
+    static dispatch_once_t once;
+    static MSIDDevicePopManager *singleton = nil;
+    
+    dispatch_once(&once, ^{
+        singleton = [[MSIDDevicePopManager alloc] init];
     });
     
-    return popManager;
+    return singleton;
 }
 
 -(instancetype)init
 {
-     if (self = [super init])
-     {
-         [self generateAsymmmetricKeyPair];
-     }
+    self = [super init];
+    if (self)
+    {
+        _keyGeneratorFactory = [MSIDAssymetricKeyGeneratorFactory defaultKeyGeneratorWithError:nil];
+        
+        NSString *privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
+        NSString *publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;
+        
+        MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
+        attr.privateKeyIdentifier = privateKeyIdentifier;
+        attr.publicKeyIdentifier = publicKeyIdentifier;
+        
+        NSError *localError = nil;
+        _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:attr error:&localError];
+    }
     
     return self;
-}
-
-- (void)generateAsymmmetricKeyPair
-{
-    OSStatus status = noErr;
-    int keySize = 2048;
-    [self deleteAsymmetricKeys];
-    SecKeyRef publicKeyRef = NULL;
-    SecKeyRef privateKeyRef = NULL;
-
-    // Container dictionaries.
-    NSMutableDictionary * privateKeyAttr = [[NSMutableDictionary alloc] init];
-    NSMutableDictionary * publicKeyAttr = [[NSMutableDictionary alloc] init];
-    NSMutableDictionary * keyPairAttr = [[NSMutableDictionary alloc] init];
-
-    // Set top level dictionary for the keypair.
-    [keyPairAttr setObject:(id)kSecAttrKeyTypeRSA forKey:(id)kSecAttrKeyType];
-    [keyPairAttr setObject:[NSNumber numberWithUnsignedInteger:keySize] forKey:(id)kSecAttrKeySizeInBits];
-
-    // Set the private key dictionary.
-    [privateKeyAttr setObject:[NSNumber numberWithBool:YES] forKey:(id)kSecAttrIsPermanent];
-    [privateKeyAttr setObject:[MSID_BROKER_SDK_POP_TOKEN_PRIVATE_KEY dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
-    // See SecKey.h to set other flag values.
-
-    // Set the public key dictionary.
-    [publicKeyAttr setObject:[NSNumber numberWithBool:YES] forKey:(id)kSecAttrIsPermanent];
-    [publicKeyAttr setObject:[MSID_BROKER_SDK_POP_TOKEN_PUBLIC_KEY dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
-    // See SecKey.h to set other flag values.
-
-    // Set attributes to top level dictionary.
-    [keyPairAttr setObject:privateKeyAttr forKey:(id)kSecPrivateKeyAttrs];
-    [keyPairAttr setObject:publicKeyAttr forKey:(id)kSecPublicKeyAttrs];
-
-    // SecKeyGeneratePair returns the SecKeyRefs just for educational purposes.
-    status = SecKeyGeneratePair((CFDictionaryRef)keyPairAttr, &publicKeyRef, &privateKeyRef);
-    if (status != noErr || publicKeyRef == NULL || privateKeyRef || NULL){
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Error generating asymmetric key pair, OSStatus == %d.", status);
-    }
-    
-    if (publicKeyRef) CFRelease(publicKeyRef);
-    if (privateKeyRef) CFRelease(privateKeyRef);
-}
-
-- (void)deleteAsymmetricKeys
-{
-    OSStatus status = noErr;
-    NSMutableDictionary * queryPublicKey = [[NSMutableDictionary alloc] init];
-    NSMutableDictionary * queryPrivateKey = [[NSMutableDictionary alloc] init];
-    
-    // Set the public key query dictionary.
-    [queryPublicKey setObject:(id)kSecClassKey forKey:(id)kSecClass];
-    [queryPublicKey setObject:[MSID_BROKER_SDK_POP_TOKEN_PUBLIC_KEY dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
-    [queryPublicKey setObject:(id)kSecAttrKeyTypeRSA forKey:(id)kSecAttrKeyType];
-    
-    // Set the private key query dictionary.
-    [queryPrivateKey setObject:(id)kSecClassKey forKey:(id)kSecClass];
-    [queryPrivateKey setObject:[MSID_BROKER_SDK_POP_TOKEN_PRIVATE_KEY dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
-    [queryPrivateKey setObject:(id)kSecAttrKeyTypeRSA forKey:(id)kSecAttrKeyType];
-    
-    // Delete the private key.
-    status = SecItemDelete((CFDictionaryRef)queryPrivateKey);
-    if (status != errSecSuccess)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Error removing private key, OSStatus == %d.", status);
-    }
-    
-    // Delete the public key.
-    status = SecItemDelete((CFDictionaryRef)queryPublicKey);
-    if (status != errSecSuccess)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Error removing private key, OSStatus == %d.", status);
-    }
-}
-
-- (NSData *)getPublicKeyBits:(NSError **)error
-{
-    OSStatus status = noErr;
-    NSData *publicKeyBits = nil;
-    
-    NSMutableDictionary * queryPublicKey = [[NSMutableDictionary alloc] init];
-        
-    // Set the public key query dictionary.
-    [queryPublicKey setObject:(id)kSecClassKey forKey:(id)kSecClass];
-    [queryPublicKey setObject:[MSID_BROKER_SDK_POP_TOKEN_PUBLIC_KEY dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
-    [queryPublicKey setObject:(id)kSecAttrKeyTypeRSA forKey:(id)kSecAttrKeyType];
-    [queryPublicKey setObject:[NSNumber numberWithBool:YES] forKey:(id)kSecReturnData];
-        
-    // Get the key bits.
-    CFTypeRef keyBits = nil;
-    status = SecItemCopyMatching((CFDictionaryRef)queryPublicKey, (CFTypeRef *)&keyBits);
-        
-    if (status != errSecSuccess)
-    {
-        if (error)
-        {
-            NSString *errorDescription = [NSString stringWithFormat:@"Error retrieving public key bits, OSStatus = %d.", status];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-        }
-        
-        return nil;
-    }
-    
-    
-    publicKeyBits = CFBridgingRelease(keyBits);
-    return publicKeyBits;
-}
-
-- (SecKeyRef)copyPrivateKeyRef:(NSError **)error
-{
-    OSStatus status = noErr;
-    SecKeyRef privateKeyReference = NULL;
-    NSMutableDictionary * queryPrivateKey = [[NSMutableDictionary alloc] init];
-        
-        // Set the private key query dictionary.
-    [queryPrivateKey setObject:(id)kSecClassKey forKey:(id)kSecClass];
-    [queryPrivateKey setObject:[MSID_BROKER_SDK_POP_TOKEN_PRIVATE_KEY dataUsingEncoding:NSUTF8StringEncoding] forKey:(id)kSecAttrApplicationTag];
-    [queryPrivateKey setObject:(id)kSecAttrKeyTypeRSA forKey:(id)kSecAttrKeyType];
-    [queryPrivateKey setObject:[NSNumber numberWithBool:YES] forKey:(id)kSecReturnRef];
-        
-        // Get the key.
-    status = SecItemCopyMatching((CFDictionaryRef)queryPrivateKey, (CFTypeRef *)&privateKeyReference);
-        
-    if (status != errSecSuccess)
-    {
-        if (error)
-        {
-            NSString *errorDescription = [NSString stringWithFormat:@"Error retrieving private key ref, OSStatus = %d.", status];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-        }
-        
-        return nil;
-    }
-    
-    return privateKeyReference;
 }
 
 - (NSString *)getPublicKeyExp:(NSData *)publicKeyBits
@@ -228,11 +131,11 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     return ret;
 }
 
-- (NSString *)createPublicKeyJWK:(NSData *)publicKeyBits
+- (NSString *)getPublicKeyJWK
 {
     NSString* jwk = [NSString stringWithFormat:jwkTemplate,
-                     [self getPublicKeyExp:publicKeyBits],
-                     [self getPublicKeyMod:publicKeyBits]];
+                     [self getPublicKeyExp:self.keyPair.publicKeyBits],
+                     [self getPublicKeyMod:self.keyPair.publicKeyBits]];
     
     NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
     NSData *hashedData = [jwkData msidSHA256];
@@ -242,21 +145,7 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
 
 - (NSString *)getRequestConfirmation:(NSError **)error
 {
-    NSError *localError = nil;
-    NSData *publicKeyBits = [self getPublicKeyBits:&localError];
-    
-    if (!publicKeyBits)
-    {
-       if (error)
-        {
-           NSString *errorDescription = [NSString stringWithFormat:@"Error retrieving public key bits."];
-           *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-        }
-        
-        return nil;
-    }
-    
-    NSString *kid = [NSString stringWithFormat:kidTemplate, [self createPublicKeyJWK:publicKeyBits]];
+    NSString *kid = [NSString stringWithFormat:kidTemplate, [self getPublicKeyJWK]];
     NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
     return [kidData msidBase64UrlEncodedString];
 }
@@ -267,19 +156,8 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
                                 nonce:(NSString *)nonce
                                 error:(NSError **)error
 {
-    NSError *localError = nil;
-    NSData *publicKeyBits = [self getPublicKeyBits:&localError];
-    
-    if (!publicKeyBits)
-    {
-        if (error)
-        {
-            *error = localError;
-            return nil;
-        }
-    }
-    
-    NSString *kid = [self createPublicKeyJWK:publicKeyBits];
+    NSData *publicKeyBits = self.keyPair.publicKeyBits;
+    NSString *kid = [self getPublicKeyJWK];
     
     if (!kid)
     {
@@ -330,19 +208,8 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
                               @"nonce" : nonce,
                               };
     
-    SecKeyRef privateKeyRef = [self copyPrivateKeyRef:&localError];
-    if (!privateKeyRef)
-    {
-        if (error)
-        {
-            *error = localError;
-        }
-        
-        return nil;
-    }
-    
+    SecKeyRef privateKeyRef = self.keyPair.privateKeyRef;
     NSString *signedJwtHeader = [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:privateKeyRef];
-    CFReleaseNull(privateKeyRef);
     return signedJwtHeader;
 }
 

@@ -27,6 +27,7 @@
 
 #import "MSIDAuthenticationSchemeBearer.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDAccessToken.h"
 
 @implementation MSIDAuthenticationSchemeBearer
 
@@ -48,9 +49,9 @@
     return headers;
 }
 
-- (NSString *)createAccessTokenFromResponse:(MSIDTokenResponse *)response
+- (MSIDAccessToken *)getAccessToken
 { 
-    return response.accessToken;
+    return [[MSIDAccessToken alloc] init];
 }
 
 

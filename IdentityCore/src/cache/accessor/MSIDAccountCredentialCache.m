@@ -228,6 +228,7 @@
                                                                                        credentialType:credential.credentialType];
     
     key.familyId = credential.familyId;
+    key.tokenType = credential.tokenType;
     key.realm = credential.realm;
     key.target = credential.target;
     key.applicationIdentifier = credential.applicationIdentifier;

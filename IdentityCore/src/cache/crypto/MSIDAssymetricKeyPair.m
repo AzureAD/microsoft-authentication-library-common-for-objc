@@ -27,8 +27,9 @@
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
+                              publicKeyBits:(NSData *)publicKeyBits
 {
-    if (!privateKey || !publicKey)
+    if (!privateKey || !publicKey || !publicKeyBits)
     {
         return nil;
     }
@@ -42,6 +43,8 @@
         
         _publicKeyRef = publicKey;
         CFRetain(_publicKeyRef);
+        
+        _publicKeyBits = publicKeyBits;
     }
     
     return self;

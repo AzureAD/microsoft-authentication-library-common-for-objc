@@ -29,6 +29,7 @@
 #import "MSIDDevicePopManager.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDHttpMethod.h"
+#import "MSIDAccessTokenWithAuthScheme.h"
 
 @interface MSIDAuthenticationSchemePop ()
 
@@ -47,7 +48,7 @@
         _httpMethod = httpMethod;
         _requestUrl = requestUrl;
         _nonce = [[NSUUID UUID] UUIDString];
-        _popManager = [MSIDDevicePopManager sharedManager];
+        _popManager = [MSIDDevicePopManager sharedInstance];
     }
 
     return self;
@@ -66,14 +67,11 @@
     return headers;
 }
 
-- (NSString *)createAccessTokenFromResponse:(MSIDTokenResponse *)response
+- (MSIDAccessToken *)getAccessToken
 {
-    NSError *localError = nil;
-    return [self.popManager createSignedAccessToken:response.accessToken
-                                         httpMethod:MSIDHttpMethodFromType(self.httpMethod)
-                                         requestUrl:self.requestUrl.absoluteString
-                                              nonce:self.nonce
-                                              error:&localError];
+    MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
+    accessToken.kid = [self.popManager getPublicKeyJWK];
+    return accessToken;
 }
 
 @end

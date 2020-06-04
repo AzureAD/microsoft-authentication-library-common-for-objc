@@ -32,6 +32,7 @@
 @property (readwrite) NSDate *extendedExpiresOn;
 @property (readwrite) NSDate *cachedAt;
 @property (readwrite) NSString *accessToken;
+@property (readwrite) NSString *tokenType;
 
 // v1 access tokens are scoped down to resources
 @property (readwrite) NSString *resource;
