@@ -151,7 +151,7 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     if (!keyData) {
         if (error)
         {
-            *error = CFBridgingRelease(error);
+            *error = CFBridgingRelease(keyExtractionError);
         }
         
         return nil;
