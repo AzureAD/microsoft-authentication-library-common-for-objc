@@ -147,7 +147,7 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
 - (NSData *)getDataFromKey:(SecKeyRef)keyRef error:(NSError **)error
 {
     CFErrorRef keyExtractionError = NULL;
-    NSData* keyData = (NSData*)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
+    NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
     if (!keyData) {
         if (error)
         {
