@@ -37,6 +37,7 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
 @property id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
 @property MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
 @property MSIDAssymetricKeyPair *keyPair;
+@property NSData *publicKeyData;
 
 @end
 
@@ -70,6 +71,18 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
         
         NSError *localError = nil;
         _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:attr error:&localError];
+        
+        if (!_keyPair)
+        {
+            return nil;
+        }
+        
+        _publicKeyData = [self getDataFromKey:_keyPair.publicKeyRef error:&localError];
+        
+        if (!_publicKeyData)
+        {
+            return nil;
+        }
     }
     
     return self;
@@ -131,11 +144,27 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     return ret;
 }
 
+- (NSData *)getDataFromKey:(SecKeyRef)keyRef error:(NSError **)error
+{
+    CFErrorRef keyExtractionError = NULL;
+    NSData* keyData = (NSData*)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
+    if (!keyData) {
+        if (error)
+        {
+            *error = CFBridgingRelease(error);
+        }
+        
+        return nil;
+    }
+    
+    return keyData;
+}
+
 - (NSString *)getPublicKeyJWK
 {
     NSString* jwk = [NSString stringWithFormat:jwkTemplate,
-                     [self getPublicKeyExp:self.keyPair.publicKeyBits],
-                     [self getPublicKeyMod:self.keyPair.publicKeyBits]];
+                     [self getPublicKeyExp:self.publicKeyData],
+                     [self getPublicKeyMod:self.publicKeyData]];
     
     NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
     NSData *hashedData = [jwkData msidSHA256];
@@ -156,7 +185,6 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
                                 nonce:(NSString *)nonce
                                 error:(NSError **)error
 {
-    NSData *publicKeyBits = self.keyPair.publicKeyBits;
     NSString *kid = [self getPublicKeyJWK];
     
     if (!kid)
@@ -197,8 +225,8 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
                               @"cnf": @{
                                       @"jwk":@{
                                           @"kty" : @"RSA",
-                                          @"n" : [self getPublicKeyMod:publicKeyBits],
-                                          @"e" : [self getPublicKeyExp:publicKeyBits]
+                                          @"n" : [self getPublicKeyMod:self.publicKeyData],
+                                          @"e" : [self getPublicKeyExp:self.publicKeyData]
                                       }
                               },
                               @"ts" : [NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]],

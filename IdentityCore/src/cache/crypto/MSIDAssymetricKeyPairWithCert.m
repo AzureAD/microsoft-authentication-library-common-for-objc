@@ -42,7 +42,7 @@
         return nil;
     }
     
-    self = [super initWithPrivateKey:privateKey publicKey:publicKey publicKeyBits:self.publicKeyBits];
+    self = [super initWithPrivateKey:privateKey publicKey:publicKey];
     
     if (self)
     {
