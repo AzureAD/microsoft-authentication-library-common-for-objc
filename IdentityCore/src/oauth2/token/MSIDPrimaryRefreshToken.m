@@ -127,8 +127,6 @@
     hash = hash * 31 + self.sessionKey.hash;
     hash = hash * 31 + self.deviceID.hash;
     hash = hash * 31 + self.prtProtocolVersion.hash;
-    hash = hash * 31 + self.expiresOn.hash;
-    hash = hash * 31 + self.cachedAt.hash;
     return hash;
 }
 
@@ -141,8 +139,6 @@
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.sessionKey && !token.sessionKey) || [self.sessionKey isEqualToData:token.sessionKey];
-    result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
-    result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
     result &= (!self.deviceID && !token.deviceID) || [self.deviceID isEqualToString:token.deviceID];
     result &= (!self.prtProtocolVersion && !token.prtProtocolVersion) || [self.prtProtocolVersion isEqualToString:token.prtProtocolVersion];
     return result;
