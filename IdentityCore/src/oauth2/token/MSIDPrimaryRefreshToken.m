@@ -184,4 +184,23 @@
     return prtVersion >= 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];
 }
 
+- (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval
+{
+    if (!self.expiresOn)
+    {
+        return YES;
+    }
+    
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:refreshInterval];
+    BOOL isCloseToExpiry = [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+    
+    if (isCloseToExpiry)
+    {
+        return YES;
+    }
+    
+    BOOL shouldRefresh = [[NSDate date] timeIntervalSinceDate:self.cachedAt] >= refreshInterval;
+    return shouldRefresh;
+}
+
 @end

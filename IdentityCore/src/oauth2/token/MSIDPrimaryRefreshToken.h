@@ -35,5 +35,6 @@
 @property (nonatomic) NSDate *cachedAt;
  
 - (BOOL)isDevicelessPRT;
+- (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;
 
 @end
