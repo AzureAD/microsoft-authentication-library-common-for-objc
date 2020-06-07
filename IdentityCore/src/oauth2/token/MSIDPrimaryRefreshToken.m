@@ -49,6 +49,8 @@
         }
         
         _prtProtocolVersion = [jsonDictionary msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
+        _expiresOn = tokenCacheItem.expiresOn;
+        _cachedAt = tokenCacheItem.cachedAt;
     }
     
     return self;
@@ -66,6 +68,8 @@
     prtCacheItem.credentialType = MSIDPrimaryRefreshTokenType;
     prtCacheItem.deviceID = self.deviceID;
     prtCacheItem.prtProtocolVersion = self.prtProtocolVersion;
+    prtCacheItem.expiresOn = self.expiresOn;
+    prtCacheItem.cachedAt = self.cachedAt;
     return prtCacheItem;
 }
 
@@ -123,6 +127,8 @@
     hash = hash * 31 + self.sessionKey.hash;
     hash = hash * 31 + self.deviceID.hash;
     hash = hash * 31 + self.prtProtocolVersion.hash;
+    hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.cachedAt.hash;
     return hash;
 }
 
@@ -135,6 +141,8 @@
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.sessionKey && !token.sessionKey) || [self.sessionKey isEqualToData:token.sessionKey];
+    result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
+    result &= (!self.cachedAt && !token.cachedAt) || [self.cachedAt isEqualToDate:token.cachedAt];
     result &= (!self.deviceID && !token.deviceID) || [self.deviceID isEqualToString:token.deviceID];
     result &= (!self.prtProtocolVersion && !token.prtProtocolVersion) || [self.prtProtocolVersion isEqualToString:token.prtProtocolVersion];
     return result;
@@ -148,6 +156,8 @@
     item->_sessionKey = [_sessionKey copyWithZone:zone];
     item->_deviceID = [_deviceID copyWithZone:zone];
     item->_prtProtocolVersion = [_prtProtocolVersion copyWithZone:zone];
+    item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_cachedAt = [_cachedAt copyWithZone:zone];
     return item;
 }
 
