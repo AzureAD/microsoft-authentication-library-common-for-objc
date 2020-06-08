@@ -99,13 +99,11 @@ static BOOL s_useAuthSession = NO;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Received CertAuthChallengehost from : %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
     
     NSURL *requestURL = [currentSession.webviewController startURL];
-    
     NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
     NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
     NSDictionary *queryItemsDict = [NSDictionary msidDictionaryFromQueryItems:queryItems];
-    
     NSString *redirectURI = queryItemsDict[MSID_OAUTH2_REDIRECT_URI];
-    
+
     if (s_redirectScheme)
     {
         NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
