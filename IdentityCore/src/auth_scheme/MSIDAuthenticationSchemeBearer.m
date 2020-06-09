@@ -28,6 +28,7 @@
 #import "MSIDAuthenticationSchemeBearer.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDAccessToken.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDAuthenticationSchemeBearer
 
@@ -54,10 +55,19 @@
     return [[MSIDAccessToken alloc] initWithAuthScheme:self];
 }
 
-- (NSString *)getRawAccessToken:(MSIDAccessToken *)accessToken
+- (NSString *)getSecret:(NSString *)accessToken
 {
-    return accessToken.accessToken;
+    return accessToken;
 }
 
+- (NSString *)getAuthorizationHeader:(NSString *)accessToken
+{
+    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemParamFromType(self.scheme), accessToken];
+}
+
+- (NSString *)getAuthenticationScheme
+{
+    return MSIDAuthSchemParamFromType(self.scheme);
+}
 
 @end

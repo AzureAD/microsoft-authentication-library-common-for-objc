@@ -30,6 +30,7 @@
 #import "MSIDOAuth2Constants.h"
 #import "MSIDHttpMethod.h"
 #import "MSIDAccessTokenWithAuthScheme.h"
+#import "MSIDAuthScheme.h"
 
 @interface MSIDAuthenticationSchemePop ()
 
@@ -74,13 +75,23 @@
     return accessToken;
 }
 
-- (NSString *)getRawAccessToken:(MSIDAccessToken *)accessToken
+- (NSString *)getSecret:(NSString *)accessToken
 {
-    return [self.popManager createSignedAccessToken:accessToken.accessToken
+    return [self.popManager createSignedAccessToken:accessToken
                                          httpMethod:MSIDHttpMethodFromType(self.httpMethod)
                                          requestUrl:self.requestUrl.absoluteString
                                               nonce:self.nonce
                                               error:nil];
+}
+
+- (NSString *)getAuthorizationHeader:(NSString *)accessToken
+{
+    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemParamFromType(self.scheme), accessToken];
+}
+
+- (NSString *)getAuthenticationScheme
+{
+    return MSIDAuthSchemParamFromType(self.scheme);
 }
 
 @end
