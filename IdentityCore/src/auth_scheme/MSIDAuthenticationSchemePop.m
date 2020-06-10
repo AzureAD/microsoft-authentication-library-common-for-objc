@@ -58,7 +58,7 @@
 - (NSDictionary *)getAuthHeaders
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
-    [headers setObject:@"Pop" forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [headers setObject:MSIDAuthSchemParamFromType(self.scheme) forKey:MSID_OAUTH2_TOKEN_TYPE];
     NSString *requestConf = [self.popManager getRequestConfirmation:nil];
     if (requestConf)
     {
@@ -68,10 +68,10 @@
     return headers;
 }
 
-- (MSIDAccessToken *)getAccessToken
+- (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response
 {
     MSIDAccessTokenWithAuthScheme *accessToken = [[MSIDAccessTokenWithAuthScheme alloc] initWithAuthScheme:self];
-    accessToken.tokenType = MSIDAuthSchemParamFromType(self.scheme);
+    accessToken.tokenType = response.tokenType;
     accessToken.kid = [self.popManager getPublicKeyJWK];
     return accessToken;
 }

@@ -55,7 +55,7 @@ static NSInteger kCredentialTypePrefix = 2000;
                          credentialId,
                          keyDelimiter,
                          (target ? target : @""),
-                         keyDelimiter,
+                         (tokenType ? keyDelimiter : @""),
                          (tokenType ? tokenType : @"")];
     
     if (![NSString msidIsStringNilOrBlank:appKey])

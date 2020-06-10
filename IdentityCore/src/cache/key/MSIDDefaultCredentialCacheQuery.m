@@ -62,6 +62,10 @@
         {
             return [self serviceForAccessToken];
         }
+        case MSIDAccessTokenWithAuthSchemeType:
+        {
+            return [self serviceForAccessToken];
+        }
         case MSIDPrimaryRefreshTokenType:
         case MSIDRefreshTokenType:
         {

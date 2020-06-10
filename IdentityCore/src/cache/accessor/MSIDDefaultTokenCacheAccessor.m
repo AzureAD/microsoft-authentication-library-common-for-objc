@@ -797,6 +797,7 @@
     query.targetMatchingOptions = MSIDIntersect;
     query.credentialType = accessToken.credentialType;
     query.applicationIdentifier = accessToken.applicationIdentifier;
+    query.tokenType = accessToken.tokenType;
 
     BOOL result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:error];
 
