@@ -241,34 +241,4 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     return signedJwtHeader;
 }
 
-+ (NSString*)decryptJWT:(NSData *)jwtData
-          decrpytionKey:(SecKeyRef)decrpytionKey
-{
-#if TARGET_OS_IPHONE
-    size_t cipherBufferSize = SecKeyGetBlockSize(decrpytionKey);
-#endif // TARGET_OS_IPHONE
-    size_t keyBufferSize = [jwtData length];
-    
-    NSMutableData *bits = [NSMutableData dataWithLength:keyBufferSize];
-    OSStatus status = errSecAuthFailed;
-#if TARGET_OS_IPHONE
-    status = SecKeyDecrypt(decrpytionKey,
-                           kSecPaddingPKCS1,
-                           (const uint8_t *) [jwtData bytes],
-                           cipherBufferSize,
-                           [bits mutableBytes],
-                           &keyBufferSize);
-#else // !TARGET_OS_IPHONE
-    (void)decrpytionKey;
-    // TODO: SecKeyDecrypt is not available on OS X
-#endif // TARGET_OS_IPHONE
-    if(status != errSecSuccess)
-    {
-        return nil;
-    }
-    
-    [bits setLength:keyBufferSize];
-    return [[NSString alloc] initWithData:bits encoding:NSUTF8StringEncoding];
-}
-
 @end
