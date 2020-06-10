@@ -47,8 +47,85 @@
 - (MSIDCredentialCacheItem *)tokenCacheItem
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
+    cacheItem.kid = self.kid;
     cacheItem.tokenType = self.tokenType;
     return cacheItem;
+}
+
+#pragma mark - NSCopying
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAccessTokenWithAuthScheme *item = [super copyWithZone:zone];
+    item->_kid = [_kid copyWithZone:zone];
+    item->_tokenType = [_tokenType copyWithZone:zone];
+    return item;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+    
+    if (![object isKindOfClass:MSIDAccessTokenWithAuthScheme.class])
+    {
+        return NO;
+    }
+    
+    return [self isEqualToItem:(MSIDAccessTokenWithAuthScheme *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = [super hash];
+    hash = hash * 31 + self.kid.hash;
+    hash = hash * 31 + self.tokenType.hash;
+    return hash;
+}
+
+- (BOOL)isEqualToItem:(MSIDAccessTokenWithAuthScheme *)token
+{
+    if (!token)
+    {
+        return NO;
+    }
+    
+    BOOL result = [super isEqualToItem:token];
+    result &= (!self.kid && !token.kid) || [self.kid isEqualToString:token.kid];
+    result &= (!self.tokenType && !token.tokenType) || [self.tokenType isEqualToString:token.tokenType];
+    return result;
+}
+
+#pragma mark - Cache
+
+- (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
+{
+    self = [super initWithTokenCacheItem:tokenCacheItem];
+    
+    if (self)
+    {
+        _kid = tokenCacheItem.kid;
+        
+        if (!_kid)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize access token when missing kid field");
+            return nil;
+        }
+        
+        _tokenType = tokenCacheItem.tokenType;
+        if (!_tokenType)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize access token when missing token type field");
+            return nil;
+        }
+        
+    }
+    
+    return self;
 }
 
 @end

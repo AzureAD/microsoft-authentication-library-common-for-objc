@@ -76,6 +76,7 @@
 @property (readwrite, nullable) NSString *lastModificationApp;
 
 @property (readwrite, nullable) NSString *tokenType;
+@property (readwrite, nullable) NSString *kid;
 
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 

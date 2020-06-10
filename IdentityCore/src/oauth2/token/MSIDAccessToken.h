@@ -29,6 +29,7 @@
 {
     NSString *_accessToken;
     id<MSIDAuthenticationSchemeProtocol> _authScheme;
+    NSString *_tokenType;
 }
 
 @property (readwrite) NSDate *expiresOn;

@@ -71,6 +71,7 @@
 - (MSIDAccessToken *)getAccessToken
 {
     MSIDAccessTokenWithAuthScheme *accessToken = [[MSIDAccessTokenWithAuthScheme alloc] initWithAuthScheme:self];
+    accessToken.tokenType = MSIDAuthSchemParamFromType(self.scheme);
     accessToken.kid = [self.popManager getPublicKeyJWK];
     return accessToken;
 }
