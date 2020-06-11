@@ -26,13 +26,26 @@
 NSString * MSIDHttpMethodFromType(MSIDHttpMethod type)
 {
     switch (type) {
-        case MSIDHttpMethodPOST:
-            return @"POST";
         case MSIDHttpMethodGET:
             return @"GET";
-            
-        default:
+        case MSIDHttpMethodHEAD:
+            return @"HEAD";
+        case MSIDHttpMethodPOST:
             return @"POST";
+        case MSIDHttpMethodPUT:
+            return @"PUT";
+        case MSIDHttpMethodDELETE:
+            return @"DELETE";
+        case MSIDHttpMethodCONNECT:
+            return @"CONNECT";
+        case MSIDHttpMethodOPTIONS:
+            return @"OPTIONS";
+        case MSIDHttpMethodTRACE:
+            return @"TRACE";
+        case MSIDHttpMethodPATCH:
+            return @"PATCH";
+        default:
+            return @"GET";
     }
 }
 
@@ -42,10 +55,38 @@ MSIDHttpMethod MSIDHttpMethodFromString(NSString *httpMethodString)
     {
         return MSIDHttpMethodGET;
     }
+    else if ([httpMethodString isEqualToString:@"HEAD"])
+    {
+        return MSIDHttpMethodHEAD;
+    }
     else if ([httpMethodString isEqualToString:@"POST"])
     {
         return MSIDHttpMethodPOST;
     }
+    else if ([httpMethodString isEqualToString:@"PUT"])
+    {
+        return MSIDHttpMethodPUT;
+    }
+    else if ([httpMethodString isEqualToString:@"DELETE"])
+    {
+        return MSIDHttpMethodDELETE;
+    }
+    else if ([httpMethodString isEqualToString:@"CONNECT"])
+    {
+        return MSIDHttpMethodCONNECT;
+    }
+    else if ([httpMethodString isEqualToString:@"OPTIONS"])
+    {
+        return MSIDHttpMethodOPTIONS;
+    }
+    else if ([httpMethodString isEqualToString:@"TRACE"])
+    {
+        return MSIDHttpMethodTRACE;
+    }
+    else if ([httpMethodString isEqualToString:@"PATCH"])
+    {
+        return MSIDHttpMethodPATCH;
+    }
 
-    return MSIDHttpMethodPOST;
+    return MSIDHttpMethodGET;
 }
