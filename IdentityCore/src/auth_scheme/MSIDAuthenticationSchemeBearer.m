@@ -46,7 +46,7 @@
 - (NSDictionary *)getAuthHeaders
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
-    [headers setObject:MSIDAuthSchemParamFromType(self.scheme) forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [headers setObject:MSIDAuthSchemeParamFromType(self.scheme) forKey:MSID_OAUTH2_TOKEN_TYPE];
     return headers;
 }
 
@@ -62,12 +62,12 @@
 
 - (NSString *)getAuthorizationHeader:(NSString *)accessToken
 {
-    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemParamFromType(self.scheme), accessToken];
+    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemeParamFromType(self.scheme), accessToken];
 }
 
 - (NSString *)getAuthenticationScheme
 {
-    return MSIDAuthSchemParamFromType(self.scheme);
+    return MSIDAuthSchemeParamFromType(self.scheme);
 }
 
 @end

@@ -74,13 +74,15 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
         
         if (!_keyPair)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to generate asymmetric key pair %@", localError);
             return nil;
         }
         
-        _publicKeyData = [self getDataFromKey:_keyPair.publicKeyRef error:&localError];
+        _publicKeyData = [_keyPair getDataFromKeyRef:_keyPair.publicKeyRef];
         
         if (!_publicKeyData)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read public key data");
             return nil;
         }
     }
@@ -88,83 +90,12 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     return self;
 }
 
-- (NSString *)getPublicKeyExp:(NSData *)publicKeyBits
-{
-    NSData* pk = [publicKeyBits copy];
-    if (pk == NULL) return NULL;
-    
-    int iterator = 0;
-    
-    iterator++; // TYPE - bit stream - mod + exp
-    [self derEncodingGetSizeFrom:pk at:&iterator]; // Total size
-    
-    iterator++; // TYPE - bit stream mod
-    int mod_size = [self derEncodingGetSizeFrom:pk at:&iterator];
-    iterator += mod_size;
-    
-    iterator++; // TYPE - bit stream exp
-    int exp_size = [self derEncodingGetSizeFrom:pk at:&iterator];
-    
-    return [[pk subdataWithRange:NSMakeRange(iterator, exp_size)] base64EncodedStringWithOptions:0];
-}
-
-- (NSString *)getPublicKeyMod:(NSData *)publicKeyBits
-{
-    NSData* pk = [publicKeyBits copy];
-    if (pk == NULL) return NULL;
-    
-    int iterator = 0;
-    
-    iterator++; // TYPE - bit stream - mod + exp
-    [self derEncodingGetSizeFrom:pk at:&iterator]; // Total size
-    
-    iterator++; // TYPE - bit stream mod
-    int mod_size = [self derEncodingGetSizeFrom:pk at:&iterator];
-    NSData* subData=[pk subdataWithRange:NSMakeRange(iterator, mod_size)];
-    NSString *mod = [[subData subdataWithRange:NSMakeRange(1, subData.length-1)] base64EncodedStringWithOptions:0];
-    return mod;
-}
-
-- (int)derEncodingGetSizeFrom:(NSData *)buf at:(int *)iterator
-{
-    const uint8_t* data = [buf bytes];
-    int itr = *iterator;
-    int num_bytes = 1;
-    int ret = 0;
-    
-    if (data[itr] > 0x80) {
-        num_bytes = data[itr] - 0x80;
-        itr++;
-    }
-    
-    for (int i = 0 ; i < num_bytes; i++)
-        ret = (ret * 0x100) + data[itr + i];
-    
-    *iterator = itr + num_bytes;
-    return ret;
-}
-
-- (NSData *)getDataFromKey:(SecKeyRef)keyRef error:(NSError **)error
-{
-    CFErrorRef keyExtractionError = NULL;
-    NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
-    if (!keyData) {
-        if (error)
-        {
-            *error = CFBridgingRelease(keyExtractionError);
-        }
-        
-        return nil;
-    }
-    
-    return keyData;
-}
 
 - (NSString *)getPublicKeyJWK
 {
     NSString* jwk = [NSString stringWithFormat:jwkTemplate,
-                     [self getPublicKeyExp:self.publicKeyData],
-                     [self getPublicKeyMod:self.publicKeyData]];
+                     [self.keyPair getKeyExponent:self.keyPair.publicKeyRef],
+                     [self.keyPair getKeyModulus:self.keyPair.publicKeyRef]];
     
     NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
     NSData *hashedData = [jwkData msidSHA256];
@@ -172,7 +103,7 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     return base64EncodedJWK;
 }
 
-- (NSString *)getRequestConfirmation:(NSError **)error
+- (NSString *)getRequestConfirmation
 {
     NSString *kid = [NSString stringWithFormat:kidTemplate, [self getPublicKeyJWK]];
     NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
@@ -191,8 +122,7 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     {
         if (error)
         {
-           NSString *errorDescription = [NSString stringWithFormat:@"Error generating kid from public key bits."];
-           *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
+            [self logAndFillError:@"Failed to create signed access token, unable to generate kid." error:error];
         }
         
         return nil;
@@ -203,16 +133,55 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     {
         if (error)
         {
-          NSString *errorDescription = [NSString stringWithFormat:@"Invalid request url %@", requestUrl];
-          *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorDescription, nil, nil, nil, nil, nil, NO);
-            
+            [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         }
                
         return nil;
     }
     
     NSString *host = url.host;
+    if (!host)
+    {
+        if (error)
+        {
+            [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
+        }
+        
+        return nil;
+    }
+    
     NSString *path = url.path;
+    if (!path)
+    {
+        if (error)
+        {
+            [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
+        }
+        
+        return nil;
+    }
+    
+    NSString *publicKeyModulus = [self.keyPair getKeyModulus:self.keyPair.publicKeyRef];
+    if (!publicKeyModulus)
+    {
+        if (error)
+        {
+            [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
+        }
+               
+        return nil;
+    }
+    
+    NSString *publicKeyExponent = [self.keyPair getKeyExponent:self.keyPair.publicKeyRef];
+    if (!publicKeyExponent)
+    {
+        if (error)
+        {
+            [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
+        }
+                  
+        return nil;
+    }
     
     NSDictionary *header = @{
                              @"alg" : @"RS256",
@@ -225,8 +194,8 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
                               @"cnf": @{
                                       @"jwk":@{
                                           @"kty" : @"RSA",
-                                          @"n" : [self getPublicKeyMod:self.publicKeyData],
-                                          @"e" : [self getPublicKeyExp:self.publicKeyData]
+                                          @"n" : publicKeyModulus,
+                                          @"e" : publicKeyExponent
                                       }
                               },
                               @"ts" : [NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]],
@@ -239,6 +208,16 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
     SecKeyRef privateKeyRef = self.keyPair.privateKeyRef;
     NSString *signedJwtHeader = [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:privateKeyRef];
     return signedJwtHeader;
+}
+
+- (void)logAndFillError:(NSString *)description error:(NSError **)error
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", description);
+    
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, description, nil, nil, nil, nil, nil, NO);
+    }
 }
 
 @end

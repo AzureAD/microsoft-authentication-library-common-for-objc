@@ -35,8 +35,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) MSIDAuthScheme scheme;
 
-- (instancetype)init;
-
 @end
 
 NS_ASSUME_NONNULL_END

@@ -38,9 +38,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (NSDictionary *)getAuthHeaders;
 
-- (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
+- (nullable MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
 
-- (NSString *)getSecret:(NSString *)accessToken;
+- (nullable NSString *)getSecret:(NSString *)accessToken;
 
 - (NSString *)getAuthorizationHeader:(NSString *)accessToken;
 

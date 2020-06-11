@@ -32,11 +32,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 
-- (NSString *)getRequestConfirmation:(NSError **)error;
+- (nullable NSString *)getRequestConfirmation;
 
-- (NSString *)getPublicKeyJWK;
+- (nullable NSString *)getPublicKeyJWK;
 
-- (NSString *)createSignedAccessToken:(NSString *)accessToken
+- (nullable NSString *)createSignedAccessToken:(NSString *)accessToken
                            httpMethod:(NSString *)httpMethod
                            requestUrl:(NSString *)requestUrl
                                 nonce:(NSString *)nonce

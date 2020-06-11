@@ -47,6 +47,86 @@
     return self;
 }
 
+- (NSString *)getKeyExponent:(SecKeyRef)keyRef
+{
+    NSData *publicKeyBits = [self getDataFromKeyRef:keyRef];
+    if (!publicKeyBits)
+    {
+        return nil;
+    }
+    
+    int iterator = 0;
+    
+    iterator++; // TYPE - bit stream - mod + exp
+    [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
+    
+    iterator++; // TYPE - bit stream mod
+    int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
+    iterator += mod_size;
+    
+    iterator++; // TYPE - bit stream exp
+    int exp_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
+    
+    return [[publicKeyBits subdataWithRange:NSMakeRange(iterator, exp_size)] base64EncodedStringWithOptions:0];
+}
+
+- (NSString *)getKeyModulus:(SecKeyRef)keyRef
+{
+    NSData *publicKeyBits = [self getDataFromKeyRef:keyRef];
+    if (!publicKeyBits)
+    {
+        return nil;
+    }
+    
+    int iterator = 0;
+    
+    iterator++; // TYPE - bit stream - mod + exp
+    [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
+    
+    iterator++; // TYPE - bit stream mod
+    int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
+    NSData *subData=[publicKeyBits subdataWithRange:NSMakeRange(iterator, mod_size)];
+    NSString *mod = [[subData subdataWithRange:NSMakeRange(1, subData.length-1)] base64EncodedStringWithOptions:0];
+    return mod;
+}
+
+- (int)derEncodingGetSizeFrom:(NSData *)buf at:(int *)iterator
+{
+    const uint8_t *data = [buf bytes];
+    int itr = *iterator;
+    int num_bytes = 1;
+    int ret = 0;
+    
+    if (data[itr] > 0x80)
+    {
+        num_bytes = data[itr] - 0x80;
+        itr++;
+    }
+    
+    for (int i = 0 ; i < num_bytes; i++)
+    {
+        ret = (ret * 0x100) + data[itr + i];
+    }
+    
+    *iterator = itr + num_bytes;
+    return ret;
+}
+
+- (NSData *)getDataFromKeyRef:(SecKeyRef)keyRef
+{
+    CFErrorRef keyExtractionError = NULL;
+    NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
+    
+    if (!keyData)
+    {
+        NSError *error = CFBridgingRelease(keyExtractionError);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
+        return nil;
+    }
+    
+    return keyData;
+}
+
 - (void)dealloc
 {
     if (_privateKeyRef)

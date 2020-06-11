@@ -37,7 +37,7 @@ extern NSString * const MSID_SCOPE_JSON_KEY;
 @property (readwrite) NSString *redirectUri;
 @property (readwrite) NSString *clientId;
 @property (readonly) NSString *target;
-@property id<MSIDAuthenticationSchemeProtocol> authScheme;
+@property (readwrite) id<MSIDAuthenticationSchemeProtocol> authScheme;
 
 @property (readwrite) NSString *applicationIdentifier;
 

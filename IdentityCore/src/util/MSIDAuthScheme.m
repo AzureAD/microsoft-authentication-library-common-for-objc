@@ -23,7 +23,7 @@
 
 #import "MSIDAuthScheme.h"
 
-NSString * MSIDAuthSchemParamFromType(MSIDAuthScheme type)
+NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type)
 {
     switch (type) {
         case MSIDAuthSchemePop:

@@ -24,5 +24,5 @@
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
 
-extern NSString * MSIDAuthSchemParamFromType(MSIDAuthScheme type);
+extern NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type);
 extern MSIDAuthScheme MSIDAuthSchemeTypeFromString(NSString *authSchemeString);

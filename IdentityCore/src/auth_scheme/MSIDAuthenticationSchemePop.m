@@ -34,7 +34,7 @@
 
 @interface MSIDAuthenticationSchemePop ()
 
-@property MSIDDevicePopManager *popManager;
+@property (nonatomic) MSIDDevicePopManager *popManager;
 
 @end
 
@@ -58,11 +58,15 @@
 - (NSDictionary *)getAuthHeaders
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
-    [headers setObject:MSIDAuthSchemParamFromType(self.scheme) forKey:MSID_OAUTH2_TOKEN_TYPE];
-    NSString *requestConf = [self.popManager getRequestConfirmation:nil];
+    NSString *requestConf = [self.popManager getRequestConfirmation];
     if (requestConf)
     {
+        [headers setObject:MSIDAuthSchemeParamFromType(self.scheme) forKey:MSID_OAUTH2_TOKEN_TYPE];
         [headers setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to append public key jwk to request headers.");
     }
     
     return headers;
@@ -87,12 +91,12 @@
 
 - (NSString *)getAuthorizationHeader:(NSString *)accessToken
 {
-    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemParamFromType(self.scheme), accessToken];
+    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemeParamFromType(self.scheme), accessToken];
 }
 
 - (NSString *)getAuthenticationScheme
 {
-    return MSIDAuthSchemParamFromType(self.scheme);
+    return MSIDAuthSchemeParamFromType(self.scheme);
 }
 
 @end

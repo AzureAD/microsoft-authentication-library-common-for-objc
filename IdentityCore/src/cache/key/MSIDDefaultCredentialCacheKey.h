@@ -50,7 +50,7 @@ NS_ASSUME_NONNULL_BEGIN
         applicationIdentifier:(nullable NSString *)applicationIdentifier
                        target:(nullable NSString *)target
                        appKey:(nullable NSString *)appKey
-                    tokenType:(NSString *)tokenType;
+                    tokenType:(nullable NSString *)tokenType;
 
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId
