@@ -49,6 +49,8 @@
         }
         
         _prtProtocolVersion = [jsonDictionary msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
+        _expiresOn = tokenCacheItem.expiresOn;
+        _cachedAt = tokenCacheItem.cachedAt;
     }
     
     return self;
@@ -66,6 +68,8 @@
     prtCacheItem.credentialType = MSIDPrimaryRefreshTokenType;
     prtCacheItem.deviceID = self.deviceID;
     prtCacheItem.prtProtocolVersion = self.prtProtocolVersion;
+    prtCacheItem.expiresOn = self.expiresOn;
+    prtCacheItem.cachedAt = self.cachedAt;
     return prtCacheItem;
 }
 
@@ -148,6 +152,8 @@
     item->_sessionKey = [_sessionKey copyWithZone:zone];
     item->_deviceID = [_deviceID copyWithZone:zone];
     item->_prtProtocolVersion = [_prtProtocolVersion copyWithZone:zone];
+    item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_cachedAt = [_cachedAt copyWithZone:zone];
     return item;
 }
 
@@ -172,6 +178,25 @@
 {
     CGFloat prtVersion = [self.prtProtocolVersion floatValue];
     return prtVersion >= 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];
+}
+
+- (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval
+{
+    if (!self.expiresOn)
+    {
+        return YES;
+    }
+    
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:refreshInterval];
+    BOOL isCloseToExpiry = [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+    
+    if (isCloseToExpiry)
+    {
+        return YES;
+    }
+    
+    BOOL shouldRefresh = [[NSDate date] timeIntervalSinceDate:self.cachedAt] >= refreshInterval;
+    return shouldRefresh;
 }
 
 @end

@@ -71,6 +71,36 @@
     XCTAssertTrue(result);
 }
 
+- (void)testShouldRefreshToken_whenNoExpiryDate_shouldReturnYES
+{
+    MSIDPrimaryRefreshToken *token = [self createToken];
+    token.expiresOn = nil;
+    XCTAssertTrue([token shouldRefreshWithInterval:3600]);
+}
+
+- (void)testShouldRefreshToken_whenCloseToExpiry_shouldReturnYES
+{
+    MSIDPrimaryRefreshToken *token = [self createToken];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:300];
+    XCTAssertTrue([token shouldRefreshWithInterval:3600]);
+}
+
+- (void)testShouldRefreshToken_whenRecentlyRefreshed_shouldReturnNO
+{
+    MSIDPrimaryRefreshToken *token = [self createToken];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:10200];
+    token.cachedAt = [NSDate date];
+    XCTAssertFalse([token shouldRefreshWithInterval:3600]);
+}
+
+- (void)testShouldRefreshToken_whenNotRecentlyRefreshed_shouldReturnYES
+{
+    MSIDPrimaryRefreshToken *token = [self createToken];
+    token.expiresOn = [[NSDate date] dateByAddingTimeInterval:10200];
+    token.cachedAt = [[NSDate date] dateByAddingTimeInterval:-7200];
+    XCTAssertTrue([token shouldRefreshWithInterval:3600]);
+}
+
 #pragma mark - Private
 
 - (MSIDPrimaryRefreshToken *)createToken

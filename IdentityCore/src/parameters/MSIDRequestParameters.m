@@ -123,6 +123,12 @@
 
 - (NSURL *)tokenEndpoint
 {
+    if (!self.authority.metadata.tokenEndpoint)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"No token endpoint present");
+        return nil;
+    }
+    
     NSURLComponents *tokenEndpoint = [NSURLComponents componentsWithURL:self.authority.metadata.tokenEndpoint resolvingAgainstBaseURL:NO];
 
     if (self.cloudAuthority)
