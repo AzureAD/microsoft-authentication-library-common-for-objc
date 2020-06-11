@@ -23,7 +23,9 @@
 
 #import "MSIDAssymetricKeyGeneratorFactory.h"
 #import "MSIDAssymetricKeyKeychainGenerator.h"
+#import "MSIDKeychainTokenCache.h"
 #if !TARGET_OS_IPHONE
+#import "MSIDMacKeychainTokenCache.h"
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
 
@@ -40,7 +42,8 @@
 
 + (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithError:(NSError **)error
 {
-    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
+    NSString *keychainGroup = [[MSIDKeychainTokenCache defaultKeychainCache] keychainGroup];
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:keychainGroup error:error];
 }
 
 #if !TARGET_OS_IPHONE
@@ -48,7 +51,8 @@
 {
     if (@available(macOS 10.15, *))
     {
-        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
+        NSString *keychainGroup = [[MSIDMacKeychainTokenCache defaultKeychainCache] keychainGroup];
+        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:keychainGroup error:error];
     }
     else
     {
