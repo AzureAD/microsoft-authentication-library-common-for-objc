@@ -25,6 +25,8 @@
 #import "MSIDAssymetricKeyKeychainGenerator.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
+#import "MSIDAssymetricKeyPair+StkJwkExtensions.h"
+#import "NSData+MSIDAssymetricKeyPairExtensions.h"
 #if !TARGET_OS_IPHONE
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
@@ -92,6 +94,33 @@
     
     BOOL publicKeyExists = [self keyExists:publicKeyIdentifier];
     XCTAssertTrue(publicKeyExists);
+}
+
+- (void)testNSDataExtensions_intByteParser
+{
+    int origonalInt = 256;
+    int origonalIntSize = sizeof(origonalInt);
+    NSData *data = [NSData dataWithBytes: &origonalInt length: origonalIntSize];
+    int convertedInt = [data convertByteRangeToInt:0 numberOfBytesToRead:origonalIntSize];
+    
+    XCTAssertEqual(origonalInt, convertedInt);
+}
+
+- (void)testGenerateKeyPair_generateStkJwk
+{
+    NSString *privateKeyIdentifier = @"com.msal.unittest.privateKey";
+    NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
+    
+    MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
+    attr.privateKeyIdentifier = privateKeyIdentifier;
+    attr.publicKeyIdentifier = publicKeyIdentifier;
+    
+    MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
+    
+    NSError *error = nil;
+    MSIDAssymetricKeyPair *result = [generator generateKeyPairForAttributes:attr error:&error];
+    
+    XCTAssertNotNil([result generateStkJwk]);
 }
 
 - (void)testGenerateKeyPair_whenKeyExists_shouldGenerateNewKeyAndReturnIt
