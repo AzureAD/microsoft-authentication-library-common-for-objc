@@ -71,9 +71,9 @@ static NSArray *s_canOpenURLSchemes = nil;
     Method To_openUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(TO_openURL:options:completionHandler:));
     method_exchangeImplementations(openUrlOptionsCompletionHandlerStr, To_openUrlOptionsCompletionHandlerStr);
     
-    Method canOpenUrl = class_getInstanceMethod(UIApplication.class, @selector(canOpenURL:));
-    Method To_canOpenUrl = class_getInstanceMethod(UIApplication.class, @selector(TO_canOpenURL:));
-    method_exchangeImplementations(canOpenUrl, To_canOpenUrl);
+    Method canOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(canOpenURL:));
+    Method To_canOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(TO_canOpenURL:));
+    method_exchangeImplementations(canOpenUrlStr, To_canOpenUrlStr);
 }
 
 - (BOOL)TO_openURL:(NSURL *)url
