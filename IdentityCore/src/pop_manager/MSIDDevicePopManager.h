@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
                            httpMethod:(NSString *)httpMethod
                            requestUrl:(NSString *)requestUrl
                                 nonce:(NSString *)nonce
-                                error:(NSError **)error;
+                                error:(NSError *__autoreleasing * _Nullable)error;
 
 @end
 

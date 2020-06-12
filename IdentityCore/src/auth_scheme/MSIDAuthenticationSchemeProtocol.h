@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
 
-- (nullable NSString *)getSecret:(NSString *)accessToken;
+- (nullable NSString *)getSecret:(NSString *)accessToken error:(NSError *__autoreleasing * _Nullable)error;
 
 - (NSString *)getAuthorizationHeader:(NSString *)accessToken;
 

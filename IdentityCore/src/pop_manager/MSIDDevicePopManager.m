@@ -114,72 +114,48 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
                            httpMethod:(NSString *)httpMethod
                            requestUrl:(NSString *)requestUrl
                                 nonce:(NSString *)nonce
-                                error:(NSError **)error
+                                error:(NSError *__autoreleasing * _Nullable)error
 {
     NSString *kid = [self getPublicKeyJWK];
     
     if (!kid)
     {
-        if (error)
-        {
-            [self logAndFillError:@"Failed to create signed access token, unable to generate kid." error:error];
-        }
-        
+        [self logAndFillError:@"Failed to create signed access token, unable to generate kid." error:error];
         return nil;
     }
     
     NSURL *url = [NSURL URLWithString:requestUrl];
     if (!url)
     {
-        if (error)
-        {
-            [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
-        }
-               
+        [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         return nil;
     }
     
     NSString *host = url.host;
     if (!host)
     {
-        if (error)
-        {
-            [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
-        }
-        
+        [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         return nil;
     }
     
     NSString *path = url.path;
     if (!path)
     {
-        if (error)
-        {
-            [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
-        }
-        
+        [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         return nil;
     }
     
     NSString *publicKeyModulus = [self.keyPair getKeyModulus:self.keyPair.publicKeyRef];
     if (!publicKeyModulus)
     {
-        if (error)
-        {
-            [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
-        }
-               
+        [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
         return nil;
     }
     
     NSString *publicKeyExponent = [self.keyPair getKeyExponent:self.keyPair.publicKeyRef];
     if (!publicKeyExponent)
     {
-        if (error)
-        {
-            [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
-        }
-                  
+        [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
         return nil;
     }
     

@@ -55,7 +55,7 @@
     return [[MSIDAccessToken alloc] initWithAuthScheme:self];
 }
 
-- (NSString *)getSecret:(NSString *)accessToken
+- (NSString *)getSecret:(NSString *)accessToken error:(__unused NSError *__autoreleasing * _Nullable)error
 {
     return accessToken;
 }

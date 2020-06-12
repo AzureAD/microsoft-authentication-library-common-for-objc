@@ -80,13 +80,15 @@
     return accessToken;
 }
 
-- (NSString *)getSecret:(NSString *)accessToken
+- (NSString *)getSecret:(NSString *)accessToken error:(NSError *__autoreleasing * _Nullable)error
 {
-    return [self.popManager createSignedAccessToken:accessToken
-                                         httpMethod:MSIDHttpMethodFromType(self.httpMethod)
-                                         requestUrl:self.requestUrl.absoluteString
-                                              nonce:self.nonce
-                                              error:nil];
+    NSString *secret = [self.popManager createSignedAccessToken:accessToken
+                                                     httpMethod:MSIDHttpMethodFromType(self.httpMethod)
+                                                     requestUrl:self.requestUrl.absoluteString
+                                                          nonce:self.nonce
+                                                          error:error];
+    
+    return secret;
 }
 
 - (NSString *)getAuthorizationHeader:(NSString *)accessToken
