@@ -1,3 +1,7 @@
+Version 1.5.2
+------
+* Fix handling of certificate based authentication challenge.
+
 Version 1.5.1
 ------
 * Support client side telemetry in ESTS requests (#740, #732, #712)

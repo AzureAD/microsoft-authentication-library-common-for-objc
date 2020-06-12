@@ -28,6 +28,7 @@
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDMainThreadUtil.h"
 #import "MSIDSystemWebviewController.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
 #if !MSID_EXCLUDE_SYSTEMWV
 
@@ -98,12 +99,13 @@ static BOOL s_useAuthSession = NO;
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Received CertAuthChallengehost from : %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
     
     NSURL *requestURL = [currentSession.webviewController startURL];
-    NSString *redirectURI = nil;
-    
+    NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
+    NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
+    NSDictionary *queryItemsDict = [NSDictionary msidDictionaryFromQueryItems:queryItems];
+    NSString *redirectURI = queryItemsDict[MSID_OAUTH2_REDIRECT_URI];
+
     if (s_redirectScheme)
     {
-        NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
-        NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
         NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
         NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", s_redirectScheme];
         
