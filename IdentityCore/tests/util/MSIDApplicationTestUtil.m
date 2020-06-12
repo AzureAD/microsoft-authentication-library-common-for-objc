@@ -61,22 +61,23 @@ static NSArray *s_canOpenURLSchemes = nil;
 #pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
 @implementation UIApplication (TestOverride)
 
-+ (void)load {
++ (void)load
+{
     
     Method openUrlStr = class_getInstanceMethod(UIApplication.class, @selector(openURL:));
-    Method To_openUrlStr = class_getInstanceMethod(UIApplication.class, @selector(TO_openURL:));
-    method_exchangeImplementations(openUrlStr, To_openUrlStr);
+    Method msidOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(msidOpenURL:));
+    method_exchangeImplementations(openUrlStr, msidOpenUrlStr);
     
     Method openUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(openURL:options:completionHandler:));
-    Method To_openUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(TO_openURL:options:completionHandler:));
-    method_exchangeImplementations(openUrlOptionsCompletionHandlerStr, To_openUrlOptionsCompletionHandlerStr);
+    Method msidOpenUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(msidOpenURL:options:completionHandler:));
+    method_exchangeImplementations(openUrlOptionsCompletionHandlerStr, msidOpenUrlOptionsCompletionHandlerStr);
     
     Method canOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(canOpenURL:));
-    Method To_canOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(TO_canOpenURL:));
-    method_exchangeImplementations(canOpenUrlStr, To_canOpenUrlStr);
+    Method msidCanOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(msidCanOpenURL:));
+    method_exchangeImplementations(canOpenUrlStr, msidCanOpenUrlStr);
 }
 
-- (BOOL)TO_openURL:(NSURL *)url
+- (BOOL)msidOpenURL:(NSURL *)url
 {
     if (!s_onOpenUrl)
     {
@@ -86,7 +87,7 @@ static NSArray *s_canOpenURLSchemes = nil;
     return s_onOpenUrl(url, nil);
 }
 
-- (BOOL)TO_canOpenURL:(NSURL *)url
+- (BOOL)msidCanOpenURL:(NSURL *)url
 {
     if (s_canOpenURLSchemes)
     {
@@ -96,7 +97,7 @@ static NSArray *s_canOpenURLSchemes = nil;
     return YES;
 }
 
-- (void)TO_openURL:(NSURL*)url
+- (void)msidOpenURL:(NSURL*)url
         options:(NSDictionary<NSString *, id> *)options
 completionHandler:(void (^ __nullable)(BOOL success))completionHandler
 {
