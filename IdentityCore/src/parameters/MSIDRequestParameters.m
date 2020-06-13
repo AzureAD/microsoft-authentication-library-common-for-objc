@@ -33,6 +33,7 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthenticationSchemeBearer.h"
 
 @implementation MSIDRequestParameters
 
@@ -120,6 +121,8 @@
     _appRequestMetadata = @{MSID_VERSION_KEY: [MSIDVersion sdkVersion],
                             MSID_APP_NAME_KEY: appName ? appName : @"",
                             MSID_APP_VER_KEY: appVer ? appVer : @""};
+    
+    _authScheme = [MSIDAuthenticationSchemeBearer new];
 }
 
 #pragma mark - Helpers

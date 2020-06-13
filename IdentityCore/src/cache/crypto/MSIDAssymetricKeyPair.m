@@ -115,16 +115,24 @@
 - (NSData *)getDataFromKeyRef:(SecKeyRef)keyRef
 {
     CFErrorRef keyExtractionError = NULL;
-    NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
-    
-    if (!keyData)
+    if (@available(macOS 10.12, *))
     {
-        NSError *error = CFBridgingRelease(keyExtractionError);
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
+        NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
+        
+        if (!keyData)
+        {
+            NSError *error = CFBridgingRelease(keyExtractionError);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
+            return nil;
+        }
+        
+        return keyData;
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to extract key data from SecKeyRef due to unsupported platform");
         return nil;
     }
-    
-    return keyData;
 }
 
 - (void)dealloc

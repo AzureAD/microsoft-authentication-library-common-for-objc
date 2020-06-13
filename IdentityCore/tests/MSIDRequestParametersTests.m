@@ -25,6 +25,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDVersion.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAuthenticationSchemeBearer.h"
 
 @interface MSIDRequestParametersTests : XCTestCase
 
@@ -40,6 +41,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationSchemeBearer new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
@@ -72,6 +74,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationSchemeBearer new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
@@ -95,6 +98,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationSchemeBearer new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
@@ -118,6 +122,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationSchemeBearer new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes

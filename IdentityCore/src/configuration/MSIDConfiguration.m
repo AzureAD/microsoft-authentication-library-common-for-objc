@@ -28,6 +28,7 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDProviderType.h"
+#import "MSIDAuthenticationSchemeBearer.h"
 
 NSString *const MSID_REDIRECT_URI_JSON_KEY = @"redirect_uri";
 NSString *const MSID_CLIENT_ID_JSON_KEY = @"client_id";
@@ -75,6 +76,8 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
             _resource = target;
             _scopes = [target msidScopeSet];
         }
+        
+        _authScheme = [MSIDAuthenticationSchemeBearer new];
     }
     
     return self;
@@ -96,6 +99,7 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
         _resource = resource;
         _scopes = scopes;
         _target = _scopes ? [scopes msidToString] : _resource;
+        _authScheme = [MSIDAuthenticationSchemeBearer new];
     }
     
     return self;
