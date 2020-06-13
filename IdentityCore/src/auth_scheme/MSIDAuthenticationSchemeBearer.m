@@ -48,7 +48,7 @@
     return nil;
 }
 
-- (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response
+- (MSIDAccessToken *)getAccessTokenFromResponse:(__unused MSIDTokenResponse *)response
 { 
     return [[MSIDAccessToken alloc] initWithAuthScheme:self];
 }
