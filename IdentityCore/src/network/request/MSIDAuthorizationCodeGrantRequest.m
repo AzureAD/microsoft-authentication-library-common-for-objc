@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDAuthorizationCodeGrantRequest.h"
-#import "MSIDAuthenticationSchemeProtocol.h"
 
 @implementation MSIDAuthorizationCodeGrantRequest
 
@@ -53,12 +52,6 @@
         if (extraParameters)
         {
             [parameters addEntriesFromDictionary:extraParameters];
-        }
-        
-        NSDictionary *authHeaders = [authScheme getAuthHeaders];
-        if ([authHeaders count] > 0)
-        {
-            [parameters addEntriesFromDictionary:authHeaders];
         }
         
         _parameters = parameters;
