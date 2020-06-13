@@ -31,7 +31,7 @@
 #import "MSIDClientInfo.h"
 #import "MSIDDefaultAccountCacheKey.h"
 #import "MSIDDefaultAccountCacheQuery.h"
-#import "MSIDMacKeychainTokenCache.h"
+#import "MSIDMacKeychainTokenCache+Test.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "NSString+MSIDExtensions.h"
@@ -44,6 +44,7 @@
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDMacCredentialStorageItem.h"
 
 @interface MSIDMacKeychainTokenCache (Internal)
 
@@ -425,7 +426,10 @@
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"LoginKeychainEmpty"];
         
         [self multiAccountTestSetup];
-        
+        // remove accounts from memory only
+        for (MSIDDefaultAccountCacheKey *key in @[_keyA, _keyB, _keyC]) {
+            [_dataSource.sharedStorageItem removeStoredItemForKey:key];
+        }
         NSError *error;
         NSArray<MSIDAccountCacheItem *> *foundAccounts = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
         XCTAssertNil(error);
