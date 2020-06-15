@@ -28,10 +28,12 @@
 @end
 
 @interface MSIDLastRequestTelemetry()
+{
+    NSMutableArray<MSIDRequestTelemetryErrorInfo *> *_errorsInfo;
+}
 
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
-@property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
@@ -71,23 +73,21 @@
     if (errorString)
     {
         dispatch_barrier_async(self.synchronizationQueue, ^{
-            NSMutableArray *errorsInfo = self.errorsInfo ? [self.errorsInfo mutableCopy] : [NSMutableArray new];
+            _errorsInfo = [_errorsInfo count] ? _errorsInfo : [NSMutableArray new];
             
             __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
             errorInfo.apiId = apiId;
             errorInfo.error = errorString;
             errorInfo.correlationId = context.correlationId;
             
-            [errorsInfo addObject:errorInfo];
-            
-            self.errorsInfo = errorsInfo;
+            [_errorsInfo addObject:errorInfo];
         });
     }
     else
     {
         dispatch_barrier_async(self.synchronizationQueue, ^{
             self.silentSuccessfulCount = 0;
-            self.errorsInfo = nil;
+            _errorsInfo = nil;
         });
     }
 }
@@ -109,6 +109,15 @@
     });
     
     return result;
+}
+
+- (NSArray<MSIDRequestTelemetryErrorInfo *> *)errorsInfo
+{
+    __block NSArray *errorsInfoCopy;
+    dispatch_sync(self.synchronizationQueue, ^{
+        errorsInfoCopy = [NSArray arrayWithArray:_errorsInfo];
+    });
+    return errorsInfoCopy;
 }
 
 #pragma mark - Private
