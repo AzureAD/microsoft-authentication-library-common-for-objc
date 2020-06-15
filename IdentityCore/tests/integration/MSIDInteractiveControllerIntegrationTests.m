@@ -46,6 +46,7 @@
 #import "MSIDTestURLSession.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
+#import "MSIDAuthenticationSchemeBearer.h"
 
 @interface MSIDInteractiveControllerIntegrationTests : XCTestCase
 
@@ -111,7 +112,8 @@
                                                                    account:account
                                                                  authority:parameters.authority
                                                              correlationId:parameters.correlationId
-                                                             tokenResponse:response];
+                                                             tokenResponse:response
+                                                                authScheme:[MSIDAuthenticationSchemeBearer new]];
 
     return result;
 }

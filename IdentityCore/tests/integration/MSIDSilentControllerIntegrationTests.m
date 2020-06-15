@@ -83,7 +83,8 @@
                                                                    account:account
                                                                  authority:parameters.authority
                                                              correlationId:parameters.correlationId
-                                                             tokenResponse:response];
+                                                             tokenResponse:response
+                                                                authScheme:parameters.authScheme];
 
     return result;
 }

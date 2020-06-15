@@ -28,7 +28,6 @@
 @interface MSIDAccessToken : MSIDBaseToken
 {
     NSString *_accessToken;
-    id<MSIDAuthenticationSchemeProtocol> _authScheme;
     NSString *_tokenType;
 }
 
@@ -50,12 +49,8 @@
 // Unique app identifier used for cases when access token storage needs to be partitioned per application
 @property (readwrite) NSString *applicationIdentifier;
 
-@property id<MSIDAuthenticationSchemeProtocol> authScheme;
-
 - (BOOL)isExpired;
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
 - (BOOL)isExtendedLifetimeValid;
-
-- (instancetype)initWithAuthScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme;
 
 @end

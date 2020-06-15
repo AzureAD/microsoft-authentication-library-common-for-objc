@@ -44,7 +44,7 @@
         parameters[MSID_OAUTH2_CLIENT_ID] = clientId;
         parameters[MSID_OAUTH2_SCOPE] = scope;
         
-        NSDictionary *authHeaders = [authScheme getAuthHeaders];
+        NSDictionary *authHeaders = authScheme.authHeaders;
         if ([authHeaders count] > 0)
         {
             [parameters addEntriesFromDictionary:authHeaders];

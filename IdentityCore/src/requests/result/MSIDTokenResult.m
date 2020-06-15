@@ -25,8 +25,20 @@
 #import "MSIDAccessToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAuthority.h"
+#import "MSIDAuthenticationSchemeBearer.h"
 
 @implementation MSIDTokenResult
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self)
+    {
+        _authScheme = [MSIDAuthenticationSchemeBearer new];
+    }
+    
+    return self;
+}
 
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
                                 refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
@@ -35,6 +47,7 @@
                                    authority:(nonnull MSIDAuthority *)authority
                                correlationId:(nonnull NSUUID *)correlationId
                                tokenResponse:(nullable MSIDTokenResponse *)tokenResponse
+                        authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
 {
     self = [super init];
 
@@ -48,6 +61,7 @@
         _tokenResponse = tokenResponse;
         _account = account;
         _correlationId = correlationId;
+        _authScheme = authScheme;
     }
 
     return self;

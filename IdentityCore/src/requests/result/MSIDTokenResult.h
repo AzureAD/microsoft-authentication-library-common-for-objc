@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDRefreshableToken.h"
+#import "MSIDAuthenticationSchemeProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -68,13 +69,17 @@ NS_ASSUME_NONNULL_BEGIN
 /* Broker app version used for brokered authentication */
 @property (nonatomic, nullable) NSString *brokerAppVersion;
 
+/* Authentication scheme for the requested resource */
+@property (nonatomic, nonnull) id<MSIDAuthenticationSchemeProtocol> authScheme;
+
 - (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
                                 refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
                                      idToken:(nonnull NSString *)rawIdToken
                                      account:(nonnull MSIDAccount *)account
                                    authority:(nonnull MSIDAuthority *)authority
                                correlationId:(nonnull NSUUID *)correlationId
-                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse;
+                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse
+                        authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme;
 
 @end
 

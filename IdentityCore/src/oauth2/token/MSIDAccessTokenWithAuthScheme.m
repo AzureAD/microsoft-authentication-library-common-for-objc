@@ -23,21 +23,11 @@
 
 #import "MSIDAccessTokenWithAuthScheme.h"
 #import "MSIDAuthenticationSchemeProtocol.h"
+#import "MSIDCredentialCacheItem.h"
 
 @implementation MSIDAccessTokenWithAuthScheme
 
 #pragma mark - Token type
-
-- (instancetype)initWithAuthScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
-{
-    self = [super init];
-    if (self)
-    {
-        _authScheme = authScheme;
-    }
-    
-    return self;
-}
 
 - (MSIDCredentialType)credentialType
 {
@@ -122,7 +112,6 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize access token when missing token type field");
             return nil;
         }
-        
     }
     
     return self;

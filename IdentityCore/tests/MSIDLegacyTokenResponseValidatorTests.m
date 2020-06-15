@@ -32,6 +32,7 @@
 #import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAccessToken.h"
+#import "MSIDAuthenticationSchemeBearer.h"
 
 @interface MSIDLegacyTokenResponseValidatorTests : XCTestCase
 
@@ -231,7 +232,8 @@
                                                                    account:account
                                                                  authority:[@"https://login.microsoftonline.com/contoso.com" aadAuthority]
                                                              correlationId:[NSUUID new]
-                                                             tokenResponse:nil];
+                                                             tokenResponse:nil
+                                                                authScheme:[MSIDAuthenticationSchemeBearer new]];
     
     return result;
 }

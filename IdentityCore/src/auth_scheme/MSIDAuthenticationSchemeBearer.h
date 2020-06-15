@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthenticationSchemeBearer : NSObject <MSIDAuthenticationSchemeProtocol>
 
-@property (nonatomic) MSIDAuthScheme scheme;
+@property (nonatomic, readonly) MSIDAuthScheme scheme;
 
 @end
 

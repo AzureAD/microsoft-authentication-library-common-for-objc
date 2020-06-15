@@ -28,23 +28,28 @@
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDCredentialType.h"
 
 @class MSIDAccessToken;
 NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDAuthenticationSchemeProtocol <NSObject>
 
-@property (nonatomic) MSIDAuthScheme scheme;
+@property (nonatomic, readonly) MSIDAuthScheme scheme;
 
-- (NSDictionary *)getAuthHeaders;
+@property (nonatomic, readonly) MSIDCredentialType credentialType;
+
+@property (nonatomic, readonly) NSString *authenticationScheme;
+
+@property (nonatomic, readonly) NSString *tokenType;
+
+@property (nonatomic, readonly) NSDictionary *authHeaders;
 
 - (nullable MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
 
-- (nullable NSString *)getSecret:(NSString *)accessToken error:(NSError *__autoreleasing * _Nullable)error;
+- (nullable NSString *)getSecret:(MSIDAccessToken *)accessToken error:(NSError *__autoreleasing * _Nullable)error;
 
 - (NSString *)getAuthorizationHeader:(NSString *)accessToken;
-
-- (NSString *)getAuthenticationScheme;
 
 @end
 

@@ -43,6 +43,7 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDTestLocalInteractiveController.h"
 #import "MSIDTestIdentifiers.h"
+#import "MSIDAuthenticationSchemeBearer.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -106,7 +107,8 @@
                                                                    account:account
                                                                  authority:parameters.authority
                                                              correlationId:parameters.correlationId
-                                                             tokenResponse:response];
+                                                             tokenResponse:response
+                                                                authScheme:[MSIDAuthenticationSchemeBearer new]];
 
     return result;
 }

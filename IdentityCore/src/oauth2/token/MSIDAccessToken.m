@@ -43,17 +43,6 @@ static NSUInteger s_expirationBuffer = 300;
 
 #pragma mark - NSCopying
 
-- (instancetype)initWithAuthScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
-{
-    self = [super init];
-    if (self)
-    {
-        _authScheme = authScheme;
-    }
-    
-    return self;
-}
-
 - (id)copyWithZone:(NSZone *)zone
 {
     MSIDAccessToken *item = [super copyWithZone:zone];

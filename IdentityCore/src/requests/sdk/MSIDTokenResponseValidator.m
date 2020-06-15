@@ -105,7 +105,8 @@
                                                                    account:account
                                                                  authority:resultAuthority
                                                              correlationId:correlationID
-                                                             tokenResponse:tokenResponse];
+                                                             tokenResponse:tokenResponse
+                                                                authScheme:configuration.authScheme];
     
     return result;
 }

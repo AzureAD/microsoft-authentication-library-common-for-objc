@@ -43,19 +43,19 @@
     return self;
 }
 
-- (NSDictionary *)getAuthHeaders
+- (NSDictionary *)authHeaders
 {
     return nil;
 }
 
 - (MSIDAccessToken *)getAccessTokenFromResponse:(__unused MSIDTokenResponse *)response
 { 
-    return [[MSIDAccessToken alloc] initWithAuthScheme:self];
+    return [MSIDAccessToken new];
 }
 
-- (NSString *)getSecret:(NSString *)accessToken error:(__unused NSError *__autoreleasing * _Nullable)error
+- (NSString *)getSecret:(MSIDAccessToken *)accessToken error:(__unused NSError *__autoreleasing * _Nullable)error
 {
-    return accessToken;
+    return accessToken.accessToken;
 }
 
 - (NSString *)getAuthorizationHeader:(NSString *)accessToken
@@ -63,9 +63,19 @@
     return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemeParamFromType(self.scheme), accessToken];
 }
 
-- (NSString *)getAuthenticationScheme
+- (NSString *)authenticationScheme
 {
     return MSIDAuthSchemeParamFromType(self.scheme);
+}
+
+- (MSIDCredentialType)credentialType
+{
+    return MSIDAccessTokenType;
+}
+
+- (NSString *)tokenType
+{
+    return nil;
 }
 
 @end

@@ -22,15 +22,12 @@
 // THE SOFTWARE.
 
 #import "MSIDAccessToken.h"
-@protocol MSIDAuthenticationSchemeProtocol;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAccessTokenWithAuthScheme : MSIDAccessToken
 
 @property (nonatomic) NSString *kid;
-
-- (instancetype)initWithAuthScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme;
 
 @end
 

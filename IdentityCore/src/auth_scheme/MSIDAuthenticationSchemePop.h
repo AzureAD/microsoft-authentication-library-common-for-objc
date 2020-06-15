@@ -33,10 +33,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthenticationSchemePop : NSObject <MSIDAuthenticationSchemeProtocol>
 
-@property (nonatomic) MSIDAuthScheme scheme;
-@property (nonatomic) MSIDHttpMethod httpMethod;
-@property (nonatomic) NSURL *requestUrl;
-@property (nonatomic, nullable) NSString *nonce;
+@property (nonatomic, readonly) MSIDAuthScheme scheme;
+@property (nonatomic, readonly) MSIDHttpMethod httpMethod;
+@property (nonatomic, readonly) NSURL *requestUrl;
+@property (nonatomic, readonly, nullable) NSString *nonce;
 
 - (instancetype)initWithHttpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl;
 - (instancetype)init NS_UNAVAILABLE;

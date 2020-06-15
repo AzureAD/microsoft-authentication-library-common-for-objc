@@ -55,7 +55,7 @@
     return self;
 }
 
-- (NSDictionary *)getAuthHeaders
+- (NSDictionary *)authHeaders
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
     NSString *requestConf = [self.popManager getRequestConfirmation];
@@ -74,15 +74,15 @@
 
 - (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response
 {
-    MSIDAccessTokenWithAuthScheme *accessToken = [[MSIDAccessTokenWithAuthScheme alloc] initWithAuthScheme:self];
+    MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
     accessToken.tokenType = response.tokenType;
     accessToken.kid = [self.popManager getPublicKeyJWK];
     return accessToken;
 }
 
-- (NSString *)getSecret:(NSString *)accessToken error:(NSError *__autoreleasing * _Nullable)error
+- (NSString *)getSecret:(MSIDAccessToken *)accessToken error:(NSError *__autoreleasing * _Nullable)error
 {
-    NSString *secret = [self.popManager createSignedAccessToken:accessToken
+    NSString *secret = [self.popManager createSignedAccessToken:accessToken.accessToken
                                                      httpMethod:MSIDHttpMethodFromType(self.httpMethod)
                                                      requestUrl:self.requestUrl.absoluteString
                                                           nonce:self.nonce
@@ -96,7 +96,17 @@
     return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemeParamFromType(self.scheme), accessToken];
 }
 
-- (NSString *)getAuthenticationScheme
+- (NSString *)authenticationScheme
+{
+    return MSIDAuthSchemeParamFromType(self.scheme);
+}
+
+- (MSIDCredentialType)credentialType
+{
+    return MSIDAccessTokenWithAuthSchemeType;
+}
+
+- (NSString *)tokenType
 {
     return MSIDAuthSchemeParamFromType(self.scheme);
 }

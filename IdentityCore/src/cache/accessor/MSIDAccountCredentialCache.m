@@ -106,6 +106,7 @@
                                     clientId:cacheQuery.clientId
                                     familyId:cacheQuery.familyId
                                       target:cacheQuery.target
+                              credentialType:cacheQuery.credentialType
                               targetMatching:cacheQuery.targetMatchingOptions
                             clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {

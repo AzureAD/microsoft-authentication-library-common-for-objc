@@ -45,6 +45,7 @@
 #import "MSIDGeneralCacheItemType.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDAuthenticationSchemeProtocol.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -294,8 +295,9 @@
     query.clientId = configuration.clientId;
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
-    query.credentialType = MSIDAccessTokenType;
     query.applicationIdentifier = configuration.applicationIdentifier;
+    query.credentialType = configuration.authScheme.credentialType;
+    query.tokenType = configuration.authScheme.authenticationScheme;
 
     __auto_type accessToken = (MSIDAccessToken *)[self getTokenWithEnvironment:configuration.authority.environment
                                                                     cacheQuery:query
