@@ -174,6 +174,10 @@
 - (void)endWebAuthWithURL:(NSURL *)endURL
                     error:(NSError *)error
 {
+    if (self.complete)
+    {
+        return;
+    }
     self.complete = YES;
     
     if (error)
