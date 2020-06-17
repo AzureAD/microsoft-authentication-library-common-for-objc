@@ -57,9 +57,8 @@
 //                          - lengths larger then 126 are 3 bytes long broken into two parts: [1 prefix byte set to 127][a 2 byte int]
 // More details on the DER ASN.1 encoding can be found at:
 // https://docs.microsoft.com/en-us/windows/win32/seccertenroll/about-sequence
-- (bool)extractRawKeys:(NSString **)modulus
+- (BOOL)extractRawKeys:(NSString **)modulus
               exponent:(NSString **)exponent {
-    // TODO: Code Reviewers: Is there a recommended code pattern for @available for macOS and iOS?
     if (@available(macOS 10.12, *)) {
         CFErrorRef error = nil;
         NSData *publicKey = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(_publicKeyRef, &error));
@@ -135,13 +134,13 @@
     MSIDJsonObject *json = [[MSIDJsonObject alloc] initWithJSONDictionary:stkJwk error:&nsError];
 
     if (nsError) {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to create the stk jwk json: %ld.", nsError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to create the stk jwk json: %ld.", (long)nsError.code);
         return nil;
     }
 
     NSData *serialize = [json serialize:&nsError];
     if (nsError) {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to serialize the stk jwk: %ld.", nsError.code);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to serialize the stk jwk: %ld.", (long)nsError.code);
         return nil;
     }
 
