@@ -21,40 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
+#import <Foundation/Foundation.h>
 
-@protocol MSIDAuthenticationSchemeProtocol;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAccessToken : MSIDBaseToken
-{
-    NSString *_accessToken;
-    NSString *_tokenType;
-    NSString *_kid;
-}
+@interface MSIDCacheConfig : NSObject
 
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
-@property (readwrite) NSDate *cachedAt;
-@property (readwrite) NSString *accessToken;
-@property (readwrite) NSString *tokenType;
+#if TARGET_OS_IPHONE
+@property (nonatomic, readonly, nullable) NSString *keychainGroup;
 
-// v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource;
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup;
+#else
 
-// v2 access tokens are scoped down to resources
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (nonatomic, readonly, nullable) NSString *keychainGroup;
+@property (nonatomic, readonly, nullable) SecAccessRef accessRef;
 
-// Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
-@property (readwrite) NSString *enrollmentId;
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(nullable SecAccessRef)accessRef;
 
-// Unique app identifier used for cases when access token storage needs to be partitioned per application
-@property (readwrite) NSString *applicationIdentifier;
-
-// Public key identifier used to bound the access tokens.
-@property (nonatomic) NSString *kid;
-
-- (BOOL)isExpired;
-- (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
-- (BOOL)isExtendedLifetimeValid;
+#endif
 
 @end
+
+NS_ASSUME_NONNULL_END

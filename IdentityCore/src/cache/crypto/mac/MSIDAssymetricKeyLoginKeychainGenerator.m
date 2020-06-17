@@ -31,9 +31,9 @@
 
 @implementation MSIDAssymetricKeyLoginKeychainGenerator
 
-- (instancetype)initWithAccessRef:(SecAccessRef)accessRef error:(NSError **)error
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(nullable SecAccessRef)accessRef error:(NSError * _Nullable * _Nullable)error
 {
-    self = [super initWithGroup:nil error:error];
+    self = [super initWithGroup:keychainGroup error:error];
     
     if (self)
     {

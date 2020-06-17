@@ -28,35 +28,37 @@
 #import "MSIDMacKeychainTokenCache.h"
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
+#import "MSIDCacheConfig.h"
+
+static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 
 @implementation MSIDAssymetricKeyGeneratorFactory
 
-+ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithError:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
 {
 #if TARGET_OS_IPHONE
-    return [self iOSDefaultKeyGeneratorWithError:error];
+    return [self iOSDefaultKeyGeneratorWithCacheConfig:cacheConfig error:error];
 #else
-    return [self macDefaultKeyGeneratorWithError:error];
+    return [self macDefaultKeyGeneratorWithCacheConfig:cacheConfig error:error];
 #endif
 }
 
-+ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithError:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
 {
-    NSString *keychainGroup = [[MSIDKeychainTokenCache defaultKeychainCache] keychainGroup];
-    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:keychainGroup error:error];
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:cacheConfig.keychainGroup error:error];
 }
 
 #if !TARGET_OS_IPHONE
-+ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithError:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
 {
     if (@available(macOS 10.15, *))
     {
-        NSString *keychainGroup = [[MSIDMacKeychainTokenCache defaultKeychainCache] keychainGroup];
-        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:keychainGroup error:error];
+        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:cacheConfig.keychainGroup error:error];
     }
     else
     {
-        return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithAccessRef:nil error:error];
+        // TODO: create SecAccessRef from trusted apps in cache config and pass accessRef
+        return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithKeychainGroup:cacheConfig.keychainGroup accessRef:cacheConfig.accessRef error:error];
     }
 }
 #endif

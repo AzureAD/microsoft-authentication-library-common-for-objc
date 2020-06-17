@@ -43,24 +43,19 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
 
 @implementation MSIDDevicePopManager
 
-+ (MSIDDevicePopManager *)sharedInstance
-{
-    static dispatch_once_t once;
-    static MSIDDevicePopManager *singleton = nil;
-    
-    dispatch_once(&once, ^{
-        singleton = [[MSIDDevicePopManager alloc] init];
-    });
-    
-    return singleton;
-}
-
--(instancetype)init
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
 {
     self = [super init];
     if (self)
     {
-        _keyGeneratorFactory = [MSIDAssymetricKeyGeneratorFactory defaultKeyGeneratorWithError:nil];
+        NSError *keyGeneratorError = nil;
+        _keyGeneratorFactory = [MSIDAssymetricKeyGeneratorFactory defaultKeyGeneratorWithCacheConfig:cacheConfig error:&keyGeneratorError];
+        
+        if (!_keyGeneratorFactory)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create asymmetric key generator factory %@", keyGeneratorError);
+            return nil;
+        }
         
         NSString *privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
         NSString *publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;

@@ -32,7 +32,7 @@
 
 @implementation MSIDAuthenticationSchemeBearer
 
-- (instancetype)init
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)config
 {
     self = [super init];
     if (self)

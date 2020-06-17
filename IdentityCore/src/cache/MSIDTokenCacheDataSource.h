@@ -33,6 +33,11 @@
 
 @protocol MSIDTokenCacheDataSource <NSObject>
 
+@optional
+@property (readonly) id accessControlForSharedItems;
+@property (readonly) id accessControlForNonSharedItems;
+
+@required
 // Tokens
 - (BOOL)saveToken:(MSIDCredentialCacheItem *)item
               key:(MSIDCacheKey *)key

@@ -24,11 +24,13 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAssymetricKeyGenerating.h"
 
+@class MSIDCacheConfig;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAssymetricKeyGeneratorFactory : NSObject
 
-+ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithError:(NSError **)error;
++ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error;
 
 @end
 

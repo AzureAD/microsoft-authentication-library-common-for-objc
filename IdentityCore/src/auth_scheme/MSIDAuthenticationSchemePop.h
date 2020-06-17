@@ -29,6 +29,7 @@
 #import "MSIDConstants.h"
 #import "MSIDAuthenticationSchemeProtocol.h"
 
+@class MSIDCacheConfig;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthenticationSchemePop : NSObject <MSIDAuthenticationSchemeProtocol>
@@ -38,7 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSURL *requestUrl;
 @property (nonatomic, readonly, nullable) NSString *nonce;
 
-- (instancetype)initWithHttpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl;
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig httpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl;
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

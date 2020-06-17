@@ -31,6 +31,7 @@
 #import "MSIDHttpMethod.h"
 #import "MSIDAccessTokenWithAuthScheme.h"
 #import "MSIDAuthScheme.h"
+#import "NSString+MSIDExtensions.h"
 
 @interface MSIDAuthenticationSchemePop ()
 
@@ -40,7 +41,7 @@
 
 @implementation MSIDAuthenticationSchemePop
 
-- (instancetype)initWithHttpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig httpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl
 {
     self = [super init];
     if (self)
@@ -49,7 +50,7 @@
         _httpMethod = httpMethod;
         _requestUrl = requestUrl;
         _nonce = [[NSUUID UUID] UUIDString];
-        _popManager = [MSIDDevicePopManager sharedInstance];
+        _popManager = [[MSIDDevicePopManager alloc] initWithCacheConfig:cacheConfig];
     }
 
     return self;
@@ -82,6 +83,20 @@
 
 - (NSString *)getSecret:(MSIDAccessToken *)accessToken error:(NSError *__autoreleasing * _Nullable)error
 {
+    NSString *kid = [self.popManager getPublicKeyJWK];
+    
+    if (!kid || !accessToken.kid || ![accessToken.kid isEqualToString:kid])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to match access token key thumbprint with key stored in keychain.");
+        
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to match access token key thumbprint with key stored in keychain.", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
     NSString *secret = [self.popManager createSignedAccessToken:accessToken.accessToken
                                                      httpMethod:MSIDHttpMethodFromType(self.httpMethod)
                                                      requestUrl:self.requestUrl.absoluteString

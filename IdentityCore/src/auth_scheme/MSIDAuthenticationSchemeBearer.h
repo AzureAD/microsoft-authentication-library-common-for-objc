@@ -29,11 +29,14 @@
 #import "MSIDConstants.h"
 #import "MSIDAuthenticationSchemeProtocol.h"
 
+@class MSIDCacheConfig;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthenticationSchemeBearer : NSObject <MSIDAuthenticationSchemeProtocol>
 
 @property (nonatomic, readonly) MSIDAuthScheme scheme;
+
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)config;
 
 @end
 
