@@ -54,7 +54,7 @@
     return nil;
 }
 
-- (nonnull MSIDAccessToken *)getAccessTokenFromResponse:(nonnull MSIDTokenResponse *)response
+- (nonnull MSIDAccessToken *)getAccessTokenFromResponse:(nonnull __unused MSIDTokenResponse *)response
 {
     MSIDAccessToken *accessToken = [MSIDAccessToken new];
     return accessToken;
