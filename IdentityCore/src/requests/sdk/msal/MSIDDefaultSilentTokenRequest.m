@@ -142,8 +142,7 @@
                                                                    account:account
                                                                  authority:self.requestParameters.msidConfiguration.authority
                                                              correlationId:self.requestParameters.correlationId
-                                                             tokenResponse:nil
-                                                      authScheme:self.requestParameters.authScheme];
+                                                             tokenResponse:nil];
 
     return result;
 }

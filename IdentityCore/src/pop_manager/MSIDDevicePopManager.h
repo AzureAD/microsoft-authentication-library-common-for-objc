@@ -24,16 +24,20 @@
 #import <Foundation/Foundation.h>
 
 @class MSIDCacheConfig;
+@class MSIDDefaultTokenCacheAccessor;
+@class MSIDBaseToken;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDevicePopManager : NSObject
 
-- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig;
+@property (nonatomic, readonly) MSIDDefaultTokenCacheAccessor *tokenCache;
 
-- (nullable NSString *)getRequestConfirmation;
+@property (nonatomic, readonly) NSString *requestConfirmation;
 
-- (nullable NSString *)getPublicKeyJWK;
+@property (nonatomic, readonly) NSString *kid;
+
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig cache:(MSIDDefaultTokenCacheAccessor *)tokenCache;
 
 - (nullable NSString *)createSignedAccessToken:(NSString *)accessToken
                            httpMethod:(NSString *)httpMethod

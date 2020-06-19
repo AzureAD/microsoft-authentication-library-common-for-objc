@@ -232,8 +232,7 @@
                                                                    account:account
                                                                  authority:[@"https://login.microsoftonline.com/contoso.com" aadAuthority]
                                                              correlationId:[NSUUID new]
-                                                             tokenResponse:nil
-                                                                authScheme:[MSIDAuthenticationSchemeBearer new]];
+                                                             tokenResponse:nil];
     
     return result;
 }

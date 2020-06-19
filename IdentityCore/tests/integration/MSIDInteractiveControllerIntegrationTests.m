@@ -112,8 +112,7 @@
                                                                    account:account
                                                                  authority:parameters.authority
                                                              correlationId:parameters.correlationId
-                                                             tokenResponse:response
-                                                                authScheme:[MSIDAuthenticationSchemeBearer new]];
+                                                             tokenResponse:response];
 
     return result;
 }

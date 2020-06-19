@@ -33,87 +33,58 @@
 #import "MSIDAuthScheme.h"
 #import "NSString+MSIDExtensions.h"
 
-@interface MSIDAuthenticationSchemePop ()
+@interface MSIDAuthenticationSchemePop()
 
-@property (nonatomic) MSIDDevicePopManager *popManager;
+@property (nonatomic) NSString *kid;
 
 @end
 
+
 @implementation MSIDAuthenticationSchemePop
 
-- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig httpMethod:(MSIDHttpMethod)httpMethod requestUrl:(NSURL *)requestUrl
+- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
 {
     self = [super init];
     if (self)
     {
         _scheme = MSIDAuthSchemePop;
-        _httpMethod = httpMethod;
-        _requestUrl = requestUrl;
-        _nonce = [[NSUUID UUID] UUIDString];
-        _popManager = [[MSIDDevicePopManager alloc] initWithCacheConfig:cacheConfig];
+        _schemeParameters = schemeParameters;
     }
 
     return self;
 }
 
-- (NSDictionary *)authHeaders
+- (NSString *)kid
 {
-    NSMutableDictionary *headers = [NSMutableDictionary new];
-    NSString *requestConf = [self.popManager getRequestConfirmation];
-    if (requestConf)
+    if (!_kid)
     {
-        [headers setObject:MSIDAuthSchemeParamFromType(self.scheme) forKey:MSID_OAUTH2_TOKEN_TYPE];
-        [headers setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
-    }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to append public key jwk to request headers.");
+        NSString *requestConf = [self.schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
+        if (!requestConf)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf from scheme parameters.");
+        }
+        
+        NSString *kidJwk = [requestConf msidBase64UrlDecode];
+        NSData *kidData = [kidJwk dataUsingEncoding:NSUTF8StringEncoding];
+        
+        NSError *kidReadingError = nil;
+        NSDictionary *kidDict = [NSJSONSerialization JSONObjectWithData:kidData options:0 error:&kidReadingError];
+        _kid = [kidDict objectForKey:MSID_KID_CACHE_KEY];
+        if (!_kid)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to generate kid from req_cnf, error: %@", MSID_PII_LOG_MASKABLE(kidReadingError));
+        }
     }
     
-    return headers;
+    return _kid;
 }
 
 - (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response
 {
     MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
     accessToken.tokenType = response.tokenType;
-    accessToken.kid = [self.popManager getPublicKeyJWK];
+    accessToken.kid = self.kid;
     return accessToken;
-}
-
-- (NSString *)getSecret:(MSIDAccessToken *)accessToken error:(NSError *__autoreleasing * _Nullable)error
-{
-    NSString *kid = [self.popManager getPublicKeyJWK];
-    
-    if (!kid || !accessToken.kid || ![accessToken.kid isEqualToString:kid])
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to match access token key thumbprint with key stored in keychain.");
-        
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to match access token key thumbprint with key stored in keychain.", nil, nil, nil, nil, nil, YES);
-        }
-        
-        return nil;
-    }
-    
-    NSString *secret = [self.popManager createSignedAccessToken:accessToken.accessToken
-                                                     httpMethod:MSIDHttpMethodFromType(self.httpMethod)
-                                                     requestUrl:self.requestUrl.absoluteString
-                                                          nonce:self.nonce
-                                                          error:error];
-    
-    return secret;
-}
-
-- (NSString *)getAuthorizationHeader:(NSString *)accessToken
-{
-    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemeParamFromType(self.scheme), accessToken];
-}
-
-- (NSString *)authenticationScheme
-{
-    return MSIDAuthSchemeParamFromType(self.scheme);
 }
 
 - (MSIDCredentialType)credentialType

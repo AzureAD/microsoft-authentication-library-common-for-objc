@@ -81,8 +81,7 @@
                                                                    account:account
                                                                  authority:authority
                                                              correlationId:correlationID
-                                                             tokenResponse:response
-                                                                authScheme:configuration.authScheme];
+                                                             tokenResponse:response];
     NSError *error;
     
     [self.validator validateTokenResult:result
@@ -120,8 +119,7 @@
                                                                    account:account
                                                                  authority:authority
                                                              correlationId:correlationID
-                                                             tokenResponse:response
-                                                                authScheme:configuration.authScheme];
+                                                             tokenResponse:response];
 
     NSError *error;
     
@@ -155,8 +153,7 @@
                                                                    account:account
                                                                  authority:authority
                                                              correlationId:correlationID
-                                                             tokenResponse:response
-                                                                authScheme:configuration.authScheme];
+                                                             tokenResponse:response];
     
     NSError *error;
     
@@ -189,8 +186,7 @@
                                                                    account:account
                                                                  authority:authority
                                                              correlationId:correlationID
-                                                             tokenResponse:response
-                                                                authScheme:configuration.authScheme];
+                                                             tokenResponse:response];
     
     NSError *error;
     

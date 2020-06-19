@@ -297,7 +297,7 @@
     query.targetMatchingOptions = MSIDSubSet;
     query.applicationIdentifier = configuration.applicationIdentifier;
     query.credentialType = configuration.authScheme.credentialType;
-    query.tokenType = configuration.authScheme.authenticationScheme;
+    query.tokenType = configuration.authScheme.tokenType;
 
     __auto_type accessToken = (MSIDAccessToken *)[self getTokenWithEnvironment:configuration.authority.environment
                                                                     cacheQuery:query

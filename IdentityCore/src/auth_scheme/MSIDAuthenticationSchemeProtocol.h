@@ -39,17 +39,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) MSIDCredentialType credentialType;
 
-@property (nonatomic, readonly) NSString *authenticationScheme;
-
 @property (nonatomic, readonly) NSString *tokenType;
 
-@property (nonatomic, readonly) NSDictionary *authHeaders;
+@property (nonatomic, readonly) NSDictionary *schemeParameters;
 
-- (nullable MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
-
-- (nullable NSString *)getSecret:(MSIDAccessToken *)accessToken error:(NSError *__autoreleasing * _Nullable)error;
-
-- (NSString *)getAuthorizationHeader:(NSString *)accessToken;
+- (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
 
 @end
 

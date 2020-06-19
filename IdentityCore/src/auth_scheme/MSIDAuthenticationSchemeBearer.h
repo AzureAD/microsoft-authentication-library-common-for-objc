@@ -35,8 +35,9 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAuthenticationSchemeBearer : NSObject <MSIDAuthenticationSchemeProtocol>
 
 @property (nonatomic, readonly) MSIDAuthScheme scheme;
+@property (nonatomic, readonly) NSDictionary *schemeParameters;
 
-- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)config;
+- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters;
 
 @end
 

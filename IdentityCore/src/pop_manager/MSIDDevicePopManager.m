@@ -28,81 +28,97 @@
 #import "MSIDAssymetricKeyGeneratorFactory.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 static NSString *jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
 static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
 
 @interface MSIDDevicePopManager()
 
-@property id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
-@property MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
-@property MSIDAssymetricKeyPair *keyPair;
-@property NSData *publicKeyData;
+@property (nonatomic) MSIDCacheConfig *cacheConfig;
+@property (nonatomic) MSIDDefaultTokenCacheAccessor *tokenCache;
+@property (nonatomic) id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
+@property (nonatomic) MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
+@property (nonatomic) MSIDAssymetricKeyPair *keyPair;
+@property (nonatomic) NSString *requestConfirmation;
+@property (nonatomic) NSString *kid;
 
 @end
 
 @implementation MSIDDevicePopManager
 
-- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig cache:(MSIDDefaultTokenCacheAccessor *)tokenCache
 {
     self = [super init];
     if (self)
     {
-        NSError *keyGeneratorError = nil;
-        _keyGeneratorFactory = [MSIDAssymetricKeyGeneratorFactory defaultKeyGeneratorWithCacheConfig:cacheConfig error:&keyGeneratorError];
-        
-        if (!_keyGeneratorFactory)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create asymmetric key generator factory %@", keyGeneratorError);
-            return nil;
-        }
-        
-        NSString *privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
-        NSString *publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;
-        
-        MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
-        attr.privateKeyIdentifier = privateKeyIdentifier;
-        attr.publicKeyIdentifier = publicKeyIdentifier;
-        
-        NSError *localError = nil;
-        _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:attr error:&localError];
-        
-        if (!_keyPair)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to generate asymmetric key pair %@", localError);
-            return nil;
-        }
-        
-        _publicKeyData = [_keyPair getDataFromKeyRef:_keyPair.publicKeyRef];
-        
-        if (!_publicKeyData)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read public key data");
-            return nil;
-        }
+        _cacheConfig = cacheConfig;
+        _tokenCache = tokenCache;
     }
     
     return self;
 }
 
-
-- (NSString *)getPublicKeyJWK
+ - (id<MSIDAssymetricKeyGenerating>)keyGeneratorFactory
 {
-    NSString* jwk = [NSString stringWithFormat:jwkTemplate,
-                     [self.keyPair getKeyExponent:self.keyPair.publicKeyRef],
-                     [self.keyPair getKeyModulus:self.keyPair.publicKeyRef]];
+    if (!_keyGeneratorFactory)
+    {
+        _keyGeneratorFactory = [MSIDAssymetricKeyGeneratorFactory defaultKeyGeneratorWithCacheConfig:self.cacheConfig error:nil];
+    }
     
-    NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *hashedData = [jwkData msidSHA256];
-    NSString *base64EncodedJWK = [hashedData msidBase64UrlEncodedString];
-    return base64EncodedJWK;
+    return _keyGeneratorFactory;
 }
 
-- (NSString *)getRequestConfirmation
+ - (MSIDAssymetricKeyLookupAttributes *)keyPairAttributes
 {
-    NSString *kid = [NSString stringWithFormat:kidTemplate, [self getPublicKeyJWK]];
-    NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
-    return [kidData msidBase64UrlEncodedString];
+    if (!_keyPairAttributes)
+    {
+        _keyPairAttributes = [MSIDAssymetricKeyLookupAttributes new];
+        NSString *privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
+        NSString *publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;
+        _keyPairAttributes.privateKeyIdentifier = privateKeyIdentifier;
+        _keyPairAttributes.publicKeyIdentifier = publicKeyIdentifier;
+    }
+    
+    return _keyPairAttributes;
+}
+
+ - (MSIDAssymetricKeyPair *)keyPair
+{
+    if (!_keyPair)
+    {
+        _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:self.keyPairAttributes error:nil];
+    }
+    
+    return _keyPair;
+}
+
+- (NSString *)requestConfirmation
+{
+    if (!_requestConfirmation)
+    {
+        NSString *kid = [NSString stringWithFormat:kidTemplate, self.kid];
+        NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
+        _requestConfirmation = [kidData msidBase64UrlEncodedString];
+    }
+    
+    return _requestConfirmation;
+}
+
+- (NSString *)kid
+{
+    if (!_kid)
+    {
+        NSString* jwk = [NSString stringWithFormat:jwkTemplate,
+                         [self.keyPair getKeyExponent:self.keyPair.publicKeyRef],
+                         [self.keyPair getKeyModulus:self.keyPair.publicKeyRef]];
+        
+        NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *hashedData = [jwkData msidSHA256];
+        _kid = [hashedData msidBase64UrlEncodedString];
+    }
+
+    return _kid;
 }
 
 - (NSString *)createSignedAccessToken:(NSString *)accessToken
@@ -111,7 +127,7 @@ static NSString *kidTemplate = @"{\"kid\":\"%@\"}";
                                 nonce:(NSString *)nonce
                                 error:(NSError *__autoreleasing * _Nullable)error
 {
-    NSString *kid = [self getPublicKeyJWK];
+    NSString *kid = self.kid;
     
     if (!kid)
     {

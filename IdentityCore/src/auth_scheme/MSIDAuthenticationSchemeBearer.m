@@ -32,40 +32,16 @@
 
 @implementation MSIDAuthenticationSchemeBearer
 
-- (instancetype)initWithCacheConfig:(__unused MSIDCacheConfig *)config
+- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
 {
     self = [super init];
     if (self)
     {
         _scheme = MSIDAuthSchemeBearer;
+        _schemeParameters = schemeParameters;
     }
     
     return self;
-}
-
-- (NSDictionary *)authHeaders
-{
-    return nil;
-}
-
-- (MSIDAccessToken *)getAccessTokenFromResponse:(__unused MSIDTokenResponse *)response
-{ 
-    return [MSIDAccessToken new];
-}
-
-- (NSString *)getSecret:(MSIDAccessToken *)accessToken error:(__unused NSError *__autoreleasing * _Nullable)error
-{
-    return accessToken.accessToken;
-}
-
-- (NSString *)getAuthorizationHeader:(NSString *)accessToken
-{
-    return [NSString stringWithFormat:@"%@ %@", MSIDAuthSchemeParamFromType(self.scheme), accessToken];
-}
-
-- (NSString *)authenticationScheme
-{
-    return MSIDAuthSchemeParamFromType(self.scheme);
 }
 
 - (MSIDCredentialType)credentialType
@@ -76,6 +52,12 @@
 - (NSString *)tokenType
 {
     return nil;
+}
+
+- (nonnull MSIDAccessToken *)getAccessTokenFromResponse:(nonnull MSIDTokenResponse *)response
+{
+    MSIDAccessToken *accessToken = [MSIDAccessToken new];
+    return accessToken;
 }
 
 @end
