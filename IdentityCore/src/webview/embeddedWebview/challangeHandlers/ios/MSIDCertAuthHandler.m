@@ -106,8 +106,6 @@ static BOOL s_useAuthSession = NO;
 
     if (s_redirectScheme)
     {
-        NSURLComponents *requestURLComponents = [NSURLComponents componentsWithURL:requestURL resolvingAgainstBaseURL:NO];
-        NSArray<NSURLQueryItem *> *queryItems = [requestURLComponents queryItems];
         NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
         NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", s_redirectScheme];
         

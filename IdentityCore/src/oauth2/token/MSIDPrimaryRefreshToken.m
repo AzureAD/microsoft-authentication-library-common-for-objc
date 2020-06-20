@@ -36,15 +36,21 @@
     
     if (self)
     {
-        _sessionKey = [NSData msidDataFromBase64UrlEncodedString:tokenCacheItem.jsonDictionary[MSID_SESSION_KEY_CACHE_KEY]];
+        NSDictionary *jsonDictionary = tokenCacheItem.jsonDictionary;
         
-        _deviceID = [tokenCacheItem.jsonDictionary msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
+        _sessionKey = [NSData msidDataFromBase64UrlEncodedString:jsonDictionary[MSID_SESSION_KEY_CACHE_KEY]];
+        
+        _deviceID = [jsonDictionary msidObjectForKey:MSID_DEVICE_ID_CACHE_KEY ofClass:[NSString class]];
         
         if (!_sessionKey)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize primary refresh token when missing session key field");
             return nil;
         }
+        
+        _prtProtocolVersion = [jsonDictionary msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
+        _expiresOn = tokenCacheItem.expiresOn;
+        _cachedAt = tokenCacheItem.cachedAt;
     }
     
     return self;
@@ -61,6 +67,9 @@
     prtCacheItem.sessionKey = self.sessionKey;
     prtCacheItem.credentialType = MSIDPrimaryRefreshTokenType;
     prtCacheItem.deviceID = self.deviceID;
+    prtCacheItem.prtProtocolVersion = self.prtProtocolVersion;
+    prtCacheItem.expiresOn = self.expiresOn;
+    prtCacheItem.cachedAt = self.cachedAt;
     return prtCacheItem;
 }
 
@@ -117,6 +126,7 @@
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.sessionKey.hash;
     hash = hash * 31 + self.deviceID.hash;
+    hash = hash * 31 + self.prtProtocolVersion.hash;
     return hash;
 }
 
@@ -130,6 +140,7 @@
     BOOL result = [super isEqualToItem:token];
     result &= (!self.sessionKey && !token.sessionKey) || [self.sessionKey isEqualToData:token.sessionKey];
     result &= (!self.deviceID && !token.deviceID) || [self.deviceID isEqualToString:token.deviceID];
+    result &= (!self.prtProtocolVersion && !token.prtProtocolVersion) || [self.prtProtocolVersion isEqualToString:token.prtProtocolVersion];
     return result;
 }
 
@@ -140,6 +151,9 @@
     MSIDPrimaryRefreshToken *item = [super copyWithZone:zone];
     item->_sessionKey = [_sessionKey copyWithZone:zone];
     item->_deviceID = [_deviceID copyWithZone:zone];
+    item->_prtProtocolVersion = [_prtProtocolVersion copyWithZone:zone];
+    item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_cachedAt = [_cachedAt copyWithZone:zone];
     return item;
 }
 
@@ -156,6 +170,33 @@
 {
     NSString *baseDescription = [super description];
     return [baseDescription stringByAppendingFormat:@"(primary refresh token=%@)", [_refreshToken msidSecretLoggingHash]];
+}
+
+#pragma mark - Utils
+
+ - (BOOL)isDevicelessPRT
+{
+    CGFloat prtVersion = [self.prtProtocolVersion floatValue];
+    return prtVersion >= 3.0 && [NSString msidIsStringNilOrBlank:self.deviceID];
+}
+
+- (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval
+{
+    if (!self.expiresOn)
+    {
+        return YES;
+    }
+    
+    NSDate *nowPlusBuffer = [NSDate dateWithTimeIntervalSinceNow:refreshInterval];
+    BOOL isCloseToExpiry = [self.expiresOn compare:nowPlusBuffer] == NSOrderedAscending;
+    
+    if (isCloseToExpiry)
+    {
+        return YES;
+    }
+    
+    BOOL shouldRefresh = [[NSDate date] timeIntervalSinceDate:self.cachedAt] >= refreshInterval;
+    return shouldRefresh;
 }
 
 @end

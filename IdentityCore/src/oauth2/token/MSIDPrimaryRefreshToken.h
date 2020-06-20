@@ -30,5 +30,11 @@
 
 @property (nonatomic) NSData *sessionKey;
 @property (nonatomic) NSString *deviceID;
+@property (nonatomic) NSString *prtProtocolVersion;
+@property (nonatomic) NSDate *expiresOn;
+@property (nonatomic) NSDate *cachedAt;
+ 
+- (BOOL)isDevicelessPRT;
+- (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;
 
 @end
