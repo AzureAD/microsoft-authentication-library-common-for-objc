@@ -176,6 +176,7 @@
 {
     if (self.complete)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"endWebAuthWithURL called for a second time, disregarding");
         return;
     }
     self.complete = YES;
