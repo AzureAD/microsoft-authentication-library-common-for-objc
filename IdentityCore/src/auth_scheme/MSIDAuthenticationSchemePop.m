@@ -28,7 +28,6 @@
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDDevicePopManager.h"
 #import "MSIDOAuth2Constants.h"
-#import "MSIDHttpMethod.h"
 #import "MSIDAccessTokenWithAuthScheme.h"
 #import "MSIDAuthScheme.h"
 #import "NSString+MSIDExtensions.h"

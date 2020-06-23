@@ -37,9 +37,6 @@
 		1E36589C247EF3260044A072 /* MSIDAuthenticationSchemePop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E36589A247EF3260044A072 /* MSIDAuthenticationSchemePop.m */; };
 		1E36589D247EF3260044A072 /* MSIDAuthenticationSchemePop.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E36589A247EF3260044A072 /* MSIDAuthenticationSchemePop.m */; };
 		1E36589F247EF7A20044A072 /* MSIDAuthenticationSchemeProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E36589E247EF7A20044A072 /* MSIDAuthenticationSchemeProtocol.h */; };
-		1E3658A2247F235A0044A072 /* MSIDHttpMethod.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E3658A0247F235A0044A072 /* MSIDHttpMethod.h */; };
-		1E3658A3247F235A0044A072 /* MSIDHttpMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3658A1247F235A0044A072 /* MSIDHttpMethod.m */; };
-		1E3658A4247F235A0044A072 /* MSIDHttpMethod.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3658A1247F235A0044A072 /* MSIDHttpMethod.m */; };
 		1E3C0ED5217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C0ED4217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m */; };
 		1E3C0ED6217FE2BB0022D61D /* MSIDAppMetadataCacheQuery.h in Headers */ = {isa = PBXBuildFile; fileRef = 1E3C0ED3217FE2A70022D61D /* MSIDAppMetadataCacheQuery.h */; };
 		1E3C0ED7217FE2BF0022D61D /* MSIDAppMetadataCacheQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 1E3C0ED4217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m */; };
@@ -1633,8 +1630,6 @@
 		1E365899247EF3260044A072 /* MSIDAuthenticationSchemePop.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthenticationSchemePop.h; sourceTree = "<group>"; };
 		1E36589A247EF3260044A072 /* MSIDAuthenticationSchemePop.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthenticationSchemePop.m; sourceTree = "<group>"; };
 		1E36589E247EF7A20044A072 /* MSIDAuthenticationSchemeProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAuthenticationSchemeProtocol.h; sourceTree = "<group>"; };
-		1E3658A0247F235A0044A072 /* MSIDHttpMethod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDHttpMethod.h; sourceTree = "<group>"; };
-		1E3658A1247F235A0044A072 /* MSIDHttpMethod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDHttpMethod.m; sourceTree = "<group>"; };
 		1E3C0ED3217FE2A70022D61D /* MSIDAppMetadataCacheQuery.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAppMetadataCacheQuery.h; sourceTree = "<group>"; };
 		1E3C0ED4217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppMetadataCacheQuery.m; sourceTree = "<group>"; };
 		1E4252342187DA0D00C149E9 /* MSIDAppMetadataCacheQueryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAppMetadataCacheQueryTests.m; sourceTree = "<group>"; };
@@ -4425,8 +4420,6 @@
 				23AD4A31237E298C0094B87E /* NSBundle+MSIDExtensions.m */,
 				1E74094624197E8900133EF7 /* NSDictionary+MSIDLogging.h */,
 				1E74094724197E8900133EF7 /* NSDictionary+MSIDLogging.m */,
-				1E3658A0247F235A0044A072 /* MSIDHttpMethod.h */,
-				1E3658A1247F235A0044A072 /* MSIDHttpMethod.m */,
 				1E00D27F248F27ED006E4BAE /* MSIDAuthScheme.h */,
 				1E00D280248F27ED006E4BAE /* MSIDAuthScheme.m */,
 			);
@@ -5055,7 +5048,6 @@
 				235480CD20DDF81000246F72 /* MSIDAADTenant.h in Headers */,
 				B26A0B822071B6CC006BD95A /* MSIDAADOauth2Factory.h in Headers */,
 				B2DD4B2620A7D67C0047A66E /* MSIDLegacyRefreshToken.h in Headers */,
-				1E3658A2247F235A0044A072 /* MSIDHttpMethod.h in Headers */,
 				B2C707F32192524700D917B8 /* MSIDDefaultTokenRequestProvider.h in Headers */,
 				B286B9772389CE67007833AD /* MSIDWebOAuth2Response.h in Headers */,
 				2392229D2432A65F009736C4 /* NSError+MSIDServerTelemetryError.h in Headers */,
@@ -6012,7 +6004,6 @@
 				B2AF1D42218BD10A0080C1A0 /* MSIDRequestParameters.m in Sources */,
 				04D32CB31FD62141000B123E /* MSIDError.m in Sources */,
 				05566D112204BB8A002DBA40 /* MSIDMacKeychainTokenCache.m in Sources */,
-				1E3658A4247F235A0044A072 /* MSIDHttpMethod.m in Sources */,
 				23D2049021D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.m in Sources */,
 				B286B9582385F01A007833AD /* MSIDOIDCSignoutRequest.m in Sources */,
 				238A62102384CDB900D5B141 /* MSIDBrokerConstants.m in Sources */,
@@ -6537,7 +6528,6 @@
 				B2BA498C208EC38100CE92FC /* MSIDAADIdTokenClaimsFactory.m in Sources */,
 				B25D495E21B3649500502BE5 /* MSIDPromptType.m in Sources */,
 				B26A0B8D2071B763006BD95A /* MSIDAADV1Oauth2Factory.m in Sources */,
-				1E3658A3247F235A0044A072 /* MSIDHttpMethod.m in Sources */,
 				23B39A8720993572000AA905 /* MSIDAADAuthorityMetadataRequest.m in Sources */,
 				23BDA67A1FCE693800FE14BE /* MSIDKeychainUtil.m in Sources */,
 				23AB37EA235151E5003A6E6C /* ASAuthorizationSingleSignOnProvider+MSIDExtensions.m in Sources */,
