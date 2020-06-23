@@ -37,6 +37,9 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
 
 @property (nonatomic) MSIDCacheConfig *cacheConfig;
 @property (nonatomic) id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
+@property (nonatomic) NSString *requestConfirmation;
+@property (nonatomic) NSString *kid;
+@property (nonatomic) MSIDAssymetricKeyPair *keyPair;
 
 @end
 
@@ -70,49 +73,51 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
 
  - (MSIDAssymetricKeyPair *)keyPair
 {
-    /*
-     Lazy loading cannot be used here as in memory key pair may become invalid or corrupted in the case
-     where asymmetric key gets deleted from persistence keychain layer.
-     */
-    NSError *keyPairError = nil;
-    MSIDAssymetricKeyPair *currentKeyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:s_keyLookUpAttributes error:&keyPairError];
-    if (!currentKeyPair)
+    if (!_keyPair)
     {
-         MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to generate key pair, error: %@", MSID_PII_LOG_MASKABLE(keyPairError));
+        NSError *keyPairError = nil;
+        _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:s_keyLookUpAttributes error:&keyPairError];
+        if (!_keyPair)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to generate key pair, error: %@", MSID_PII_LOG_MASKABLE(keyPairError));
+        }
     }
     
-    return currentKeyPair;
+    return _keyPair;
 }
 
 - (NSString *)requestConfirmation
 {
-    NSString *kid = [NSString stringWithFormat:s_kidTemplate, self.kid];
-    if (!kid)
+    if (!_requestConfirmation)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to create request confirmation.");
-        return nil;
+        NSString *kid = [NSString stringWithFormat:s_kidTemplate, self.kid];
+        if (!_kid)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to create req_cnf from kid");
+            return nil;
+        }
+        
+        NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
+        _requestConfirmation = [kidData msidBase64UrlEncodedString];
     }
     
-    NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
-    return [kidData msidBase64UrlEncodedString];
+    return _requestConfirmation;
 }
 
 - (NSString *)kid
 {
-    MSIDAssymetricKeyPair *currentKeyPair = self.keyPair;
-    if (!currentKeyPair)
+    if (!_kid)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to create kid.");
-        return nil;
+        NSString* jwk = [NSString stringWithFormat:s_jwkTemplate,
+                         [self.keyPair getKeyExponent:self.keyPair.publicKeyRef],
+                         [self.keyPair getKeyModulus:self.keyPair.publicKeyRef]];
+            
+        NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *hashedData = [jwkData msidSHA256];
+        _kid = [hashedData msidBase64UrlEncodedString];
     }
     
-    NSString* jwk = [NSString stringWithFormat:s_jwkTemplate,
-                    [currentKeyPair getKeyExponent:currentKeyPair.publicKeyRef],
-                    [currentKeyPair getKeyModulus:currentKeyPair.publicKeyRef]];
-        
-    NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *hashedData = [jwkData msidSHA256];
-    return [hashedData msidBase64UrlEncodedString];
+    return _kid;
 }
 
 - (NSString *)createSignedAccessToken:(NSString *)accessToken
@@ -122,12 +127,6 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
                                 error:(NSError *__autoreleasing * _Nullable)error
 {
     NSString *kid = self.kid;
-    MSIDAssymetricKeyPair *currentKeyPair = self.keyPair;
-    if (!currentKeyPair)
-    {
-        [self logAndFillError:@"Failed to create signed access token, unable to read key pair from cache." error:error];
-        return nil;
-    }
     
     if (!kid)
     {
@@ -156,14 +155,14 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
         return nil;
     }
     
-    NSString *publicKeyModulus = [currentKeyPair getKeyModulus:currentKeyPair.publicKeyRef];
+    NSString *publicKeyModulus = [self.keyPair getKeyModulus:self.keyPair.publicKeyRef];
     if (!publicKeyModulus)
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
         return nil;
     }
     
-    NSString *publicKeyExponent = [currentKeyPair getKeyExponent:currentKeyPair.publicKeyRef];
+    NSString *publicKeyExponent = [self.keyPair getKeyExponent:self.keyPair.publicKeyRef];
     if (!publicKeyExponent)
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
@@ -192,7 +191,7 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
                               @"nonce" : nonce,
                               };
     
-    SecKeyRef privateKeyRef = currentKeyPair.privateKeyRef;
+    SecKeyRef privateKeyRef = self.keyPair.privateKeyRef;
     NSString *signedJwtHeader = [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:privateKeyRef];
     return signedJwtHeader;
 }

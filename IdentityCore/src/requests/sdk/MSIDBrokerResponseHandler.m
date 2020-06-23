@@ -281,7 +281,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(__unused NSDictionary *)encryptedParams
                                                      oidcScope:(__unused NSString *)oidcScope
                                                  correlationId:(__unused NSUUID *)correlationID
-                                                    authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                                    authScheme:(__unused id<MSIDAuthenticationSchemeProtocol>)authScheme
                                                          error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
