@@ -60,7 +60,7 @@
     return accessToken;
 }
 
-- (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken
+- (BOOL)matchAccessTokenKeyThumbprint:(__unused MSIDAccessToken *)accessToken
 {
     return YES;
 }

@@ -125,6 +125,7 @@
         }
 
         BOOL enrollmentIdMatch = YES;
+        BOOL accessTokenKeyThumbprintMatch = YES;
         
         // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
         // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
@@ -149,7 +150,10 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id match result = %@, access token's enrollment id : %@, cached enrollment id: %@, ", enrollmentIdMatch ? @"True" : @"False", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
         }
         
-        BOOL accessTokenKeyThumbprintMatch = [self.requestParameters.authScheme matchAccessTokenKeyThumbprint:accessToken];
+        if (accessToken && ![NSString msidIsStringNilOrBlank:accessToken.kid])
+        {
+            accessTokenKeyThumbprintMatch = [self.requestParameters.authScheme matchAccessTokenKeyThumbprint:accessToken];
+        }
         
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
