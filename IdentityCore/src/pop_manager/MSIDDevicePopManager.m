@@ -86,6 +86,13 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
     return _keyPair;
 }
 
+/// <summary>
+/// Example JWK Thumbprint Computation
+/// </summary>
+/// <remarks>
+/// This SDK will use RFC7638
+/// See https://tools.ietf.org/html/rfc7638 Section3.1
+/// </remarks>
 - (NSString *)requestConfirmation
 {
     if (!_requestConfirmation)
