@@ -65,6 +65,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
+                                                    authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                                                          error:(NSError **)error
 {
     NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams
@@ -105,6 +106,7 @@
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
                                                                         saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                                              authScheme:authScheme
                                                                                    error:&additionalTokensError];
             }
         }

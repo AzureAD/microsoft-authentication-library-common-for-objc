@@ -60,4 +60,9 @@
     return accessToken;
 }
 
+- (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken
+{
+    return YES;
+}
+
 @end

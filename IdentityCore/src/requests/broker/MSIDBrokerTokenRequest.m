@@ -32,6 +32,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDAuthenticationSchemeProtocol.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
@@ -148,7 +149,10 @@
     NSString *claimsString = [self claimsParameter];
     NSString *clientAppName = clientMetadata[MSID_APP_NAME_KEY];
     NSString *clientAppVersion = clientMetadata[MSID_APP_VER_KEY];
-
+    NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
+    NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
+    NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    
     NSMutableDictionary *queryDictionary = [NSMutableDictionary new];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.authority.url.absoluteString forKey:@"authority"];
     [queryDictionary msidSetNonEmptyString:self.requestParameters.clientId forKey:@"client_id"];
@@ -166,6 +170,8 @@
     [queryDictionary msidSetNonEmptyString:clientAppName forKey:@"client_app_name"];
     [queryDictionary msidSetNonEmptyString:clientAppVersion forKey:@"client_app_version"];
     [queryDictionary msidSetNonEmptyString:self.brokerApplicationToken forKey:@"application_token"];
+    [queryDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [queryDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     
     if ([self.sdkBrokerCapabilities count])
     {
@@ -187,6 +193,11 @@
     [resumeDictionary msidSetNonEmptyString:self.requestParameters.keychainAccessGroup ?: MSIDKeychainTokenCache.defaultKeychainGroup forKey:@"keychain_group"];
     [resumeDictionary msidSetNonEmptyString:self.brokerNonce forKey:@"broker_nonce"];
 #endif
+    NSDictionary *schemeParameters = self.requestParameters.authScheme.schemeParameters;
+    NSString *tokenType = schemeParameters[MSID_OAUTH2_TOKEN_TYPE];
+    NSString *requestConf = schemeParameters[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [resumeDictionary msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [resumeDictionary msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
     
     return resumeDictionary;
 }

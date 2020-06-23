@@ -90,7 +90,6 @@
                 clientId:(nullable NSString *)clientId
                 familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
-          credentialType:(MSIDCredentialType)credentialType
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions;
 

@@ -32,7 +32,7 @@ typedef NS_ENUM(NSInteger, MSIDCredentialType)
     MSIDLegacySingleResourceTokenType = 4,
     MSIDPrimaryRefreshTokenType = 5,
     MSIDLegacyIDTokenType = 6,
-    MSIDAccessTokenWithAuthSchemeType
+    MSIDAccessTokenWithAuthSchemeType = 7
 };
 
 @interface MSIDCredentialTypeHelpers : NSObject

@@ -62,6 +62,7 @@
         if (!requestConf)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf from scheme parameters.");
+            return nil;
         }
         
         NSString *kidJwk = [requestConf msidBase64UrlDecode];
@@ -95,6 +96,11 @@
 - (NSString *)tokenType
 {
     return MSIDAuthSchemeParamFromType(self.scheme);
+}
+
+- (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken
+{
+    return accessToken.kid && self.kid && [self.kid isEqualToString:accessToken.kid];
 }
 
 @end

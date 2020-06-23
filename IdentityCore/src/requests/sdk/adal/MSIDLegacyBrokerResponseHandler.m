@@ -38,6 +38,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
 #endif
+#import "MSIDAuthenticationSchemeProtocol.h"
 
 @implementation MSIDLegacyBrokerResponseHandler
 
@@ -73,6 +74,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
+                                                    authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
                                                          error:(NSError **)error
 {
     // Successful case
@@ -131,6 +133,7 @@
                                                                               accountMetadataCache:self.accountMetadataCacheAccessor
                                                                                      correlationID:correlationID
                                                                                   saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                                                        authScheme:authScheme
                                                                                              error:&intuneError];
 
         if (!intuneResult)

@@ -27,13 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDCacheConfig : NSObject
 
-#if TARGET_OS_IPHONE
 @property (nonatomic, readonly, nullable) NSString *keychainGroup;
 
 - (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup;
-#else
 
-@property (nonatomic, readonly, nullable) NSString *keychainGroup;
+#if TARGET_OS_OSX
+
 @property (nonatomic, readonly, nullable) SecAccessRef accessRef;
 
 - (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(nullable SecAccessRef)accessRef;

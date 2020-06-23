@@ -45,6 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
 
+- (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken;
+
 @end
 
 NS_ASSUME_NONNULL_END

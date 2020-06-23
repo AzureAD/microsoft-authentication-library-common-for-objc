@@ -29,6 +29,7 @@
 @class MSIDOauth2Factory;
 @class MSIDTokenResult;
 @class MSIDAccountMetadataCacheAccessor;
+@protocol MSIDAuthenticationSchemeProtocol;
 
 @interface MSIDTokenResponseValidator : NSObject
 
@@ -49,6 +50,7 @@
                                        accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                               correlationID:(nullable NSUUID *)correlationID
                                            saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                                                 authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)authScheme
                                                       error:(NSError * _Nullable * _Nullable)error;
 
 - (nullable MSIDTokenResult *)validateTokenResponse:(nonnull MSIDTokenResponse *)tokenResponse

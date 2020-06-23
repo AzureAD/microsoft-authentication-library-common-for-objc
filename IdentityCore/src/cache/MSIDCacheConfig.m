@@ -25,7 +25,6 @@
 
 @implementation MSIDCacheConfig
 
-#if TARGET_OS_IPHONE
 - (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup
 {
     self = [super init];
@@ -35,7 +34,9 @@
     }
     return self;
 }
-#else
+
+#if TARGET_OS_OSX
+
 - (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(SecAccessRef)accessRef
 {
     self = [super init];
@@ -44,8 +45,10 @@
         _keychainGroup = keychainGroup;
         _accessRef = accessRef;
     }
+    
     return self;
 }
+
 #endif
 
 @end

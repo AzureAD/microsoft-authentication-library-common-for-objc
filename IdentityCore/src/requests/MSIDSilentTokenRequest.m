@@ -44,6 +44,8 @@
 #import "MSIDExternalAADCacheSeeder.h"
 #endif
 
+#import "MSIDAuthenticationSchemeProtocol.h"
+
 @interface MSIDSilentTokenRequest()
 
 @property (nonatomic) MSIDRequestParameters *requestParameters;
@@ -147,7 +149,9 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id match result = %@, access token's enrollment id : %@, cached enrollment id: %@, ", enrollmentIdMatch ? @"True" : @"False", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
         }
         
-        if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch)
+        BOOL accessTokenKeyThumbprintMatch = [self.requestParameters.authScheme matchAccessTokenKeyThumbprint:accessToken];
+        
+        if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
             NSError *rtError = nil;
@@ -196,7 +200,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
         }
 
-        if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch)
+        if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
@@ -207,6 +211,10 @@
             if (!enrollmentIdMatch)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached enrollment id is different from access token's enrollment id, removing it..");
+            }
+            else if (!accessTokenKeyThumbprintMatch)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached key thumbprint is different from access token's key thumbprint, removing it..");
             }
             else
             {

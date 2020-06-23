@@ -293,7 +293,6 @@
                 clientId:(nullable NSString *)clientId
                 familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
-          credentialType:(MSIDCredentialType)credentialType
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
@@ -333,10 +332,6 @@
         {
             return NO;
         }
-    }
-    if (credentialType && self.credentialType != credentialType)
-    {
-        return NO;
     }
 
     return YES;
