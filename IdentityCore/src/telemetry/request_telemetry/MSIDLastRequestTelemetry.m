@@ -25,6 +25,27 @@
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 
 @implementation MSIDRequestTelemetryErrorInfo
+
+#define kApiId              @"apiId"
+#define kCorrelationID      @"correlationId"
+#define kError              @"error"
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeFloat:self.apiId forKey:kApiId];
+    [encoder encodeObject:[self.correlationId UUIDString] forKey:kCorrelationID];
+    [encoder encodeObject:self.error forKey:kError];
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self.apiId = [decoder decodeFloatForKey:kApiId];
+    
+    NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
+    self.correlationId = [[NSUUID UUID] initWithUUIDString:uuIdString];
+    
+    self.error = [decoder decodeObjectForKey:kError];
+    return self;
+}
+
 @end
 
 @interface MSIDLastRequestTelemetry()
@@ -40,6 +61,8 @@
 
 @implementation MSIDLastRequestTelemetry
 
+static bool shouldReadFromDisk = YES;
+
 #pragma mark - Init
 
 - (id)initInternal
@@ -48,9 +71,7 @@
     if (self)
     {
         _schemaVersion = 2;
-        
-        NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
-        _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+        _synchronizationQueue = [self initializeDispatchQueue];
     }
     return self;
 }
@@ -61,7 +82,15 @@
     static MSIDLastRequestTelemetry *singleton = nil;
     
     dispatch_once(&once, ^{
-        singleton = [[MSIDLastRequestTelemetry alloc] initInternal];
+        if (shouldReadFromDisk)
+        {
+            singleton = [[MSIDLastRequestTelemetry alloc] initFromDisk];
+            shouldReadFromDisk = NO;
+        }
+        else
+        {
+            singleton = [[MSIDLastRequestTelemetry alloc] initInternal];
+        }
     });
     
     return singleton;
@@ -90,6 +119,8 @@
             _errorsInfo = nil;
         });
     }
+    
+    [self saveToDisk];
 }
 
 - (void)increaseSilentSuccessfulCount
@@ -120,7 +151,7 @@
     return errorsInfoCopy;
 }
 
-#pragma mark - Private
+#pragma mark - Private: Serialization
 
 - (NSString *)serializeLastTelemetryString
 {
@@ -133,6 +164,74 @@
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
     return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
+}
+
+#pragma mark - Private: Save To Disk
+
+- (void)saveToDisk
+{
+    [NSKeyedArchiver archiveRootObject:self toFile:[self filePath]];
+}
+
+- (instancetype)initFromDisk
+{
+    if ([[NSFileManager defaultManager] fileExistsAtPath:[self filePath]])
+    {
+        return [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePath]];
+    }
+    
+    return [self initInternal];
+}
+
+#pragma mark - NSCoding
+
+#define kSchemaVersion              @"schemaVersion"
+#define kSilentSuccessfulCount      @"silentSuccessfulCount"
+#define kErrorsInfo                 @"errorsInfo"
+
+- (void)encodeWithCoder:(NSCoder *)encoder
+{
+    [encoder encodeFloat:self.schemaVersion forKey:kSchemaVersion];
+    [encoder encodeFloat:self.silentSuccessfulCount forKey:kSilentSuccessfulCount];
+    [encoder encodeObject:self.errorsInfo forKey:kErrorsInfo];
+}
+
+- (id)initWithCoder:(NSCoder *)decoder
+{
+    NSInteger schemaVersion = [decoder decodeFloatForKey:kSchemaVersion];
+    NSInteger silentSuccessfulCount = [decoder decodeFloatForKey:kSilentSuccessfulCount];
+    NSMutableArray<MSIDRequestTelemetryErrorInfo *> *test = [decoder decodeObjectForKey:kErrorsInfo];
+    
+    return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:test];
+}
+
+- (id)initFromDecodedObjectWithSchemaVersion:(NSInteger)schemaVersion silentSuccessfulCount:(NSInteger)silentSuccessfulCount errorsInfo:(NSMutableArray<MSIDRequestTelemetryErrorInfo *>*) errorsInfo
+{
+    self = [super init];
+    if (self)
+    {
+        _schemaVersion = schemaVersion;
+        _silentSuccessfulCount = silentSuccessfulCount;
+        _errorsInfo = errorsInfo;
+        _synchronizationQueue = [self initializeDispatchQueue];
+    }
+    return self;
+}
+
+#pragma mark - Private: Misc
+
+- (NSString *)filePath
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectoryPath = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest"];
+    return filePath;
+}
+
+- (dispatch_queue_t)initializeDispatchQueue
+{
+    NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
+    return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
 }
 
 @end

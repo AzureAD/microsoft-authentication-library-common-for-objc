@@ -24,7 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDTelemetryStringSerializable.h"
 
-@interface MSIDRequestTelemetryErrorInfo : NSObject
+@interface MSIDRequestTelemetryErrorInfo : NSObject <NSCoding>
 
 @property (nonatomic) NSInteger apiId;
 @property (nonatomic, nonnull) NSUUID *correlationId;
@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class MSIDCurrentRequestTelemetrySerializedItem;
 
-@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
+@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable, NSCoding>
 
 @property (nonatomic, readonly) NSInteger schemaVersion;
 @property (nonatomic, readonly) NSInteger silentSuccessfulCount;
