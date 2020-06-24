@@ -175,4 +175,63 @@
     XCTAssertEqualObjects(result, @"2|0|70,00000000-0000-0000-0000-000000000001|error5|");
 }
 
+-(void)testSaveToDisk_whenSingleErrorSaved_shouldSaveAndRestoreToSameObject
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
+
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+}
+
+-(void)testSaveToDisk_whenMultipleSaves_shouldOverwriteAndRestoreToSameObject
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:10 errorString:@"error1" context:self.context];
+    [telemetryObject updateWithApiId:20 errorString:@"error2" context:self.context];
+    [telemetryObject updateWithApiId:30 errorString:@"error3" context:self.context];
+
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+    
+    [telemetryObject updateWithApiId:40 errorString:@"error4" context:self.context];
+    [telemetryObject updateWithApiId:50 errorString:@"error5" context:self.context];
+    
+    restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+}
+
+-(void)testSaveToDisk_whenMultipleSavesThenReset_shouldOverwriteAndRestoreToSameObject
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:10 errorString:@"error1" context:self.context];
+    [telemetryObject updateWithApiId:20 errorString:@"error2" context:self.context];
+    [telemetryObject updateWithApiId:30 errorString:@"error3" context:self.context];
+
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+    
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
+    
+    [telemetryObject updateWithApiId:90 errorString:@"error9" context:self.context];
+    
+    restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+}
+
+#pragma mark - Helper
+
+- (NSString *)filePathOfSavedTelemetry
+{
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectoryPath = [paths objectAtIndex:0];
+    NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest"];
+    return filePath;
+}
+
+
 @end
