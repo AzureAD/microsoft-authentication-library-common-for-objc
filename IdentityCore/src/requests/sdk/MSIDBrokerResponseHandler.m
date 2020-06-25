@@ -39,6 +39,7 @@
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDAuthenticationSchemePop.h"
 #import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthScheme.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -183,7 +184,7 @@
     NSString *requestConf = resumeState[MSID_OAUTH2_REQUEST_CONFIRMATION];
     [schemeParams msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [schemeParams msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
-    if ([schemeParams count] == 2)
+    if (tokenType && MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
     {
         return [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
     }
