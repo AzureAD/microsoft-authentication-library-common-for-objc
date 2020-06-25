@@ -223,6 +223,38 @@
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
 
+-(void)testSaveToDisk_whenSuccessfulSilentCall_shouldOverwriteAndRestoreToSameObject
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject updateWithApiId:10 errorString:@"error1" context:self.context];
+    [telemetryObject updateWithApiId:20 errorString:@"error2" context:self.context];
+    [telemetryObject updateWithApiId:30 errorString:@"error3" context:self.context];
+
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+    
+    [telemetryObject updateWithApiId:30 errorString:nil context:nil];
+    
+    restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+    
+    [telemetryObject increaseSilentSuccessfulCount];
+    restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+}
+
+-(void)testSaveToDisk_whenManySilentCalls_shouldOverwriteAndRestoreToSameObject
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    [telemetryObject increaseSilentSuccessfulCount];
+    [telemetryObject increaseSilentSuccessfulCount];
+    [telemetryObject increaseSilentSuccessfulCount];
+
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
+    XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+}
+
 #pragma mark - Helper
 
 - (NSString *)filePathOfSavedTelemetry

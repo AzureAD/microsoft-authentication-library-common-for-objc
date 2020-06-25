@@ -128,6 +128,8 @@ static bool shouldReadFromDisk = YES;
     dispatch_barrier_async(self.synchronizationQueue, ^{
         self.silentSuccessfulCount = self.silentSuccessfulCount + 1;
     });
+    
+    [self saveToDisk];
 }
 
 #pragma mark - MSIDTelemetryStringSerializable
