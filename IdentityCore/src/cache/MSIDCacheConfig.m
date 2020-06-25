@@ -21,28 +21,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDCacheConfig.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDCacheConfig
 
-@interface MSIDAssymetricKeyPair : NSObject
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup
 {
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
+    self = [super init];
+    if (self)
+    {
+        _keychainGroup = keychainGroup;
+    }
+    return self;
 }
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
+#if TARGET_OS_OSX
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(SecAccessRef)accessRef
+{
+    self = [super init];
+    if (self)
+    {
+        _keychainGroup = keychainGroup;
+        _accessRef = accessRef;
+    }
+    
+    return self;
+}
 
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
-
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
-
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
+#endif
 
 @end
-
-NS_ASSUME_NONNULL_END

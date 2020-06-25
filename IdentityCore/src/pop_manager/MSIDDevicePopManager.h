@@ -23,25 +23,24 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDCacheConfig;
+@class MSIDBaseToken;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-}
+@interface MSIDDevicePopManager : NSObject
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
+@property (nonatomic, readonly) NSString *requestConfirmation;
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
+@property (nonatomic, readonly) NSString *kid;
 
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig;
 
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
-
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
+- (nullable NSString *)createSignedAccessToken:(NSString *)accessToken
+                           httpMethod:(NSString *)httpMethod
+                           requestUrl:(NSString *)requestUrl
+                                nonce:(NSString *)nonce
+                                error:(NSError *__autoreleasing * _Nullable)error;
 
 @end
 

@@ -21,27 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAccessToken.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-}
-
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
-
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
-
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
+@interface MSIDAccessTokenWithAuthScheme : MSIDAccessToken
 
 @end
 

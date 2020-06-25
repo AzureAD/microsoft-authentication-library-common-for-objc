@@ -25,6 +25,7 @@
 #import "MSIDAccessToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAuthority.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDTokenResult
 

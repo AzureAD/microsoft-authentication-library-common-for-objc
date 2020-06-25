@@ -26,6 +26,8 @@
 @interface MSIDAccessToken : MSIDBaseToken
 {
     NSString *_accessToken;
+    NSString *_accessTokenType;
+    NSString *_kid;
 }
 
 @property (readwrite) NSDate *expiresOn;
@@ -44,6 +46,10 @@
 
 // Unique app identifier used for cases when access token storage needs to be partitioned per application
 @property (readwrite) NSString *applicationIdentifier;
+
+// Public key identifier used to bound the access tokens.
+@property (nonatomic) NSString *kid;
+@property (nonatomic) NSString *accessTokenType;
 
 - (BOOL)isExpired;
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;

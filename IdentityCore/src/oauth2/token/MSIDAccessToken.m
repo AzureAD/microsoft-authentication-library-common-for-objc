@@ -28,6 +28,7 @@
 #import "MSIDAADV2TokenResponse.h"
 #import "MSIDUserInformation.h"
 #import "NSDate+MSIDExtensions.h"
+#import "MSIDAuthenticationScheme.h"
 
 //in seconds, ensures catching of clock differences between the server and the device
 static NSUInteger s_expirationBuffer = 300;
@@ -146,7 +147,7 @@ static NSUInteger s_expirationBuffer = 300;
     cacheItem.secret = self.accessToken;
     cacheItem.target = self.target;
     cacheItem.enrollmentId = self.enrollmentId;
-    cacheItem.credentialType = MSIDAccessTokenType;
+    cacheItem.credentialType = [self credentialType];
     cacheItem.enrollmentId = self.enrollmentId;
     cacheItem.applicationIdentifier = self.applicationIdentifier;
     return cacheItem;

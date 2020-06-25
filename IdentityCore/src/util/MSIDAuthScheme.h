@@ -22,27 +22,7 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-}
-
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
-
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
-
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
-
-@end
-
-NS_ASSUME_NONNULL_END
+extern NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type);
+extern MSIDAuthScheme MSIDAuthSchemeTypeFromString(NSString *authSchemeString);

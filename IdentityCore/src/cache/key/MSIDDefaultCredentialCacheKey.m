@@ -42,17 +42,21 @@ static NSInteger kCredentialTypePrefix = 2000;
         applicationIdentifier:(NSString *)applicationIdentifier
                        target:(NSString *)target
                        appKey:(NSString *)appKey
+                    tokenType:(NSString *)tokenType
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
     target = target.msidTrimmedString.lowercaseString;
     applicationIdentifier = applicationIdentifier.msidTrimmedString.lowercaseString;
+    tokenType = tokenType.msidTrimmedString.lowercaseString;
 
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm applicationIdentifier:applicationIdentifier];
-    NSString *service = [NSString stringWithFormat:@"%@%@%@",
+    NSString *service = [NSString stringWithFormat:@"%@%@%@%@%@",
                          credentialId,
                          keyDelimiter,
-                         (target ? target : @"")];
+                         (target ? target : @""),
+                         (tokenType ? keyDelimiter : @""),
+                         (tokenType ? tokenType : @"")];
     
     if (![NSString msidIsStringNilOrBlank:appKey])
     {
@@ -137,7 +141,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)service
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm applicationIdentifier:self.applicationIdentifier target:self.target appKey:self.appKey];
+    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm applicationIdentifier:self.applicationIdentifier target:self.target appKey:self.appKey tokenType:self.tokenType];
 }
 
 - (BOOL)isShared

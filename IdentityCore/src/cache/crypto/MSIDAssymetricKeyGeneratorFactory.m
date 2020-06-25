@@ -23,36 +23,39 @@
 
 #import "MSIDAssymetricKeyGeneratorFactory.h"
 #import "MSIDAssymetricKeyKeychainGenerator.h"
+#import "MSIDKeychainTokenCache.h"
 #if !TARGET_OS_IPHONE
+#import "MSIDMacKeychainTokenCache.h"
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
+#import "MSIDCacheConfig.h"
 
 @implementation MSIDAssymetricKeyGeneratorFactory
 
-+ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithError:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
 {
 #if TARGET_OS_IPHONE
-    return [self iOSDefaultKeyGeneratorWithError:error];
+    return [self iOSDefaultKeyGeneratorWithCacheConfig:cacheConfig error:error];
 #else
-    return [self macDefaultKeyGeneratorWithError:error];
+    return [self macDefaultKeyGeneratorWithCacheConfig:cacheConfig error:error];
 #endif
 }
 
-+ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithError:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)iOSDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
 {
-    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:cacheConfig.keychainGroup error:error];
 }
 
 #if !TARGET_OS_IPHONE
-+ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithError:(NSError **)error
++ (id<MSIDAssymetricKeyGenerating>)macDefaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
 {
     if (@available(macOS 10.15, *))
     {
-        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:error];
+        return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:cacheConfig.keychainGroup error:error];
     }
     else
     {
-        return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithAccessRef:nil error:error];
+        return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithKeychainGroup:cacheConfig.keychainGroup accessRef:cacheConfig.accessRef error:error];
     }
 }
 #endif

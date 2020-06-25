@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,33 +17,39 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDCredentialType.h"
+#import "MSIDJsonSerializable.h"
+#import "MSIDConstants.h"
+
+@class MSIDAccessToken;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAssymetricKeyPair : NSObject
+@interface MSIDAuthenticationScheme : NSObject <MSIDJsonSerializable, NSCopying>
 {
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
+    MSIDAuthScheme _authScheme;
+    NSDictionary *_schemeParameters;
 }
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
+@property (nonatomic, readonly) MSIDAuthScheme authScheme;
+@property (nonatomic, readonly) NSDictionary *schemeParameters;
+@property (nonatomic, readonly) MSIDCredentialType credentialType;
+@property (nonatomic, readonly) NSString *tokenType;
+@property (nonatomic, readonly) MSIDAccessToken *accessToken;
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
+- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters;
 
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
+- (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken;
 
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
-
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
 
 @end
 

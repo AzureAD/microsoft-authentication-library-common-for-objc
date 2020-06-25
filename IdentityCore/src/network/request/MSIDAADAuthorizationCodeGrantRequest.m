@@ -27,6 +27,7 @@
 @implementation MSIDAADAuthorizationCodeGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
+                      authScheme:(MSIDAuthenticationScheme *)authScheme
                         clientId:(NSString *)clientId
                     enrollmentId:(NSString *)enrollmentId
                            scope:(NSString *)scope
@@ -38,6 +39,7 @@
                          context:(nullable id<MSIDRequestContext>)context
 {
     self = [super initWithEndpoint:endpoint
+                        authScheme:authScheme
                           clientId:clientId
                              scope:scope
                        redirectUri:redirectUri

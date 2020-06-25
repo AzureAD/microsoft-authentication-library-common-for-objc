@@ -25,23 +25,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-}
+@interface MSIDCacheConfig : NSObject
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
+@property (nonatomic, readonly, nullable) NSString *keychainGroup;
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup;
 
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
+#if TARGET_OS_OSX
 
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
+@property (nonatomic, readonly, nullable) SecAccessRef accessRef;
 
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(nullable SecAccessRef)accessRef;
+
+#endif
 
 @end
 

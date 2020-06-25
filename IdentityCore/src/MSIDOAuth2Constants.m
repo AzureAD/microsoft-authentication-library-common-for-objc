@@ -65,11 +65,13 @@ NSString *const MSID_OAUTH2_CLIENT_TELEMETRY    = @"x-ms-clitelem";
 NSString *const MSID_OAUTH2_PROMPT              = @"prompt";
 NSString *const MSID_OAUTH2_PROMPT_NONE         = @"none";
 NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI    = @"post_logout_redirect_uri";
+NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION = @"req_cnf";
 
 NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
 NSString *const MSID_OAUTH2_EXT_EXPIRES_IN      = @"ext_expires_in";
 NSString *const MSID_FAMILY_ID                  = @"foci";
 NSString *const MSID_ENROLLMENT_ID              = @"microsoft_enrollment_id";
+NSString *const MSID_ACCESS_TOKEN_TYPE              = @"access_token_type";
 
 NSString *const MSID_OAUTH2_CODE_CHALLENGE               = @"code_challenge";
 NSString *const MSID_OAUTH2_CODE_CHALLENGE_METHOD        = @"code_challenge_method";
@@ -125,6 +127,7 @@ NSString *const MSID_LAST_MOD_TIME_CACHE_KEY             = @"last_modification_t
 NSString *const MSID_LAST_MOD_APP_CACHE_KEY              = @"last_modification_app";
 NSString *const MSID_APPLICATION_IDENTIFIER_CACHE_KEY    = @"application_cache_identifier";
 NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE             = @"AccessToken";
+NSString *const MSID_ACCESS_TOKEN_WITH_AUTH_SCHEME_CACHE_TYPE  = @"AccessToken_With_AuthScheme";
 NSString *const MSID_ACCOUNT_CACHE_TYPE                  = @"Account";
 NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE            = @"RefreshToken";
 NSString *const MSID_APPLICATION_METADATA_CACHE_TYPE     = @"AppMetadata";
@@ -142,6 +145,7 @@ NSString *const MSID_PRINCIPAL_ACCOUNT_ENVIRONMENT_CACHE_KEY    = @"principal_ac
 NSString *const MSID_APP_METADATA_AUTHORITY_MAP_TYPE     = @"authority_map";
 NSString *const MSID_DEVICE_ID_CACHE_KEY                 = @"device_id";
 NSString *const MSID_PRT_PROTOCOL_VERSION_CACHE_KEY      = @"prt_protocol_version";
+NSString *const MSID_KID_CACHE_KEY                       = @"kid";
 
 NSString *const MSID_OPENID_CONFIGURATION_SUFFIX         = @".well-known/openid-configuration";
 NSString *const MSID_PREFERRED_USERNAME_MISSING          = @"Missing from the token response";

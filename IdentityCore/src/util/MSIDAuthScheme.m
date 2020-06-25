@@ -21,28 +21,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDAuthScheme.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDAssymetricKeyPair : NSObject
+NSString * MSIDAuthSchemeParamFromType(MSIDAuthScheme type)
 {
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
+    switch (type) {
+        case MSIDAuthSchemePop:
+            return @"Pop";
+        case MSIDAuthSchemeBearer:
+            return @"Bearer";
+        default:
+            return @"Bearer";
+    }
 }
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
+MSIDAuthScheme MSIDAuthSchemeTypeFromString(NSString *authSchemeString)
+{
+    if ([authSchemeString isEqualToString:@"Pop"])
+    {
+        return MSIDAuthSchemePop;
+    }
+    else if ([authSchemeString isEqualToString:@"Bearer"])
+    {
+        return MSIDAuthSchemeBearer;
+    }
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
-
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
-
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
-
-@end
-
-NS_ASSUME_NONNULL_END
+    return MSIDAuthSchemeBearer;
+}
