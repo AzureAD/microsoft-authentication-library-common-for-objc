@@ -23,14 +23,14 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDHttpRequest.h"
-@protocol MSIDAuthenticationSchemeProtocol;
+@class MSIDAuthenticationScheme;
 /**
  @abstract Represents abstract request to oauth 2.0 '/token' endpoint.
  */
 @interface MSIDTokenRequest : MSIDHttpRequest
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
-                                authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                   clientId:(nonnull NSString *)clientId
                                      scope:(nullable NSString *)scope
                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;

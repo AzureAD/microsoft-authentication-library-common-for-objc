@@ -65,7 +65,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
-                                                    authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                                    authScheme:(MSIDAuthenticationScheme *)authScheme
                                                          error:(NSError **)error
 {
     NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams

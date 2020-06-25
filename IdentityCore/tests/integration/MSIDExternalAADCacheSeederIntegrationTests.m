@@ -45,7 +45,7 @@
 #import "MSIDTestTelemetryEventsObserver.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDLegacyRefreshToken.h"
-#import "MSIDAuthenticationSchemeBearer.h"
+#import "MSIDAuthenticationScheme.h"
 
 @interface MSIDExternalAADCacheSeederIntegrationTests : XCTestCase
 
@@ -129,7 +129,7 @@
     __auto_type scopes = [[NSOrderedSet alloc] initWithArray:@[@"scope1", @"scope2"]];
     __auto_type oidcScopes = [[NSOrderedSet alloc] initWithArray:@[@"openid", @"profile", @"offline_access"]];
     __auto_type requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
-                                                                          authScheme:[MSIDAuthenticationSchemeBearer new]
+                                                                          authScheme:[MSIDAuthenticationScheme new]
                                                                          redirectUri:redirectUri
                                                                             clientId:clientId
                                                                               scopes:scopes
@@ -228,7 +228,7 @@
     __auto_type scopes = [[NSOrderedSet alloc] initWithArray:@[@"scope1", @"scope2"]];
     __auto_type oidcScopes = [[NSOrderedSet alloc] initWithArray:@[@"openid", @"profile", @"offline_access"]];
     __auto_type requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
-                                                                          authScheme:[MSIDAuthenticationSchemeBearer new]
+                                                                          authScheme:[MSIDAuthenticationScheme new]
                                                                          redirectUri:redirectUri
                                                                             clientId:clientId
                                                                               scopes:scopes
@@ -327,7 +327,7 @@
     __auto_type scopes = [[NSOrderedSet alloc] initWithArray:@[@"scope1", @"scope2"]];
     __auto_type oidcScopes = [[NSOrderedSet alloc] initWithArray:@[@"openid", @"profile", @"offline_access"]];
     __auto_type requestParameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
-                                                                          authScheme:[MSIDAuthenticationSchemeBearer new]
+                                                                          authScheme:[MSIDAuthenticationScheme new]
                                                                          redirectUri:redirectUri
                                                                             clientId:clientId
                                                                               scopes:scopes

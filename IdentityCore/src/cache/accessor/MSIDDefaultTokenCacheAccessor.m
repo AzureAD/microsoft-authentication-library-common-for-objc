@@ -45,7 +45,7 @@
 #import "MSIDGeneralCacheItemType.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
-#import "MSIDAuthenticationSchemeProtocol.h"
+#import "MSIDAuthenticationScheme.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -799,7 +799,7 @@
     query.targetMatchingOptions = MSIDIntersect;
     query.credentialType = accessToken.credentialType;
     query.applicationIdentifier = accessToken.applicationIdentifier;
-    query.tokenType = accessToken.tokenType;
+    query.tokenType = accessToken.accessTokenType;
 
     BOOL result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:error];
 

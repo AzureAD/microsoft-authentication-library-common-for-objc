@@ -27,7 +27,7 @@
 @implementation MSIDAADAuthorizationCodeGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                      authScheme:(MSIDAuthenticationScheme *)authScheme
                         clientId:(NSString *)clientId
                     enrollmentId:(NSString *)enrollmentId
                            scope:(NSString *)scope

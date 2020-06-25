@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // Initialize parameters with extra scopes, and interactive request type
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                       authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                       authScheme:(MSIDAuthenticationScheme *)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(nullable NSOrderedSet<NSString *> *)scopes

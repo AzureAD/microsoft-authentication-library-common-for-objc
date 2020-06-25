@@ -31,7 +31,7 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTestIdentifiers.h"
-#import "MSIDAuthenticationSchemeBearer.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDTestParametersProvider
 
@@ -45,7 +45,7 @@
     authority.metadata = [MSIDOpenIdProviderMetadata new];
     
     MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
-                                                                                                              authScheme:[MSIDAuthenticationSchemeBearer new]
+                                                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                                                    redirectUri:DEFAULT_TEST_REDIRECT_URI
                                                                                                       clientId:DEFAULT_TEST_CLIENT_ID
                                                                                                         scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]

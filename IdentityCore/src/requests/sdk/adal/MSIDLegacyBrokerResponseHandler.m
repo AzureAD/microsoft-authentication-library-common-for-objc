@@ -38,7 +38,7 @@
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
 #endif
-#import "MSIDAuthenticationSchemeProtocol.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDLegacyBrokerResponseHandler
 
@@ -74,7 +74,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
-                                                    authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                                    authScheme:(MSIDAuthenticationScheme *)authScheme
                                                          error:(NSError **)error
 {
     // Successful case

@@ -46,7 +46,6 @@
 #import "MSIDTestURLSession.h"
 #import "MSIDAADNetworkConfiguration.h"
 #import "MSIDAadAuthorityCache.h"
-#import "MSIDAuthenticationSchemeBearer.h"
 
 @interface MSIDInteractiveControllerIntegrationTests : XCTestCase
 

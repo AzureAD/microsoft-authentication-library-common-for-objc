@@ -137,7 +137,7 @@
                               accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                      correlationID:(NSUUID *)correlationID
                                   saveSSOStateOnly:(BOOL)saveSSOStateOnly
-                                        authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                        authScheme:(MSIDAuthenticationScheme *)authScheme
                                              error:(NSError **)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");

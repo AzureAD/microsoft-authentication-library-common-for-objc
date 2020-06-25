@@ -32,7 +32,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
-#import "MSIDAuthenticationSchemeProtocol.h"
+#import "MSIDAuthenticationScheme.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"

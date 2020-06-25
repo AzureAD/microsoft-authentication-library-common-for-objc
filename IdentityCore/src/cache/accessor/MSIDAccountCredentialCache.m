@@ -228,7 +228,7 @@
                                                                                        credentialType:credential.credentialType];
     
     key.familyId = credential.familyId;
-    key.tokenType = credential.tokenType;
+    key.tokenType = credential.accessTokenType;
     key.realm = credential.realm;
     key.target = credential.target;
     key.applicationIdentifier = credential.applicationIdentifier;
@@ -324,7 +324,7 @@
     key.target = credential.target;
     key.applicationIdentifier = credential.applicationIdentifier;
     key.appKey = credential.appKey;
-    key.tokenType = credential.tokenType;
+    key.tokenType = credential.accessTokenType;
     
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
     

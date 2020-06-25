@@ -22,12 +22,12 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenRequest.h"
-#import "MSIDAuthenticationSchemeProtocol.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDTokenRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                      authScheme:(MSIDAuthenticationScheme *)authScheme
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                          context:(nullable id<MSIDRequestContext>)context

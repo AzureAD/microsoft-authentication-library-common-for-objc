@@ -115,7 +115,7 @@
 - (NSData *)getDataFromKeyRef:(SecKeyRef)keyRef
 {
     CFErrorRef keyExtractionError = NULL;
-    if (@available(macOS 10.12, *))
+    if (@available(iOS 10.0, macOS 10.12, *))
     {
         NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
         

@@ -46,7 +46,7 @@
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
-#import "MSIDAuthenticationSchemeProtocol.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDOauth2Factory
 
@@ -130,7 +130,7 @@
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
                                configuration:(MSIDConfiguration *)configuration
 {
-    MSIDAccessToken *accessToken = [configuration.authScheme getAccessTokenFromResponse:response];
+    MSIDAccessToken *accessToken = configuration.authScheme.accessToken;
     
     BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 

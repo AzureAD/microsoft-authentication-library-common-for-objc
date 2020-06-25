@@ -26,7 +26,7 @@
 @interface MSIDAuthorizationCodeGrantRequest : MSIDTokenRequest
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
-                                 authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                    clientId:(nonnull NSString *)clientId
                                       scope:(nullable NSString *)scope
                                 redirectUri:(nonnull NSString *)redirectUri
@@ -37,7 +37,7 @@
                                     context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
-                                 authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)scheme
+                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                    clientId:(nonnull NSString *)clientId
                                       scope:(nullable NSString *)scope
                                     context:(nullable id<MSIDRequestContext>)context NS_UNAVAILABLE;

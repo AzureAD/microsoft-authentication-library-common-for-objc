@@ -28,11 +28,12 @@
 #import "MSIDAuthorityFactory.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDProviderType.h"
-#import "MSIDAuthenticationSchemeBearer.h"
+#import "MSIDAuthenticationScheme.h"
 
 NSString *const MSID_REDIRECT_URI_JSON_KEY = @"redirect_uri";
 NSString *const MSID_CLIENT_ID_JSON_KEY = @"client_id";
 NSString *const MSID_SCOPE_JSON_KEY = @"scope";
+NSString *const MSID_TOKEN_TYPE_JSON_KEY = @"token_type";
 
 @interface MSIDConfiguration()
 
@@ -54,6 +55,7 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     configuration.resource = [_resource copyWithZone:zone];
     configuration.scopes = [_scopes copyWithZone:zone];
     configuration.applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
+    configuration.authScheme = [_authScheme copyWithZone:zone];
     return configuration;
 }
 
@@ -77,7 +79,7 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
             _scopes = [target msidScopeSet];
         }
         
-        _authScheme = [MSIDAuthenticationSchemeBearer new];
+        _authScheme = [MSIDAuthenticationScheme new];
     }
     
     return self;
@@ -99,7 +101,7 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
         _resource = resource;
         _scopes = scopes;
         _target = _scopes ? [scopes msidToString] : _resource;
-        _authScheme = [MSIDAuthenticationSchemeBearer new];
+        _authScheme = [MSIDAuthenticationScheme new];
     }
     
     return self;
@@ -114,14 +116,22 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
 
     if (![json msidAssertType:NSString.class ofKey:MSID_REDIRECT_URI_JSON_KEY required:YES error:error]) return nil;
     NSString *redirectUri = [json msidStringObjectForKey:MSID_REDIRECT_URI_JSON_KEY];
-    
+
     if (![json msidAssertType:NSString.class ofKey:MSID_CLIENT_ID_JSON_KEY required:YES error:error]) return nil;
     NSString *clientId = json[MSID_CLIENT_ID_JSON_KEY];
 
     if (![json msidAssertType:NSString.class ofKey:MSID_SCOPE_JSON_KEY required:NO error:error]) return nil;
     NSString *target = [json msidStringObjectForKey:MSID_SCOPE_JSON_KEY];
     
-    return [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target];
+    MSIDConfiguration *config = [self initWithAuthority:authority redirectUri:redirectUri clientId:clientId target:target];
+    
+    /*
+     We pass error as nil in auth scheme creation as token_type key will only be added for MSIDAuthenticationSchemePop.
+     */
+    MSIDAuthenticationScheme *authScheme = (MSIDAuthenticationScheme *)[MSIDJsonSerializableFactory createFromJSONDictionary:json classTypeJSONKey:MSID_TOKEN_TYPE_JSON_KEY assertKindOfClass:MSIDAuthenticationScheme.class error:nil];
+    if (authScheme) config.authScheme = authScheme;
+    
+    return config;
 }
 
 - (NSDictionary *)jsonDictionary
@@ -150,6 +160,15 @@ NSString *const MSID_SCOPE_JSON_KEY = @"scope";
     }
     json[MSID_REDIRECT_URI_JSON_KEY] = self.redirectUri;
     json[MSID_SCOPE_JSON_KEY] = self.target;
+    
+    NSDictionary *authSchemeJson = [self.authScheme jsonDictionary];
+    if (!authSchemeJson)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, nil, @"Failed to create json for %@ class, auth scheme json is nil.", self.class);
+        return nil;
+    }
+    
+    [json addEntriesFromDictionary:authSchemeJson];
     
     return json;
 }

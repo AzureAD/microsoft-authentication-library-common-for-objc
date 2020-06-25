@@ -31,40 +31,39 @@
 #import "MSIDAccessTokenWithAuthScheme.h"
 #import "MSIDAuthScheme.h"
 #import "NSString+MSIDExtensions.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 
 @interface MSIDAuthenticationSchemePop()
 
 @property (nonatomic) NSString *kid;
+@property (nonatomic) NSString *req_cnf;
 
 @end
 
 
 @implementation MSIDAuthenticationSchemePop
 
-- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
++ (void)load
 {
-    self = [super init];
-    if (self)
-    {
-        _scheme = MSIDAuthSchemePop;
-        _schemeParameters = schemeParameters;
-    }
-
-    return self;
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSIDAuthSchemeParamFromType(MSIDAuthSchemePop)];
 }
 
-- (NSString *)kid
+- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
 {
-    if (!_kid)
+    self = [super initWithSchemeParameters:schemeParameters];
+    
+    if (self)
     {
-        NSString *requestConf = [self.schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
-        if (!requestConf)
+        _req_cnf = [_schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
+        
+        if (!_req_cnf)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf from scheme parameters.");
             return nil;
         }
         
-        NSString *kidJwk = [requestConf msidBase64UrlDecode];
+        NSString *kidJwk = [_req_cnf msidBase64UrlDecode];
         NSData *kidData = [kidJwk dataUsingEncoding:NSUTF8StringEncoding];
         
         NSError *kidReadingError = nil;
@@ -73,16 +72,28 @@
         if (!_kid)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to generate kid from req_cnf, error: %@", MSID_PII_LOG_MASKABLE(kidReadingError));
+            return nil;
         }
     }
     
-    return _kid;
+    return self;
 }
 
-- (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response
+- (MSIDAuthScheme)authSchemeFromParameters:(NSDictionary *)schemeParameters
+{
+    NSString *scheme = [schemeParameters msidObjectForKey:MSID_OAUTH2_TOKEN_TYPE ofClass:[NSString class]];
+    if (!scheme)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read auth_scheme from scheme parameters.");
+    }
+    
+    return MSIDAuthSchemeTypeFromString(scheme);
+}
+
+- (MSIDAccessToken *)accessToken
 {
     MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
-    accessToken.tokenType = response.tokenType;
+    accessToken.accessTokenType = self.tokenType;
     accessToken.kid = self.kid;
     return accessToken;
 }
@@ -94,12 +105,67 @@
 
 - (NSString *)tokenType
 {
-    return MSIDAuthSchemeParamFromType(self.scheme);
+    return MSIDAuthSchemeParamFromType(self.authScheme);
 }
 
 - (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken
 {
     return accessToken.kid && self.kid && [self.kid isEqualToString:accessToken.kid];
+}
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    NSMutableDictionary *schemeParameters = [NSMutableDictionary new];
+    NSString *requestConf = json[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    if (!requestConf)
+    {
+        NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: req_cnf is nil", self.class];
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+        return nil;
+    }
+    
+    NSString *authScheme = json[MSID_OAUTH2_TOKEN_TYPE];
+    if (!authScheme)
+    {
+        NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: auth_scheme is nil", self.class];
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+        return nil;
+    }
+    
+    [schemeParameters setObject:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [schemeParameters setObject:authScheme forKey:MSID_OAUTH2_TOKEN_TYPE];
+    
+    return [self initWithSchemeParameters:schemeParameters];
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    if (self.authScheme != MSIDAuthSchemePop)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: invalid auth_scheme.", self.class);
+        return nil;
+    }
+    
+    json[MSID_OAUTH2_TOKEN_TYPE] = MSIDAuthSchemeParamFromType(self.authScheme);
+    
+    if (!self.req_cnf)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: req_cnf is nil.", self.class);
+        return nil;
+    }
+    
+    json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.req_cnf;
+    
+    return json;
+}
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDAuthenticationSchemePop *authScheme = [super copyWithZone:zone];
+    authScheme->_kid = [_kid copyWithZone:zone];
+    authScheme->_req_cnf = [_req_cnf copyWithZone:zone];
+    return authScheme;
 }
 
 @end

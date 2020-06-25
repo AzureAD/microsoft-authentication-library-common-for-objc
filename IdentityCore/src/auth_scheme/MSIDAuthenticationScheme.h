@@ -26,26 +26,30 @@
 //------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
-#import "MSIDTokenResponse.h"
 #import "MSIDCredentialType.h"
+#import "MSIDJsonSerializable.h"
+#import "MSIDConstants.h"
 
 @class MSIDAccessToken;
+
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDAuthenticationSchemeProtocol <NSObject>
+@interface MSIDAuthenticationScheme : NSObject <MSIDJsonSerializable, NSCopying>
+{
+    MSIDAuthScheme _authScheme;
+    NSDictionary *_schemeParameters;
+}
 
-@property (nonatomic, readonly) MSIDAuthScheme scheme;
-
-@property (nonatomic, readonly) MSIDCredentialType credentialType;
-
-@property (nonatomic, readonly) NSString *tokenType;
-
+@property (nonatomic, readonly) MSIDAuthScheme authScheme;
 @property (nonatomic, readonly) NSDictionary *schemeParameters;
+@property (nonatomic, readonly) MSIDCredentialType credentialType;
+@property (nonatomic, readonly) NSString *tokenType;
+@property (nonatomic, readonly) MSIDAccessToken *accessToken;
 
-- (MSIDAccessToken *)getAccessTokenFromResponse:(MSIDTokenResponse *)response;
+- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters;
 
 - (BOOL)matchAccessTokenKeyThumbprint:(MSIDAccessToken *)accessToken;
+
 
 @end
 

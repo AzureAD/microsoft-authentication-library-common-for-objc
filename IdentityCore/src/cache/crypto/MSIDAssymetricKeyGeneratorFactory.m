@@ -30,8 +30,6 @@
 #endif
 #import "MSIDCacheConfig.h"
 
-static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
-
 @implementation MSIDAssymetricKeyGeneratorFactory
 
 + (id<MSIDAssymetricKeyGenerating>)defaultKeyGeneratorWithCacheConfig:(MSIDCacheConfig *)cacheConfig error:(NSError **)error
@@ -57,7 +55,6 @@ static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
     }
     else
     {
-        // TODO: create SecAccessRef from trusted apps in cache config and pass accessRef
         return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithKeychainGroup:cacheConfig.keychainGroup accessRef:cacheConfig.accessRef error:error];
     }
 }

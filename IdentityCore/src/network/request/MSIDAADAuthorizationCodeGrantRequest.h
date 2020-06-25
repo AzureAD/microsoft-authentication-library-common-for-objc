@@ -31,7 +31,7 @@
 @interface MSIDAADAuthorizationCodeGrantRequest : MSIDAuthorizationCodeGrantRequest
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
-                                 authScheme:(nonnull id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                    clientId:(nonnull NSString *)clientId
                                enrollmentId:(nullable NSString *)enrollmentId
                                       scope:(nullable NSString *)scope

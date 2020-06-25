@@ -43,7 +43,6 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDTestLocalInteractiveController.h"
 #import "MSIDTestIdentifiers.h"
-#import "MSIDAuthenticationSchemeBearer.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 

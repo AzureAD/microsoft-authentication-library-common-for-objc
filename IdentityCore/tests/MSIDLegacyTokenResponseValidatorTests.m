@@ -32,7 +32,6 @@
 #import "MSIDAccount.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAccessToken.h"
-#import "MSIDAuthenticationSchemeBearer.h"
 
 @interface MSIDLegacyTokenResponseValidatorTests : XCTestCase
 

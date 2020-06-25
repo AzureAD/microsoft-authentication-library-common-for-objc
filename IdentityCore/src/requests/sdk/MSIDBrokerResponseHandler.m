@@ -38,7 +38,7 @@
 #import "MSIDDeviceInfo.h"
 #import "NSMutableDictionary+MSIDExtensions.h"
 #import "MSIDAuthenticationSchemePop.h"
-#import "MSIDAuthenticationSchemeBearer.h"
+#import "MSIDAuthenticationScheme.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -134,7 +134,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create account metadata cache with error %@", MSID_PII_LOG_MASKABLE(accountMetadataError));
     }
     
-    id<MSIDAuthenticationSchemeProtocol> authScheme = [self authSchemeFromResumeState:resumeState];
+    MSIDAuthenticationScheme *authScheme = [self authSchemeFromResumeState:resumeState];
 
     NSError *brokerError = nil;
     MSIDBrokerResponse *brokerResponse = [self brokerResponseFromEncryptedQueryParams:queryParamsMap
@@ -176,7 +176,7 @@
                                                                 error:error];
 }
 
-- (id<MSIDAuthenticationSchemeProtocol>)authSchemeFromResumeState:(NSDictionary *)resumeState
+- (MSIDAuthenticationScheme *)authSchemeFromResumeState:(NSDictionary *)resumeState
 {
     NSMutableDictionary *schemeParams = [NSMutableDictionary new];
     NSString *tokenType = resumeState[MSID_OAUTH2_TOKEN_TYPE];
@@ -189,7 +189,7 @@
     }
     else
     {
-        return [[MSIDAuthenticationSchemeBearer alloc] initWithSchemeParameters:schemeParams];
+        return [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:schemeParams];
     }
 }
 
@@ -281,7 +281,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(__unused NSDictionary *)encryptedParams
                                                      oidcScope:(__unused NSString *)oidcScope
                                                  correlationId:(__unused NSUUID *)correlationID
-                                                    authScheme:(__unused id<MSIDAuthenticationSchemeProtocol>)authScheme
+                                                    authScheme:(__unused MSIDAuthenticationScheme *)authScheme
                                                          error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");

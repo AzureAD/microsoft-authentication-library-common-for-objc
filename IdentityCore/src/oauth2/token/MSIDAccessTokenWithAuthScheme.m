@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDAccessTokenWithAuthScheme.h"
-#import "MSIDAuthenticationSchemeProtocol.h"
 #import "MSIDCredentialCacheItem.h"
 
 @implementation MSIDAccessTokenWithAuthScheme
@@ -38,7 +37,7 @@
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.kid = self.kid;
-    cacheItem.tokenType = self.tokenType;
+    cacheItem.accessTokenType = self.accessTokenType;
     return cacheItem;
 }
 
@@ -48,7 +47,7 @@
 {
     MSIDAccessTokenWithAuthScheme *item = [super copyWithZone:zone];
     item->_kid = [_kid copyWithZone:zone];
-    item->_tokenType = [_tokenType copyWithZone:zone];
+    item->_accessTokenType = [_accessTokenType copyWithZone:zone];
     return item;
 }
 
@@ -73,7 +72,7 @@
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.kid.hash;
-    hash = hash * 31 + self.tokenType.hash;
+    hash = hash * 31 + self.accessTokenType.hash;
     return hash;
 }
 
@@ -86,7 +85,7 @@
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.kid && !token.kid) || [self.kid isEqualToString:token.kid];
-    result &= (!self.tokenType && !token.tokenType) || [self.tokenType isEqualToString:token.tokenType];
+    result &= (!self.accessTokenType && !token.accessTokenType) || [self.accessTokenType isEqualToString:token.accessTokenType];
     return result;
 }
 
@@ -106,8 +105,8 @@
             return nil;
         }
         
-        _tokenType = tokenCacheItem.tokenType;
-        if (!_tokenType)
+        _accessTokenType = tokenCacheItem.accessTokenType;
+        if (!_accessTokenType)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize access token when missing token type field");
             return nil;

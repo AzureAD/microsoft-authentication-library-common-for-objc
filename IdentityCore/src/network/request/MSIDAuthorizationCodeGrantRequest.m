@@ -26,7 +26,7 @@
 @implementation MSIDAuthorizationCodeGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                      authScheme:(MSIDAuthenticationScheme *)authScheme
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                      redirectUri:(NSString *)redirectUri

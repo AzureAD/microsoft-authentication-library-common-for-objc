@@ -23,12 +23,10 @@
 
 #import "MSIDBaseToken.h"
 
-@protocol MSIDAuthenticationSchemeProtocol;
-
 @interface MSIDAccessToken : MSIDBaseToken
 {
     NSString *_accessToken;
-    NSString *_tokenType;
+    NSString *_accessTokenType;
     NSString *_kid;
 }
 
@@ -36,7 +34,6 @@
 @property (readwrite) NSDate *extendedExpiresOn;
 @property (readwrite) NSDate *cachedAt;
 @property (readwrite) NSString *accessToken;
-@property (readwrite) NSString *tokenType;
 
 // v1 access tokens are scoped down to resources
 @property (readwrite) NSString *resource;
@@ -52,6 +49,7 @@
 
 // Public key identifier used to bound the access tokens.
 @property (nonatomic) NSString *kid;
+@property (nonatomic) NSString *accessTokenType;
 
 - (BOOL)isExpired;
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;

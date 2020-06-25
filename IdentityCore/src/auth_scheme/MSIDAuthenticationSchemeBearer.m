@@ -26,43 +26,11 @@
 //------------------------------------------------------------------------------
 
 #import "MSIDAuthenticationSchemeBearer.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDAccessToken.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
 #import "MSIDAuthScheme.h"
 
 @implementation MSIDAuthenticationSchemeBearer
 
-- (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters
-{
-    self = [super init];
-    if (self)
-    {
-        _scheme = MSIDAuthSchemeBearer;
-        _schemeParameters = schemeParameters;
-    }
-    
-    return self;
-}
-
-- (MSIDCredentialType)credentialType
-{
-    return MSIDAccessTokenType;
-}
-
-- (NSString *)tokenType
-{
-    return nil;
-}
-
-- (nonnull MSIDAccessToken *)getAccessTokenFromResponse:(nonnull __unused MSIDTokenResponse *)response
-{
-    MSIDAccessToken *accessToken = [MSIDAccessToken new];
-    return accessToken;
-}
-
-- (BOOL)matchAccessTokenKeyThumbprint:(__unused MSIDAccessToken *)accessToken
-{
-    return YES;
-}
 
 @end

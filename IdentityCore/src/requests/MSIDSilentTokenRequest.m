@@ -44,7 +44,7 @@
 #import "MSIDExternalAADCacheSeeder.h"
 #endif
 
-#import "MSIDAuthenticationSchemeProtocol.h"
+#import "MSIDAuthenticationScheme.h"
 
 @interface MSIDSilentTokenRequest()
 

@@ -33,7 +33,7 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
-#import "MSIDAuthenticationSchemeBearer.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDRequestParameters
 
@@ -52,7 +52,7 @@
 }
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                       authScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+                       authScheme:(MSIDAuthenticationScheme *)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -122,7 +122,7 @@
                             MSID_APP_NAME_KEY: appName ? appName : @"",
                             MSID_APP_VER_KEY: appVer ? appVer : @""};
     
-    _authScheme = [MSIDAuthenticationSchemeBearer new];
+    _authScheme = [MSIDAuthenticationScheme new];
 }
 
 #pragma mark - Helpers
@@ -208,7 +208,7 @@
     return [requestScopes msidToString];
 }
 
-- (void)setAuthScheme:(id<MSIDAuthenticationSchemeProtocol>)authScheme
+- (void)setAuthScheme:(MSIDAuthenticationScheme *)authScheme
 {
     _authScheme = authScheme;
     [self updateMSIDConfiguration];
