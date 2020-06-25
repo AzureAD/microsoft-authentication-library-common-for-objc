@@ -1,3 +1,11 @@
+Version 1.5.3
+-----
+* Switch to PkeyAuth on macOS (#734)
+* Support returning additional WPJ info (#742)
+* Fixed PkeyAuth when ADFS challenge is URL encoded (#750)
+* Fixed CBA handling in MSAL (#751)
+* Fixed failing unit tests on 10.15 (#760)
+
 Version 1.5.2
 ------
 * Fix handling of certificate based authentication challenge.
