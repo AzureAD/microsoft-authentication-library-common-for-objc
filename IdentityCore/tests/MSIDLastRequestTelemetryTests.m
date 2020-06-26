@@ -49,7 +49,7 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
--(void)testUpdateTelemetryString_whenUpdatesFromDifferentThreads_shouldBeThreadSafe
+- (void)testUpdateTelemetryString_whenUpdatesFromDifferentThreads_shouldBeThreadSafe
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     
@@ -88,7 +88,7 @@
     XCTAssertEqual(telemetryObject.errorsInfo.count, 4);
 }
 
--(void)testSerialization_whenSingleValidProperty_shouldCreateString
+- (void)testSerialization_whenSingleValidProperty_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
@@ -97,7 +97,7 @@
     XCTAssertEqualObjects(result, @"2|0|30,00000000-0000-0000-0000-000000000001|error|");
 }
 
--(void)testSerialization_whenValidProperties_shouldCreateString
+- (void)testSerialization_whenValidProperties_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
@@ -111,7 +111,7 @@
     XCTAssertEqualObjects(result, @"2|0|30,00000000-0000-0000-0000-000000000001,40,00000000-0000-0000-0000-000000000001,50,00000000-0000-0000-0000-000000000001,60,00000000-0000-0000-0000-000000000001,70,00000000-0000-0000-0000-000000000001|error,error2,error3,error4,error5|");
 }
 
--(void)testSerialization_whenEmptyError_shouldCreateString
+- (void)testSerialization_whenEmptyError_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"" context:nil];
@@ -120,7 +120,7 @@
     XCTAssertEqualObjects(result, @"2|0|30,||");
 }
 
--(void)testSerialization_whenEmptyErrors_shouldCreateString
+- (void)testSerialization_whenEmptyErrors_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"" context:nil];
@@ -131,7 +131,7 @@
     XCTAssertEqualObjects(result, @"2|0|30,,40,,50,|,,|");
 }
 
--(void)testSerialization_whenNilError_shouldCreateString
+- (void)testSerialization_whenNilError_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:nil context:nil];
@@ -140,7 +140,7 @@
     XCTAssertEqualObjects(result, @"2|0|||");
 }
 
--(void)testSerialization_whenNilErrors_shouldCreateString
+- (void)testSerialization_whenNilErrors_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:nil context:nil];
@@ -154,7 +154,7 @@
     XCTAssertEqualObjects(result, @"2|0|||");
 }
 
--(void)testSerialization_whenValidandNilProperties_shouldCreateString
+- (void)testSerialization_whenValidandNilProperties_shouldCreateString
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     
@@ -175,7 +175,7 @@
     XCTAssertEqualObjects(result, @"2|0|70,00000000-0000-0000-0000-000000000001|error5|");
 }
 
--(void)testSaveToDisk_whenSingleErrorSaved_shouldSaveAndRestoreToSameObject
+- (void)testSaveToDisk_whenSingleErrorSaved_shouldSaveAndRestoreToSameObject
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
@@ -185,7 +185,7 @@
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
 
--(void)testSaveToDisk_whenMultipleSaves_shouldOverwriteAndRestoreToSameObject
+- (void)testSaveToDisk_whenMultipleSaves_shouldOverwriteAndRestoreToSameObject
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:10 errorString:@"error1" context:self.context];
@@ -203,7 +203,7 @@
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
 
--(void)testSaveToDisk_whenMultipleSavesThenReset_shouldOverwriteAndRestoreToSameObject
+- (void)testSaveToDisk_whenMultipleSavesThenReset_shouldOverwriteAndRestoreToSameObject
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:10 errorString:@"error1" context:self.context];
@@ -223,7 +223,7 @@
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
 
--(void)testSaveToDisk_whenSuccessfulSilentCall_shouldOverwriteAndRestoreToSameObject
+- (void)testSaveToDisk_whenSilentCall_shouldOverwriteAndRestoreToSameObject
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject updateWithApiId:10 errorString:@"error1" context:self.context];
@@ -231,7 +231,6 @@
     [telemetryObject updateWithApiId:30 errorString:@"error3" context:self.context];
 
     MSIDLastRequestTelemetry *restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
-    
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
     
     [telemetryObject updateWithApiId:30 errorString:nil context:nil];
@@ -240,11 +239,12 @@
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
     
     [telemetryObject increaseSilentSuccessfulCount];
+    
     restoredTelemetryObject = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathOfSavedTelemetry]];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
 
--(void)testSaveToDisk_whenManySilentCalls_shouldOverwriteAndRestoreToSameObject
+- (void)testSaveToDisk_whenManySilentCalls_shouldOverwriteAndRestoreToSameObject
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     [telemetryObject increaseSilentSuccessfulCount];
