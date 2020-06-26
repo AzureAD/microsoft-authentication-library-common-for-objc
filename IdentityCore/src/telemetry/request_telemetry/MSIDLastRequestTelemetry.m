@@ -160,15 +160,6 @@ static bool shouldReadFromDisk = YES;
     return result;
 }
 
-- (NSArray<MSIDRequestTelemetryErrorInfo *> *)errorsInfo
-{
-    __block NSArray *errorsInfoCopy;
-    dispatch_sync(self.synchronizationQueue, ^{
-        errorsInfoCopy = [NSArray arrayWithArray:_errorsInfo];
-    });
-    return errorsInfoCopy;
-}
-
 #pragma mark - NSCoding
 
 #define kSchemaVersion              @"schemaVersion"
@@ -177,9 +168,9 @@ static bool shouldReadFromDisk = YES;
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-    [encoder encodeFloat:self.schemaVersion forKey:kSchemaVersion];
-    [encoder encodeFloat:self.silentSuccessfulCount forKey:kSilentSuccessfulCount];
-    [encoder encodeObject:self.errorsInfo forKey:kErrorsInfo];
+    [encoder encodeFloat:_schemaVersion forKey:kSchemaVersion];
+    [encoder encodeFloat:_silentSuccessfulCount forKey:kSilentSuccessfulCount];
+    [encoder encodeObject:_errorsInfo forKey:kErrorsInfo];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder
@@ -210,7 +201,9 @@ static bool shouldReadFromDisk = YES;
 
 - (void)saveTelemetryToDisk
 {
-    [NSKeyedArchiver archiveRootObject:self toFile:[self filePathToSavedTelemetry]];
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        [NSKeyedArchiver archiveRootObject:self toFile:[self filePathToSavedTelemetry]];
+    });
 }
 
 - (id)initFromDecodedObjectWithSchemaVersion:(NSInteger)schemaVersion silentSuccessfulCount:(NSInteger)silentSuccessfulCount errorsInfo:(NSMutableArray<MSIDRequestTelemetryErrorInfo *>*) errorsInfo
@@ -235,6 +228,15 @@ static bool shouldReadFromDisk = YES;
 }
 
 #pragma mark - Private: Misc.
+
+- (NSArray<MSIDRequestTelemetryErrorInfo *> *)getErrorsInfo
+{
+    __block NSArray *errorsInfoCopy;
+    dispatch_sync(self.synchronizationQueue, ^{
+        errorsInfoCopy = [NSArray arrayWithArray:_errorsInfo];
+    });
+    return errorsInfoCopy;
+}
 
 - (dispatch_queue_t)initializeDispatchQueue
 {
