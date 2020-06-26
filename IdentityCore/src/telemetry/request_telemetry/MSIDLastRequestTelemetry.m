@@ -186,9 +186,9 @@ static bool shouldReadFromDisk = YES;
 {
     NSInteger schemaVersion = [decoder decodeFloatForKey:kSchemaVersion];
     NSInteger silentSuccessfulCount = [decoder decodeFloatForKey:kSilentSuccessfulCount];
-    NSMutableArray<MSIDRequestTelemetryErrorInfo *> *test = [decoder decodeObjectForKey:kErrorsInfo];
+    NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo = [decoder decodeObjectForKey:kErrorsInfo];
     
-    return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:test];
+    return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:errorsInfo];
 }
 
 #pragma mark - Private: Serialization
