@@ -229,7 +229,7 @@ static bool shouldReadFromDisk = YES;
 
 #pragma mark - Private: Misc.
 
-- (NSArray<MSIDRequestTelemetryErrorInfo *> *)getErrorsInfo
+- (NSArray<MSIDRequestTelemetryErrorInfo *> *)errorsInfo
 {
     __block NSArray *errorsInfoCopy;
     dispatch_sync(self.synchronizationQueue, ^{
