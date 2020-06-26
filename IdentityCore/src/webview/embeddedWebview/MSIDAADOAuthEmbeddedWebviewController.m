@@ -67,8 +67,6 @@
     if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] ||
         [requestURL.scheme.lowercaseString isEqualToString:@"browser"] )
     {
-        self.complete = YES;
-        
         NSURL *url = navigationAction.request.URL;
         [self completeWebAuthWithURL:url];
         
