@@ -226,11 +226,6 @@
 
 - (BOOL)supportsBrokeredAuthentication
 {
-    if (self.tenant.type == MSIDAADTenantTypeConsumers)
-    {
-        return NO;
-    }
-    
     return YES;
 }
 
