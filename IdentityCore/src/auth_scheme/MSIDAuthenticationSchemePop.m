@@ -90,12 +90,12 @@
     return MSIDAuthSchemeTypeFromString(scheme);
 }
 
-- (MSIDAccessToken *)accessToken
+- (MSIDAccessToken *)blankAccessToken
 {
-    MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
-    accessToken.accessTokenType = self.tokenType;
-    accessToken.kid = self.kid;
-    return accessToken;
+    MSIDAccessTokenWithAuthScheme *blankAccessToken = [MSIDAccessTokenWithAuthScheme new];
+    blankAccessToken.accessTokenType = self.tokenType;
+    blankAccessToken.kid = self.kid;
+    return blankAccessToken;
 }
 
 - (MSIDCredentialType)credentialType

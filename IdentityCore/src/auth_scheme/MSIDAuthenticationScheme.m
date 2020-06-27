@@ -70,10 +70,10 @@
     return nil;
 }
 
-- (nonnull MSIDAccessToken *)accessToken
+- (nonnull MSIDAccessToken *)blankAccessToken
 {
-    MSIDAccessToken *accessToken = [MSIDAccessToken new];
-    return accessToken;
+    MSIDAccessToken *blankAccessToken = [MSIDAccessToken new];
+    return blankAccessToken;
 }
 
 - (BOOL)matchAccessTokenKeyThumbprint:(__unused MSIDAccessToken *)accessToken
