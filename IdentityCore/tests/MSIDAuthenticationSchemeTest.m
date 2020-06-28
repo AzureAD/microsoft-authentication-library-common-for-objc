@@ -23,7 +23,6 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDAuthenticationScheme.h"
-#import "MSIDAuthenticationSchemePop.h"
 #import "MSIDConstants.h"
 #import "MSIDAccessToken.h"
 
@@ -33,39 +32,41 @@
 
 @implementation MSIDAuthenticationSchemeTest
 
-- (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+- (void)test_whenDefaultInit_shouldReturnBearerScheme
+{
+    MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] init];
+    [self test_assertDefaultAttributesInScheme:scheme];
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void)test_whenInitWithEmptySchemeParameters_shouldReturnBearerScheme
+{
+    MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters: [self prepareBearerSchemeParams]];
+    [self test_assertDefaultAttributesInScheme:scheme];
 }
 
-- (void)test_whenInitWithEmptySchemeParameters_shouldReturnBearerScheme {
-    MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
-    XCTAssertEqual(scheme.authScheme, MSIDAuthSchemeBearer);
-    XCTAssertEqual(scheme.credentialType, MSIDAccessTokenType);
-}
-
-- (void)test_whenInitBearerScheme_shouldMatchingThumbprintAlwaysYes {
+- (void)test_whenInitBearerScheme_shouldMatchingThumbprintAlwaysYes
+{
     MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
     XCTAssertEqual([scheme matchAccessTokenKeyThumbprint:[MSIDAccessToken new]], YES);
 }
 
-- (void)test_whenInitBearerParameters_shouldAccessTokenNoKid {
+- (void)test_whenInitBearerParameters_shouldAccessTokenNoKid
+{
     MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
+    XCTAssertNil(scheme.blankAccessToken.kid);
+}
+
+- (void) test_assertDefaultAttributesInScheme:(MSIDAuthenticationScheme *) scheme
+{
+    XCTAssertEqual(scheme.authScheme, MSIDAuthSchemeBearer);
+    XCTAssertEqual(scheme.credentialType, MSIDAccessTokenType);
+    XCTAssertNil(scheme.tokenType);
     XCTAssertNil(scheme.blankAccessToken.kid);
 }
 
 - (NSDictionary *)prepareBearerSchemeParams
 {
     return [NSMutableDictionary new];
-}
-
-- (NSDictionary *)preparePopSchemeParams
-{
-    NSMutableDictionary *params = [NSMutableDictionary new];
-    params.
 }
 
 @end
