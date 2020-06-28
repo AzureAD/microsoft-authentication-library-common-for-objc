@@ -32,6 +32,7 @@ NSString *const MSID_OAUTH2_AUTHORITY           = @"authority";
 NSString *const MSID_OAUTH2_AUTHORIZATION_CODE = @"authorization_code";
 NSString *const MSID_OAUTH2_AUTHORIZATION_URI  = @"authorization_uri";
 NSString *const MSID_OAUTH2_BEARER             = @"Bearer";
+NSString *const MSID_OAUTH2_POP                = @"Pop";
 NSString *const MSID_OAUTH2_CLIENT_ID          = @"client_id";
 NSString *const MSID_OAUTH2_CLAIMS             = @"claims";
 NSString *const MSID_OAUTH2_CODE               = @"code";

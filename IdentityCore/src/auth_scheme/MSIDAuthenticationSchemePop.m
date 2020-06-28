@@ -36,9 +36,6 @@
 
 @interface MSIDAuthenticationSchemePop()
 
-@property (nonatomic) NSString *kid;
-@property (nonatomic) NSString *req_cnf;
-
 @end
 
 
@@ -55,6 +52,11 @@
     
     if (self)
     {
+        if (_authScheme != MSIDAuthSchemePop)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Wrong token_type string");
+            return nil;
+        }
         _req_cnf = [_schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
         
         if (!_req_cnf)
@@ -64,14 +66,23 @@
         }
         
         NSString *kidJwk = [_req_cnf msidBase64UrlDecode];
+        if (!kidJwk)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf");
+            return nil;
+        }
         NSData *kidData = [kidJwk dataUsingEncoding:NSUTF8StringEncoding];
-        
+        if (!kidData)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf");
+            return nil;
+        }
         NSError *kidReadingError = nil;
         NSDictionary *kidDict = [NSJSONSerialization JSONObjectWithData:kidData options:0 error:&kidReadingError];
         _kid = [kidDict objectForKey:MSID_KID_CACHE_KEY];
         if (!_kid)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to generate kid from req_cnf, error: %@", MSID_PII_LOG_MASKABLE(kidReadingError));
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to generate kid from req_cnf, error: %@", MSID_PII_LOG_MASKABLE(kidReadingError));
             return nil;
         }
     }

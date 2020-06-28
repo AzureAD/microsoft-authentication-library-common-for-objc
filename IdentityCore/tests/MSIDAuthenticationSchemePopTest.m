@@ -22,31 +22,113 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
-
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAccessToken.h"
+#import "MSIDAccessTokenWithAuthScheme.h"
 @interface MSIDAuthenticationSchemePopTest : XCTestCase
 
 @end
 
 @implementation MSIDAuthenticationSchemePopTest
 
-- (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+- (void) test_InitWithCorrectParams_shouldReturnCompleteScheme
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
+    [self test_assertDefaultAttributesInScheme:scheme];
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void) test_InitWithInCorrectTokenType_shouldReturnNil
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter_incorrectTokenType]];
+    XCTAssertNil(scheme);
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (void) test_InitWithInCorrectReqConf_shouldReturnNil
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter_incorrectReqCnf]];
+    XCTAssertNil(scheme);
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+- (void) test_MatchAccessTokenKeyThumbprint
+{
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:[self preparePopSchemeParameter]];
+    
+    MSIDAccessToken *emptyAccessToken = [MSIDAccessToken new];
+    XCTAssertFalse([scheme matchAccessTokenKeyThumbprint:emptyAccessToken]);
+    
+    MSIDAccessToken *correctToken = [MSIDAccessToken new];
+    correctToken.kid = @"XiMaaghIwBYt0-e6EArulnikKlLUuYkquGFM9ba9D1w";
+    XCTAssertTrue([scheme matchAccessTokenKeyThumbprint:correctToken]);
+    
+    MSIDAccessToken *incorrectToken = [MSIDAccessToken new];
+    incorrectToken.kid = @"123XiMaaghIwBYt0-e6EArulnikKlLUuYkquGFM9ba9D1w";
+    XCTAssertFalse([scheme matchAccessTokenKeyThumbprint:incorrectToken]);
+}
+
+- (void) test_InitWithCorrectJson_shouldReturnCompleteScheme
+{
+    NSDictionary *json = [self preparePopSchemeParameter];
+    NSError *error = nil;
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithJSONDictionary:json error:&error];
+    XCTAssertNotNil(scheme);
+    XCTAssertNil(error);
+    [self test_assertDefaultAttributesInScheme:scheme];
+}
+
+- (void) test_InitWithIncorrectJson_shouldReturnNil{
+    NSDictionary *json = [self preparePopSchemeParameter_missingTokenType];
+    NSError *error = nil;
+    MSIDAuthenticationSchemePop *scheme = [[MSIDAuthenticationSchemePop alloc] initWithJSONDictionary:json error:&error];
+    XCTAssertNil(scheme);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (NSDictionary *) preparePopSchemeParameter
+{
+    NSMutableDictionary *params = [NSMutableDictionary new];
+    [params setObject:@"Pop" forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [params setObject:@"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0" forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    return params;
+}
+
+- (NSDictionary *) preparePopSchemeParameter_incorrectTokenType
+{
+    NSMutableDictionary *params = [NSMutableDictionary new];
+    [params setObject:@"Pop1" forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [params setObject:@"eyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0" forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    return params;
+}
+
+- (NSDictionary *) preparePopSchemeParameter_incorrectReqCnf
+{
+    NSMutableDictionary *params = [NSMutableDictionary new];
+    [params setObject:@"Pop" forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [params setObject:@"123abceyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0" forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    return params;
+}
+
+- (NSDictionary *) preparePopSchemeParameter_missingTokenType
+{
+    NSMutableDictionary *params = [NSMutableDictionary new];
+    [params setObject:@"Pop" forKey:@"token_type1"];
+    [params setObject:@"123abceyJraWQiOiJYaU1hYWdoSXdCWXQwLWU2RUFydWxuaWtLbExVdVlrcXVHRk05YmE5RDF3In0" forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    return params;
+}
+
+- (void) test_assertDefaultAttributesInScheme:(MSIDAuthenticationSchemePop *)scheme
+{
+    XCTAssertNotNil(scheme.kid);
+    XCTAssertNotNil(scheme.req_cnf);
+    XCTAssertEqual(scheme.authScheme, MSIDAuthSchemePop);
+    XCTAssertEqual(scheme.credentialType, MSIDAccessTokenWithAuthSchemeType);
+    XCTAssertEqual(scheme.tokenType, MSID_OAUTH2_POP);
+    XCTAssertNotNil(scheme.blankAccessToken);
+    
+    MSIDAccessToken *accessToken = scheme.blankAccessToken;
+    XCTAssertTrue([accessToken isMemberOfClass:[MSIDAccessTokenWithAuthScheme class]]);
+    XCTAssertNotNil((MSIDAccessTokenWithAuthScheme *)accessToken.accessTokenType);
+    XCTAssertNotNil((MSIDAccessTokenWithAuthScheme *)accessToken.kid);
 }
 
 @end
