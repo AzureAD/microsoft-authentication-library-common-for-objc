@@ -39,7 +39,7 @@
     self.requestInfo.text = nil;
 }
 
-- (IBAction)go:(id)sender
+- (IBAction)go:(__unused id)sender
 {
     self.requestInfo.editable = NO;
     self.requestGo.enabled = NO;
@@ -54,6 +54,7 @@
     }
 
     MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    request.parentController = self;
     
     self.completionBlock(request);
 }

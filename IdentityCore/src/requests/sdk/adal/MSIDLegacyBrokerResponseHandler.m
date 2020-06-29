@@ -31,25 +31,40 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDConstants.h"
+#import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDRequestParameters.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDKeychainTokenCache.h"
 #endif
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDLegacyBrokerResponseHandler
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
-                                                  error:(NSError **)error
+                                                  error:(__unused NSError **)error
 {
 #if TARGET_OS_IPHONE
-    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup];
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
+    
+    if (!dataSource)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
     MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     MSIDLegacyTokenCacheAccessor *cache = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
     return cache;
 #else
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker responses not supported on macOS", nil, nil, nil, nil, nil, YES);
     }
 
     return nil;
@@ -59,6 +74,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
+                                                    authScheme:(MSIDAuthenticationScheme *)authScheme
                                                          error:(NSError **)error
 {
     // Successful case
@@ -72,8 +88,20 @@
         {
             return nil;
         }
+        
+        if (![self checkBrokerNonce:decryptedResponse])
+        {
+            MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+            return nil;
+        }
 
         return [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
+    }
+    
+    if (![self checkBrokerNonce:encryptedParams])
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
+        return nil;
     }
 
     NSString *userDisplayableId = nil;
@@ -83,7 +111,7 @@
     {
         NSDictionary *intuneResponseDictionary = @{@"response": encryptedParams[@"intune_mam_token"],
                                                    @"hash": encryptedParams[@"intune_mam_token_hash"],
-                                                   @"msg_protocol_ver": encryptedParams[@"msg_protocol_ver"] ?: @2};
+                                                   MSID_BROKER_PROTOCOL_VERSION_KEY: encryptedParams[MSID_BROKER_PROTOCOL_VERSION_KEY] ?: @(MSID_BROKER_PROTOCOL_VERSION_2)};
 
         NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:intuneResponseDictionary
                                                                              correlationId:correlationID
@@ -98,15 +126,19 @@
         MSIDAADV1BrokerResponse *brokerResponse = [[MSIDAADV1BrokerResponse alloc] initWithDictionary:decryptedResponse error:&intuneError];
         MSIDTokenResult *intuneResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                          oidcScope:oidcScope
+                                                                                  requestAuthority:self.providedAuthority
+                                                                                     instanceAware:self.instanceAware
                                                                                       oauthFactory:self.oauthFactory
                                                                                         tokenCache:self.tokenCache
+                                                                              accountMetadataCache:self.accountMetadataCacheAccessor
                                                                                      correlationID:correlationID
+                                                                                  saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                                                        authScheme:authScheme
                                                                                              error:&intuneError];
 
         if (!intuneResult)
         {
-            MSID_LOG_NO_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save intune token with error %ld, %@", (long)intuneError.code, intuneError.domain);
-            MSID_LOG_PII(MSIDLogLevelWarning, correlationID, nil, @"Unable to save intune token with error %@", intuneError);
+            MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, correlationID, @"Unable to save intune token with error %@", MSID_PII_LOG_MASKABLE(intuneError));
         }
         else
         {
@@ -164,10 +196,27 @@
         NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
     }
+    
+    MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationId, @"Broker returned error with domain %@, code %@, oauth error %@, suberror %@, broker version %@, description %@", errorDomain, errorCodeString, oauthErrorCode, errorResponse.subError, errorResponse.brokerAppVer, MSID_PII_LOG_MASKABLE(errorDescription));
 
-    NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, errorResponse.subError, nil, correlationId, userInfo);
+    NSError *brokerError = MSIDCreateError(errorDomain, errorCode, errorDescription, oauthErrorCode, errorResponse.subError, nil, correlationId, userInfo, NO);
 
     return brokerError;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    return nil;
+}
+
+- (BOOL)canHandleBrokerResponse:(NSURL *)response
+             hasCompletionBlock:(BOOL)hasCompletionBlock
+{
+    return [self canHandleBrokerResponse:response
+                      hasCompletionBlock:hasCompletionBlock
+                         protocolVersion:MSID_ADAL_BROKER_MESSAGE_VERSION
+                                 sdkName:MSID_ADAL_SDK_NAME];
 }
 
 @end

@@ -33,8 +33,13 @@
 #import "MSIDKeychainTokenCache.h"
 #endif
 #import "MSIDTokenResponseValidator.h"
-#import "MSIDTelemetryBrokerEvent.h"
 #import "MSIDTelemetryEventStrings.h"
+#import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDDeviceInfo.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthScheme.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -42,6 +47,12 @@
 @property (nonatomic, readwrite) MSIDBrokerCryptoProvider *brokerCryptoProvider;
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readwrite) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic, readwrite) MSIDAccountMetadataCacheAccessor *accountMetadataCacheAccessor;
+
+@property (nonatomic, readwrite) BOOL sourceApplicationAvailable;
+@property (nonatomic, readwrite) NSString *brokerNonce;
+@property (nonatomic, readwrite) NSURL *providedAuthority;
+@property (nonatomic, readwrite) BOOL instanceAware;
 
 @end
 
@@ -65,9 +76,9 @@
 
 #pragma mark - Broker response
 
-- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response error:(NSError **)error
+- (MSIDTokenResult *)handleBrokerResponseWithURL:(NSURL *)response sourceApplication:(NSString *)sourceApplication error:(NSError **)error
 {
-    MSID_LOG_INFO(nil, @"Handling broker response.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Handling broker response.");
     
     // Verify resume dictionary
     NSDictionary *resumeState = [self verifyResumeStateDicrionary:response error:error];
@@ -80,6 +91,11 @@
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
     NSString *keychainGroup = resumeState[@"keychain_group"];
     NSString *oidcScope = resumeState[@"oidc_scope"];
+    NSString *providedAuthorityStr = [resumeState msidStringObjectForKey:@"provided_authority_url"] ?: [resumeState msidStringObjectForKey:@"authority"];
+    self.providedAuthority = providedAuthorityStr ? [NSURL URLWithString:providedAuthorityStr] : nil;
+    self.instanceAware = [resumeState msidBoolObjectForKey:@"instance_aware"];
+    self.brokerNonce = resumeState[@"broker_nonce"];
+    self.sourceApplicationAvailable = sourceApplication != nil;
 
     // Initialize broker key and cache datasource
     MSIDBrokerKeyProvider *brokerKeyProvider = [[MSIDBrokerKeyProvider alloc] initWithGroup:keychainGroup];
@@ -110,11 +126,22 @@
         if (error) *error = cacheError;
         return nil;
     }
+    
+    NSError *accountMetadataError;
+    self.accountMetadataCacheAccessor = [self accountMetadataCacheWithKeychainGroup:keychainGroup error:&accountMetadataError];
+    
+    if (accountMetadataError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create account metadata cache with error %@", MSID_PII_LOG_MASKABLE(accountMetadataError));
+    }
+    
+    MSIDAuthenticationScheme *authScheme = [self authSchemeFromResumeState:resumeState];
 
     NSError *brokerError = nil;
     MSIDBrokerResponse *brokerResponse = [self brokerResponseFromEncryptedQueryParams:queryParamsMap
                                                                             oidcScope:oidcScope
                                                                         correlationId:correlationId
+                                                                           authScheme:authScheme
                                                                                 error:&brokerError];
 
     if (!brokerResponse)
@@ -122,13 +149,69 @@
         if (error) *error = brokerError;
         return nil;
     }
-
+    
+    NSString *applicationToken = brokerResponse.applicationToken;
+    
+    if (![NSString msidIsStringNilOrBlank:applicationToken])
+    {
+        NSError *appTokenError = nil;
+        BOOL saveAppToken = [brokerKeyProvider saveApplicationToken:applicationToken forClientId:brokerResponse.clientId error:&appTokenError];
+        
+        if (!saveAppToken)
+        {
+            //This particular error is best case effort so we do not need to surface the error to the developer.
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to save broker application token, error: %@", appTokenError);
+        }
+    }
+    
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                             oidcScope:oidcScope
+                                                     requestAuthority:self.providedAuthority
+                                                        instanceAware:self.instanceAware
                                                          oauthFactory:self.oauthFactory
                                                            tokenCache:self.tokenCache
+                                                 accountMetadataCache:self.accountMetadataCacheAccessor
                                                         correlationID:correlationId
+                                                     saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                           authScheme:authScheme
                                                                 error:error];
+}
+
+- (MSIDAuthenticationScheme *)authSchemeFromResumeState:(NSDictionary *)resumeState
+{
+    NSMutableDictionary *schemeParams = [NSMutableDictionary new];
+    NSString *tokenType = resumeState[MSID_OAUTH2_TOKEN_TYPE];
+    NSString *requestConf = resumeState[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [schemeParams msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [schemeParams msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    if (tokenType && MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+    {
+        return [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+    }
+    else
+    {
+        return [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:schemeParams];
+    }
+}
+
+- (BOOL)canHandleBrokerResponse:(NSURL *)response
+             hasCompletionBlock:(BOOL)hasCompletionBlock
+                protocolVersion:(NSString *)expectedProtocolVersion
+                        sdkName:(NSString *)sdkName
+{
+    if (!response) { return NO; }
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:response resolvingAgainstBaseURL:NO];
+    NSString *qpString = [components percentEncodedQuery];
+    NSDictionary *queryParamsMap = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:qpString];
+    
+    NSString *protocolVersion = queryParamsMap[MSID_BROKER_PROTOCOL_VERSION_KEY];
+    BOOL isValidVersion = [protocolVersion isEqualToString:expectedProtocolVersion];
+    
+    NSDictionary *resumeDictionary = [[NSUserDefaults standardUserDefaults] objectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    BOOL isRequestInitiatedBySdk = [resumeDictionary[MSID_SDK_NAME_KEY] isEqualToString:sdkName] || (resumeDictionary == nil && hasCompletionBlock);
+    
+    return isValidVersion && isRequestInitiatedBySdk;
 }
 
 #pragma mark - Helpers
@@ -157,6 +240,13 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Resume state is missing the redirect uri!", correlationId);
         return nil;
     }
+    
+    NSString *brokerNonce = [resumeDictionary objectForKey:@"broker_nonce"];
+    if (!brokerNonce)
+    {
+        MSIDFillAndLogError(error, MSIDErrorBrokerBadResumeStateFound, @"Resume state is missing the broker nonce!", correlationId);
+        return nil;
+    }
 
     NSString *keychainGroup = resumeDictionary[@"keychain_group"];
 
@@ -176,11 +266,23 @@
     return resumeDictionary;
 }
 
+- (BOOL)checkBrokerNonce:(NSDictionary *)responseDict
+{
+    // only verify nonce if sourceApplication is nil
+    if (!self.sourceApplicationAvailable)
+    {
+        return [self.brokerNonce isEqualToString:responseDict[@"broker_nonce"]];
+    }
+    
+    return YES;
+}
+
 #pragma mark - Abstract
 
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(__unused NSDictionary *)encryptedParams
                                                      oidcScope:(__unused NSString *)oidcScope
                                                  correlationId:(__unused NSUUID *)correlationID
+                                                    authScheme:(__unused MSIDAuthenticationScheme *)authScheme
                                                          error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
@@ -192,6 +294,19 @@
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    NSAssert(NO, @"Abstract method, implemented in subclasses");
+    return nil;
+}
+
+- (BOOL)canHandleBrokerResponse:(__unused NSURL *)response
+             hasCompletionBlock:(__unused BOOL)hasCompletionBlock
+{
+    return YES;
 }
 
 @end

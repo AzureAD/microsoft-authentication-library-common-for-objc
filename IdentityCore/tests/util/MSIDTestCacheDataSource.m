@@ -32,6 +32,9 @@
 #import "MSIDKeyedArchiverSerializer.h"
 #import "MSIDAccount.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountCacheItem.h"
+#import "MSIDAccountMetadata.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDTestCacheDataSource()
 {
@@ -67,7 +70,7 @@
 
 - (BOOL)saveToken:(MSIDCredentialCacheItem *)item
               key:(MSIDCacheKey *)key
-       serializer:(id<MSIDCredentialItemSerializer>)serializer
+       serializer:(id<MSIDCacheItemSerializing>)serializer
           context:(id<MSIDRequestContext>)context
             error:(NSError **)error
 {
@@ -77,7 +80,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return NO;
@@ -93,15 +96,15 @@
 }
 
 - (MSIDCredentialCacheItem *)tokenWithKey:(MSIDCacheKey *)key
-                          serializer:(id<MSIDCredentialItemSerializer>)serializer
-                             context:(id<MSIDRequestContext>)context
-                               error:(NSError **)error
+                               serializer:(id<MSIDCacheItemSerializing>)serializer
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
 {
     if (!serializer)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -117,21 +120,21 @@
     return token;
 }
 
-- (BOOL)removeItemsWithTokenKey:(MSIDCacheKey *)key
-                        context:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)removeTokensWithKey:(MSIDCacheKey *)key
+                    context:(id<MSIDRequestContext>)context
+                      error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
-- (BOOL)removeItemsWithAccountKey:(MSIDCacheKey *)key
-                          context:(id<MSIDRequestContext>)context
-                            error:(NSError **)error
+- (BOOL)removeAccountsWithKey:(MSIDCacheKey *)key
+                      context:(id<MSIDRequestContext>)context
+                        error:(NSError **)error
 {
     return [self removeItemsWithKey:key context:context error:error];
 }
 
-- (BOOL)removeItemsWithMetadataKey:(MSIDCacheKey *)key
+- (BOOL)removeMetadataItemsWithKey:(MSIDCacheKey *)key
                            context:(id<MSIDRequestContext>)context
                              error:(NSError **)error
 {
@@ -139,14 +142,14 @@
 }
 
 - (BOOL)removeItemsWithKey:(MSIDCacheKey *)key
-                   context:(id<MSIDRequestContext>)context
+                   context:(__unused id<MSIDRequestContext>)context
                      error:(NSError **)error
 {
     if (!key)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return NO;
@@ -177,15 +180,15 @@
 }
 
 - (NSArray<MSIDCredentialCacheItem *> *)tokensWithKey:(MSIDCacheKey *)key
-                                      serializer:(id<MSIDCredentialItemSerializer>)serializer
-                                         context:(id<MSIDRequestContext>)context
-                                           error:(NSError **)error
+                                           serializer:(id<MSIDCacheItemSerializing>)serializer
+                                              context:(id<MSIDRequestContext>)context
+                                                error:(NSError **)error
 {
     if (!serializer)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -212,22 +215,22 @@
     return resultItems;
 }
 
-- (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)saveWipeInfoWithContext:(__unused id<MSIDRequestContext>)context
+                          error:(__unused NSError **)error
 {
     _wipeInfo = @{@"wiped": [NSDate date]};
     return YES;
 }
 
-- (NSDictionary *)wipeInfo:(id<MSIDRequestContext>)context
-                     error:(NSError **)error
+- (NSDictionary *)wipeInfo:(__unused id<MSIDRequestContext>)context
+                     error:(__unused NSError **)error
 {
     return _wipeInfo;
 }
 
 - (BOOL)saveAccount:(MSIDAccountCacheItem *)item
                 key:(MSIDCacheKey *)key
-         serializer:(id<MSIDAccountItemSerializer>)serializer
+         serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error
 {
@@ -236,13 +239,13 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return NO;
     }
     
-    NSData *serializedItem = [serializer serializeAccountCacheItem:item];
+    NSData *serializedItem = [serializer serializeCacheItem:item];
     return [self saveItemData:serializedItem
                           key:key
                     cacheKeys:_accountKeys
@@ -252,7 +255,7 @@
 }
 
 - (MSIDAccountCacheItem *)accountWithKey:(MSIDCacheKey *)key
-                              serializer:(id<MSIDAccountItemSerializer>)serializer
+                              serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
@@ -260,7 +263,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -272,12 +275,12 @@
                                      context:context
                                        error:error];
     
-    MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:itemData];
+    MSIDAccountCacheItem *token = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountCacheItem class]];
     return token;
 }
 
 - (NSArray<MSIDAccountCacheItem *> *)accountsWithKey:(MSIDCacheKey *)key
-                                          serializer:(id<MSIDAccountItemSerializer>)serializer
+                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                              context:(id<MSIDRequestContext>)context
                                                error:(NSError **)error
 {
@@ -285,7 +288,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -301,7 +304,7 @@
     
     for (NSData *itemData in items)
     {
-        MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:itemData];
+        MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountCacheItem class]];
         
         if (account)
         {
@@ -311,6 +314,27 @@
     
     return resultItems;
 }
+
+- (NSArray<MSIDJsonObject *> *)jsonObjectsWithKey:(__unused MSIDCacheKey *)key
+                                       serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
+                                          context:(__unused id<MSIDRequestContext>)context
+                                            error:(__unused NSError *__autoreleasing *)error
+{
+    // TODO
+    return nil;
+}
+
+
+- (BOOL)saveJsonObject:(__unused MSIDJsonObject *)jsonObject
+            serializer:(__unused id<MSIDExtendedCacheItemSerializing>)serializer
+                   key:(__unused MSIDCacheKey *)key
+               context:(__unused id<MSIDRequestContext>)context
+                 error:(__unused NSError *__autoreleasing *)error
+{
+    // TODO
+    return NO;
+}
+
 
 #pragma mark - Helpers
 
@@ -361,7 +385,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -386,14 +410,14 @@
                  key:(MSIDCacheKey *)key
            cacheKeys:(NSMutableDictionary *)cacheKeys
         cacheContent:(NSMutableDictionary *)cacheContent
-             context:(id<MSIDRequestContext>)context
+             context:(__unused id<MSIDRequestContext>)context
                error:(NSError **)error
 {
     if (!key || !cacheKeys || !cacheContent)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return NO;
@@ -403,7 +427,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't serialize the MSIDBaseToken item", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Couldn't serialize the MSIDBaseToken item", nil, nil, nil, nil, nil, YES);
         }
         
         return NO;
@@ -434,7 +458,7 @@
 - (NSArray<NSData *> *)itemsWithKey:(MSIDCacheKey *)key
                      keysDictionary:(NSDictionary *)cacheKeys
                   contentDictionary:(NSDictionary *)cacheContent
-                            context:(id<MSIDRequestContext>)context
+                            context:(__unused id<MSIDRequestContext>)context
                               error:(NSError **)error
 {
     if (!key
@@ -443,7 +467,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -502,15 +526,84 @@
     return resultItems;
 }
 
-- (BOOL)clearWithContext:(id<MSIDRequestContext>)context error:(NSError **)error
+- (BOOL)clearWithContext:(__unused id<MSIDRequestContext>)context error:(__unused NSError **)error
 {
     [self reset];
     return YES;
 }
 
+- (MSIDAccountMetadataCacheItem *)accountMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    NSData *data = [self itemDataWithKey:key keysDictionary:_accountKeys contentDictionary:_accountContents context:context error:error];
+    return (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    NSArray *items = [self itemsWithKey:key keysDictionary:_accountKeys contentDictionary:_accountContents context:context error:error];
+    
+    NSMutableArray *metadataItems = [NSMutableArray new];
+    for(NSData *data in items)
+    {
+        MSIDAccountMetadataCacheItem *metadata = (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
+        if (metadata)
+        {
+            [metadataItems addObject:metadata];
+        }
+    }
+    return metadataItems;
+}
+
+- (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    return [self removeItemsWithKey:key context:context error:error];
+}
+
+
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item key:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!item || !serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return NO;
+    }
+    NSData *serializedItem = [serializer serializeCacheItem:item];
+    return [self saveItemData:serializedItem
+                          key:key
+                    cacheKeys:_accountKeys
+                 cacheContent:_accountContents
+                      context:context
+                        error:error];
+}
+
+
 - (BOOL)saveAppMetadata:(MSIDAppMetadataCacheItem *)item
                     key:(MSIDCacheKey *)key
-             serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+             serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                 context:(id<MSIDRequestContext>)context
                   error:(NSError **)error
 {
@@ -519,13 +612,13 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return NO;
     }
     
-    NSData *serializedItem = [serializer serializeAppMetadataCacheItem:item];
+    NSData *serializedItem = [serializer serializeCacheItem:item];
     return [self saveItemData:serializedItem
                           key:key
                     cacheKeys:_accountKeys
@@ -535,15 +628,15 @@
 }
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)appMetadataEntriesWithKey:(MSIDCacheKey *)key
-                                                        serializer:(id<MSIDAppMetadataItemSerializer>)serializer
+                                                        serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                            context:(id<MSIDRequestContext>)context
-                                                             error:(NSError **)error;
+                                                             error:(NSError **)error
 {
     if (!serializer)
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
         }
         
         return nil;
@@ -559,7 +652,7 @@
     
     for (NSData *itemData in items)
     {
-        MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:itemData];
+        MSIDAppMetadataCacheItem *appMetadata = (MSIDAppMetadataCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAppMetadataCacheItem class]];
         
         if (appMetadata)
         {
@@ -617,7 +710,7 @@
 }
 
 - (NSArray *)allTokensWithType:(MSIDCredentialType)type
-                    serializer:(id<MSIDCredentialItemSerializer>)serializer
+                    serializer:(id<MSIDCacheItemSerializing>)serializer
 {
     NSMutableArray *results = [NSMutableArray array];
     
@@ -652,7 +745,7 @@
         
         for (NSData *accountData in [_accountContents allValues])
         {
-            MSIDAccountCacheItem *accountCacheItem = [serializer deserializeAccountCacheItem:accountData];
+            MSIDAccountCacheItem *accountCacheItem = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:accountData ofClass:[MSIDAccountCacheItem class]];
             
             if (accountCacheItem)
             {

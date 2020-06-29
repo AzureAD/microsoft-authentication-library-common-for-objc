@@ -25,7 +25,6 @@
 #import "MSIDCredentialCacheItem.h"
 #import "MSIDTestIdentifiers.h"
 #import "NSDictionary+MSIDTestUtil.h"
-#import "MSIDClientInfo.h"
 
 @interface MSIDCredentialCacheItemTests : XCTestCase
 
@@ -54,11 +53,7 @@
     cacheItem.expiresOn = expiresOn;
     cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
-
-    NSDictionary *additionalInfo = @{@"test": @"test2",
-                                     @"spe_info": @"2"};
-
-    cacheItem.additionalInfo = additionalInfo;
+    cacheItem.speInfo = @"2";
 
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
@@ -165,9 +160,7 @@
     XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
     XCTAssertEqualObjects(cacheItem.cachedAt, cachedAt);
     XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ACCESS_TOKEN);
-    // @"test" is an unrecognized string and doesn't get added to the additional fields
-    NSDictionary *additionalInfo = @{@"spe_info": @"2"};
-    XCTAssertEqualObjects(cacheItem.additionalInfo, additionalInfo);
+    XCTAssertEqualObjects(cacheItem.speInfo, @"2");
     XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(cacheItem.enrollmentId, @"enrollmentId");
 }
@@ -219,6 +212,33 @@
     XCTAssertNil(cacheItem.enrollmentId);
 }
 
+- (void)testInitWithJSONData_whenJSONDictionaryContainsNulls_shouldReturnTokenCacheItemWithMissingFields
+{
+    NSDictionary *corruptedJsonDictionary = @{@"credential_type": @"IdToken",
+                                              @"client_id": DEFAULT_TEST_CLIENT_ID,
+                                              @"secret": DEFAULT_TEST_ID_TOKEN,
+                                              @"environment": DEFAULT_TEST_ENVIRONMENT,
+                                              @"realm": @"contoso.com",
+                                              @"home_account_id": @"uid.utid",
+                                              @"family_id": [NSNull null]
+                                              };
+    
+    NSError *error = nil;
+    MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:corruptedJsonDictionary error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.environment, DEFAULT_TEST_ENVIRONMENT);
+    XCTAssertEqual(cacheItem.credentialType, MSIDIDTokenType);
+    XCTAssertEqualObjects(cacheItem.clientId, DEFAULT_TEST_CLIENT_ID);
+    XCTAssertEqualObjects(cacheItem.secret, DEFAULT_TEST_ID_TOKEN);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.realm, @"contoso.com");
+    XCTAssertNil(cacheItem.enrollmentId);
+    XCTAssertNil(cacheItem.familyId);
+    XCTAssertFalse([[cacheItem familyId] isKindOfClass:[NSNull class]]);
+}
+
 - (void)testEqualityForCredentialCacheItems_WhenEitherOfTheComparedPropertiesInTheObject_IsNil
 {
     MSIDCredentialCacheItem *cacheItem1 = [MSIDCredentialCacheItem new];
@@ -235,9 +255,8 @@
     cacheItem1.cachedAt = cachedAt;
     cacheItem1.homeAccountId = @"uid.utid";
     cacheItem1.familyId = DEFAULT_TEST_FAMILY_ID;
-    NSDictionary *additionalInfo = @{@"ext_expires_on": extExpiresOn,
-                                     @"spe_info": @"2"};
-    cacheItem1.additionalInfo = additionalInfo;
+    cacheItem1.extendedExpiresOn = extExpiresOn;
+    cacheItem1.speInfo = @"2";
 
     MSIDCredentialCacheItem *cacheItem2 = [MSIDCredentialCacheItem new];
     cacheItem2.credentialType = MSIDIDTokenType;

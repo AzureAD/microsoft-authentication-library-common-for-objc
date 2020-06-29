@@ -23,8 +23,9 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDVersion.h"
+#import "NSString+MSIDTestUtil.h"
+#import "MSIDAuthenticationScheme.h"
 
 @interface MSIDRequestParametersTests : XCTestCase
 
@@ -34,18 +35,21 @@
 
 - (void)testInitParameters_withValidParameters_shouldInitReturnNonNil
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
     NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNil(error);
@@ -59,22 +63,26 @@
     XCTAssertNotNil(parameters.telemetryRequestId);
     XCTAssertEqualObjects(parameters.logComponent, [MSIDVersion sdkName]);
     XCTAssertNotNil(parameters.appRequestMetadata);
+    XCTAssertEqualObjects(parameters.intuneApplicationIdentifier, @"com.microsoft.mytest");
 }
 
 - (void)testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", @"offline_access", nil];
     NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -84,18 +92,21 @@
 
 - (void)testInitParameters_withClientIdAsScope_andAADAuthority_shouldFailAndReturnNil
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", @"myclient_id", nil];
     NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -105,18 +116,21 @@
 
 - (void)testInitParameters_withClientIdAsScope_andB2CAuthority_shouldInitReturnNonNil
 {
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/tfp/contoso.com/B2C_1_Signin"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/tfp/contoso.com/B2C_1_Signin" b2cAuthority];
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", @"myclient_id", nil];
     NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
                                                                               oidcScopes:oidcScopes
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNil(error);

@@ -26,17 +26,17 @@
 #import "MSIDWebviewUIController.h"
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDBackgroundTaskManager.h"
+#import "MSIDMainThreadUtil.h"
 
 static WKWebViewConfiguration *s_webConfig;
 
-@interface MSIDWebviewUIController ( )
+@interface MSIDWebviewUIController ()
 {
     UIActivityIndicatorView *_loadingIndicator;
-    
-    UIBackgroundTaskIdentifier _bgTask;
-    id _bgObserver;
-    id _foregroundObserver;
 }
+
+@property (nonatomic) BOOL presentInParentController;
 
 @end
 
@@ -47,6 +47,12 @@ static WKWebViewConfiguration *s_webConfig;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         s_webConfig = [WKWebViewConfiguration new];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+        if (@available(iOS 13.0, *))
+        {
+            s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
+        }
+#endif
     });
 }
 
@@ -61,22 +67,33 @@ static WKWebViewConfiguration *s_webConfig;
     return self;
 }
 
--(void)dealloc
+- (id)initWithContext:(id<MSIDRequestContext>)context
+       platformParams:(MSIDWebViewPlatformParams *)platformParams
 {
-    [self cleanupBackgroundTask];
+    self = [super init];
+    if (self)
+    {
+        _context = context;
+        _platformParams = platformParams;
+    }
+
+    return self;
 }
 
-- (BOOL)loadView:(NSError **)error;
+- (void)dealloc
+{
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+}
+
+- (BOOL)loadView:(NSError **)error
 {
     /* Start background transition tracking,
      so we can start a background task, when app transitions to background */
-    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
-    {
-        [self startTrackingBackroundAppTransition];
-    }
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
     
     if (_webView)
     {
+        self.presentInParentController = NO;
         return YES;
     }
     
@@ -86,7 +103,7 @@ static WKWebViewConfiguration *s_webConfig;
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"The Application does not have a current ViewController", nil, nil, nil, _context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"The Application does not have a current ViewController", nil, nil, nil, _context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -110,26 +127,38 @@ static WKWebViewConfiguration *s_webConfig;
     [rootView addSubview:_webView];
     [rootView addSubview:_loadingIndicator];
     
+    // WKWebView was created by MSAL, present it in parent controller.
+    // Otherwise we rely on developer to show the web view.
+    self.presentInParentController = YES;
+    
     return YES;
 }
 
 - (void)presentView
 {
+    if (!self.presentInParentController) return;
+    
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:self];
     [navController setModalPresentationStyle:_presentationType];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *)) {
+        [navController setModalInPresentation:YES];
+    }
+#endif
+    
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [_parentController presentViewController:navController animated:YES completion:nil];
-    });
+    }];
 }
 
 - (void)dismissWebview:(void (^)(void))completion
 {
-    [self cleanupBackgroundTask];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
     
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
-    if (_parentController)
+    if (_parentController && self.presentInParentController)
     {
         [_parentController dismissViewControllerAnimated:YES completion:completion];
     }
@@ -155,14 +184,13 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (BOOL)obtainParentController
 {
-    if (_parentController)
-    {
-        return YES;
-    }
+    if (self.parentController) return YES;
     
-    _parentController = [UIApplication msidCurrentViewController];
+    if (@available(iOS 13.0, *)) return NO;
     
-    return (_parentController != nil);
+    self.parentController = [UIApplication msidCurrentViewController:self.parentController];
+    
+    return self.parentController != nil;
 }
 
 - (void)setupCancelButton
@@ -175,7 +203,22 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (UIActivityIndicatorView *)prepareLoadingIndicator:(UIView *)rootView
 {
-    UIActivityIndicatorView *loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    UIActivityIndicatorView *loadingIndicator;
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *))
+    {
+        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleLarge];
+    }
+#if !TARGET_OS_MACCATALYST
+    else
+    {
+        loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    }
+#endif
+#else
+    loadingIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+#endif
+
     [loadingIndicator setColor:[UIColor blackColor]];
     [loadingIndicator setCenter:rootView.center];
     return loadingIndicator;
@@ -190,110 +233,6 @@ static WKWebViewConfiguration *s_webConfig;
 - (void)userCancel
 {
     // Overridden in subclass with userCancel logic
-}
-
-#pragma mark - Background task
-
-- (void)startTrackingBackroundAppTransition
-{
-    if (_bgObserver)
-    {
-        return;
-    }
-    
-    _bgObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationWillResignActiveNotification
-                                                                    object:nil
-                                                                     queue:nil
-                                                                usingBlock:^(__unused NSNotification *notification)
-                   {
-                       MSID_LOG_VERBOSE(_context, @"Application will resign active");
-                       [self startTrackingForegroundAppTransition];
-                       [self startBackgroundTask];
-                   }];
-}
-
-- (void)stopTrackingBackgroundAppTransition
-{
-    if (_bgObserver)
-    {
-        MSID_LOG_VERBOSE(_context, @"Stop background application tracking");
-        [[NSNotificationCenter defaultCenter] removeObserver:_bgObserver];
-        _bgObserver = nil;
-    }
-}
-
-- (void)startTrackingForegroundAppTransition
-{
-    if (_foregroundObserver)
-    {
-        return;
-    }
-    
-    _foregroundObserver = [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidBecomeActiveNotification
-                                                                            object:nil
-                                                                             queue:nil
-                                                                        usingBlock:^(__unused NSNotification * _Nonnull note) {
-                                                                            
-                                                                            MSID_LOG_VERBOSE(_context, @"Application did become active");
-                                                                            [self stopBackgroundTask];
-                                                                            [self stopTrackingForegroundAppTransition];
-                                                                        }];
-}
-
-- (void)stopTrackingForegroundAppTransition
-{
-    if (_foregroundObserver)
-    {
-        MSID_LOG_VERBOSE(_context, @"Stop foreground application tracking");
-        
-        [[NSNotificationCenter defaultCenter] removeObserver:_foregroundObserver];
-        _foregroundObserver = nil;
-    }
-}
-
-/*
- Background task execution:
- https://forums.developer.apple.com/message/253232#253232
- */
-
-- (void)startBackgroundTask
-{
-    if (_bgTask != UIBackgroundTaskInvalid)
-    {
-        // Background task already started
-        return;
-    }
-    
-    MSID_LOG_INFO(_context, @"Start background app task");
-    
-    _bgTask = [[MSIDAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
-                                                                  expirationHandler:^{
-                                                                      MSID_LOG_INFO(_context, @"Background task expired");
-                                                                      [self stopBackgroundTask];
-                                                                      [self stopTrackingForegroundAppTransition];
-                                                                  }];
-}
-
-- (void)stopBackgroundTask
-{
-    if (_bgTask == UIBackgroundTaskInvalid)
-    {
-        // Background task already ended or not started
-        return;
-    }
-    
-    MSID_LOG_INFO(_context, @"Stop background task");
-    [[MSIDAppExtensionUtil sharedApplication] endBackgroundTask:_bgTask];
-    _bgTask = UIBackgroundTaskInvalid;
-}
-
-- (void)cleanupBackgroundTask
-{
-    [self stopTrackingBackgroundAppTransition];
-    
-    // If authentication is stopped while app is in background
-    [self stopTrackingForegroundAppTransition];
-    [self stopBackgroundTask];
 }
 
 @end

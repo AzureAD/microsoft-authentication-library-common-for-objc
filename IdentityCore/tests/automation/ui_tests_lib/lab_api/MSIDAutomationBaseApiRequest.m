@@ -35,7 +35,7 @@
 
 #pragma mark - MSIDTestAutomationRequest
 
-- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath labAccessPassword:(NSString *)labPassword
+- (NSURL *)requestURLWithAPIPath:(NSString *)apiPath
 {
     NSString *requestOperationPath = [self requestOperationPath];
     
@@ -48,7 +48,6 @@
     NSURLComponents *components = [[NSURLComponents alloc] initWithString:fullAPIPath];
     
     NSMutableArray *queryItems = [NSMutableArray array];
-    [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"code" value:labPassword]];
     
     NSArray *extraQueryItems = [self queryItems];
     
@@ -77,10 +76,61 @@
     return nil;
 }
 
-- (NSString *)keyvaultNameKey
+- (NSString *)httpMethod
+{
+    return @"GET";
+}
+
++ (MSIDAutomationBaseApiRequest *)requestWithDictionary:(__unused NSDictionary *)dictionary
 {
     NSAssert(NO, @"Abstract method, implement in subclasses");
     return nil;
+}
+
+- (BOOL)shouldCacheResponse
+{
+    return NO;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqualToRequest:(MSIDAutomationBaseApiRequest *)request
+{
+    if (!request)
+    {
+        return NO;
+    }
+
+    BOOL result = YES;
+    result &= (!self.requestOperationPath && !request.requestOperationPath) || [self.requestOperationPath isEqualToString:request.requestOperationPath];
+    result &= (!self.queryItems && !request.queryItems) || [self.queryItems isEqualToArray:request.queryItems];
+
+    return result;
+}
+
+#pragma mark - NSObject
+
+- (BOOL)isEqual:(id)object
+{
+    if (self == object)
+    {
+        return YES;
+    }
+
+    if (![object isKindOfClass:MSIDAutomationBaseApiRequest.class])
+    {
+        return NO;
+    }
+
+    return [self isEqualToRequest:(MSIDAutomationBaseApiRequest *)object];
+}
+
+- (NSUInteger)hash
+{
+    NSUInteger hash = self.requestOperationPath.hash;
+    hash ^= self.queryItems.hash;
+
+    return hash;
 }
 
 @end

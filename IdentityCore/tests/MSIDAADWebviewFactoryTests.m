@@ -28,18 +28,22 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDTestIdentifiers.h"
-#import "MSIDWebviewConfiguration.h"
 #import "MSIDDeviceId.h"
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDWebWPJResponse.h"
-#import "MSIDWebAADAuthResponse.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAadAuthorityCacheRecord.h"
-#import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDOpenIdProviderMetadata.h"
+#import "MSIDTestParametersProvider.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDClaimsRequest.h"
+#import "MSIDPkce.h"
+#import "MSIDWebAADAuthCodeResponse.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -52,27 +56,22 @@
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)testAuthorizationParametersFromConfiguration_withValidParams_shouldContainAADConfiguration
+- (void)testAuthorizationParametersFromParameters_withValidParams_shouldContainAADConfiguration
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
-    __block NSUUID *correlationId = [NSUUID new];
-    MSIDWebviewConfiguration *config = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:[NSURL URLWithString:DEFAULT_TEST_AUTHORIZATION_ENDPOINT]
-                                                                                           redirectUri:DEFAULT_TEST_REDIRECT_URI
-                                                                                              clientId:DEFAULT_TEST_CLIENT_ID
-                                                                                              resource:nil
-                                                                                                scopes:[NSOrderedSet orderedSetWithObjects:@"scope1", nil]
-                                                                                         correlationId:correlationId
-                                                                                            enablePkce:NO];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.promptType = MSIDPromptTypeLogin;
     
-    config.extraQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
-    config.loginHint = @"fakeuser@contoso.com";
-    config.claims = @"claims";
-    config.promptBehavior = @"login";
+    NSDictionary *claimsJsonDictionary = @{@"id_token":@{@"given_name":@{@"essential":@YES}}};
+    parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:claimsJsonDictionary error:nil];
+    parameters.extraAuthorizeURLQueryParameters = @{ @"eqp1" : @"val1", @"eqp2" : @"val2" };
+    parameters.loginHint = @"fakeuser@contoso.com";
     
     NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
     
-    NSDictionary *params = [factory authorizationParametersFromConfiguration:config requestState:requestState];
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
 
     NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
                                         @{
@@ -81,15 +80,19 @@
                                           @"response_type" : @"code",
                                           @"eqp1" : @"val1",
                                           @"eqp2" : @"val2",
-                                          @"claims" : @"claims",
+                                          @"claims" : @"{\"id_token\":{\"given_name\":{\"essential\":true}}}",
                                           @"return-client-request-id" : @"true",
-                                          @"client-request-id" : correlationId.UUIDString,
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
                                           @"login_hint" : @"fakeuser@contoso.com",
                                           @"state" : requestState.msidBase64UrlEncode,
                                           @"prompt" : @"login",
                                           @"haschrome" : @"1",
-                                          @"scope" : @"scope1"
-                                          
+                                          @"scope" : @"scope1",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"code_challenge_method" : @"S256",
+                                          @"code_challenge" : pkce.codeChallenge
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     
@@ -106,29 +109,55 @@
 
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
 
-    MSIDAuthority *authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.windows.net/common"] context:nil error:nil];
+    MSIDAuthority *authority = [@"https://login.windows.net/common" aadAuthority];
     MSIDOpenIdProviderMetadata *metadata = [MSIDOpenIdProviderMetadata new];
     metadata.authorizationEndpoint = [NSURL URLWithString:@"https://login.windows.net/contoso.com/mypath/oauth/authorize"];
     authority.metadata = metadata;
+    
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.authority = authority;
 
-    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"scope", nil];
-
-    MSIDInteractiveRequestParameters *parameters = [[MSIDInteractiveRequestParameters alloc] initWithAuthority:authority
-                                                                                                   redirectUri:@"redirect"
-                                                                                                      clientId:@"client"
-                                                                                                        scopes:scopes
-                                                                                                    oidcScopes:nil
-                                                                                          extraScopesToConsent:nil
-                                                                                                 correlationId:nil
-                                                                                                telemetryApiId:nil
-                                                                                       supportedBrokerProtocol:nil
-                                                                                                   requestType:MSIDInteractiveRequestLocalType
-                                                                                                         error:nil];
-
-    MSIDWebviewConfiguration *configuration = [factory webViewConfigurationWithRequestParameters:parameters];
+    MSIDAuthorizeWebRequestConfiguration *configuration = [factory authorizeWebRequestConfigurationWithRequestParameters:parameters];
     XCTAssertNotNil(configuration);
+    
+    NSURLComponents *startURLComponents = [NSURLComponents componentsWithURL:configuration.startURL resolvingAgainstBaseURL:NO];
+    startURLComponents.query = nil;
+    
     NSURL *expectedAuthorizationEndpoint = [NSURL URLWithString:@"https://login.microsoftonline.com/contoso.com/mypath/oauth/authorize"];
-    XCTAssertEqualObjects(configuration.authorizationEndpoint, expectedAuthorizationEndpoint);
+    XCTAssertEqualObjects(startURLComponents.URL, expectedAuthorizationEndpoint);
+}
+
+- (void)testAuthorizationParametersFromParameters_withInstanceAwareFlagSet_shouldSetInstanceAwareTrue
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDTestParametersProvider testInteractiveParameters];
+    parameters.instanceAware = YES;
+    
+    NSString *requestState = @"state";
+    MSIDPkce *pkce = [MSIDPkce new];
+    
+    NSDictionary *params = [factory authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:requestState];
+
+    NSMutableDictionary *expectedQPs = [NSMutableDictionary dictionaryWithDictionary:
+                                        @{
+                                          @"client_id" : DEFAULT_TEST_CLIENT_ID,
+                                          @"redirect_uri" : DEFAULT_TEST_REDIRECT_URI,
+                                          @"response_type" : @"code",
+                                          @"return-client-request-id" : @"true",
+                                          @"client-request-id" : parameters.correlationId.UUIDString,
+                                          @"instance_aware" : @"true",
+                                          @"state" : requestState.msidBase64UrlEncode,
+                                          @"haschrome" : @"1",
+                                          @"scope" : @"scope1",
+                                          @"x-app-name" : [MSIDTestRequireValueSentinel new],
+                                          @"x-app-ver" : [MSIDTestRequireValueSentinel new],
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"code_challenge_method" : @"S256",
+                                          @"code_challenge" : pkce.codeChallenge
+                                          }];
+    [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
+    XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
 }
 
 - (void)testResponseWithURL_whenURLSchemeMsauthAndHostWPJ_shouldReturnWPJResponse
@@ -136,11 +165,11 @@
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"msauth://wpj?app_link=link"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -153,7 +182,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"msauth.com.microsoft.myapp://auth/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
-    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -170,7 +199,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost/msauth/wpj?app_link=app.link&username=XXX@upn.com"];
-    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -187,7 +216,7 @@
     NSError *error = nil;
     
     NSURL *url = [NSURL URLWithString:@"https://localhost//msauth/wpj?app_link=app.link&username=XXX@upn.com"];
-    __auto_type response = [factory responseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:url requestState:nil ignoreInvalidState:YES context:nil error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebWPJResponse.class]);
     XCTAssertNil(error);
@@ -202,13 +231,13 @@
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"redirecturi://somepayload?code=authcode&cloud_instance_host_name=somename"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
-    XCTAssertTrue([response isKindOfClass:MSIDWebAADAuthResponse.class]);
+    XCTAssertTrue([response isKindOfClass:MSIDWebAADAuthCodeResponse.class]);
     XCTAssertNil(error);
 }
 
@@ -218,11 +247,11 @@
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
     NSError *error = nil;
-    __auto_type response = [factory responseWithURL:[NSURL URLWithString:@"browser://somehost"]
-                                       requestState:nil
-                        ignoreInvalidState:NO
-                                            context:nil
-                                              error:&error];
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"browser://somehost"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
     
     XCTAssertTrue([response isKindOfClass:MSIDWebOpenBrowserResponse.class]);
     XCTAssertNil(error);

@@ -23,14 +23,24 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAuthority.h"
+#import "MSIDJsonSerializable.h"
+@class MSIDAuthenticationScheme;
 
-@interface MSIDConfiguration : NSObject <NSCopying>
+extern NSString * const MSID_REDIRECT_URI_JSON_KEY;
+extern NSString * const MSID_CLIENT_ID_JSON_KEY;
+extern NSString * const MSID_SCOPE_JSON_KEY;
+extern NSString * const MSID_TOKEN_TYPE_JSON_KEY;
+
+@interface MSIDConfiguration : NSObject <NSCopying, MSIDJsonSerializable>
 
 // Commonly used or needed properties
 @property (readwrite) MSIDAuthority *authority;
 @property (readwrite) NSString *redirectUri;
 @property (readwrite) NSString *clientId;
 @property (readonly) NSString *target;
+@property (readwrite) MSIDAuthenticationScheme *authScheme;
+
+@property (readwrite) NSString *applicationIdentifier;
 
 @property (readonly) NSString *resource;
 @property (readonly) NSOrderedSet<NSString *> *scopes;

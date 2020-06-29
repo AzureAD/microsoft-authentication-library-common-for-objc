@@ -24,28 +24,45 @@
 #import "MSIDWPJChallengeHandler.h"
 #import "MSIDWorkPlaceJoinUtil.h"
 #import "MSIDRegistrationInformation.h"
+#import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 
 @implementation MSIDWPJChallengeHandler
 
 + (void)resetHandler { }
 
-+ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge webview:(__unused WKWebView *)webview context:(id<MSIDRequestContext>)context completionHandler:(ChallengeCompletionHandler)completionHandler
++ (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
+                webview:(__unused WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(__unused UIViewController *)parentViewController
+#endif
+                context:(id<MSIDRequestContext>)context
+      completionHandler:(ChallengeCompletionHandler)completionHandler
 {
     // See if this is a challenge for the WPJ cert.
     NSArray<NSData*> *distinguishedNames = challenge.protectionSpace.distinguishedNames;
     
     if ([self isWPJChallenge:distinguishedNames])
     {
+#if TARGET_OS_IPHONE
+#pragma unused(completionHandler)
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Ignoring WPJ challenge on iOS");
+        return NO;
+#else
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
+#endif
     }
     
     return NO;
 }
 
++ (BOOL)shouldHandleChallenge:(NSURLAuthenticationChallenge *)challenge
+{
+    return [self isWPJChallenge:challenge.protectionSpace.distinguishedNames];
+}
+
 + (BOOL)isWPJChallenge:(NSArray *)distinguishedNames
 {
-    
     for (NSData *distinguishedName in distinguishedNames)
     {
         NSString *distinguishedNameString = [[[NSString alloc] initWithData:distinguishedName encoding:NSISOLatin1StringEncoding] lowercaseString];
@@ -62,11 +79,11 @@
                    context:(id<MSIDRequestContext>)context
          completionHandler:(ChallengeCompletionHandler)completionHandler
 {
-    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context error:nil];
+    MSIDWorkplaceJoinChallenge *wpjChallenge = [[MSIDWorkplaceJoinChallenge alloc] initWithURLChallenge:challenge];
+    MSIDRegistrationInformation *info = [MSIDWorkPlaceJoinUtil getRegistrationInformation:context workplacejoinChallenge:wpjChallenge];
     if (!info || ![info isWorkPlaceJoined])
     {
-        MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Device is not workplace joined");
-        MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Device is not workplace joined. host: %@", challenge.protectionSpace.host);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Device is not workplace joined. host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
         
         // In other cert auth cases we send Cancel to ensure that we continue to get
         // auth challenges, however when we do that with WPJ we don't get the subsequent
@@ -80,11 +97,10 @@
         return YES;
     }
     
-    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Responding to WPJ cert challenge");
-    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Responding to WPJ cert challenge. host: %@", challenge.protectionSpace.host);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Responding to WPJ cert challenge. host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
     
     NSURLCredential *creds = [NSURLCredential credentialWithIdentity:info.securityIdentity
-                                                        certificates:@[(__bridge id)info.certificate]
+                                                        certificates:@[(__bridge id)info.certificateRef]
                                                          persistence:NSURLCredentialPersistenceNone];
     
     completionHandler(NSURLSessionAuthChallengeUseCredential, creds);

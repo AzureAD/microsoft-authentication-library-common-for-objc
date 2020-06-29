@@ -46,5 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
                              context:(nullable id<MSIDRequestContext>)context
                                error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
+- (nullable MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError * _Nullable * _Nullable)error;
+
 NS_ASSUME_NONNULL_END
 @end

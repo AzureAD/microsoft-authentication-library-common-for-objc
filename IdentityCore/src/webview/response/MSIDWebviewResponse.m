@@ -40,7 +40,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      @"Trying to create a response with nil URL",
-                                     nil, nil, nil, context.correlationId, nil);
+                                     nil, nil, nil, context.correlationId, nil, YES);
         }
         return nil;
     }

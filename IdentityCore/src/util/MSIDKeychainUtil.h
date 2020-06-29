@@ -23,10 +23,17 @@
 
 #import <Foundation/Foundation.h>
 
+#define CFReleaseNull(CF) { CFTypeRef _cf = (CF); if (_cf) CFRelease(_cf); CF = NULL; }
+
 @interface MSIDKeychainUtil : NSObject
 
-@property (class, readonly, nullable) NSString *teamId;
+@property (readonly, nullable) NSString *teamId;
 
-+ (nullable NSString *)accessGroup:(nullable NSString *)group;
++ (nonnull MSIDKeychainUtil *)sharedInstance;
+
+- (instancetype _Nullable)init NS_UNAVAILABLE;
++ (instancetype _Nullable)new NS_UNAVAILABLE;
+
+- (nullable NSString *)accessGroup:(nullable NSString *)group;
 
 @end

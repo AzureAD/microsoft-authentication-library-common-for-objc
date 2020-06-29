@@ -24,10 +24,14 @@
 #import "MSIDURLFormObject.h"
 #import "MSIDAADTokenResponse.h"
 
+@class MSIDAuthority;
+@class MSIDDeviceInfo;
+
 @interface MSIDBrokerResponse : MSIDURLFormObject
 
 @property (readonly) NSString *authority;
 @property (readonly) NSString *clientId;
+@property (readonly) NSString *applicationToken;
 
 @property (readonly) NSString *brokerAppVer;
 @property (readonly) NSString *validAuthority;
@@ -39,6 +43,8 @@
 
 // Derived properties
 @property (readonly) MSIDTokenResponse *tokenResponse;
-@property (readonly) BOOL accessTokenInvalidForResponse;
+@property (readonly) MSIDAuthority *msidAuthority;
+@property (readonly) BOOL ignoreAccessTokenCache;
+@property (readonly) MSIDDeviceInfo *deviceInfo;
 
 @end

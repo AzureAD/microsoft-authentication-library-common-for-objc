@@ -23,6 +23,7 @@
 
 #import "MSIDRequestParameters.h"
 #import "MSIDConstants.h"
+#import "MSIDBrokerInvocationOptions.h"
 
 @class WKWebView;
 #if TARGET_OS_IPHONE
@@ -31,38 +32,14 @@
 
 @interface MSIDInteractiveRequestParameters : MSIDRequestParameters
 
-@property (nonatomic) MSIDInteractiveRequestType requestType;
-@property (nonatomic) MSIDUIBehaviorType uiBehaviorType;
-@property (nonatomic) NSString *loginHint;
 @property (nonatomic) MSIDWebviewType webviewType;
 @property (nonatomic) WKWebView *customWebview;
 @property (readwrite) NSMutableDictionary<NSString *, NSString *> *customWebviewHeaders;
+@property (nonatomic) MSIDViewController *parentViewController;
 #if TARGET_OS_IPHONE
-@property (nonatomic) UIViewController *parentViewController;
 @property (nonatomic) UIModalPresentationStyle presentationType;
 #endif
-@property (nonatomic) NSString *extraScopesToConsent;
-@property (nonatomic) MSIDPromptType promptType;
-// Additional request parameters that will only be appended to authorize requests in addition to extraURLQueryParameters from parent class
-@property (nonatomic) NSDictionary *extraAuthorizeURLQueryParameters;
+@property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
-@property (nonatomic) NSString *supportedBrokerProtocolScheme;
-@property (nonatomic) BOOL enablePkce;
-
-- (NSOrderedSet *)allAuthorizeRequestScopes;
-- (NSDictionary *)allAuthorizeRequestExtraParameters;
-
-// Initialize parameters with extra scopes, and interactive request type
-- (instancetype)initWithAuthority:(MSIDAuthority *)authority
-                      redirectUri:(NSString *)redirectUri
-                         clientId:(NSString *)clientId
-                           scopes:(NSOrderedSet<NSString *> *)scopes
-                       oidcScopes:(NSOrderedSet<NSString *> *)oidScopes
-             extraScopesToConsent:(NSOrderedSet<NSString *> *)extraScopesToConsent
-                    correlationId:(NSUUID *)correlationId
-                   telemetryApiId:(NSString *)telemetryApiId
-          supportedBrokerProtocol:(NSString *)brokerProtocolScheme
-                      requestType:(MSIDInteractiveRequestType)requestType
-                            error:(NSError **)error;
 
 @end

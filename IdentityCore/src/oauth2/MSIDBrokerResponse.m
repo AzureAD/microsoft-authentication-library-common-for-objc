@@ -24,6 +24,8 @@
 #import "MSIDBrokerResponse.h"
 #import "MSIDAADV1TokenResponse.h"
 #import "MSIDBrokerResponse+Internal.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDDeviceInfo.h"
 
 @implementation MSIDBrokerResponse
 
@@ -36,6 +38,7 @@ MSID_FORM_ACCESSOR(@"vt", validAuthority);
 MSID_FORM_ACCESSOR(MSID_OAUTH2_CORRELATION_ID_RESPONSE, correlationId);
 MSID_FORM_ACCESSOR(@"error_code", errorCode);
 MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
+MSID_FORM_ACCESSOR(@"application_token", applicationToken);
 
 - (instancetype)initWithDictionary:(NSDictionary *)form error:(NSError *__autoreleasing *)error
 {
@@ -44,6 +47,7 @@ MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
     if (self)
     {
         [self initDerivedProperties];
+        _deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:_urlForm error:nil];
     }
 
     return self;
@@ -52,6 +56,7 @@ MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
 - (void)initDerivedProperties
 {
     self.tokenResponse = [[MSIDAADV1TokenResponse alloc] initWithJSONDictionary:_urlForm error:nil];
+    self.msidAuthority = [[MSIDAADAuthority alloc] initWithURL:[NSURL URLWithString:self.authority] rawTenant:nil context:nil error:nil];
 }
 
 - (NSString *)target
@@ -59,9 +64,9 @@ MSID_FORM_ACCESSOR(@"error_domain", errorDomain);
     return _urlForm[@"scope"];
 }
 
-- (BOOL)accessTokenInvalidForResponse
+- (BOOL)ignoreAccessTokenCache
 {
-    return NO;
+    return self.deviceInfo.deviceMode == MSIDDeviceModeShared;
 }
 
 @end

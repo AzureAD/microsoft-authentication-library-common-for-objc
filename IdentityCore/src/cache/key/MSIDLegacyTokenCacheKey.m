@@ -23,6 +23,7 @@
 
 #import "MSIDLegacyTokenCacheKey.h"
 #import "MSIDHelpers.h"
+#import "NSURL+MSIDAADUtils.h"
 
 //A special attribute to write, instead of nil/empty one.
 NSString *const MSID_LEGACY_CACHE_NIL_KEY = @"CC3513A0-0E69-4B4D-97FC-DFB6C91EE132";
@@ -54,9 +55,16 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     NSString *authorityString = authority.absoluteString.msidTrimmedString.lowercaseString;
     resource = resource.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
+    
+    NSString *adalCachePrefix = s_adalLibraryString;
+    
+    if (![NSString msidIsStringNilOrBlank:self.applicationIdentifier])
+    {
+        adalCachePrefix = [adalCachePrefix stringByAppendingFormat:@"-%@", self.applicationIdentifier.msidBase64UrlEncode];
+    }
 
     NSString *service = [NSString stringWithFormat:s_adalServiceFormat,
-                         s_adalLibraryString,
+                         adalCachePrefix,
                          authorityString.msidBase64UrlEncode,
                          [self getAttributeName:resource],
                          clientId.msidBase64UrlEncode];
@@ -84,13 +92,32 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
     return self;
 }
 
-- (instancetype)initWithAuthority:(NSURL *)authority
-                         clientId:(NSString *)clientId
-                         resource:(NSString *)resource
-                     legacyUserId:(NSString *)legacyUserId
+- (instancetype)initWithEnvironment:(NSString *)environment
+                              realm:(NSString *)realm
+                           clientId:(NSString *)clientId
+                           resource:(nullable NSString *)resource
+                       legacyUserId:(NSString *)legacyUserId
 {
     self = [super init];
 
+    if (self)
+    {
+        _authority = [NSURL msidAADURLWithEnvironment:environment tenant:realm];
+        _clientId = clientId;
+        _resource = resource;
+        _legacyUserId = legacyUserId;
+    }
+
+    return self;
+}
+
+- (instancetype)initWithAuthority:(NSURL *)authority
+                         clientId:(NSString *)clientId
+                         resource:(nullable NSString *)resource
+                     legacyUserId:(NSString *)legacyUserId
+{
+    self = [super init];
+    
     if (self)
     {
         _authority = authority;
@@ -98,7 +125,7 @@ static NSString *const s_adalServiceFormat = @"%@|%@|%@|%@";
         _resource = resource;
         _legacyUserId = legacyUserId;
     }
-
+    
     return self;
 }
 

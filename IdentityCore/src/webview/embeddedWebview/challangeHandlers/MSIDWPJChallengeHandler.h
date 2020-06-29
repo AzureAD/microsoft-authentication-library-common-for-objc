@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDWPJChallengeHandler : NSObject<MSIDChallengeHandling>
 
++ (BOOL)shouldHandleChallenge:(NSURLAuthenticationChallenge *)challenge;
+
 @end
 
 NS_ASSUME_NONNULL_END

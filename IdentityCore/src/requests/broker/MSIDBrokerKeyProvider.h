@@ -40,6 +40,19 @@ enum {
 
 - (instancetype)initWithGroup:(NSString *)keychainGroup;
 
+- (instancetype)initWithGroup:(NSString *)keychainGroup
+                keyIdentifier:(NSString *)keyIdentifier NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+
 - (NSData *)brokerKeyWithError:(NSError **)error;
+
+- (NSString *)base64BrokerKeyWithContext:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error;
+
+- (BOOL)saveApplicationToken:(NSString *)appToken forClientId:(NSString *)clientId error:(NSError **)error;
+
+- (NSString *)getApplicationToken:(NSString *)clientId error:(NSError **)error;
 
 @end

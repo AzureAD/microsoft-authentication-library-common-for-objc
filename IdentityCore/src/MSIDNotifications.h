@@ -53,8 +53,8 @@
 @property (class) NSString *webAuthDidReceiveResponseFromBrokerNotificationName;
 
 #pragma mark - Notification callers
-+ (void)notifyWebAuthDidStartLoad:(NSURL *)url;
-+ (void)notifyWebAuthDidFinishLoad:(NSURL *)url;
++ (void)notifyWebAuthDidStartLoad:(NSURL *)url userInfo:(NSDictionary *)userInfo;
++ (void)notifyWebAuthDidFinishLoad:(NSURL *)url userInfo:(NSDictionary *)userInfo;
 + (void)notifyWebAuthDidFailWithError:(NSError *)error;
 + (void)notifyWebAuthDidCompleteWithURL:(NSURL *)url;
 + (void)notifyWebAuthWillSwitchToBroker;

@@ -26,143 +26,129 @@
 #import "MSIDRegistrationInformation.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDError.h"
+#import "MSIDWorkplaceJoinChallenge.h"
+#import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 
 @implementation MSIDWorkPlaceJoinUtil
 
-// Convenience macro for checking keychain status codes while looking up the WPJ
-// information. We don't send errors for errSecItemNotFound (because not having
-// WPJ information is an expected case) or errSecNoAccessForItem (because non-
-// Microsoft apps will not be able to access the workplace join information).
-#define CHECK_KEYCHAIN_STATUS(_operation) \
-{ \
-if (status != noErr) \
-{ \
-if (!(status == errSecItemNotFound || status == -25243)) \
-{ \
-NSError *localError = \
-MSIDCreateError(MSIDKeychainErrorDomain, status, _operation, nil, nil, nil, context.correlationId, nil); \
-if (error) { *error = localError; } \
-} \
-goto _error; \
-} \
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context
+{
+    return [self getRegistrationInformation:context workplacejoinChallenge:nil];
 }
 
-
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                                      error:(NSError **)error
+                                     workplacejoinChallenge:(__unused MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {
-    NSString *teamId = [MSIDKeychainUtil teamId];
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
     
-#if TARGET_OS_SIMULATOR
-    NSString *sharedAccessGroup = nil;
-    
-    // Only in the simulator if we don't have a shared access group we want the rest of the code to
-    // at least attempt to work.
-    if (teamId)
-    {
-        sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
-    }
-#else
     if (!teamId)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
         return nil;
     }
     NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
-#endif
     
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, nil, @"Attempting to get registration information - shared access Group");
-    MSID_LOG_PII(MSIDLogLevelVerbose, nil, nil, @"Attempting to get registration information - %@ shared access Group", sharedAccessGroup);
-    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
+    MSIDRegistrationInformation *info = nil;
     SecIdentityRef identity = NULL;
     SecCertificateRef certificate = NULL;
     SecKeyRef privateKey = NULL;
-    NSString *certificateSubject = nil;
-    NSData *certificateData = nil;
+    OSStatus status = noErr;
     NSString *certificateIssuer = nil;
-    NSData *issuer = nil;
-    NSDictionary *cerDict = nil;
     
-    NSMutableDictionary *identityAttr = [[NSMutableDictionary alloc] init];
-    [identityAttr setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
-    [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnRef)];
-    [identityAttr setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
-    [identityAttr setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-#if TARGET_OS_SIMULATOR
-    if (sharedAccessGroup)
-#endif
-        [identityAttr setObject:sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group.", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
+    
+    identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer];
+    if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
+        CFReleaseNull(identity);
+        return nil;
+    }
+    
+    // Get the wpj certificate
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ certificate reference.");
+    status = SecIdentityCopyCertificate(identity, &certificate);
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ certificate retrieved with result %ld", (long)status);
+    
+    // Get the private key
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ private key reference.");
+    status = SecIdentityCopyPrivateKey(identity, &privateKey);
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ private key reference retrieved with result %ld", (long)status);
+    
+    // Get the public key
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
+    SecKeyRef publicKey = SecKeyCopyPublicKey(privateKey);
+    
+    if (!(certificate && publicKey && privateKey && certificateIssuer))
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid.");
+    }
+    else
+    {
+        info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
+                                                          privateKey:privateKey
+                                                           publicKey:publicKey
+                                                         certificate:certificate
+                                                   certificateIssuer:certificateIssuer];
+    }
+    
+    CFReleaseNull(identity);
+    CFReleaseNull(certificate);
+    CFReleaseNull(privateKey);
+    CFReleaseNull(publicKey);
+    
+    return info;
+}
+
++ (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
+                sharedAccessGroup:(NSString *)accessGroup
+                certificateIssuer:(NSString **)issuer
+
+{
+    NSMutableDictionary *identityDict = [[NSMutableDictionary alloc] init];
+    [identityDict setObject:(__bridge id)kSecClassIdentity forKey:(__bridge id)kSecClass];
+    [identityDict setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnRef];
+    [identityDict setObject:(__bridge id) kSecAttrKeyClassPrivate forKey:(__bridge id)kSecAttrKeyClass];
+    [identityDict setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
+    [identityDict setObject:accessGroup forKey:(__bridge id)kSecAttrAccessGroup];
     
     CFDictionaryRef result = NULL;
-    OSStatus status = noErr;
-    //get the issuer information
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef *)&result);
-    CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity attr");
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)identityDict, (CFTypeRef *)&result);
     
-    cerDict = (__bridge NSDictionary *) result;
-    assert([cerDict isKindOfClass:[NSDictionary class]]);
-    issuer = [cerDict objectForKey:(__bridge id)kSecAttrIssuer];
-    certificateIssuer = [[NSString alloc] initWithData:issuer encoding:NSISOLatin1StringEncoding];
-    CFRelease(result);
-    result = NULL;
-    
-    // now get the identity out and use it.
-    [identityAttr removeObjectForKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityAttr, (CFTypeRef*)&identity);
-    CHECK_KEYCHAIN_STATUS(@"retrieve wpj identity ref");;
-    if (CFGetTypeID(identity) != SecIdentityGetTypeID())
+    if (status != errSecSuccess)
     {
-        CFRelease(identity);
-        
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong object type returned from identity query", nil, nil, nil, context.correlationId, nil);
-        }
+        return NULL;
+    }
+    
+    NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
+    NSData *certIssuer = [resultDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
+    
+    if (issuer && certIssuer)
+    {
+        *issuer = [[NSString alloc] initWithData:certIssuer encoding:NSASCIIStringEncoding];
+    }
+    
+    SecIdentityRef identityRef = (__bridge_retained SecIdentityRef)[resultDict objectForKey:(__bridge NSString*)kSecValueRef];
+    return identityRef;
+}
+
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(nullable id<MSIDRequestContext>)context
+                                               error:(NSError*__nullable*__nullable)error
+{
+    NSString *teamId = [[MSIDKeychainUtil sharedInstance] teamId];
+
+    if (!teamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Encountered an error when reading teamID from keychain.");
         return nil;
     }
-    //Get the certificate and data
-    status = SecIdentityCopyCertificate(identity, &certificate);
-    CHECK_KEYCHAIN_STATUS(@"copy identity certificate");
-    
-    status = SecIdentityCopyPrivateKey(identity, &privateKey);
-    CHECK_KEYCHAIN_STATUS(@"copy identity private key");
-    
-    certificateSubject = (NSString *)CFBridgingRelease(SecCertificateCopySubjectSummary(certificate));
-    certificateData = (NSData *)CFBridgingRelease(SecCertificateCopyData(certificate));
-    
-    if(!(identity && certificate && certificateSubject && certificateData && privateKey && certificateIssuer))
-    {
-        // We never should hit this error anyways, as any of this stuff being missing will cause failures farther up.
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing some piece of WPJ data", nil, nil, nil, context.correlationId, nil);
-        }
-        
-        return nil;
-    }
-    
-    {
-        MSIDRegistrationInformation *info = [[MSIDRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                                                        certificateIssuer:certificateIssuer
-                                                                                              certificate:certificate
-                                                                                       certificateSubject:certificateSubject
-                                                                                          certificateData:certificateData
-                                                                                               privateKey:privateKey];
-        return info;
-    }
-_error:
-    if (identity)
-    {
-        CFRelease(identity);
-    }
-    if (certificate)
-    {
-        CFRelease(certificate);
-    }
-    if (privateKey)
-    {
-        CFRelease(privateKey);
-    }
-    return nil;
+    NSString *sharedAccessGroup = [NSString stringWithFormat:@"%@.com.microsoft.workplacejoin", teamId];
+
+    return [self getWPJStringDataForIdentifier:identifier accessGroup:sharedAccessGroup context:context error:error];
 }
 
 @end

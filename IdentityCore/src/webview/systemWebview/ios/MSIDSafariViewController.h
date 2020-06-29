@@ -36,10 +36,9 @@
            presentationType:(UIModalPresentationStyle)presentationType
                     context:(id<MSIDRequestContext>)context;
 
-- (BOOL)handleURLResponse:(NSURL *)url;
-
 @property (readonly) NSURL *startURL;
 @property (weak, nonatomic) UIViewController *parentController;
+@property (nonatomic) NSArray<UIActivity *> *appActivities;
 
 @end
 #endif

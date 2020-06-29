@@ -28,21 +28,25 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAccount.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDAADV1IdTokenClaims.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAuthority.h"
 #import "MSIDIdToken.h"
 #import "MSIDAuthority.h"
 #import "MSIDOAuth2Constants.h"
-
+#import "MSIDAccountIdentifier.h"
 #import "MSIDAADV1WebviewFactory.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDAADAuthority.h"
 #import "MSIDAADTenant.h"
 #import "MSIDRefreshTokenGrantRequest.h"
 
 @implementation MSIDAADV1Oauth2Factory
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV1;
+}
 
 #pragma mark - Helpers
 
@@ -56,7 +60,7 @@
         {
             NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDAADV1TokenResponse, passed %@", response.class];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
 
         return NO;
@@ -119,7 +123,7 @@
                                          nil,
                                          nil,
                                          nil,
-                                         internalError.userInfo);
+                                         internalError.userInfo, NO);
             }
             else
             {
@@ -132,8 +136,7 @@
 
     if (!response.clientInfo)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelVerbose, nil, context, @"Client info was not returned in the server response");
-        MSID_LOG_PII(MSIDLogLevelVerbose, nil, context, @"Client info was not returned in the server response");
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Client info was not returned in the server response");
     }
 
     return YES;
@@ -156,25 +159,8 @@
     return YES;
 }
 
-- (BOOL)fillBaseToken:(MSIDBaseToken *)baseToken
-         fromResponse:(MSIDAADTokenResponse *)response
-        configuration:(MSIDConfiguration *)configuration
-{
-    if (![super fillBaseToken:baseToken fromResponse:response configuration:configuration])
-    {
-        return NO;
-    }
-
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return NO;
-    }
-
-    return YES;
-}
-
 - (BOOL)fillAccount:(MSIDAccount *)account
-       fromResponse:(MSIDTokenResponse *)response
+       fromResponse:(MSIDAADTokenResponse *)response
       configuration:(MSIDConfiguration *)configuration
 {
     if (![super fillAccount:account fromResponse:response configuration:configuration])
@@ -187,9 +173,11 @@
         return NO;
     }
     
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:account.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    if (response.idTokenObj.realm)
+    {
+        account.realm = response.idTokenObj.realm;
+    }
     
-    account.authority = authority;
     return YES;
 }
 
@@ -202,9 +190,11 @@
         return NO;
     }
     
-    __auto_type authority = [MSIDAuthorityFactory authorityFromUrl:token.authority.url rawTenant:response.idTokenObj.realm context:nil error:nil];
+    if (response.idTokenObj.realm)
+    {
+        token.realm = response.idTokenObj.realm;
+    }
 
-    token.authority = authority;
     return YES;
 }
 
@@ -234,6 +224,23 @@
 {
     // TODO: implement me for ADAL
     return nil;
+}
+
+#pragma mark - Common identifiers
+
+- (MSIDAccountIdentifier *)accountIdentifierFromResponse:(MSIDAADTokenResponse *)response
+{
+    return [[MSIDAccountIdentifier alloc] initWithDisplayableId:response.idTokenObj.userId
+                                                  homeAccountId:response.clientInfo.accountIdentifier];
+}
+
+#pragma mark - Authority
+
+- (MSIDAuthority *)resultAuthorityWithConfiguration:(__unused MSIDConfiguration *)configuration
+                                      tokenResponse:(__unused MSIDTokenResponse *)response
+                                              error:(__unused NSError **)error
+{
+    return configuration.authority;
 }
 
 @end

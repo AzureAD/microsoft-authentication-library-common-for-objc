@@ -22,8 +22,21 @@
 // THE SOFTWARE.
 
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDMainThreadUtil.h"
+
+static BOOL s_isRunningInCompliantExtension = NO;
 
 @implementation MSIDAppExtensionUtil
+
++ (BOOL)runningInCompliantExtension
+{
+    return s_isRunningInCompliantExtension;
+}
+
++ (void)setRunningInCompliantExtension:(BOOL)runningInCompliantExtension
+{
+    s_isRunningInCompliantExtension = runningInCompliantExtension;
+}
 
 + (BOOL)isExecutingInAppExtension
 {
@@ -31,12 +44,12 @@
     
     if (mainBundlePath.length == 0)
     {
-        MSID_LOG_ERROR(nil, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
         
         return NO;
     }
     
-    return [mainBundlePath hasSuffix:@"appex"];
+    return [mainBundlePath hasSuffix:@"appex"] && !self.runningInCompliantExtension;
 }
 
 #pragma mark - UIApplication
@@ -62,10 +75,31 @@
     
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-    dispatch_async( dispatch_get_main_queue(), ^{
+    
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
-    });
+    }];
 #pragma clang diagnostic pop
+}
+
++ (void)sharedApplicationOpenURL:(NSURL *)url
+                         options:(NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options
+               completionHandler:(void (^ __nullable)(BOOL success))completionHandler
+{
+    if ([self isExecutingInAppExtension])
+    {
+        // The caller should do this check but we will double check to fail safely
+        return;
+    }
+    
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        
+        SEL openURLSelector = @selector(openURL:options:completionHandler:);
+        UIApplication *application = [self sharedApplication];
+        id (*safeOpenURL)(id, SEL, id, id, id) = (void *)[application methodForSelector:openURLSelector];
+        
+        safeOpenURL(application, openURLSelector, url, options, completionHandler);
+    }];
 }
 
 @end

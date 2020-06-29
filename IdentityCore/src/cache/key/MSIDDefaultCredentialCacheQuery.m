@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDDefaultCredentialCacheQuery.h"
-#import "MSIDIntuneEnrollmentIdsCache.h"
 
 @implementation MSIDDefaultCredentialCacheQuery
 
@@ -63,6 +62,10 @@
         {
             return [self serviceForAccessToken];
         }
+        case MSIDAccessTokenWithAuthSchemeType:
+        {
+            return [self serviceForAccessToken];
+        }
         case MSIDPrimaryRefreshTokenType:
         case MSIDRefreshTokenType:
         {
@@ -90,7 +93,7 @@
         && self.target
         && self.targetMatchingOptions == MSIDExactStringMatch)
     {
-        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
+        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:self.realm applicationIdentifier:self.applicationIdentifier target:self.target appKey:self.appKey tokenType:self.tokenType];
     }
 
     return nil;
@@ -100,7 +103,7 @@
 {
     if (self.queryClientId)
     {
-        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:nil enrollmentId:nil target:nil appKey:self.appKey];
+        return [self serviceWithType:self.credentialType clientID:self.queryClientId realm:nil applicationIdentifier:nil target:nil appKey:self.appKey tokenType:self.tokenType];
     }
 
     return nil;
@@ -110,7 +113,7 @@
 {
     if (self.clientId && self.realm)
     {
-        return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:self.appKey];
+        return [self serviceWithType:MSIDIDTokenType clientID:self.clientId realm:self.realm applicationIdentifier:nil target:nil appKey:self.appKey tokenType:self.tokenType];
     }
     
     return nil;
@@ -120,7 +123,7 @@
 {
     if (self.clientId && self.realm)
     {
-        return [self serviceWithType:MSIDLegacyIDTokenType clientID:self.clientId realm:self.realm enrollmentId:nil target:nil appKey:self.appKey];
+        return [self serviceWithType:MSIDLegacyIDTokenType clientID:self.clientId realm:self.realm applicationIdentifier:nil target:nil appKey:self.appKey tokenType:self.tokenType];
     }
     
     return nil;
@@ -144,14 +147,14 @@
 
     if (self.credentialType == MSIDRefreshTokenType)
     {
-        genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:nil enrollmentId:nil];
+        genericString = [self credentialIdWithType:self.credentialType clientId:clientId realm:nil applicationIdentifier:nil];
     }
     else if (self.realm)
     {
         genericString = [self credentialIdWithType:self.credentialType
                                           clientId:clientId
                                              realm:self.realm
-                                      enrollmentId:(self.credentialType == MSIDAccessTokenType) ? self.enrollmentId : nil];
+                             applicationIdentifier:(self.credentialType == MSIDAccessTokenType) ? self.applicationIdentifier : nil];
     }
 
     return [genericString dataUsingEncoding:NSUTF8StringEncoding];

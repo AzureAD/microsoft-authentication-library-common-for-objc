@@ -67,11 +67,10 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      @"Claim request is nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, NO);
         }
         
-        MSID_LOG_ERROR(nil, @"Failed to request claim: claim request is nil.");
-        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to request claim: claim request is nil.");
         return NO;
     }
     
@@ -115,10 +114,10 @@
             *error = MSIDCreateError(MSIDErrorDomain,
                                      MSIDErrorInvalidDeveloperParameter,
                                      @"Name is nil.",
-                                     nil, nil, nil, nil, nil);
+                                     nil, nil, nil, nil, nil, NO);
         }
         
-        MSID_LOG_ERROR(nil, @"Failed to remove claim: name is nil.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to remove claim: name is nil.");
         
         return NO;
     }
@@ -164,14 +163,7 @@
                 return nil;
             }
             
-            if (![json msidAssertType:NSDictionary.class
-                              ofField:key
-                              context:nil
-                            errorCode:MSIDErrorInvalidDeveloperParameter
-                                error:error])
-            {
-                return nil;
-            }
+            if (![json msidAssertTypeIsOneOf:@[NSDictionary.class] ofKey:key required:YES context:nil errorCode:MSIDErrorInvalidDeveloperParameter error:error]) return nil;
             
             NSDictionary *claimRequestsJson = json[key];
             for (NSString *key in [claimRequestsJson allKeys])
@@ -232,10 +224,10 @@
         *error = MSIDCreateError(MSIDErrorDomain,
                                  MSIDErrorInvalidDeveloperParameter,
                                  message,
-                                 nil, nil, nil, nil, nil);
+                                 nil, nil, nil, nil, nil, NO);
     }
     
-    MSID_LOG_ERROR(nil, @"Invalid claims target: %@", string);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Invalid claims target: %@", string);
     
     return MSIDClaimsRequestTargetInvalid;
 }

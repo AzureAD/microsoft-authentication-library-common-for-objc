@@ -25,258 +25,261 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDRegistrationInformation.h"
+#import "MSIDWorkplaceJoinChallenge.h"
+#import "MSIDAssymetricKeyPairWithCert.h"
+#import "MSIDWorkPlaceJoinUtilBase+Internal.h"
 
-// Convenience macro for checking keychain status codes while looking up the WPJ information.
-#define CHECK_KEYCHAIN_STATUS(OPERATION) \
-{ \
-if (status != noErr) \
-{ \
-NSError *localError = \
-MSIDCreateError(MSIDKeychainErrorDomain, status, OPERATION, nil, nil, nil, context.correlationId, nil); \
-if (error) { *error = localError; } \
-goto _error; \
-} \
-}
-
-static const UInt8 certificateIdentifier[] = "WorkPlaceJoin-Access\0";
+// Convenience macro to release CF objects
 
 @implementation MSIDWorkPlaceJoinUtil
 
 + (MSIDRegistrationInformation *)getRegistrationInformation:(id<MSIDRequestContext>)context
-                                                      error:(NSError **)error
+                                     workplacejoinChallenge:(MSIDWorkplaceJoinChallenge *)workplacejoinChallenge
 {
-    MSIDRegistrationInformation *info = nil;
-    SecIdentityRef identity = NULL;
-    SecCertificateRef certificate = NULL;
-    SecKeyRef privateKey = NULL;
-    NSString *certificateSubject = nil;
-    NSData *certificateData = nil;
-    NSString *certificateIssuer  = nil;
-    NSError *localError = nil;
-    
-    if (error)
+    if (![workplacejoinChallenge.certAuthorities count])
     {
-        *error = nil;
-    }
-    
-    MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information");
-    
-    [self copyCertificate:&certificate identity:&identity issuer:&certificateIssuer context:context error:&localError];
-    if (localError)
-    {
-        if (error)
-        {
-            *error = localError;
-        }
-        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ certificate. Error code: %ld", (long)localError.code);
-        goto _error;
-    }
-    
-    // If there's no certificate in the keychain, return nil. adError won't be set if the
-    // cert can't be found since this isn't considered an error condition.
-    if (!certificate)
-    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No cert authorities provided in the request. Aborting the request.");
         return nil;
     }
     
-    certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
-    certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Looking up workplace join certificate by authorities");
+    return [self findWPJRegistrationInfoWithAuthorities:workplacejoinChallenge.certAuthorities
+                                                context:context];
+}
+
+#pragma mark - Lookup by identity
+
++ (MSIDRegistrationInformation *)findWPJRegistrationInfoWithAuthorities:(NSArray<NSData *> *)certAuthorities
+                                                                context:(id<MSIDRequestContext>)context
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Attempting to get WPJ registration information.");
+    NSString *certIssuer = nil;
+    SecIdentityRef identity = [self copyWPJIdentityWithAuthorities:certAuthorities issuer:&certIssuer]; // +1 identity
+    
+    // If there's no identity in the keychain, return nil. adError won't be set if the
+    // identity can't be found since this isn't considered an error condition.
+    if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
+        CFReleaseNull(identity);
+        return nil;
+    }
+    
+    // Get the wpj certificate
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ certificate reference.");
+    SecCertificateRef certificateRef = NULL;
+    OSStatus status = SecIdentityCopyCertificate(identity, &certificateRef); // +1 certificateRef
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ certificate retrieved with result %ld", (long)status);
     
     // Get the private key
-    MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ private key reference.");
+    SecKeyRef privateKeyRef = NULL;
+    status = SecIdentityCopyPrivateKey(identity, &privateKeyRef); // +1 privateKeyRef
     
-    privateKey = [self copyPrivateKeyRefForIdentifier:kMSIDPrivateKeyIdentifier context:context error:&localError];
-    if (localError)
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ private key reference retrieved with result %ld", (long)status);
+    
+    // Get the public key
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
+    SecKeyRef publicKeyRef = NULL;
+    
+    if (certificateRef)
     {
-        if (error)
-        {
-            *error = localError;
-        }
-        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ private key reference. Error code %ld", (long)localError.code);
-        goto _error;
+        status = SecCertificateCopyPublicKey(certificateRef, &publicKeyRef); // +1 publicKeyRef
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ public key reference retrieved with result %ld", (long)status);
     }
     
-    if (!identity || !certificateIssuer || !certificateSubject || !certificateData || !privateKey)
+    MSIDRegistrationInformation *info = nil;
+    
+    if (!certificateRef || !privateKeyRef || !publicKeyRef)
     {
-        // The code above will catch missing security items, but not missing item attributes. These are caught here.
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Missing some piece of WPJ data", nil, nil, nil, context.correlationId, nil);
-        }
-        goto _error;
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"WPJ identity retrieved from keychain is invalid. Cert ref = %d, private key ref = %d, public key ref = %d", (int)(certificateRef != NULL), (int)(privateKeyRef != NULL), (int)(publicKeyRef != NULL));
+    }
+    else
+    {
+        // We found all the required WPJ information.
+        info = [[MSIDRegistrationInformation alloc] initWithIdentity:identity
+                                                          privateKey:privateKeyRef
+                                                           publicKey:publicKeyRef
+                                                         certificate:certificateRef
+                                                   certificateIssuer:certIssuer];
     }
     
-    // We found all the required WPJ information.
-    info = [[MSIDRegistrationInformation alloc] initWithSecurityIdentity:identity
-                                                       certificateIssuer:certificateIssuer
-                                                             certificate:certificate
-                                                      certificateSubject:certificateSubject
-                                                         certificateData:certificateData
-                                                              privateKey:privateKey];
-    
-    // Fall through to clean up resources.
-    
-_error:
-    
-    if (identity)
-    {
-        CFRelease(identity);
-    }
-    if (certificate)
-    {
-        CFRelease(certificate);
-    }
-    if (privateKey)
-    {
-        CFRelease(privateKey);
-    }
-    
+    CFReleaseNull(identity);
+    CFReleaseNull(privateKeyRef);
+    CFReleaseNull(publicKeyRef);
+    CFReleaseNull(certificateRef);
     return info;
 }
 
-
-+ (BOOL)copyCertificate:(SecCertificateRef __nullable * __nonnull)certificate
-               identity:(SecIdentityRef __nullable * __nonnull)identity
-                 issuer:(NSString * __nullable * __nonnull)issuer
-                context:(id<MSIDRequestContext>)context
-                  error:(NSError **)error
++ (SecIdentityRef)copyWPJIdentityWithAuthorities:(NSArray<NSData *> *)authorities issuer:(NSString **)issuer
 {
-    OSStatus status = noErr;
-    NSError *localError = nil;
-    NSData *issuerData = nil;
-    NSDictionary *identityQuery = nil;
-    CFDictionaryRef result = NULL;
-    
-    *identity = nil;
-    *certificate = nil;
-    if (error)
-    {
-        *error = nil;
-    }
-    
-    *certificate = [self copyWPJCertificateRef:context error:&localError];
-    
-    if (localError)
-    {
-        if (error)
-        {
-            *error = localError;
-        }
-        
-        MSID_LOG_ERROR(context, @"Failed to retrieve WPJ client certificate from keychain. Error code: %ld", (long)localError.code);
-        goto _error;
-    }
-    
-    // If there's no certificate in the keychain, adError won't be set since this isn't an error condition.
-    if (!*certificate)
-    {
-        return NO;
-    }
-    
-    // In OS X the shared access group cannot be set, so the search needs to be more
-    // specific. The code below searches the identity by passing the WPJ cert as reference.
-    identityQuery = @{ (__bridge id)kSecClass : (__bridge id)kSecClassIdentity,
-                       (__bridge id)kSecReturnRef : (__bridge id)kCFBooleanTrue,
-                       (__bridge id)kSecReturnAttributes : (__bridge id)kCFBooleanTrue,
-                       (__bridge id)kSecAttrKeyClass : (__bridge id)kSecAttrKeyClassPrivate,
-                       (__bridge id)kSecValueRef : (__bridge id)*certificate
-                       };
-    
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)identityQuery, (CFTypeRef*)&result);
-    CHECK_KEYCHAIN_STATUS(@"Failed to retrieve WPJ identity from keychain.");
-    
-    issuerData = [(__bridge NSDictionary*)result objectForKey:(__bridge id)kSecAttrIssuer];
-    if (issuerData)
-    {
-        *issuer = [[NSString alloc] initWithData:issuerData encoding:NSISOLatin1StringEncoding];
-    }
-    
-    *identity = (__bridge SecIdentityRef)([(__bridge NSDictionary*)result objectForKey:(__bridge id)kSecValueRef]);
-    if (*identity)
-    {
-        CFRetain(*identity);
-    }
-    
-    CFRelease(result);
-    
-    return YES;
-    
-_error:
-    
-    if (*identity)
-    {
-        CFRelease(*identity);
-    }
-    *identity = nil;
-    
-    if (*certificate)
-    {
-        CFRelease(*certificate);
-    }
-    *certificate = nil;
-    
-    *issuer = nil;
-    
-    return NO;
-}
-
-
-+ (SecCertificateRef)copyWPJCertificateRef:(id<MSIDRequestContext>)context
-                                     error:(NSError **)error
-{
-    OSStatus status= noErr;
-    SecCertificateRef certRef = NULL;
-    NSData *issuerTag = [self wpjCertIssuerTag];
-    
-    // Set the private key query dictionary.
-    NSDictionary *queryCert = @{ (__bridge id)kSecClass : (__bridge id)kSecClassCertificate,
-                                 (__bridge id)kSecAttrLabel : issuerTag
-                                 };
-    
-    // Get the certificate. If the certificate is not found, this is not considered an error.
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)queryCert, (CFTypeRef*)&certRef);
-    if (status == errSecItemNotFound)
+    if (![authorities count])
     {
         return NULL;
     }
     
-    CHECK_KEYCHAIN_STATUS(@"Failed to read WPJ certificate.");
+    NSDictionary *query = @{ (__bridge id)kSecClass : (__bridge id)kSecClassIdentity,
+                             (__bridge id)kSecReturnAttributes:(__bridge id)kCFBooleanTrue,
+                             (__bridge id)kSecReturnRef :  (__bridge id)kCFBooleanTrue,
+                             (__bridge id)kSecMatchLimit : (__bridge id)kSecMatchLimitAll,
+                             (__bridge id)kSecMatchIssuers : authorities
+                             };
     
-    return certRef;
+    CFArrayRef identityList = NULL;
+    SecIdentityRef identityRef = NULL;
+    NSDictionary *identityDict = nil;
+    NSData *currentIssuer = nil;
+    NSString *currentIssuerName = nil;
     
-_error:
-    return NULL;
+    OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&identityList);
+    
+    if (status != errSecSuccess)
+    {
+        return NULL;
+    }
+    
+    CFIndex identityCount = CFArrayGetCount(identityList);
+    NSString *challengeIssuerName = [[NSString alloc] initWithData:authorities[0] encoding:NSASCIIStringEncoding];
+    
+    for (int resultIndex = 0; resultIndex < identityCount; resultIndex++)
+    {
+        identityDict = (NSDictionary *)CFArrayGetValueAtIndex(identityList, resultIndex);
+        
+        if ([identityDict isKindOfClass:[NSDictionary class]])
+        {
+            currentIssuer = [identityDict objectForKey:(__bridge NSString*)kSecAttrIssuer];
+            
+            if (currentIssuer)
+            {
+                currentIssuerName = [[NSString alloc] initWithData:currentIssuer encoding:NSASCIIStringEncoding];
+                
+                /* The issuer name returned from the certificate in keychain is capitalized but the issuer name returned from the TLS challenge is not.
+                 Hence we need to do a caseInsenstitive compare to match the issuer.
+                 */
+                
+                if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
+                {
+                    identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
+                    
+                    if (issuer)
+                    {
+                        *issuer = currentIssuerName;
+                    }
+                    
+                    break;
+                }
+            }
+        }
+    }
+    
+    CFReleaseNull(identityList);
+    return identityRef; //Caller must call CFRelease
 }
 
-+ (NSData *)wpjCertIssuerTag
+#pragma mark - Lookup by private key
+
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context
 {
-    return [NSData dataWithBytes:certificateIdentifier length:strlen((const char *)certificateIdentifier)];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"No cert authorities provided in the request. Looking up default WPJ certificate");
+    return [self findDefaultWPJRegistrationInfoWithContext:context];
 }
 
-+ (SecKeyRef)copyPrivateKeyRefForIdentifier:(NSString *)identifier
-                                    context:(id<MSIDRequestContext>)context
-                                      error:(NSError **)error
++ (MSIDAssymetricKeyPairWithCert *)findDefaultWPJRegistrationInfoWithContext:(id<MSIDRequestContext>)context
 {
-    OSStatus status= noErr;
-    SecKeyRef privateKeyReference = NULL;
-    
-    NSData *privateKeyTag = [NSData dataWithBytes:[identifier UTF8String] length:identifier.length];
+    OSStatus status = noErr;
+    CFTypeRef privateKeyCFDict = NULL;
     
     // Set the private key query dictionary.
-    NSDictionary *privateKeyQuery = @{ (__bridge id)kSecClass : (__bridge id)kSecClassKey,
-                                       (__bridge id)kSecAttrApplicationTag : privateKeyTag,
-                                       (__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA,
-                                       (__bridge id)kSecReturnRef : (__bridge id)kCFBooleanTrue
-                                       };
+    NSDictionary *queryPrivateKey = @{ (__bridge id)kSecClass : (__bridge id)kSecClassKey,
+                                       (__bridge id)kSecAttrApplicationTag: kMSIDPrivateKeyIdentifier,
+                                       (__bridge id)kSecReturnAttributes: @YES,
+                                       (__bridge id)kSecReturnRef: @YES};
     
-    // Get the key.
-    status = SecItemCopyMatching((__bridge CFDictionaryRef)privateKeyQuery, (CFTypeRef*)&privateKeyReference);
-    CHECK_KEYCHAIN_STATUS(@"Failed to read WPJ private key for identifier.");
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef*)&privateKeyCFDict); // +1 privateKeyCFDict
+    if (status != errSecSuccess)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find workplace join private key with status %ld", (long)status);
+        return nil;
+    }
+        
+    NSDictionary *privateKeyDict = CFBridgingRelease(privateKeyCFDict); // -1 privateKeyCFDict
     
-    return privateKeyReference;
+    /*
+     kSecAttrApplicationLabel
+     For asymmetric keys this holds the public key hash which allows digital identity formation (to form a digital identity, this value must match the kSecAttrPublicKeyHash ('pkhh') attribute of the certificate)
+     */
+    NSData *applicationLabel = privateKeyDict[(__bridge id)kSecAttrApplicationLabel];
+
+    if (!applicationLabel)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unexpected key found without application label. Aborting lookup");
+        return nil;
+    }
     
-_error:
-    return nil;
+    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+    
+    if (!privateKeyRef)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No private key ref found. Aborting lookup.");
+        return nil;
+    }
+        
+    NSDictionary *certQuery = @{(__bridge id)kSecClass : (__bridge id)kSecClassCertificate,
+                                (__bridge id)kSecAttrPublicKeyHash: applicationLabel};
+    
+    SecCertificateRef certRef;
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)certQuery, (CFTypeRef*)&certRef); // +1 certRef
+    
+    if (status != errSecSuccess)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find certificate for public key hash with status %ld", (long)status);
+        return nil;
+    }
+    
+    // Get the public key
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
+    SecKeyRef publicKeyRef = NULL;
+    NSString *issuer = nil;
+    
+    if (certRef)
+    {
+        status = SecCertificateCopyPublicKey(certRef, &publicKeyRef); // +1 publicKeyRef
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ public key reference retrieved with result %ld", (long)status);
+        
+        NSData *issuerData = nil;
+        
+        if (@available(macOS 10.12.4, *))
+        {
+            issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
+        }
+        else
+        {
+            issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerContent(certRef, NULL));
+        }
+        
+        if (issuerData)
+        {
+            issuer = [[NSString alloc] initWithData:issuerData encoding:NSASCIIStringEncoding];
+        }
+        
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Retrieved WPJ issuer %@", MSID_PII_LOG_MASKABLE(issuer));
+    }
+    
+    MSIDAssymetricKeyPairWithCert *keyPair = [[MSIDAssymetricKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
+                                                                                             publicKey:publicKeyRef
+                                                                                           certificate:certRef
+                                                                                     certificateIssuer:issuer];
+    CFReleaseNull(certRef);
+    CFReleaseNull(publicKeyRef);
+    return keyPair;
+}
+
++ (nullable NSString *)getWPJStringDataForIdentifier:(nonnull NSString *)identifier
+                                             context:(id<MSIDRequestContext>_Nullable)context
+                                               error:(NSError*__nullable*__nullable)error
+{
+    return [self getWPJStringDataForIdentifier:identifier accessGroup:nil context:context error:error];
 }
 
 @end

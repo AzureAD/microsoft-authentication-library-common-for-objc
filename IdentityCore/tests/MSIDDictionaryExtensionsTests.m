@@ -78,7 +78,7 @@
                                       @"key1": @"value1",
                                       @"key2": @"value2",
                                       @"key3": @"value3"};
-    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:nil];
+    NSDictionary *resultDictionary = [inputDictionary msidDictionaryByRemovingFields:nil];
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }
 
@@ -88,7 +88,7 @@
                                       @"key2": @"value2",
                                       @"key3": @"value3"};
     
-    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:@[]];
+    NSDictionary *resultDictionary = [inputDictionary msidDictionaryByRemovingFields:@[]];
     XCTAssertEqualObjects(inputDictionary, resultDictionary);
 }
 
@@ -99,68 +99,10 @@
                                       @"key3": @"value3"};
     
     NSArray *keysArray = @[@"key2", @"key1"];
-    NSDictionary *resultDictionary = [inputDictionary dictionaryByRemovingFields:keysArray];
+    NSDictionary *resultDictionary = [inputDictionary msidDictionaryByRemovingFields:keysArray];
     
     NSDictionary *expectedDictionary = @{@"key3": @"value3"};
     XCTAssertEqualObjects(resultDictionary, expectedDictionary);
-}
-
-- (void)testAssertContainsField_whenFieldIsInDictionary_shouldReturnTrue
-{
-    NSDictionary *inputDictionary = @{@"key1": @"value1",
-                                      @"key2": @"value2",
-                                      @"key3": @"value3"};
-    
-    NSError *error;
-    BOOL result = [inputDictionary msidAssertContainsField:@"key1" context:nil error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-}
-
-- (void)testAssertContainsField_whenFieldIsNotInDictionary_shouldReturnFalse
-{
-    NSDictionary *inputDictionary = @{@"key4": @"value1",
-                                      @"key2": @"value2",
-                                      @"key3": @"value3"};
-    
-    NSError *error;
-    BOOL result = [inputDictionary msidAssertContainsField:@"key1" context:nil error:&error];
-    
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is missing.");
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqual(error.code, MSIDErrorServerInvalidResponse);
-}
-
-- (void)testAssertType_whenFieldOfCorrectType_shouldReturnTrue
-{
-    NSDictionary *inputDictionary = @{@"key1": @"value1",
-                                      @"key2": @"value2",
-                                      @"key3": @"value3"};
-    
-    NSError *error;
-    BOOL result = [inputDictionary msidAssertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
-    
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-}
-
-- (void)testAssertType_whenFieldOfIncorrectType_shouldReturnFalse
-{
-    NSDictionary *inputDictionary = @{@"key1": @1,
-                                      @"key2": @"value2",
-                                      @"key3": @"value3"};
-    
-    NSError *error;
-    BOOL result = [inputDictionary msidAssertType:NSString.class ofField:@"key1" context:nil errorCode:1 error:&error];
-    
-    XCTAssertFalse(result);
-    XCTAssertNotNil(error);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"key1 is not a NSString.");
-    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
-    XCTAssertEqual(error.code, 1);
 }
 
 - (void)testMsidSetObjectIfNotNil_whenNilKey_shouldDoNothingAndReturnFalse
@@ -210,6 +152,122 @@
     NSMutableDictionary *dic = [NSMutableDictionary new];
     XCTAssertTrue([dic msidSetNonEmptyString:@"value" forKey:@"key"]);
     XCTAssertTrue(dic.count==1);
+}
+    
+- (void)testMsidStringForKey_whenNilKey_shouldReturnNil
+{
+    NSDictionary *dictionary = [NSDictionary new];
+    NSString *result = [dictionary msidStringObjectForKey:nil];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidStringForKey_whenValueMissing_shouldReturnNil
+{
+    NSDictionary *dictionary = @{@"key1": @"value2"};
+    NSString *result = [dictionary msidStringObjectForKey:@"missing"];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidStringForKey_whenNullValuePresent_andIsBlank_shouldReturnNil
+{
+    NSDictionary *dictionary = @{@"key1": [NSNull null]};
+    NSString *result = [dictionary msidStringObjectForKey:@"key1"];
+    XCTAssertNil(result);
+}
+
+- (void)testMsidStringForKey_whenValuePresent_andIsString_shouldReturnValue
+{
+    NSDictionary *dictionary = @{@"key1": @"value1"};
+    NSString *result = [dictionary msidStringObjectForKey:@"key1"];
+    XCTAssertEqualObjects(result, @"value1");
+}
+
+- (void)testMsidStringForKey_whenValuePresent_andNotString_shouldReturnNil
+{
+    NSDictionary *dictionary = @{@"key1": [NSNull null]};
+    NSString *result = [dictionary msidStringObjectForKey:@"key1"];
+    XCTAssertNil(result);
+}
+
+- (void)testMSIDNormalizedDictionary_whenNoNulls_returnDictionary
+{
+    NSDictionary *input = @{@"test1": @"test2", @"tets3": @"test4"};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(input, result);
+}
+
+- (void)testMSIDNormalizedDictionary_whenDictionaryContainsNulls_returnNormalizedDictionary
+{
+    NSDictionary *input = @{@"test1": @"test2", @"test3": @"test4", @"null-test": [NSNull null]};
+    NSDictionary *expectedResult = @{@"test1": @"test2", @"test3": @"test4"};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(expectedResult, result);
+}
+
+- (void)testMSIDNormalizedDictionary_whenDictionaryContainsDictionariesWithNulls_returnNormalizedDictionary
+{
+    NSDictionary *input = @{@"test1":@"test2", @"test3": @"test4", @"test5": @{@"test1": [NSNull null], @"test2": @"test3", @"test4": @{@"test5": [NSNull null]}}};
+    NSDictionary *expectedResult = @{@"test1":@"test2", @"test3": @"test4", @"test5": @{@"test2": @"test3", @"test4": @{}}};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(expectedResult, result);
+}
+
+- (void)testMSIDNornalizedDictionary_whenDictionaryContainsArraysWithDictionariesWithNulls_returnNormalizedDictionary
+{
+    NSDictionary *input = @{@"input1": @"test2", @"test3": @[[NSNull null], @{@"test1": @{@"test1": [NSNull null], @"test3": @"test4"}}]};
+    NSDictionary *expectedResult = @{@"input1": @"test2", @"test3": @[@{@"test1": @{@"test3": @"test4"}}]};
+    NSDictionary *result = [input msidNormalizedJSONDictionary];
+    XCTAssertEqualObjects(expectedResult, result);
+}
+
+- (void)testMSIDAssertTypeIsOneOf_whenTypeIsWrong_shouldReturnError
+{
+    NSDictionary *json = @{@"some_key": @4};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:YES context:nil errorCode:5 error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 5);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"some_key key in dictionary is not of expected type. Allowed types: NSString.");
+}
+
+- (void)testMSIDAssertTypeIsOneOf_whenTypeCorrect_shouldReturnTrue
+{
+    NSDictionary *json = @{@"some_key": @"4"};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:YES context:nil errorCode:5 error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testMSIDAssertTypeIsOneOf_whenFieldIsOptionalAndMissed_shouldReturnTrue
+{
+    NSDictionary *json = @{@"some_key_2": @"4"};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:NO context:nil errorCode:5 error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testMSIDAssertTypeIsOneOf_whenFieldIsRequiredAndMissed_shouldReturnTrue
+{
+    NSDictionary *json = @{@"some_key_2": @"4"};
+    
+    NSError *error;
+    BOOL result = [json msidAssertTypeIsOneOf:@[NSString.class] ofKey:@"some_key" required:YES context:nil errorCode:5 error:&error];
+    
+    XCTAssertFalse(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 5);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"some_key key is missing in dictionary.");
 }
 
 @end

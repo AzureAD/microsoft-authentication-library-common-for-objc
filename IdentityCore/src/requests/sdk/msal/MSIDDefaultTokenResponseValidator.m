@@ -52,13 +52,13 @@
         {
             NSMutableDictionary *additionalUserInfo = [NSMutableDictionary new];
             
-            MSID_LOG_ERROR_CORR(correlationID, @"Server returned less scopes than requested, granted scopes: %@", grantedScopes);
+            MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationID, @"Server returned less scopes than requested, granted scopes: %@", grantedScopes);
             // Remove oidc scopes.
             NSOrderedSet *oidcScopes = oidcScope.msidScopeSet;
             NSOrderedSet *filteredGrantedScopes = [grantedScopes msidMinusOrderedSet:oidcScopes normalize:YES];
             
-            MSID_LOG_INFO_CORR(correlationID, @"Removing reserved scopes from granted scopes: %@", oidcScopes);
-            MSID_LOG_INFO_CORR(correlationID, @"Final granted scopes: %@", grantedScopes);
+            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Removing reserved scopes from granted scopes: %@", oidcScopes);
+            MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Final granted scopes: %@", grantedScopes);
             
             additionalUserInfo[MSIDGrantedScopesKey] = [filteredGrantedScopes array];
 
@@ -67,7 +67,7 @@
             additionalUserInfo[MSIDDeclinedScopesKey] = [declinedScopeSet array];
             additionalUserInfo[MSIDInvalidTokenResultKey] = tokenResult;
 
-            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo);
+            *error = MSIDCreateError(MSIDOAuthErrorDomain, MSIDErrorServerDeclinedScopes, @"Server returned less scopes than requested", nil, nil, nil, nil, additionalUserInfo, NO);
         }
 
         return NO;
@@ -82,12 +82,14 @@
                       error:(NSError **)error
 {
     if (accountIdentifier.uid != nil
-        && ![accountIdentifier.uid isEqualToString:tokenResult.accessToken.accountIdentifier.uid])
+        && ![accountIdentifier.uid isEqualToString:tokenResult.account.accountIdentifier.uid])
     {
+        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationID, @"Different account was returned from the server. Original account %@, returned account %@", MSID_PII_LOG_TRACKABLE(accountIdentifier.uid), MSID_PII_LOG_TRACKABLE(tokenResult.account.accountIdentifier.uid));
+        
         if (error)
         {
             NSDictionary *userInfo = @{MSIDInvalidTokenResultKey : tokenResult};
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different account was returned from the server", nil, nil, nil, correlationID, userInfo, NO);
         }
         
         return NO;

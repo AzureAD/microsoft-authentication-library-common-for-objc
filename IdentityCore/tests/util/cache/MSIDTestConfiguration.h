@@ -29,6 +29,11 @@
 
 + (MSIDConfiguration *)defaultParams;
 
++ (MSIDConfiguration *)configurationWithB2CAuthority:(NSString *)authorityUrlString
+                                            clientId:(NSString *)clientId
+                                         redirectUri:(NSString *)redirectUri
+                                              target:(NSString *)target;
+
 + (MSIDConfiguration *)configurationWithAuthority:(NSString *)authority
                                          clientId:(NSString *)clientId
                                       redirectUri:(NSString *)redirectUri

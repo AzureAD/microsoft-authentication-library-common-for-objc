@@ -22,13 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDWebviewFactory.h"
-#import "MSIDWebviewConfiguration.h"
-#import "MSIDWebOAuth2Response.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDWebOAuth2AuthCodeResponse.h"
 #import "MSIDWebviewSession.h"
 #import <WebKit/WebKit.h>
-#if TARGET_OS_IPHONE
 #import "MSIDSystemWebviewController.h"
-#endif
 #import "MSIDPkce.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDOAuth2EmbeddedWebviewController.h"
@@ -38,6 +36,10 @@
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDPromptType_Internal.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDSignoutWebRequestConfiguration.h"
+#import "MSIDWebviewInteracting.h"
+#import "MSIDSystemWebViewControllerFactory.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 
 @implementation MSIDWebviewFactory
 
@@ -45,17 +47,65 @@
 
 #pragma mark - Webview creation
 
-- (MSIDWebviewSession *)embeddedWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration customWebview:(WKWebView *)webview context:(id<MSIDRequestContext>)context
+- (NSObject<MSIDWebviewInteracting> *)webViewWithConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
+                                             requestParameters:(MSIDInteractiveRequestParameters *)requestParameters
+                                                       context:(id<MSIDRequestContext>)context
 {
-    NSString *state = [self generateStateValue];
-    NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
-    NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
+        MSIDWebviewType webviewType = [MSIDSystemWebViewControllerFactory availableWebViewTypeWithPreferredType:requestParameters.webviewType];
+        
+        BOOL useSession = YES;
+        BOOL allowSafariViewController = NO;
+        
+        switch (webviewType)
+        {
+            case MSIDWebviewTypeWKWebView:
+                return [self embeddedWebviewFromConfiguration:configuration
+                                                customWebview:requestParameters.customWebview
+                                                      context:context];
+                
+#if !MSID_EXCLUDE_SYSTEMWV
+            case MSIDWebviewTypeAuthenticationSession:
+                useSession = YES;
+                allowSafariViewController = NO;
+                break;
+#if TARGET_OS_IPHONE
+            case MSIDWebviewTypeSafariViewController:
+                useSession = NO;
+                allowSafariViewController = YES;
+                break;
+#endif
+#endif
+                
+            default:
+                break;
+        }
+    
+    return [self systemWebviewFromConfiguration:configuration
+                       useAuthenticationSession:useSession
+                      allowSafariViewController:allowSafariViewController
+                                        context:context];
+}
+
+- (NSObject<MSIDWebviewInteracting> *)embeddedWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
+                                                         customWebview:(WKWebView *)webview
+                                                               context:(id<MSIDRequestContext>)context
+{
+    if (![NSThread isMainThread])
+    {
+        __block NSObject<MSIDWebviewInteracting> *session;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            session = [self embeddedWebviewFromConfiguration:configuration customWebview:webview context:context];
+        });
+        
+        return session;
+    }
     
     MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController
-    = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:startURL
-                                                             endURL:redirectURL
+    = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
+                                                             endURL:[NSURL URLWithString:configuration.endRedirectUrl]
                                                             webview:webview
                                                       customHeaders:configuration.customHeaders
+                                                     platfromParams:nil
                                                             context:context];
     
 #if TARGET_OS_IPHONE
@@ -63,92 +113,106 @@
     embeddedWebviewController.presentationType = configuration.presentationType;
 #endif
 
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:embeddedWebviewController
-                                                                                factory:self
-                                                                           requestState:state
-                                                                     ignoreInvalidState:configuration.ignoreInvalidState];
-                                   
-    return session;
+    return embeddedWebviewController;
 }
 
 #endif
 
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
+#if !MSID_EXCLUDE_SYSTEMWV
 
-- (MSIDWebviewSession *)systemWebviewSessionFromConfiguration:(MSIDWebviewConfiguration *)configuration
-                                     useAuthenticationSession:(BOOL)useAuthenticationSession
-                                    allowSafariViewController:(BOOL)allowSafariViewController
-                                                      context:(id<MSIDRequestContext>)context
+- (NSObject<MSIDWebviewInteracting> *)systemWebviewFromConfiguration:(MSIDBaseWebRequestConfiguration *)configuration
+                                            useAuthenticationSession:(BOOL)useAuthenticationSession
+                                           allowSafariViewController:(BOOL)allowSafariViewController
+                                                             context:(id<MSIDRequestContext>)context
 {
-    NSString *state = [self generateStateValue];
-    NSURL *startURL = [self startURLFromConfiguration:configuration requestState:state];
-    NSURL *redirectURL = [NSURL URLWithString:configuration.redirectUri];
+    if (![NSThread isMainThread])
+    {
+        __block NSObject<MSIDWebviewInteracting> *session;
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            session = [self systemWebviewFromConfiguration:configuration
+                                  useAuthenticationSession:useAuthenticationSession
+                                 allowSafariViewController:allowSafariViewController
+                                                          context:context];
+        });
+        
+        return session;
+    }
     
-    MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:startURL
-                                                                                 callbackURLScheme:redirectURL.scheme
+    MSIDSystemWebviewController *systemWVC = [[MSIDSystemWebviewController alloc] initWithStartURL:configuration.startURL
+                                                                                       redirectURI:configuration.endRedirectUrl
                                                                                   parentController:configuration.parentController
-                                                                                  presentationType:configuration.presentationType
                                                                           useAuthenticationSession:useAuthenticationSession
                                                                          allowSafariViewController:allowSafariViewController
+                                                                        ephemeralWebBrowserSession:configuration.prefersEphemeralWebBrowserSession
                                                                                            context:context];
     
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:systemWVC
-                                                                                factory:self
-                                                                           requestState:state
-                                                                     ignoreInvalidState:configuration.ignoreInvalidState];
-    return session;
+#if TARGET_OS_IPHONE
+    systemWVC.presentationType = configuration.presentationType;
+#endif
+    
+    return systemWVC;
 }
 #endif
 
 #pragma mark - Webview helpers
 
-- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromConfiguration:(MSIDWebviewConfiguration *)configuration
-                                                                             requestState:(NSString *)state
+- (NSMutableDictionary<NSString *, NSString *> *)authorizationParametersFromRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                                                                         pkce:(MSIDPkce *)pkce
+                                                                                 requestState:(NSString *)state
 {
-    NSMutableDictionary<NSString *, NSString *> *parameters = [NSMutableDictionary new];
+    NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
 
-    parameters[MSID_OAUTH2_SCOPE] = configuration.scopes.msidToString;
-    parameters[MSID_OAUTH2_CLIENT_ID] = configuration.clientId;
-    parameters[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
-    parameters[MSID_OAUTH2_REDIRECT_URI] = configuration.redirectUri;
-    parameters[MSID_OAUTH2_LOGIN_HINT] = configuration.loginHint;
+    result[MSID_OAUTH2_SCOPE] = parameters.allAuthorizeRequestScopes.msidToString;
+    result[MSID_OAUTH2_CLIENT_ID] = parameters.clientId;
+    result[MSID_OAUTH2_RESPONSE_TYPE] = MSID_OAUTH2_CODE;
+    result[MSID_OAUTH2_REDIRECT_URI] = parameters.redirectUri;
+    result[MSID_OAUTH2_LOGIN_HINT] = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
     
     // Extra query params
-    if (configuration.extraQueryParameters)
+    if (parameters.allAuthorizeRequestExtraParameters)
     {
-        [parameters addEntriesFromDictionary:configuration.extraQueryParameters];
+        [result addEntriesFromDictionary:parameters.allAuthorizeRequestExtraParameters];
     }
     
     // PKCE
-    if (configuration.pkce)
+    if (pkce)
     {
-        parameters[MSID_OAUTH2_CODE_CHALLENGE] = configuration.pkce.codeChallenge;
-        parameters[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = configuration.pkce.codeChallengeMethod;
+        result[MSID_OAUTH2_CODE_CHALLENGE] = pkce.codeChallenge;
+        result[MSID_OAUTH2_CODE_CHALLENGE_METHOD] = pkce.codeChallengeMethod;
     }
 
     // State
-    parameters[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
+    result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
     
-    return parameters;
+    NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
+    if (claims) result[MSID_OAUTH2_CLAIMS] = claims;
+    
+    NSString *promptParam = MSIDPromptParamFromType(parameters.promptType);
+    if (![NSString msidIsStringNilOrBlank:promptParam]) result[MSID_OAUTH2_PROMPT] = promptParam;
+    
+    [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
+    
+    return result;
 }
 
-- (NSURL *)startURLFromConfiguration:(MSIDWebviewConfiguration *)configuration requestState:(NSString *)state
+- (NSMutableDictionary<NSString *, NSString *> *)logoutParametersFromRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                                          requestState:(NSString *)state
 {
-    if (!configuration) return nil;
-    if (configuration.explicitStartURL) return configuration.explicitStartURL;
-    
-    if (!configuration.authorizationEndpoint) return nil;
-    
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:configuration.authorizationEndpoint resolvingAgainstBaseURL:NO];
-    NSDictionary *parameters = [self authorizationParametersFromConfiguration:configuration requestState:state];
-    
-    urlComponents.percentEncodedQuery = [parameters msidURLEncode];
-    
-    return urlComponents.URL;
+    NSMutableDictionary<NSString *, NSString *> *result = [NSMutableDictionary new];
+    result[MSID_OAUTH2_SIGNOUT_REDIRECT_URI] = parameters.redirectUri;
+    result[MSID_OAUTH2_STATE] = state.msidBase64UrlEncode;
+    [result addEntriesFromDictionary:[self metadataFromRequestParameters:parameters]];
+    [result addEntriesFromDictionary:parameters.appRequestMetadata];
+    return result;
+}
+
+- (NSDictionary<NSString *, NSString *> *)metadataFromRequestParameters:(__unused MSIDInteractiveRequestParameters *)parameters
+{
+    return nil;
 }
 
 #pragma mark - Webview response parsing
-- (MSIDWebviewResponse *)responseWithURL:(NSURL *)url
+- (MSIDWebviewResponse *)oAuthResponseWithURL:(NSURL *)url
                             requestState:(NSString *)requestState
                       ignoreInvalidState:(BOOL)ignoreInvalidState
                                  context:(id<MSIDRequestContext>)context
@@ -156,7 +220,7 @@
 {
     //  return base response
     NSError *responseCreationError = nil;
-    MSIDWebOAuth2Response *response = [[MSIDWebOAuth2Response alloc] initWithURL:url
+    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:url
                                                                     requestState:requestState
                                                               ignoreInvalidState:ignoreInvalidState
                                                                          context:context
@@ -175,33 +239,83 @@
     return [[NSUUID UUID] UUIDString];
 }
 
-- (MSIDWebviewConfiguration *)webViewConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDAuthorizeWebRequestConfiguration *)authorizeWebRequestConfigurationWithRequestParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
-    MSIDWebviewConfiguration *configuration = [[MSIDWebviewConfiguration alloc] initWithAuthorizationEndpoint:parameters.authority.metadata.authorizationEndpoint
-                                                                                                  redirectUri:parameters.redirectUri
-                                                                                                     clientId:parameters.clientId resource:nil
-                                                                                                       scopes:parameters.allAuthorizeRequestScopes
-                                                                                                correlationId:parameters.correlationId
-                                                                                                   enablePkce:parameters.enablePkce];
-
-    NSString *promptParam = MSIDPromptParamFromType(parameters.promptType);
-    configuration.promptBehavior = promptParam;
-    configuration.loginHint = parameters.accountIdentifier.displayableId ?: parameters.loginHint;
-    configuration.extraQueryParameters = parameters.allAuthorizeRequestExtraParameters;
+    NSURL *authorizeEndpoint = parameters.authority.metadata.authorizationEndpoint;
+    
+    if (!parameters || !authorizeEndpoint)
+    {
+        return nil;
+    }
+    
+    MSIDPkce *pkce = parameters.enablePkce ? [MSIDPkce new] : nil;
+        
+    NSString *oauthState = [self generateStateValue];
+    NSDictionary *authorizeQuery = [self authorizationParametersFromRequestParameters:parameters pkce:pkce requestState:oauthState];
+    NSURL *startURL = [self startURLWithEndpoint:authorizeEndpoint authority:parameters.authority query:authorizeQuery context:parameters];
+    
+    MSIDAuthorizeWebRequestConfiguration *configuration = [[MSIDAuthorizeWebRequestConfiguration alloc] initWithStartURL:startURL
+                                                                                  endRedirectUri:parameters.redirectUri
+                                                                                            pkce:pkce
+                                                                                           state:oauthState
+                                                                              ignoreInvalidState:NO];
     configuration.customHeaders = parameters.customWebviewHeaders;
-#if TARGET_OS_IPHONE
     configuration.parentController = parameters.parentViewController;
+    configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
+    
+#if TARGET_OS_IPHONE
     configuration.presentationType = parameters.presentationType;
 #endif
 
-    NSString *claims = [[parameters.claimsRequest jsonDictionary] msidJSONSerializeWithContext:parameters];
-
-    if (![NSString msidIsStringNilOrBlank:claims])
-    {
-        configuration.claims = claims;
-    }
-
     return configuration;
+}
+
+- (MSIDSignoutWebRequestConfiguration *)logoutWebRequestConfigurationWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+{
+    NSURL *logoutEndpoint = parameters.authority.metadata.endSessionEndpoint;
+    
+    if (!parameters || !logoutEndpoint)
+    {
+        return nil;
+    }
+    
+    NSString *oauthState = [self generateStateValue];
+    NSDictionary *logoutQuery = [self logoutParametersFromRequestParameters:parameters requestState:oauthState];
+    NSURL *startURL = [self startURLWithEndpoint:logoutEndpoint authority:parameters.authority query:logoutQuery context:parameters];
+    
+    MSIDSignoutWebRequestConfiguration *configuration = [[MSIDSignoutWebRequestConfiguration alloc] initWithStartURL:startURL
+                                                                                                      endRedirectUri:parameters.redirectUri
+                                                                                                               state:oauthState
+                                                                                                  ignoreInvalidState:NO];
+    
+    configuration.customHeaders = parameters.customWebviewHeaders;
+    configuration.parentController = parameters.parentViewController;
+    configuration.prefersEphemeralWebBrowserSession = parameters.prefersEphemeralWebBrowserSession;
+    
+#if TARGET_OS_IPHONE
+    configuration.presentationType = parameters.presentationType;
+#endif
+    
+    return configuration;
+}
+
+#pragma mark - Helpers
+
+- (NSURL *)startURLWithEndpoint:(NSURL *)endpoint
+                      authority:(MSIDAuthority *)authority
+                          query:(NSDictionary *)query
+                        context:(id<MSIDRequestContext>)context
+{
+    if (!endpoint) return nil;
+    
+    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:endpoint resolvingAgainstBaseURL:NO];
+
+    urlComponents.percentEncodedQuery = [query msidURLEncode];
+    
+    NSURL *networkURL = [authority networkUrlWithContext:context];
+    if (networkURL) urlComponents.host = networkURL.host;
+    
+    return urlComponents.URL;
 }
 
 @end

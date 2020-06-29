@@ -22,10 +22,11 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTokenCacheDataSource.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDMacACLKeychainAccessor.h"
 
 // TODO: Use a subclass or protocol: https://identitydivision.visualstudio.com/DevEx/_workitems/edit/660964
-@interface MSIDMacKeychainTokenCache : NSObject <MSIDTokenCacheDataSource>
+@interface MSIDMacKeychainTokenCache : MSIDMacACLKeychainAccessor <MSIDExtendedTokenCacheDataSource>
 
 /*!
  The name of the group to be used by default when creating an instance of MSIDKeychainTokenCache,
@@ -54,18 +55,23 @@
 @property (readonly, nonnull) NSString *keychainGroup;
 
 /*!
- Initialize with keychainGroup.
+ Initialize with keychainGroup and trustedApplications.
  @param keychainGroup Optional. If the application needs to share the cached tokens
  with other applications from the same vendor, the app will need to specify the
- shared group here.
+ shared group here.  If set to 'nil' the main bundle's identifier will be used instead.
+ 
+ @param trustedApplications Optional. A list of SecTrustedApplicationRef that describes
+ all the applications that should have access to the credentials that is stored in this
+ cache.  If set to 'nil' the current application path will be used as the one
+ trusted application.
 
- If set to 'nil' the main bundle's identifier will be used instead.
-
- NOTE: init: initializes with defaultKeychainGroup.
+ NOTE: init: initializes keychainGroup with defaultKeychainGroup and trustedApplications as nil.
 
  See Apple's keychain services documentation for details.
  */
-- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup;
+- (nullable instancetype)initWithGroup:(nullable NSString *)keychainGroup
+                   trustedApplications:(nullable NSArray *)trustedApplications
+                                 error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 
 @end

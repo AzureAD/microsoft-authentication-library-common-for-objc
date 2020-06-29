@@ -55,8 +55,8 @@
     
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                     ignoreInvalidState:NO];
+                                                                          configuration:[MSIDAuthorizeWebRequestConfiguration new]];
+    
     return session;
 }
 
@@ -65,11 +65,10 @@
 {
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
     testWebviewController.successAfterInterval = 0.0;
-
+    
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                     ignoreInvalidState:NO];
+                                                                          configuration:[MSIDAuthorizeWebRequestConfiguration new]];
     return session;
 }
 
@@ -113,7 +112,7 @@
 
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
@@ -134,7 +133,8 @@
 
 - (void)testStartSession_whenSessionRunning_shouldNotStartAndReturnError
 {
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil ignoreInvalidState:NO];
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil configuration:nil];
+    
     XCTAssertTrue([MSIDWebviewAuthorization setCurrentSession:session]);
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
@@ -159,7 +159,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:[self sessionWithSuccessfulResponse]
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
@@ -173,7 +173,7 @@
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:[self sessionWithFailedResponse]
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
@@ -186,7 +186,7 @@
 
 - (void)testCancelCurrentSession_whenCurrentSession_shouldClearCurrentSession
 {
-    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil requestState:nil ignoreInvalidState:NO];
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:nil factory:nil configuration:nil];
     [MSIDWebviewAuthorization setCurrentSession:session];
     
     [MSIDWebviewAuthorization cancelCurrentSession];
@@ -202,20 +202,40 @@
     MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
     testWebviewController.successAfterInterval = 0.5;
     testWebviewController.actAsSafariViewController = YES;
-
+    
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                     ignoreInvalidState:YES];
+                                                                          configuration:[MSIDAuthorizeWebRequestConfiguration new]];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 
-    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:nil]);
+    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"some://urlhere"]]);
+    [self waitForExpectationsWithTimeout:0.5 handler:nil];
+}
+
+- (void)testHandleURLResponseForSystemWebviewController_whenCurrentSessionIsAuthenticationSession_shouldHandleURL
+{
+    MSIDTestWebviewInteractingViewController *testWebviewController = [MSIDTestWebviewInteractingViewController new];
+    testWebviewController.successAfterInterval = 0.5;
+    testWebviewController.actAsAuthenticationSession = YES;
+    
+    MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
+                                                                                factory:[MSIDWebviewFactory new]
+                                                                          configuration:[MSIDAuthorizeWebRequestConfiguration new]];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
+    [MSIDWebviewAuthorization startSession:session
+                                   context:nil
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
+                             [expectation fulfill];
+                         }];
+    
+    XCTAssertTrue([MSIDWebviewAuthorization handleURLResponseForSystemWebviewController:[NSURL URLWithString:@"some://urlhere"]]);
     [self waitForExpectationsWithTimeout:0.5 handler:nil];
 }
 
@@ -227,13 +247,12 @@
 
     MSIDWebviewSession *session = [[MSIDWebviewSession alloc] initWithWebviewController:testWebviewController
                                                                                 factory:[MSIDWebviewFactory new]
-                                                                           requestState:nil
-                                                                     ignoreInvalidState:YES];
+                                                                          configuration:[MSIDAuthorizeWebRequestConfiguration new]];
 
     XCTestExpectation *expectation = [self expectationWithDescription:@"wait for response"];
     [MSIDWebviewAuthorization startSession:session
                                    context:nil
-                         completionHandler:^(MSIDWebviewResponse *response, NSError *error) {
+                         completionHandler:^(__unused MSIDWebviewResponse *response, __unused NSError *error) {
                              [expectation fulfill];
                          }];
 

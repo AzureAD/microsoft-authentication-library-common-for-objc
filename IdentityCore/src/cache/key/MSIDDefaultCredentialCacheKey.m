@@ -39,20 +39,24 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)serviceWithType:(MSIDCredentialType)type
                      clientID:(NSString *)clientId
                         realm:(NSString *)realm
-                 enrollmentId:(NSString *)enrollmentId
+        applicationIdentifier:(NSString *)applicationIdentifier
                        target:(NSString *)target
                        appKey:(NSString *)appKey
+                    tokenType:(NSString *)tokenType
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
     target = target.msidTrimmedString.lowercaseString;
-    enrollmentId = enrollmentId.msidTrimmedString.lowercaseString;
+    applicationIdentifier = applicationIdentifier.msidTrimmedString.lowercaseString;
+    tokenType = tokenType.msidTrimmedString.lowercaseString;
 
-    NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm enrollmentId:enrollmentId];
-    NSString *service = [NSString stringWithFormat:@"%@%@%@",
+    NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm applicationIdentifier:applicationIdentifier];
+    NSString *service = [NSString stringWithFormat:@"%@%@%@%@%@",
                          credentialId,
                          keyDelimiter,
-                         (target ? target : @"")];
+                         (target ? target : @""),
+                         (tokenType ? keyDelimiter : @""),
+                         (tokenType ? tokenType : @"")];
     
     if (![NSString msidIsStringNilOrBlank:appKey])
     {
@@ -66,11 +70,11 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId
                              realm:(NSString *)realm
-                      enrollmentId:(NSString *)enrollmentId
+             applicationIdentifier:(NSString *)applicationIdentifier
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
-    enrollmentId = enrollmentId.msidTrimmedString.lowercaseString;
+    applicationIdentifier = applicationIdentifier.msidTrimmedString.lowercaseString;
 
     NSString *credentialType = [MSIDCredentialTypeHelpers credentialTypeAsString:type].lowercaseString;
     
@@ -78,8 +82,8 @@ static NSInteger kCredentialTypePrefix = 2000;
             credentialType, keyDelimiter, clientId,
             keyDelimiter,
             (realm ? realm : @""),
-            (enrollmentId ? keyDelimiter : @""),
-            (enrollmentId ? enrollmentId : @"")];
+            (applicationIdentifier ? keyDelimiter : @""),
+            (applicationIdentifier ? applicationIdentifier : @"")];
 }
 
 // kSecAttrAccount - account_id (<unique_id>-<environment>)
@@ -121,7 +125,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSData *)generic
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [[self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm enrollmentId:self.enrollmentId] dataUsingEncoding:NSUTF8StringEncoding];
+    return [[self credentialIdWithType:self.credentialType clientId:clientId realm:self.realm applicationIdentifier:self.applicationIdentifier] dataUsingEncoding:NSUTF8StringEncoding];
 }
 
 - (NSNumber *)type
@@ -137,7 +141,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)service
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm enrollmentId:self.enrollmentId target:self.target appKey:self.appKey];
+    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm applicationIdentifier:self.applicationIdentifier target:self.target appKey:self.appKey tokenType:self.tokenType];
 }
 
 - (BOOL)isShared
@@ -155,6 +159,22 @@ static NSInteger kCredentialTypePrefix = 2000;
     }
     
     return nil;
+}
+
+#pragma mark - NSObject
+
+- (id)copyWithZone:(NSZone *)zone
+{
+    MSIDDefaultCredentialCacheKey *item = [[self.class allocWithZone:zone] init];
+    item->_homeAccountId = [_homeAccountId copyWithZone:zone];
+    item->_environment = [_environment copyWithZone:zone];
+    item->_realm = [_realm copyWithZone:zone];
+    item->_clientId = [_clientId copyWithZone:zone];
+    item->_familyId = [_familyId copyWithZone:zone];
+    item->_target = [_target copyWithZone:zone];
+    item->_applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
+    item->_credentialType = _credentialType;
+    return item;
 }
 
 @end

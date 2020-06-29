@@ -28,6 +28,8 @@
 #import "MSIDRefreshToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
+#import "MSIDClientInfo.h"
 
 @interface MSIDCacheItemJsonSerializerTests : XCTestCase
 
@@ -44,7 +46,7 @@
     MSIDCredentialCacheItem *cacheItem = [[MSIDCredentialCacheItem alloc] init];
     cacheItem.secret = @"refresh token value";
     cacheItem.familyId = @"familyId value";
-    cacheItem.additionalInfo = @{@"spe_info" : @"test"};
+    cacheItem.speInfo = @"test";
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.realm = @"contoso.com";
     cacheItem.clientId = @"some clientId";
@@ -108,8 +110,8 @@
     cacheItem.localAccountId = @"00004-00004-00004";
     cacheItem.accountType = MSIDAccountTypeMSSTS;
     
-    NSData *data = [serializer serializeAccountCacheItem:cacheItem];
-    MSIDAccountCacheItem *resultItem = [serializer deserializeAccountCacheItem:data];
+    NSData *data = [serializer serializeCacheItem:cacheItem];
+    MSIDAccountCacheItem *resultItem = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountCacheItem class]];
     
     XCTAssertNotNil(data);
     XCTAssertEqualObjects(resultItem, cacheItem);
@@ -119,7 +121,7 @@
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
-    NSData *data = [serializer serializeAccountCacheItem:nil];
+    NSData *data = [serializer serializeCacheItem:nil];
     
     XCTAssertNil(data);
 }
@@ -128,7 +130,7 @@
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
-    NSData *data = [serializer serializeAccountCacheItem:[MSIDAccountCacheItem new]];
+    NSData *data = [serializer serializeCacheItem:[MSIDAccountCacheItem new]];
     
     XCTAssertNotNil(data);
 }
@@ -137,7 +139,7 @@
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
-    MSIDAccountCacheItem *account = [serializer deserializeAccountCacheItem:nil];
+    MSIDAccountCacheItem *account = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:nil ofClass:[MSIDAccountCacheItem class]];
     
     XCTAssertNil(account);
 }
@@ -147,7 +149,7 @@
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDAccountCacheItem *token = [serializer deserializeAccountCacheItem:data];
+    MSIDAccountCacheItem *token = (MSIDAccountCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountCacheItem class]];
     
     XCTAssertNil(token);
 }
@@ -163,8 +165,8 @@
     cacheItem.environment = @"login.microsoftonline.com";
     cacheItem.familyId = @"1";
     
-    NSData *data = [serializer serializeAppMetadataCacheItem:cacheItem];
-    MSIDAppMetadataCacheItem *resultItem = [serializer deserializeAppMetadataCacheItem:data];
+    NSData *data = [serializer serializeCacheItem:cacheItem];
+    MSIDAppMetadataCacheItem *resultItem = (MSIDAppMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAppMetadataCacheItem class]];
     
     XCTAssertNotNil(data);
     XCTAssertEqualObjects(resultItem, cacheItem);
@@ -174,7 +176,7 @@
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
-    NSData *data = [serializer serializeAccountCacheItem:nil];
+    NSData *data = [serializer serializeCacheItem:nil];
     
     XCTAssertNil(data);
 }
@@ -183,7 +185,7 @@
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
-    NSData *data = [serializer serializeAppMetadataCacheItem:[MSIDAppMetadataCacheItem new]];
+    NSData *data = [serializer serializeCacheItem:[MSIDAppMetadataCacheItem new]];
     
     XCTAssertNotNil(data);
 }
@@ -192,7 +194,7 @@
 {
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     
-    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:nil];
+    MSIDAppMetadataCacheItem *appMetadata = (MSIDAppMetadataCacheItem *)[serializer deserializeCacheItem:nil ofClass:[MSIDAppMetadataCacheItem class]];
     
     XCTAssertNil(appMetadata);
 }
@@ -202,10 +204,71 @@
     MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
     NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
     
-    MSIDAppMetadataCacheItem *appMetadata = [serializer deserializeAppMetadataCacheItem:data];
+    MSIDAppMetadataCacheItem *appMetadata = (MSIDAppMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAppMetadataCacheItem class]];
     
     XCTAssertNil(appMetadata);
 }
+
+#pragma mark - Account metadata
+
+- (void)testSerializeAccountMetadataCacheItem_andDeserialized_shouldReturnSameItem
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    
+    MSIDAccountMetadata *cacheItem = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    [cacheItem setCachedURL:[NSURL URLWithString:@"https://internalcontoso.com"] forRequestURL:[NSURL URLWithString:@"https://consoto.com"] instanceAware:NO error:nil];
+    
+    NSData *data = [serializer serializeCacheItem:cacheItem];
+    MSIDAccountMetadata *resultItem = (MSIDAccountMetadata *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadata class]];
+    
+    XCTAssertNotNil(data);
+    XCTAssertEqualObjects(resultItem, cacheItem);
+}
+
+- (void)testDeserializeAccountMetadata_whenDataIsValid_shouldReturnAccount {
+    NSDictionary *jsonDict = @{ @"home_account_id": @"homeAccountId",
+                                @"client_id": @"clientId",
+                                @"athority_map" : @{ @"URLMap-" :
+                                                         @{ @"https://contoso.com" : @"https://internalcontoso.com" }
+                                }};
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonDict
+                                                       options:NSJSONWritingPrettyPrinted // Pass 0 if you don't care about the readability of the generated string
+                                                         error:nil];
+    
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    MSIDAccountMetadata *cacheItem = (MSIDAccountMetadata *)[serializer deserializeCacheItem:jsonData ofClass:[MSIDAccountMetadata class]];
+    
+    XCTAssertNotNil(cacheItem);
+    XCTAssertEqualObjects(cacheItem.homeAccountId, @"homeAccountId");
+    XCTAssertEqualObjects(cacheItem.clientId, @"clientId");
+    XCTAssertEqualObjects([cacheItem cachedURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO], [NSURL URLWithString:@"https://internalcontoso.com"]);
+}
+
+- (void)testSerializeAccountMetadataCacheItem_whenDataIsNil_shouldReturnNil
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    NSData *data = [serializer serializeCacheItem:nil];
+    XCTAssertNil(data);
+}
+
+
+- (void)testDeserializeAccountMetadataCacheItem_whenDataIsNil_shouldReturnNil
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    MSIDAccountMetadata *appMetadata = (MSIDAccountMetadata *)[serializer deserializeCacheItem:nil ofClass:[MSIDAccountMetadata class]];
+    XCTAssertNil(appMetadata);
+}
+
+- (void)testDeserializeAccountMetadataCacheItem_whenDataInvalid_shouldReturnNil
+{
+    MSIDCacheItemJsonSerializer *serializer = [[MSIDCacheItemJsonSerializer alloc] init];
+    NSData *data = [@"some" dataUsingEncoding:NSUTF8StringEncoding];
+    
+    MSIDAccountMetadata *appMetadata = (MSIDAccountMetadata *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadata class]];
+    XCTAssertNil(appMetadata);
+}
+
+
 
 #pragma mark - Private
 

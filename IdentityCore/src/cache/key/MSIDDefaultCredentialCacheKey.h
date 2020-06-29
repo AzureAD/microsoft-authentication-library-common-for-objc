@@ -27,7 +27,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDefaultCredentialCacheKey : MSIDCacheKey
+@interface MSIDDefaultCredentialCacheKey : MSIDCacheKey <NSCopying>
 
 @property (nullable, nonatomic) NSString *homeAccountId;
 @property (nullable, nonatomic) NSString *environment;
@@ -35,16 +35,28 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *clientId;
 @property (nullable, nonatomic) NSString *familyId;
 @property (nullable, nonatomic) NSString *target;
-@property (nullable, nonatomic) NSString *enrollmentId;
+@property (nullable, nonatomic) NSString *applicationIdentifier;
 @property (nonatomic) MSIDCredentialType credentialType;
+@property (nonatomic) NSString *tokenType;
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
                           environment:(NSString *)environment
                              clientId:(NSString *)clientId
                        credentialType:(MSIDCredentialType)type;
 
-- (NSString *)serviceWithType:(MSIDCredentialType)type clientID:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId target:(nullable NSString *)target appKey:(nullable NSString *)appKey;
-- (NSString *)credentialIdWithType:(MSIDCredentialType)type clientId:(NSString *)clientId realm:(nullable NSString *)realm enrollmentId:(nullable NSString *)enrollmentId;
+- (NSString *)serviceWithType:(MSIDCredentialType)type
+                     clientID:(NSString *)clientId
+                        realm:(nullable NSString *)realm
+        applicationIdentifier:(nullable NSString *)applicationIdentifier
+                       target:(nullable NSString *)target
+                       appKey:(nullable NSString *)appKey
+                    tokenType:(nullable NSString *)tokenType;
+
+- (NSString *)credentialIdWithType:(MSIDCredentialType)type
+                          clientId:(NSString *)clientId
+                             realm:(nullable NSString *)realm
+             applicationIdentifier:(nullable NSString *)applicationIdentifier;
+
 - (NSString *)accountIdWithHomeAccountId:(NSString *)homeAccountId environment:(NSString *)environment;
 - (NSNumber *)credentialTypeNumber:(MSIDCredentialType)credentialType;
 

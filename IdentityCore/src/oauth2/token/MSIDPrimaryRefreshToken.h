@@ -22,14 +22,19 @@
 // THE SOFTWARE.
 
 #import "MSIDLegacyRefreshToken.h"
+#import "MSIDLegacyCredentialCacheCompatible.h"
 
 @class MSIDLegacyTokenCacheItem;
 
-@interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken
+@interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken <MSIDLegacyCredentialCacheCompatible>
 
 @property (nonatomic) NSData *sessionKey;
-
-- (instancetype)initWithLegacyTokenCacheItem:(MSIDLegacyTokenCacheItem *)tokenCacheItem;
-- (MSIDLegacyTokenCacheItem *)legacyTokenCacheItem;
+@property (nonatomic) NSString *deviceID;
+@property (nonatomic) NSString *prtProtocolVersion;
+@property (nonatomic) NSDate *expiresOn;
+@property (nonatomic) NSDate *cachedAt;
+ 
+- (BOOL)isDevicelessPRT;
+- (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;
 
 @end

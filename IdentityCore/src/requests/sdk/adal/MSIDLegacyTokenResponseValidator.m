@@ -25,6 +25,10 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#import "MSIDOauth2Factory.h"
+#import "MSIDTokenResponse.h"
+#import "MSIDLegacyAccessToken.h"
+#import "MSIDLegacyRefreshToken.h"
 
 @implementation MSIDLegacyTokenResponseValidator
 
@@ -36,11 +40,11 @@
 {
     if (!tokenResult.account)
     {
-        MSID_LOG_ERROR_CORR(correlationID, @"No account returned from server.");
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationID, @"No account returned from server.");
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account identifier returned from server.", nil, nil, nil, correlationID, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No account identifier returned from server.", nil, nil, nil, correlationID, nil, NO);
         }
         
         return NO;
@@ -49,13 +53,36 @@
     return YES;
 }
 
+- (MSIDTokenResult *)createTokenResultFromResponse:(MSIDTokenResponse *)tokenResponse
+                                      oauthFactory:(MSIDOauth2Factory *)factory
+                                     configuration:(MSIDConfiguration *)configuration
+                                    requestAccount:(__unused MSIDAccountIdentifier *)accountIdentifier
+                                     correlationID:(NSUUID *)correlationID
+                                             error:(__unused NSError **)error
+
+{
+    MSIDLegacyAccessToken *accessToken = [factory legacyAccessTokenFromResponse:tokenResponse configuration:configuration];
+    MSIDLegacyRefreshToken *refreshToken = [factory legacyRefreshTokenFromResponse:tokenResponse configuration:configuration];
+    
+    MSIDAccount *account = [factory accountFromResponse:tokenResponse configuration:configuration];
+    
+    MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
+                                                              refreshToken:refreshToken
+                                                                   idToken:tokenResponse.idToken
+                                                                   account:account
+                                                                 authority:configuration.authority
+                                                             correlationId:correlationID
+                                                             tokenResponse:tokenResponse];
+    
+    return result;
+}
+
 - (BOOL)validateAccount:(MSIDAccountIdentifier *)accountIdentifier
             tokenResult:(MSIDTokenResult *)tokenResult
           correlationID:(NSUUID *)correlationID
                   error:(NSError **)error
 {
-    MSID_LOG_NO_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account");
-    MSID_LOG_PII(MSIDLogLevelVerbose, correlationID, nil, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.displayableId, tokenResult.account.accountIdentifier.displayableId, tokenResult.account.localAccountId);
+    MSID_LOG_WITH_CORR_PII(MSIDLogLevelVerbose, correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.maskedDisplayableId, tokenResult.account.accountIdentifier.maskedDisplayableId, MSID_PII_LOG_MASKABLE(tokenResult.account.localAccountId));
     
     switch (accountIdentifier.legacyAccountIdentifierType)
     {
@@ -88,9 +115,11 @@
         
     }
     
+    MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationID, @"Different user was returned by the server. Original account %@, %@, returned account %@, %@", MSID_PII_LOG_EMAIL(accountIdentifier.displayableId), MSID_PII_LOG_TRACKABLE(accountIdentifier.localAccountId), MSID_PII_LOG_EMAIL(tokenResult.account.accountIdentifier.displayableId), MSID_PII_LOG_TRACKABLE(tokenResult.account.localAccountId));
+    
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMismatchedAccount, @"Different user was returned by the server then specified in the acquireToken call. If this is a new sign in use and ADUserIdentifier is of OptionalDisplayableId type, pass in the userId returned on the initial authentication flow in all future acquireToken calls.", nil, nil, nil, correlationID, nil, NO);
     }
     
     return NO;

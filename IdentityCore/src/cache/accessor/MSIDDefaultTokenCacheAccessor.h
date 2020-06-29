@@ -33,8 +33,13 @@
 @class MSIDIdToken;
 @class MSIDAuthority;
 @class MSIDAppMetadataCacheItem;
+@class MSIDAccountMetadataCacheAccessor;
+@protocol MSIDExtendedTokenCacheDataSource;
 
 @interface MSIDDefaultTokenCacheAccessor : NSObject <MSIDCacheAccessor>
+
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors;
 
 - (MSIDAccessToken *)getAccessTokenForAccount:(MSIDAccountIdentifier *)account
                                 configuration:(MSIDConfiguration *)configuration
@@ -49,12 +54,17 @@
 
 - (MSIDAccount *)getAccountForIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                authority:(MSIDAuthority *)authority
+                               realmHint:(NSString *)realmHint
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error;
 
 - (BOOL)removeToken:(MSIDBaseToken *)token
             context:(id<MSIDRequestContext>)context
               error:(NSError **)error;
+
+- (BOOL)saveToken:(MSIDBaseToken *)token
+          context:(id<MSIDRequestContext>)context
+            error:(NSError **)error;
 
 - (NSArray<MSIDAppMetadataCacheItem *> *)getAppMetadataEntries:(MSIDConfiguration *)configuration
                                                        context:(id<MSIDRequestContext>)context
@@ -71,5 +81,26 @@
                             authority:(MSIDAuthority *)authority
                               context:(id<MSIDRequestContext>)context
                                 error:(NSError **)error;
+
+- (BOOL)clearCacheForAccount:(MSIDAccountIdentifier *)accountIdentifier
+                   authority:(MSIDAuthority *)authority
+                    clientId:(NSString *)clientId
+                    familyId:(NSString *)familyId
+               clearAccounts:(BOOL)clearAccounts
+                     context:(id<MSIDRequestContext>)context
+                       error:(NSError **)error;
+
+- (NSArray<MSIDAccount *> *)accountsWithAuthority:(MSIDAuthority *)authority
+                                         clientId:(NSString *)clientId
+                                         familyId:(NSString *)familyId
+                                accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                             accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                             signedInAccountsOnly:(BOOL)signedInAccountsOnly
+                                          context:(id<MSIDRequestContext>)context
+                                            error:(NSError **)error;
+
+- (NSArray<MSIDPrimaryRefreshToken *> *)getPrimaryRefreshTokensForConfiguration:(MSIDConfiguration *)configuration
+                                                                        context:(id<MSIDRequestContext>)context
+                                                                          error:(NSError **)error;
 
 @end

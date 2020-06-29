@@ -22,16 +22,26 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
 #import "MSIDCacheAccessor.h"
+#import "MSIDConstants.h"
 
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
 @class MSIDTokenResponseValidator;
 
+#if TARGET_OS_OSX
+@class MSIDExternalAADCacheSeeder;
+#endif
+
 @interface MSIDSilentTokenRequest : NSObject
 
-@property (nonatomic, readonly, nullable) MSIDRequestParameters *requestParameters;
+@property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
+@property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
+@property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+
+#if TARGET_OS_OSX
+@property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;
+#endif
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDRequestParameters *)parameters
                                       forceRefresh:(BOOL)forceRefresh

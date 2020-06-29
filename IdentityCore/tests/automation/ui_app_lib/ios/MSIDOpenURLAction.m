@@ -45,7 +45,7 @@
 }
 
 - (void)performActionWithParameters:(MSIDAutomationTestRequest *)parameters
-                containerController:(MSIDAutomationMainViewController *)containerController
+                containerController:(__unused MSIDAutomationMainViewController *)containerController
                     completionBlock:(MSIDAutoCompletionBlock)completionBlock
 {
     NSString *urlString = parameters.extraQueryParameters[@"url"];
@@ -58,7 +58,7 @@
         return;
     }
 
-    [[UIApplication sharedApplication] openURL:url];
+    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
 
     MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier success:YES additionalInfo:nil];
     completionBlock(testResult);

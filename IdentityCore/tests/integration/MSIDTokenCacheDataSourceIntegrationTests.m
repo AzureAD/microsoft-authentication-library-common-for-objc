@@ -38,7 +38,7 @@
 @interface MSIDTokenCacheDataSourceIntegrationTests : XCTestCase
 
 @property (nonatomic) id<MSIDTokenCacheDataSource> dataSource;
-@property (nonatomic) id<MSIDCredentialItemSerializer> serializer;
+@property (nonatomic) id<MSIDCacheItemSerializing> serializer;
 @property (nonatomic) NSData *generic;
 
 @end
@@ -170,7 +170,7 @@
     
     NSError *error;
     
-    [self.dataSource removeItemsWithTokenKey:key context:nil error:&error];
+    [self.dataSource removeTokensWithKey:key context:nil error:&error];
     
     items = [self.dataSource tokensWithKey:[MSIDCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -189,7 +189,7 @@
     
     NSError *error;
     
-    [self.dataSource removeItemsWithTokenKey:key context:nil error:&error];
+    [self.dataSource removeTokensWithKey:key context:nil error:&error];
     
     items = [self.dataSource tokensWithKey:[MSIDCacheKey new] serializer:self.serializer context:nil error:nil];
     XCTAssertEqual(items.count, 0);
@@ -225,7 +225,7 @@
     
     NSError *error;
     
-    BOOL result = [self.dataSource removeItemsWithTokenKey:nil context:nil error:&error];
+    BOOL result = [self.dataSource removeTokensWithKey:nil context:nil error:&error];
     items = [self.dataSource tokensWithKey:nil serializer:self.serializer context:nil error:nil];
     
     XCTAssertFalse(result);

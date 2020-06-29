@@ -29,85 +29,57 @@
 #import "MSIDError.h"
 #import "MSIDJWTHelper.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDWorkplaceJoinChallenge.h"
 
 @implementation MSIDPkeyAuthHelper
 
 + (nullable NSString *)createDeviceAuthResponse:(nonnull NSURL *)authorizationServer
                                   challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
-                                          error:(NSError **)error
 {
-    NSError *localError = nil;
-    MSIDRegistrationInformation *info =
-    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context
-                                                error:&localError];
+    MSIDAssymetricKeyPairWithCert *info = [MSIDWorkPlaceJoinUtil getWPJKeysWithContext:context];
+    NSString *authToken = @"";
+    NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
+    NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
     
-    if (!info && localError)
+    if (!info)
     {
-        // If some error ocurred other then "I found nothing in the keychain" we want to short circuit out of
-        // the rest of the code, but if there was no error, we still create a response header, even if we
-        // don't have registration info
-        MSID_LOG_ERROR(context, @"Failed to create PKeyAuth request");
-        
-        if (error)
-        {
-            *error = localError;
-        }
-        return nil;
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"No registration information found");
     }
-    
-    
     if (!challengeData)
     {
         // Error should have been logged before this where there is more information on why the challenge data was bad
-        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
     }
-    else if (![info isWorkPlaceJoined])
+    else if (!info.certificateRef)
     {
-        MSID_LOG_INFO(context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
     }
     else
     {
         NSString *certAuths = [challengeData valueForKey:@"CertAuthorities"];
-        NSString *expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
         
         if (certAuths)
         {
             NSString *issuerOU = [MSIDPkeyAuthHelper getOrgUnitFromIssuer:[info certificateIssuer]];
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
-                MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
-                
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Issuer of certificate in keychain %@, requested cert authorities in the challenge %@", issuerOU, certAuths);
                 info = nil;
             }
         }
-        else if (expectedThumbprint)
-        {
-            NSString *thumbprint = [[[info certificateData] msidSHA1] msidHexString];
-            thumbprint = [[thumbprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] uppercaseString];
-
-            if (![expectedThumbprint isEqualToString:thumbprint])
-            {
-                MSID_LOG_ERROR(context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
-                
-                info = nil;
-            }
-        }
-    }
-    
-    NSString *pKeyAuthHeader = @"";
-    if (info)
-    {
-        NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
-        urlComponents.query = nil; // Strip out query parameters.
-        __auto_type audience = urlComponents.string;
         
-        pKeyAuthHeader = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:audience nonce:[challengeData valueForKey:@"nonce"] identity:info]];
-        MSID_LOG_INFO(context, @"Found WPJ Info and responded to PKeyAuth Request.");
-        info = nil;
+        NSURLComponents *authorizationServerComponents = [[NSURLComponents alloc] initWithURL:authorizationServer resolvingAgainstBaseURL:NO];
+        authorizationServerComponents.query = nil; // Strip out query parameters.
+        if (info)
+        {
+            authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
+        }
     }
     
-    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", pKeyAuthHeader,[challengeData valueForKey:@"Context"],  [challengeData valueForKey:@"Version"]];
+    return [NSString stringWithFormat:@"PKeyAuth %@ Context=\"%@\", Version=\"%@\"", authToken, challengeContext, challengeVersion];
 }
 
 
@@ -131,7 +103,7 @@
 {
     NSString *regexString = @"OU=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     keychainCertIssuer = [keychainCertIssuer uppercaseString];
-    certAuths = [certAuths uppercaseString];
+    certAuths = [certAuths.msidURLDecode uppercaseString];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
     
     for (NSTextCheckingResult *myMatch in [regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])]){
@@ -150,11 +122,11 @@
 
 + (NSString *)createDeviceAuthResponse:(NSString *)audience
                                  nonce:(NSString *)nonce
-                              identity:(MSIDRegistrationInformation *)identity
+                              identity:(MSIDAssymetricKeyPairWithCert *)identity
 {
     if (!audience || !nonce)
     {
-        MSID_LOG_ERROR(nil, @"audience or nonce is nil in device auth request!");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"audience or nonce is nil in device auth request!");
         
         return nil;
     }
@@ -171,7 +143,7 @@
                               @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]]
                               };
     
-    return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKey]];
+    return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKeyRef]];
 }
 
 @end

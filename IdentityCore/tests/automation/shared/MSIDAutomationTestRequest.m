@@ -31,7 +31,7 @@
 }
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                                 error:(NSError * __autoreleasing *)error
+                                 error:(__unused NSError * __autoreleasing *)error
 {
     self = [super init];
 
@@ -83,6 +83,12 @@
         _extraScopes = json[@"extra_scopes"];
         _usePassedWebView = [json[@"use_passed_in_webview"] boolValue];
         _forceRefresh = [json[@"force_refresh"] boolValue];
+        _isIntuneMAMCACapable = [json[@"intune_mam_ca_capable"] boolValue];
+        _instanceAware = [json[@"instance_aware"] boolValue];
+        _targetTenantId = json[@"target_tenant_id"];
+        _ssoExtensionHooksEnabled = [json[@"ssoExtensionHooksEnabled"] boolValue];
+        _ssoExtensionSharedDeviceMode = [json[@"ssoExtensionSharedDeviceMode"] integerValue];
+        _ssoExtensionInteractiveMode = [json[@"ssoExtensionInteractiveMode"] integerValue];
     }
 
     return self;
@@ -105,6 +111,8 @@
     json[@"claims"] = _claims;
     json[@"use_passed_in_webview"] = @(_usePassedWebView);
     json[@"refresh_token"] = _refreshToken;
+    json[@"intune_mam_ca_capable"] = @(_isIntuneMAMCACapable);
+    json[@"target_tenant_id"] = _targetTenantId;
 
     NSString *webviewType = nil;
 
@@ -140,6 +148,10 @@
     json[@"brokerEnabled"] = @(_brokerEnabled);
     json[@"client_capabilities"] = _clientCapabilities;
     json[@"user_identifier_type"] = _legacyAccountIdentifierType;
+    json[@"instance_aware"] = @(_instanceAware);
+    json[@"ssoExtensionHooksEnabled"] = @(_ssoExtensionHooksEnabled);
+    json[@"ssoExtensionSharedDeviceMode"] = @(_ssoExtensionSharedDeviceMode);
+    json[@"ssoExtensionInteractiveMode"] = @(_ssoExtensionInteractiveMode);
 
     return json;
 }

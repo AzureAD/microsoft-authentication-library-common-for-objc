@@ -29,10 +29,15 @@
 #import "MSIDB2CTokenResponse.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAccessToken.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDIdToken.h"
+#import "MSIDB2CAuthority.h"
 
 @implementation MSIDB2COauth2Factory
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeB2C;
+}
 
 #pragma mark - Helpers
 
@@ -46,7 +51,7 @@
         {
             NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDB2CTokenResponse, passed %@", response.class];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
 
         return NO;
@@ -111,16 +116,33 @@
     return YES;
 }
 
-- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
-                                   tokenResponse:(MSIDB2CTokenResponse *)response
-                                           error:(NSError **)error
+- (MSIDAuthority *)cacheAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                     tokenResponse:(MSIDTokenResponse *)response
 {
-    if (![self checkResponseClass:response context:nil error:error])
+    NSError *authorityError = nil;
+    
+    MSIDAuthority *cacheAuthority = [self resultAuthorityWithConfiguration:configuration tokenResponse:response error:&authorityError];
+    
+    if (!cacheAuthority)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create authority with error domain %@, code %ld", authorityError.domain, (long)authorityError.code);
         return nil;
     }
+    
+    return cacheAuthority;
+}
 
-    return [MSIDAuthorityFactory authorityWithRawTenant:response.clientInfo.utid msidAuthority:requestAuthority context:nil error:error];
+#pragma mark - Authority
+
+- (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                      tokenResponse:(MSIDB2CTokenResponse *)response
+                                              error:(NSError **)error
+{
+    return [[MSIDB2CAuthority alloc] initWithURL:configuration.authority.url
+                                  validateFormat:NO
+                                       rawTenant:response.clientInfo.utid
+                                         context:nil
+                                           error:error];
 }
 
 @end

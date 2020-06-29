@@ -25,11 +25,12 @@
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDDefaultSilentTokenRequest.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDDefaultTokenResponseValidator.h"
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 @interface MSIDDefaultTokenRequestProviderTests : XCTestCase
 
@@ -39,38 +40,41 @@
 
 - (void)testInteractiveTokenRequestWithParameters_whenParametersProvided_shouldReturnNonNilInteractiveTokenRequest
 {
-    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
-    MSIDInteractiveTokenRequest *interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveRequestParameters new]];
+    id<MSIDInteractiveRequestControlling> interactiveRequest = [provider interactiveTokenRequestWithParameters:[MSIDInteractiveTokenRequestParameters new]];
     XCTAssertNotNil(interactiveRequest);
 }
 
 - (void)testSilentTokenRequestWithParameters_whenParametersProvided_shouldReturnDefaultSilentTokenRequest
 {
-    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
     MSIDSilentTokenRequest *silentRequest = [provider silentTokenRequestWithParameters:[MSIDRequestParameters new] forceRefresh:YES];
     XCTAssertNotNil(silentRequest);
     XCTAssertTrue([silentRequest isKindOfClass:[MSIDDefaultSilentTokenRequest class]]);
 }
 
+#if TARGET_OS_IPHONE
+
 - (void)testBrokerTokenRequestWIthParameters_whenParametersProvided_shouldReturnDefaultBrokerTokenRequest
 {
-    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    MSIDDefaultTokenRequestProvider *provider = [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] defaultAccessor:[MSIDDefaultTokenCacheAccessor new] accountMetadataAccessor:[MSIDAccountMetadataCacheAccessor new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.redirectUri = @"x-msauth-testapp://auth";
     parameters.target = @"user.read";
     parameters.clientId = @"client_id";
     parameters.correlationId = [NSUUID UUID];
 
     NSError *error = nil;
-    MSIDBrokerTokenRequest *brokerRequest = [provider brokerTokenRequestWithParameters:parameters brokerKey:@"brokerKey" error:&error];
-
+    MSIDBrokerTokenRequest *brokerRequest = [provider brokerTokenRequestWithParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
     XCTAssertNotNil(brokerRequest);
     XCTAssertTrue([brokerRequest isKindOfClass:[MSIDDefaultBrokerTokenRequest class]]);
     XCTAssertNil(error);
 }
+
+#endif
 
 @end

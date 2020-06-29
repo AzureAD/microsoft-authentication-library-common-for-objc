@@ -22,8 +22,10 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDJsonSerializable.h"
 
-@class MSIDClientInfo;
+@class MSIDMaskedHashableLogParameter;
+@class MSIDMaskedUsernameLogParameter;
 
 typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
 {
@@ -32,20 +34,20 @@ typedef NS_ENUM(NSInteger, MSIDLegacyAccountIdentifierType)
     MSIDLegacyIdentifierTypeUniqueNonDisplayableId
 };
 
-@interface MSIDAccountIdentifier : NSObject <NSCopying>
+@interface MSIDAccountIdentifier : NSObject <NSCopying, MSIDJsonSerializable>
 
-@property (nonatomic, readwrite) NSString *homeAccountId;
-@property (nonatomic, readwrite) NSString *displayableId;
+@property (nonatomic, readonly) NSString *homeAccountId;
+@property (nonatomic, readonly) NSString *displayableId;
 @property (nonatomic, readwrite) NSString *localAccountId;
 @property (nonatomic, readwrite) MSIDLegacyAccountIdentifierType legacyAccountIdentifierType;
 @property (nonatomic, readwrite) NSString *uid;
 @property (nonatomic, readwrite) NSString *utid;
+// Logging
+@property (nonatomic, readonly) MSIDMaskedHashableLogParameter *maskedHomeAccountId;
+@property (nonatomic, readonly) MSIDMaskedUsernameLogParameter *maskedDisplayableId;
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                             clientInfo:(MSIDClientInfo *)clientInfo;
-
-- (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                          homeAccountId:(NSString *)homeAccountId;
+                        homeAccountId:(NSString *)homeAccountId;
 
 + (NSString *)legacyAccountIdentifierTypeAsString:(MSIDLegacyAccountIdentifierType)type;
 + (MSIDLegacyAccountIdentifierType)legacyAccountIdentifierTypeFromString:(NSString *)typeString;

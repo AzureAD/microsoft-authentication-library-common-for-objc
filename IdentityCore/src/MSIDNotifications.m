@@ -71,23 +71,33 @@ static NSString *s_webAuthDidReceiveResponseFromBrokerNotificationName;
 + (NSString *)webAuthDidReceiveResponseFromBrokerNotificationName { return s_webAuthDidReceiveResponseFromBrokerNotificationName; }
 
 #pragma mark - Notifications
-+ (void)notifyWebAuthDidStartLoad:(NSURL *)url
++ (void)notifyWebAuthDidStartLoad:(NSURL *)url userInfo:(NSDictionary *)userInfo
 {
     if (s_webAuthDidStartLoadNotificationName)
     {
+        NSMutableDictionary *notificationInfo = [NSMutableDictionary new];
+        [notificationInfo addEntriesFromDictionary:userInfo];
+        
+        if (url) notificationInfo[@"url"] = url;
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthDidStartLoadNotificationName
                                                             object:nil
-                                                          userInfo:url ? @{ @"url" : url } : nil];
+                                                          userInfo:notificationInfo];
     }
 }
 
-+ (void)notifyWebAuthDidFinishLoad:(NSURL *)url
++ (void)notifyWebAuthDidFinishLoad:(NSURL *)url userInfo:(NSDictionary *)userInfo
 {
     if (s_webAuthDidFinishLoadNotificationName)
     {
+        NSMutableDictionary *notificationInfo = [NSMutableDictionary new];
+        [notificationInfo addEntriesFromDictionary:userInfo];
+        
+        if (url) notificationInfo[@"url"] = url;
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:s_webAuthDidFinishLoadNotificationName
                                                             object:nil
-                                                          userInfo:url ? @{ @"url" : url } : nil];
+                                                          userInfo:notificationInfo];
     }
 }
 

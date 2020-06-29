@@ -41,7 +41,7 @@ applicationTag:(NSString *)applicationTag
    accessGroup:(NSString *)accessGroup
 applicationTagData:(NSData *)applicationTagData
 {
-    NSString *keychainGroup = [MSIDKeychainUtil accessGroup:accessGroup];
+    NSString *keychainGroup = [[MSIDKeychainUtil sharedInstance] accessGroup:accessGroup];
     
     NSDictionary *symmetricKeyAttr =
     @{

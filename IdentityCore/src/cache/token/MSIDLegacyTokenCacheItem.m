@@ -23,13 +23,13 @@
 
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDUserInformation.h"
-#import "MSIDClientInfo.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDPrimaryRefreshToken.h"
+#import "NSURL+MSIDAADUtils.h"
 
 @interface MSIDLegacyTokenCacheItem()
 {
@@ -63,8 +63,8 @@
     result &= (!self.accessToken && !item.accessToken) || [self.accessToken isEqualToString:item.accessToken];
     result &= (!self.refreshToken && !item.refreshToken) || [self.refreshToken isEqualToString:item.refreshToken];
     result &= (!self.idToken && !item.idToken) || [self.idToken isEqualToString:item.idToken];
-    result &= (!self.authority && !item.authority) || [self.authority isEqual:item.authority];
     result &= (!self.oauthTokenType && !item.oauthTokenType) || [self.oauthTokenType isEqualToString:item.oauthTokenType];
+    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
     return result;
 }
 
@@ -76,8 +76,8 @@
     hash = hash * 31 + self.accessToken.hash;
     hash = hash * 31 + self.refreshToken.hash;
     hash = hash * 31 + self.idToken.hash;
-    hash = hash * 31 + self.authority.hash;
     hash = hash * 31 + self.oauthTokenType.hash;
+    hash = hash * 31 + self.additionalInfo.hash;
     return hash;
 }
 
@@ -89,8 +89,8 @@
     item.accessToken = [self.accessToken copyWithZone:zone];
     item.refreshToken = [self.refreshToken copyWithZone:zone];
     item.idToken = [self.idToken copyWithZone:zone];
-    item.authority = [self.authority copyWithZone:zone];
     item.oauthTokenType = [self.oauthTokenType copyWithZone:zone];
+    item.additionalInfo = [self.additionalInfo copyWithZone:zone];
     return item;
 }
 
@@ -112,9 +112,9 @@
 
     if (authorityString)
     {
-        self.authority = [NSURL URLWithString:authorityString];
-        self.environment = self.authority.msidHostWithPortIfNecessary;
-        self.realm = self.authority.msidTenant;
+        NSURL *authorityURL = [NSURL URLWithString:authorityString];
+        self.environment = authorityURL.msidHostWithPortIfNecessary;
+        self.realm = authorityURL.msidAADTenant;
     }
 
     self.clientId = [coder decodeObjectOfClass:[NSString class] forKey:@"clientId"];
@@ -122,15 +122,6 @@
     self.expiresOn = [coder decodeObjectOfClass:[NSDate class] forKey:@"expiresOn"];
     self.cachedAt = [coder decodeObjectOfClass:[NSDate class] forKey:@"cachedAt"];
     self.familyId = [coder decodeObjectOfClass:[NSString class] forKey:@"familyId"];
-
-    self.additionalInfo = [coder decodeObjectOfClass:[NSDictionary class] forKey:@"additionalServer"];
-    if(self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY])
-    {
-        self.extendedExpiresOn = self.additionalInfo[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-        NSMutableDictionary *additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
-        [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
-        self.additionalInfo = additionalServer;
-    }
 
     self.accessToken = [coder decodeObjectOfClass:[NSString class] forKey:@"accessToken"];
     self.refreshToken = [coder decodeObjectOfClass:[NSString class] forKey:@"refreshToken"];
@@ -148,13 +139,29 @@
     {
         self.homeAccountId = homeAccountId;
     }
-
+    
+    self.enrollmentId = [coder decodeObjectOfClass:[NSString class] forKey:@"enrollmentId"];
+    self.applicationIdentifier = [coder decodeObjectOfClass:[NSString class] forKey:@"applicationIdentifier"];
+    
+    NSSet *classes = [NSSet setWithObjects:[NSDictionary class], [NSDate class], [NSString class], [NSURL class], [NSNumber class], nil];
+    NSMutableDictionary *additionalServer = [[coder decodeObjectOfClasses:classes forKey:@"additionalServer"] mutableCopy];
+    self.extendedExpiresOn = additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];
+    [additionalServer removeObjectForKey:MSID_SPE_INFO_CACHE_KEY];
+    if (additionalServer.count)
+    {
+        self.additionalInfo = additionalServer;
+    }
+    
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)coder
 {
-    [coder encodeObject:self.authority.absoluteString forKey:@"authority"];
+    NSURL *authorityURL = [NSURL msidAADURLWithEnvironment:self.environment tenant:self.realm];
+    
+    [coder encodeObject:authorityURL.absoluteString forKey:@"authority"];
     [coder encodeObject:self.accessToken forKey:@"accessToken"];
     [coder encodeObject:self.refreshToken forKey:@"refreshToken"];
 
@@ -173,18 +180,20 @@
 
     [coder encodeObject:[NSMutableDictionary dictionary] forKey:@"additionalClient"];
 
+    NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
     if (self.extendedExpiresOn)
     {
-        NSMutableDictionary* additionalServer = [[NSMutableDictionary alloc] initWithDictionary:self.additionalInfo];
         additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
-        [coder encodeObject:additionalServer forKey:@"additionalServer"];
     }
-    else
+    if (self.speInfo)
     {
-        [coder encodeObject:self.additionalInfo forKey:@"additionalServer"];
+        additionalServer[MSID_SPE_INFO_CACHE_KEY] = self.speInfo;
     }
+    [coder encodeObject:additionalServer forKey:@"additionalServer"];
 
     [coder encodeObject:self.homeAccountId forKey:@"homeAccountId"];
+    [coder encodeObject:self.enrollmentId forKey:@"enrollmentId"];
+    [coder encodeObject:self.applicationIdentifier forKey:@"applicationIdentifier"];
 }
 
 - (MSIDBaseToken *)tokenWithType:(MSIDCredentialType)credentialType
@@ -227,8 +236,7 @@
 
     if (error)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, nil, @"Invalid ID token");
-        MSID_LOG_PII(MSIDLogLevelWarning, nil, nil,  @"Invalid ID token, error %@", error.localizedDescription);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil,  @"Invalid ID token, error %@", MSID_PII_LOG_MASKABLE(error));
     }
 
     return _idTokenClaims;

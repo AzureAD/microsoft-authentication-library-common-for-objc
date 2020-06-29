@@ -41,14 +41,20 @@ NSString *MSIDOAuthErrorDomain = @"MSIDOAuthErrorDomain";
 NSString *MSIDKeychainErrorDomain = @"MSIDKeychainErrorDomain";
 NSString *MSIDHttpErrorCodeDomain = @"MSIDHttpErrorCodeDomain";
 NSString *MSIDInvalidTokenResultKey = @"MSIDInvalidTokenResultKey";
+NSInteger const MSIDSSOExtensionUnderlyingError = -6000;
 
-NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo)
+NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo, BOOL logErrorDescription)
 {
     id<MSIDErrorConverting> errorConverter = MSIDErrorConverter.errorConverter;
 
     if (!errorConverter)
     {
         errorConverter = MSIDErrorConverter.defaultErrorConverter;
+    }
+    
+    if (logErrorDescription)
+    {
+        MSID_LOG_WITH_CORR(MSIDLogLevelError, correlationId, @"Creating Error with description: %@", errorDescription);
     }
 
     return [errorConverter errorWithDomain:domain
@@ -82,6 +88,14 @@ MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode def
     if (oauthError && [oauthError caseInsensitiveCompare:@"unauthorized_client"] == NSOrderedSame)
     {
         return MSIDErrorServerUnauthorizedClient;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"interaction_required"] == NSOrderedSame)
+    {
+        return MSIDErrorInteractionRequired;
+    }
+    if (oauthError && [oauthError caseInsensitiveCompare:@"access_denied"] == NSOrderedSame)
+    {
+        return MSIDErrorServerAccessDenied;
     }
     
     return defaultCode;
@@ -127,7 +141,9 @@ NSDictionary* MSIDErrorDomainsAndCodes()
                       @(MSIDErrorBrokerKeyFailedToCreate),
                       @(MSIDErrorBrokerKeyNotFound),
                       @(MSIDErrorWorkplaceJoinRequired),
-                      @(MSIDErrorBrokerUnknown)
+                      @(MSIDErrorBrokerUnknown),
+                      @(MSIDErrorBrokerApplicationTokenWriteFailed),
+                      @(MSIDErrorBrokerApplicationTokenReadFailed),
 
                       ],
               MSIDOAuthErrorDomain : @[// Server Errors
@@ -156,9 +172,8 @@ void MSIDFillAndLogError(NSError **error, MSIDErrorCode errorCode, NSString *err
 {
     if (error)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, errorCode, errorDescription, nil, nil, nil, correlationID, nil);
+        *error = MSIDCreateError(MSIDErrorDomain, errorCode, errorDescription, nil, nil, nil, correlationID, nil, NO);
     }
 
-    MSID_LOG_NO_PII(MSIDLogLevelError, correlationID, nil, @"Encountered error with code %ld", (long)errorCode);
-    MSID_LOG_PII(MSIDLogLevelError, correlationID, nil, @"Encountered error with code %ld, description %@", (long)errorCode, errorDescription);
+    MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationID, @"Encountered error with code %ld, description %@", (long)errorCode, MSID_PII_LOG_MASKABLE(errorDescription));
 }

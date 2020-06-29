@@ -27,5 +27,7 @@
 @interface MSIDPRTCacheItem : MSIDLegacyTokenCacheItem
 
 @property NSData *sessionKey;
+@property NSString *deviceID;
+@property NSString *prtProtocolVersion;
 
 @end

@@ -22,48 +22,118 @@
 // THE SOFTWARE.
 
 #import "MSIDKeychainUtil.h"
+#import "MSIDKeychainUtil+Internal.h"
+#import "MSIDKeychainUtil+MacInternal.h"
+
+static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
 
 @implementation MSIDKeychainUtil
 
-+ (NSString *)teamId
+- (instancetype)init
 {
-    static dispatch_once_t once;
-    static NSString *keychainTeamId = nil;
+    self = [super init];
+    if (self)
+    {
+        self.teamId = [self getTeamId];
+    }
     
-    dispatch_once(&once, ^{
-        SecCodeRef selfCode = NULL;
-        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
-        
-        if (selfCode)
-        {
-            CFDictionaryRef cfDic = NULL;
-            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
-            NSDictionary* signingDic = CFBridgingRelease(cfDic);
-            keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
-            
-            MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", _PII_NULLIFY(keychainTeamId));
-            MSID_LOG_PII(MSIDLogLevelInfo, nil, nil, @"Using \"%@\" Team ID.", keychainTeamId);
-            
-            CFRelease(selfCode);
-        }
+    return self;
+}
+
++ (MSIDKeychainUtil *)sharedInstance
+{
+    static MSIDKeychainUtil *singleton = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{
+        singleton = [[self alloc] init];
     });
     
+    return singleton;
+}
+
+- (NSString *)getTeamId
+{
+    NSString *keychainTeamId = nil;
+    SecCodeRef selfCode = NULL;
+    SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+    
+    if (selfCode)
+    {
+        CFDictionaryRef cfDic = NULL;
+        SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+        
+        if (!cfDic)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
+        }
+        else
+        {
+            NSDictionary *signingDic = CFBridgingRelease(cfDic);
+            NSString *appIdPrefix = [self appIdPrefixFromSigningInformation:signingDic];
+            keychainTeamId = appIdPrefix ? appIdPrefix : [self teamIdFromSigningInformation:signingDic];
+        }
+        CFRelease(selfCode);
+    }
+    
+    if (!keychainTeamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");\
+        keychainTeamId = [[NSBundle mainBundle] bundleIdentifier];
+
+        if (!keychainTeamId)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve bundle identifier. Using process name instead.");
+            keychainTeamId = [NSProcessInfo processInfo].processName;
+        }
+    }
+
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
     return keychainTeamId;
 }
 
-+ (NSString *)accessGroup:(NSString *)group
+- (NSString *)accessGroup:(NSString *)group
 {
     if (!group)
     {
         return nil;
     }
     
-    if (!MSIDKeychainUtil.teamId)
+    if (!self.teamId)
     {
         return nil;
     }
     
-    return [[NSString alloc] initWithFormat:@"%@.%@", MSIDKeychainUtil.teamId, group];
+    return [[NSString alloc] initWithFormat:@"%@.%@", self.teamId, group];
+}
+
+#pragma mark - Signing group prefix
+
+- (NSString *)teamIdFromSigningInformation:(NSDictionary *)signingInformation
+{
+    return [signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+}
+
+- (NSString *)appIdPrefixFromSigningInformation:(NSDictionary *)signingInformation
+{
+    NSDictionary *entitlementsDictionary = [signingInformation msidObjectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict ofClass:[NSDictionary class]];
+    NSArray *keychainGroups = [entitlementsDictionary msidObjectForKey:MSIDKeychainAccessGroupEntitlement ofClass:[NSArray class]];
+    
+    NSString *keychainTeamId = nil;
+    
+    if (keychainGroups && [keychainGroups count])
+    {
+        NSString *firstGroup = keychainGroups[0];
+        NSArray *components = [firstGroup componentsSeparatedByString:@"."];
+        
+        if ([components count] > 1)
+        {
+            NSString *bundleSeedID = [components firstObject];
+            keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
+        }
+    }
+    
+    return keychainTeamId;
 }
 
 @end

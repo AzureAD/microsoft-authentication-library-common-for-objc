@@ -24,7 +24,6 @@
 #import <XCTest/XCTest.h>
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
-#import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthorityMock.h"
 #import "MSIDAuthority+Internal.h"
 
@@ -51,7 +50,7 @@
     __auto_type dataSource = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:self.inMemoryStorage];
     self.cache = [[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:dataSource];
     
-    __auto_type authorityUrl = [@"https://login.microsoftonline.com/common" msidUrl];
+    __auto_type authorityUrl = [NSURL URLWithString:@"https://login.microsoftonline.com/common"];
     self.authority = [[MSIDAuthorityMock alloc] initWithURL:authorityUrl context:nil error:nil];
     self.authority.environmentAliases = @[@"login.microsoftonline.com"];
 }
@@ -87,7 +86,7 @@
 
 - (void)testResourceForAuthority_whenNoResourceForAuthorityInCache_shoudlReturnNil
 {
-    __auto_type authorityUrl = [@"https://example.com/common" msidUrl];
+    __auto_type authorityUrl = [NSURL URLWithString:@"https://example.com/common"];
     __auto_type authority = [[MSIDAuthorityMock alloc] initWithURL:authorityUrl context:nil error:nil];
     authority.environmentAliases = @[@"example.com"];
     
@@ -109,7 +108,7 @@
 
 - (void)testResourceForAuthority_whenResourceAliasInCache_shoudlReturnResource
 {
-    __auto_type authorityUrl = [@"https://login.microsoftonlineAlias.com/common" msidUrl];
+    __auto_type authorityUrl = [NSURL URLWithString:@"https://login.microsoftonlineAlias.com/common"];
     __auto_type authority = [[MSIDAuthorityMock alloc] initWithURL:authorityUrl context:nil error:nil];
     authority.environmentAliases = @[@"login.microsoftonline.com"];
     

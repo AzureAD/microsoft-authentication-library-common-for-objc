@@ -40,6 +40,8 @@
 #import "MSIDTelemetryAuthorityValidationEvent.h"
 
 static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurationCache;
+NSString *const MSID_AUTHORITY_URL_JSON_KEY = @"authority";
+NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 
 @implementation MSIDAuthority
 
@@ -71,6 +73,16 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
         }
         _url = url;
         _environment = url.msidHostWithPortIfNecessary;
+        
+        NSError *realmError = nil;
+        _realm = [self.class realmFromURL:url context:context error:&realmError];
+        
+        if (realmError && validateFormat)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Failed to extract realm for authority");
+            if (error) *error = realmError;
+            return nil;
+        }
     }
     return self;
 }
@@ -94,8 +106,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
     [[MSIDTelemetry sharedInstance] startEvent:context.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_AUTHORITY_VALIDATION];
     
-    MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Resolving authority: %@, upn: %@", [self isKnown] ? self.url : _PII_NULLIFY(self.url), _PII_NULLIFY(upn));
-    MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Resolving authority: %@, upn: %@", self.url, upn);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Resolving authority: %@, upn: %@", MSID_PII_LOG_TRACKABLE(self.url), MSID_PII_LOG_EMAIL(upn));
     
     [resolver resolveAuthority:self
              userPrincipalName:upn
@@ -110,7 +121,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
          [validationEvent setAuthority:self];
          [[MSIDTelemetry sharedInstance] stopEvent:context.telemetryRequestId event:validationEvent];
          
-         MSID_LOG_INFO(context, @"Resolved authority, validated: %@, error: %ld", validated ? @"YES" : @"NO", (long)error.code);
+         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Resolved authority, validated: %@, error: %ld", validated ? @"YES" : @"NO", (long)error.code);
          
          if (completionBlock) completionBlock(openIdConfigurationEndpoint, validated, error);
      }];
@@ -124,6 +135,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 - (NSURL *)cacheUrlWithContext:(__unused id<MSIDRequestContext>)context
 {
     return self.url;
+}
+
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext> __unused)context
+{
+    return self.url.msidHostWithPortIfNecessary;
 }
 
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
@@ -157,7 +173,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 - (BOOL)isKnown
 {
     // TODO: Can we move it out from here? What about ADFS & B2C?
-    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString];
+    return [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:self.url.host.lowercaseString] || self.isDeveloperKnown;
 }
 
 - (BOOL)supportsBrokeredAuthentication
@@ -166,6 +182,11 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 }
 
 - (BOOL)supportsClientIDAsScope
+{
+    return NO;
+}
+
+- (BOOL)supportsMAMScenarios
 {
     return NO;
 }
@@ -184,7 +205,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     
     if (self.openIdConfigurationEndpoint == nil)
     {
-        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil);
+        __auto_type error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"openIdConfigurationEndpoint is nil.", nil, nil, nil, context.correlationId, nil, YES);
         completionBlock(nil, error);
         return;
     }
@@ -221,7 +242,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'authority' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"'authority' is a required parameter and must not be nil or empty.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -230,7 +251,7 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must use HTTPS.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must use HTTPS.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -296,10 +317,54 @@ static MSIDCache <NSString *, MSIDOpenIdProviderMetadata *> *s_openIdConfigurati
 
 #pragma mark - Protected
 
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(__unused id<MSIDRequestContext>)context
+                     error:(__unused NSError **)error
+{
+    return url.path;
+}
+
 - (id<MSIDAuthorityResolving>)resolver
 {
     NSAssert(NO, @"Abstract method");
     return nil;
+}
+
+#pragma mark - Sovereign
+
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(__unused NSString *)cloudHostInstanceName
+                                                       error:(__unused NSError **)error
+{
+    return nil;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    NSString *authorityString = json[MSID_AUTHORITY_URL_JSON_KEY];
+    NSURL *authorityUrl = authorityString ? [[NSURL alloc] initWithString:authorityString] : nil;
+    if (!authorityUrl)
+    {
+        NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: authority is either nil or not a url.", self.class];
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+        return nil;
+    }
+    
+    return [self initWithURL:authorityUrl context:nil error:error];
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    if (!self.url.absoluteString)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: authority url is nil", self.class);
+        return nil;
+    }
+    json[MSID_AUTHORITY_URL_JSON_KEY] = self.url.absoluteString;
+    
+    return json;
 }
 
 @end

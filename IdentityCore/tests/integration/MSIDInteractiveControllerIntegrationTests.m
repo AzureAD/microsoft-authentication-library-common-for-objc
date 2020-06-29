@@ -25,17 +25,18 @@
 #import "MSIDTestTokenRequestProvider.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDTokenResult.h"
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDLocalInteractiveController.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
 #import "MSIDRefreshToken.h"
+#import "MSIDTestIdentifiers.h"
 #if TARGET_OS_IPHONE
 #import "MSIDApplicationTestUtil.h"
 #import "MSIDWebWPJResponse.h"
@@ -55,7 +56,8 @@
 - (void)setUp
 {
     [super setUp];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
 }
 
 - (void)tearDown
@@ -63,17 +65,17 @@
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [super tearDown];
 }
 
 
 #pragma mark - Helpers
 
-- (MSIDInteractiveRequestParameters *)requestParameters
+- (MSIDInteractiveTokenRequestParameters *)requestParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
     parameters.oidcScope = @"openid profile offline_access";
@@ -107,7 +109,7 @@
                                                               refreshToken:refreshToken
                                                                    idToken:response.idToken
                                                                    account:account
-                                                                 authority:accessToken.authority
+                                                                 authority:parameters.authority
                                                              correlationId:parameters.correlationId
                                                              tokenResponse:response];
 
@@ -134,7 +136,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_id1111";
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
@@ -172,7 +174,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"1234-5678-90abcdefg");
+        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
 
@@ -200,10 +202,10 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_fail";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 
@@ -264,7 +266,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2&username=my@test.com"];
@@ -283,7 +285,7 @@
 
     MSIDTokenResult *testResult = [self resultWithParameters:parameters];
 
-    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, NSDictionary<NSString *,id> *options) {
+    [MSIDApplicationTestUtil onOpenURL:^BOOL(NSURL *url, __unused NSDictionary<NSString *,id> *options) {
 
         XCTAssertEqualObjects(url, [NSURL URLWithString:@"https://test.url.broker?test1=test2"]);
 
@@ -329,7 +331,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"1234-5678-90abcdefg");
+        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
@@ -367,7 +369,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_wpj";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?username=my@test.com&client_info=eyJ1aWQiOiIwZWE5OWM1OC02NGIzLTRhZmEtYmU1MC00NGU2NDA4ZWRjZDUiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0"];
@@ -430,7 +432,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_link_failure";
 
     NSString *brokerURL = [NSString stringWithFormat:@"msauth://wpj?app_link_wrong=https%%3A%%2F%%2Ftest.url.broker%%3Ftest1%%3Dtest2"];

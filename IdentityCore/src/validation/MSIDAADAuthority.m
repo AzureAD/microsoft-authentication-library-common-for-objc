@@ -25,12 +25,15 @@
 #import "MSIDAadAuthorityResolver.h"
 #import "MSIDAadAuthorityCache.h"
 #import "MSIDAADTenant.h"
-#import "MSIDAuthorityFactory.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDAuthority+Internal.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDB2CAuthority.h"
 #import "MSIDADFSAuthority.h"
+#import "NSURL+MSIDAADUtils.h"
+#import "MSIDJsonSerializableFactory.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDProviderType.h"
 
 @interface MSIDAADAuthority()
 
@@ -39,6 +42,13 @@
 @end
 
 @implementation MSIDAADAuthority
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV1 kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_AADV2 kindOfClass:MSIDAuthority.class toClassType:MSID_JSON_TYPE_AAD_AUTHORITY];
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -64,13 +74,14 @@
     self = [self initWithURL:url context:context error:error];
     if (self)
     {
-        if (rawTenant && self.tenant.type != MSIDAADTenantTypeIdentifier)
+        if (rawTenant)
         {
             _url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", [_url msidHostWithPortIfNecessary], rawTenant]];
             
             if (![self.class isAuthorityFormatValid:_url context:context error:error]) return nil;
             
             _tenant = [self.class tenantFromAuthorityUrl:self.url context:context error:error];
+            _realm = _tenant.rawTenant;
         }
     }
     
@@ -85,16 +96,21 @@
 - (NSURL *)cacheUrlWithContext:(id<MSIDRequestContext>)context
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:context error:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:universalAuthorityURL context:context error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheUrlForAuthority:authority context:context];
 }
 
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext>)context
+{
+    return [self cacheUrlWithContext:context].msidHostWithPortIfNecessary;
+}
+
 - (NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities
 {
     __auto_type universalAuthorityURL = [self universalAuthorityURL];
-    __auto_type authority = (MSIDAADAuthority *)[MSIDAuthorityFactory authorityFromUrl:universalAuthorityURL context:nil error:nil];
+    __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:universalAuthorityURL context:nil error:nil];
     if (authority) NSParameterAssert([authority isKindOfClass:MSIDAADAuthority.class]);
     
     return [self.authorityCache cacheAliasesForAuthority:authority];
@@ -163,7 +179,7 @@
         if (error)
         {
             __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with ADFS authority url."];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -173,7 +189,7 @@
         if (error)
         {
             __auto_type message = [NSString stringWithFormat:@"Trying to initialize AAD authority with B2C authority url."];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, message, nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -186,7 +202,7 @@
                                      context:(id<MSIDRequestContext>)context
                                        error:(NSError **)error
 {
-    __auto_type authorityUrl = [NSURL msidURLWithEnvironment:environment tenant:rawTenant];
+    __auto_type authorityUrl = [NSURL msidAADURLWithEnvironment:environment tenant:rawTenant];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:context error:error];
     
     return authority;
@@ -218,6 +234,11 @@
     return YES;
 }
 
+- (BOOL)supportsMAMScenarios
+{
+    return YES;
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
@@ -229,6 +250,19 @@
 }
 
 #pragma mark - Protected
+
++ (NSString *)realmFromURL:(NSURL *)url
+                   context:(id<MSIDRequestContext>)context
+                     error:(NSError **)error
+{
+    if ([self isAuthorityFormatValid:url context:context error:error])
+    {
+        return [self tenantFromAuthorityUrl:url context:context error:error].rawTenant;
+    }
+    
+    // We don't support non standard AAD authority formats
+    return nil;
+}
 
 - (id<MSIDAuthorityResolving>)resolver
 {
@@ -247,7 +281,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have a host and a path to be normalized.", nil, nil, nil, context.correlationId, nil, YES);
         }
         return nil;
     }
@@ -264,7 +298,7 @@
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"authority must have AAD tenant.", nil, nil, nil, context.correlationId, nil, YES);
         }
         
         return nil;
@@ -272,6 +306,16 @@
     
     NSString *rawTenant = [paths[1] lowercaseString];
     return [[MSIDAADTenant alloc] initWithRawTenant:rawTenant context:context error:error];
+}
+
+#pragma mark - Sovereign
+
+- (MSIDAuthority *)authorityWithUpdatedCloudHostInstanceName:(NSString *)cloudHostInstanceName error:(NSError **)error
+{
+    if ([NSString msidIsStringNilOrBlank:cloudHostInstanceName]) return nil;
+    
+    NSURL *cloudAuthorityURL = [self.url msidAADAuthorityWithCloudInstanceHostname:cloudHostInstanceName];
+    return [[MSIDAADAuthority alloc] initWithURL:cloudAuthorityURL context:nil error:error];
 }
 
 @end

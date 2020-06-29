@@ -24,6 +24,8 @@
 #import "MSIDNTLMUIPrompt.h"
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
+#import "MSIDMainThreadUtil.h"
+#import <WebKit/WebKit.h>
 
 @implementation MSIDNTLMUIPrompt
 
@@ -31,28 +33,29 @@ __weak static UIAlertController *_presentedPrompt = nil;
 
 + (void)dismissPrompt
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         if (_presentedPrompt.presentingViewController)
         {
             [_presentedPrompt.presentingViewController dismissViewControllerAnimated:YES completion:nil];
         }
         
         _presentedPrompt = nil;
-    });
+    }];
 }
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))block
++ (void)presentPromptInParentController:(UIViewController *)parentViewController
+                      completionHandler:(void (^)(NSString *username, NSString *password, BOOL cancel))block
 {
-    
     if ([MSIDAppExtensionUtil isExecutingInAppExtension])
     {
         block(nil, nil, YES);
         return;
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIViewController *viewController = [UIApplication msidCurrentViewController];
+     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+         
+        UIViewController *viewController = [UIApplication msidCurrentViewController:parentViewController];
+         
         if (!viewController)
         {
             block(nil, nil, YES);
@@ -96,7 +99,7 @@ __weak static UIAlertController *_presentedPrompt = nil;
         [viewController presentViewController:alert animated:YES completion:^{}];
         
         _presentedPrompt = alert;
-    });
+    }];
 }
 
 @end

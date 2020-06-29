@@ -21,55 +21,64 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDJsonObject.h"
+#import "MSIDJsonSerializable.h"
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAccountType.h"
 #import "MSIDConfiguration.h"
 #import "MSIDError.h"
+#import "MSIDProviderType.h"
 
 @protocol MSIDRefreshableToken;
 @class MSIDBaseToken;
 
-@interface MSIDTokenResponse : MSIDJsonObject
+@interface MSIDTokenResponse : NSObject <MSIDJsonSerializable>
 
 // Default properties for an openid error response
-@property (readonly) NSString *error;
-@property (readonly) NSString *errorDescription;
-
+@property (nonatomic, nullable) NSString *error;
+@property (nonatomic, nullable) NSString *errorDescription;
 // Default properties for a successful openid response
-@property (readonly) NSInteger expiresIn;
-@property (readonly) NSString *accessToken;
-@property (readonly) NSString *tokenType;
-@property (readonly) NSString *refreshToken;
-@property (readonly) NSString *scope;
-@property (readonly) NSString *state;
-@property (readonly) NSString *idToken;
+@property (nonatomic) NSInteger expiresIn;
+/*!
+ expiresOn isn't part of the spec, but we use it when we need to serialize/deserialize token reponse to/from JSON,
+ because it contains more precise time then expiresIn.
+ */
+@property (nonatomic) NSInteger expiresOn;
+@property (nonatomic, nullable) NSString *accessToken;
+@property (nonatomic, nullable) NSString *tokenType;
+@property (nonatomic, nullable) NSString *refreshToken;
+@property (nonatomic, nullable) NSString *scope;
+@property (nonatomic, nullable) NSString *state;
+@property (nonatomic, nullable) NSString *idToken;
+// Additional properties that server sends
+@property (nonatomic, nullable) NSDictionary *additionalServerInfo;
+
+// When SSO extension creates token response, this property will contain authenticator app version.
+@property (nonatomic, nullable) NSString *clientAppVersion;
 
 /* Derived properties */
 
 // Error code based on oauth error response
-@property (readonly) MSIDErrorCode oauthErrorCode;
+@property (nonatomic, readonly) MSIDErrorCode oauthErrorCode;
 
 // NSDate derived from expiresIn property and time received
-@property (readonly) NSDate *expiryDate;
+@property (nonatomic, readonly, nullable) NSDate *expiryDate;
 
 // Specifies if token in the token response is multi resource
-@property (readonly) BOOL isMultiResource;
+@property (nonatomic, readonly) BOOL isMultiResource;
 
 // Wrapper object around ID token
-@property (readonly) MSIDIdTokenClaims *idTokenObj;
+@property (nonatomic, readonly, nullable) MSIDIdTokenClaims *idTokenObj;
 
 // Generic target of the access token, scope for base token response, resource for AAD v1
-@property (readonly) NSString *target;
+@property (nonatomic, readonly, nullable) NSString *target;
 
 // Account type for an account generated from this response
-@property (readonly) MSIDAccountType accountType;
+@property (nonatomic, readonly) MSIDAccountType accountType;
 
-// Additional properties that server sends
-@property (readonly) NSDictionary *additionalServerInfo;
+@property (nonatomic, class, readonly) MSIDProviderType providerType;
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json
-                          refreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)token
-                                 error:(NSError * __autoreleasing *)error;
+- (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
+                                   refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token
+                                          error:(NSError * _Nullable __autoreleasing *_Nullable)error;
 
 @end

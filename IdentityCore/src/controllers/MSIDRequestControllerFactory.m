@@ -22,29 +22,57 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestControllerFactory.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDSilentController.h"
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBrokerInteractiveController.h"
 #endif
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
+#import "MSIDSSOExtensionSignoutController.h"
+#import "MSIDSSOExtensionInteractiveTokenRequestController.h"
+#import "MSIDRequestParameters+Broker.h"
 #import "MSIDAuthority.h"
+#import "MSIDSignoutController.h"
 
 @implementation MSIDRequestControllerFactory
 
-+ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(nonnull MSIDRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)silentControllerForParameters:(MSIDRequestParameters *)parameters
                                                         forceRefresh:(BOOL)forceRefresh
-                                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                                               error:(NSError * _Nullable * _Nullable)error
+                                                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                               error:(NSError **)error
 {
-    return [[MSIDSilentController alloc] initWithRequestParameters:parameters
-                                                      forceRefresh:forceRefresh
-                                              tokenRequestProvider:tokenRequestProvider
-                                                             error:error];
+    MSIDSilentController *brokerController;
+    
+    if ([parameters shouldUseBroker])
+    {
+        if (@available(iOS 13.0, macOS 10.15, *))
+        {
+            if ([MSIDSSOExtensionSilentTokenRequestController canPerformRequest])
+            {
+                brokerController = [[MSIDSSOExtensionSilentTokenRequestController alloc] initWithRequestParameters:parameters
+                                                                                                      forceRefresh:forceRefresh
+                                                                                              tokenRequestProvider:tokenRequestProvider
+                                                                                                             error:error];
+            }
+        }
+    }
+    
+    // TODO: Performance optimization: check account source.
+    // if (parameters.accountIdentifier.source == BROKER) return brokerController;
+    
+    __auto_type localController = [[MSIDSilentController alloc] initWithRequestParameters:parameters
+                                                                             forceRefresh:forceRefresh
+                                                                     tokenRequestProvider:tokenRequestProvider
+                                                            fallbackInteractiveController:brokerController
+                                                                                    error:error];
+    if (!localController) return nil;
+    
+    return localController;
 }
 
-+ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)interactiveControllerForParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                      tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                     error:(NSError * _Nullable * _Nullable)error
 {
@@ -64,103 +92,169 @@
                                                              error:error];
 }
 
-+ (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveRequestParameters *)parameters
++ (nullable id<MSIDRequestControlling>)platformInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                 tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                                                error:(NSError * _Nullable * _Nullable)error
 {
-#if TARGET_OS_IPHONE
-    if ([self canUseBrokerOnDeviceWithParameters:parameters])
+    id<MSIDRequestControlling> localController = [self localInteractiveController:parameters
+                                                             tokenRequestProvider:tokenRequestProvider
+                                                                            error:error];
+    
+    if (!localController)
     {
-        return [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
-                                                                        tokenRequestProvider:tokenRequestProvider
-                                                                                       error:error];
+        return nil;
+    }
+    
+    if ([parameters shouldUseBroker])
+    {
+        id<MSIDRequestControlling> brokerController = [self brokerController:parameters
+                                                        tokenRequestProvider:tokenRequestProvider
+                                                          fallbackController:localController
+                                                                       error:error];
+        
+        if (brokerController)
+        {
+            return brokerController;
+        }
     }
 
+    return localController;
+}
+
+#if TARGET_OS_IPHONE
++ (nullable id<MSIDRequestControlling>)brokerController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+                                   tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                     fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                  error:(NSError * _Nullable * _Nullable)error
+{
+    MSIDBrokerInteractiveController *brokerController = nil;
+    
+    NSError *brokerControllerError;
+    if ([MSIDBrokerInteractiveController canPerformRequest:parameters])
+    {
+        brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                    tokenRequestProvider:tokenRequestProvider
+                                                                                      fallbackController:fallbackController
+                                                                                                   error:&brokerControllerError];
+        
+        if (brokerControllerError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Encountered an error creating broker controller %@", MSID_PII_LOG_MASKABLE(brokerControllerError));
+        }
+    }
+    
+    if (@available(iOS 13.0, *))
+    {
+        brokerController.sdkBrokerCapabilities = @[MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY];
+    }
+    
+    id<MSIDRequestControlling> ssoExtensionController = [self ssoExtensionInteractiveController:parameters
+                                                                           tokenRequestProvider:tokenRequestProvider
+                                                                             fallbackController:brokerController
+                                                                                          error:&brokerControllerError];
+    
+    if (ssoExtensionController)
+    {
+        return ssoExtensionController;
+    }
+    
+    if (brokerControllerError)
+    {
+        if (error) *error = brokerControllerError;
+        return nil;
+    }
+    else if (brokerController)
+    {
+        return brokerController;
+    }
+    
+    return nil;
+}
+#else
++ (nullable id<MSIDRequestControlling>)brokerController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+                                   tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                     fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                  error:(NSError * _Nullable * _Nullable)error
+{
+    return [self ssoExtensionInteractiveController:parameters
+                              tokenRequestProvider:tokenRequestProvider
+                                fallbackController:fallbackController
+                                             error:error];
+}
+#endif
+
++ (nullable id<MSIDRequestControlling>)ssoExtensionInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+                                                    tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                      fallbackController:(nullable id<MSIDRequestControlling>)fallbackController
+                                                                   error:(NSError * _Nullable * _Nullable)error
+{
+    if (@available(iOS 13.0, macOS 10.15, *))
+    {
+        if ([MSIDSSOExtensionInteractiveTokenRequestController canPerformRequest])
+        {
+            return [[MSIDSSOExtensionInteractiveTokenRequestController alloc] initWithInteractiveRequestParameters:parameters
+                                                                                              tokenRequestProvider:tokenRequestProvider
+                                                                                                fallbackController:fallbackController
+                                                                                                             error:error];
+        }
+    }
+    
+    return nil;
+}
+
+
++ (nullable id<MSIDRequestControlling>)localInteractiveController:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
+                                             tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                                            error:(NSError * _Nullable * _Nullable)error
+{
+#if TARGET_OS_IPHONE
     if ([MSIDAppExtensionUtil isExecutingInAppExtension]
         && !(parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview))
     {
         // If developer provides us an custom webview, we should be able to use it for authentication in app extension
         BOOL hasSupportedEmbeddedWebView = parameters.webviewType == MSIDWebviewTypeWKWebView && parameters.customWebview;
         BOOL hasSupportedSystemWebView = parameters.webviewType == MSIDWebviewTypeSafariViewController && parameters.parentViewController;
-
+        
         if (!hasSupportedEmbeddedWebView && !hasSupportedSystemWebView)
         {
             if (error)
             {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUINotSupportedInExtension, @"Interaction is not supported in an app extension.", nil, nil, nil, parameters.correlationId, nil);
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorUINotSupportedInExtension, @"Interaction is not supported in an app extension.", nil, nil, nil, parameters.correlationId, nil, YES);
             }
-
+            
             return nil;
         }
     }
-
 #endif
-
+    
     return [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:parameters
                                                                    tokenRequestProvider:tokenRequestProvider
                                                                                   error:error];
 }
 
-
-+ (BOOL)canUseBrokerOnDeviceWithParameters:(__unused MSIDInteractiveRequestParameters *)parameters
++ (nullable MSIDSignoutController *)signoutControllerForParameters:(MSIDInteractiveRequestParameters *)parameters
+                                                      oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                                          shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                                             error:(NSError **)error
 {
-#if TARGET_OS_IPHONE
-
-    if (parameters.requestType != MSIDInteractiveRequestBrokeredType)
+    if ([parameters shouldUseBroker])
     {
-        return NO;
+        if (@available(iOS 13.0, macos 10.15, *))
+        {
+            if ([MSIDSSOExtensionSignoutController canPerformRequest])
+            {
+                return [[MSIDSSOExtensionSignoutController alloc] initWithRequestParameters:parameters
+                                                                   shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                                               oauthFactory:oauthFactory
+                                                                                      error:error];
+            }
+        }
     }
-
-    if ([MSIDAppExtensionUtil isExecutingInAppExtension])
-    {
-        return NO;
-    }
-
-    if (!parameters.authority.supportsBrokeredAuthentication)
-    {
-        return NO;
-    }
-
-    if (!parameters.validateAuthority)
-    {
-        return NO;
-    }
-
-    return [self isBrokerInstalled:parameters];
-#else
-    return NO;
-#endif
-}
-
-+ (BOOL)isBrokerInstalled:(__unused MSIDInteractiveRequestParameters *)parameters
-{
-#if AD_BROKER
-    return YES;
-#elif TARGET_OS_IPHONE
-
-    if (![NSThread isMainThread])
-    {
-        __block BOOL result = NO;
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            result = [self isBrokerInstalled:parameters];
-        });
-
-        return result;
-    }
-
-    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
-    {
-        // Verify broker app url can be opened
-        return [[MSIDAppExtensionUtil sharedApplication] canOpenURL:[[NSURL alloc] initWithString:[NSString stringWithFormat:@"%@://broker", parameters.supportedBrokerProtocolScheme]]];
-    }
-    else
-    {
-        // Cannot perform app switching from application extension hosts
-        return NO;
-    }
-#else
-    return NO;
-#endif
+    
+    return [[MSIDSignoutController alloc] initWithRequestParameters:parameters
+                                           shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                       oauthFactory:oauthFactory
+                                                              error:error];
 }
 
 @end

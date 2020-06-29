@@ -38,7 +38,7 @@
 
 - (NSString *)requestOperationPath
 {
-    return @"CreateLabUser";
+    return @"CreateTempUser";
 }
 
 - (NSArray<NSURLQueryItem *> *)queryItems
@@ -50,12 +50,12 @@
         return nil;
     }
     
-    return @[[[NSURLQueryItem alloc] initWithName:@"userType" value:accountType]];
+    return @[[[NSURLQueryItem alloc] initWithName:@"usertype" value:accountType]];
 }
 
-- (NSString *)keyvaultNameKey
+- (NSString *)httpMethod
 {
-    return @"create_user_api_keyvault";
+    return @"POST";
 }
 
 #pragma mark - Helpers

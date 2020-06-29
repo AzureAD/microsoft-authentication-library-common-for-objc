@@ -36,6 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAutomationPolicyToggleAPIRequest : MSIDAutomationBaseApiRequest
 
 @property (nonatomic) MSIDAutomationPolicyType automationPolicy;
+@property (nonatomic) NSString *upn;
 @property (nonatomic) BOOL policyEnabled;
 
 @end

@@ -54,7 +54,7 @@
     [super setUp];
     [MSIDTestBrokerKeyProviderHelper addKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"] accessGroup:@"com.microsoft.adalcache" applicationTag:MSID_BROKER_SYMMETRIC_KEY_TAG];
 
-    id<MSIDTokenCacheDataSource> dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
+    id<MSIDExtendedTokenCacheDataSource> dataSource = [MSIDKeychainTokenCache defaultKeychainCache];
     [dataSource clearWithContext:nil error:nil];
     MSIDDefaultTokenCacheAccessor *otherAccessor = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     self.cacheAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:@[otherAccessor]];
@@ -68,10 +68,12 @@
 
     SecItemDelete((CFDictionaryRef)query);
 
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    
     [super tearDown];
 }
 
-- (void)testHandleBrokerResponse_whenValidBrokerResponse_shouldReturnResultAndNilError
+- (void)testHandleBrokerResponse_whenValidBrokerResponse_andSourceApplicationNonNil_andBrokerNonceMatches_shouldReturnResultAndNilError
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
 
@@ -93,7 +95,8 @@
       @"user_id": @"user@contoso.com",
       @"correlation_id": correlationId,
       @"x-broker-app-ver": @"1.0.0",
-      @"foci": @"1"
+      @"foci": @"1",
+      @"broker_nonce" : @"nonce"
       };
 
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerResponse:brokerResponseParams
@@ -103,7 +106,7 @@
     MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
 
     NSError *error = nil;
-    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL error:&error];
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNotNil(result);
     XCTAssertNil(error);
@@ -113,7 +116,8 @@
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
-    XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(result.accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(result.accessToken.realm, @"common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
@@ -124,7 +128,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 2);
@@ -132,10 +137,177 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.com/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.com");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
-- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_shouldReturnNilResultAndError
+- (void)testHandleBrokerResponse_whenValidBrokerResponse_andSourceApplicationNonNil_andNonceMissingInResponse_shouldReturnResultAndNilError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
+    
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"authority" : @"https://login.microsoftonline.com/common",
+      @"resource" : @"https://graph.windows.net",
+      @"client_id" : @"my_client_id",
+      @"id_token" : idToken,
+      @"access_token" : @"i-am-a-access-token",
+      @"refresh_token" : @"i-am-a-refresh-token",
+      @"expires_on" : expiresOnString,
+      @"user_id": @"user@contoso.com",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"foci": @"1"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerResponse:brokerResponseParams
+                                                                            redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                          encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(result.accessToken.accessToken, @"i-am-a-access-token");
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerResponse_andSourceApplicationNil_andBrokerNonceMatches_shouldReturnResultAndNilError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
+    
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"authority" : @"https://login.microsoftonline.com/common",
+      @"resource" : @"https://graph.windows.net",
+      @"client_id" : @"my_client_id",
+      @"id_token" : idToken,
+      @"access_token" : @"i-am-a-access-token",
+      @"refresh_token" : @"i-am-a-refresh-token",
+      @"expires_on" : expiresOnString,
+      @"user_id": @"user@contoso.com",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"foci": @"1",
+      @"broker_nonce" : @"nonce"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerResponse:brokerResponseParams
+                                                                            redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                          encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:nil error:&error];
+    
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+    
+    XCTAssertEqualObjects(result.accessToken.accessToken, @"i-am-a-access-token");
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerResponse_andSourceApplicationNil_andNonceMissingInResponse_shouldReturnResumeStateError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
+    
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"authority" : @"https://login.microsoftonline.com/common",
+      @"resource" : @"https://graph.windows.net",
+      @"client_id" : @"my_client_id",
+      @"id_token" : idToken,
+      @"access_token" : @"i-am-a-access-token",
+      @"refresh_token" : @"i-am-a-refresh-token",
+      @"expires_on" : expiresOnString,
+      @"user_id": @"user@contoso.com",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"foci": @"1"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerResponse:brokerResponseParams
+                                                                            redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                          encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:nil error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerResponse_andSourceApplicationNil_andNonceMismatch_shouldReturnResumeStateError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *idToken = [MSIDTestIdTokenUtil idTokenWithName:@"Contoso" upn:@"user@contoso.com" oid:nil tenantId:@"contoso.com-guid"];
+    
+    NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[[NSDate dateWithTimeIntervalSinceNow:3600] timeIntervalSince1970]];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"authority" : @"https://login.microsoftonline.com/common",
+      @"resource" : @"https://graph.windows.net",
+      @"client_id" : @"my_client_id",
+      @"id_token" : idToken,
+      @"access_token" : @"i-am-a-access-token",
+      @"refresh_token" : @"i-am-a-refresh-token",
+      @"expires_on" : expiresOnString,
+      @"user_id": @"user@contoso.com",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"foci": @"1",
+      @"broker_nonce" : @"incorrect_nonce"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerResponse:brokerResponseParams
+                                                                            redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                          encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:nil error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andSourceApplicationNonNil_andBrokerNonceMatches_shouldReturnNilResultAndError
 {
     [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
 
@@ -149,7 +321,8 @@
       @"correlation_id": correlationId,
       @"x-broker-app-ver": @"1.0.0",
       @"error_description": @"Error occured",
-      @"suberror": @"consent_required"
+      @"suberror": @"consent_required",
+      @"broker_nonce" : @"nonce"
       };
 
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
@@ -158,7 +331,7 @@
     MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
 
     NSError *error = nil;
-    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL error:&error];
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
@@ -170,6 +343,132 @@
     XCTAssertEqualObjects(error.userInfo[MSIDCorrelationIdKey], correlationId);
     XCTAssertEqualObjects(error.userInfo[MSIDBrokerVersionKey], @"1.0.0");
     XCTAssertNil(error.userInfo[MSIDUserDisplayableIdkey]);
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andSourceApplicationNonNil_andNonceMissingInResponse_shouldReturnNilResultAndError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"protocol_code": @"invalid_grant",
+      @"error_domain": @"ADAuthenticationErrorDomain",
+      @"error_code": @"213",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"error_description": @"Error occured",
+      @"suberror": @"consent_required"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
+                                                                                 redirectUri:@"x-msauth-test://com.microsoft.testapp"];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 213);
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andSourceApplicationNil_andBrokerNonceMatches_shouldReturnNilResultAndError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"protocol_code": @"invalid_grant",
+      @"error_domain": @"ADAuthenticationErrorDomain",
+      @"error_code": @"213",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"error_description": @"Error occured",
+      @"suberror": @"consent_required",
+      @"broker_nonce" : @"nonce"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
+                                                                                 redirectUri:@"x-msauth-test://com.microsoft.testapp"];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:nil error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, 213);
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andSourceApplicationNil_andNonceMissingInResponse_shouldReturnResumeStateError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"protocol_code": @"invalid_grant",
+      @"error_domain": @"ADAuthenticationErrorDomain",
+      @"error_code": @"213",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"error_description": @"Error occured",
+      @"suberror": @"consent_required",
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
+                                                                                 redirectUri:@"x-msauth-test://com.microsoft.testapp"];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:nil error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
+}
+
+- (void)testHandleBrokerResponse_whenValidBrokerErrorResponse_andSourceApplicationNil_andNonceMismatch_shouldReturnResumeStateError
+{
+    [self saveResumeStateWithAuthority:@"https://login.microsoftonline.com/common"];
+    
+    NSString *correlationId = [[NSUUID UUID] UUIDString];
+    
+    NSDictionary *brokerResponseParams =
+    @{
+      @"protocol_code": @"invalid_grant",
+      @"error_domain": @"ADAuthenticationErrorDomain",
+      @"error_code": @"213",
+      @"correlation_id": correlationId,
+      @"x-broker-app-ver": @"1.0.0",
+      @"error_description": @"Error occured",
+      @"suberror": @"consent_required",
+      @"broker_nonce" : @"incorrect_nonce"
+      };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
+                                                                                 redirectUri:@"x-msauth-test://com.microsoft.testapp"];
+    
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:nil error:&error];
+    
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorBrokerMismatchedResumeState);
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Broker nonce mismatch!");
 }
 
 - (void)testHandleBrokerResponse_whenBrokerIntuneErrorResponse_withNoAdditionalToken_shouldReturnNilResultAndError
@@ -186,7 +485,8 @@
       @"error_description" : @"AADSTS53005: Application needs to enforce intune protection policies",
       @"protocol_code" : @"unauthorized_client",
       @"suberror" : @"protection_policies_required",
-      @"user_id": @"user@contoso.com"
+      @"user_id": @"user@contoso.com",
+      @"broker_nonce" : @"nonce"
       };
 
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
@@ -195,7 +495,7 @@
     MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
 
     NSError *error = nil;
-    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL error:&error];
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
@@ -243,7 +543,8 @@
       @"protocol_code" : @"unauthorized_client",
       @"suberror" : @"protection_policies_required",
       @"intune_mam_token": encryptedIntuneMAMToken[@"response"],
-      @"intune_mam_token_hash": encryptedIntuneMAMToken[@"hash"]
+      @"intune_mam_token_hash": encryptedIntuneMAMToken[@"hash"],
+      @"broker_nonce" : @"nonce"
       };
 
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
@@ -252,7 +553,7 @@
     MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
 
     NSError *error = nil;
-    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL error:&error];
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
@@ -271,7 +572,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"intune-mam-accesstoken");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -279,7 +581,8 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"intune-mam-refreshtoken");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
 }
 
 - (void)testHandleBrokerResponse_whenBrokerErrorResponseWithHttpHeaders_shouldReturnNilResultAndErrorWithHeaders
@@ -295,7 +598,8 @@
       @"correlation_id": correlationId,
       @"x-broker-app-ver": @"1.0.0",
       @"error_description": @"Error occured",
-      @"http_headers": @"Content-Type=application%2Fjson%3B+charset%3Dutf-8&P3P=CP%3D%22DSP+CUR+OTPi+IND+OTRi+ONL+FIN%22&Access-Control-Allow-Origin=%2A&x-ms-request-id=1739e4e0-4b6e-4aba-b404-4979a0d41c00&Cache-Control=private&Date=Sat%2C+17+Nov+2018+23%3A20%3A03+GMT&Strict-Transport-Security=max-age%3D31536000%3B+includeSubDomains&client-request-id=14202594-2dfc-4ee8-a908-d337ca2b266b&Content-Length=975&X-Content-Type-Options=nosniff"
+      @"http_headers": @"Content-Type=application%2Fjson%3B+charset%3Dutf-8&P3P=CP%3D%22DSP+CUR+OTPi+IND+OTRi+ONL+FIN%22&Access-Control-Allow-Origin=%2A&x-ms-request-id=1739e4e0-4b6e-4aba-b404-4979a0d41c00&Cache-Control=private&Date=Sat%2C+17+Nov+2018+23%3A20%3A03+GMT&Strict-Transport-Security=max-age%3D31536000%3B+includeSubDomains&client-request-id=14202594-2dfc-4ee8-a908-d337ca2b266b&Content-Length=975&X-Content-Type-Options=nosniff",
+      @"broker_nonce" : @"nonce"
       };
 
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerErrorResponse:brokerResponseParams
@@ -304,7 +608,7 @@
     MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
 
     NSError *error = nil;
-    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL error:&error];
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNil(result);
     XCTAssertNotNil(error);
@@ -353,7 +657,8 @@
       @"expires_on" : expiresOnString,
       @"user_id": @"user@contoso.com",
       @"correlation_id": correlationId,
-      @"x-broker-app-ver": @"1.0.0"
+      @"x-broker-app-ver": @"1.0.0",
+      @"broker_nonce" : @"nonce"
       };
 
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createLegacyBrokerResponse:brokerResponseParams
@@ -363,7 +668,7 @@
     MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
 
     NSError *error = nil;
-    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL error:&error];
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
 
     XCTAssertNotNil(result);
     XCTAssertNil(error);
@@ -373,7 +678,8 @@
     XCTAssertEqualObjects(result.rawIdToken, idToken);
     XCTAssertEqualObjects(result.accessToken.clientId, @"my_client_id");
     XCTAssertEqualObjects(result.account.accountIdentifier.displayableId, @"user@contoso.com");
-    XCTAssertEqualObjects(result.accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(result.accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(result.accessToken.realm, @"common");
     XCTAssertEqualObjects(result.accessToken.resource, @"https://graph.windows.net");
     XCTAssertFalse(result.accessToken.isExpired);
     XCTAssertEqualObjects(result.correlationId.UUIDString, correlationId);
@@ -384,7 +690,8 @@
     MSIDLegacyAccessToken *accessToken = accessTokens[0];
     XCTAssertEqualObjects(accessToken.accessToken, @"i-am-a-access-token");
     XCTAssertEqualObjects(accessToken.idToken, idToken);
-    XCTAssertEqualObjects(accessToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(accessToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(accessToken.realm, @"common");
 
     NSArray *refreshTokens = [MSIDTestCacheAccessorHelper getAllLegacyRefreshTokens:self.cacheAccessor];
     XCTAssertEqual([refreshTokens count], 1);
@@ -392,7 +699,64 @@
     MSIDLegacyRefreshToken *refreshToken = refreshTokens[0];
     XCTAssertEqualObjects(refreshToken.refreshToken, @"i-am-a-refresh-token");
     XCTAssertEqualObjects(refreshToken.idToken, idToken);
-    XCTAssertEqualObjects(refreshToken.authority.url.absoluteString, @"https://login.microsoftonline.de/common");
+    XCTAssertEqualObjects(refreshToken.environment, @"login.microsoftonline.de");
+    XCTAssertEqualObjects(refreshToken.realm, @"common");
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIntiatedByAdalAndHasCompletionBlock_shouldReturnYes
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndRequestIsNotIntiatedByAdalAndHasCompletionBlock_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_MSAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertFalse(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndNoResumeDictionaryAndNoCompletionBlock_shouldReturnNo
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:NO];
+    
+    XCTAssertFalse(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs2AndNoResumeDictionaryAndHasCompletionBlock_shouldReturnYes
+{
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=2&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertTrue(result);
+}
+
+-(void)testCanHandleBrokerResponse_whenProtocolVersionIs3AndRequestIntiatedByAdalAndHasCompletionBlock_shouldReturnNo
+{
+    NSDictionary *resumeDictionary = @{MSID_SDK_NAME_KEY: MSID_ADAL_SDK_NAME};
+    [[NSUserDefaults standardUserDefaults] setObject:resumeDictionary forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+    NSURL *url = [[NSURL alloc] initWithString:@"testapp://com.microsoft.testapp/broker?msg_protocol_ver=3&response=someEncryptedResponse"];
+    MSIDLegacyBrokerResponseHandler *brokerResponseHandler = [[MSIDLegacyBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV1Oauth2Factory new] tokenResponseValidator:[MSIDLegacyTokenResponseValidator new]];
+    
+    BOOL result = [brokerResponseHandler canHandleBrokerResponse:url hasCompletionBlock:YES];
+    
+    XCTAssertFalse(result);
 }
 
 #pragma mark - Helpers
@@ -402,7 +766,9 @@
     NSDictionary *resumeState = @{@"authority": authority,
                                   @"resource": @"https://graph.windows.net",
                                   @"keychain_group": @"com.microsoft.adalcache",
-                                  @"redirect_uri": @"x-msauth-test://com.microsoft.testapp"
+                                  @"redirect_uri": @"x-msauth-test://com.microsoft.testapp",
+                                  @"sdk_name": @"adal-objc",
+                                  @"broker_nonce" : @"nonce"
                                   };
 
     [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];

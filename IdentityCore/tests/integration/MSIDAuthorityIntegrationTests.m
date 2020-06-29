@@ -46,6 +46,8 @@
 - (void)setUp
 {
     [super setUp];
+    MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
 }
 
 - (void)tearDown
@@ -55,9 +57,6 @@
     [MSIDAuthority.openIdConfigurationCache removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [MSIDAdfsAuthorityResolver.cache removeAllObjects];
-
-    MSIDAADNetworkConfiguration.defaultConfiguration.endpointProvider = [MSIDAADEndpointProvider new];
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = nil;
     
     [MSIDTestURLSession clearResponses];
 }
@@ -81,9 +80,7 @@
     [response setResponseJSON:responseJson];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:response];
     
@@ -133,9 +130,7 @@
                                                          respondWithError:[NSError new]];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
     
@@ -240,16 +235,14 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnown_shouldReturnErrorNil
 {
-    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" authority];
+    __auto_type authority = [@"https://login.microsoftonline.com/common/qwe" aadAuthority];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Flogin.microsoftonline.com%2Fcommon%2Foauth2%2Fauthorize&" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
@@ -281,16 +274,14 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsNotKnown_shouldReturnErrorNil
 {
-    __auto_type authority = [@"https://example.com/common/qwe" authority];
+    __auto_type authority = [@"https://example.com/common/qwe" aadAuthority];
     __auto_type httpResponse = [[NSHTTPURLResponse alloc] initWithURL:[NSURL new] statusCode:200 HTTPVersion:nil headerFields:nil];
     __auto_type requestUrl = [@"https://login.microsoftonline.com/common/discovery/instance?api-version=1.1&authorization_endpoint=https%3A%2F%2Fexample.com%2Fcommon%2Foauth2%2Fauthorize&" msidUrl];
     MSIDTestURLResponse *response = [MSIDTestURLResponse request:requestUrl
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://example.com/common/.well-known/openid-configuration",
@@ -330,9 +321,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
@@ -384,9 +373,7 @@
                                                          respondWithError:error];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
 
@@ -444,9 +431,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"error" : @"invalid_instance"};
     [response setResponseJSON:responseJson];
@@ -476,9 +461,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"error" : @"invalid_instance"};
     [response setResponseJSON:responseJson];
@@ -513,7 +496,7 @@
 
 - (void)testDiscoverAuthority_whenAuthorityIsAADValidateYesAuthroityIsKnownAADApiVersionV2_shouldReturnErrorNil
 {
-    MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion = @"v2.0";
+    [MSIDAADNetworkConfiguration.defaultConfiguration setValue:@"v2.0" forKey:@"aadApiVersion"];
     
     __auto_type authorityUrl = [@"https://example.com/common/qwe" msidUrl];
     __auto_type authority = [[MSIDAADAuthority alloc] initWithURL:authorityUrl context:nil error:nil];
@@ -523,9 +506,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : @"https://login.microsoftonline.com/common/.well-known/openid-configuration",
@@ -589,9 +570,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
@@ -633,9 +612,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
@@ -676,9 +653,7 @@
                                                          respondWithError:error];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
 
@@ -717,7 +692,7 @@
 
 - (void)testDiscoverAuthority_whenValidCloudADFSWithNilResponseAndErrorAuthorityValidateYes_shouldReturnError
 {
-    __auto_type authority = [@"https://login.windows.com/adfs/qwe" authority];
+    __auto_type authority = [@"https://login.windows.com/adfs/qwe" adfsAuthority];
     __auto_type upn = @"user@microsoft.com";
     
     // On Prem Drs Response
@@ -727,9 +702,7 @@
                                                          respondWithError:error];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     responseWithError->_requestHeaders = headers;
     [MSIDTestURLSession addResponse:responseWithError];
 
@@ -786,9 +759,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
@@ -844,9 +815,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{@"IdentityProviderService" : @{@"PassiveAuthEndpoint" : @"https://example.com/adfs/ls"}};
     [response setResponseJSON:responseJson];
@@ -921,9 +890,7 @@
                                                          reponse:httpResponse];
     NSMutableDictionary *headers = [[MSIDDeviceId deviceId] mutableCopy];
     headers[@"Accept"] = @"application/json";
-#if TARGET_OS_IPHONE
     headers[@"x-ms-PkeyAuth"] = @"1.0";
-#endif
     response->_requestHeaders = headers;
     __auto_type responseJson = @{
                                  @"tenant_discovery_endpoint" : openIdConfigurationEndpoint.absoluteString,
@@ -939,7 +906,10 @@
     [MSIDTestURLSession addResponse:response];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"Discover AAD Authority"];
-    [authority resolveAndValidate:YES userPrincipalName:nil context:nil completionBlock:^(NSURL * openIdConfigurationEndpoint, BOOL validated, NSError *error)
+    [authority resolveAndValidate:YES
+                userPrincipalName:nil
+                          context:nil
+                  completionBlock:^(__unused NSURL * openIdConfigurationEndpoint, __unused BOOL validated, __unused NSError *error)
      {
          [expectation fulfill];
      }];

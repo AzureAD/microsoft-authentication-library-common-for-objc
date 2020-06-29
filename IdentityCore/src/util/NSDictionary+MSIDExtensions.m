@@ -55,14 +55,14 @@
         NSArray *queryElements = [query componentsSeparatedByString:@"="];
         if (queryElements.count > 2)
         {
-            MSID_LOG_WARN(nil, @"Query parameter must be a form key=value: %@", query);
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Query parameter must be a form key=value: %@", query);
             continue;
         }
         
         NSString *key = isFormEncoded ? [queryElements[0] msidTrimmedString].msidWWWFormURLDecode : [queryElements[0] msidTrimmedString].msidURLDecode;
         if ([NSString msidIsStringNilOrBlank:key])
         {
-            MSID_LOG_WARN(nil, @"Query parameter must have a key");
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Query parameter must have a key");
             continue;
         }
         
@@ -78,15 +78,6 @@
     return queryDict;
 }
 
-+ (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error
-{
-    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
-                                                         options:NSJSONReadingMutableContainers
-                                                           error:error];
-    
-    return json;
-}
-
 - (NSString *)msidURLEncode
 {
     return [NSString msidURLEncodedStringFromDictionary:self];
@@ -98,60 +89,64 @@
 }
 
 
-- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
+- (NSDictionary *)msidDictionaryByRemovingFields:(NSArray *)fieldsToRemove
 {
     NSMutableDictionary *mutableDict = [self mutableCopy];
     [mutableDict removeObjectsForKeys:fieldsToRemove];
     return mutableDict;
 }
 
-
-- (BOOL)msidAssertType:(Class)type
-               ofField:(NSString *)field
-               context:(id <MSIDRequestContext>)context
-             errorCode:(NSInteger)errorCode
-                 error:(NSError **)error
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
 {
-    id fieldValue = self[field];
-    if (![fieldValue isKindOfClass:type])
-    {
-        __auto_type message = [NSString stringWithFormat:@"%@ is not a %@.", field, type];
-        
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     errorCode,
-                                     message,
-                                     nil,
-                                     nil, nil, context.correlationId, nil);
-        }
-        
-        MSID_LOG_ERROR(nil, @"%@", message);
-        return NO;
-    }
-    
-    return YES;
+    return [self msidAssertTypeIsOneOf:@[type] ofKey:key required:required error:error];
 }
 
-- (BOOL)msidAssertContainsField:(NSString *)field
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error
 {
-    id fieldValue = self[field];
-    if (!fieldValue)
+    return [self msidAssertTypeIsOneOf:types ofKey:key required:required context:nil errorCode:MSIDErrorInvalidInternalParameter error:error];
+}
+
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types
+                        ofKey:(NSString *)key
+                     required:(BOOL)required
+                      context:(id<MSIDRequestContext>)context
+                    errorCode:(NSInteger)errorCode
+                        error:(NSError **)error
+{
+    id obj = self[key];
+    if (!obj && !required) return YES;
+    
+    NSString *message;
+    if (!obj)
     {
-        __auto_type message = [NSString stringWithFormat:@"%@ is missing.", field];
-        
-        if (error)
+        message = [NSString stringWithFormat:@"%@ key is missing in dictionary.", key];
+    }
+    else
+    {
+        BOOL matched = NO;
+        __auto_type typesSet = [[NSSet alloc] initWithArray:types];
+        for (Class type in typesSet)
         {
-            *error = MSIDCreateError(MSIDErrorDomain,
-                                     MSIDErrorServerInvalidResponse,
-                                     message,
-                                     nil,
-                                     nil, nil, context.correlationId, nil);
+            if ([obj isKindOfClass:type])
+            {
+                matched = YES;
+                break;
+            }
         }
         
-        MSID_LOG_ERROR(nil, @"%@", message);
+        if (!matched)
+        {
+            NSString *allowedTypesString = [types componentsJoinedByString:@","];
+            message = [NSString stringWithFormat:@"%@ key in dictionary is not of expected type. Allowed types: %@.", key, allowedTypesString];
+        }
+    }
+    
+    if (message)
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, errorCode, message, nil, nil, nil, context.correlationId, nil, YES);
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"%@", message);
+        
         return NO;
     }
     
@@ -165,8 +160,7 @@
 
     if (!serializedData)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %ld, %@", (long)serializationError.code, serializationError.domain);
-        MSID_LOG_PII(MSIDLogLevelWarning, nil, context, @"Failed to serialize data with error %@", serializationError);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, context, @"Failed to serialize data with error %@", MSID_PII_LOG_MASKABLE(serializationError));
         
         return nil;
     }
@@ -191,6 +185,107 @@
     }
 
     return cleanedDictionary;
+}
+
+- (NSDictionary *)msidNormalizedJSONDictionary
+{
+    NSMutableDictionary *normalizedDictionary = [NSMutableDictionary new];
+    
+    [self enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
+        
+        if ([obj isKindOfClass:[NSDictionary class]])
+        {
+            normalizedDictionary[key] = [[self objectForKey:key] msidNormalizedJSONDictionary];
+        }
+        else if ([obj isKindOfClass:[NSArray class]])
+        {
+            NSMutableArray *normalizedArray = [NSMutableArray new];
+            
+            for (id arrayObject in (NSArray *)obj)
+            {
+                if ([arrayObject isKindOfClass:[NSDictionary class]])
+                {
+                    [normalizedArray addObject:[arrayObject msidNormalizedJSONDictionary]];
+                }
+                else if (![arrayObject isKindOfClass:[NSNull class]])
+                {
+                    [normalizedArray addObject:arrayObject];
+                }
+            }
+            
+            normalizedDictionary[key] = normalizedArray;
+        }
+        else if (![obj isKindOfClass:[NSNull class]])
+        {
+            normalizedDictionary[key] = [self objectForKey:key];
+        }
+    }];
+    
+    return normalizedDictionary;
+}
+
+- (NSString *)msidStringObjectForKey:(NSString *)key
+{
+    return [self msidObjectForKey:key ofClass:[NSString class]];
+}
+
+- (NSInteger)msidIntegerObjectForKey:(NSString *)key
+{
+    if ([self msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:key required:NO error:nil])
+    {
+        return [self[key] integerValue];
+    }
+    
+    return 0;
+}
+
+- (BOOL)msidBoolObjectForKey:(NSString *)key
+{
+    if ([self msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:key required:NO error:nil])
+    {
+        return [self[key] boolValue];
+    }
+    
+    return NO;
+}
+
+- (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass
+{
+    id object = [self objectForKey:key];
+    
+    if (object && [object isKindOfClass:requiredClass])
+    {
+        return object;
+    }
+    
+    return nil;
+}
+
+- (NSMutableDictionary *)mutableDeepCopy
+{
+    NSMutableDictionary *returnDict = [[NSMutableDictionary alloc] initWithCapacity:[self count]];
+    NSArray *keys = [self allKeys];
+    for (id key in keys)
+    {
+        id value = [self valueForKey:key];
+        id copy = nil;
+        if ([value respondsToSelector:@selector(mutableDeepCopy)])
+        {
+            copy = [value mutableDeepCopy];
+        }
+        else if ([value respondsToSelector:@selector(mutableCopyWithZone:)])
+        {
+            copy = [value mutableCopy];
+        }
+        if (copy == nil)
+        {
+            copy = [value copy];
+        }
+        
+        [returnDict setObject:copy forKey:key];
+    }
+    
+    return returnDict;
 }
 
 @end

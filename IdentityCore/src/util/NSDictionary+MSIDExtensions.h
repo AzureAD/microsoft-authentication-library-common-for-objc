@@ -27,24 +27,30 @@
 
 + (NSDictionary *)msidDictionaryFromURLEncodedString:(NSString *)string;
 + (NSDictionary *)msidDictionaryFromWWWFormURLEncodedString:(NSString *)string;
-+ (NSDictionary *)msidDictionaryFromJsonData:(NSData *)data error:(NSError **)error;
 
 - (NSString *)msidURLEncode;
 - (NSString *)msidWWWFormURLEncode;
 
-- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove;
+- (NSDictionary *)msidDictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 - (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context;
 
 - (NSDictionary *)msidDictionaryWithoutNulls;
+- (NSString *)msidStringObjectForKey:(NSString *)key;
+- (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass;
+- (NSInteger)msidIntegerObjectForKey:(NSString *)key;
+- (BOOL)msidBoolObjectForKey:(NSString *)key;
 
-- (BOOL)msidAssertType:(Class)type
-               ofField:(NSString *)field
-               context:(id <MSIDRequestContext>)context
-             errorCode:(NSInteger)errorCode
-                 error:(NSError **)error;
+- (BOOL)msidAssertType:(Class)type ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error;
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types ofKey:(NSString *)key required:(BOOL)required error:(NSError **)error;
+- (BOOL)msidAssertTypeIsOneOf:(NSArray<Class> *)types
+                        ofKey:(NSString *)key
+                     required:(BOOL)required
+                      context:(id<MSIDRequestContext>)context
+                    errorCode:(NSInteger)errorCode
+                        error:(NSError **)error;
 
-- (BOOL)msidAssertContainsField:(NSString *)field
-                        context:(id <MSIDRequestContext>)context
-                          error:(NSError **)error;
+- (NSDictionary *)msidNormalizedJSONDictionary;
+
+- (NSMutableDictionary *)mutableDeepCopy;
 
 @end

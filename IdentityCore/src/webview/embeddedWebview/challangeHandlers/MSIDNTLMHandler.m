@@ -44,6 +44,9 @@
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(__unused WKWebView *)webview
+#if TARGET_OS_IPHONE
+       parentController:(UIViewController *)parentViewController
+#endif
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
@@ -51,15 +54,16 @@
     {
         // This is the NTLM challenge: use the identity to authenticate:
         
-        MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"Attempting to handle NTLM challenge");
-        MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"Attempting to handle NTLM challenge host: %@", challenge.protectionSpace.host);
-        
-        [MSIDNTLMUIPrompt presentPrompt:^(NSString *username, NSString *password, BOOL cancel)
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Attempting to handle NTLM challenge host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
+#if TARGET_OS_IPHONE
+        [MSIDNTLMUIPrompt presentPromptInParentController:parentViewController completionHandler:^(NSString *username, NSString *password, BOOL cancel)
+#else
+        [MSIDNTLMUIPrompt presentPromptWithWebView:webview completion:^(NSString *username, NSString *password, BOOL cancel)
+#endif
          {
              if (cancel)
              {
-                 MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"NTLM challenge cancelled");
-                 MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"NTLM challenge cancelled - host: %@", challenge.protectionSpace.host);
+                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM challenge cancelled - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
                  
                  completionHandler(NSURLSessionAuthChallengePerformDefaultHandling, nil);
              }
@@ -71,8 +75,7 @@
                  
                  completionHandler(NSURLSessionAuthChallengeUseCredential, credential);
                  
-                 MSID_LOG_NO_PII(MSIDLogLevelInfo, nil, context, @"NTLM credentials added");
-                 MSID_LOG_PII(MSIDLogLevelInfo, nil, context, @"NTLM credentials added - host: %@", challenge.protectionSpace.host);
+                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"NTLM credentials added - host: %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
              }
          }];
     }//@synchronized

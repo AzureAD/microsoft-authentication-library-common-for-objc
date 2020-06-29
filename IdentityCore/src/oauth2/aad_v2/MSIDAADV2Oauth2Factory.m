@@ -33,19 +33,27 @@
 #import "MSIDIdToken.h"
 #import "MSIDOauth2Factory+Internal.h"
 #import "MSIDAADV2WebviewFactory.h"
-#import "MSIDAuthorityFactory.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRefreshTokenGrantRequest.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
+#import "MSIDAADAuthority.h"
+#import "MSIDLastRequestTelemetry.h"
+#import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADV2Oauth2Factory
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV2;
+}
 
 #pragma mark - Helpers
 
@@ -59,7 +67,7 @@
         {
             NSString *errorMessage = [NSString stringWithFormat:@"Wrong token response type passed, which means wrong factory is being used (expected MSIDAADV2TokenResponse, passed %@", response.class];
 
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
         }
 
         return NO;
@@ -103,12 +111,11 @@
 
     if (!response.clientInfo)
     {
-        MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Client info was not returned in the server response");
-        MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Client info was not returned in the server response");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Client info was not returned in the server response");
         
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Client info was not returned in the server response", nil, nil, nil, context.correlationId, nil, NO);
         }
         return NO;
     }
@@ -130,63 +137,12 @@
     }
 
     // We want to keep case as it comes from the server side, because scopes are case sensitive by OIDC spec
-    NSOrderedSet *responseScopes = [response.scope msidScopeSet];
-
-    if (!response.scope)
+    if (!accessToken.scopes)
     {
-        responseScopes = configuration.scopes;
+        accessToken.scopes = configuration.scopes;
     }
-
-    accessToken.scopes = responseScopes;
-    accessToken.authority = [self authorityFromRequestAuthority:accessToken.authority tokenResponse:response error:nil];
 
     return YES;
-}
-
-- (BOOL)fillIDToken:(MSIDIdToken *)token
-       fromResponse:(MSIDTokenResponse *)response
-      configuration:(MSIDConfiguration *)configuration
-{
-    BOOL result = [super fillIDToken:token fromResponse:response configuration:configuration];
-
-    if (!result)
-    {
-        return NO;
-    }
-
-    token.authority = [self authorityFromRequestAuthority:token.authority tokenResponse:response error:nil];
-
-    return YES;
-}
-
-- (BOOL)fillAccount:(MSIDAccount *)account
-       fromResponse:(MSIDAADV2TokenResponse *)response
-      configuration:(MSIDConfiguration *)configuration
-{
-    if (![self checkResponseClass:response context:nil error:nil])
-    {
-        return NO;
-    }
-
-    BOOL result = [super fillAccount:account fromResponse:response configuration:configuration];
-
-    if (!result)
-    {
-        return NO;
-    }
-
-    account.authority = [self authorityFromRequestAuthority:account.authority tokenResponse:response error:nil];
-    return YES;
-}
-
-- (MSIDAuthority *)authorityFromRequestAuthority:(MSIDAuthority *)requestAuthority
-                                   tokenResponse:(MSIDTokenResponse *)response
-                                           error:(NSError **)error
-{
-    return [MSIDAuthorityFactory authorityFromUrl:requestAuthority.url
-                                         rawTenant:response.idTokenObj.realm
-                                           context:nil
-                                             error:error];
 }
 
 #pragma mark - Webview
@@ -231,6 +187,7 @@
     }
 
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                             authScheme:parameters.authScheme
                                                                                                                clientId:parameters.clientId
                                                                                                            enrollmentId:enrollmentId
                                                                                                                   scope:allScopes
@@ -240,7 +197,15 @@
                                                                                                            codeVerifier:pkceCodeVerifier
                                                                                                         extraParameters:parameters.extraTokenRequestParameters
                                                                                                                 context:parameters];
+
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
 }
@@ -259,6 +224,7 @@
                                                                           error:nil];
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                   authScheme:parameters.authScheme
                                                                                                      clientId:parameters.clientId
                                                                                                  enrollmentId:enrollmentId
                                                                                                         scope:allScopes
@@ -266,9 +232,36 @@
                                                                                                        claims:claims
                                                                                               extraParameters:parameters.extraTokenRequestParameters
                                                                                                       context:parameters];
+    
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
+}
+
+#pragma mark - Authority
+
+- (MSIDAuthority *)resultAuthorityWithConfiguration:(MSIDConfiguration *)configuration
+                                      tokenResponse:(MSIDTokenResponse *)response
+                                              error:(NSError **)error
+{
+    if (response.idTokenObj.realm)
+    {
+        return [MSIDAADAuthority aadAuthorityWithEnvironment:configuration.authority.environment
+                                                   rawTenant:response.idTokenObj.realm
+                                                     context:nil
+                                                       error:error];
+    }
+    else
+    {
+        return configuration.authority;
+    }
 }
 
 @end

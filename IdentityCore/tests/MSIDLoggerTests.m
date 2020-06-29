@@ -44,7 +44,7 @@
 - (void)testLog_whenLogLevelNothingMessageValid_shouldNotThrow
 {
     [self keyValueObservingExpectationForObject:[MSIDTestLogger sharedLogger] keyPath:@"callbackInvoked" expectedValue:@1];
-    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelNothing context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"Message"]);
+    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelNothing context:nil correlationId:nil containsPII:NO filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"Message"]);
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil([MSIDTestLogger sharedLogger].lastMessage);
@@ -52,7 +52,7 @@
 
 - (void)testLog_whenLogLevelErrorMessageNil_shouldNotThrow
 {
-    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:nil]);
+    XCTAssertNoThrow([[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:nil]);
 }
 
 #pragma mark - PII flag
@@ -63,7 +63,7 @@
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES ignoreIfPIIEnabled:NO format:@"pii-message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:YES filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"pii-message"];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
@@ -77,25 +77,12 @@
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"non-pii-message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"non-pii-message"];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
     XCTAssertEqual(testLogger.lastLevel, MSIDLogLevelError);
     XCTAssertFalse(testLogger.containsPII);
-}
-
-- (void)testLog_whenPiiEnabledNonPiiMessage_andIgnorePiiEnabledYES_shouldNotReturnMessageInCallback
-{
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
-    MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
-    
-    __auto_type expectation = [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [expectation setInverted:YES];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:YES format:@"non-pii-message"];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertNil(testLogger.lastMessage);
 }
 
 - (void)testLog_whenPiiNotEnabledNonPiiMessage_shouldReturnMessageInCallback
@@ -104,7 +91,7 @@
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:NO ignoreIfPIIEnabled:NO format:@"non-pii-message"];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"non-pii-message"];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
@@ -112,17 +99,17 @@
     XCTAssertFalse(testLogger.containsPII);
 }
 
-- (void)testLog_whenPiiNotEnabledPiiMessage_shouldNotInvokeCallback
+- (void)testLog_whenPiiNotEnabledPiiMessage_shouldInvokeCallbackWithMaskedMessage
 {
     [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
-    __auto_type expectation = [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [expectation setInverted:YES];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil isPII:YES ignoreIfPIIEnabled:NO format:@"pii-message"];
+    [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:YES filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"pii-message %@", MSID_PII_LOG_MASKABLE(@"test")];
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
-    XCTAssertNil(testLogger.lastMessage);
+    XCTAssertNotNil(testLogger.lastMessage);
+    XCTAssertTrue([testLogger.lastMessage containsString:@"pii-message Masked(not-null)"]);
 }
 
 #pragma mark - Log macros
@@ -132,7 +119,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_ERROR(nil, @"Error message! %d", 0);
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Error message! %d", 0);
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -146,7 +133,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WARN(nil, @"Oh no, a %@ thing happened!", @"bad");
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Oh no, a %@ thing happened!", @"bad");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -160,7 +147,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_INFO(nil, @"This informative message has been seen %d times", 20);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"This informative message has been seen %d times", 20);
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -174,7 +161,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_VERBOSE(nil, @"So much noise, this message is %@ useful", @"barely");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,nil, @"So much noise, this message is %@ useful", @"barely");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -189,7 +176,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_ERROR_PII(nil, @"userId: %@ failed to sign in", @"user@contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"userId: %@ failed to sign in", @"user@contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -204,7 +191,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_WARN_PII(nil, @"%@ pressed the cancel button", @"user@contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"%@ pressed the cancel button", @"user@contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -219,7 +206,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_INFO_PII(nil, @"%@ is trying to log in", @"user@contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"%@ is trying to log in", @"user@contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -234,12 +221,42 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_VERBOSE_PII(nil, @"waiting on response from %@", @"contoso.com");
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"waiting on response from %@", @"contoso.com");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
     XCTAssertTrue(logger.containsPII);
     XCTAssertTrue([logger.lastMessage containsString:@"waiting on response from contoso.com"]);
+    XCTAssertEqual(logger.lastLevel, MSIDLogLevelVerbose);
+}
+
+- (void)testLogWithContextMacro_whenContainsPii_andPiiDisabled_shouldLogMessageWithMaskedPii
+{
+    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
+    
+    [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertNotNil(logger.lastMessage);
+    XCTAssertFalse(logger.containsPII);
+    XCTAssertTrue([logger.lastMessage containsString:@"My pii message arg1, pii param Masked(not-null)"]);
+    XCTAssertEqual(logger.lastLevel, MSIDLogLevelVerbose);
+}
+
+- (void)testLogWithContextMacro_whenContainsPii_andPiiEnabled_shouldLogMessageWithRawPii
+{
+    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
+    
+    [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"My pii message %@, pii param %@", @"arg1", MSID_PII_LOG_MASKABLE(@"very sensitive data"));
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+    
+    XCTAssertNotNil(logger.lastMessage);
+    XCTAssertTrue(logger.containsPII);
+    XCTAssertTrue([logger.lastMessage containsString:@"My pii message arg1, pii param very sensitive data"]);
     XCTAssertEqual(logger.lastLevel, MSIDLogLevelVerbose);
 }
 
@@ -252,7 +269,7 @@
     
     __auto_type expectation = [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
     [expectation setInverted:YES];
-    MSID_LOG_ERROR(nil, @"test error message");
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"test error message");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNil(logger.lastMessage);
@@ -264,7 +281,7 @@
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
-    MSID_LOG_ERROR(nil, @"test error message");
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"test error message");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(logger.lastMessage);
@@ -280,7 +297,7 @@
     
     __auto_type expectation = [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
     [expectation setInverted:YES];
-    MSID_LOG_VERBOSE(nil, @"test error message");
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,nil, @"test error message");
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNil(logger.lastMessage);

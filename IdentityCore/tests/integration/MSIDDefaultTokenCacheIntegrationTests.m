@@ -50,7 +50,7 @@
 {
     MSIDDefaultTokenCacheAccessor *_cacheAccessor;
     MSIDLegacyTokenCacheAccessor *_otherAccessor;
-    id<MSIDTokenCacheDataSource> _dataSource;
+    id<MSIDExtendedTokenCacheDataSource> _dataSource;
 }
 @end
 
@@ -62,7 +62,7 @@
 {
 
 #if TARGET_OS_IOS
-    _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil];
+    _dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:nil error:nil];
 #else
     // TODO: this should be replaced with a real macOS datasource instead
     _dataSource = [[MSIDTestCacheDataSource alloc] init];
@@ -77,7 +77,7 @@
     [super tearDown];
 
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
-    [_dataSource removeItemsWithTokenKey:[MSIDCacheKey new] context:nil error:nil];
+    [_dataSource removeTokensWithKey:[MSIDCacheKey new] context:nil error:nil];
 }
 
 #pragma mark - Saving
@@ -127,8 +127,11 @@
     
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.applicationIdentifier = @"app.bundle.id";
+    
     NSError *error = nil;
-    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:configuration
                                                      response:tokenResponse
                                                       factory:[MSIDAADV2Oauth2Factory new]
                                                       context:nil
@@ -206,6 +209,49 @@
     XCTAssertEqualObjects([accessTokensInCache[0] accessToken], tokenResponse2.accessToken);
 }
 
+- (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentAuthorities_shouldSave2Tokens
+{
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
+    
+    NSError *error = nil;
+    
+    // save 1st token with default test scope
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                     response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
+                                                      context:nil
+                                                        error:&error];
+    
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+    
+    // save 2nd token with different authority
+    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2TokenResponseWithAT:DEFAULT_TEST_ACCESS_TOKEN
+                                                                                  RT:DEFAULT_TEST_REFRESH_TOKEN
+                                                                              scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                             idToken:[MSIDTestIdTokenUtil idTokenWithName:@"name" upn:@"upn@upn.com" oid:@"oid" tenantId:@"tid2"]
+                                                                                 uid:DEFAULT_TEST_UID
+                                                                                utid:DEFAULT_TEST_UTID
+                                                                            familyId:nil];
+    
+    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/8eaef023-2b34-4da1-9baa-8bc8c9d6a490"
+                                                                                clientId:DEFAULT_TEST_CLIENT_ID
+                                                                             redirectUri:nil
+                                                                                  target:DEFAULT_TEST_SCOPE];
+    
+    result = [_cacheAccessor saveTokensWithConfiguration:configuration
+                                                response:tokenResponse2
+                                                 factory:[MSIDAADV2Oauth2Factory new]
+                                                 context:nil
+                                                   error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+    
+    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
+    XCTAssertEqual([accessTokensInCache count], 2);
+}
+
 - (void)testSaveTokensWithRequestParams_withAccessTokenSameEverythingWithScopesDontIntersect_shouldWriteNewToken
 {
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
@@ -239,42 +285,6 @@
     XCTAssertEqual([accessTokensInCache count], 2);
 }
 
-- (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentAuthorities_shouldSave2Tokens
-{
-    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
-
-    NSError *error = nil;
-
-    // save 1st token with default test scope
-    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
-                                                     response:tokenResponse
-                                                      factory:[MSIDAADV2Oauth2Factory new]
-                                                      context:nil
-                                                        error:&error];
-
-    XCTAssertTrue(result);
-    XCTAssertNil(error);
-
-    // save 2nd token with different authority
-    MSIDTokenResponse *tokenResponse2 = [MSIDTestTokenResponse v2DefaultTokenResponse];
-    
-    MSIDConfiguration *configuration = [MSIDTestConfiguration configurationWithAuthority:@"https://login.microsoftonline.com/8eaef023-2b34-4da1-9baa-8bc8c9d6a490"
-                                                                                clientId:DEFAULT_TEST_CLIENT_ID
-                                                                             redirectUri:nil
-                                                                                  target:DEFAULT_TEST_SCOPE];
-
-    result = [_cacheAccessor saveTokensWithConfiguration:configuration
-                                                response:tokenResponse2
-                                                 factory:[MSIDAADV2Oauth2Factory new]
-                                                 context:nil
-                                                   error:&error];
-
-    XCTAssertNil(error);
-    XCTAssertTrue(result);
-
-    NSArray *accessTokensInCache = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
-    XCTAssertEqual([accessTokensInCache count], 2);
-}
 
 - (void)testSaveTokensWithRequestParams_withAccessTokenAndDifferentUsers_shouldSave2Tokens
 {
@@ -414,7 +424,7 @@
 - (void)testGetTokenWithType_whenTypeAccessNoItemsInCache_shouldReturnNil
 {
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                              homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSError *error = nil;
     MSIDAccessToken *token = [_cacheAccessor getAccessTokenForAccount:account
@@ -429,7 +439,7 @@
 - (void)testGetTokenWithType_whenTypeAccessMultipleAccessTokensInCache_shouldReturnRightToken
 {
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                              homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -447,8 +457,8 @@
                                                                                   RT:DEFAULT_TEST_REFRESH_TOKEN
                                                                               scopes:scopes
                                                                              idToken:[MSIDTestIdTokenUtil defaultV2IdToken]
-                                                                                 uid:@"1"
-                                                                                utid:@"1234-5678-90abcdefg"
+                                                                                 uid:DEFAULT_TEST_UID
+                                                                                utid:DEFAULT_TEST_UTID
                                                                             familyId:nil];
 
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfigurationWithScopes:scopes]
@@ -496,7 +506,7 @@
     XCTAssertEqual([accessTokensInCache count], 4);
 
     configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [DEFAULT_TEST_AUTHORITY_GUID aadAuthority];
 
     // retrieve first at
     NSError *error = nil;
@@ -513,7 +523,7 @@
 - (void)testGetTokenWithType_whenTypeAccessCorrectAccountAndParameters_shouldReturnToken
 {
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                              homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
@@ -525,7 +535,7 @@
                                           error:nil];
 
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [DEFAULT_TEST_AUTHORITY_GUID aadAuthority];
 
     NSError *error = nil;
 
@@ -545,19 +555,21 @@
     [self setUpEnrollmentIdsCache:NO];
     
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                                            homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                            homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
     
+    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
+    configuration.applicationIdentifier = @"app.bundle.id";
+    
     // Save token
-    [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+    [_cacheAccessor saveTokensWithConfiguration:configuration
                                        response:tokenResponse
                                         factory:[MSIDAADV2Oauth2Factory new]
                                         context:nil
                                           error:nil];
     
-    MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [DEFAULT_TEST_AUTHORITY_GUID aadAuthority];
     
     NSError *error = nil;
     
@@ -579,7 +591,7 @@
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2DefaultTokenResponse];
 
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                              homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     // Save token
     [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
@@ -590,7 +602,7 @@
 
     // Retrieve token
     MSIDConfiguration *configuration = [MSIDTestConfiguration v2DefaultConfiguration];
-    configuration.authority = [@"https://login.microsoftonline.com/1234-5678-90abcdefg" authority];
+    configuration.authority = [DEFAULT_TEST_AUTHORITY_GUID aadAuthority];
 
     NSError *error = nil;
     MSIDAccessToken *returnedToken = [_cacheAccessor getAccessTokenForAccount:account
@@ -606,7 +618,7 @@
 - (void)testGetTokenWithType_whenTypeRefreshNoItemsInCache_shouldReturnNil
 {
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME
-                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                              homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
 
     NSError *error = nil;
 
@@ -624,7 +636,7 @@
 - (void)testGetTokenWithType_whenTypeRefreshAccountWithUtidAndUidProvided_shouldReturnToken
 {
     MSIDAccountIdentifier *account = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil
-                                                                              homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                              homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     [_cacheAccessor saveSSOStateWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
                                          response:[MSIDTestTokenResponse v2DefaultTokenResponse]
                                           factory:[MSIDAADV2Oauth2Factory new]
@@ -720,7 +732,7 @@
     NSDictionary *dict = @{MSID_INTUNE_ENROLLMENT_ID_KEY: @{@"enrollment_ids": @[@{
                                                                                      @"tid" : @"fda5d5d9-17c3-4c29-9cf9-a27c3d3f03e1",
                                                                                      @"oid" : @"d3444455-mike-4271-b6ea-e499cc0cab46",
-                                                                                     @"home_account_id" : @"1.1234-5678-90abcdefg",
+                                                                                     @"home_account_id" : DEFAULT_TEST_HOME_ACCOUNT_ID,
                                                                                      @"user_id" : @"mike@contoso.com",
                                                                                      @"enrollment_id" : @"enrollmentId"
                                                                                      },

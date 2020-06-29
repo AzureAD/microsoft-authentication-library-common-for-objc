@@ -42,7 +42,7 @@
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      MSIDErrorServerInvalidResponse,
                                      @"WPJ response should have msauth as a scheme and wpj/broker as a host",
-                                     nil, nil, nil, context.correlationId, nil);
+                                     nil, nil, nil, context.correlationId, nil, NO);
         }
         return nil;
     }
@@ -59,8 +59,7 @@
         
         if (localError)
         {
-            MSID_LOG_NO_PII(MSIDLogLevelError, nil, context, @"Failed to parse client_info, code %ld, domain %@", (long)localError.code, localError.domain);
-            MSID_LOG_PII(MSIDLogLevelError, nil, context, @"Failed to parse client_info, error: %@", localError);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to parse client_info, error: %@", MSID_PII_LOG_MASKABLE(localError));
         }
     }
     

@@ -28,11 +28,14 @@
 #import "MSIDDefaultTokenCacheAccessor.h"
 #import "MSIDDefaultBrokerTokenRequest.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDSSOExtensionSilentTokenRequest.h"
+#import "MSIDSSOExtensionInteractiveTokenRequest.h"
 
 @implementation MSIDDefaultTokenRequestProvider
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
                               defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
+                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
                        tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];
@@ -41,37 +44,90 @@
     {
         _oauthFactory = oauthFactory;
         _tokenCache = defaultAccessor;
+        _accountMetadataCache = accountMetadataAccessor;
         _tokenResponseValidator = tokenResponseValidator;
     }
 
     return self;
 }
 
-- (MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(MSIDInteractiveRequestParameters *)parameters
+- (MSIDInteractiveTokenRequest *)interactiveTokenRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
 {
-    return [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
-                                                             oauthFactory:self.oauthFactory
-                                                   tokenResponseValidator:self.tokenResponseValidator
-                                                               tokenCache:self.tokenCache];
+    __auto_type request = [[MSIDInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                            oauthFactory:self.oauthFactory
+                                                                  tokenResponseValidator:self.tokenResponseValidator
+                                                                              tokenCache:self.tokenCache
+                                                                    accountMetadataCache:self.accountMetadataCache];
+#if TARGET_OS_OSX
+    request.externalCacheSeeder = self.externalCacheSeeder;
+#endif
+    
+    return request;
 }
 
 - (MSIDSilentTokenRequest *)silentTokenRequestWithParameters:(MSIDRequestParameters *)parameters
                                                 forceRefresh:(BOOL)forceRefresh
 {
-    return [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
-                                                               forceRefresh:forceRefresh
-                                                               oauthFactory:self.oauthFactory
-                                                     tokenResponseValidator:self.tokenResponseValidator
-                                                                 tokenCache:self.tokenCache];
+    __auto_type request = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                              forceRefresh:forceRefresh
+                                                                              oauthFactory:self.oauthFactory
+                                                                    tokenResponseValidator:self.tokenResponseValidator
+                                                                                tokenCache:self.tokenCache
+                                                                      accountMetadataCache:self.accountMetadataCache];
+    
+#if TARGET_OS_OSX
+    request.externalCacheSeeder = self.externalCacheSeeder;
+#endif
+    
+    return request;
 }
 
-- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable MSIDBrokerTokenRequest *)brokerTokenRequestWithParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                                             brokerKey:(nonnull NSString *)brokerKey
-                                                                error:(NSError **)error
+                                               brokerApplicationToken:(NSString * _Nullable )brokerApplicationToken
+                                                      sdkCapabilities:(NSArray *)sdkCapabilities
+                                                                error:(NSError * _Nullable * _Nullable)error
 {
-    return [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
-                                                                  brokerKey:brokerKey
-                                                                      error:error];
+    MSIDDefaultBrokerTokenRequest *request = [[MSIDDefaultBrokerTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                                    brokerKey:brokerKey
+                                                                                       brokerApplicationToken:brokerApplicationToken
+                                                                                              sdkCapabilities:sdkCapabilities
+                                                                                                        error:error];
+    
+    
+    return request;
+}
+
+- (MSIDInteractiveTokenRequest *)interactiveSSOExtensionTokenRequestWithParameters:(__unused MSIDInteractiveTokenRequestParameters *)parameters
+{
+    if (@available(iOS 13.0, macOS 10.15, *))
+    {
+        __auto_type request = [[MSIDSSOExtensionInteractiveTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                            oauthFactory:self.oauthFactory
+                                                                                  tokenResponseValidator:self.tokenResponseValidator
+                                                                                              tokenCache:self.tokenCache
+                                                                                    accountMetadataCache:self.accountMetadataCache];
+        return request;
+    }
+    
+    return nil;
+}
+
+- (MSIDSilentTokenRequest *)silentSSOExtensionTokenRequestWithParameters:(__unused MSIDRequestParameters *)parameters
+                                                            forceRefresh:(__unused BOOL)forceRefresh
+{
+    if (@available(iOS 13.0, macOS 10.15, *))
+    {
+        __auto_type request = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:parameters
+                                                                                       forceRefresh:forceRefresh
+                                                                                       oauthFactory:self.oauthFactory
+                                                                             tokenResponseValidator:self.tokenResponseValidator
+                                                                                         tokenCache:self.tokenCache
+                                                                               accountMetadataCache:self.accountMetadataCache];
+        return request;
+    }
+    
+    return nil;
 }
 
 @end

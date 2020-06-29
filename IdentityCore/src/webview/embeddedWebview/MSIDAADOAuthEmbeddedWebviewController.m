@@ -28,6 +28,7 @@
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
+#import "MSIDWorkPlaceJoinUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -37,6 +38,7 @@
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+          platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
 {
     NSMutableDictionary *headers = [NSMutableDictionary new];
@@ -45,24 +47,18 @@
         [headers addEntriesFromDictionary:customHeaders];
     }
     
-#if TARGET_OS_IPHONE
-    // Currently Apple has a bug in iOS about WKWebview handling NSURLAuthenticationMethodClientCertificate.
-    // It swallows the challenge response rather than sending it to server.
-    // Therefore we work around the bug by using PKeyAuth for WPJ challenge in iOS
-
+    // Declare our client as PkeyAuth-capable
     [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
-    
-#endif
-    
+        
     return [super initWithStartURL:startURL endURL:endURL
                            webview:webview
                      customHeaders:headers
+                    platfromParams:platformParams
                            context:context];
 }
 
-- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
-                                webview:(WKWebView *)webView
-                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+- (BOOL)decidePolicyAADForNavigationAction:(WKNavigationAction *)navigationAction
+                           decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
     //AAD specific policy for handling navigation action
     NSURL *requestURL = navigationAction.request.URL;
@@ -71,16 +67,13 @@
     if ([requestURL.scheme.lowercaseString isEqualToString:@"msauth"] ||
         [requestURL.scheme.lowercaseString isEqualToString:@"browser"] )
     {
-        self.complete = YES;
-        
         NSURL *url = navigationAction.request.URL;
         [self completeWebAuthWithURL:url];
         
         decisionHandler(WKNavigationActionPolicyCancel);
-        return;
+        return YES;
     }
     
-#if TARGET_OS_IPHONE
     // check for pkeyauth challenge.
     NSString *requestURLString = [requestURL.absoluteString lowercaseString];
     
@@ -97,10 +90,21 @@
                                }
                                [self loadRequest:challengeResponse];
                            }];
-        return;
+        return YES;
     }
-#endif
     
+    return NO;
+}
+
+- (void)decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction
+                                webview:(WKWebView *)webView
+                        decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    if ([self decidePolicyAADForNavigationAction:navigationAction decisionHandler:decisionHandler])
+    {
+         return;
+    }
+
     [super decidePolicyForNavigationAction:navigationAction webview:webView decisionHandler:decisionHandler];
 }
 

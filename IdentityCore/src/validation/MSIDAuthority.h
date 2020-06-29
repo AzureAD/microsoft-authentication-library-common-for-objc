@@ -24,18 +24,20 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityResolving.h"
 #import "MSIDCache.h"
+#import "MSIDJsonSerializable.h"
 
-extern NSString * _Nonnull const MSIDTrustedAuthority;
-extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
+extern NSString * _Nonnull const MSID_AUTHORITY_URL_JSON_KEY;
+extern NSString * _Nonnull const MSID_AUTHORITY_TYPE_JSON_KEY;
 
 @class MSIDOpenIdProviderMetadata;
 
 typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error);
 
-@interface MSIDAuthority : NSObject <NSCopying>
+@interface MSIDAuthority : NSObject <NSCopying, MSIDJsonSerializable>
 {
 @protected
     NSURL *_url;
+    NSString *_realm;
     NSURL *_openIdConfigurationEndpoint;
 }
 
@@ -45,9 +47,13 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 @property (readonly, nonnull) NSString *environment;
 
+@property (readonly, nonnull) NSString *realm;
+
 @property (readonly, nullable) NSURL *openIdConfigurationEndpoint;
 
 @property (readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
+
+@property (nonatomic) BOOL isDeveloperKnown;
 
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;
@@ -60,6 +66,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 - (nonnull NSURL *)networkUrlWithContext:(nullable id<MSIDRequestContext>)context;
 
 - (nonnull NSURL *)cacheUrlWithContext:(nullable id<MSIDRequestContext>)context;
+
+- (nonnull NSString *)cacheEnvironmentWithContext:(nullable id<MSIDRequestContext>)context;
 
 - (nonnull NSArray<NSURL *> *)legacyAccessTokenLookupAuthorities;
 
@@ -80,6 +88,9 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 // Only certain authorities support passing clientID as an allowed scope
 - (BOOL)supportsClientIDAsScope;
+
+// Only certain authorities support MAM CA scenarios
+- (BOOL)supportsMAMScenarios;
 
 /* It is used in telemetry */
 - (nonnull NSString *)telemetryAuthorityType;

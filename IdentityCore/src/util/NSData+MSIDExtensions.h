@@ -30,7 +30,6 @@
  Hashing
  =============================================================================
  */
-- (NSData *)msidSHA1;
 - (NSData *)msidSHA256;
 
 /*!
@@ -50,8 +49,5 @@
 
 /*! Converts NSData to base64 String */
 - (NSString *)msidBase64UrlEncodedString;
-
-/*! Converts NSData to JSON Dictionary */
-- (NSDictionary *)msidToJsonDictionary:(NSError **)error;
 
 @end

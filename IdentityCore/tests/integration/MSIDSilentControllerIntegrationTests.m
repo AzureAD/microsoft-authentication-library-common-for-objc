@@ -25,14 +25,14 @@
 #import "MSIDTestTokenRequestProvider.h"
 #import "MSIDSilentController.h"
 #import "MSIDRequestParameters.h"
-#import "MSIDAuthorityFactory.h"
+#import "NSString+MSIDTestUtil.h"
 #import "MSIDTokenResult.h"
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDAccessToken.h"
 #import "MSIDLocalInteractiveController.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
 #import "MSIDRefreshToken.h"
@@ -45,10 +45,10 @@
 
 #pragma mark - Helpers
 
-- (MSIDInteractiveRequestParameters *)requestParameters
+- (MSIDInteractiveTokenRequestParameters *)requestParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
-    parameters.authority = [MSIDAuthorityFactory authorityFromUrl:[NSURL URLWithString:@"https://login.microsoftonline.com/common"] context:nil error:nil];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
+    parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
     parameters.oidcScope = @"openid profile offline_access";
@@ -81,7 +81,7 @@
                                                               refreshToken:refreshToken
                                                                    idToken:response.idToken
                                                                    account:account
-                                                                 authority:accessToken.authority
+                                                                 authority:parameters.authority
                                                              correlationId:parameters.correlationId
                                                              tokenResponse:response];
 
@@ -172,7 +172,7 @@
     MSIDRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_fail";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 
@@ -230,14 +230,14 @@
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_prompt_auto_fail";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *silentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 
-    NSError *interactiveError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant 2", @"invalid_grant2", @"consent_required2", nil, parameters.correlationId, nil);
+    NSError *interactiveError = MSIDCreateError(MSIDErrorDomain, -51433, @"Invalid grant 2", @"invalid_grant2", @"consent_required2", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *interactiveProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:interactiveError testWebMSAuthResponse:nil];
 
@@ -298,10 +298,10 @@
     // register the dispatcher
     [[MSIDTelemetry sharedInstance] addDispatcher:dispatcher];
 
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"prompt_auto_interactive_success";
 
-    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil);
+    NSError *testError = MSIDCreateError(MSIDErrorDomain, MSIDErrorServerInvalidGrant, @"Invalid grant", @"invalid_grant", @"consent_required", nil, parameters.correlationId, nil, YES);
 
     MSIDTestTokenRequestProvider *silentProvider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:testError testWebMSAuthResponse:nil];
 

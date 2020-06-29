@@ -30,7 +30,7 @@
 
 #if TARGET_OS_IPHONE
 
-- (NSData *)signHashWithPrivateKey:(SecKeyRef)privateKey
+- (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey
 {
     NSData *signedHash = nil;
     size_t signedHashBytesSize = SecKeyGetBlockSize(privateKey);
@@ -52,7 +52,7 @@
 
     if (status != errSecSuccess)
     {
-        MSID_LOG_ERROR(nil, @"Failed to sign JWT %d", (int)status);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to sign JWT %d", (int)status);
         free(signedHashBytes);
         return nil;
     }
@@ -66,7 +66,7 @@
 
 #else
 
-- (NSData *)signHashWithPrivateKey:(SecKeyRef)privateKey
+- (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey
 {
     CFErrorRef error = nil;
     // Create signer
@@ -74,21 +74,21 @@
 
     if (!signer)
     {
-        MSID_LOG_ERROR(nil, @"Failed to sign JWT %@", error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to sign JWT %@", error);
         return nil;
     }
 
     BOOL result = YES;
     // Set attributes
-    result &= [self setAttributeOnSigner:signer attributeKey:kSecPaddingKey attributeValue:kSecPaddingPKCS1Key];
-    result &= [self setAttributeOnSigner:signer attributeKey:kSecInputIsAttributeName attributeValue:kSecInputIsDigest];
-    result &= [self setAttributeOnSigner:signer attributeKey:kSecTransformInputAttributeName attributeValue:(__bridge CFDataRef)self];
-    result &= [self setAttributeOnSigner:signer attributeKey:kSecDigestTypeAttribute attributeValue:kSecDigestSHA2];
-    result &= [self setAttributeOnSigner:signer attributeKey:kSecDigestLengthAttribute attributeValue:(__bridge CFNumberRef)@(256)];
+    result &= [self msidSetAttributeOnSigner:signer attributeKey:kSecPaddingKey attributeValue:kSecPaddingPKCS1Key];
+    result &= [self msidSetAttributeOnSigner:signer attributeKey:kSecInputIsAttributeName attributeValue:kSecInputIsDigest];
+    result &= [self msidSetAttributeOnSigner:signer attributeKey:kSecTransformInputAttributeName attributeValue:(__bridge CFDataRef)self];
+    result &= [self msidSetAttributeOnSigner:signer attributeKey:kSecDigestTypeAttribute attributeValue:kSecDigestSHA2];
+    result &= [self msidSetAttributeOnSigner:signer attributeKey:kSecDigestLengthAttribute attributeValue:(__bridge CFNumberRef)@(256)];
 
     if (!result)
     {
-        MSID_LOG_ERROR(nil, @"Failed to sign JWT %@", error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to sign JWT %@", error);
         CFRelease(signer);
         return nil;
     }
@@ -98,21 +98,21 @@
 
     if (!resultData)
     {
-        MSID_LOG_ERROR(nil, @"Failed to sign JWT %@", error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to sign JWT %@", error);
         return nil;
     }
 
     return CFBridgingRelease(resultData);
 }
 
-- (BOOL)setAttributeOnSigner:(SecTransformRef)signer attributeKey:(CFStringRef)key attributeValue:(CFTypeRef)value
+- (BOOL)msidSetAttributeOnSigner:(SecTransformRef)signer attributeKey:(CFStringRef)key attributeValue:(CFTypeRef)value
 {
     CFErrorRef error = nil;
     BOOL result = SecTransformSetAttribute(signer, key, value, &error);
 
     if (!result)
     {
-        MSID_LOG_ERROR(nil, @"Failed to set signing attribute with error %@", error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set signing attribute with error %@", error);
         return NO;
     }
 

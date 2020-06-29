@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDAccountType.h"
+#import "MSIDJsonSerializable.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDConfiguration;
@@ -32,19 +33,19 @@
 @class MSIDAuthority;
 @class MSIDIdTokenClaims;
 
-@interface MSIDAccount : NSObject <NSCopying>
+@interface MSIDAccount : NSObject <NSCopying, MSIDJsonSerializable>
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite) NSString *localAccountId;
-@property (readwrite) MSIDAuthority *authority;
-@property (readonly) NSString *tenantId;
 
 /*
- 'storageAuthority' is used only for latter token deletion.
- We can not use 'authority' because cache item could be saved with
+ 'storageEnvironment' is used only for latter token deletion.
+ We can not use 'environment' because cache item could be saved with
  'preferred authority' and it might not be equal to provided 'authority'.
  */
-@property (readwrite) MSIDAuthority *storageAuthority;
+@property (readwrite) NSString *storageEnvironment;
+@property (readwrite) NSString *environment;
+@property (readwrite) NSString *realm;
 /*
  'idTokenClaims' is used to convey corresponding the id token claims for the account.
  */

@@ -23,10 +23,12 @@
 
 #import "MSIDAccountType.h"
 #import "MSIDJsonSerializable.h"
+#import "MSIDKeyGenerator.h"
+#import "MSIDDefaultAccountCacheKey.h"
 
 @class MSIDClientInfo;
 
-@interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable>
+@interface MSIDAccountCacheItem : NSObject <NSCopying, MSIDJsonSerializable, MSIDKeyGenerator>
 
 @property (readwrite) MSIDAccountType accountType;
 @property (readwrite, nonnull) NSString *homeAccountId;
@@ -40,8 +42,9 @@
 @property (readwrite, nullable) NSString *realm;
 @property (readwrite, nullable) MSIDClientInfo *clientInfo;
 @property (readwrite, nullable) NSString *alternativeAccountId;
-@property (readwrite, nullable) NSDictionary *additionalAccountFields;
 
-- (void)updateFieldsFromAccount:(nonnull MSIDAccountCacheItem *)account;
+// Last Modification info (currently used on macOS only)
+@property (readwrite, nullable) NSDate *lastModificationTime;
+@property (readwrite, nullable) NSString *lastModificationApp;
 
 @end

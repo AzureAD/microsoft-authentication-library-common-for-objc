@@ -34,10 +34,12 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAADIdTokenClaimsFactory.h"
-#import "MSIDClientInfo.h"
+#import "MSIDLogger+Trace.h"
 #import "NSData+MSIDExtensions.h"
 #import "NSString+MSIDExtensions.h"
 #import "NSOrderedSet+MSIDExtensions.h"
+#import "NSDate+MSIDExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @interface MSIDCredentialCacheItem()
 
@@ -49,7 +51,9 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, secret: %@", self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, [self.secret msidSecretLoggingHash]];
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@",
+            self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
+            self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash]];
 }
 
 #pragma mark - MSIDCacheItem
@@ -83,8 +87,12 @@
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
-    result &= (!self.enrollmentId && !item.enrollmentId) || [self.enrollmentId isEqualToString:item.enrollmentId];
-    result &= (!self.additionalInfo && !item.additionalInfo) || [self.additionalInfo isEqual:item.additionalInfo];
+    result &= (!self.applicationIdentifier || !item.applicationIdentifier) || [self.applicationIdentifier isEqualToString:item.applicationIdentifier];
+    result &= (!self.speInfo && !item.speInfo) || [self.speInfo isEqual:item.speInfo];
+    result &= (!self.accessTokenType && !item.accessTokenType) || [self.accessTokenType isEqual:item.accessTokenType];
+    result &= (!self.kid && !item.kid) || [self.kid isEqual:item.kid];
+    // Ignore the lastMod properties (two otherwise-identical items with different
+    // last modification informational values should be considered equal)
     return result;
 }
 
@@ -104,8 +112,10 @@
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
-    hash = hash * 31 + self.enrollmentId.hash;
-    hash = hash * 31 + self.additionalInfo.hash;
+    hash = hash * 31 + self.speInfo.hash;
+    hash = hash * 31 + self.applicationIdentifier.hash;
+    hash = hash * 31 + self.accessTokenType.hash;
+    hash = hash * 31 + self.kid.hash;
     return hash;
 }
 
@@ -125,8 +135,13 @@
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
+    item.speInfo = [self.speInfo copyWithZone:zone];
+    item.lastModificationTime = [self.lastModificationTime copyWithZone:zone];
+    item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
-    item.additionalInfo = [self.additionalInfo copyWithZone:zone];
+    item.applicationIdentifier = [self.applicationIdentifier copyWithZone:zone];
+    item.accessTokenType = [self.accessTokenType copyWithZone:zone];
+    item.kid = [self.kid copyWithZone:zone];
     return item;
 }
 
@@ -142,43 +157,41 @@
 
     if (!json)
     {
-        MSID_LOG_WARN(nil, @"Tried to decode a credential cache item from nil json");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Tried to decode a credential cache item from nil json");
         return nil;
     }
 
     _json = json;
 
-    _clientId = json[MSID_CLIENT_ID_CACHE_KEY];
-    _credentialType = [MSIDCredentialTypeHelpers credentialTypeFromString:json[MSID_CREDENTIAL_TYPE_CACHE_KEY]];
-    _secret = json[MSID_TOKEN_CACHE_KEY];
+    _clientId = [json msidStringObjectForKey:MSID_CLIENT_ID_CACHE_KEY];
+    _credentialType = [MSIDCredentialTypeHelpers credentialTypeFromString:[json msidStringObjectForKey:MSID_CREDENTIAL_TYPE_CACHE_KEY]];
+    _secret = [json msidStringObjectForKey:MSID_TOKEN_CACHE_KEY];
 
     if (!_secret)
     {
-        MSID_LOG_WARN(nil, @"No secret present in the credential");
+        if (_credentialType != MSIDCredentialTypeOther) MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"No secret present in the credential");
         return nil;
     }
 
-    _target = json[MSID_TARGET_CACHE_KEY];
-    _realm = json[MSID_REALM_CACHE_KEY];
-    _environment = json[MSID_ENVIRONMENT_CACHE_KEY];
-    _expiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXPIRES_ON_CACHE_KEY]];
-    _extendedExpiresOn = [NSDate msidDateFromTimeStamp:json[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
-    _cachedAt = [NSDate msidDateFromTimeStamp:json[MSID_CACHED_AT_CACHE_KEY]];
-    _familyId = json[MSID_FAMILY_ID_CACHE_KEY];
-    _homeAccountId = json[MSID_HOME_ACCOUNT_ID_CACHE_KEY];
-    _enrollmentId = json[MSID_ENROLLMENT_ID_CACHE_KEY];
+    _target = [json msidStringObjectForKey:MSID_TARGET_CACHE_KEY];
+    _realm = [json msidStringObjectForKey:MSID_REALM_CACHE_KEY];
+    _environment = [json msidStringObjectForKey:MSID_ENVIRONMENT_CACHE_KEY];
+    _expiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXPIRES_ON_CACHE_KEY]];
+    _extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
+    _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
+    _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
+    _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
+    _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
+    _speInfo = [json msidStringObjectForKey:MSID_SPE_INFO_CACHE_KEY];
 
-    // Additional Info
+    // Last Modification info (currently used on macOS only)
+    _lastModificationTime = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_LAST_MOD_TIME_CACHE_KEY]];
+    _lastModificationApp = [json msidStringObjectForKey:MSID_LAST_MOD_APP_CACHE_KEY];
 
-    NSString *speInfo = json[MSID_SPE_INFO_CACHE_KEY];
-    NSMutableDictionary *additionalInfo = [NSMutableDictionary dictionary];
-    additionalInfo[MSID_SPE_INFO_CACHE_KEY] = speInfo;
-
-    if ([additionalInfo count])
-    {
-        _additionalInfo = additionalInfo;
-    }
-
+    _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
+    _applicationIdentifier = [json msidStringObjectForKey:MSID_APPLICATION_IDENTIFIER_CACHE_KEY];
+    _kid = [json msidStringObjectForKey:MSID_KID_CACHE_KEY];
+    _accessTokenType = [json msidStringObjectForKey:MSID_ACCESS_TOKEN_TYPE];
     return self;
 }
 
@@ -204,8 +217,14 @@
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
-    dictionary[MSID_SPE_INFO_CACHE_KEY] = _additionalInfo[MSID_SPE_INFO_CACHE_KEY];
+    dictionary[MSID_SPE_INFO_CACHE_KEY] = _speInfo;
 
+    // Last Modification info (currently used on macOS only)
+    dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
+    dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
+    dictionary[MSID_APPLICATION_IDENTIFIER_CACHE_KEY] = _applicationIdentifier;
+    dictionary[MSID_KID_CACHE_KEY] = _kid;
+    dictionary[MSID_ACCESS_TOKEN_TYPE] = _accessTokenType;
     return dictionary;
 }
 
@@ -321,6 +340,20 @@
 - (BOOL)isTombstone
 {
     return [self.secret isEqualToString:@"<tombstone>"];
+}
+
+- (nullable MSIDCacheKey *)generateCacheKey
+{
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:self.homeAccountId
+                                                                                          environment:self.environment
+                                                                                             clientId:self.clientId
+                                                                                       credentialType:self.credentialType];
+    
+    key.familyId = self.familyId;
+    key.realm = self.realm;
+    key.target = self.target;
+    key.applicationIdentifier = self.applicationIdentifier;
+    return key;
 }
 
 @end

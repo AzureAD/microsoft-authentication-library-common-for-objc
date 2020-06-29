@@ -29,6 +29,8 @@
 #import "MSIDLegacyTokenCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDPRTCacheItem.h"
+#import "NSKeyedArchiver+MSIDExtensions.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
 @implementation MSIDKeyedArchiverSerializer
 {
@@ -57,26 +59,21 @@
 
 - (NSData *)serialize:(MSIDCredentialCacheItem *)item
 {
-    if (!item)
-    {
-        return nil;
-    }
-    
-    NSMutableData *data = [NSMutableData data];
+    if (!item) return nil;
     
     // In order to customize the archiving process Apple recommends to create an instance of the archiver and
     // customize it (instead of using share NSKeyedArchiver).
     // See here: https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/Archiving/Articles/creating.html
-    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initForWritingWithMutableData:data];
-    // Maintain backward compatibility with ADAL.
-    for (NSString *className in _defaultEncodeClassMap)
+    NSData *result = [NSKeyedArchiver msidEncodeObject:item usingBlock:^(NSKeyedArchiver *archiver)
     {
-        [archiver setClassName:className forClass:_defaultEncodeClassMap[className]];
-    }
-    [archiver encodeObject:item forKey:NSKeyedArchiveRootObjectKey];
-    [archiver finishEncoding];
+        // Maintain backward compatibility with ADAL.
+        for (NSString *className in _defaultEncodeClassMap)
+        {
+            [archiver setClassName:className forClass:_defaultEncodeClassMap[className]];
+        }
+    }];
     
-    return data;
+    return result;
 }
 
 - (MSIDLegacyTokenCacheItem *)deserialize:(NSData *)data className:(Class)className
@@ -86,7 +83,14 @@
         return nil;
     }
     
-    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingWithData:data];
+    NSError *error;
+    NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:data error:&error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to deserialize data, error: %@", MSID_PII_LOG_MASKABLE(error));
+        return nil;
+    }
+    
     // Maintain backward compatibility with ADAL.
     [unarchiver setClass:className forClassName:@"ADTokenCacheStoreItem"];
     for (NSString *defaultClassName in _defaultDecodeClassMap)
@@ -106,7 +110,7 @@
 {
     if (![item isKindOfClass:[MSIDLegacyTokenCacheItem class]])
     {
-        MSID_LOG_WARN(nil, @"Asked to serialize MSIDCredentialCacheItem, which is unsupported");
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to serialize MSIDCredentialCacheItem, which is unsupported");
         return nil;
     }
 
@@ -124,6 +128,18 @@
         return (MSIDLegacyTokenCacheItem *) item;
     }
     
+    return nil;
+}
+
+- (NSData *)serializeCredentialStorageItem:(__unused MSIDMacCredentialStorageItem *)item
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to serialize MSIDMacCredentialStorageItem, which is unsupported");
+    return nil;
+}
+
+- (MSIDMacCredentialStorageItem *)deserializeCredentialStorageItem:(__unused NSData *)data
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to deserialize MSIDMacCredentialStorageItem, which is unsupported");
     return nil;
 }
 

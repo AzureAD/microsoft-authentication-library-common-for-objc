@@ -27,19 +27,34 @@
 
 @implementation UIApplication ( internal )
 
-+ (UIViewController*)msidCurrentViewController
++ (UIViewController *)msidCurrentViewController:(UIViewController *)parentController
 {
-    if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+    if (parentController)
     {
-        return [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
+        return [self msidCurrentViewControllerWithRootViewController:parentController];
     }
-    else
+    
+    if ([MSIDAppExtensionUtil isExecutingInAppExtension]) return nil;
+    
+#if !TARGET_OS_MACCATALYST
+    __auto_type controller = [self msidCurrentViewControllerWithRootViewController:[MSIDAppExtensionUtil sharedApplication].keyWindow.rootViewController];
+    return controller;
+#else
+    
+    for (UIWindow *window in [MSIDAppExtensionUtil sharedApplication].windows)
     {
-        return nil;
+        if (window.isKeyWindow)
+        {
+            return [self msidCurrentViewControllerWithRootViewController:window.rootViewController];
+        }
     }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Couldn't find key window");
+    return nil;
+#endif
 }
 
-+ (UIViewController*)msidCurrentViewControllerWithRootViewController:(UIViewController*)rootViewController
++ (UIViewController*)msidCurrentViewControllerWithRootViewController:(UIViewController *)rootViewController
 {
     if ([rootViewController isKindOfClass:[UITabBarController class]])
     {
