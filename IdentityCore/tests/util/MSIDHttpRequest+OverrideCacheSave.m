@@ -29,7 +29,7 @@
 
 @implementation MSIDHttpRequest (OverrideCacheSave)
 
--(void)setCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request
+- (void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
 {
     // leave this empty
 }
