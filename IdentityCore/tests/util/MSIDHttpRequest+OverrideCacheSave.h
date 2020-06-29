@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDHttpRequest (OverrideCacheSave)
 
--(void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request;
+-(void)setCachedResponse:(NSCachedURLResponse *)cachedResponse forRequest:(NSURLRequest *)request;
 
 @end
 

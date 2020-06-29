@@ -3,4 +3,4 @@
 
 INFOPLIST_FILE = tests/mac/Info.plist
 LD_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks @loader_path/../Frameworks
-GCC_WARN_UNUSED_PARAMETER = NO
+//GCC_WARN_UNUSED_PARAMETER = NO
