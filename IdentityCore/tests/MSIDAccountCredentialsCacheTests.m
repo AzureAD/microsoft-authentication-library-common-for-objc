@@ -562,10 +562,18 @@
     NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertNotNil(results);
-    XCTAssertEqual([results count], 2);
+    XCTAssertEqual([results count], 1);
     XCTAssertEqualObjects(results[0], accessToken);
-    XCTAssertEqualObjects(results[1], atPopAccessToken);
-
+    
+    query.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    
+    XCTAssertFalse(query.exactMatch);
+    error = nil;
+    results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 1);
+    XCTAssertEqualObjects(results[0], atPopAccessToken);
 }
 
 - (void)testGetCredentialsWithQuery_whenNotExactMatch_andRefreshTokenQuery_matchByHomeAccountId_shouldReturnItems
@@ -1367,7 +1375,7 @@
     query.target = @"user.read user.write";
     query.realm = @"contoso.com";
     query.homeAccountId = @"uid.utid";
-    
+    query.tokenType = @"Pop";
     XCTAssertFalse(query.exactMatch);
     NSError *error = nil;
     NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
@@ -1736,6 +1744,7 @@
     XCTAssertNil(error);
     XCTAssertEqualObjects(resultItem, item);
 }
+
 - (void)testGetCredentialWithKey_whenAccessTokenKey_andIntuneEnrolled_shouldReturnItem
 {
     // First save the token
@@ -1743,11 +1752,6 @@
     item.enrollmentId = @"enrollmentId";
     item.applicationIdentifier = @"app.bundle.id";
     [self saveItem:item];
-    
-    MSIDCredentialCacheItem *itemATPop = [self createTestATPopAccessTokenCacheItem];
-    item.enrollmentId = @"enrollmentId";
-    item.applicationIdentifier = @"app.bundle.id";
-    [self saveItem:itemATPop];
     
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                           environment:@"login.microsoftonline.com"
@@ -1762,7 +1766,12 @@
     MSIDCredentialCacheItem *resultItem = [self.cache getCredential:key context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertEqualObjects(resultItem, item);
-    
+        
+    MSIDCredentialCacheItem *itemATPop = [self createTestATPopAccessTokenCacheItem];
+    itemATPop.enrollmentId = @"enrollmentId";
+    itemATPop.applicationIdentifier = @"app.bundle.id";
+    [self saveItem:itemATPop];
+
     MSIDDefaultCredentialCacheKey *keyATPop = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
                                                                                           environment:@"login.microsoftonline.com"
                                                                                              clientId:@"client"
