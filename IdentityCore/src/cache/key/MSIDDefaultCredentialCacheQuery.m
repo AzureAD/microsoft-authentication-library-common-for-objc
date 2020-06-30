@@ -154,7 +154,7 @@
         genericString = [self credentialIdWithType:self.credentialType
                                           clientId:clientId
                                              realm:self.realm
-                             applicationIdentifier:(self.credentialType == MSIDAccessTokenType) ? self.applicationIdentifier : nil];
+                             applicationIdentifier:(self.credentialType == MSIDAccessTokenType || self.credentialType == MSIDAccessTokenWithAuthSchemeType) ? self.applicationIdentifier : nil];
     }
 
     return [genericString dataUsingEncoding:NSUTF8StringEncoding];
