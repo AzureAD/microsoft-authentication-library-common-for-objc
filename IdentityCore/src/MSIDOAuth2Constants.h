@@ -62,12 +62,14 @@ extern NSString *const MSID_OAUTH2_CLIENT_TELEMETRY;
 extern NSString *const MSID_OAUTH2_PROMPT;
 extern NSString *const MSID_OAUTH2_PROMPT_NONE;
 extern NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI;
+extern NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION;
 
 extern NSString *const MSID_OAUTH2_EXPIRES_ON;
 extern NSString *const MSID_OAUTH2_EXT_EXPIRES_IN;
 extern NSString *const MSID_FAMILY_ID;
 extern NSString *const MSID_AUTH_CLOUD_INSTANCE_HOST_NAME;
 extern NSString *const MSID_ENROLLMENT_ID;
+extern NSString *const MSID_ACCESS_TOKEN_TYPE;
 
 // Used for PKCE support
 extern NSString *const MSID_OAUTH2_CODE_CHALLENGE;
@@ -124,8 +126,10 @@ extern NSString *const MSID_LAST_MOD_APP_CACHE_KEY;
 extern NSString *const MSID_APPLICATION_IDENTIFIER_CACHE_KEY;
 extern NSString *const MSID_DEVICE_ID_CACHE_KEY;
 extern NSString *const MSID_PRT_PROTOCOL_VERSION_CACHE_KEY;
+extern NSString *const MSID_KID_CACHE_KEY;
 
 extern NSString *const MSID_ACCESS_TOKEN_CACHE_TYPE;
+extern NSString *const MSID_ACCESS_TOKEN_WITH_AUTH_SCHEME_CACHE_TYPE;
 extern NSString *const MSID_ACCOUNT_CACHE_TYPE;
 extern NSString *const MSID_REFRESH_TOKEN_CACHE_TYPE;
 extern NSString *const MSID_APPLICATION_METADATA_CACHE_TYPE;

@@ -74,6 +74,12 @@ typedef NS_ENUM(NSInteger, MSIDPromptType)
     MSIDPromptTypeDefault = MSIDPromptTypePromptIfNecessary
 };
 
+typedef NS_ENUM(NSInteger, MSIDAuthScheme)
+{
+    MSIDAuthSchemeBearer,
+    MSIDAuthSchemePop,
+};
+
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
@@ -115,3 +121,6 @@ extern NSString * _Nonnull const MSID_DEFAULT_AAD_AUTHORITY;
 extern NSString * _Nonnull const MSID_DEFAULT_MSA_TENANTID;
 extern NSString * _Nonnull const MSID_CLIENT_SDK_TYPE_MSAL;
 extern NSString * _Nonnull const MSID_CLIENT_SDK_TYPE_ADAL;
+
+extern NSString * _Nonnull const MSID_POP_TOKEN_PRIVATE_KEY;
+extern NSString * _Nonnull const MSID_POP_TOKEN_PUBLIC_KEY;

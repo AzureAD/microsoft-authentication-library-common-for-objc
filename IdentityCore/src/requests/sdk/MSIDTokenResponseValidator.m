@@ -137,6 +137,7 @@
                               accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                      correlationID:(NSUUID *)correlationID
                                   saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                                        authScheme:(MSIDAuthenticationScheme *)authScheme
                                              error:(NSError **)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
@@ -161,6 +162,8 @@
                                                                         redirectUri:nil
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
+    
+    configuration.authScheme = authScheme;
     
     configuration.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:brokerResponse.msidAuthority
                                                                                                        appIdentifier:[[NSBundle mainBundle] bundleIdentifier]];

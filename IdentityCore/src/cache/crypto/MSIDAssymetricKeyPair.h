@@ -37,6 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey;
 
+- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
+
+- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
+
+- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
+
 @end
 
 NS_ASSUME_NONNULL_END
