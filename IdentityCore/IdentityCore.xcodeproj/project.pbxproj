@@ -644,7 +644,6 @@
 		A08D0A2B24A85C9800C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E024A85A1D00C9193D /* MSIDAuthenticationSchemePopTest.m */; };
 		A08D0A2C24A85C9800C9193D /* MSIDAuthorizationCodeGrantRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E424A85A1E00C9193D /* MSIDAuthorizationCodeGrantRequestTest.m */; };
 		A08D0A2D24A85C9800C9193D /* MSIDAuthSchemeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09DA24A85A1C00C9193D /* MSIDAuthSchemeTest.m */; };
-		A08D0A2E24A85C9800C9193D /* MSIDCacheConfigTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E524A85A1E00C9193D /* MSIDCacheConfigTest.m */; };
 		A08D0A2F24A85C9800C9193D /* MSIDConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E324A85A1D00C9193D /* MSIDConfigurationTest.m */; };
 		A08D0A3024A85C9800C9193D /* MSIDDefaultCredentialCacheKeyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E124A85A1D00C9193D /* MSIDDefaultCredentialCacheKeyTest.m */; };
 		A08D0A3124A85C9800C9193D /* MSIDDevicePopManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E724A85A1E00C9193D /* MSIDDevicePopManagerTest.m */; };
@@ -657,7 +656,6 @@
 		A08D0A3824A85C9900C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E024A85A1D00C9193D /* MSIDAuthenticationSchemePopTest.m */; };
 		A08D0A3924A85C9900C9193D /* MSIDAuthorizationCodeGrantRequestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E424A85A1E00C9193D /* MSIDAuthorizationCodeGrantRequestTest.m */; };
 		A08D0A3A24A85C9900C9193D /* MSIDAuthSchemeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09DA24A85A1C00C9193D /* MSIDAuthSchemeTest.m */; };
-		A08D0A3B24A85C9900C9193D /* MSIDCacheConfigTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E524A85A1E00C9193D /* MSIDCacheConfigTest.m */; };
 		A08D0A3C24A85C9900C9193D /* MSIDConfigurationTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E324A85A1D00C9193D /* MSIDConfigurationTest.m */; };
 		A08D0A3D24A85C9900C9193D /* MSIDDefaultCredentialCacheKeyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E124A85A1D00C9193D /* MSIDDefaultCredentialCacheKeyTest.m */; };
 		A08D0A3E24A85C9900C9193D /* MSIDDevicePopManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E724A85A1E00C9193D /* MSIDDevicePopManagerTest.m */; };
@@ -2190,7 +2188,6 @@
 		A08D09E224A85A1D00C9193D /* MSIDTokenRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDTokenRequestTest.m; sourceTree = "<group>"; };
 		A08D09E324A85A1D00C9193D /* MSIDConfigurationTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDConfigurationTest.m; sourceTree = "<group>"; };
 		A08D09E424A85A1E00C9193D /* MSIDAuthorizationCodeGrantRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAuthorizationCodeGrantRequestTest.m; sourceTree = "<group>"; };
-		A08D09E524A85A1E00C9193D /* MSIDCacheConfigTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDCacheConfigTest.m; sourceTree = "<group>"; };
 		A08D09E624A85A1E00C9193D /* MSIDAccessTokenWithAuthSchemeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAccessTokenWithAuthSchemeTest.m; sourceTree = "<group>"; };
 		A08D09E724A85A1E00C9193D /* MSIDDevicePopManagerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDDevicePopManagerTest.m; sourceTree = "<group>"; };
 		A08D09E824A85A1E00C9193D /* MSIDSilentTokenRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDSilentTokenRequestTest.m; sourceTree = "<group>"; };
@@ -4706,7 +4703,6 @@
 				A08D09E024A85A1D00C9193D /* MSIDAuthenticationSchemePopTest.m */,
 				A08D09E424A85A1E00C9193D /* MSIDAuthorizationCodeGrantRequestTest.m */,
 				A08D09DA24A85A1C00C9193D /* MSIDAuthSchemeTest.m */,
-				A08D09E524A85A1E00C9193D /* MSIDCacheConfigTest.m */,
 				A08D09E324A85A1D00C9193D /* MSIDConfigurationTest.m */,
 				A08D09E124A85A1D00C9193D /* MSIDDefaultCredentialCacheKeyTest.m */,
 				A08D09E724A85A1E00C9193D /* MSIDDevicePopManagerTest.m */,
@@ -5820,7 +5816,6 @@
 				238EF08320913D760035ABE6 /* MSIDAADRequestConfiguratorTests.m in Sources */,
 				23419F63239896E500EA78C5 /* MSIDBrokerOperationResponseTests.m in Sources */,
 				9686C72D21192C65001FFF51 /* MSIDWebOpenBrowserResponseTests.m in Sources */,
-				A08D0A2E24A85C9800C9193D /* MSIDCacheConfigTest.m in Sources */,
 				23419F82239B36F500EA78C5 /* MSIDAccountIdentifierTests.m in Sources */,
 				B210F42E1FDDE6A5005A8F76 /* MSIDJsonObjectTests.m in Sources */,
 				B29F7805213DFA5600D61FC8 /* MSIDErrorTests.m in Sources */,
@@ -6377,7 +6372,6 @@
 				9686C72E21192C65001FFF51 /* MSIDWebOpenBrowserResponseTests.m in Sources */,
 				B280800B204CD81400944D89 /* MSIDLegacyCacheKeyTests.m in Sources */,
 				B210F44F1FDDF5D2005A8F76 /* MSIDClientInfoTests.m in Sources */,
-				A08D0A3B24A85C9900C9193D /* MSIDCacheConfigTest.m in Sources */,
 				9668B6F82148796A0039AB0A /* MSIDDataExtensionsTests.m in Sources */,
 				B2936F7D20ABF9570050C585 /* MSIDLegacyRefreshTokenTests.m in Sources */,
 				B253BD7A20487C8A00D07F31 /* MSIDLegacyTokenCacheIntegrationTests.m in Sources */,
