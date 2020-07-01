@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,28 +15,25 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
 
-@protocol MSIDRequestContext;
+@class MSIDBaseOperation;
+@class MSIDWebviewResponse;
 
-@interface MSIDWebviewResponse : NSObject
+@interface MSIDOperationFactory : NSObject
 
-@property (readonly) NSDictionary *parameters;
-@property (readonly) NSURL *url;
-@property (nonatomic, class, readonly) NSString *operation;
++ (void)registerOperationClass:(Class)operationClass
+              forResponseClass:(Class)responseClass;
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
++ (void)unregisterAll;
 
-+ (NSDictionary *)msidWebResponseParametersFromURL:(NSURL *)url;
++ (MSIDBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
+                                            error:(NSError **)error;
 
 @end

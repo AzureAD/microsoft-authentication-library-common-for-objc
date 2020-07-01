@@ -76,4 +76,10 @@
     return responseParameters;
 }
 
++ (NSString *)operation
+{
+    NSAssert(NO, @"Abstract method.");
+    return @"";
+}
+
 @end

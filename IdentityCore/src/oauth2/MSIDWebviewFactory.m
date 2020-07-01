@@ -40,6 +40,7 @@
 #import "MSIDWebviewInteracting.h"
 #import "MSIDSystemWebViewControllerFactory.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDWebViewResponseFactory.h"
 
 @implementation MSIDWebviewFactory
 
@@ -220,18 +221,12 @@
 {
     //  return base response
     NSError *responseCreationError = nil;
-    MSIDWebOAuth2AuthCodeResponse *response = [[MSIDWebOAuth2AuthCodeResponse alloc] initWithURL:url
-                                                                    requestState:requestState
-                                                              ignoreInvalidState:ignoreInvalidState
-                                                                         context:context
-                                                                           error:&responseCreationError];
-    if (responseCreationError)
-    {
-        if (error)  *error = responseCreationError;
-        return nil;
-    }
-    
-    return response;
+    return [MSIDWebViewResponseFactory oAuthResponseWithWebResponseType:MSIDWebViewResponseBaseType
+                                                                    url:url
+                                                           requestState:requestState
+                                                     ignoreInvalidState:ignoreInvalidState
+                                                                context:context
+                                                                  error:&responseCreationError];
 }
 
 - (NSString *)generateStateValue
