@@ -53,7 +53,13 @@
 
 + (NSArray *)getAllDefaultRefreshTokens:(id<MSIDCacheAccessor>)cacheAccessor
 {
-    return [self getAllTokens:cacheAccessor type:MSIDRefreshTokenType class:MSIDRefreshToken.class];
+    NSMutableArray *results = [[self getAllTokens:cacheAccessor type:MSIDRefreshTokenType class:MSIDRefreshToken.class] mutableCopy];
+    [results sortUsingComparator:^NSComparisonResult(MSIDRefreshToken *obj1, MSIDRefreshToken *obj2)
+    {
+        return obj1.familyId < obj2.familyId;
+    }];
+    
+    return results;
 }
 
 + (NSArray *)getAllIdTokens:(id<MSIDCacheAccessor>)cacheAccessor
@@ -78,6 +84,11 @@
             [results addObject:token];
         }
     }
+    
+    [results sortUsingComparator:^NSComparisonResult(MSIDBaseToken *obj1, MSIDBaseToken *obj2)
+    {
+        return obj1.clientId > obj2.clientId;
+    }];
     
     return results;
 }

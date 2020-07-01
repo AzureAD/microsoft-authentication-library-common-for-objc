@@ -1,3 +1,5 @@
+//------------------------------------------------------------------------------
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -15,51 +17,21 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//
+//------------------------------------------------------------------------------
 
-#if !MSID_EXCLUDE_WEBKIT
+#import "MSIDHttpRequest+OverrideCacheSave.h"
 
-#import <Foundation/Foundation.h>
-#import <WebKit/WebKit.h>
-#import "MSIDWebViewPlatformParams.h"
+@implementation MSIDHttpRequest (OverrideCacheSave)
 
-@interface MSIDWebviewUIController :
-#if TARGET_OS_IPHONE
-UIViewController
-#else
-NSWindowController
-#endif
+- (void)setCachedResponse:(__unused NSCachedURLResponse *)cachedResponse forRequest:(__unused NSURLRequest *)request
 {
-    BOOL _complete;
+    // leave this empty
 }
 
-@property (nonatomic) WKWebView *webView;
-@property (nonatomic) id<MSIDRequestContext> context;
-@property (nonatomic) BOOL loading;
-@property (nonatomic) BOOL complete;
-@property (nonatomic, readonly) MSIDWebViewPlatformParams *platformParams;
-#if TARGET_OS_IPHONE
-@property (nonatomic, weak) UIViewController *parentController;
-@property (nonatomic) UIModalPresentationStyle presentationType;
-#endif
-
-- (id)initWithContext:(id<MSIDRequestContext>)context;
-
-- (id)initWithContext:(id<MSIDRequestContext>)context
-       platformParams:(MSIDWebViewPlatformParams *)platformParams;
-
-- (BOOL)loadView:(NSError **)error;
-- (void)presentView;
-- (void)dismissWebview:(void (^)(void))completion;
-- (void)showLoadingIndicator;
-- (void)dismissLoadingIndicator;
-- (void)cancel;
-- (void)userCancel;
-
 @end
-
-#endif
