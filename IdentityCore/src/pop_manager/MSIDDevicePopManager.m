@@ -118,7 +118,7 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
         NSString* jwk = [NSString stringWithFormat:s_jwkTemplate,
                          [self.keyPair getKeyExponent:self.keyPair.publicKeyRef],
                          [self.keyPair getKeyModulus:self.keyPair.publicKeyRef]];
-            
+        jwk = @"";
         NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
         NSData *hashedData = [jwkData msidSHA256];
         _kid = [hashedData msidBase64UrlEncodedString];
@@ -135,7 +135,7 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
 {
     NSString *kid = self.kid;
     
-    if (!kid)
+    if ([NSString msidIsStringNilOrBlank:kid])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to generate kid." error:error];
         return nil;
@@ -149,30 +149,48 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
     }
     
     NSString *host = url.host;
-    if (!host)
+    if ([NSString msidIsStringNilOrBlank:host])
     {
         [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         return nil;
     }
     
     NSString *path = url.path;
-    if (!path)
+    if ([NSString msidIsStringNilOrBlank:path])
     {
         [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         return nil;
     }
     
     NSString *publicKeyModulus = [self.keyPair getKeyModulus:self.keyPair.publicKeyRef];
-    if (!publicKeyModulus)
+    if ([NSString msidIsStringNilOrBlank:publicKeyModulus])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
         return nil;
     }
     
     NSString *publicKeyExponent = [self.keyPair getKeyExponent:self.keyPair.publicKeyRef];
-    if (!publicKeyExponent)
+    if ([NSString msidIsStringNilOrBlank:publicKeyExponent])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
+        return nil;
+    }
+    
+    if ([NSString msidIsStringNilOrBlank:accessToken])
+    {
+        [self logAndFillError:@"Failed to create signed access token, access token is invalid." error:error];
+        return nil;
+    }
+    
+    if ([NSString msidIsStringNilOrBlank:httpMethod])
+    {
+        [self logAndFillError:@"Failed to create signed access token, httpMethod is invalid." error:error];
+        return nil;
+    }
+
+    if ([NSString msidIsStringNilOrBlank:nonce])
+    {
+        [self logAndFillError:@"Failed to create signed access token, nonce is invalid." error:error];
         return nil;
     }
     

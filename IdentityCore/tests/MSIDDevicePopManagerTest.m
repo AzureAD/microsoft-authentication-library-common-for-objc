@@ -24,31 +24,173 @@
 
 
 #import <XCTest/XCTest.h>
+#import "MSIDDevicePopManager.h"
+#import "MSIDCacheConfig.h"
+#import "MSIDAssymetricKeyKeychainGenerator.h"
+#import "MSIDAssymetricKeyLookupAttributes.h"
+#import "MSIDAssymetricKeyPair.h"
+#if !TARGET_OS_IPHONE
+#import "MSIDAssymetricKeyLoginKeychainGenerator.h"
+#endif
+#import "MSIDConstants.h"
 
 @interface MSIDDevicePopManagerTest : XCTestCase
+
+@property MSIDCacheConfig *msidCacheConfig;
 
 @end
 
 @implementation MSIDDevicePopManagerTest
 
-- (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+- (void)setUp
+{
+    _msidCacheConfig = [MSIDCacheConfig new];
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void)tearDown
+{
+    _msidCacheConfig = nil;
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+- (MSIDDevicePopManager *)test_initWithValidCacheConfig
+{
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithCacheConfig:_msidCacheConfig];
+    XCTAssertNotNil(manager);    
+    return manager;
 }
 
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+- (void)test_createSignedAccess_ValidInput_ShouldReturnSignedAT
+{
+    MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
+    NSString *accesToken = @"accesToken";
+    NSString *httpMethod = @"Post";
+    NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net/api/validateSHR";
+    NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
+    NSError *error = nil;
+    NSString *signedAT = [manager createSignedAccessToken:accesToken
+                                               httpMethod:httpMethod
+                                               requestUrl:requestUrl
+                                                    nonce:nonce
+                                                    error:&error];
+    XCTAssertNotNil(signedAT);
+    XCTAssertNil(error);
 }
 
+- (void)test_createSignedAccess_DeletePublickey_ShouldRegeneratePublicKey_AndReturnSignedAT
+{
+    
+    MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
+    NSString *accesToken = @"accesToken";
+    NSString *httpMethod = @"Post";
+    NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net/api/validateSHR";
+    NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
+    NSError *error = nil;
+    
+    // Delete publickey
+    [self deleteKeyWithTag:MSID_POP_TOKEN_PUBLIC_KEY];
+    [self deleteKeyWithTag:MSID_POP_TOKEN_PRIVATE_KEY];
+    
+    NSString *signedAT = [manager createSignedAccessToken:accesToken
+                                               httpMethod:httpMethod
+                                               requestUrl:requestUrl
+                                                    nonce:nonce
+                                                    error:&error];
+    XCTAssertNotNil(signedAT);
+    XCTAssertNil(error);
+}
+
+- (void)test_createSignedAccess_InvalidAcessToken_ShouldReturnNilAndError
+{
+    
+    MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
+    NSString *accesToken = @"";
+    NSString *httpMethod = @"Post";
+    NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net/api/validateSHR";
+    NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
+    NSError *error = nil;
+       
+    NSString *signedAT = [manager createSignedAccessToken:accesToken
+                                               httpMethod:httpMethod
+                                               requestUrl:requestUrl
+                                                    nonce:nonce
+                                                    error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(signedAT);
+}
+
+- (void)test_createSignedAccess_InvalidHTTPMethod_ShouldReturnNilAndError
+{
+    
+    MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
+    NSString *accesToken = @"accessToken";
+    NSString *httpMethod = @"";
+    NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net/api/validateSHR";
+    NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
+    NSError *error = nil;
+    
+    NSString *signedAT = [manager createSignedAccessToken:accesToken
+                                               httpMethod:httpMethod
+                                               requestUrl:requestUrl
+                                                    nonce:nonce
+                                                    error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(signedAT);
+}
+
+- (void)test_createSignedAccess_InvalidRequestURL_ShouldReturnNilAndError
+{
+    
+    MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
+    NSString *accesToken = @"accessToken";
+    NSString *httpMethod = @"POST";
+    NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net";
+    NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
+    NSError *error = nil;
+        
+    NSString *signedAT = [manager createSignedAccessToken:accesToken
+                                               httpMethod:httpMethod
+                                               requestUrl:requestUrl
+                                                    nonce:nonce
+                                                    error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(signedAT);
+}
+
+- (void)test_createSignedAccess_InvalidNonce_ShouldReturnNilAndError
+{
+    
+    MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
+    NSString *accesToken = @"accessToken";
+    NSString *httpMethod = @"POST";
+    NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net/api/validateSHR";
+    NSString *nonce = @"";
+    NSError *error = nil;
+    
+    NSString *signedAT = [manager createSignedAccessToken:accesToken
+                                               httpMethod:httpMethod
+                                               requestUrl:requestUrl
+                                                    nonce:nonce
+                                                    error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(signedAT);
+}
+
+- (void)deleteKeyWithTag:(NSString *)tag
+{
+    NSDictionary *deleteKeyAttr = @{(id)kSecClass : (id)kSecClassKey,
+                                    (id)kSecAttrApplicationTag : (id)[tag dataUsingEncoding:NSUTF8StringEncoding]};
+    
+    OSStatus status = SecItemDelete((CFDictionaryRef)deleteKeyAttr);
+    BOOL deletionSucceeded = status == errSecSuccess || status == errSecItemNotFound;
+    XCTAssertTrue(deletionSucceeded);
+}
+
+- (MSIDAssymetricKeyKeychainGenerator *)keyGenerator
+{
+#if TARGET_OS_IPHONE
+    return [[MSIDAssymetricKeyKeychainGenerator alloc] initWithGroup:nil error:nil];
+#else
+    return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithGroup:nil error:nil];
+#endif
+}
 @end

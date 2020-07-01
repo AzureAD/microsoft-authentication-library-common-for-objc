@@ -135,6 +135,7 @@
     BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
+    
     return accessToken;
 }
 
