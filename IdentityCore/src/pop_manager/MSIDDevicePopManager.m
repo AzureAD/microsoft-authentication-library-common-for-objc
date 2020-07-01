@@ -142,7 +142,7 @@ static NSString *s_kidTemplate = nil;
 
 - (NSString *)generateKidFromModulus:(NSString *)exponent exponent:(NSString *)modulus
 {
-    NSString* jwk = [NSString stringWithFormat:s_jwkTemplate, exponent, modulus];
+    NSString *jwk = [NSString stringWithFormat:s_jwkTemplate, exponent, modulus];
     NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
     NSData *hashedData = [jwkData msidSHA256];
     return [hashedData msidBase64UrlEncodedString];
