@@ -93,7 +93,7 @@
 - (MSIDAccessToken *)accessToken
 {
     MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
-    accessToken.accessTokenType = self.tokenType;
+    accessToken.tokenType = self.tokenType;
     accessToken.kid = self.kid;
     return accessToken;
 }

@@ -74,6 +74,8 @@
 		1EE541422458B30300A86414 /* MSIDDevicePopManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */; };
 		1EFD58C622B44BA000ECD86E /* MSIDMacCredentialStorageItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */; };
 		1EFD58C722B44BA200ECD86E /* MSIDMacCredentialStorageItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */; };
+		1EFD703124AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD703024AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h */; };
+		1EFD703624AC4A64007265FF /* MSIDDevicePopManager+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD703524AC4A64007265FF /* MSIDDevicePopManager+Internal.h */; };
 		230016402371126E00F7D19C /* MSIDProviderType.h in Headers */ = {isa = PBXBuildFile; fileRef = 2300163E2371126E00F7D19C /* MSIDProviderType.h */; };
 		230016412371126E00F7D19C /* MSIDProviderType.m in Sources */ = {isa = PBXBuildFile; fileRef = 2300163F2371126E00F7D19C /* MSIDProviderType.m */; };
 		230016422371126E00F7D19C /* MSIDProviderType.m in Sources */ = {isa = PBXBuildFile; fileRef = 2300163F2371126E00F7D19C /* MSIDProviderType.m */; };
@@ -1660,6 +1662,8 @@
 		1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDevicePopManager.m; sourceTree = "<group>"; };
 		1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMacCredentialStorageItem.h; sourceTree = "<group>"; };
 		1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacCredentialStorageItem.m; sourceTree = "<group>"; };
+		1EFD703024AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAssymetricKeyKeychainGenerator+Internal.h"; sourceTree = "<group>"; };
+		1EFD703524AC4A64007265FF /* MSIDDevicePopManager+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDDevicePopManager+Internal.h"; sourceTree = "<group>"; };
 		2300163E2371126E00F7D19C /* MSIDProviderType.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDProviderType.h; sourceTree = "<group>"; };
 		2300163F2371126E00F7D19C /* MSIDProviderType.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDProviderType.m; sourceTree = "<group>"; };
 		2306D29C20AB65DF00F875A3 /* MSIDAADEndpointProviding.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDAADEndpointProviding.h; sourceTree = "<group>"; };
@@ -2875,6 +2879,7 @@
 			children = (
 				1EE5413E2458B30300A86414 /* MSIDDevicePopManager.h */,
 				1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */,
+				1EFD703524AC4A64007265FF /* MSIDDevicePopManager+Internal.h */,
 			);
 			path = pop_manager;
 			sourceTree = "<group>";
@@ -4164,6 +4169,7 @@
 				B2C0748E246B71470008D701 /* MSIDAssymetricKeyGenerating.h */,
 				B2C07490246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.h */,
 				B2C07491246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.m */,
+				1EFD703024AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h */,
 				B2C0747F246B70F70008D701 /* MSIDAssymetricKeyPair.h */,
 				B2C07480246B70F70008D701 /* MSIDAssymetricKeyPair.m */,
 				B2C07484246B711B0008D701 /* MSIDAssymetricKeyLookupAttributes.h */,
@@ -5082,11 +5088,13 @@
 				B2EF143A1FF2F225005DC1C0 /* MSIDAADV2TokenResponse.h in Headers */,
 				9641B5011FCF3E2700AFA0EC /* MSIDTokenCacheDataSource.h in Headers */,
 				233E96F122652B8B007FCE2A /* MSIDDefaultDispatcher+Internal.h in Headers */,
+				1EFD703624AC4A64007265FF /* MSIDDevicePopManager+Internal.h in Headers */,
 				B2AE0FDD2427E9FC00B8FAF1 /* MSIDKeychainUtil+MacInternal.h in Headers */,
 				23F9FD4622EC08D800DAB65D /* NSKeyedUnarchiver+MSIDExtensions.h in Headers */,
 				B227035E22A367A000030ADC /* MSIDMaskedHashableLogParameter.h in Headers */,
 				235480D420DDF88200246F72 /* MSIDAADAuthority.h in Headers */,
 				238E19CC2086FC87004DF483 /* MSIDRequestSerialization.h in Headers */,
+				1EFD703124AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h in Headers */,
 				740340B92460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h in Headers */,
 				B286B96223861852007833AD /* MSIDSignoutWebRequestConfiguration.h in Headers */,
 				B20657AB1FC91F6400412B7D /* MSIDTelemetry+Internal.h in Headers */,
