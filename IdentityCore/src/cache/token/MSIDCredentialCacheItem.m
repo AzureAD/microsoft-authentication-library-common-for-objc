@@ -191,7 +191,7 @@
     _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
     _applicationIdentifier = [json msidStringObjectForKey:MSID_APPLICATION_IDENTIFIER_CACHE_KEY];
     _kid = [json msidStringObjectForKey:MSID_KID_CACHE_KEY];
-    _tokenType = [json msidStringObjectForKey:MSID_ACCESS_TOKEN_TYPE];
+    _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
     return self;
 }
 
@@ -224,7 +224,7 @@
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
     dictionary[MSID_APPLICATION_IDENTIFIER_CACHE_KEY] = _applicationIdentifier;
     dictionary[MSID_KID_CACHE_KEY] = _kid;
-    dictionary[MSID_ACCESS_TOKEN_TYPE] = _tokenType;
+    dictionary[MSID_OAUTH2_TOKEN_TYPE] = _tokenType;
     return dictionary;
 }
 
