@@ -220,13 +220,12 @@
                                    error:(NSError **)error
 {
     //  return base response
-    NSError *responseCreationError = nil;
     return [MSIDWebViewResponseFactory oAuthResponseWithWebResponseType:MSIDWebViewResponseBaseType
                                                                     url:url
                                                            requestState:requestState
                                                      ignoreInvalidState:ignoreInvalidState
                                                                 context:context
-                                                                  error:&responseCreationError];
+                                                                  error:error];
 }
 
 - (NSString *)generateStateValue
