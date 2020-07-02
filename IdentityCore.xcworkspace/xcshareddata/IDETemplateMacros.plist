@@ -1,3 +1,10 @@
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>FILEHEADER</key>
+    <string>
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,40 +26,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-
-#import "MSIDBaseToken.h"
-
-@interface MSIDAccessToken : MSIDBaseToken
-{
-    NSString *_accessToken;
-    NSString *_tokenType;
-    NSString *_kid;
-}
-
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
-@property (readwrite) NSDate *cachedAt;
-@property (readwrite) NSString *accessToken;
-
-// v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource;
-
-// v2 access tokens are scoped down to resources
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
-
-// Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
-@property (readwrite) NSString *enrollmentId;
-
-// Unique app identifier used for cases when access token storage needs to be partitioned per application
-@property (readwrite) NSString *applicationIdentifier;
-
-// Public key identifier used to bound the access tokens.
-@property (nonatomic) NSString *kid;
-@property (nonatomic) NSString *tokenType;
-
-- (BOOL)isExpired;
-- (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
-- (BOOL)isExtendedLifetimeValid;
-
-@end
+// THE SOFTWARE.  
+</string>
+</dict>
+</plist>

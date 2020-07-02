@@ -170,7 +170,7 @@
     
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:[self aadTestTokenResponseATPop]
                                                       configuration:[self aadTestConfigurationATPop]];
-    accessToken.accessTokenType = @"Pop";
+    accessToken.tokenType = @"Pop";
     
     MSIDCredentialCacheItem *credential = accessToken.tokenCacheItem;
     NSDictionary *accessTokenJSON = credential.jsonDictionary;
@@ -182,7 +182,7 @@
     
     // 1. Verify payload
     NSDictionary *expectedJSON = @{
-        @"access_token_type": @"Pop",
+        @"token_type": @"Pop",
         @"secret": @"<removed_at>",
         @"target": @"Calendars.Read openid profile Tasks.Read User.Read email",
         @"extended_expires_on": extExpiresOn,
@@ -456,7 +456,7 @@
     
     // 1. Verify payload
     NSDictionary *expectedJSON = @{
-        @"access_token_type" : @"Pop",
+        @"token_type" : @"Pop",
         @"secret": @"<removed_at>",
         @"target": @"Tasks.Read User.Read openid profile",
         @"credential_type": @"AccessToken_With_AuthScheme",

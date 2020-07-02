@@ -88,7 +88,7 @@
 
         _context = context;
         
-        self.complete = NO;
+        _complete = NO;
     }
     
     return self;

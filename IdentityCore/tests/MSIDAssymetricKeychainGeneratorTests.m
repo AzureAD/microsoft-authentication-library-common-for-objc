@@ -92,8 +92,8 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
     BOOL publicKeyExists = [self keyExists:publicKeyIdentifier];
     XCTAssertTrue(publicKeyExists);
     
-    XCTAssertNotNil([result getKeyModulus:result.publicKeyRef]);
-    XCTAssertNotNil([result getKeyExponent:result.publicKeyRef]);
+    XCTAssertNotNil([result keyExponent]);
+    XCTAssertNotNil([result keyModulus]);
 
 }
 

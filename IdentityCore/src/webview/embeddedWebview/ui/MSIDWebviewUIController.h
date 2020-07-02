@@ -33,6 +33,9 @@ UIViewController
 #else
 NSWindowController
 #endif
+{
+    BOOL _complete;
+}
 
 @property (nonatomic) WKWebView *webView;
 @property (nonatomic) id<MSIDRequestContext> context;

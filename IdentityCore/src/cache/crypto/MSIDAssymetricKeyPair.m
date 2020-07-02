@@ -47,9 +47,9 @@
     return self;
 }
 
-- (NSString *)getKeyExponent:(SecKeyRef)keyRef
+- (NSString *)keyExponent
 {
-    NSData *publicKeyBits = [self getDataFromKeyRef:keyRef];
+    NSData *publicKeyBits = self.keyData;
     if (!publicKeyBits)
     {
         return nil;
@@ -70,9 +70,9 @@
     return [[publicKeyBits subdataWithRange:NSMakeRange(iterator, exp_size)] base64EncodedStringWithOptions:0];
 }
 
-- (NSString *)getKeyModulus:(SecKeyRef)keyRef
+- (NSString *)keyModulus
 {
-    NSData *publicKeyBits = [self getDataFromKeyRef:keyRef];
+    NSData *publicKeyBits = self.keyData;
     if (!publicKeyBits)
     {
         return nil;
@@ -112,12 +112,12 @@
     return ret;
 }
 
-- (NSData *)getDataFromKeyRef:(SecKeyRef)keyRef
+- (NSData *)keyData
 {
     CFErrorRef keyExtractionError = NULL;
     if (@available(iOS 10.0, macOS 10.12, *))
     {
-        NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(keyRef, &keyExtractionError));
+        NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(self.publicKeyRef, &keyExtractionError));
         
         if (!keyData)
         {

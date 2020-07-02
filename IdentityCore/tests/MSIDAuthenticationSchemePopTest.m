@@ -127,7 +127,7 @@
     
     MSIDAccessToken *accessToken = scheme.blankAccessToken;
     XCTAssertTrue([accessToken isMemberOfClass:[MSIDAccessTokenWithAuthScheme class]]);
-    XCTAssertNotNil((MSIDAccessTokenWithAuthScheme *)accessToken.accessTokenType);
+    XCTAssertNotNil((MSIDAccessTokenWithAuthScheme *)accessToken.tokenType);
     XCTAssertNotNil((MSIDAccessTokenWithAuthScheme *)accessToken.kid);
 }
 

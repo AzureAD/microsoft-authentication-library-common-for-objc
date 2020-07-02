@@ -153,7 +153,7 @@
     item.target = @"user.read user.write";
     item.clientId = @"client";
     item.secret = @"at";
-    item.accessTokenType = @"Pop";
+    item.tokenType = @"Pop";
     [self saveItem:item];
     
     // Now query
@@ -221,7 +221,7 @@
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
     item.applicationIdentifier = @"app.bundle.id";
-    item.accessTokenType = @"Pop";
+    item.tokenType = @"Pop";
     [self saveItem:item];
     
     // Now query
@@ -290,7 +290,7 @@
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
     item.applicationIdentifier = @"app.bundle.id";
-    item.accessTokenType = @"Pop";
+    item.tokenType = @"Pop";
     [self saveItem:item];
     
     // Now query
@@ -359,7 +359,7 @@
     item.secret = @"at";
     item.enrollmentId = @"enrollmentId";
     item.applicationIdentifier = @"my.app.bundle";
-    item.accessTokenType = @"Pop";
+    item.tokenType = @"Pop";
     [self saveItem:item];
     
     // Now query
@@ -424,7 +424,7 @@
     item.target = @"user.read user.write";
     item.clientId = @"client";
     item.secret = @"at";
-    item.accessTokenType = @"Pop";
+    item.tokenType = @"Pop";
     [self saveItem:item];
     
     // Now query
@@ -1737,7 +1737,7 @@
     
     key.realm = @"contoso.com";
     key.target = @"user.read user.write";
-    key.tokenType = item.accessTokenType;
+    key.tokenType = item.tokenType;
     
     NSError *error = nil;
     MSIDCredentialCacheItem *resultItem = [self.cache getCredential:key context:nil error:&error];
@@ -1780,7 +1780,7 @@
     keyATPop.realm = @"contoso.com";
     keyATPop.target = @"user.read user.write";
     keyATPop.applicationIdentifier = @"app.bundle.id";
-    keyATPop.tokenType = itemATPop.accessTokenType;
+    keyATPop.tokenType = itemATPop.tokenType;
     error = nil;
     resultItem = [self.cache getCredential:keyATPop context:nil error:&error];
     XCTAssertNil(error);
@@ -2888,7 +2888,7 @@
     item.clientId = @"client";
     item.target = @"user.read user.write";
     item.secret = @"at";
-    item.accessTokenType = @"Pop";
+    item.tokenType = @"Pop";
     return item;
 }
 
@@ -2902,7 +2902,7 @@
     item.clientId = @"client";
     item.target = @"user.read user.write";
     item.secret = @"at";
-    item.accessTokenType = @"Bearer";
+    item.tokenType = @"Bearer";
     return item;
 }
 

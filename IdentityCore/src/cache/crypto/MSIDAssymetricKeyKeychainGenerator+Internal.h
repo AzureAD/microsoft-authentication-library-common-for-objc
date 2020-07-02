@@ -21,38 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDBaseToken.h"
+#import "MSIDAssymetricKeyKeychainGenerator.h"
 
-@interface MSIDAccessToken : MSIDBaseToken
-{
-    NSString *_accessToken;
-    NSString *_tokenType;
-    NSString *_kid;
-}
+NS_ASSUME_NONNULL_BEGIN
 
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
-@property (readwrite) NSDate *cachedAt;
-@property (readwrite) NSString *accessToken;
+@interface MSIDAssymetricKeyKeychainGenerator ()
 
-// v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource;
-
-// v2 access tokens are scoped down to resources
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
-
-// Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
-@property (readwrite) NSString *enrollmentId;
-
-// Unique app identifier used for cases when access token storage needs to be partitioned per application
-@property (readwrite) NSString *applicationIdentifier;
-
-// Public key identifier used to bound the access tokens.
-@property (nonatomic) NSString *kid;
-@property (nonatomic) NSString *tokenType;
-
-- (BOOL)isExpired;
-- (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
-- (BOOL)isExtendedLifetimeValid;
+- (BOOL)deleteItemWithAttributes:(nonnull NSDictionary *)attributes
+                       itemTitle:(nullable NSString *)itemTitle
+                           error:(NSError * _Nullable __autoreleasing * _Nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END

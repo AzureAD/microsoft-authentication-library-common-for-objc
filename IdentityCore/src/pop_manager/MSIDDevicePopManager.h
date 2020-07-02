@@ -25,6 +25,9 @@
 
 @class MSIDCacheConfig;
 @class MSIDBaseToken;
+@class MSIDAssymetricKeyLookupAttributes;
+@class MSIDAssymetricKeyPair;
+@protocol MSIDAssymetricKeyGenerating;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -32,15 +35,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSString *requestConfirmation;
 
-@property (nonatomic, readonly) NSString *kid;
-
-- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig;
+- (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
+                  keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes;
 
 - (nullable NSString *)createSignedAccessToken:(NSString *)accessToken
-                           httpMethod:(NSString *)httpMethod
-                           requestUrl:(NSString *)requestUrl
-                                nonce:(NSString *)nonce
-                                error:(NSError *__autoreleasing * _Nullable)error;
+                                    httpMethod:(NSString *)httpMethod
+                                    requestUrl:(NSString *)requestUrl
+                                         nonce:(NSString *)nonce
+                                         error:(NSError *__autoreleasing * _Nullable)error;
 
 @end
 

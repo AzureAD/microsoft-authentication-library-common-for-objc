@@ -103,10 +103,10 @@
 
 - (MSIDAccessToken *)blankAccessToken
 {
-    MSIDAccessTokenWithAuthScheme *blankAccessToken = [MSIDAccessTokenWithAuthScheme new];
-    blankAccessToken.accessTokenType = self.tokenType;
-    blankAccessToken.kid = self.kid;
-    return blankAccessToken;
+    MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
+    accessToken.tokenType = self.tokenType;
+    accessToken.kid = self.kid;
+    return accessToken;
 }
 
 - (MSIDCredentialType)credentialType

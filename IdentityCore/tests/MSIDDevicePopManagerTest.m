@@ -33,6 +33,7 @@
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
 #import "MSIDConstants.h"
+#import "MSIDAssymetricKeyLookupAttributes.h"
 
 @interface MSIDDevicePopManagerTest : XCTestCase
 
@@ -54,7 +55,10 @@
 
 - (MSIDDevicePopManager *)test_initWithValidCacheConfig
 {
-    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithCacheConfig:_msidCacheConfig];
+    MSIDAssymetricKeyLookupAttributes *keyPairAttributes = [MSIDAssymetricKeyLookupAttributes new];
+    keyPairAttributes.privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
+    keyPairAttributes.publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;
+    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithCacheConfig:_msidCacheConfig keyPairAttributes:keyPairAttributes];
     XCTAssertNotNil(manager);    
     return manager;
 }
