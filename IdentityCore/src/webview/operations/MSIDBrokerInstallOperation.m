@@ -26,7 +26,10 @@
 #import "MSIDBrokerInstallOperation.h"
 #import "MSIDWebviewResponse.h"
 #import "MSIDWebWPJResponse.h"
+
+#if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#endif
 
 @interface MSIDBrokerInstallOperation()
 
@@ -53,7 +56,7 @@
 
     return self;
     #else
-    return nil
+    return nil;
     #endif
 }
 
