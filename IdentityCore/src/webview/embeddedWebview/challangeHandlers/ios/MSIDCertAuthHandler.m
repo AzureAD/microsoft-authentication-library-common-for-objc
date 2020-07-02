@@ -80,7 +80,7 @@ static BOOL s_useAuthSession = NO;
 + (void)resetHandler { }
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
-                webview:(__unused WKWebView *)webview
+                webview:(WKWebView *)webview
 #if TARGET_OS_IPHONE
        parentController:(UIViewController *)parentViewController
 #endif
@@ -134,7 +134,14 @@ static BOOL s_useAuthSession = NO;
         // This will launch a Safari view within the current Application, removing the app flip. Our control of this
         // view is extremely limited. Safari is still running in a separate sandbox almost completely isolated from us.
         
-        s_systemWebViewController = [[MSIDSystemWebviewController alloc] initWithStartURL:requestURL
+        NSURL *currentURL = requestURL;
+        
+        if (s_useAuthSession && webview.URL)
+        {
+            currentURL = webview.URL;
+        }
+        
+        s_systemWebViewController = [[MSIDSystemWebviewController alloc] initWithStartURL:currentURL
                                                                               redirectURI:redirectURI
                                                                          parentController:parentViewController
                                                                  useAuthenticationSession:s_useAuthSession
