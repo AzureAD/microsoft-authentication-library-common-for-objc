@@ -37,7 +37,7 @@
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.kid = self.kid;
-    cacheItem.accessTokenType = self.accessTokenType;
+    cacheItem.tokenType = self.tokenType;
     return cacheItem;
 }
 
@@ -47,7 +47,7 @@
 {
     MSIDAccessTokenWithAuthScheme *item = [super copyWithZone:zone];
     item->_kid = [_kid copyWithZone:zone];
-    item->_accessTokenType = [_accessTokenType copyWithZone:zone];
+    item->_tokenType = [_tokenType copyWithZone:zone];
     return item;
 }
 
@@ -72,7 +72,7 @@
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.kid.hash;
-    hash = hash * 31 + self.accessTokenType.hash;
+    hash = hash * 31 + self.tokenType.hash;
     return hash;
 }
 
@@ -85,7 +85,7 @@
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.kid && !token.kid) || [self.kid isEqualToString:token.kid];
-    result &= (!self.accessTokenType && !token.accessTokenType) || [self.accessTokenType isEqualToString:token.accessTokenType];
+    result &= (!self.tokenType && !token.tokenType) || [self.tokenType isEqualToString:token.tokenType];
     return result;
 }
 
@@ -105,8 +105,8 @@
             return nil;
         }
         
-        _accessTokenType = tokenCacheItem.accessTokenType;
-        if (!_accessTokenType)
+        _tokenType = tokenCacheItem.tokenType;
+        if (!_tokenType)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize access token when missing token type field");
             return nil;

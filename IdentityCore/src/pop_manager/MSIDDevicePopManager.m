@@ -31,7 +31,6 @@
 
 static NSString *s_jwkTemplate = nil;
 static NSString *s_kidTemplate = nil;
-static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
 
 @interface MSIDDevicePopManager()
 
@@ -39,7 +38,10 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
 @property (nonatomic) id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
 @property (nonatomic) NSString *requestConfirmation;
 @property (nonatomic) NSString *kid;
+@property (nonatomic) MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
 @property (nonatomic) MSIDAssymetricKeyPair *keyPair;
+@property (nonatomic) NSString *keyExponent;
+@property (nonatomic) NSString *keyModulus;
 
 @end
 
@@ -51,21 +53,18 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
     {
         s_jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
         s_kidTemplate = @"{\"kid\":\"%@\"}";
-        s_keyLookUpAttributes = [MSIDAssymetricKeyLookupAttributes new];
-        NSString *privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
-        NSString *publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;
-        s_keyLookUpAttributes.privateKeyIdentifier = privateKeyIdentifier;
-        s_keyLookUpAttributes.publicKeyIdentifier = publicKeyIdentifier;
     }
 }
 
 - (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
+                  keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes
 {
     self = [super init];
     if (self)
     {
         _cacheConfig = cacheConfig;
         _keyGeneratorFactory = [MSIDAssymetricKeyGeneratorFactory defaultKeyGeneratorWithCacheConfig:self.cacheConfig error:nil];
+        _keyPairAttributes = keyPairAttributes;
     }
     
     return self;
@@ -76,7 +75,7 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
     if (!_keyPair)
     {
         NSError *keyPairError = nil;
-        _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:s_keyLookUpAttributes error:&keyPairError];
+        _keyPair = [self.keyGeneratorFactory readOrGenerateKeyPairForAttributes:self.keyPairAttributes error:&keyPairError];
         if (!_keyPair)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to generate key pair, error: %@", MSID_PII_LOG_MASKABLE(keyPairError));
@@ -115,16 +114,38 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
 {
     if (!_kid)
     {
-        NSString* jwk = [NSString stringWithFormat:s_jwkTemplate,
-                         [self.keyPair getKeyExponent:self.keyPair.publicKeyRef],
-                         [self.keyPair getKeyModulus:self.keyPair.publicKeyRef]];
-            
-        NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *hashedData = [jwkData msidSHA256];
-        _kid = [hashedData msidBase64UrlEncodedString];
+        _kid = [self generateKidFromModulus:self.keyModulus exponent:self.keyExponent];
     }
     
     return _kid;
+}
+
+- (NSString *)keyExponent
+{
+    if (!_keyExponent)
+    {
+        _keyExponent = self.keyPair.keyExponent;
+    }
+    
+    return _keyExponent;
+}
+
+- (NSString *)keyModulus
+{
+    if (!_keyModulus)
+    {
+        _keyModulus = self.keyPair.keyModulus;
+    }
+    
+    return _keyModulus;
+}
+
+- (NSString *)generateKidFromModulus:(NSString *)exponent exponent:(NSString *)modulus
+{
+    NSString *jwk = [NSString stringWithFormat:s_jwkTemplate, exponent, modulus];
+    NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *hashedData = [jwkData msidSHA256];
+    return [hashedData msidBase64UrlEncodedString];
 }
 
 - (NSString *)createSignedAccessToken:(NSString *)accessToken
@@ -162,15 +183,13 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
         return nil;
     }
     
-    NSString *publicKeyModulus = [self.keyPair getKeyModulus:self.keyPair.publicKeyRef];
-    if (!publicKeyModulus)
+    if (!self.keyModulus)
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
         return nil;
     }
     
-    NSString *publicKeyExponent = [self.keyPair getKeyExponent:self.keyPair.publicKeyRef];
-    if (!publicKeyExponent)
+    if (!self.keyExponent)
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
         return nil;
@@ -187,8 +206,8 @@ static MSIDAssymetricKeyLookupAttributes *s_keyLookUpAttributes = nil;
                               @"cnf": @{
                                       @"jwk":@{
                                           @"kty" : @"RSA",
-                                          @"n" : publicKeyModulus,
-                                          @"e" : publicKeyExponent
+                                          @"n" : self.keyModulus,
+                                          @"e" : self.keyExponent
                                       }
                               },
                               @"ts" : [NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]],

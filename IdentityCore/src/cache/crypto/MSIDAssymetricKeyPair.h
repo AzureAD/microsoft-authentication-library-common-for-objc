@@ -33,15 +33,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
 @property (nonatomic, readonly) SecKeyRef publicKeyRef;
+@property (nonatomic, readonly) NSString *keyExponent;
+@property (nonatomic, readonly) NSString *keyModulus;
+@property (nonatomic, readonly) NSData *keyData;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSString *)getKeyExponent:(SecKeyRef)keyRef;
-
-- (nullable NSString *)getKeyModulus:(SecKeyRef)keyRef;
-
-- (nullable NSData *)getDataFromKeyRef:(SecKeyRef)keyRef;
 
 @end
 
