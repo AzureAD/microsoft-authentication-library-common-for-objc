@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithOauthFactory:(MSIDOauth2Factory *)oauthFactory
                               defaultAccessor:(MSIDDefaultTokenCacheAccessor *)defaultAccessor
-                      accountMetadataAccessor:(MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
+                      accountMetadataAccessor:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataAccessor
                        tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator;
 
 @end
