@@ -28,6 +28,11 @@
 
 + (NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError **)error
 {
+    if (!data)
+    {
+        return nil;
+    }
+    
     NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data
                                                          options:NSJSONReadingMutableContainers
                                                            error:error];
