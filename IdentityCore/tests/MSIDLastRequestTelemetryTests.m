@@ -261,7 +261,7 @@
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectoryPath = [paths objectAtIndex:0];
-    NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest"];
+    NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest.txt"];
     return filePath;
 }
 

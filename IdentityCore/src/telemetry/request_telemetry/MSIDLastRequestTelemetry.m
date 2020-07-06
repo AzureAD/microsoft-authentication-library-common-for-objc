@@ -37,15 +37,18 @@
     [encoder encodeObject:self.error forKey:kError];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
-    self.apiId = [decoder decodeFloatForKey:kApiId];
-    
-    NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
-    self.correlationId = [[NSUUID UUID] initWithUUIDString:uuIdString];
-    
-    self.error = [decoder decodeObjectForKey:kError];
-    
+    self = [super init];
+    if (self)
+    {
+        self.apiId = [decoder decodeFloatForKey:kApiId];
+        
+        NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
+        self.correlationId = [[NSUUID UUID] initWithUUIDString:uuIdString];
+        
+        self.error = [decoder decodeObjectForKey:kError];
+    }
     return self;
 }
 
@@ -65,6 +68,7 @@
 @implementation MSIDLastRequestTelemetry
 
 static bool shouldReadFromDisk = YES;
+static const NSInteger SCHEMA_VERSION = 2;
 
 #pragma mark - Init
 
@@ -73,7 +77,7 @@ static bool shouldReadFromDisk = YES;
     self = [super init];
     if (self)
     {
-        _schemaVersion = 2;
+        _schemaVersion = SCHEMA_VERSION;
         _synchronizationQueue = [self initializeDispatchQueue];
     }
     return self;
@@ -81,9 +85,10 @@ static bool shouldReadFromDisk = YES;
 
 - (instancetype)initFromDisk
 {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:[self filePathToSavedTelemetry]])
+    NSString *saveLocation = [self filePathToSavedTelemetry];
+    if (saveLocation && [[NSFileManager defaultManager] fileExistsAtPath:saveLocation])
     {
-        return [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathToSavedTelemetry]];
+        return [NSKeyedUnarchiver unarchiveObjectWithFile:saveLocation];
     }
     
     return [self initInternal];
@@ -168,15 +173,15 @@ static bool shouldReadFromDisk = YES;
 
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
-    [encoder encodeFloat:_schemaVersion forKey:kSchemaVersion];
-    [encoder encodeFloat:_silentSuccessfulCount forKey:kSilentSuccessfulCount];
+    [encoder encodeInteger:_schemaVersion forKey:kSchemaVersion];
+    [encoder encodeInteger:_silentSuccessfulCount forKey:kSilentSuccessfulCount];
     [encoder encodeObject:_errorsInfo forKey:kErrorsInfo];
 }
 
 - (id)initWithCoder:(NSCoder *)decoder
 {
-    NSInteger schemaVersion = [decoder decodeFloatForKey:kSchemaVersion];
-    NSInteger silentSuccessfulCount = [decoder decodeFloatForKey:kSilentSuccessfulCount];
+    NSInteger schemaVersion = [decoder decodeIntegerForKey:kSchemaVersion];
+    NSInteger silentSuccessfulCount = [decoder decodeIntegerForKey:kSilentSuccessfulCount];
     NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo = [decoder decodeObjectForKey:kErrorsInfo];
     
     return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:errorsInfo];
@@ -201,20 +206,32 @@ static bool shouldReadFromDisk = YES;
 
 - (void)saveTelemetryToDisk
 {
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
-        [NSKeyedArchiver archiveRootObject:self toFile:[self filePathToSavedTelemetry]];
-    });
+    NSString *saveLocation = [self filePathToSavedTelemetry];
+    if (saveLocation)
+    {
+        dispatch_barrier_sync(self.synchronizationQueue, ^{
+            [NSKeyedArchiver archiveRootObject:self toFile:saveLocation];
+        });
+    }
 }
 
-- (id)initFromDecodedObjectWithSchemaVersion:(NSInteger)schemaVersion silentSuccessfulCount:(NSInteger)silentSuccessfulCount errorsInfo:(NSMutableArray<MSIDRequestTelemetryErrorInfo *>*) errorsInfo
+- (instancetype)initFromDecodedObjectWithSchemaVersion:(NSInteger)schemaVersion silentSuccessfulCount:(NSInteger)silentSuccessfulCount errorsInfo:(NSMutableArray<MSIDRequestTelemetryErrorInfo *>*) errorsInfo
 {
     self = [super init];
     if (self)
     {
-        _schemaVersion = schemaVersion;
-        _silentSuccessfulCount = silentSuccessfulCount;
-        _errorsInfo = errorsInfo;
-        _synchronizationQueue = [self initializeDispatchQueue];
+        if (schemaVersion == SCHEMA_VERSION)
+        {
+            _schemaVersion = schemaVersion;
+            _silentSuccessfulCount = silentSuccessfulCount;
+            _errorsInfo = errorsInfo;
+            _synchronizationQueue = [self initializeDispatchQueue];
+        }
+        else
+        {
+            self = [self initInternal];
+        }
+        
     }
     return self;
 }
@@ -222,9 +239,14 @@ static bool shouldReadFromDisk = YES;
 - (NSString *)filePathToSavedTelemetry
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    NSString *documentsDirectoryPath = [paths objectAtIndex:0];
-    NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest"];
-    return filePath;
+    if (paths.count > 0)
+    {
+        NSString *documentsDirectoryPath = [paths objectAtIndex:0];
+        NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest.txt"];
+        return filePath;
+    }
+    
+    return nil;
 }
 
 #pragma mark - Private: Misc.
@@ -233,7 +255,7 @@ static bool shouldReadFromDisk = YES;
 {
     __block NSArray *errorsInfoCopy;
     dispatch_sync(self.synchronizationQueue, ^{
-        errorsInfoCopy = [NSArray arrayWithArray:_errorsInfo];
+        errorsInfoCopy = [_errorsInfo copy];
     });
     return errorsInfoCopy;
 }
