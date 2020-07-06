@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 
 #import <XCTest/XCTest.h>
@@ -34,32 +34,53 @@
 #endif
 #import "MSIDConstants.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
+#import "MSIDKeychainTokenCache.h"
+#import "MSIDMacKeychainTokenCache.h"
 
 @interface MSIDDevicePopManagerTest : XCTestCase
 
-@property MSIDCacheConfig *msidCacheConfig;
+
 
 @end
 
 @implementation MSIDDevicePopManagerTest
 
-- (void)setUp
-{
-    _msidCacheConfig = [MSIDCacheConfig new];
-}
-
-- (void)tearDown
-{
-    _msidCacheConfig = nil;
-}
-
 - (MSIDDevicePopManager *)test_initWithValidCacheConfig
 {
-    MSIDAssymetricKeyLookupAttributes *keyPairAttributes = [MSIDAssymetricKeyLookupAttributes new];
+    MSIDDevicePopManager *manager;
+    MSIDCacheConfig *msidCacheConfig;
+    NSError *error;
+    
+    MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
+    
+#if TARGET_OS_IPHONE
+    
+    msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:[MSIDKeychainTokenCache defaultKeychainGroup]];
+    keyPairAttributes = [MSIDAssymetricKeyLookupAttributes new];
+    
+#else
+    keyPairAttributes = [[MSIDAssymetricKeyLookupAttributes alloc] init];
+    
+    if (@available(macOS 10.15, *))
+    {
+        msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:[MSIDKeychainTokenCache defaultKeychainGroup]];
+    }
+    else
+    {
+        MSIDMacKeychainTokenCache *macDataSource = [[MSIDMacKeychainTokenCache alloc] initWithGroup:[MSIDKeychainTokenCache defaultKeychainGroup]
+                                                                                trustedApplications:nil
+                                                                                              error:&error];
+        
+        msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:[MSIDKeychainTokenCache defaultKeychainGroup]
+                                                               accessRef:(__bridge SecAccessRef _Nullable)(macDataSource.accessControlForNonSharedItems)];
+    }
+#endif
     keyPairAttributes.privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
     keyPairAttributes.publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;
-    MSIDDevicePopManager *manager = [[MSIDDevicePopManager alloc] initWithCacheConfig:_msidCacheConfig keyPairAttributes:keyPairAttributes];
-    XCTAssertNotNil(manager);    
+    
+    manager = [[MSIDDevicePopManager alloc] initWithCacheConfig:msidCacheConfig keyPairAttributes:keyPairAttributes];
+    XCTAssertNil(error);
+    XCTAssertNotNil(manager);
     return manager;
 }
 
@@ -112,7 +133,7 @@
     NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net/api/validateSHR";
     NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
     NSError *error = nil;
-       
+    
     NSString *signedAT = [manager createSignedAccessToken:accesToken
                                                httpMethod:httpMethod
                                                requestUrl:requestUrl
@@ -150,7 +171,7 @@
     NSString *requestUrl = @"https://signedhttprequest.azurewebsites.net";
     NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
     NSError *error = nil;
-        
+    
     NSString *signedAT = [manager createSignedAccessToken:accesToken
                                                httpMethod:httpMethod
                                                requestUrl:requestUrl
@@ -197,4 +218,5 @@
     return [[MSIDAssymetricKeyLoginKeychainGenerator alloc] initWithGroup:nil error:nil];
 #endif
 }
+
 @end
