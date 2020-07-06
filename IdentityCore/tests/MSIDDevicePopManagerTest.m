@@ -39,11 +39,11 @@
 
 @interface MSIDDevicePopManagerTest : XCTestCase
 
-
-
 @end
 
 @implementation MSIDDevicePopManagerTest
+
+NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
 
 - (MSIDDevicePopManager *)test_initWithValidCacheConfig
 {
@@ -63,7 +63,7 @@
     
     if (@available(macOS 10.15, *))
     {
-        msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:[MSIDKeychainTokenCache defaultKeychainGroup]];
+        msidCacheConfig = [[MSIDCacheConfig alloc] initWithKeychainGroup:mockDefaultKeychainGroup];
     }
     else
     {
@@ -81,6 +81,7 @@
     manager = [[MSIDDevicePopManager alloc] initWithCacheConfig:msidCacheConfig keyPairAttributes:keyPairAttributes];
     XCTAssertNil(error);
     XCTAssertNotNil(manager);
+    [manager setValue:[self keyGenerator] forKey:@"keyGeneratorFactory"];
     return manager;
 }
 
