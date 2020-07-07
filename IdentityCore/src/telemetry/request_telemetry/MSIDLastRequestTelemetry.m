@@ -128,8 +128,7 @@ static const NSInteger currentSchemaVersion = 2;
     }
     else
     {
-        [self resetSuccessfulCount];
-        [self resetErrorInfo];
+        [self resetTelemetry];
     }
 }
 
@@ -205,17 +204,10 @@ static const NSInteger currentSchemaVersion = 2;
     });
 }
 
-- (void)resetErrorInfo
+- (void)resetTelemetry
 {
     dispatch_barrier_async(_synchronizationQueue, ^{
         _errorsInfo = nil;
-        [self saveTelemetryToDisk];
-    });
-}
- 
-- (void)resetSuccessfulCount
-{
-    dispatch_barrier_async(_synchronizationQueue, ^{
         _silentSuccessfulCount = 0;
         [self saveTelemetryToDisk];
     });
