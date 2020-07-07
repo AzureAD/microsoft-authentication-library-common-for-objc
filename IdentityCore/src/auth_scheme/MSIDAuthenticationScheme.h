@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSDictionary *schemeParameters;
 @property (nonatomic, readonly) MSIDCredentialType credentialType;
 @property (nonatomic, readonly) NSString *tokenType;
-@property (nonatomic, readonly) MSIDAccessToken *blankAccessToken;
+@property (nonatomic, readonly) MSIDAccessToken *accessToken;
 
 - (instancetype)initWithSchemeParameters:(NSDictionary *)schemeParameters;
 

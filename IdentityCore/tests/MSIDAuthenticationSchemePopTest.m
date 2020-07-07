@@ -118,14 +118,14 @@
 
 - (void) test_assertDefaultAttributesInScheme:(MSIDAuthenticationSchemePop *)scheme
 {
-    XCTAssertNotNil(scheme.kid);
-    XCTAssertNotNil(scheme.req_cnf);
+    XCTAssertNotNil([scheme valueForKey:@"kid"]);
+    XCTAssertNotNil([scheme valueForKey:@"req_cnf"]);
     XCTAssertEqual(scheme.authScheme, MSIDAuthSchemePop);
     XCTAssertEqual(scheme.credentialType, MSIDAccessTokenWithAuthSchemeType);
     XCTAssertEqual(scheme.tokenType, MSID_OAUTH2_POP);
-    XCTAssertNotNil(scheme.blankAccessToken);
+    XCTAssertNotNil(scheme.accessToken);
     
-    MSIDAccessToken *accessToken = scheme.blankAccessToken;
+    MSIDAccessToken *accessToken = scheme.accessToken;
     XCTAssertTrue([accessToken isMemberOfClass:[MSIDAccessTokenWithAuthScheme class]]);
     XCTAssertNotNil((MSIDAccessTokenWithAuthScheme *)accessToken.tokenType);
     XCTAssertNotNil((MSIDAccessTokenWithAuthScheme *)accessToken.kid);

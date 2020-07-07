@@ -130,7 +130,7 @@
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
                                configuration:(MSIDConfiguration *)configuration
 {
-    MSIDAccessToken *accessToken = configuration.authScheme.blankAccessToken;
+    MSIDAccessToken *accessToken = configuration.authScheme.accessToken;
     
     BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 

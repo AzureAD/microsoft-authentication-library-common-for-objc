@@ -53,7 +53,7 @@
 - (void)test_whenInitBearerParameters_shouldAccessTokenNoKid
 {
     MSIDAuthenticationScheme *scheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[self prepareBearerSchemeParams]];
-    XCTAssertNil(scheme.blankAccessToken.kid);
+    XCTAssertNil(scheme.accessToken.kid);
 }
 
 - (void) test_assertDefaultAttributesInScheme:(MSIDAuthenticationScheme *) scheme
@@ -61,7 +61,7 @@
     XCTAssertEqual(scheme.authScheme, MSIDAuthSchemeBearer);
     XCTAssertEqual(scheme.credentialType, MSIDAccessTokenType);
     XCTAssertNil(scheme.tokenType);
-    XCTAssertNil(scheme.blankAccessToken.kid);
+    XCTAssertNil(scheme.accessToken.kid);
 }
 
 - (NSDictionary *)prepareBearerSchemeParams

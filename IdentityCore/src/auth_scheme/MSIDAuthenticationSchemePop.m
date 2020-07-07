@@ -36,6 +36,9 @@
 
 @interface MSIDAuthenticationSchemePop()
 
+@property (nonatomic) NSString *kid;
+@property (nonatomic) NSString *req_cnf;
+
 @end
 
 
@@ -59,20 +62,20 @@
         }
         _req_cnf = [_schemeParameters msidObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION ofClass:[NSString class]];
         
-        if (!_req_cnf)
+        if ([NSString msidIsStringNilOrBlank:_req_cnf])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf from scheme parameters.");
             return nil;
         }
         
         NSString *kidJwk = [_req_cnf msidBase64UrlDecode];
-        if (!kidJwk)
+        if ([NSString msidIsStringNilOrBlank:kidJwk])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf");
             return nil;
         }
         NSData *kidData = [kidJwk dataUsingEncoding:NSUTF8StringEncoding];
-        if (!kidData)
+        if (!kidData || ([kidData length] == 0))
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read req_cnf");
             return nil;
@@ -80,7 +83,7 @@
         NSError *kidReadingError = nil;
         NSDictionary *kidDict = [NSJSONSerialization JSONObjectWithData:kidData options:0 error:&kidReadingError];
         _kid = [kidDict objectForKey:MSID_KID_CACHE_KEY];
-        if (!_kid)
+        if (![kidDict msidObjectForKey:MSID_KID_CACHE_KEY ofClass:[NSString class]] )
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to generate kid from req_cnf, error: %@", MSID_PII_LOG_MASKABLE(kidReadingError));
             return nil;
@@ -101,7 +104,7 @@
     return MSIDAuthSchemeTypeFromString(scheme);
 }
 
-- (MSIDAccessToken *)blankAccessToken
+- (MSIDAccessToken *)accessToken
 {
     MSIDAccessTokenWithAuthScheme *accessToken = [MSIDAccessTokenWithAuthScheme new];
     accessToken.tokenType = self.tokenType;
@@ -128,7 +131,7 @@
 {
     NSMutableDictionary *schemeParameters = [NSMutableDictionary new];
     NSString *requestConf = json[MSID_OAUTH2_REQUEST_CONFIRMATION];
-    if (!requestConf)
+    if ([NSString msidIsStringNilOrBlank:requestConf])
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: req_cnf is nil", self.class];
         if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
@@ -136,7 +139,7 @@
     }
     
     NSString *authScheme = json[MSID_OAUTH2_TOKEN_TYPE];
-    if (!authScheme)
+    if ([NSString msidIsStringNilOrBlank:authScheme])
     {
         NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: auth_scheme is nil", self.class];
         if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
@@ -160,7 +163,7 @@
     
     json[MSID_OAUTH2_TOKEN_TYPE] = MSIDAuthSchemeParamFromType(self.authScheme);
     
-    if (!self.req_cnf)
+    if ([NSString msidIsStringNilOrBlank:self.req_cnf])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: req_cnf is nil.", self.class);
         return nil;

@@ -70,7 +70,7 @@
     return nil;
 }
 
-- (nonnull MSIDAccessToken *)blankAccessToken
+- (nonnull MSIDAccessToken *)accessToken
 {
     MSIDAccessToken *blankAccessToken = [MSIDAccessToken new];
     return blankAccessToken;

@@ -32,9 +32,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAuthenticationSchemePop : MSIDAuthenticationScheme
 
-@property (nonatomic) NSString *kid;
-@property (nonatomic) NSString *req_cnf;
-
 @end
 
 NS_ASSUME_NONNULL_END
