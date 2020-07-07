@@ -55,10 +55,8 @@
 @end
 
 @interface MSIDLastRequestTelemetry()
-{
-    NSMutableArray<MSIDRequestTelemetryErrorInfo *> *_errorsInfo;
-}
 
+@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
@@ -68,7 +66,7 @@
 @implementation MSIDLastRequestTelemetry
 
 static bool shouldReadFromDisk = YES;
-static const NSInteger SCHEMA_VERSION = 2;
+static const NSInteger currentSchemaVersion = 2;
 
 #pragma mark - Init
 
@@ -77,7 +75,7 @@ static const NSInteger SCHEMA_VERSION = 2;
     self = [super init];
     if (self)
     {
-        _schemaVersion = SCHEMA_VERSION;
+        _schemaVersion = currentSchemaVersion;
         _synchronizationQueue = [self initializeDispatchQueue];
     }
     return self;
@@ -122,35 +120,25 @@ static const NSInteger SCHEMA_VERSION = 2;
 {
     if (errorString)
     {
-        dispatch_barrier_async(self.synchronizationQueue, ^{
-            _errorsInfo = [_errorsInfo count] ? _errorsInfo : [NSMutableArray new];
-            
-            __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
-            errorInfo.apiId = apiId;
-            errorInfo.error = errorString;
-            errorInfo.correlationId = context.correlationId;
-            
-            [_errorsInfo addObject:errorInfo];
-        });
+        __auto_type errorInfo = [MSIDRequestTelemetryErrorInfo new];
+        errorInfo.apiId = apiId;
+        errorInfo.error = errorString;
+        errorInfo.correlationId = context.correlationId;
+        [self addErrorInfo:errorInfo];
     }
     else
     {
-        dispatch_barrier_async(self.synchronizationQueue, ^{
-            self.silentSuccessfulCount = 0;
-            _errorsInfo = nil;
-        });
+        [self resetSuccessfulCount];
+        [self resetErrorInfo];
     }
-    
-    [self saveTelemetryToDisk];
 }
 
 - (void)increaseSilentSuccessfulCount
 {
     dispatch_barrier_async(self.synchronizationQueue, ^{
-        self.silentSuccessfulCount = self.silentSuccessfulCount + 1;
+        _silentSuccessfulCount += 1;
+        [self saveTelemetryToDisk];
     });
-    
-    [self saveTelemetryToDisk];
 }
 
 #pragma mark - MSIDTelemetryStringSerializable
@@ -202,6 +190,37 @@ static const NSInteger SCHEMA_VERSION = 2;
     return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
 }
 
+#pragma mark - Update object
+
+- (void)addErrorInfo:(MSIDRequestTelemetryErrorInfo *)errorInfo
+{
+    dispatch_barrier_async(_synchronizationQueue, ^{
+        if(errorInfo)
+        {
+            _errorsInfo = [_errorsInfo count] ? _errorsInfo : [NSMutableArray new];
+           [_errorsInfo addObject:errorInfo];
+        }
+        
+        [self saveTelemetryToDisk];
+    });
+}
+
+- (void)resetErrorInfo
+{
+    dispatch_barrier_async(_synchronizationQueue, ^{
+        _errorsInfo = nil;
+        [self saveTelemetryToDisk];
+    });
+}
+ 
+- (void)resetSuccessfulCount
+{
+    dispatch_barrier_async(_synchronizationQueue, ^{
+        _silentSuccessfulCount = 0;
+        [self saveTelemetryToDisk];
+    });
+}
+
 #pragma mark - Private: Save To Disk
 
 - (void)saveTelemetryToDisk
@@ -209,9 +228,7 @@ static const NSInteger SCHEMA_VERSION = 2;
     NSString *saveLocation = [self filePathToSavedTelemetry];
     if (saveLocation)
     {
-        dispatch_barrier_sync(self.synchronizationQueue, ^{
-            [NSKeyedArchiver archiveRootObject:self toFile:saveLocation];
-        });
+        [NSKeyedArchiver archiveRootObject:self toFile:saveLocation];
     }
 }
 
@@ -220,7 +237,7 @@ static const NSInteger SCHEMA_VERSION = 2;
     self = [super init];
     if (self)
     {
-        if (schemaVersion == SCHEMA_VERSION)
+        if (schemaVersion == currentSchemaVersion)
         {
             _schemaVersion = schemaVersion;
             _silentSuccessfulCount = silentSuccessfulCount;
@@ -260,10 +277,32 @@ static const NSInteger SCHEMA_VERSION = 2;
     return errorsInfoCopy;
 }
 
+- (NSInteger)silentSuccessfulCount
+{
+    __block NSInteger count;
+    dispatch_sync(self.synchronizationQueue, ^{
+        count = _silentSuccessfulCount;
+    });
+    
+    return count;
+}
+
 - (dispatch_queue_t)initializeDispatchQueue
 {
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
     return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+}
+
+#pragma mark - MSIDLastRequestTelemetry+Internal
+
+- (instancetype)getTelemetryFromDisk:(dispatch_queue_t)queue
+{
+    __block MSIDLastRequestTelemetry *result;
+    dispatch_sync(queue, ^{
+        result = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathToSavedTelemetry]];
+    });
+    
+    return result;
 }
 
 @end

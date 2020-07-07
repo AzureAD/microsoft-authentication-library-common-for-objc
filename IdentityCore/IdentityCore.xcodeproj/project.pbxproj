@@ -503,6 +503,7 @@
 		74043F7E245CC84B00D3E7C1 /* MSIDCurrentRequestTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 74043F7C245CC84B00D3E7C1 /* MSIDCurrentRequestTelemetryTests.m */; };
 		74043F80245CC88800D3E7C1 /* MSIDLastRequestTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 74043F7F245CC88800D3E7C1 /* MSIDLastRequestTelemetryTests.m */; };
 		74043F81245CC88800D3E7C1 /* MSIDLastRequestTelemetryTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 74043F7F245CC88800D3E7C1 /* MSIDLastRequestTelemetryTests.m */; };
+		74D926C324B3EFC300AA4270 /* MSIDLastRequestTelemetry+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 74D926C224B3EFC300AA4270 /* MSIDLastRequestTelemetry+Internal.h */; };
 		74F04D49246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 74F04D47246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h */; };
 		74F04D4A246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 74F04D48246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m */; };
 		74F04D4B246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 74F04D48246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m */; };
@@ -2020,6 +2021,7 @@
 		740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetrySerializedItem.m; sourceTree = "<group>"; };
 		74043F7C245CC84B00D3E7C1 /* MSIDCurrentRequestTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetryTests.m; sourceTree = "<group>"; };
 		74043F7F245CC88800D3E7C1 /* MSIDLastRequestTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLastRequestTelemetryTests.m; sourceTree = "<group>"; };
+		74D926C224B3EFC300AA4270 /* MSIDLastRequestTelemetry+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDLastRequestTelemetry+Internal.h"; sourceTree = "<group>"; };
 		74F04D47246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLastRequestTelemetrySerializedItem.h; sourceTree = "<group>"; };
 		74F04D48246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDLastRequestTelemetrySerializedItem.m; sourceTree = "<group>"; };
 		74F04D4C246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDCurrentRequestTelemetrySerializedItem+Internal.h"; sourceTree = "<group>"; };
@@ -3113,6 +3115,7 @@
 				74F04D47246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.h */,
 				74F04D48246C8AC000094017 /* MSIDLastRequestTelemetrySerializedItem.m */,
 				74F04D4C246CB5B100094017 /* MSIDCurrentRequestTelemetrySerializedItem+Internal.h */,
+				74D926C224B3EFC300AA4270 /* MSIDLastRequestTelemetry+Internal.h */,
 			);
 			path = request_telemetry;
 			sourceTree = "<group>";
@@ -4815,6 +4818,7 @@
 				238E19E02086FE28004DF483 /* MSIDAADRefreshTokenGrantRequest.h in Headers */,
 				B286B9A62389DD1E007833AD /* MSIDSystemWebviewController.h in Headers */,
 				B286B9AF2389DD63007833AD /* MSIDClientTLSHandler.h in Headers */,
+				74D926C324B3EFC300AA4270 /* MSIDLastRequestTelemetry+Internal.h in Headers */,
 				235480CA20DDF81000246F72 /* MSIDAuthorityFactory.h in Headers */,
 				B217863823A5994300839CE8 /* MSIDSSOExtensionSignoutController.h in Headers */,
 				B286B9942389DC76007833AD /* MSIDDefaultTokenRequestProvider+Internal.h in Headers */,
