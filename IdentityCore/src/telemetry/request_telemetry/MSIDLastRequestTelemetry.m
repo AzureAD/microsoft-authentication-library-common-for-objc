@@ -70,7 +70,7 @@ static const NSInteger currentSchemaVersion = 2;
 
 #pragma mark - Init
 
-- (id)initInternal
+- (instancetype)initInternal
 {
     self = [super init];
     if (self)
@@ -166,7 +166,7 @@ static const NSInteger currentSchemaVersion = 2;
     [encoder encodeObject:_errorsInfo forKey:kErrorsInfo];
 }
 
-- (id)initWithCoder:(NSCoder *)decoder
+- (instancetype)initWithCoder:(NSCoder *)decoder
 {
     NSInteger schemaVersion = [decoder decodeIntegerForKey:kSchemaVersion];
     NSInteger silentSuccessfulCount = [decoder decodeIntegerForKey:kSilentSuccessfulCount];
@@ -259,7 +259,7 @@ static const NSInteger currentSchemaVersion = 2;
     if (paths.count > 0)
     {
         NSString *documentsDirectoryPath = [paths objectAtIndex:0];
-        NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest.txt"];
+        NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest"];
         return filePath;
     }
     
