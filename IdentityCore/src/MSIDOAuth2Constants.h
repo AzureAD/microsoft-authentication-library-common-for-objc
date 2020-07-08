@@ -29,6 +29,7 @@ extern NSString *const MSID_OAUTH2_AUTHORIZATION_CODE;
 extern NSString *const MSID_OAUTH2_AUTHORIZATION_URI;
 extern NSString *const MSID_OAUTH2_AUTHORITY;
 extern NSString *const MSID_OAUTH2_BEARER;
+extern NSString *const MSID_OAUTH2_POP;
 extern NSString *const MSID_OAUTH2_CLIENT_ID;
 extern NSString *const MSID_OAUTH2_CLAIMS;
 extern NSString *const MSID_OAUTH2_CODE;

@@ -156,7 +156,7 @@ static NSString *s_kidTemplate = nil;
 {
     NSString *kid = self.kid;
     
-    if (!kid)
+    if ([NSString msidIsStringNilOrBlank:kid])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to generate kid." error:error];
         return nil;
@@ -170,28 +170,46 @@ static NSString *s_kidTemplate = nil;
     }
     
     NSString *host = url.host;
-    if (!host)
+    if ([NSString msidIsStringNilOrBlank:host])
     {
         [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         return nil;
     }
     
     NSString *path = url.path;
-    if (!path)
+    if ([NSString msidIsStringNilOrBlank:path])
     {
         [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
         return nil;
     }
     
-    if (!self.keyModulus)
+    if ([NSString msidIsStringNilOrBlank:self.keyModulus])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
         return nil;
     }
     
-    if (!self.keyExponent)
+    if ([NSString msidIsStringNilOrBlank:self.keyExponent])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
+        return nil;
+    }
+    
+    if ([NSString msidIsStringNilOrBlank:accessToken])
+    {
+        [self logAndFillError:@"Failed to create signed access token, access token is invalid." error:error];
+        return nil;
+    }
+    
+    if ([NSString msidIsStringNilOrBlank:httpMethod])
+    {
+        [self logAndFillError:@"Failed to create signed access token, httpMethod is invalid." error:error];
+        return nil;
+    }
+
+    if ([NSString msidIsStringNilOrBlank:nonce])
+    {
+        [self logAndFillError:@"Failed to create signed access token, nonce is invalid." error:error];
         return nil;
     }
     

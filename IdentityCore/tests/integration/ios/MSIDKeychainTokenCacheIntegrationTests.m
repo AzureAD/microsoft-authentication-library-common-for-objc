@@ -177,6 +177,25 @@
     XCTAssertEqualObjects(tokenResult, token2);
 }
 
+- (void)testSetItem_whenItemAlreadyExistInKeychain_shouldUpdateIt_ATPopFlow
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
+    token.secret = @"some token";
+    token.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    token2.secret = @"some token";
+    token2.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
+    [keychainTokenCache saveToken:token2 key:key serializer:serializer context:nil error:nil];
+    MSIDCredentialCacheItem *tokenResult = [keychainTokenCache tokenWithKey:key serializer:serializer context:nil error:nil];
+    
+    XCTAssertEqualObjects(tokenResult, token2);
+}
+
 - (void)testItemsWithKey_whenKeyIsQuery_shouldReturnProperItems
 {
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
