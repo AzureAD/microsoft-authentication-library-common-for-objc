@@ -28,7 +28,7 @@
 
 + (NSDictionary *)msidNormalizedDictionaryFromJsonData:(NSData *)data error:(NSError **)error
 {
-    if (!data)
+    if (!data.length)
     {
         return nil;
     }
