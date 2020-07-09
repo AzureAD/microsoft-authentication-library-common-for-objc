@@ -25,6 +25,7 @@
 #import "MSIDAssymetricKeyKeychainGenerator.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
+#import "MSIDSymmetricKeyAbstraction.h"
 #if !TARGET_OS_IPHONE
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
@@ -36,6 +37,15 @@ NSString *privateKeyIdentifier = @"com.msal.unittest.privateKey";
 NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 
 @implementation MSIDAssymetricKeychainGeneratorTests
+
+// todo: relocate
+- (void)testSymmetricKey
+{
+    NSString * sampleSymmetricKeyString = @"65f6fdf2624102dfd43a99c223f09875";
+    NSData * sampleSymmetricKey = [[NSData alloc] initWithBase64EncodedString:sampleSymmetricKeyString options:0];
+    MSIDSymmetricKeyAbstraction *symmetricKey = [[MSIDSymmetricKeyAbstraction alloc] initWithSymmetricKey:sampleSymmetricKey];
+    XCTAssertNotNil(symmetricKey);
+}
 
 - (void)testGenerateKeyPair_whenNilAttributesProvided_shouldReturnNilAndFillError
 {

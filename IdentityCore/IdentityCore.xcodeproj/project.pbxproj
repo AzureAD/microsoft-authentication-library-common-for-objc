@@ -519,6 +519,11 @@
 		60FDA9C721A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */; };
 		60FDA9DB21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
 		60FDA9DC21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
+		6E8F74DD24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8F74DC24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m */; };
+		6E8F74DE24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E8F74DC24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m */; };
+		6E8F74E024B7E31F00B252AF /* MSIDSymmetricKeyAbstraction.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E8F74DF24B7E31F00B252AF /* MSIDSymmetricKeyAbstraction.h */; };
+		6E8F74E124B7E60700B252AF /* MSIDSymmetricKeyAbstraction.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E8F74DF24B7E31F00B252AF /* MSIDSymmetricKeyAbstraction.h */; };
+		6E8F74E224B7E61200B252AF /* MSIDSymmetricKeyAbstraction.h in Sources */ = {isa = PBXBuildFile; fileRef = 6E8F74DF24B7E31F00B252AF /* MSIDSymmetricKeyAbstraction.h */; };
 		740340B92460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */; };
 		740340BA2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
 		740340BB2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
@@ -2061,6 +2066,8 @@
 		60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultBrokerResponseHandlerTests.m; sourceTree = "<group>"; };
 		60FDA9D921A5EBBA001E09B8 /* MSIDTestCacheAccessorHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestCacheAccessorHelper.h; sourceTree = "<group>"; };
 		60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestCacheAccessorHelper.m; sourceTree = "<group>"; };
+		6E8F74DC24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSymmetricKeyAbstraction.m; sourceTree = "<group>"; };
+		6E8F74DF24B7E31F00B252AF /* MSIDSymmetricKeyAbstraction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSymmetricKeyAbstraction.h; sourceTree = "<group>"; };
 		740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCurrentRequestTelemetrySerializedItem.h; sourceTree = "<group>"; };
 		740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetrySerializedItem.m; sourceTree = "<group>"; };
 		74043F7C245CC84B00D3E7C1 /* MSIDCurrentRequestTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetryTests.m; sourceTree = "<group>"; };
@@ -4202,6 +4209,8 @@
 				B2C0748A246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m */,
 				B278937F2470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h */,
 				B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */,
+				6E8F74DF24B7E31F00B252AF /* MSIDSymmetricKeyAbstraction.h */,
+				6E8F74DC24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m */,
 			);
 			path = crypto;
 			sourceTree = "<group>";
@@ -4900,6 +4909,7 @@
 				B2000C9820EC64AC0092790A /* MSIDTelemetryCacheEvent.h in Headers */,
 				B2000C9D20EC653A0092790A /* MSIDAADV1IdTokenClaims.h in Headers */,
 				B2000C9720EC64A20092790A /* MSIDTelemetryUIEvent.h in Headers */,
+				6E8F74E024B7E31F00B252AF /* MSIDSymmetricKeyAbstraction.h in Headers */,
 				B2BA498B208EC38100CE92FC /* MSIDAADIdTokenClaimsFactory.h in Headers */,
 				B2C708682198C3E800D917B8 /* MSIDBrokerResponseHandler.h in Headers */,
 				B2AF1D21218BCD870080C1A0 /* MSIDSilentController.h in Headers */,
@@ -5896,6 +5906,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E8F74E124B7E60700B252AF /* MSIDSymmetricKeyAbstraction.h in Sources */,
 				80878AF0247A9961000BC522 /* MSIDWorkPlaceJoinUtilBase.m in Sources */,
 				B217863523A5948D00839CE8 /* MSIDSignoutController.m in Sources */,
 				1E707FE12407336D00716148 /* MSIDBrokerNativeAppOperationResponse.m in Sources */,
@@ -6181,6 +6192,7 @@
 				B8F16E92245B572C0047457F /* MSIDWebViewPlatformParams.m in Sources */,
 				B2DD4B2320A7D2F90047A66E /* MSIDLegacyAccessToken.m in Sources */,
 				600D19AF20964CC00004CD43 /* MSIDRegistrationInformation.m in Sources */,
+				6E8F74DE24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m in Sources */,
 				96448C9D20CF296C00E2D89C /* MSIDAADWebviewFactory.m in Sources */,
 				96B8D57C20946D2600E3F4A6 /* MSIDPkce.m in Sources */,
 				6057EE9120B5FDF8007976EB /* MSIDAADOAuthEmbeddedWebviewController.m in Sources */,
@@ -6443,6 +6455,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E8F74E224B7E61200B252AF /* MSIDSymmetricKeyAbstraction.h in Sources */,
 				23B39AC2209BD901000AA905 /* MSIDAdfsAuthorityResolver.m in Sources */,
 				B2000C8E20EC62DF0092790A /* MSIDAADV1IdTokenClaims.m in Sources */,
 				B2000C9020EC633C0092790A /* MSIDConfiguration.m in Sources */,
@@ -6632,6 +6645,7 @@
 				B26A0B7E2071ADCE006BD95A /* MSIDOauth2Factory.m in Sources */,
 				9686C72A21192BD0001FFF51 /* MSIDWebOpenBrowserResponse.m in Sources */,
 				23D2048A21D1B2E4009B5975 /* MSIDJsonResponsePreprocessor.m in Sources */,
+				6E8F74DD24B7E30500B252AF /* MSIDSymmetricKeyAbstraction.m in Sources */,
 				23B018A123554B2B00207FEC /* MSIDBrokerOperationSilentTokenRequest.m in Sources */,
 				B20657E01FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
 				233E96E32265279B007FCE2A /* MSIDTelemetryDefaultEvent.m in Sources */,
