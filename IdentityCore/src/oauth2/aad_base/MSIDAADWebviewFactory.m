@@ -23,21 +23,14 @@
 
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDAuthorizeWebRequestConfiguration.h"
-#import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebAADAuthCodeResponse.h"
 #import "MSIDDeviceId.h"
 #import "MSIDAADOAuthEmbeddedWebviewController.h"
-#import "MSIDWebviewSession.h"
 #import "MSIDWebOpenBrowserResponse.h"
 #import "MSIDInteractiveRequestParameters.h"
-#import "MSIDAuthority.h"
-#import "MSIDCBAWebAADAuthResponse.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
-#import "MSIDSignoutWebRequestConfiguration.h"
-#import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDWebViewResponseFactory.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -120,12 +113,30 @@
                                       context:(id<MSIDRequestContext>)context
                                         error:(NSError **)error
 {
-    return [MSIDWebViewResponseFactory oAuthResponseWithWebResponseType:MSIDWebViewResponseRichType
-                                                                    url:url
-                                                           requestState:requestState
-                                                     ignoreInvalidState:ignoreInvalidState
-                                                                context:context
-                                                                  error:error];
+    // Try to create CBA response
+#if AD_BROKER
+    MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
+    if (cbaResponse) return cbaResponse;
+#endif
+    
+    // Try to create a WPJ response
+    MSIDWebWPJResponse *wpjResponse = [[MSIDWebWPJResponse alloc] initWithURL:url context:context error:nil];
+    if (wpjResponse) return wpjResponse;
+    
+    // Try to create a browser reponse
+    MSIDWebOpenBrowserResponse *browserResponse = [[MSIDWebOpenBrowserResponse alloc] initWithURL:url
+                                                                                          context:context
+                                                                                            error:nil];
+    if (browserResponse) return browserResponse;
+    
+    // Try to acreate AAD Auth response
+    MSIDWebAADAuthCodeResponse *response = [[MSIDWebAADAuthCodeResponse alloc] initWithURL:url
+                                                                      requestState:requestState
+                                                                ignoreInvalidState:ignoreInvalidState
+                                                                           context:context
+                                                                             error:error];
+    
+    return response;
 }
 
 @end

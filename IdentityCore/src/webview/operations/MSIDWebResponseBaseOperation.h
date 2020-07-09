@@ -22,18 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
 
-@class MSIDBaseOperation;
 @class MSIDWebviewResponse;
+@class MSIDInteractiveRequestParameters;
 
-@interface MSIDOperationFactory : NSObject
+typedef void (^MSIDBaseOperationCompletionHandler)(BOOL success, NSError *error);
 
-+ (void)registerOperationClass:(Class)operationClass
-              forResponseClass:(Class)responseClass;
+@interface MSIDWebResponseBaseOperation : NSObject
 
-+ (void)unregisterAll;
+- (instancetype)initWithResponse:(MSIDWebviewResponse *)response
+                           error:(NSError **)error;
 
-+ (MSIDBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
-                                            error:(NSError **)error;
-
+- (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                                         completion:(MSIDRequestCompletionBlock)completion;
 @end

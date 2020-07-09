@@ -22,19 +22,19 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDOperationFactory.h"
+#import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebviewResponse.h"
-#import "MSIDBaseOperation.h"
+#import "MSIDWebResponseBaseOperation.h"
 
 static NSMutableDictionary *s_container = nil;
 
-@implementation MSIDOperationFactory
+@implementation MSIDWebResponseOperationFactory
 
 + (void)registerOperationClass:(Class)operationClass
               forResponseClass:(Class)responseClass
 {
     if (!operationClass || !responseClass) return;
-    if (![operationClass isSubclassOfClass:MSIDBaseOperation.class]) return;
+    if (![operationClass isSubclassOfClass:MSIDWebResponseBaseOperation.class]) return;
     if (![responseClass isSubclassOfClass:MSIDWebviewResponse.class]) return;
 
     @synchronized(self)
@@ -57,7 +57,7 @@ static NSMutableDictionary *s_container = nil;
     }
 }
 
-+ (MSIDBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
++ (MSIDWebResponseBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
                                       error:(NSError **)error
 {
     if (!response) return nil;

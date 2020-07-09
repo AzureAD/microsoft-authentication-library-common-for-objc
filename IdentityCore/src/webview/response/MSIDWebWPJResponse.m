@@ -28,13 +28,13 @@
 #import "MSIDWebWPJResponse.h"
 #import "MSIDClientInfo.h"
 #import "MSIDBrokerConstants.h"
-#import "MSIDOperationFactory.h"
-#import "MSIDBrokerInstallOperation.h"
+#import "MSIDWebResponseOperationFactory.h"
+#import "MSIDWebResponseBrokerInstallOperation.h"
 
 @implementation MSIDWebWPJResponse
 
 + (void)load {
-    [MSIDOperationFactory registerOperationClass:MSIDBrokerInstallOperation.class forResponseClass:self];
+    [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebResponseBrokerInstallOperation.class forResponseClass:self];
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -104,8 +104,6 @@
     
     return NO;
 }
-
-#pragma mark - MSIDBrokerOperationRequest
 
 + (NSString *)operation
 {

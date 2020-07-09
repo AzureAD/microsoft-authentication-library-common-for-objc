@@ -23,21 +23,17 @@
 
 #import <Foundation/Foundation.h>
 
+@class MSIDWebResponseBaseOperation;
 @class MSIDWebviewResponse;
 
-typedef NS_ENUM(NSInteger, MSIDWebViewResponseType)
-{
-    MSIDWebViewResponseBaseType = 0,
-    MSIDWebViewResponseRichType
-};
+@interface MSIDWebResponseOperationFactory : NSObject
 
-@interface MSIDWebViewResponseFactory : NSObject
++ (void)registerOperationClass:(Class)operationClass
+              forResponseClass:(Class)responseClass;
 
-+ (MSIDWebviewResponse *)oAuthResponseWithWebResponseType:(MSIDWebViewResponseType)type
-                                                          url:(NSURL *)url
-                                                 requestState:(NSString *)requestState
-                                           ignoreInvalidState:(BOOL)ignoreInvalidState
-                                                      context:(id<MSIDRequestContext>)context
-                                                        error:(NSError **)error;
++ (void)unregisterAll;
+
++ (MSIDWebResponseBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
+                                            error:(NSError **)error;
 
 @end

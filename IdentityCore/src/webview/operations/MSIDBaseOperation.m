@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDBaseOperation.h"
+#import "MSIDWebResponseBaseOperation.h"
 
-@implementation MSIDBaseOperation
+@implementation MSIDWebResponseBaseOperation
 
 - (nullable instancetype)initWithResponse:(MSIDWebviewResponse *)response
                                     error:(NSError **)error
@@ -41,7 +41,8 @@
     return self;
 }
 
-- (void)invokeWithCompletion:(MSIDBaseOperationCompletionHandler)completion
+- (void)invokeWithinteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                                         completion:(MSIDRequestCompletionBlock)completion
 {
     NSAssert(NO, @"Abstract method.");
 }

@@ -21,17 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDWebResponseBaseOperation.h"
 
-@class MSIDWebviewResponse;
+@implementation MSIDWebResponseBaseOperation
 
-typedef void (^MSIDBaseOperationCompletionHandler)(BOOL success, NSError *error);
+- (nullable instancetype)initWithResponse:(MSIDWebviewResponse *)response
+                                    error:(NSError **)error
+{
+    self = [super init];
 
-@interface MSIDBaseOperation : NSObject
+    if (self)
+    {
+        if (!response) {
+            return nil;
+        }
+    }
 
-- (instancetype)initWithResponse:(MSIDWebviewResponse *)response
-                           error:(NSError **)error;
+    return self;
+}
 
-- (void)invokeWithCompletion:(MSIDBaseOperationCompletionHandler)completion;
+- (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                                         completion:(MSIDRequestCompletionBlock)completion
+{
+    NSAssert(NO, @"Abstract method.");
+}
 
 @end
