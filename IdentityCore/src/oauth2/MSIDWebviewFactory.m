@@ -100,11 +100,20 @@
         return session;
     }
     
+    NSMutableDictionary *headers = [NSMutableDictionary new];
+    if (configuration.customHeaders)
+    {
+        [headers addEntriesFromDictionary:configuration.customHeaders];
+    }
+    
+    // Declare our client as PkeyAuth-capable
+    [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
+
     MSIDOAuth2EmbeddedWebviewController *embeddedWebviewController
     = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:configuration.startURL
                                                              endURL:[NSURL URLWithString:configuration.endRedirectUrl]
                                                             webview:webview
-                                                      customHeaders:configuration.customHeaders
+                                                      customHeaders:headers
                                                      platfromParams:nil
                                                             context:context];
     

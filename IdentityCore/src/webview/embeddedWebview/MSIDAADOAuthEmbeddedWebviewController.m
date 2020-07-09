@@ -41,18 +41,9 @@
           platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
 {
-    NSMutableDictionary *headers = [NSMutableDictionary new];
-    if (customHeaders)
-    {
-        [headers addEntriesFromDictionary:customHeaders];
-    }
-    
-    // Declare our client as PkeyAuth-capable
-    [headers setValue:kMSIDPKeyAuthHeaderVersion forKey:kMSIDPKeyAuthHeader];
-        
     return [super initWithStartURL:startURL endURL:endURL
                            webview:webview
-                     customHeaders:headers
+                     customHeaders:customHeaders
                     platfromParams:platformParams
                            context:context];
 }
