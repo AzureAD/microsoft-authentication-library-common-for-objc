@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDBaseRequestController.h"
+#import "MSIDAuthority.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetry+Internal.h"
 #import "MSIDTelemetryEventStrings.h"

@@ -41,6 +41,7 @@
 }
 
 - (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(MSIDRequestCompletionBlock)completion
 {
     NSAssert(NO, @"Abstract method.");

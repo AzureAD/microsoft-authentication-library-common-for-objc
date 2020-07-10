@@ -27,7 +27,7 @@
 #import "MSIDBrokerInteractiveController.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDWebWPJResponse.h"
-#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDTokenRequestProviding.h"
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDLegacyTokenCacheAccessor.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
@@ -71,6 +71,7 @@
 }
 
 - (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(MSIDRequestCompletionBlock)completion
 {
     if (!completion)
@@ -83,7 +84,7 @@
         {
             NSError *brokerError;
             MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:(MSIDInteractiveTokenRequestParameters *)interactiveTokenRequestParameters
-                                                                                                                         tokenRequestProvider:[self createTokenRequestProdiving]
+                                                                                                                         tokenRequestProvider:tokenRequestProvider
                                                                                                                             brokerInstallLink:self.appInstallLink
                                                                                                                                         error:&brokerError];
             [brokerController acquireToken:completion];
@@ -96,21 +97,6 @@
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, nil, nil, YES);
         completion(nil, error);
     #endif
-}
-
-- (MSIDDefaultTokenRequestProvider *)createTokenRequestProdiving
-{
-    MSIDKeychainTokenCache *dataSource = MSIDKeychainTokenCache.defaultKeychainCache;
-    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
-    MSIDLegacyTokenCacheAccessor *legacyAccessor = [[MSIDLegacyTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
-    NSArray *otherAccessors = legacyAccessor ? @[legacyAccessor] : nil;
-    MSIDDefaultTokenCacheAccessor *defaultAccessor =
-        [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource
-                                              otherCacheAccessors:otherAccessors];
-    return [[MSIDDefaultTokenRequestProvider alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new]
-                                                          defaultAccessor:defaultAccessor
-                                                  accountMetadataAccessor:accountMetadataCache
-                                                   tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
 }
 
 @end

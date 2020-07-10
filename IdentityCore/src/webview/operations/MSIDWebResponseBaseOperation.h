@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDConstants.h"
+#import "MSIDTokenRequestProviding.h"
 
 @class MSIDWebviewResponse;
 @class MSIDInteractiveRequestParameters;
@@ -35,5 +36,6 @@ typedef void (^MSIDBaseOperationCompletionHandler)(BOOL success, NSError *error)
                            error:(NSError **)error;
 
 - (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(MSIDRequestCompletionBlock)completion;
 @end
