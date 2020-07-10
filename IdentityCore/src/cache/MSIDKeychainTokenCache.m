@@ -37,7 +37,13 @@
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "MSIDJsonObject.h"
 
-NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
+
+#if TARGET_OS_IPHONE
+    NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
+#else
+    NSString *const MSIDAdalKeychainGroup = @"com.microsoft.identity.universalstorage";
+#endif
+
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;
 static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
