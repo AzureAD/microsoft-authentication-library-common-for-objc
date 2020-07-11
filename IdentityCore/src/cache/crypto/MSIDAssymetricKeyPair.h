@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey;
 
+- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
+- (nullable NSString *)encryptForTest:(nonnull NSString *)messageString;
+
 @end
 
 NS_ASSUME_NONNULL_END
