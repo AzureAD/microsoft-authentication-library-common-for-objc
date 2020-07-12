@@ -35,10 +35,6 @@
 #import "MSIDDefaultTokenResponseValidator.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 
-#if TARGET_OS_IPHONE
-    #import "MSIDAppExtensionUtil.h"
-#endif
-
 @interface MSIDWebResponseBrokerInstallOperation()
 
 @property (nonatomic) NSURL *appInstallLink;
