@@ -353,6 +353,7 @@
     key.realm = self.realm;
     key.target = self.target;
     key.applicationIdentifier = self.applicationIdentifier;
+    key.tokenType = self.tokenType;
     return key;
 }
 
