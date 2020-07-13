@@ -30,9 +30,13 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDOauth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -81,6 +85,16 @@
     {
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
         return nil;
+    }
+    
+    // In case MSAL requests AT POP but Broker response Bearer, we need to update authScheme
+    if ([authScheme isMemberOfClass:MSIDAuthenticationSchemePop.class])
+    {
+        NSString *tokenType = [decryptedResponse msidObjectForKey:MSID_OAUTH2_TOKEN_TYPE ofClass:[NSString class]];
+        if (!tokenType || MSIDAuthSchemeTypeFromString(tokenType) != MSIDAuthSchemePop)
+        {
+            authScheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[NSDictionary new]];
+        }
     }
     
     // Save additional tokens,

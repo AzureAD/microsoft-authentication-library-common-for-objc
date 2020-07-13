@@ -149,6 +149,8 @@
         if (error) *error = brokerError;
         return nil;
     }
+    // Sync authScheme from resume state after we decrypt response from broker
+    authScheme = [self synchronizeAuthSchemeFromBrokerResponse:authScheme brokerResponse:brokerResponse];
     
     NSString *applicationToken = brokerResponse.applicationToken;
     
@@ -307,6 +309,18 @@
              hasCompletionBlock:(__unused BOOL)hasCompletionBlock
 {
     return YES;
+}
+
+- (MSIDAuthenticationScheme *)synchronizeAuthSchemeFromBrokerResponse:(MSIDAuthenticationScheme *)authSchemeFromResumeState                                                                brokerResponse:(MSIDBrokerResponse *)brokerResponse
+{
+    if (![authSchemeFromResumeState isMemberOfClass:MSIDAuthenticationSchemePop.class]) return authSchemeFromResumeState;
+    
+    NSString *tokenType = [brokerResponse.formDictionary msidObjectForKey:MSID_OAUTH2_TOKEN_TYPE ofClass:[NSString class]];
+    if (!tokenType || MSIDAuthSchemeTypeFromString(tokenType) != MSIDAuthSchemePop)
+    {
+        return [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[NSDictionary new]];
+    }
+    return authSchemeFromResumeState;
 }
 
 @end
