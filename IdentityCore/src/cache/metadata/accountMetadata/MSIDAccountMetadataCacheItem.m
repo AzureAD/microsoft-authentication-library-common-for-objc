@@ -75,6 +75,20 @@
     return YES;
 }
 
+- (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                        error:(NSError **)error
+{
+    if ([NSString msidIsStringNilOrBlank:homeAccountId])
+    {
+        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Cannot remove account metadata with empty homeAccountId!", nil, nil, nil, nil, nil, YES);
+        if (error) *error = localError;
+        return NO;
+    }
+    
+    [_accountMetadataMap removeObjectForKey:homeAccountId];
+    return YES;
+}
+
 
 #pragma mark - MSIDJsonSerializable
 

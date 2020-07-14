@@ -286,4 +286,57 @@
     return cacheItem;
 }
 
+#pragma mark - Broker Utility
+
+// Remove account metadata for all clients based on home account id
+- (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error
+{
+    if ([NSString msidIsStringNilOrBlank:homeAccountId])
+    {
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"HomeAccountId is needed to remove account metadata!", nil, nil, nil, context.correlationId, nil, YES);
+        return NO;
+    }
+    
+    NSError *localError;
+    NSArray<MSIDAccountMetadataCacheItem *> *cacheItems = [self allAccountMetadataCacheItemsWithContext:context error:&localError];
+    if (localError)
+    {
+        if (error) *error = localError;
+        return NO;
+    }
+    
+    for (MSIDAccountMetadataCacheItem *cacheItem in cacheItems)
+    {
+        localError = nil;
+        [cacheItem removeAccountMetadataForHomeAccountId:homeAccountId error:&localError];
+        if (localError)
+        {
+            if (error) *error = localError;
+            return NO;
+        }
+        
+        localError = nil;
+        MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:cacheItem.clientId];
+        [_metadataCache saveAccountMetadataCacheItem:cacheItem
+                                                 key:key
+                                             context:context error:&localError];
+        
+        if (localError)
+        {
+            if (error) *error = localError;
+            return NO;
+        }
+    }
+    
+    return YES;
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)allAccountMetadataCacheItemsWithContext:(id<MSIDRequestContext>)context
+                                                                               error:(NSError **)error
+{
+    return [_metadataCache allAccountMetadataCacheItemsWithContext:context error:error];
+}
+
 @end
