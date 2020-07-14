@@ -28,8 +28,6 @@
 @class MSIDWebviewResponse;
 @class MSIDInteractiveRequestParameters;
 
-typedef void (^MSIDBaseOperationCompletionHandler)(BOOL success, NSError *error);
-
 @interface MSIDWebResponseBaseOperation : NSObject
 
 - (instancetype)initWithResponse:(MSIDWebviewResponse *)response

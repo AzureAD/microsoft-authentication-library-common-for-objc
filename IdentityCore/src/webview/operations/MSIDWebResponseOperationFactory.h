@@ -33,7 +33,9 @@
 
 + (void)unregisterAll;
 
++ (void)unRegisterforResponse:(MSIDWebviewResponse *)response;
+
 + (MSIDWebResponseBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
-                                            error:(NSError **)error;
+                                                       error:(NSError **)error;
 
 @end

@@ -44,8 +44,6 @@
 
 - (void)tearDown
 {
-    
-    [MSIDWebResponseOperationFactory unregisterAll];
     [super tearDown];
 }
 
@@ -59,7 +57,7 @@
                                                                                                                       endRedirectUri:endUri
                                                                                                                                state:state
                                                                                                                   ignoreInvalidState:NO];
-    MSIDWebviewResponse *webResponse = [webResponseConfiguration responseWithResultURL:[[NSURL alloc] initWithString:responseString]
+    __auto_type *webResponse = [webResponseConfiguration responseWithResultURL:[[NSURL alloc] initWithString:responseString]
                                                                                factory:[MSIDAADWebviewFactory new]
                                                                                context:nil
                                                                                  error:nil];
@@ -70,6 +68,27 @@
     XCTAssertNil(error);
     XCTAssertNotNil(operation);
     XCTAssertTrue([operation isKindOfClass:MSIDWebResponseBrokerInstallOperation.class]);
+    [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
+}
+
+- (void)test_unsuportedWebResponse_should_return_error
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type webResponse = [factory oAuthResponseWithURL:[NSURL URLWithString:@"browser://somehost"]
+                                               requestState:nil
+                                         ignoreInvalidState:NO
+                                                    context:nil
+                                                      error:nil];
+    
+    XCTAssertNotNil(webResponse);
+    XCTAssertNil(error);
+    MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:webResponse
+                                                                                                    error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(operation);
+    [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
 }
 
 @end

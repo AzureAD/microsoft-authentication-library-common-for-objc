@@ -78,7 +78,6 @@
 
 + (NSString *)operation
 {
-    NSAssert(NO, @"Abstract method.");
     return @"";
 }
 

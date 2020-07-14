@@ -44,7 +44,13 @@
                                tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(MSIDRequestCompletionBlock)completion
 {
-    NSAssert(NO, @"Abstract method.");
+    if (!completion)
+    {
+        return;
+    }
+    
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Web response type is not supported or registered", nil, nil, nil, nil, nil, YES);
+    completion(nil, error);
 }
 
 @end
