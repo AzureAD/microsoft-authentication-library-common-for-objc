@@ -87,13 +87,14 @@
         return nil;
     }
     
-    // In case MSAL requests AT POP but Broker response Bearer, we need to update authScheme
+    // In case MSAL requests AT POP but Broker response Bearer, MSAL returns error to user
     if ([authScheme isMemberOfClass:MSIDAuthenticationSchemePop.class])
     {
         NSString *tokenType = [decryptedResponse msidObjectForKey:MSID_OAUTH2_TOKEN_TYPE ofClass:[NSString class]];
-        if (!tokenType || MSIDAuthSchemeTypeFromString(tokenType) != MSIDAuthSchemePop)
+        if ([NSString msidIsStringNilOrBlank:tokenType] || MSIDAuthSchemeTypeFromString(tokenType) != MSIDAuthSchemePop)
         {
-            authScheme = [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:[NSDictionary new]];
+            MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Protocol from broker's response is mismatched", correlationID);
+            return nil;
         }
     }
     
