@@ -299,6 +299,8 @@
         return NO;
     }
     
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove account metadata for home account id: %@.", MSID_PII_LOG_MASKABLE(homeAccountId));
+    
     NSError *localError;
     NSArray<MSIDAccountMetadataCacheItem *> *cacheItems = [self allAccountMetadataCacheItemsWithContext:context error:&localError];
     if (localError)
@@ -307,14 +309,19 @@
         return NO;
     }
     
+    BOOL success = YES;
+    
     for (MSIDAccountMetadataCacheItem *cacheItem in cacheItems)
     {
         localError = nil;
         [cacheItem removeAccountMetadataForHomeAccountId:homeAccountId error:&localError];
         if (localError)
         {
+            success = NO;
             if (error) *error = localError;
-            return NO;
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to remove account metadata from cache item!");
+            
+            continue;
         }
         
         localError = nil;
@@ -325,12 +332,15 @@
         
         if (localError)
         {
+            success = NO;
             if (error) *error = localError;
-            return NO;
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save cache item after removing account metadata!");
+            
+            continue;
         }
     }
     
-    return YES;
+    return success;
 }
 
 - (NSArray<MSIDAccountMetadataCacheItem *> *)allAccountMetadataCacheItemsWithContext:(id<MSIDRequestContext>)context
