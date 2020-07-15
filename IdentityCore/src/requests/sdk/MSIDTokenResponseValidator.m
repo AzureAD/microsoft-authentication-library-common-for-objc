@@ -33,6 +33,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -61,6 +62,16 @@
 
         MSID_LOG_WITH_CORR_PII(MSIDLogLevelWarning, correlationID, @"Unsuccessful token response, error %@", MSID_PII_LOG_MASKABLE(verificationError));
 
+        return nil;
+    }
+    
+    // In case MSAL requests AT POP but Broker responds with AT Bearer, MSAL returns error to user
+    NSString *tokenType = [tokenResponse.tokenType lowercaseString];
+    NSString *tokenTypeFromConfiguration = [configuration.authScheme.tokenType lowercaseString];
+    
+    if (![NSString msidIsStringNilOrBlank:tokenType] && ![tokenType isEqualToString:tokenTypeFromConfiguration])
+    {
+        MSIDFillAndLogError(error, MSIDErrorServerInvalidResponse, @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.", correlationID);
         return nil;
     }
     
