@@ -46,9 +46,11 @@
 {
     if (!completion)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"completion block is not valid");
         return;
     }
-    
+
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot find operation for this response type");
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Web response type is not supported or registered", nil, nil, nil, nil, nil, YES);
     completion(nil, error);
 }

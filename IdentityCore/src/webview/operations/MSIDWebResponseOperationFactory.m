@@ -71,6 +71,7 @@ static NSMutableDictionary *s_container = nil;
 {
     if (!response)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"response is not valid");
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Web response type is not valid", nil, nil, nil, nil, nil, YES);
         return nil;
     }
@@ -81,7 +82,7 @@ static NSMutableDictionary *s_container = nil;
     if (!operationClass)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No operation for response: %@.", response.class);
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Web response type is not valid", nil, nil, nil, nil, nil, YES);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Operation for this response class is not valid", nil, nil, nil, nil, nil, YES);
         return nil;
     }
 

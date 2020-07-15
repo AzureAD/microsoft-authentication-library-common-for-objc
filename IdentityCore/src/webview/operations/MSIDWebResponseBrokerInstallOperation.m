@@ -86,10 +86,12 @@
             [brokerController acquireToken:completion];
         } else
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"interactiveTokenRequestParameters is in wrong type");
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of interactive request parameter", nil, nil, nil, nil, nil, YES);
             completion(nil, error);
         }
     #else
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker installation on Mac is not supported");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, nil, nil, YES);
         completion(nil, error);
     #endif
