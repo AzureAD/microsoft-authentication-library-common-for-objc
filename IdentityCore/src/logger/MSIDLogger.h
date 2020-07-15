@@ -23,6 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol MSIDLoggerDelegate;
+
 /*! Levels of logging. Defines the priority of the logged message */
 typedef NS_ENUM(NSInteger, MSIDLogLevel)
 {
@@ -48,13 +50,20 @@ typedef NS_ENUM(NSInteger, MSIDLogLevel)
 typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL containsPII);
 
 @interface MSIDLogger : NSObject
+{
+    BOOL _PiiLoggingEnabled;
+    BOOL _NSLoggingEnabled;
+    BOOL _SourceLineLoggingEnabled;
+}
 
 + (MSIDLogger *)sharedLogger;
+
+@property (nonatomic, weak) id<MSIDLoggerDelegate> loggerDelegate;
 
 /*!
  The minimum log level for messages to be passed onto the log callback.
  */
-@property (readwrite) MSIDLogLevel level;
+@property (nonatomic, readwrite) MSIDLogLevel level;
 
 /*!
  Set to YES to allow messages possibly containing Personally Identifiable Information (PII) to be

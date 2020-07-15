@@ -25,6 +25,7 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDVersion.h"
 #import "MSIDDeviceId.h"
+#import "MSIDLoggerDelegate.h"
 #import <pthread.h>
 
 static long s_maxQueueSize = 1000;
@@ -85,6 +86,91 @@ static long s_maxQueueSize = 1000;
     });
 }
 
+- (MSIDLogLevel)level
+{
+    if (self.loggerDelegate) return self.loggerDelegate.level;
+    
+    return _level;
+}
+
+- (BOOL)PiiLoggingEnabled
+{
+    BOOL result;
+    @synchronized (self)
+    {
+        if (self.loggerDelegate)
+        {
+            result = self.loggerDelegate.PiiLoggingEnabled;
+        }
+        else
+        {
+            result = _PiiLoggingEnabled;
+            
+        }
+    }
+    return result;
+}
+
+- (void)setPiiLoggingEnabled:(BOOL)PiiLoggingEnabled
+{
+    @synchronized (self)
+    {
+        _PiiLoggingEnabled = PiiLoggingEnabled;
+    }
+}
+
+- (BOOL)NSLoggingEnabled
+{
+    BOOL result;
+    @synchronized (self)
+    {
+        if (self.loggerDelegate)
+        {
+            result = self.loggerDelegate.NSLoggingEnabled;
+        }
+        else
+        {
+            result = _NSLoggingEnabled;
+            
+        }
+    }
+    return result;
+}
+
+- (void)setNSLoggingEnabled:(BOOL)NSLoggingEnabled
+{
+    @synchronized (self)
+    {
+        _NSLoggingEnabled = NSLoggingEnabled;
+    }
+}
+
+- (BOOL)SourceLineLoggingEnabled
+{
+    BOOL result;
+    @synchronized (self)
+    {
+        if (self.loggerDelegate)
+        {
+            result = self.loggerDelegate.SourceLineLoggingEnabled;
+        }
+        else
+        {
+            result = _SourceLineLoggingEnabled;
+            
+        }
+    }
+    return result;
+}
+
+- (void)setSourceLineLoggingEnabled:(BOOL)SourceLineLoggingEnabled
+{
+    @synchronized (self)
+    {
+        _SourceLineLoggingEnabled = SourceLineLoggingEnabled;
+    }
+}
+
 @end
 
 @implementation MSIDLogger (Internal)
@@ -124,7 +210,7 @@ static NSDateFormatter *s_dateFormatter = nil;
     
     dispatch_async(self.loggerQueue, ^{
         @autoreleasepool
-        {
+        {            
             NSString *logComponent = [context logComponent];
             NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
             
@@ -174,12 +260,14 @@ static NSDateFormatter *s_dateFormatter = nil;
                 NSLog(@"%@", log);
             }
             
-            if (self.callback)
+            if (self.callback || self.loggerDelegate)
             {
                 NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
                 
                 BOOL lineContainsPII = self.PiiLoggingEnabled ? containsPII : NO;
-                self.callback(level, log, lineContainsPII);
+                
+                if (self.callback) self.callback(level, log, lineContainsPII);
+                if (self.loggerDelegate) [self.loggerDelegate onLogWithLevel:level lineNumber:lineNumber function:function message:log];
             }
             
             dispatch_semaphore_signal(self.queueSemaphore);
