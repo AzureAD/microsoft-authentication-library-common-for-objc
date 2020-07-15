@@ -93,7 +93,7 @@
         NSString *tokenType = [decryptedResponse msidObjectForKey:MSID_OAUTH2_TOKEN_TYPE ofClass:[NSString class]];
         if ([NSString msidIsStringNilOrBlank:tokenType] || MSIDAuthSchemeTypeFromString(tokenType) != MSIDAuthSchemePop)
         {
-            MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Please update Intune Company Portal and/or Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.", correlationID);
+            MSIDFillAndLogError(error, MSIDErrorServerInvalidResponse, @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.", correlationID);
             return nil;
         }
     }
