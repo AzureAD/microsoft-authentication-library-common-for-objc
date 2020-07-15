@@ -174,6 +174,7 @@ static NSInteger kCredentialTypePrefix = 2000;
     item->_target = [_target copyWithZone:zone];
     item->_applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
     item->_credentialType = _credentialType;
+    item->_tokenType = [_tokenType copyWithZone:zone];
     return item;
 }
 
