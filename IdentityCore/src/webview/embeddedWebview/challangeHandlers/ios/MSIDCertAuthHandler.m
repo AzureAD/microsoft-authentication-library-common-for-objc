@@ -134,14 +134,7 @@ static BOOL s_useAuthSession = NO;
         // This will launch a Safari view within the current Application, removing the app flip. Our control of this
         // view is extremely limited. Safari is still running in a separate sandbox almost completely isolated from us.
         
-        NSURL *currentURL = requestURL;
-        
-        if (s_useAuthSession && webview.URL)
-        {
-            currentURL = webview.URL;
-        }
-        
-        s_systemWebViewController = [[MSIDSystemWebviewController alloc] initWithStartURL:currentURL
+        s_systemWebViewController = [[MSIDSystemWebviewController alloc] initWithStartURL:requestURL
                                                                               redirectURI:redirectURI
                                                                          parentController:parentViewController
                                                                  useAuthenticationSession:s_useAuthSession
