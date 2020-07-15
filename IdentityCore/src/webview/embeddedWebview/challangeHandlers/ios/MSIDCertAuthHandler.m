@@ -38,6 +38,7 @@ static NSString *s_redirectPrefix = nil;
 static NSString *s_redirectScheme = nil;
 static MSIDSystemWebviewController *s_systemWebViewController = nil;
 static BOOL s_useAuthSession = NO;
+static BOOL s_useLastRequestURL = NO;
 
 #endif
 
@@ -55,6 +56,11 @@ static BOOL s_useAuthSession = NO;
 + (void)setUseAuthSession:(BOOL)useAuthSession
 {
     s_useAuthSession = useAuthSession;
+}
+
++ (void)setUseLastRequestURL:(BOOL)useLastRequestURL
+{
+    s_useLastRequestURL = useLastRequestURL;
 }
 
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities
@@ -134,7 +140,14 @@ static BOOL s_useAuthSession = NO;
         // This will launch a Safari view within the current Application, removing the app flip. Our control of this
         // view is extremely limited. Safari is still running in a separate sandbox almost completely isolated from us.
         
-        s_systemWebViewController = [[MSIDSystemWebviewController alloc] initWithStartURL:requestURL
+        NSURL *currentURL = requestURL;
+        
+        if (s_useLastRequestURL && webview.URL)
+        {
+            currentURL = webview.URL;
+        }
+        
+        s_systemWebViewController = [[MSIDSystemWebviewController alloc] initWithStartURL:currentURL
                                                                               redirectURI:redirectURI
                                                                          parentController:parentViewController
                                                                  useAuthenticationSession:s_useAuthSession
