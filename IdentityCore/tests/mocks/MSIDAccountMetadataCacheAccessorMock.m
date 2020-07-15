@@ -101,7 +101,7 @@
 }
 
 - (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
-                                      context:(id<MSIDRequestContext>)context
+                                      context:(__unused id<MSIDRequestContext>)context
                                         error:(NSError **)error
 {
     if (error) *error = self.removeAccountMetadataForHomeAccountIdError;
