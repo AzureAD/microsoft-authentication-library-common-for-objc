@@ -1336,6 +1336,55 @@
     XCTAssertFalse(result);
 }
 
+
+-(void)testCanHandleBrokerResponse_whenAuthSchemeinResumeStateIsPop_AndBrokerResponseIsSuccess_AndAuthSchemeinBrokerResponseIsPop_shouldReturnBrokerResponse
+{
+    [self saveResumeStateWithauthScheme:@"Pop"];
+    NSURL *brokerResponseURL = [self createPopResponseFromBroker];
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+        NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+}
+
+-(void)testCanHandleBrokerResponse_whenAuthSchemeinResumeStateIsBearer_AndBrokerResponseIsSuccess_AndAuthSchemeinBrokerResponseIsBearer_shouldReturnBrokerResponse
+{
+    [self saveResumeStateWithauthScheme:@"Bearer"];
+    NSURL *brokerResponseURL = [self createBearerResponseFromBroker];
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    XCTAssertNotNil(result);
+    XCTAssertNil(error);
+}
+
+-(void)testCanHandleBrokerResponse_whenAuthSchemeinResumeStateIsPop_AndBrokerResponseIsSuccess_AndAuthSchemeinBrokerResponseIsBearer_shouldReturnAuthSchemeError
+{
+    [self saveResumeStateWithauthScheme:@"Pop"];
+    NSURL *brokerResponseURL = [self createBearerResponseFromBroker];
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(result);
+    NSString *expectedErrorDescription = @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.";
+    XCTAssertEqual(error.userInfo[MSIDErrorDescriptionKey], expectedErrorDescription);
+}
+
+-(void)testCanHandleBrokerResponse_whenAuthSchemeinResumeStateIsPop_AndBrokerResponseIsFailure_AndAuthSchemeinBrokerResponseIsBearer_shouldReturnResponseError
+{
+    [self saveResumeStateWithauthScheme:@"Pop"];
+    NSURL *brokerResponseURL = [self createFailureResponseFromBroker];
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(result);
+    NSString *expectedErrorDescription = @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.";
+    XCTAssertNotEqual(error.userInfo[MSIDErrorDescriptionKey], expectedErrorDescription);
+}
+
 #pragma mark - Helpers
 
 - (void)saveResumeStateWithAuthority:(NSString *)authority
@@ -1350,6 +1399,114 @@
                                   };
     
     [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+}
+
+- (void)saveResumeStateWithauthScheme:(NSString *)authScheme
+{
+    NSDictionary *resumeState = nil;
+    if ([authScheme isEqualToString:@"Pop"])
+    {
+        resumeState = @{@"authority" : @"https://login.microsoftonline.com/common",
+                        @"scope" : @"myscope1 myscope2",
+                        @"keychain_group" : @"com.microsoft.adalcache",
+                        @"redirect_uri" : @"x-msauth-test://com.microsoft.testapp",
+                        @"broker_nonce" : @"nonce",
+                        @"instance_aware" : @"NO",
+                        @"provided_authority_url" : @"https://login.microsoftonline.com/common",
+                        @"token_type": @"Pop",
+                        @"req_cnf": @"eyJraWQiOiJPeEF6UW55cEpBTnNtTERXTU1lRWJFZHM5ZERHbGtRS09iZkJrRW4zXzk0In0",
+        };
+    }
+    else
+    {
+        resumeState = @{@"authority" : @"https://login.microsoftonline.com/common",
+            @"scope" : @"myscope1 myscope2",
+            @"keychain_group" : @"com.microsoft.adalcache",
+            @"redirect_uri" : @"x-msauth-test://com.microsoft.testapp",
+            @"broker_nonce" : @"nonce",
+            @"instance_aware" : @"NO",
+            @"provided_authority_url" : @"https://login.microsoftonline.com/common",
+        };
+    }
+    
+    [[NSUserDefaults standardUserDefaults] setObject:resumeState forKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
+}
+
+- (NSURL *)createBearerResponseFromBroker
+{
+    NSDictionary *clientInfo = @{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"};
+    NSString *rawClientInfo = [clientInfo msidBase64UrlJson];
+    NSDictionary *brokerResponseParams =
+    @{
+        @"authority" : @"https://login.microsoftonline.com/common",
+        @"scope" : @"myscope",
+        @"client_id" : @"my_client_id",
+        @"id_token" : @"token_string",
+        @"client_info" : rawClientInfo,
+        @"home_account_id" : @"1.1234-5678-90abcdefg",
+        @"access_token" : @"i-am-a-access-token",
+        @"token_type" : @"Bearer",
+        @"refresh_token" : @"i-am-a-refresh-token",
+        @"correlation_id" : @"uuid1",
+        @"x-broker-app-ver" : @"1.0.0",
+        @"foci" : @"1",
+        @"success": @YES,
+        @"broker_nonce" : @"nonce"
+    };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    return brokerResponseURL;
+}
+
+- (NSURL *)createPopResponseFromBroker
+{
+    NSDictionary *clientInfo = @{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"};
+    NSString *rawClientInfo = [clientInfo msidBase64UrlJson];
+    NSDictionary *brokerResponseParams =
+    @{
+        @"authority" : @"https://login.microsoftonline.com/common",
+        @"scope" : @"myscope",
+        @"client_id" : @"my_client_id",
+        @"id_token" : @"token_string",
+        @"client_info" : rawClientInfo,
+        @"home_account_id" : @"1.1234-5678-90abcdefg",
+        @"access_token" : @"i-am-a-access-token",
+        @"token_type" : @"Pop",
+        @"req_cnf" : @"eyJraWQiOiJPeEF6UW55cEpBTnNtTERXTU1lRWJFZHM5ZERHbGtRS09iZkJrRW4zXzk0In0",
+        @"refresh_token" : @"i-am-a-refresh-token",
+        @"correlation_id" : @"uuid1",
+        @"x-broker-app-ver" : @"1.0.0",
+        @"foci" : @"1",
+        @"success": @YES,
+        @"broker_nonce" : @"nonce"
+    };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    return brokerResponseURL;
+}
+
+- (NSURL *)createFailureResponseFromBroker
+{
+    NSDictionary *brokerResponseParams =
+    @{
+        @"broker_error_code" : @"-50005",
+        @"broker_error_domain" : @"MSALErrorDomain",
+        @"broker_nonce" : @"nonce",
+        @"correlation_id" : @"uuid",
+        @"error_description" : @"Authentication error - User cancelled authentication flow",
+        @"error_metadata" : @"{}",
+        @"success" : @NO,
+        @"x-broker-app-ver" : @"1.0",
+    };
+    
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    return brokerResponseURL;
 }
 
 @end
