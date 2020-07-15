@@ -100,4 +100,19 @@
     return self.updatePrincipalAccountIdResult;
 }
 
+- (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                      context:(id<MSIDRequestContext>)context
+                                        error:(NSError **)error
+{
+    if (error) *error = self.removeAccountMetadataForHomeAccountIdError;
+    
+    struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams s  = self.removeAccountMetadataForHomeAccountIdParams;
+    s.homeAccountId = homeAccountId;
+    self.removeAccountMetadataForHomeAccountIdParams = s;
+    
+    self.removeAccountMetadataForHomeAccountIdInvokedCount++;
+    
+    return self.removeAccountMetadataForHomeAccountIdResult;
+}
+
 @end
