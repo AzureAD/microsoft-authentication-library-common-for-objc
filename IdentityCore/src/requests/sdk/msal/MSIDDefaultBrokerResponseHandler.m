@@ -100,7 +100,16 @@
             MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
             
             if (!additionalTokensError)
-            {  
+            {
+                //If Broker responds with different auth scheme, switch auth scheme to default Bearer.
+                NSString *tokenType = [brokerResponse.tokenResponse.tokenType lowercaseString];
+                NSString *tokenTypeFromAuthScheme = [MSIDAuthSchemeParamFromType(authScheme.authScheme) lowercaseString];
+                
+                if (![tokenType isEqualToString:tokenTypeFromAuthScheme])
+                {
+                    authScheme = [MSIDAuthenticationScheme new];
+                }
+                
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
                                                                         requestAuthority:self.providedAuthority
@@ -110,7 +119,7 @@
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
                                                                         saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
-                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                              authScheme:authScheme
                                                                                    error:&additionalTokensError];
             }
         }
