@@ -119,7 +119,7 @@
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
                                                                         saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
-                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                              authScheme:authScheme
                                                                                    error:&additionalTokensError];
             }
         }
