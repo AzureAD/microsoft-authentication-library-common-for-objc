@@ -32,7 +32,8 @@
 
     if (self)
     {
-        if (!response) {
+        if (!response)
+        {
             return nil;
         }
     }

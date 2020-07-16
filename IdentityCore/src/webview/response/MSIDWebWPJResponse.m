@@ -33,7 +33,8 @@
 
 @implementation MSIDWebWPJResponse
 
-+ (void)load {
++ (void)load
+{
     [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebResponseBrokerInstallOperation.class forResponseClass:self];
 }
 
