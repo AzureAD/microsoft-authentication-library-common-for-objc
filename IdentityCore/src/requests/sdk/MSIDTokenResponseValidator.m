@@ -33,6 +33,8 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -96,6 +98,15 @@
             *error = authorityError;
         }
         
+        return nil;
+    }
+    // Verify if the auth scheme from server's response match with the request
+    NSString *tokenType = [tokenResponse.tokenType lowercaseString];
+    MSIDAuthScheme scheme = configuration.authScheme.authScheme;
+    NSString *tokenTypeFromConfiguration = [MSIDAuthSchemeParamFromType(scheme) lowercaseString];
+    if (![NSString msidIsStringNilOrBlank:tokenType] && ![tokenType isEqualToString:tokenTypeFromConfiguration])
+    {
+        MSIDFillAndLogError(error, MSIDErrorServerInvalidResponse, @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.", correlationID);
         return nil;
     }
     

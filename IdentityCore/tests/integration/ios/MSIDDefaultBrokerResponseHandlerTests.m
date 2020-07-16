@@ -1381,9 +1381,23 @@
     MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
     XCTAssertNotNil(error);
     XCTAssertNil(result);
-    NSString *expectedErrorDescription = @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.";
-    XCTAssertNotEqual(error.userInfo[MSIDErrorDescriptionKey], expectedErrorDescription);
+    NSString *authMismatchErrorDescription = @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.";
+    XCTAssertNotEqual(error.userInfo[MSIDErrorDescriptionKey], authMismatchErrorDescription);
 }
+
+-(void)testCanHandleBrokerResponse_whenAuthSchemeinResumeStateIsPop_AndBrokerResponseIsFailure_WithAdditionalTokens_shouldReturnResponseError
+{
+    [self saveResumeStateWithauthScheme:@"Pop"];
+    NSURL *brokerResponseURL = [self createFailureResponseFromBrokerWithAdditionalToken];
+    MSIDDefaultBrokerResponseHandler *brokerResponseHandler = [[MSIDDefaultBrokerResponseHandler alloc] initWithOauthFactory:[MSIDAADV2Oauth2Factory new] tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]];
+    NSError *error = nil;
+    MSIDTokenResult *result = [brokerResponseHandler handleBrokerResponseWithURL:brokerResponseURL sourceApplication:MSID_BROKER_APP_BUNDLE_ID error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertNil(result);
+    NSString *authMismatchErrorDescription = @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.";
+    XCTAssertNotEqual(error.userInfo[MSIDErrorDescriptionKey], authMismatchErrorDescription);
+}
+
 
 #pragma mark - Helpers
 
@@ -1503,6 +1517,28 @@
         @"x-broker-app-ver" : @"1.0",
     };
     
+    NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
+                                                                             redirectUri:@"x-msauth-test://com.microsoft.testapp"
+                                                                           encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];
+    return brokerResponseURL;
+}
+
+- (NSURL *)createFailureResponseFromBrokerWithAdditionalToken
+{
+    NSDictionary *brokerResponseParams =
+    @{
+            
+        @"additional_tokens" :@"{\"client_info\":\"eyJ1aWQiOiI1ODY4YWUzYS0wY2IwLTQwODUtYmI1ZC1mYzc3YzAwN2Q2ODQiLCJ1dGlkIjoiZjY0NWFkOTItZTM4ZC00ZDFhLWI1MTAtZDFiMDlhNzRhOGNhIn0\",\"authority\":\"https://login.microsoftonline.com/f645ad92-e38d-4d1a-b510-d1b09a74a8ca\",\"token_type\":\"Bearer\",\"x-broker-app-ver\":\"1.0\",\"refresh_token\":\"refreshtoken\",\"scope\":\"https://msmamservice.api.application/user_impersonation https://msmamservice.api.application/.default\",\"ext_expires_on\":\"1594853027\",\"foci\":\"1\",\"application_token\":\"app token\",\"expires_on\":\"1594853027\",\"success\":true,\"correlation_id\":\"0D74889A-AAC4-4D0C-9956-797E47AFACFB\",\"client_id\":\"27922004-5251-4030-b22d-91ecd9a37ea4\",\"id_token\":\"idtoken\",\"vt\":\"YES\",\"access_token\":\"access token\"}",
+        @"broker_error_code" : @"-50004",
+        @"broker_error_domain" : @"MSALErrorDomain",
+        @"broker_nonce" : @"nonce",
+        @"correlation_id" : @"UUID",
+        @"error" : @"unauthorized_client",
+        @"error_description" : @"AADSTS53005: Application needs to enforce Intune protection policies",
+        @"suberror" : @"protection_policy_required",
+        @"success" : @NO,
+        @"x-broker-app-ver" : @"1.0",
+    };
     NSURL *brokerResponseURL = [MSIDTestBrokerResponseHelper createDefaultBrokerResponse:brokerResponseParams
                                                                              redirectUri:@"x-msauth-test://com.microsoft.testapp"
                                                                            encryptionKey:[NSData msidDataFromBase64UrlEncodedString:@"BU-bLN3zTfHmyhJ325A8dJJ1tzrnKMHEfsTlStdMo0U"]];

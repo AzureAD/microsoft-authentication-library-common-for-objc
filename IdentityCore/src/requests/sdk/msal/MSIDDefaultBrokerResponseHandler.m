@@ -86,21 +86,10 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
         return nil;
     }
-    
-    BOOL authSchemeError = FALSE;
-    // In case MSAL requests AT POP but Broker response Bearer, MSAL returns error to user
-    if ([authScheme isMemberOfClass:MSIDAuthenticationSchemePop.class])
-    {
-        NSString *tokenType = [decryptedResponse msidObjectForKey:MSID_OAUTH2_TOKEN_TYPE ofClass:[NSString class]];
-        if ([NSString msidIsStringNilOrBlank:tokenType] || MSIDAuthSchemeTypeFromString(tokenType) != MSIDAuthSchemePop)
-        {
-            authSchemeError = TRUE;
-        }
-    }
-    
+
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
-    if (decryptedResponse[@"additional_tokens"] && !authSchemeError)
+    if (decryptedResponse[@"additional_tokens"])
     {
         MSIDTokenResult *tokenResult = nil;
         NSError *additionalTokensError = nil;
@@ -121,7 +110,7 @@
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
                                                                         saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
-                                                                              authScheme:authScheme
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                                    error:&additionalTokensError];
             }
         }
@@ -136,31 +125,21 @@
         }
     }
     
+    // Successful case
+    if ([NSString msidIsStringNilOrBlank:decryptedResponse[@"broker_error_domain"]]
+        && [decryptedResponse[@"success"] boolValue])
+    {
+        return [[MSIDAADV2BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
+    }
+    
+    // Failure case
     MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:decryptedResponse error:error];
     
-    // Error when initializing broker response
     if (!brokerResponse)
     {
         return nil;
     }
     
-    // Successful response from broker
-    if ([NSString msidIsStringNilOrBlank:decryptedResponse[@"broker_error_domain"]]
-        && [decryptedResponse[@"success"] boolValue])
-    {
-        // if authscheme is invalid, we want to return error to user
-        if (authSchemeError)
-        {
-            MSIDFillAndLogError(error, MSIDErrorServerInvalidResponse, @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.", correlationID);
-            return nil;
-        }
-        else
-        {
-            return brokerResponse;
-        }
-    }
-    
-    // Failure response from broker
     NSError *brokerError = [self resultFromBrokerErrorResponse:brokerResponse];
     
     if (error)
