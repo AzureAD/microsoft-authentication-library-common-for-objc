@@ -30,9 +30,13 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDOauth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -82,7 +86,7 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
         return nil;
     }
-    
+
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])
@@ -106,7 +110,7 @@
                                                                     accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
                                                                         saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
-                                                                              authScheme:authScheme
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                                    error:&additionalTokensError];
             }
         }
