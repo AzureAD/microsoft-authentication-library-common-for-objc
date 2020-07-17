@@ -25,7 +25,7 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDVersion.h"
 #import "MSIDDeviceId.h"
-#import "MSIDLoggerDelegate.h"
+#import "MSIDLoggerConnector.h"
 #import <pthread.h>
 
 static long s_maxQueueSize = 1000;
@@ -88,7 +88,7 @@ static long s_maxQueueSize = 1000;
 
 - (MSIDLogLevel)level
 {
-    if (self.loggerDelegate) return self.loggerDelegate.level;
+    if (self.loggerConnector) return self.loggerConnector.level;
     
     return _level;
 }
@@ -98,9 +98,9 @@ static long s_maxQueueSize = 1000;
     BOOL result;
     @synchronized (self)
     {
-        if (self.loggerDelegate)
+        if (self.loggerConnector)
         {
-            result = self.loggerDelegate.PiiLoggingEnabled;
+            result = self.loggerConnector.PiiLoggingEnabled;
         }
         else
         {
@@ -124,9 +124,9 @@ static long s_maxQueueSize = 1000;
     BOOL result;
     @synchronized (self)
     {
-        if (self.loggerDelegate)
+        if (self.loggerConnector)
         {
-            result = self.loggerDelegate.NSLoggingEnabled;
+            result = self.loggerConnector.NSLoggingEnabled;
         }
         else
         {
@@ -150,9 +150,9 @@ static long s_maxQueueSize = 1000;
     BOOL result;
     @synchronized (self)
     {
-        if (self.loggerDelegate)
+        if (self.loggerConnector)
         {
-            result = self.loggerDelegate.SourceLineLoggingEnabled;
+            result = self.loggerConnector.SourceLineLoggingEnabled;
         }
         else
         {
@@ -260,14 +260,14 @@ static NSDateFormatter *s_dateFormatter = nil;
                 NSLog(@"%@", log);
             }
             
-            if (self.callback || self.loggerDelegate)
+            if (self.callback || self.loggerConnector)
             {
                 NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
                 
                 BOOL lineContainsPII = self.PiiLoggingEnabled ? containsPII : NO;
                 
                 if (self.callback) self.callback(level, log, lineContainsPII);
-                if (self.loggerDelegate) [self.loggerDelegate onLogWithLevel:level lineNumber:lineNumber function:function message:log];
+                if (self.loggerConnector) [self.loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];
             }
             
             dispatch_semaphore_signal(self.queueSemaphore);

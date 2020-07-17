@@ -28,7 +28,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDLoggerDelegate <NSObject>
+@protocol MSIDLoggerConnector <NSObject>
 
 - (MSIDLogLevel)level;
 
