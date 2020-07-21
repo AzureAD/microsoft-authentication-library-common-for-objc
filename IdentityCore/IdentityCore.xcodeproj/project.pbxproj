@@ -519,6 +519,12 @@
 		60FDA9C721A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */; };
 		60FDA9DB21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
 		60FDA9DC21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
+		6EA09F8A24B7F05B0004DE28 /* MSIDSymmetricKeyAbstraction.h in Headers */ = {isa = PBXBuildFile; fileRef = 6EA09F8924B7F05B0004DE28 /* MSIDSymmetricKeyAbstraction.h */; };
+		6EA09F8C24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA09F8B24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m */; };
+		6EA09F8D24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA09F8B24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m */; };
+		6EA09F8F24C74D190004DE28 /* IdentityCoreSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA09F8E24C74D190004DE28 /* IdentityCoreSwift.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		6EA09F9124C74D220004DE28 /* IdentityCoreSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA09F9024C74D220004DE28 /* IdentityCoreSwift.framework */; };
+		6EA09F9224C763FB0004DE28 /* IdentityCoreSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA09F9024C74D220004DE28 /* IdentityCoreSwift.framework */; };
 		740340B92460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */; };
 		740340BA2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
 		740340BB2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
@@ -2061,6 +2067,10 @@
 		60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultBrokerResponseHandlerTests.m; sourceTree = "<group>"; };
 		60FDA9D921A5EBBA001E09B8 /* MSIDTestCacheAccessorHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestCacheAccessorHelper.h; sourceTree = "<group>"; };
 		60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestCacheAccessorHelper.m; sourceTree = "<group>"; };
+		6EA09F8924B7F05B0004DE28 /* MSIDSymmetricKeyAbstraction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSymmetricKeyAbstraction.h; sourceTree = "<group>"; };
+		6EA09F8B24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSymmetricKeyAbstraction.m; sourceTree = "<group>"; };
+		6EA09F8E24C74D190004DE28 /* IdentityCoreSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = IdentityCoreSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EA09F9024C74D220004DE28 /* IdentityCoreSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = IdentityCoreSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCurrentRequestTelemetrySerializedItem.h; sourceTree = "<group>"; };
 		740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetrySerializedItem.m; sourceTree = "<group>"; };
 		74043F7C245CC84B00D3E7C1 /* MSIDCurrentRequestTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetryTests.m; sourceTree = "<group>"; };
@@ -2789,6 +2799,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EA09F8F24C74D190004DE28 /* IdentityCoreSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2796,6 +2807,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EA09F9224C763FB0004DE28 /* IdentityCoreSwift.framework in Frameworks */,
 				B2BD0A5B2376889600DF6AE4 /* AuthenticationServices.framework in Frameworks */,
 				963634D421D4EBD400C60742 /* AppKit.framework in Frameworks */,
 				60D6ED0D20D9BBA0002FCBBB /* IOKit.framework in Frameworks */,
@@ -2826,6 +2838,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6EA09F9124C74D220004DE28 /* IdentityCoreSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4202,6 +4215,8 @@
 				B2C0748A246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m */,
 				B278937F2470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h */,
 				B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */,
+				6EA09F8924B7F05B0004DE28 /* MSIDSymmetricKeyAbstraction.h */,
+				6EA09F8B24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m */,
 			);
 			path = crypto;
 			sourceTree = "<group>";
@@ -4576,6 +4591,8 @@
 		D6D9A4C21FBE718C00EFA430 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6EA09F9024C74D220004DE28 /* IdentityCoreSwift.framework */,
+				6EA09F8E24C74D190004DE28 /* IdentityCoreSwift.framework */,
 				963C898C214B98F10051AFEE /* AuthenticationServices.framework */,
 				B2BD0A5A2376889600DF6AE4 /* AuthenticationServices.framework */,
 				60D6ED0B20D9BB89002FCBBB /* Security.framework */,
@@ -5240,6 +5257,7 @@
 				B286B9E32389DFB4007833AD /* MSIDBasicContext.h in Headers */,
 				B28D90A5218FD1E800E230D6 /* MSIDLegacyTokenResponseValidator.h in Headers */,
 				B2C708AA219A5A3D00D917B8 /* MSIDLegacySilentTokenRequest.h in Headers */,
+				6EA09F8A24B7F05B0004DE28 /* MSIDSymmetricKeyAbstraction.h in Headers */,
 				96F21B3120A65896002B87C3 /* MSIDWebviewAuthorization.h in Headers */,
 				B286B9C52389DE78007833AD /* MSIDAccountMetadata.h in Headers */,
 				B2F671E32467A30400649855 /* MSIDInteractiveAuthorizationCodeRequest.h in Headers */,
@@ -6067,6 +6085,7 @@
 				238E19E32086FE28004DF483 /* MSIDAADAuthorizationCodeRequest.m in Sources */,
 				23B39AB9209BC705000AA905 /* MSIDOpenIdProviderMetadata.m in Sources */,
 				B20657E11FCA208C00412B7D /* NSDate+MSIDExtensions.m in Sources */,
+				6EA09F8D24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m in Sources */,
 				230016422371126E00F7D19C /* MSIDProviderType.m in Sources */,
 				B27551C22081705300AA7A38 /* MSIDJWTHelper.m in Sources */,
 				B251CC1D2040F6B5005E0179 /* MSIDLegacyTokenCacheKey.m in Sources */,
@@ -6510,6 +6529,7 @@
 				B2C7086E2198C41300D917B8 /* MSIDDefaultBrokerResponseHandler.m in Sources */,
 				239DF9AE20DED6F7002D428B /* MSIDConstants.m in Sources */,
 				233E96F722652D3A007FCE2A /* MSIDAggregatedDispatcher.m in Sources */,
+				6EA09F8C24B7F06F0004DE28 /* MSIDSymmetricKeyAbstraction.m in Sources */,
 				23F9FD4C22EC097600DAB65D /* NSKeyedArchiver+MSIDExtensions.m in Sources */,
 				B20657AA1FC91ECC00412B7D /* MSIDTelemetry.m in Sources */,
 				B2C708892198DE3900D917B8 /* MSIDBrokerCryptoProvider.m in Sources */,
