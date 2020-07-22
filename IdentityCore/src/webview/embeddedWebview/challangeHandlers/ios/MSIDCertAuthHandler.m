@@ -38,6 +38,7 @@ static NSString *s_redirectPrefix = nil;
 static NSString *s_redirectScheme = nil;
 static MSIDSystemWebviewController *s_systemWebViewController = nil;
 static BOOL s_useAuthSession = NO;
+static BOOL s_useLastRequestURL = NO;
 
 #endif
 
@@ -55,6 +56,11 @@ static BOOL s_useAuthSession = NO;
 + (void)setUseAuthSession:(BOOL)useAuthSession
 {
     s_useAuthSession = useAuthSession;
+}
+
++ (void)setUseLastRequestURL:(BOOL)useLastRequestURL
+{
+    s_useLastRequestURL = useLastRequestURL;
 }
 
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities
@@ -136,7 +142,7 @@ static BOOL s_useAuthSession = NO;
         
         NSURL *currentURL = requestURL;
         
-        if (s_useAuthSession && webview.URL)
+        if (s_useLastRequestURL && webview.URL)
         {
             currentURL = webview.URL;
         }

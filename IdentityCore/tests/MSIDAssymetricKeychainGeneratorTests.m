@@ -123,7 +123,14 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
     
     XCTAssertNotNil([result keyExponent]);
     XCTAssertNotNil([result keyModulus]);
-
+    
+    NSString *messageString = [@"Sample Message To Encrypt/Decrypt" msidBase64UrlEncode];
+    NSString *encryptedMessage = [result encryptForTest:messageString];
+    XCTAssertNotNil(encryptedMessage);
+    NSData *decryptedMessageInBytes = [result decrypt:encryptedMessage];
+    XCTAssertNotNil(decryptedMessageInBytes);
+    NSString *decryptedMessageString = [NSString msidBase64UrlEncodedStringFromData:decryptedMessageInBytes];
+    XCTAssertEqualObjects(messageString, decryptedMessageString);
 }
 
 - (void)testGenerateKeyPair_whenKeyExists_shouldGenerateNewKeyAndReturnIt

@@ -975,16 +975,12 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error
 {
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    NSArray *itemList = [storageItem storedItemsForKey:key];
-    
-    /*
-     Merge in memory with persistence only if not found in memory to cover the case when 2 apps sharing the same clientId can modify the same entry in the keychain.
-     */
-    if (![itemList count])
+    NSError *localError;
+    NSArray *itemList = [self accountsMetadataWithKey:key serializer:serializer context:context error:&localError];
+    if (localError)
     {
-        storageItem = [self syncStorageItem:key.isShared serializer:serializer context:context error:error];
-        itemList = [storageItem storedItemsForKey:key];
+        if (error) *error = localError;
+        return nil;
     }
     
     if (itemList.count > 1)
@@ -999,7 +995,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     
 }
 
-- (NSArray<MSIDAccountMetadata *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
                                                           serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
                                                              context:(id<MSIDRequestContext>)context
                                                                error:(NSError **)error

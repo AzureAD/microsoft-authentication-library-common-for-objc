@@ -535,8 +535,11 @@
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
     cacheQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
     cacheQuery.realm = authority.realm;
-    cacheQuery.username = accountIdentifier.displayableId;
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
+    
+    // If homeAccountId is present, username is not needed for account lookup. Leaving it nil allows accounts to appear in guest
+    // tenants under a different upn and still acquire tokens silently.
+    cacheQuery.username = [NSString msidIsStringNilOrBlank:accountIdentifier.homeAccountId] ? accountIdentifier.displayableId : nil;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
 

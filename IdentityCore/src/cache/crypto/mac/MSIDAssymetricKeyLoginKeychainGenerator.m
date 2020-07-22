@@ -33,13 +33,8 @@
 
 - (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(nullable SecAccessRef)accessRef error:(NSError * _Nullable * _Nullable)error
 {
+    _accessRef = accessRef;
     self = [super initWithGroup:keychainGroup error:error];
-    
-    if (self)
-    {
-        _accessRef = accessRef;
-    }
-    
     return self;
 }
 
