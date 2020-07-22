@@ -78,7 +78,10 @@
         
         NSError *localError;
         _idTokenObj = [self tokenClaimsFromRawIdToken:idToken error:&localError];
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init id token claims in %@, error: %@", self.class, MSID_PII_LOG_MASKABLE(localError));
+        if (idToken && localError)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Failed to init id token claims in %@, error: %@", self.class, MSID_PII_LOG_MASKABLE(localError));
+        }
     }
     else
     {

@@ -184,7 +184,7 @@
     NSString *requestConf = resumeState[MSID_OAUTH2_REQUEST_CONFIRMATION];
     [schemeParams msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
     [schemeParams msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
-    if (tokenType && MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+    if (![NSString msidIsStringNilOrBlank:tokenType] && MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
     {
         return [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
     }

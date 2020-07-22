@@ -30,9 +30,13 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDOauth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -82,7 +86,7 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
         return nil;
     }
-    
+
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])
@@ -96,7 +100,16 @@
             MSIDAADV2BrokerResponse *brokerResponse = [[MSIDAADV2BrokerResponse alloc] initWithDictionary:additionalTokensDict error:&additionalTokensError];
             
             if (!additionalTokensError)
-            {  
+            {
+                //If Broker responds with different auth scheme, switch auth scheme to default Bearer.
+                NSString *tokenType = [brokerResponse.tokenResponse.tokenType lowercaseString];
+                NSString *tokenTypeFromAuthScheme = [MSIDAuthSchemeParamFromType(authScheme.authScheme) lowercaseString];
+                
+                if (![tokenType isEqualToString:tokenTypeFromAuthScheme])
+                {
+                    authScheme = [MSIDAuthenticationScheme new];
+                }
+                
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
                                                                         requestAuthority:self.providedAuthority

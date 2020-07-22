@@ -157,7 +157,7 @@
             SecKeyCreateEncryptedData(_publicKeyRef, algorithm, (__bridge CFDataRef)message, &error));
         if (error) {
             NSError *err = CFBridgingRelease(error);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to encrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", err.code]]);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to encrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", (long)err.code]]);
             return nil;
         }
         return [encryptedBlobBytes base64EncodedStringWithOptions:0];
