@@ -49,14 +49,14 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
     
     NSString* message = @"message";
     NSString* context = @"context";
-    NSString* iv = @"iv";
+    NSString* iv = @"IwV0cBo3TNqNcZbF";
     NSString* authTag = @"auth tag";
     NSString* authData = @"auth data";
-    NSData* messageData = [[NSData alloc] initWithBase64EncodedString:message options:0];
-    NSData* contextData = [[NSData alloc] initWithBase64EncodedString:context options:0];
-    NSData* ivData = [[NSData alloc] initWithBase64EncodedString:iv options:0];
-    NSData* authTagData = [[NSData alloc] initWithBase64EncodedString:authTag options:0];
-    NSData* authDataData = [[NSData alloc] initWithBase64EncodedString:authData options:0];
+    NSData* messageData = [message dataUsingEncoding:0];
+    NSData* contextData = [context dataUsingEncoding:0];
+    NSData* ivData = [iv dataUsingEncoding:0];
+    NSData* authTagData = [authTag dataUsingEncoding:0];
+    NSData* authDataData = [authData dataUsingEncoding:0];
     NSData* cipherText = [symmetricKey encryptUsingAuthenticatedAesForTest:messageData contextBytes:contextData iv:ivData authenticationTag:authTagData authenticationData:authDataData];
     XCTAssertNotNil(cipherText);
     
