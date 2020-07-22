@@ -36,7 +36,7 @@
     [super setUp];
     [[MSIDTestLogger sharedLogger] reset];
     [MSIDTestLogger sharedLogger].callbackInvoked = NO;
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
 }
 
 #pragma mark - Basic logging
@@ -59,7 +59,7 @@
 
 - (void)testLog_whenPiiEnabledPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -73,7 +73,7 @@
 
 - (void)testLog_whenPiiEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -87,7 +87,7 @@
 
 - (void)testLog_whenPiiNotEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -101,7 +101,7 @@
 
 - (void)testLog_whenPiiNotEnabledPiiMessage_shouldInvokeCallbackWithMaskedMessage
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -172,7 +172,7 @@
 
 - (void)testLogErrorPiiMacro_shouldReturnMessagePIITrueErrorLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -187,7 +187,7 @@
 
 - (void)testLogWarningPiiMacro_shouldReturnMessagePIITrueWarningLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -202,7 +202,7 @@
 
 - (void)testLogInfoPiiMacro_shouldReturnMessagePIITrueInfoLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -217,7 +217,7 @@
 
 - (void)testLogVerbosePiiMacro_shouldReturnMessagePIITrueVerboseLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -232,7 +232,7 @@
 
 - (void)testLogWithContextMacro_whenContainsPii_andPiiDisabled_shouldLogMessageWithMaskedPii
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -247,7 +247,7 @@
 
 - (void)testLogWithContextMacro_whenContainsPii_andPiiEnabled_shouldLogMessageWithRawPii
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
