@@ -1,5 +1,5 @@
 Version 1.5.3
------
+-----  
 * Switch to PkeyAuth on macOS (#734)
 * Support returning additional WPJ info (#742)
 * Fixed PkeyAuth when ADFS challenge is URL encoded (#750)
