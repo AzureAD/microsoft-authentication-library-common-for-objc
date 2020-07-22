@@ -53,7 +53,7 @@ typedef NS_ENUM(NSInteger, MSIDWebviewType)
 typedef NS_ENUM(NSInteger, MSIDRequestType)
 {
     MSIDRequestBrokeredType = 0,
-    MSIDRequestLocalType
+    MSIDRequestLocalTypeBroken
 };
 
 typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)

@@ -57,7 +57,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
-                                                                             requestType:MSIDRequestLocalType
+                                                                             requestType:MSIDRequestLocalTypeBroken
                                                                                    error:&error];
 
     XCTAssertNil(error);
@@ -97,7 +97,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
-                                                                             requestType:MSIDRequestLocalType
+                                                                             requestType:MSIDRequestLocalTypeBroken
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -121,7 +121,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
-                                                                             requestType:MSIDRequestLocalType
+                                                                             requestType:MSIDRequestLocalTypeBroken
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -145,7 +145,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
-                                                                             requestType:MSIDRequestLocalType
+                                                                             requestType:MSIDRequestLocalTypeBroken
                                                                                    error:&error];
 
     XCTAssertNil(error);
