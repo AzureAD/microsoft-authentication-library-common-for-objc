@@ -51,8 +51,8 @@ static long s_maxQueueSize = 1000;
     // and we'll probably not have enough diagnostic information, however verbose
     // will most likely be too noisy for most usage.
     _level = MSIDLogLevelInfo;
-    _PiiLoggingEnabled = NO;
-    _SourceLineLoggingEnabled = NO;
+    _piiLoggingEnabled = NO;
+    _sourceLineLoggingEnabled = NO;
     
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlogger-%@", [NSUUID UUID].UUIDString];
     _loggerQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
@@ -93,82 +93,25 @@ static long s_maxQueueSize = 1000;
     return _level;
 }
 
-- (BOOL)PiiLoggingEnabled
+- (BOOL)piiLoggingEnabled
 {
-    BOOL result;
-    @synchronized (self)
-    {
-        if (self.loggerConnector)
-        {
-            result = self.loggerConnector.PiiLoggingEnabled;
-        }
-        else
-        {
-            result = _PiiLoggingEnabled;
-            
-        }
-    }
-    return result;
+    if (self.loggerConnector) return self.loggerConnector.piiLoggingEnabled;
+   
+    return _piiLoggingEnabled;
 }
 
-- (void)setPiiLoggingEnabled:(BOOL)PiiLoggingEnabled
+- (BOOL)nsLoggingEnabled
 {
-    @synchronized (self)
-    {
-        _PiiLoggingEnabled = PiiLoggingEnabled;
-    }
+    if (self.loggerConnector) return self.loggerConnector.nsLoggingEnabled;
+    
+    return _nsLoggingEnabled;
 }
 
-- (BOOL)NSLoggingEnabled
+- (BOOL)sourceLineLoggingEnabled
 {
-    BOOL result;
-    @synchronized (self)
-    {
-        if (self.loggerConnector)
-        {
-            result = self.loggerConnector.NSLoggingEnabled;
-        }
-        else
-        {
-            result = _NSLoggingEnabled;
-            
-        }
-    }
-    return result;
-}
-
-- (void)setNSLoggingEnabled:(BOOL)NSLoggingEnabled
-{
-    @synchronized (self)
-    {
-        _NSLoggingEnabled = NSLoggingEnabled;
-    }
-}
-
-- (BOOL)SourceLineLoggingEnabled
-{
-    BOOL result;
-    @synchronized (self)
-    {
-        if (self.loggerConnector)
-        {
-            result = self.loggerConnector.SourceLineLoggingEnabled;
-        }
-        else
-        {
-            result = _SourceLineLoggingEnabled;
-            
-        }
-    }
-    return result;
-}
-
-- (void)setSourceLineLoggingEnabled:(BOOL)SourceLineLoggingEnabled
-{
-    @synchronized (self)
-    {
-        _SourceLineLoggingEnabled = SourceLineLoggingEnabled;
-    }
+    if (self.loggerConnector) return self.loggerConnector.sourceLineLoggingEnabled;
+    
+    return _sourceLineLoggingEnabled;
 }
 
 @end
@@ -195,7 +138,7 @@ static NSDateFormatter *s_dateFormatter = nil;
 {
     if (!format) return;
     if (level > self.level) return;
-    if (!self.callback && !self.NSLoggingEnabled) return;
+    if (!self.callback && !self.nsLoggingEnabled) return;
 
     va_list args;
     va_start(args, format);
@@ -239,7 +182,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             NSString *sdkVersion = [MSIDVersion sdkVersion];
             
             NSString *sourceInfo = @"";
-            if (self.SourceLineLoggingEnabled && filename.length)
+            if (self.sourceLineLoggingEnabled && filename.length)
             {
                 sourceInfo = [NSString stringWithFormat:@" %@:%lu: %@", filename.lastPathComponent, (unsigned long)lineNumber, function];
             }
@@ -251,7 +194,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             
             __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID=%llu%@", tid, threadName];
             
-            if (self.NSLoggingEnabled)
+            if (self.nsLoggingEnabled)
             {
                 NSString *logLevelStr = [self stringForLogLevel:_level];
                 
@@ -264,7 +207,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             {
                 NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
                 
-                BOOL lineContainsPII = self.PiiLoggingEnabled ? containsPII : NO;
+                BOOL lineContainsPII = self.piiLoggingEnabled ? containsPII : NO;
                 
                 if (self.callback) self.callback(level, log, lineContainsPII);
                 if (self.loggerConnector) [self.loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];

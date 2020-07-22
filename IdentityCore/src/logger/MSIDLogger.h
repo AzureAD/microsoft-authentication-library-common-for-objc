@@ -50,11 +50,6 @@ typedef NS_ENUM(NSInteger, MSIDLogLevel)
 typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL containsPII);
 
 @interface MSIDLogger : NSObject
-{
-    BOOL _PiiLoggingEnabled;
-    BOOL _NSLoggingEnabled;
-    BOOL _SourceLineLoggingEnabled;
-}
 
 + (MSIDLogger *)sharedLogger;
 
@@ -70,14 +65,14 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
  Set to YES to allow messages possibly containing Personally Identifiable Information (PII) to be
  sent to the logging callback.
  */
-@property (readwrite) BOOL PiiLoggingEnabled;
+@property (nonatomic, readwrite) BOOL piiLoggingEnabled;
 
-@property (readwrite) BOOL NSLoggingEnabled;
+@property (nonatomic, readwrite) BOOL nsLoggingEnabled;
 
 /*!
  Set to YES to add <file>:<line> info to log messages.
  */
-@property (readwrite) BOOL SourceLineLoggingEnabled;
+@property (nonatomic, readwrite) BOOL sourceLineLoggingEnabled;
 
 /*!
  Sets the callback block to send MSID log messages to.
