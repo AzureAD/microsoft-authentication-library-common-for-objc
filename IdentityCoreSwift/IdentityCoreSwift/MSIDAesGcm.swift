@@ -25,32 +25,8 @@
 import Foundation
 import CryptoKit
 
-// todo unsure if needed
-import LocalAuthentication
-import Security.SecAccessControl
-import Security
-
-
-//protocol MSIDSymmetericKeyProtocol {
-//    func getDummyString() -> String;
-//}
-
-@objc(MSIDAesGcmInfo)
-public class MSIDAesGcmInfo : NSObject {
-    @objc
-    public var cipherText: NSData
-    
-    @objc
-    public var authTag: NSData
-    
-    public init(cipherText: NSData, authTag: NSData) {
-        self.cipherText = cipherText
-        self.authTag = authTag
-    }
-}
-
 @objc(MSIDAesGcm)
-public class MSIDAesGcm : NSObject {//MSIDSymmetericKeyProtocol {
+public class MSIDAesGcm : NSObject {
     private var symmetericKeyInBytes: NSData;
     private var symmetericKey: SymmetricKey;
     
@@ -77,41 +53,13 @@ public class MSIDAesGcm : NSObject {//MSIDSymmetericKeyProtocol {
     public func decryptUsingAuthenticatedAes(cipherText: NSData, iv: NSData, authenticationTag: NSData, authenticationData: NSData) -> NSString
     {
         do {
-            let nonce :AES.GCM.Nonce = try! AES.GCM.Nonce.init(data: iv); //todo convert iv to nonce
+            let nonce :AES.GCM.Nonce = try! AES.GCM.Nonce.init(data: iv);
             let sealedBox = try AES.GCM.SealedBox.init(nonce: nonce, ciphertext: Data(referencing: cipherText), tag: Data(referencing: authenticationTag))
             let result = try AES.GCM.open(sealedBox, using: self.symmetericKey, authenticating: authenticationData)
             return NSString.init(data: result, encoding: String.Encoding.utf8.rawValue)!
         }
         catch {
-            return NSString.init(string: "Unexpected error: \(error).")
+            return NSString.init(string: "")
         }
-//        let codeBytescount = [UInt8](codeBytes).count
-//
-//        let iv = Array([UInt8](codeBytes)[0 ..< 32])
-//        let cipher = Array([UInt8](codeBytes)[iv.count ..< codeBytescount])
-//        do{
-//            let gcm = GCM(iv: iv, mode: .combined)
-//            let derKey = createKey(password:Data(key.utf8), salt: Data(iv))!
-//
-//            keyBytes = [UInt8](derKey)
-//
-//            let aes = try AES(key: keyBytes, blockMode: gcm, padding: .pkcs5)
-//
-//            print("aes created")
-//            let decrypted = try aes.decrypt(cipher)
-//            print("decrypted completed")
-//            if let decryptedString = String(bytes: decrypted, encoding: .utf8) {
-//                code = decryptedString
-//            }
-//
-//            debugPrint(code)
-//
-//        }catch let error as AES.Error {
-//            debugPrint(error.localizedDescription)
-//            return code
-//        } catch {
-//            return code
-//        }
-//        return code
     }
 }

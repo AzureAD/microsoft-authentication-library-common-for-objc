@@ -27,43 +27,57 @@ import XCTest
 @testable import IdentityCoreSwift
 
 class IdentityCoreSwiftTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        let symmetericKeyString = "Zfb98mJBAt/UOpnCI/CYdQ==";
+    let symmetericKeyString = "Zfb98mJBAt/UOpnCI/CYdQ=="
+    let message = "Sample Message To Encrypt/Decrypt"
+    let iv = "4JYp0efd0Wxokdl3";
+    let authDataBase64 = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R4IjoieTAwc0lLUmNGMmJQRkRnYmVPcXVlczBZUG1CK1IwRlAifQ";
+    
+    func testEncryptAndDecrypt() throws {
         let symmetericKeyBytes = NSData.init(base64Encoded: symmetericKeyString, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
         let aesGcm = MSIDAesGcm.create(symmetericKeyInBytes: symmetericKeyBytes)
         XCTAssertNotNil(aesGcm);
         
-        // let message = "sample message to encrypt";
-        let iv = "4JYp0efd0Wxokdl3";
-        let authTag = "tPYZ8VzB2CBWYToUZmg5PQ";
-        let authData = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R4IjoieTAwc0lLUmNGMmJQRkRnYmVPcXVlczBZUG1CK1IwRlAifQ";
+        let messageData = message.data(using: .utf8)! as NSData
+        let ivData = try! self.msidDataFromBase64UrlEncodedString(encodedString: iv as NSString)
+        let authData = try! self.msidDataFromBase64UrlEncodedString(encodedString: authDataBase64 as NSString)
+        let aesGcmInfo = aesGcm.encryptUsingAuthenticatedAesForTest(message: messageData, iv: ivData, authenticationData: authData)
+        XCTAssertNotNil(aesGcmInfo)
         
-        let messageData = NSData.init(base64Encoded: iv, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
-        let ivData = NSData.init(base64Encoded: iv, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
-        let authTagData = NSData.init(base64Encoded: authTag, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
-        let authDataData = NSData.init(base64Encoded: authData, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
-        
-        let cipherText = aesGcm.encryptUsingAuthenticatedAesForTest(message: messageData, iv: ivData, authenticationTag: authTagData, authenticationData: authDataData)
-        XCTAssertNotNil(cipherText);
-        
-        let decryptedMessage = aesGcm.decryptUsingAuthenticatedAes(cipherText: cipherText, iv: ivData, authenticationTag: authTagData, authenticationData: authDataData)
-        XCTAssertNotNil(decryptedMessage);
+        let decryptedMessage = aesGcm.decryptUsingAuthenticatedAes(cipherText: aesGcmInfo.cipherText, iv: ivData, authenticationTag: aesGcmInfo.authTag, authenticationData: authData)
+        XCTAssertEqual(message as NSString, decryptedMessage)
     }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    func msidDataFromBase64UrlEncodedString(encodedString: NSString) throws -> NSData
+    {
+        let base64encoded = encodedString.replacingOccurrences(of: "-", with:"+").replacingOccurrences(of:"_", with:"/")
+        
+        // The input string lacks the usual '=' padding at the end, so the valid end sequences
+        // are:
+        //      ........XX           (cbEncodedSize % 4) == 2    (2 chars of virtual padding)
+        //      ........XXX          (cbEncodedSize % 4) == 3    (1 char of virtual padding)
+        //      ........XXXX         (cbEncodedSize % 4) == 0    (no virtual padding)
+        // Invalid sequences are:
+        //      ........X            (cbEncodedSize % 4) == 1
+        
+        // Input string is not sized correctly to be base64 URL encoded.
+        
+        let stringMod4 = base64encoded.count % 4
+        
+        if (stringMod4 == 1)
+        {
+            return NSData.init()
         }
+        
+        if (stringMod4 == 0)// No Padding necessary
+        {
+            return NSData.init(base64Encoded: base64encoded, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
+        }
+        
+        // 'virtual padding'
+        let padding = 4 - stringMod4
+        let paddedLength = base64encoded.count + padding
+        let paddedString = base64encoded.padding(toLength: paddedLength, withPad: "=", startingAt: 0)
+        
+        return NSData.init(base64Encoded: paddedString, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
     }
-
 }

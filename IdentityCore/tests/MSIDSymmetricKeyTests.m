@@ -29,27 +29,45 @@
 
 @end
 
+NSString *symmetericKeyString = @"Zfb98mJBAt/UOpnCI/CYdQ==";
+NSString *message = @"Sample Message To Encrypt/Decrypt";
+NSString *context = @"y00sIKRcF2bPFDgbeOques0ymB+R0FP";
+NSString *iv = @"4JYp0efd0Wxokdl3";
+NSString *authData = @"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R4IjoieTAwc0lLUmNGMmJQRkRnYmVPcXVlczBZUG1CK1IwRlAifQ";
+NSString *expectedSignature = @"cspzWzvtSNOJUUzThP3FWWV-9q7mJ_ZB6PYzRcQwe54";
+
 @implementation MSIDSymmetricKeyTests
 
-- (void)testGenerateSymmetericKey
-{
-    NSString *symmetericKeyString = @"Zfb98mJBAt/UOpnCI/CYdQ==";
+- (void)testGenerateSymmetericKey_andGetRaw{
     NSData *symmetericKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetericKeyString options:0];
     MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetericKeyBytes:symmetericKeyBytes];
     XCTAssertNotNil(symmetricKey);
-    NSString *rawKey = [symmetricKey getRaw];
-    XCTAssertNotNil(rawKey);
     
-    NSString *message = @"Sample Message To Encrypt/Decrypt";
-    NSString *context = @"y00sIKRcF2bPFDgbeOques0ymB+R0FP";
-    NSString *iv = @"4JYp0efd0Wxokdl3";
-    NSString *authData = @"eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R4IjoieTAwc0lLUmNGMmJQRkRnYmVPcXVlczBZUG1CK1IwRlAifQ";
+    NSString *rawKey = [symmetricKey getRaw];
+    XCTAssertEqualObjects(symmetericKeyString, rawKey);
+}
+
+- (void)testCreateVerifySignature
+{
+    NSData *symmetericKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetericKeyString options:0];
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetericKeyBytes:symmetericKeyBytes];
+    XCTAssertNotNil(symmetricKey);
+    
+    NSData *contextData = [NSData msidDataFromBase64UrlEncodedString:context];
+    NSString * signature = [symmetricKey createVerifySignature:contextData dataToSign:message];
+    XCTAssertEqualObjects(expectedSignature, signature);
+}
+
+- (void)testEncryptAndDecrypt
+{
+    NSData *symmetericKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetericKeyString options:0];
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetericKeyBytes:symmetericKeyBytes];
+    XCTAssertNotNil(symmetricKey);
     
     NSData* messageData = [message dataUsingEncoding:NSUTF8StringEncoding];
     NSData* contextData = [NSData msidDataFromBase64UrlEncodedString:context];
     NSData* ivData = [NSData msidDataFromBase64UrlEncodedString:iv];
     NSData* authDataData = [authData dataUsingEncoding:NSUTF8StringEncoding];
-    
     MSIDAesGcmInfo *aesGcmInfo = [symmetricKey encryptUsingAuthenticatedAesForTest:messageData contextBytes:contextData iv:ivData authenticationData:authDataData];
     XCTAssertNotNil(aesGcmInfo);
     
