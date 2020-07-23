@@ -27,9 +27,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDSymmetricKeyAbstraction : NSObject
+@interface MSIDSymmetricKey : NSObject
 {
-    MSIDSymmetericKeyImplementation* _symmetericKeyImplementation;
+    NSData* _symmetericKey;
 }
 
 - (nullable instancetype)initWithSymmetericKeyBytes:(NSData *)symmetericKeyInBytes;
@@ -38,16 +38,15 @@ NS_ASSUME_NONNULL_BEGIN
                                   dataToSign:(NSString *)dataToSign;
 
 - (nullable NSString *)decryptUsingAuthenticatedAes:(NSData *)cipherText
-                                       contextBytes:(NSData *)contextBytes
-                                                 iv:(NSData *)iv
-                                  authenticationTag:(NSData *)authenticationTag
-                                 authenticationData:(NSData *)authenticationData;
+                                     contextBytes:(NSData *)contextBytes
+                                               iv:(NSData *)iv
+                                authenticationTag:(NSData *)authenticationTag
+                               authenticationData:(NSData *)authenticationData;
 
-- (nullable NSData *)encryptUsingAuthenticatedAesForTest:(NSData *)message
-                                              contextBytes:(NSData *)contextBytes
-                                                        iv:(NSData *)iv
-                                         authenticationTag:(NSData *)authenticationTag
-                                        authenticationData:(NSData *)authenticationData;
+- (nullable MSIDAesGcmInfo *)encryptUsingAuthenticatedAesForTest:(NSData *)message
+                                                    contextBytes:(NSData *)contextBytes
+                                                              iv:(NSData *)iv
+                                              authenticationData:(NSData *)authenticationData;
 
 - (nonnull NSString *)getRaw;
 

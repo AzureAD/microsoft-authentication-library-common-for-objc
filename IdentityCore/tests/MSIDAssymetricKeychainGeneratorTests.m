@@ -25,7 +25,7 @@
 #import "MSIDAssymetricKeyKeychainGenerator.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
-#import "MSIDSymmetricKeyAbstraction.h"
+#import "MSIDSymmetricKey.h"
 #if !TARGET_OS_IPHONE
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
@@ -37,34 +37,6 @@ NSString *privateKeyIdentifier = @"com.msal.unittest.privateKey";
 NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 
 @implementation MSIDAssymetricKeychainGeneratorTests
-
-- (void)testGenerateSymmetericKey
-{
-    NSString *symmetericKeyString = @"Zfb98mJBAt/UOpnCI/CYdQ==";
-    NSData *symmetericKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetericKeyString options:0];
-    MSIDSymmetricKeyAbstraction *symmetricKey = [[MSIDSymmetricKeyAbstraction alloc] initWithSymmetericKeyBytes:symmetericKeyBytes];
-    XCTAssertNotNil(symmetricKey);
-    NSString* rawKey = [symmetricKey getRaw];
-    XCTAssertNotNil(rawKey);
-    
-    NSString* message = @"message";
-    NSString* context = @"context";
-    NSString* iv = @"IwV0cBo3TNqNcZbF";
-    NSString* authTag = @"auth tag";
-    NSString* authData = @"auth data";
-    NSData* messageData = [message dataUsingEncoding:0];
-    NSData* contextData = [context dataUsingEncoding:0];
-    NSData* ivData = [iv dataUsingEncoding:0];
-    NSData* authTagData = [authTag dataUsingEncoding:0];
-    NSData* authDataData = [authData dataUsingEncoding:0];
-    NSData* cipherText = [symmetricKey encryptUsingAuthenticatedAesForTest:messageData contextBytes:contextData iv:ivData authenticationTag:authTagData authenticationData:authDataData];
-    XCTAssertNotNil(cipherText);
-    
-    NSString* decryptedMessage = [symmetricKey decryptUsingAuthenticatedAes:cipherText contextBytes:contextData iv:ivData authenticationTag:authTagData authenticationData:authDataData];
-    XCTAssertNotNil(decryptedMessage);
-    
-    XCTAssertEqualObjects(message, decryptedMessage);
-}
 
 - (void)testGenerateKeyPair_whenNilAttributesProvided_shouldReturnNilAndFillError
 {

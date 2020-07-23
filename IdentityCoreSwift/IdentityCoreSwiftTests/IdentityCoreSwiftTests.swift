@@ -37,8 +37,26 @@ class IdentityCoreSwiftTests: XCTestCase {
     }
 
     func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        let symmetericKeyString = "Zfb98mJBAt/UOpnCI/CYdQ==";
+        let symmetericKeyBytes = NSData.init(base64Encoded: symmetericKeyString, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
+        let aesGcm = MSIDAesGcm.create(symmetericKeyInBytes: symmetericKeyBytes)
+        XCTAssertNotNil(aesGcm);
+        
+        // let message = "sample message to encrypt";
+        let iv = "4JYp0efd0Wxokdl3";
+        let authTag = "tPYZ8VzB2CBWYToUZmg5PQ";
+        let authData = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIiwiY3R4IjoieTAwc0lLUmNGMmJQRkRnYmVPcXVlczBZUG1CK1IwRlAifQ";
+        
+        let messageData = NSData.init(base64Encoded: iv, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
+        let ivData = NSData.init(base64Encoded: iv, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
+        let authTagData = NSData.init(base64Encoded: authTag, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
+        let authDataData = NSData.init(base64Encoded: authData, options: NSData.Base64DecodingOptions.init(rawValue: 0))!
+        
+        let cipherText = aesGcm.encryptUsingAuthenticatedAesForTest(message: messageData, iv: ivData, authenticationTag: authTagData, authenticationData: authDataData)
+        XCTAssertNotNil(cipherText);
+        
+        let decryptedMessage = aesGcm.decryptUsingAuthenticatedAes(cipherText: cipherText, iv: ivData, authenticationTag: authTagData, authenticationData: authDataData)
+        XCTAssertNotNil(decryptedMessage);
     }
 
     func testPerformanceExample() throws {

@@ -35,45 +35,56 @@ import Security
 //    func getDummyString() -> String;
 //}
 
-@objc(MSIDSymmetericKeyImplementation)
-public class MSIDSymmetericKeyImplementation : NSObject {//MSIDSymmetericKeyProtocol {
+@objc(MSIDAesGcmInfo)
+public class MSIDAesGcmInfo : NSObject {
+    @objc
+    public var cipherText: NSData
+    
+    @objc
+    public var authTag: NSData
+    
+    public init(cipherText: NSData, authTag: NSData) {
+        self.cipherText = cipherText
+        self.authTag = authTag
+    }
+}
+
+@objc(MSIDAesGcm)
+public class MSIDAesGcm : NSObject {//MSIDSymmetericKeyProtocol {
     private var symmetericKeyInBytes: NSData;
     private var symmetericKey: SymmetricKey;
     
     @objc
     public init(symmetericKeyInBytes: NSData) {
         self.symmetericKeyInBytes = symmetericKeyInBytes;
-        self.symmetericKey = SymmetricKey(size: .bits256);
-//        self.symmetericKey.withUnsafeBytes { (symmetericKeyInBytes) -> R in
-//            if(R) {}
-//        }
+        self.symmetericKey = SymmetricKey(data: Data(referencing: self.symmetericKeyInBytes));
     }
     
     @objc
-    public class func create(symmetericKeyInBytes: NSData) -> MSIDSymmetericKeyImplementation {
-        return MSIDSymmetericKeyImplementation(symmetericKeyInBytes: symmetericKeyInBytes);
+    public class func create(symmetericKeyInBytes: NSData) -> MSIDAesGcm {
+        return MSIDAesGcm(symmetericKeyInBytes: symmetericKeyInBytes);
     }
 
     @objc
-    public func createVerifySignature(context: NSData, dataToSign: NSString) -> NSString {
-        return "todo verify sig"
-    }
-
-    @objc
-    public func encryptUsingAuthenticatedAesForTest(message: NSData, contextBytes: NSData, iv: NSData, authenticationTag: NSData, authenticationData: NSData) -> NSData
+    public func encryptUsingAuthenticatedAesForTest(message: NSData, iv: NSData, authenticationData: NSData) -> MSIDAesGcmInfo
     {
-        var nonce :AES.GCM.Nonce = try! AES.GCM.Nonce.init(data: iv);
-        var result = try! AES.GCM.seal(message, using: self.symmetericKey, nonce: nonce, authenticating: authenticationData);
-        return NSData.init(data: result.ciphertext)
+        let nonce :AES.GCM.Nonce = try! AES.GCM.Nonce.init(data: iv);
+        let result = try! AES.GCM.seal(message, using: self.symmetericKey, nonce: nonce, authenticating: authenticationData);
+        return MSIDAesGcmInfo(cipherText: NSData.init(data: result.ciphertext), authTag: NSData.init(data: result.tag))
     }
     
     @objc
-    public func decryptUsingAuthenticatedAes(cipherText: NSData, contextBytes: NSData, iv: NSData, authenticationTag: NSData, authenticationData: NSData) -> NSString
+    public func decryptUsingAuthenticatedAes(cipherText: NSData, iv: NSData, authenticationTag: NSData, authenticationData: NSData) -> NSString
     {
-        var nonce :AES.GCM.Nonce = try! AES.GCM.Nonce.init(data: iv); //todo convert iv to nonce
-        var sealedBox = try! AES.GCM.SealedBox.init(nonce: nonce, ciphertext: cipherText, tag: authenticationTag)
-        var result = try! AES.GCM.open(sealedBox, using: self.symmetericKey)
-        return NSString.init(data: result, encoding: String.Encoding.utf8.rawValue)!
+        do {
+            let nonce :AES.GCM.Nonce = try! AES.GCM.Nonce.init(data: iv); //todo convert iv to nonce
+            let sealedBox = try AES.GCM.SealedBox.init(nonce: nonce, ciphertext: Data(referencing: cipherText), tag: Data(referencing: authenticationTag))
+            let result = try AES.GCM.open(sealedBox, using: self.symmetericKey, authenticating: authenticationData)
+            return NSString.init(data: result, encoding: String.Encoding.utf8.rawValue)!
+        }
+        catch {
+            return NSString.init(string: "Unexpected error: \(error).")
+        }
 //        let codeBytescount = [UInt8](codeBytes).count
 //
 //        let iv = Array([UInt8](codeBytes)[0 ..< 32])
@@ -102,10 +113,5 @@ public class MSIDSymmetericKeyImplementation : NSObject {//MSIDSymmetericKeyProt
 //            return code
 //        }
 //        return code
-    }
-    
-    @objc
-    public func getRaw() -> String {
-        return "todo raw key"
     }
 }
