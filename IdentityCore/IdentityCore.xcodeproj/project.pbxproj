@@ -525,7 +525,7 @@
 		6EA09F8C24B7F06F0004DE28 /* MSIDSymmetricKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA09F8B24B7F06F0004DE28 /* MSIDSymmetricKey.m */; };
 		6EA09F8D24B7F06F0004DE28 /* MSIDSymmetricKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 6EA09F8B24B7F06F0004DE28 /* MSIDSymmetricKey.m */; };
 		6EA09F8F24C74D190004DE28 /* IdentityCoreSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA09F8E24C74D190004DE28 /* IdentityCoreSwift.framework */; settings = {ATTRIBUTES = (Required, ); }; };
-		6EA09F9124C74D220004DE28 /* IdentityCoreSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA09F9024C74D220004DE28 /* IdentityCoreSwift.framework */; };
+		6EA09F9124C74D220004DE28 /* IdentityCoreSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA09F9024C74D220004DE28 /* IdentityCoreSwift.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		6EA09F9224C763FB0004DE28 /* IdentityCoreSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EA09F9024C74D220004DE28 /* IdentityCoreSwift.framework */; };
 		740340B92460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */; };
 		740340BA2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
