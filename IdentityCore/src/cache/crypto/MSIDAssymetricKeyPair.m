@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAssymetricKeyPair.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDAssymetricKeyPair
 
@@ -166,35 +167,22 @@
     }
 }
 
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString {
+- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString
+{
     NSData *encryptedMessage = [[NSData alloc] initWithBase64EncodedString:encryptedMessageString options:0];
 
-    if ([encryptedMessage length] == 0) {
+    if ([encryptedMessage length] == 0)
+    {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to encrypt was empty");
         return nil;
     }
-
-    if (@available(macOS 10.12, *)) {
-        SecKeyAlgorithm algorithm = kSecKeyAlgorithmRSAEncryptionOAEPSHA1;
-
-        if (!SecKeyIsAlgorithmSupported(_privateKeyRef, kSecKeyOperationTypeDecrypt, algorithm)) {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
-            return nil;
-        }
-
-        CFErrorRef error = nil;
-        NSData * decryptedMessage = (NSData *)CFBridgingRelease(
-            SecKeyCreateDecryptedData(_privateKeyRef, algorithm, (__bridge CFDataRef)encryptedMessage, &error));
-
-        if (error) {
-            NSError *err = CFBridgingRelease(error);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to decrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", (long)err.code]]);
-            return nil;
-        }
-        
-        return decryptedMessage;
-    } else {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
+    
+    if (@available(iOS 10.0, macOS 10.12, *))
+    {
+        return [encryptedMessage msidDecryptedDataWithAlgorithm:kSecKeyAlgorithmRSAEncryptionOAEPSHA1 privateKey:self.privateKeyRef];
+    }
+    else
+    {
         return nil;
     }
 }
