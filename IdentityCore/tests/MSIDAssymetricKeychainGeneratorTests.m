@@ -25,7 +25,6 @@
 #import "MSIDAssymetricKeyKeychainGenerator.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
-#import "MSIDSymmetricKey.h"
 #if !TARGET_OS_IPHONE
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif
