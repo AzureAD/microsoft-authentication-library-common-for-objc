@@ -43,8 +43,8 @@
 
 @implementation MSIDWebResponseBrokerInstallOperation
 
-- (nullable instancetype)initWithResponse:(MSIDWebviewResponse *)response
-                                    error:(NSError **)error
+- (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
+                                    error:(NSError * _Nullable *)error
 {
     #if TARGET_OS_IPHONE
         self = [super initWithResponse:response
@@ -53,6 +53,8 @@
         {
             if (![response isKindOfClass:MSIDWebWPJResponse.class] || [NSString msidIsStringNilOrBlank:[(MSIDWebWPJResponse *)response appInstallLink]])
             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"response is not valid");
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of response or response does not contain a valid app install link ", nil, nil, nil, nil, nil, YES);
                 return nil;
             }
             
@@ -66,15 +68,10 @@
     #endif
 }
 
-- (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                         completion:(MSIDRequestCompletionBlock)completion
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull MSIDRequestCompletionBlock)completion
 {
-    if (!completion)
-    {
-        return;
-    }
-    
     #if TARGET_OS_IPHONE
         if ([interactiveTokenRequestParameters isKindOfClass:MSIDInteractiveTokenRequestParameters.class])
         {
@@ -83,15 +80,22 @@
                                                                                                                          tokenRequestProvider:tokenRequestProvider
                                                                                                                             brokerInstallLink:self.appInstallLink
                                                                                                                                         error:&brokerError];
+            if (brokerError)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Not able to create brokerController");
+                completion(nil, brokerError);
+                return;
+            }
+            
             [brokerController acquireToken:completion];
         } else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"interactiveTokenRequestParameters is in wrong type");
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"interactiveTokenRequestParameters is in wrong type");
             NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of interactive request parameter", nil, nil, nil, nil, nil, YES);
             completion(nil, error);
         }
     #else
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Broker installation on Mac is not supported");
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Broker installation on Mac is not supported");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, nil, nil, YES);
         completion(nil, error);
     #endif

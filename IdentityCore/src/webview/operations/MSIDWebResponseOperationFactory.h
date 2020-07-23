@@ -28,14 +28,14 @@
 
 @interface MSIDWebResponseOperationFactory : NSObject
 
-+ (void)registerOperationClass:(Class)operationClass
-              forResponseClass:(Class)responseClass;
++ (void)registerOperationClass:(nonnull Class)operationClass
+              forResponseClass:(nonnull Class)responseClass;
 
 + (void)unregisterAll;
 
-+ (void)unRegisterforResponse:(MSIDWebviewResponse *)response;
++ (void)unRegisterforResponse:(nonnull MSIDWebviewResponse *)response;
 
-+ (MSIDWebResponseBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
-                                                       error:(NSError **)error;
++ (nullable MSIDWebResponseBaseOperation *)createOperationForResponse:(nonnull MSIDWebviewResponse *)response
+                                                                error:(NSError * _Nullable *_Nullable)error;
 
 @end

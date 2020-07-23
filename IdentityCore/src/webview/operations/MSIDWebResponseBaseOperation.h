@@ -30,10 +30,10 @@
 
 @interface MSIDWebResponseBaseOperation : NSObject
 
-- (instancetype)initWithResponse:(MSIDWebviewResponse *)response
-                           error:(NSError **)error;
+- (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
+                                    error:(NSError * _Nullable *_Nullable)error;
 
-- (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                         completion:(MSIDRequestCompletionBlock)completion;
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull MSIDRequestCompletionBlock)completion;
 @end

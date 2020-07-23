@@ -30,10 +30,9 @@ static NSMutableDictionary *s_container = nil;
 
 @implementation MSIDWebResponseOperationFactory
 
-+ (void)registerOperationClass:(Class)operationClass
-              forResponseClass:(Class)responseClass
++ (void)registerOperationClass:(nonnull Class)operationClass
+              forResponseClass:(nonnull Class)responseClass
 {
-    if (!operationClass || !responseClass) return;
     if (![operationClass isSubclassOfClass:MSIDWebResponseBaseOperation.class]) return;
     if (![responseClass isSubclassOfClass:MSIDWebviewResponse.class]) return;
 
@@ -57,7 +56,7 @@ static NSMutableDictionary *s_container = nil;
     }
 }
 
-+ (void)unRegisterforResponse:(MSIDWebviewResponse *)response
++ (void)unRegisterforResponse:(nonnull MSIDWebviewResponse *)response
 {
     @synchronized(self)
     {
@@ -66,16 +65,9 @@ static NSMutableDictionary *s_container = nil;
     
 }
 
-+ (MSIDWebResponseBaseOperation *)createOperationForResponse:(MSIDWebviewResponse *)response
-                                      error:(NSError **)error
++ (nullable MSIDWebResponseBaseOperation *)createOperationForResponse:(nonnull MSIDWebviewResponse *)response
+                                                                error:(NSError * _Nullable *)error
 {
-    if (!response)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"response is not valid");
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Web response type is not valid", nil, nil, nil, nil, nil, YES);
-        return nil;
-    }
-
     NSString *operation = [response.class operation];
     Class operationClass = s_container[operation];
 

@@ -25,33 +25,18 @@
 
 @implementation MSIDWebResponseBaseOperation
 
-- (nullable instancetype)initWithResponse:(MSIDWebviewResponse *)response
-                                    error:(NSError **)error
+- (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
+                                    error:(__unused NSError * _Nullable *)error
 {
     self = [super init];
-
-    if (self)
-    {
-        if (!response)
-        {
-            return nil;
-        }
-    }
-
     return self;
 }
 
-- (void)invokeWithInteractiveTokenRequestParameters:(MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                         completion:(MSIDRequestCompletionBlock)completion
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull __unused MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull __unused id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull __unused MSIDRequestCompletionBlock)completion
 {
-    if (!completion)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"completion block is not valid");
-        return;
-    }
-
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot find operation for this response type");
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
     NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Web response type is not supported or registered", nil, nil, nil, nil, nil, YES);
     completion(nil, error);
 }
