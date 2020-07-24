@@ -1,4 +1,4 @@
-* Add operation factory for broker installation integration with other framework
+* Add operation factory for broker installation integration with other framework (#779)
 
 Version 1.5.4
 -----
