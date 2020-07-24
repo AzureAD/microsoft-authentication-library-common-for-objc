@@ -52,3 +52,7 @@ NSString *const MSID_DEFAULT_MSA_TENANTID          = @"9188040d-6c67-4c5b-b112-3
 
 NSString *const MSID_CLIENT_SDK_TYPE_MSAL         = @"sdk_msal";
 NSString *const MSID_CLIENT_SDK_TYPE_ADAL         = @"sdk_adal";
+
+NSString *const MSID_POP_TOKEN_PRIVATE_KEY = @"com.microsoft.token.private.key";
+NSString *const MSID_POP_TOKEN_PUBLIC_KEY = @"com.microsoft.token.public.key";
+NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";

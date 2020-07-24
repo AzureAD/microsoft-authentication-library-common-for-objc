@@ -24,6 +24,7 @@
 #import "MSIDDeviceInfo.h"
 #import "MSIDConstants.h"
 #import "MSIDWorkPlaceJoinUtil.h"
+#import "NSJSONSerialization+MSIDExtensions.h"
 
 static NSArray *deviceModeEnumString;
 
@@ -59,6 +60,9 @@ static NSArray *deviceModeEnumString;
         _ssoExtensionMode = [self ssoExtensionModeEnumFromString:[json msidStringObjectForKey:MSID_BROKER_SSO_EXTENSION_MODE_KEY]];
         _wpjStatus = [self wpjStatusEnumFromString:[json msidStringObjectForKey:MSID_BROKER_WPJ_STATUS_KEY]];
         _brokerVersion = [json msidStringObjectForKey:MSID_BROKER_BROKER_VERSION_KEY];
+        
+        NSData *jsonData = [json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] dataUsingEncoding:NSUTF8StringEncoding];
+        _additionalExtensionData = [NSJSONSerialization msidNormalizedDictionaryFromJsonData:jsonData error:nil];
     }
     
     return self;
@@ -72,6 +76,7 @@ static NSArray *deviceModeEnumString;
     json[MSID_BROKER_SSO_EXTENSION_MODE_KEY] = [self ssoExtensionModeStringFromEnum:self.ssoExtensionMode];
     json[MSID_BROKER_WPJ_STATUS_KEY] = [self wpjStatusStringFromEnum:self.wpjStatus];
     json[MSID_BROKER_BROKER_VERSION_KEY] = self.brokerVersion;
+    json[MSID_ADDITIONAL_EXTENSION_DATA_KEY] = [self.additionalExtensionData msidJSONSerializeWithContext:nil];
     
     return json;
 }

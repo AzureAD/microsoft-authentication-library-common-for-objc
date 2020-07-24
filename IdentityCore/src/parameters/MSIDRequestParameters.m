@@ -33,6 +33,7 @@
 #import "MSIDAuthority+Internal.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDRequestParameters
 
@@ -51,6 +52,7 @@
 }
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                       authScheme:(MSIDAuthenticationScheme *)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -66,7 +68,7 @@
     if (self)
     {
         [self initDefaultSettings];
-
+        
         _authority = authority;
         _redirectUri = redirectUri;
         _clientId = clientId;
@@ -91,6 +93,8 @@
         _target = [scopes msidToString];
 
         if (oidScopes) _oidcScope = [oidScopes msidToString];
+        
+        _authScheme = authScheme;
     }
 
     return self;
@@ -117,6 +121,8 @@
     _appRequestMetadata = @{MSID_VERSION_KEY: [MSIDVersion sdkVersion],
                             MSID_APP_NAME_KEY: appName ? appName : @"",
                             MSID_APP_VER_KEY: appVer ? appVer : @""};
+    
+    _authScheme = [MSIDAuthenticationScheme new];
 }
 
 #pragma mark - Helpers
@@ -202,6 +208,12 @@
     return [requestScopes msidToString];
 }
 
+- (void)setAuthScheme:(MSIDAuthenticationScheme *)authScheme
+{
+    _authScheme = authScheme;
+    [self updateMSIDConfiguration];
+}
+
 - (void)updateMSIDConfiguration
 {
     MSIDAuthority *authority = self.cloudAuthority ? self.cloudAuthority : self.authority;
@@ -213,6 +225,7 @@
     
     config.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:authority
                                                                                                 appIdentifier:self.intuneApplicationIdentifier];
+    config.authScheme = self.authScheme;
     _msidConfiguration = config;
 }
 

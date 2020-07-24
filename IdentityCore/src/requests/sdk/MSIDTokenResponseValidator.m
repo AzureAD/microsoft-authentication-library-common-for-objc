@@ -33,6 +33,8 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -98,6 +100,15 @@
         
         return nil;
     }
+    // Verify if the auth scheme from server's response match with the request
+    NSString *tokenType = [tokenResponse.tokenType lowercaseString];
+    MSIDAuthScheme scheme = configuration.authScheme.authScheme;
+    NSString *tokenTypeFromConfiguration = [MSIDAuthSchemeParamFromType(scheme) lowercaseString];
+    if (![NSString msidIsStringNilOrBlank:tokenType] && ![tokenType isEqualToString:tokenTypeFromConfiguration])
+    {
+        MSIDFillAndLogError(error, MSIDErrorServerInvalidResponse, @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.", correlationID);
+        return nil;
+    }
     
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                               refreshToken:refreshToken
@@ -137,6 +148,7 @@
                               accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                      correlationID:(NSUUID *)correlationID
                                   saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                                        authScheme:(MSIDAuthenticationScheme *)authScheme
                                              error:(NSError **)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
@@ -161,6 +173,8 @@
                                                                         redirectUri:nil
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
+    
+    configuration.authScheme = authScheme;
     
     configuration.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:brokerResponse.msidAuthority
                                                                                                        appIdentifier:[[NSBundle mainBundle] bundleIdentifier]];

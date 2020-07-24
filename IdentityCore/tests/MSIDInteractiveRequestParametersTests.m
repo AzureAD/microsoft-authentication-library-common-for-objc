@@ -24,6 +24,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
 
 @interface MSIDInteractiveRequestParametersTests : XCTestCase
 
@@ -31,7 +33,17 @@
 
 @implementation MSIDInteractiveRequestParametersTests
 
-- (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError
+- (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError_Popflow
+{
+    testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationSchemePop new];
+}
+
+- (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError_Bearerflow
+{
+    testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationScheme new];
+}
+
+- (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError:(MSIDAuthenticationScheme *)authScheme
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSUUID *correlationID = [NSUUID UUID];
@@ -41,6 +53,7 @@
     MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     
     MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
+                                                                                                              authScheme:authScheme
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]
@@ -66,7 +79,8 @@
     XCTAssertEqual(parameters.brokerInvocationOptions.protocolType, MSIDBrokerProtocolTypeCustomScheme);
     XCTAssertEqual(parameters.brokerInvocationOptions.brokerAADRequestVersion, MSIDBrokerAADRequestVersionV2);
     XCTAssertEqual(parameters.requestType, MSIDRequestBrokeredType);
-    
+    XCTAssertEqual(parameters.authScheme, authScheme);
+
     XCTAssertNil(error);
 }
 
@@ -74,6 +88,7 @@
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
+                                                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]
@@ -95,6 +110,7 @@
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
+                                                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]
@@ -115,6 +131,7 @@
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
+                                                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                                                    redirectUri:@"redirect"
                                                                                                       clientId:@"clientid"
                                                                                                         scopes:[@"scope scope2" msidScopeSet]

@@ -49,6 +49,11 @@ struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams
     NSString * _Nullable accountEnvironment;
 };
 
+struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams
+{
+    NSString * _Nullable homeAccountId;
+};
+
 @interface MSIDAccountMetadataCacheAccessorMock : MSIDAccountMetadataCacheAccessor
 
 @property (nonatomic) NSInteger updateAuthorityURLInvokedCount;
@@ -65,6 +70,12 @@ struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams
 @property (nonatomic) NSError *updatePrincipalAccountIdError;
 @property (nonatomic) NSInteger updatePrincipalAccountIdInvokedCount;
 @property (nonatomic) struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams updatePrincipalAccountIdParams;
+
+@property (nonatomic) BOOL removeAccountMetadataForHomeAccountIdResult;
+@property (nonatomic) NSError *removeAccountMetadataForHomeAccountIdError;
+@property (nonatomic) NSInteger removeAccountMetadataForHomeAccountIdInvokedCount;
+@property (nonatomic) struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams removeAccountMetadataForHomeAccountIdParams;
+
 
 @end
 

@@ -52,4 +52,7 @@
                                                           context:(id<MSIDRequestContext>)context
                                                             error:(NSError **)error;
 
+- (NSArray<MSIDAccountMetadataCacheItem *> *)allAccountMetadataCacheItemsWithContext:(id<MSIDRequestContext>)context
+                                                                               error:(NSError **)error;
+
 @end

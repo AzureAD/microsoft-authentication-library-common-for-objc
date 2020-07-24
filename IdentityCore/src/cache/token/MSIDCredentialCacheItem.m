@@ -89,6 +89,8 @@
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
     result &= (!self.applicationIdentifier || !item.applicationIdentifier) || [self.applicationIdentifier isEqualToString:item.applicationIdentifier];
     result &= (!self.speInfo && !item.speInfo) || [self.speInfo isEqual:item.speInfo];
+    result &= (!self.tokenType && !item.tokenType) || [self.tokenType isEqual:item.tokenType];
+    result &= (!self.kid && !item.kid) || [self.kid isEqual:item.kid];
     // Ignore the lastMod properties (two otherwise-identical items with different
     // last modification informational values should be considered equal)
     return result;
@@ -112,6 +114,8 @@
     hash = hash * 31 + self.homeAccountId.hash;
     hash = hash * 31 + self.speInfo.hash;
     hash = hash * 31 + self.applicationIdentifier.hash;
+    hash = hash * 31 + self.tokenType.hash;
+    hash = hash * 31 + self.kid.hash;
     return hash;
 }
 
@@ -136,6 +140,8 @@
     item.lastModificationApp = [self.lastModificationApp copyWithZone:zone];
     item.enrollmentId = [self.enrollmentId copyWithZone:zone];
     item.applicationIdentifier = [self.applicationIdentifier copyWithZone:zone];
+    item.tokenType = [self.tokenType copyWithZone:zone];
+    item.kid = [self.kid copyWithZone:zone];
     return item;
 }
 
@@ -184,6 +190,8 @@
 
     _enrollmentId = [json msidStringObjectForKey:MSID_ENROLLMENT_ID_CACHE_KEY];
     _applicationIdentifier = [json msidStringObjectForKey:MSID_APPLICATION_IDENTIFIER_CACHE_KEY];
+    _kid = [json msidStringObjectForKey:MSID_KID_CACHE_KEY];
+    _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
     return self;
 }
 
@@ -215,6 +223,8 @@
     dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;
     dictionary[MSID_APPLICATION_IDENTIFIER_CACHE_KEY] = _applicationIdentifier;
+    dictionary[MSID_KID_CACHE_KEY] = _kid;
+    dictionary[MSID_OAUTH2_TOKEN_TYPE] = _tokenType;
     return dictionary;
 }
 
@@ -343,6 +353,7 @@
     key.realm = self.realm;
     key.target = self.target;
     key.applicationIdentifier = self.applicationIdentifier;
+    key.tokenType = self.tokenType;
     return key;
 }
 

@@ -32,11 +32,27 @@
 #import "MSIDMetadataCache.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDCacheItemJsonSerializer.h"
+
+@interface MSIDAccountMetadataCacheAccessor (TestUtil)
+
+- (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                      context:(nullable id<MSIDRequestContext>)context
+                                        error:(NSError * _Nullable __autoreleasing * _Nullable)error;
+
+@end
+
 
 @interface MSIDAccountMetadataCacheAccessorTests : XCTestCase
 
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *secondAccountMetadataCache;
+#if TARGET_OS_IOS
+@property (nonatomic) MSIDKeychainTokenCache *dataSource;
+#else
+@property (nonatomic) MSIDTestCacheDataSource *dataSource;
+#endif
 
 @end
 
@@ -45,12 +61,12 @@
 - (void)setUp {
 #if TARGET_OS_IOS
     [MSIDKeychainTokenCache reset];
-    __auto_type dataSource = [[MSIDKeychainTokenCache alloc] init];
+    self.dataSource = [[MSIDKeychainTokenCache alloc] init];
 #else
-    __auto_type dataSource = [[MSIDTestCacheDataSource alloc] init];
+    self.dataSource = [[MSIDTestCacheDataSource alloc] init];
 #endif
-    self.accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
-    self.secondAccountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    self.accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:self.dataSource];
+    self.secondAccountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:self.dataSource];
 }
 
 - (void)tearDown {
@@ -496,6 +512,110 @@
                                                                    error:nil];
     
     XCTAssertEqual(MSIDAccountMetadataStateSignedOut, state);
+}
+
+- (void)testRemoveAccountMetadataForHomeAccountId_whenHomeAccountIdNil_shouldReturnError
+{
+    NSError *error;
+    [self.accountMetadataCache removeAccountMetadataForHomeAccountId:nil context:nil error:&error];
+    XCTAssertNotNil(error);
+    XCTAssertEqualObjects(error.domain, MSIDErrorDomain);
+    XCTAssertEqual(error.code, MSIDErrorInvalidInternalParameter);
+}
+
+- (void)testRemoveAccountMetadataForHomeAccountId_whenHomeAccountNotNil_shouldRemoveMetadata
+{
+    // Add a mix of metadata
+    NSError *error;
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"url-1"]
+                                    forRequestURL:[NSURL URLWithString:@"url-2"]
+                                    homeAccountId:@"uid1.utid1"
+                                         clientId:@"my-client-id-1"
+                                    instanceAware:NO
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-2"]
+                                                 homeAccountId:@"uid1.utid1"
+                                                      clientId:@"my-client-id-1" instanceAware:NO context:nil error:&error]);
+    
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"url-3"]
+                                    forRequestURL:[NSURL URLWithString:@"url-4"]
+                                    homeAccountId:@"uid1.utid1"
+                                         clientId:@"my-client-id-1"
+                                    instanceAware:YES
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-4"]
+                                                 homeAccountId:@"uid1.utid1"
+                                                      clientId:@"my-client-id-1" instanceAware:YES context:nil error:&error]);
+    
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"url-5"]
+                                    forRequestURL:[NSURL URLWithString:@"url-6"]
+                                    homeAccountId:@"uid1.utid1"
+                                         clientId:@"my-client-id-2"
+                                    instanceAware:NO
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-6"]
+                                                 homeAccountId:@"uid1.utid1"
+                                                      clientId:@"my-client-id-2" instanceAware:NO context:nil error:&error]);
+    
+    [self.accountMetadataCache updateAuthorityURL:[NSURL URLWithString:@"url-7"]
+                                    forRequestURL:[NSURL URLWithString:@"url-8"]
+                                    homeAccountId:@"uid2.utid2"
+                                         clientId:@"my-client-id-2"
+                                    instanceAware:NO
+                                          context:nil
+                                            error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-8"]
+                                                 homeAccountId:@"uid2.utid2"
+                                                      clientId:@"my-client-id-2" instanceAware:NO context:nil error:&error]);
+    
+    // Remove account metadata for uid1.utid1
+    XCTAssertTrue([self.accountMetadataCache removeAccountMetadataForHomeAccountId:@"uid1.utid1" context:nil error:&error]);
+    XCTAssertNil(error);
+    
+    // Verify metadata is removed
+    XCTAssertNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-2"]
+                                                 homeAccountId:@"uid1.utid1"
+                                                      clientId:@"my-client-id-1" instanceAware:NO context:nil error:&error]);
+    XCTAssertNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-4"]
+                                                 homeAccountId:@"uid1.utid1"
+                                                      clientId:@"my-client-id-1" instanceAware:YES context:nil error:&error]);
+    XCTAssertNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-6"]
+                                                 homeAccountId:@"uid1.utid1"
+                                                      clientId:@"my-client-id-2" instanceAware:NO context:nil error:&error]);
+    XCTAssertNotNil([self.accountMetadataCache getAuthorityURL:[NSURL URLWithString:@"url-8"]
+                                                 homeAccountId:@"uid2.utid2"
+                                                      clientId:@"my-client-id-2" instanceAware:NO context:nil error:&error]);
+    
+    // Verify data source
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:nil];
+    NSArray *accountMetadataItems = [self.dataSource accountsMetadataWithKey:key serializer:[MSIDCacheItemJsonSerializer new] context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertEqual(accountMetadataItems.count, 2);
+    
+    MSIDAccountMetadataCacheItem *cacheItem1;
+    MSIDAccountMetadataCacheItem *cacheItem2;
+    if ([[accountMetadataItems[0] clientId] isEqualToString:@"my-client-id-1"])
+    {
+        cacheItem1 = accountMetadataItems[0];
+        cacheItem2 = accountMetadataItems[1];
+    }
+    else
+    {
+        cacheItem1 = accountMetadataItems[1];
+        cacheItem2 = accountMetadataItems[0];
+    }
+    
+    XCTAssertNil([cacheItem1 accountMetadataForHomeAccountId:@"uid1.utid1"]);
+    XCTAssertNil([cacheItem1 accountMetadataForHomeAccountId:@"uid2.utid2"]);
+    XCTAssertNil([cacheItem2 accountMetadataForHomeAccountId:@"uid1.utid1"]);
+    XCTAssertNotNil([cacheItem2 accountMetadataForHomeAccountId:@"uid2.utid2"]);
 }
 
 @end

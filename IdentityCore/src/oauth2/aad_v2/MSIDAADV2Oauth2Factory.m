@@ -187,6 +187,7 @@
     }
 
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                             authScheme:parameters.authScheme
                                                                                                                clientId:parameters.clientId
                                                                                                            enrollmentId:enrollmentId
                                                                                                                   scope:allScopes
@@ -223,6 +224,7 @@
                                                                           error:nil];
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                   authScheme:parameters.authScheme
                                                                                                      clientId:parameters.clientId
                                                                                                  enrollmentId:enrollmentId
                                                                                                         scope:allScopes

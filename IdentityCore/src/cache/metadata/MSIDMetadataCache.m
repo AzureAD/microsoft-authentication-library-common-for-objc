@@ -29,6 +29,7 @@
 #import "MSIDCacheKey.h"
 #import "MSIDAccountMetadataCacheKey.h"
 #import "MSIDAccountMetadataCacheItem.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @implementation MSIDMetadataCache
 {
@@ -152,6 +153,39 @@
     
     // return a copy because we don't want external change on the cache status
     return [item copy];
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)allAccountMetadataCacheItemsWithContext:(id<MSIDRequestContext>)context
+                                                                               error:(NSError **)error
+{
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:nil];
+
+    __block NSArray *items;
+    __block NSError *localError;
+
+    dispatch_sync(_synchronizationQueue, ^{
+        items = [_dataSource accountsMetadataWithKey:key serializer:_jsonSerializer context:context error:&localError];
+    });
+    
+    if (!localError)
+    {
+        dispatch_barrier_sync(_synchronizationQueue, ^{
+            // update memory cache
+            _memoryCache = [NSMutableDictionary new];
+            for (MSIDAccountMetadataCacheItem *item in items)
+            {
+                MSIDAccountMetadataCacheKey *itemKey = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:item.clientId];
+                // save a copy in memory cache to avoid external change
+                _memoryCache[itemKey] = [item copy];
+            }
+        });
+    }
+    else
+    {
+        if (error) *error = localError;
+    }
+    
+    return items;
 }
 
 - (BOOL)removeAccountMetadataCacheItemForKey:(MSIDCacheKey *)key

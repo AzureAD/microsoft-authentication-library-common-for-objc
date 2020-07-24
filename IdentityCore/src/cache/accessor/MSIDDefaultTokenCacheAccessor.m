@@ -45,6 +45,7 @@
 #import "MSIDGeneralCacheItemType.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
+#import "MSIDAuthenticationScheme.h"
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
@@ -294,8 +295,9 @@
     query.clientId = configuration.clientId;
     query.target = configuration.target;
     query.targetMatchingOptions = MSIDSubSet;
-    query.credentialType = MSIDAccessTokenType;
     query.applicationIdentifier = configuration.applicationIdentifier;
+    query.credentialType = configuration.authScheme.credentialType;
+    query.tokenType = configuration.authScheme.tokenType;
 
     __auto_type accessToken = (MSIDAccessToken *)[self getTokenWithEnvironment:configuration.authority.environment
                                                                     cacheQuery:query
@@ -533,8 +535,11 @@
     cacheQuery.homeAccountId = accountIdentifier.homeAccountId;
     cacheQuery.environmentAliases = [authority defaultCacheEnvironmentAliases];
     cacheQuery.realm = authority.realm;
-    cacheQuery.username = accountIdentifier.displayableId;
     cacheQuery.accountType = MSIDAccountTypeMSSTS;
+    
+    // If homeAccountId is present, username is not needed for account lookup. Leaving it nil allows accounts to appear in guest
+    // tenants under a different upn and still acquire tokens silently.
+    cacheQuery.username = [NSString msidIsStringNilOrBlank:accountIdentifier.homeAccountId] ? accountIdentifier.displayableId : nil;
 
     NSArray<MSIDAccountCacheItem *> *accountCacheItems = [_accountCredentialCache getAccountsWithQuery:cacheQuery context:context error:error];
 
@@ -795,8 +800,9 @@
     query.clientId = accessToken.clientId;
     query.target = [accessToken.scopes msidToString];
     query.targetMatchingOptions = MSIDIntersect;
-    query.credentialType = MSIDAccessTokenType;
+    query.credentialType = accessToken.credentialType;
     query.applicationIdentifier = accessToken.applicationIdentifier;
+    query.tokenType = accessToken.tokenType;
 
     BOOL result = [_accountCredentialCache removeCredentialsWithQuery:query context:context error:error];
 
