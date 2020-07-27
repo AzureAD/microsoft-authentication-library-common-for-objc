@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,15 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDDevicePopManager.h"
+
+#import "MSIDAssymetricKeyPair.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDevicePopManager ()
+@interface MSIDAssymetricKeyPair (Test)
 
-- (NSString *)generateKidFromModulus:(NSString *)exponent exponent:(NSString *)modulus;
+- (nullable NSString *)encryptForTest:(nonnull NSString *)messageString;
 
 @end
 

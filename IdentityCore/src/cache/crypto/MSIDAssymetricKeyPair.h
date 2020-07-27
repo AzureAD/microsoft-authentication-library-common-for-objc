@@ -36,12 +36,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSString *keyExponent;
 @property (nonatomic, readonly) NSString *keyModulus;
 @property (nonatomic, readonly) NSData *keyData;
+@property (nonatomic, readonly) NSString *jsonWebKey;
+@property (nonatomic, readonly) NSString *kid;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey;
 
 - (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
-- (nullable NSString *)encryptForTest:(nonnull NSString *)messageString;
 
 @end
 
