@@ -1,3 +1,4 @@
+* Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair. #803
 
 Version 1.5.3
 -----    
