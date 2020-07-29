@@ -74,7 +74,7 @@ static NSMutableDictionary *s_container = nil;
     if (!operationClass)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No operation for response: %@.", response.class);
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Operation for this response class is not valid", nil, nil, nil, nil, nil, YES);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
         return nil;
     }
 

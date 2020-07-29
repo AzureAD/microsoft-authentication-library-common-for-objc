@@ -54,7 +54,10 @@
             if (![response isKindOfClass:MSIDWebWPJResponse.class] || [NSString msidIsStringNilOrBlank:[(MSIDWebWPJResponse *)response appInstallLink]])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"response is not valid");
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of response or response does not contain a valid app install link ", nil, nil, nil, nil, nil, YES);
+                if (error)
+                {
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of response or response does not contain a valid app install link ", nil, nil, nil, nil, nil, YES);
+                }
                 return nil;
             }
             
@@ -92,11 +95,11 @@
         }
     
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"interactiveTokenRequestParameters is in wrong type");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of interactive request parameter", nil, nil, nil, nil, nil, YES);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
         completion(nil, error);
     #else
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Broker installation on Mac is not supported");
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Trying to install broker on macOS, where it's not currently supported", nil, nil, nil, nil, nil, YES);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
         completion(nil, error);
     #endif
 }
