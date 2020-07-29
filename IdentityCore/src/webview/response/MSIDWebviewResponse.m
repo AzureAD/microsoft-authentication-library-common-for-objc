@@ -76,4 +76,9 @@
     return responseParameters;
 }
 
++ (NSString *)operation
+{
+    return @"";
+}
+
 @end

@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,28 +15,25 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+#import "MSIDTokenRequestProviding.h"
 
-@protocol MSIDRequestContext;
+@class MSIDWebviewResponse;
+@class MSIDInteractiveRequestParameters;
 
-@interface MSIDWebviewResponse : NSObject
+@interface MSIDWebResponseBaseOperation : NSObject
 
-@property (readonly) NSDictionary *parameters;
-@property (readonly) NSURL *url;
-@property (nonatomic, class, readonly) NSString *operation;
+- (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
+                                    error:(NSError * _Nullable *_Nullable)error;
 
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
-
-+ (NSDictionary *)msidWebResponseParametersFromURL:(NSURL *)url;
-
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull MSIDRequestCompletionBlock)completion;
 @end
