@@ -1,5 +1,3 @@
-//------------------------------------------------------------------------------
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -17,28 +15,30 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
 
-#import <Foundation/Foundation.h>
+#import "MSIDWebResponseBaseOperation.h"
 
-@protocol MSIDRequestContext;
+@implementation MSIDWebResponseBaseOperation
 
-@interface MSIDWebviewResponse : NSObject
+- (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
+                                    error:(__unused NSError * _Nullable *)error
+{
+    self = [super init];
+    return self;
+}
 
-@property (readonly) NSDictionary *parameters;
-@property (readonly) NSURL *url;
-@property (nonatomic, class, readonly) NSString *operation;
-
-- (instancetype)initWithURL:(NSURL *)url
-                    context:(id<MSIDRequestContext>)context
-                      error:(NSError **)error;
-
-+ (NSDictionary *)msidWebResponseParametersFromURL:(NSURL *)url;
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull __unused MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull __unused id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull __unused MSIDRequestCompletionBlock)completion
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
+    completion(nil, error);
+}
 
 @end

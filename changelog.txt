@@ -1,9 +1,12 @@
+* Add operation factory for broker installation integration with other framework (#779)
+
 Version 1.5.4
 -----
 * Support for proof of posession for access tokens (#738)
 * Allow brokered authentication for /consumers authority (#774)
 * Account metadata cleanup on account removal (#791)
 * Fix an issue with guest accounts when UPN mismatches across tenants (#797)
+
 
 Version 1.5.3
 -----    

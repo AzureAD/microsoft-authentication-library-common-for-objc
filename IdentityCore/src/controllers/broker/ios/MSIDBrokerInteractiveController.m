@@ -241,18 +241,10 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
         [self saveToPasteBoard:brokerRequestURL];
     }
 
-    if ([NSThread isMainThread])
-    {
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         [MSIDNotifications notifyWebAuthWillSwitchToBroker];
         [self openBrokerWithRequestURL:launchURL fallbackToLocalController:!firstTimeInstall];
-    }
-    else
-    {
-        [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-            [MSIDNotifications notifyWebAuthWillSwitchToBroker];
-            [self openBrokerWithRequestURL:launchURL fallbackToLocalController:!firstTimeInstall];
-        }];
-    }
+    }];
 }
 
 - (void)openBrokerWithRequestURL:(NSURL *)requestURL
