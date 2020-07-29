@@ -69,7 +69,9 @@
 #if !TARGET_OS_MACCATALYST
         else
         {
-            _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
+            SFSafariViewControllerConfiguration *configuration = [[SFSafariViewControllerConfiguration alloc] init];
+            configuration.entersReaderIfAvailable = NO;
+            _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:configuration];
         }
 #endif
 
