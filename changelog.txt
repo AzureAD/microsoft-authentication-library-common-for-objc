@@ -1,3 +1,4 @@
+* Save PRT expiry interval in cache to calculate PRT refresh interval more reliably (#804)
 
 Version 1.5.3
 -----    
