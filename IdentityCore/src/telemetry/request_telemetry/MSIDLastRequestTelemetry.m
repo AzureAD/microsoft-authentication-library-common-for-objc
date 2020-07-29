@@ -23,6 +23,8 @@
 
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDLastRequestTelemetrySerializedItem.h"
+#import "NSKeyedArchiver+MSIDExtensions.h"
+#import "NSKeyedUnarchiver+MSIDExtensions.h"
 
 @implementation MSIDRequestTelemetryErrorInfo
 
@@ -50,6 +52,11 @@
         self.error = [decoder decodeObjectForKey:kError];
     }
     return self;
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 @end
@@ -86,7 +93,14 @@ static const NSInteger currentSchemaVersion = 2;
     NSString *saveLocation = [self filePathToSavedTelemetry];
     if (saveLocation && [[NSFileManager defaultManager] fileExistsAtPath:saveLocation])
     {
-        return [NSKeyedUnarchiver unarchiveObjectWithFile:saveLocation];
+        NSData *dataToUnarchive = [NSData dataWithContentsOfFile:saveLocation];
+        NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:dataToUnarchive error:nil];
+        
+        MSIDLastRequestTelemetry *telemetry = [unarchiver decodeObjectOfClass:[MSIDLastRequestTelemetry class] forKey:NSKeyedArchiveRootObjectKey];
+        
+        [unarchiver finishDecoding];
+        
+        return telemetry;
     }
     
     return [self initInternal];
@@ -169,9 +183,16 @@ static const NSInteger currentSchemaVersion = 2;
 {
     NSInteger schemaVersion = [decoder decodeIntegerForKey:kSchemaVersion];
     NSInteger silentSuccessfulCount = [decoder decodeIntegerForKey:kSilentSuccessfulCount];
-    NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo = [decoder decodeObjectForKey:kErrorsInfo];
+    
+    NSSet *classes = [NSSet setWithObjects:[NSMutableArray class], [MSIDRequestTelemetryErrorInfo class], nil];
+    NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo = [decoder decodeObjectOfClasses:classes forKey:kErrorsInfo];
     
     return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:errorsInfo];
+}
+
++ (BOOL)supportsSecureCoding
+{
+    return YES;
 }
 
 #pragma mark - Private: Serialization
@@ -220,7 +241,9 @@ static const NSInteger currentSchemaVersion = 2;
     NSString *saveLocation = [self filePathToSavedTelemetry];
     if (saveLocation)
     {
-        [NSKeyedArchiver archiveRootObject:self toFile:saveLocation];
+        NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
+        
+        [dataToArchive writeToFile:saveLocation atomically:YES];
     }
 }
 
@@ -291,7 +314,18 @@ static const NSInteger currentSchemaVersion = 2;
 {
     __block MSIDLastRequestTelemetry *result;
     dispatch_sync(queue, ^{
-        result = [NSKeyedUnarchiver unarchiveObjectWithFile:[self filePathToSavedTelemetry]];
+        
+        NSString *saveLocation = [self filePathToSavedTelemetry];
+        if (saveLocation && [[NSFileManager defaultManager] fileExistsAtPath:saveLocation])
+        {
+            NSData *dataToUnarchive = [NSData dataWithContentsOfFile:saveLocation];
+            NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:dataToUnarchive error:nil];
+            
+            result = [unarchiver decodeObjectOfClass:[MSIDLastRequestTelemetry class] forKey:NSKeyedArchiveRootObjectKey];
+            
+            [unarchiver finishDecoding];
+        }
+        
     });
     
     return result;
