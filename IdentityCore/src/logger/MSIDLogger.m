@@ -146,7 +146,7 @@ static NSDateFormatter *s_dateFormatter = nil;
     
     if (!shouldLog) return;
     
-    if (!self.callback && !self.nsLoggingEnabled) return;
+    if (!self.callback && !self.nsLoggingEnabled && !self.loggerConnector) return;
 
     va_list args;
     va_start(args, format);
