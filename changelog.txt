@@ -1,5 +1,6 @@
-* Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair. #803
+* Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair. (#803)
 * Add operation factory for broker installation integration with other framework (#779)
+* Add logger connector which allows to override logger behaviour. (#796)
 
 Version 1.5.4
 -----
