@@ -137,7 +137,15 @@ static NSDateFormatter *s_dateFormatter = nil;
               format:(NSString *)format, ...
 {
     if (!format) return;
-    if (level > self.level) return;
+    
+    BOOL shouldLog = level <= self.level;
+    if (self.loggerConnector)
+    {
+        shouldLog = [self.loggerConnector shouldLog:level];
+    }
+    
+    if (!shouldLog) return;
+    
     if (!self.callback && !self.nsLoggingEnabled) return;
 
     va_list args;

@@ -43,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
               function:(NSString *)function
                message:(NSString *)message;
 
+- (BOOL)shouldLog:(MSIDLogLevel)level;
+
 @end
 
 NS_ASSUME_NONNULL_END
