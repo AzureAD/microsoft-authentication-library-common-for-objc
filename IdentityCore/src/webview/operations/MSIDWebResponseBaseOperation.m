@@ -21,14 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDDevicePopManager.h"
+#import "MSIDWebResponseBaseOperation.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDWebResponseBaseOperation
 
-@interface MSIDDevicePopManager ()
+- (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
+                                    error:(__unused NSError * _Nullable *)error
+{
+    self = [super init];
+    return self;
+}
 
-- (NSString *)generateKidFromModulus:(NSString *)exponent exponent:(NSString *)modulus;
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull __unused MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull __unused id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull __unused MSIDRequestCompletionBlock)completion
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
+    completion(nil, error);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

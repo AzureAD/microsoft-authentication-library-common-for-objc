@@ -24,6 +24,19 @@
 #import "MSIDAssymetricKeyPair.h"
 #import "NSData+MSIDExtensions.h"
 
+static NSString *s_jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
+static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
+
+@interface MSIDAssymetricKeyPair()
+
+@property (nonatomic) NSString *keyExponent;
+@property (nonatomic) NSString *keyModulus;
+@property (nonatomic) NSData *keyData;
+@property (nonatomic) NSString *jsonWebKey;
+@property (nonatomic) NSString *kid;
+
+@end
+
 @implementation MSIDAssymetricKeyPair
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
@@ -50,45 +63,92 @@
 
 - (NSString *)keyExponent
 {
-    NSData *publicKeyBits = self.keyData;
-    if (!publicKeyBits)
+    if (!_keyExponent)
     {
-        return nil;
+        NSData *publicKeyBits = self.keyData;
+        if (!publicKeyBits)
+        {
+            return nil;
+        }
+        
+        int iterator = 0;
+        
+        iterator++; // TYPE - bit stream - mod + exp
+        [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
+        
+        iterator++; // TYPE - bit stream mod
+        int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
+        iterator += mod_size;
+        
+        iterator++; // TYPE - bit stream exp
+        int exp_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
+        
+        _keyExponent = [[publicKeyBits subdataWithRange:NSMakeRange(iterator, exp_size)] base64EncodedStringWithOptions:0];
     }
     
-    int iterator = 0;
-    
-    iterator++; // TYPE - bit stream - mod + exp
-    [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
-    
-    iterator++; // TYPE - bit stream mod
-    int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
-    iterator += mod_size;
-    
-    iterator++; // TYPE - bit stream exp
-    int exp_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
-    
-    return [[publicKeyBits subdataWithRange:NSMakeRange(iterator, exp_size)] base64EncodedStringWithOptions:0];
+    return _keyExponent;
 }
 
 - (NSString *)keyModulus
 {
-    NSData *publicKeyBits = self.keyData;
-    if (!publicKeyBits)
+    if (!_keyModulus)
     {
-        return nil;
+        NSData *publicKeyBits = self.keyData;
+        if (!publicKeyBits)
+        {
+            return nil;
+        }
+        
+        int iterator = 0;
+        
+        iterator++; // TYPE - bit stream - mod + exp
+        [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
+        
+        iterator++; // TYPE - bit stream mod
+        int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
+        NSData *subData=[publicKeyBits subdataWithRange:NSMakeRange(iterator, mod_size)];
+        _keyModulus = [[subData subdataWithRange:NSMakeRange(1, subData.length-1)] base64EncodedStringWithOptions:0];
     }
     
-    int iterator = 0;
+    return _keyModulus;
+}
+
+/// <summary>
+/// Example JWK Thumbprint Computation
+/// </summary>
+/// <remarks>
+/// This SDK will use RFC7638
+/// See https://tools.ietf.org/html/rfc7638 Section3.1
+/// </remarks>
+- (NSString *)jsonWebKey
+{
+    if (!_jsonWebKey)
+    {
+        NSString *kid = [NSString stringWithFormat:s_kidTemplate, self.kid];
+        if (!kid)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to create req_cnf from kid");
+            return nil;
+        }
+        
+        NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
+        _jsonWebKey = [kidData msidBase64UrlEncodedString];
+    }
     
-    iterator++; // TYPE - bit stream - mod + exp
-    [self derEncodingGetSizeFrom:publicKeyBits at:&iterator]; // Total size
+    return _jsonWebKey;
+}
+
+- (NSString *)kid
+{
+    if (!_kid)
+    {
+        NSString *jwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
+        NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *hashedData = [jwkData msidSHA256];
+        _kid = [hashedData msidBase64UrlEncodedString];
+    }
     
-    iterator++; // TYPE - bit stream mod
-    int mod_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
-    NSData *subData=[publicKeyBits subdataWithRange:NSMakeRange(iterator, mod_size)];
-    NSString *mod = [[subData subdataWithRange:NSMakeRange(1, subData.length-1)] base64EncodedStringWithOptions:0];
-    return mod;
+    return _kid;
 }
 
 - (int)derEncodingGetSizeFrom:(NSData *)buf at:(int *)iterator
@@ -115,56 +175,27 @@
 
 - (NSData *)keyData
 {
-    CFErrorRef keyExtractionError = NULL;
-    if (@available(iOS 10.0, macOS 10.12, *))
+    if (!_keyData)
     {
-        NSData *keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(self.publicKeyRef, &keyExtractionError));
-        
-        if (!keyData)
+        CFErrorRef keyExtractionError = NULL;
+        if (@available(iOS 10.0, macOS 10.12, *))
         {
-            NSError *error = CFBridgingRelease(keyExtractionError);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
-            return nil;
+            _keyData = (NSData *)CFBridgingRelease(SecKeyCopyExternalRepresentation(self.publicKeyRef, &keyExtractionError));
+            
+            if (!_keyData)
+            {
+                NSError *error = CFBridgingRelease(keyExtractionError);
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read data from key ref %@", error);
+                return nil;
+            }
         }
-        
-        return keyData;
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to extract key data from SecKeyRef due to unsupported platform");
+        }
     }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to extract key data from SecKeyRef due to unsupported platform");
-        return nil;
-    }
-}
-
-- (nullable NSString *)encryptForTest:(nonnull NSString *)messageString {
-    NSData * message = [[NSData alloc] initWithBase64EncodedString:messageString options:0];
     
-    if ([message length] == 0) {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to encrypt was empty");
-        return nil;
-    }
-
-    if (@available(macOS 10.12, *)) {
-        SecKeyAlgorithm algorithm = kSecKeyAlgorithmRSAEncryptionOAEPSHA1;
-        
-        if (!SecKeyIsAlgorithmSupported(_publicKeyRef, kSecKeyOperationTypeEncrypt, algorithm)) {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
-            return nil;
-        }
-
-        CFErrorRef error = nil;
-        NSData *encryptedBlobBytes = (NSData *)CFBridgingRelease(
-            SecKeyCreateEncryptedData(_publicKeyRef, algorithm, (__bridge CFDataRef)message, &error));
-        if (error) {
-            NSError *err = CFBridgingRelease(error);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to encrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", (long)err.code]]);
-            return nil;
-        }
-        return [encryptedBlobBytes base64EncodedStringWithOptions:0];
-    } else {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
-        return nil;
-    }
+    return _keyData;
 }
 
 - (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString
