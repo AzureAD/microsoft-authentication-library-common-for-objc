@@ -60,23 +60,12 @@
     {
         _startURL = url;
         _context = context;
-        
-        if (@available(iOS 11.0, *))
-        {
-            __auto_type config = [SFSafariViewControllerConfiguration new];
-            _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
-        }
-#if !TARGET_OS_MACCATALYST
-        else
-        {
-            SFSafariViewControllerConfiguration *configuration = [[SFSafariViewControllerConfiguration alloc] init];
-            configuration.entersReaderIfAvailable = NO;
-            _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:configuration];
-        }
-#endif
-
+        __auto_type config = [SFSafariViewControllerConfiguration new];
+        config.entersReaderIfAvailable = NO;
+        _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
         _safariViewController.delegate = self;
         _safariViewController.modalPresentationStyle = presentationType;
+        
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
         if (@available(iOS 13.0, *)) {
             _safariViewController.modalInPresentation = YES;
