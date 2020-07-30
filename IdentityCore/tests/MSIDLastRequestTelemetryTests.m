@@ -181,7 +181,7 @@
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
  
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
-    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
@@ -194,14 +194,14 @@
     [telemetryObject updateWithApiId:30 errorString:@"error3" context:self.context];
  
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
-    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
     
     [telemetryObject updateWithApiId:40 errorString:@"error4" context:self.context];
     [telemetryObject updateWithApiId:50 errorString:@"error5" context:self.context];
     
-    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
  
@@ -213,7 +213,7 @@
     [telemetryObject updateWithApiId:30 errorString:@"error3" context:self.context];
  
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
-    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
     
@@ -222,7 +222,7 @@
     
     [telemetryObject updateWithApiId:90 errorString:@"error9" context:self.context];
     
-    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
  
@@ -234,17 +234,17 @@
     [telemetryObject updateWithApiId:30 errorString:@"error3" context:self.context];
  
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
-    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
     
     [telemetryObject updateWithApiId:30 errorString:nil context:nil];
     
-    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
     
     [telemetryObject increaseSilentSuccessfulCount];
     
-    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
  
@@ -256,7 +256,7 @@
     [telemetryObject increaseSilentSuccessfulCount];
  
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
-    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] getTelemetryFromDisk:queue];
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
 }
 

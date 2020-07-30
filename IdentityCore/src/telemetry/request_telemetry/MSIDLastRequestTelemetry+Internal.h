@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDLastRequestTelemetry ()
 
-- (instancetype)getTelemetryFromDisk:(dispatch_queue_t)queue;
+- (instancetype)initTelemetryFromDiskWithQueue:(dispatch_queue_t)queue;
 
 @end
 

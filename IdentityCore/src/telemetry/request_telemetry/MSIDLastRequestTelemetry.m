@@ -47,7 +47,7 @@
         self.apiId = [decoder decodeFloatForKey:kApiId];
         
         NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
-        self.correlationId = [[NSUUID UUID] initWithUUIDString:uuIdString];
+        self.correlationId = ![NSString msidIsStringNilOrBlank:uuIdString] ? [[NSUUID UUID] initWithUUIDString:uuIdString] : nil;
         
         self.error = [decoder decodeObjectForKey:kError];
     }
@@ -166,7 +166,7 @@ static const NSInteger currentSchemaVersion = 2;
     return result;
 }
 
-#pragma mark - NSCoding
+#pragma mark - NSSecureCoding
 
 #define kSchemaVersion              @"schemaVersion"
 #define kSilentSuccessfulCount      @"silentSuccessfulCount"
@@ -274,7 +274,7 @@ static const NSInteger currentSchemaVersion = 2;
     if (paths.count > 0)
     {
         NSString *documentsDirectoryPath = [paths objectAtIndex:0];
-        NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"lastRequest"];
+        NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"msal.telemetry.lastRequest"];
         return filePath;
     }
     
@@ -310,7 +310,7 @@ static const NSInteger currentSchemaVersion = 2;
 
 #pragma mark - MSIDLastRequestTelemetry+Internal
 
-- (instancetype)getTelemetryFromDisk:(dispatch_queue_t)queue
+- (instancetype)initTelemetryFromDiskWithQueue:(dispatch_queue_t)queue
 {
     __block MSIDLastRequestTelemetry *result;
     dispatch_sync(queue, ^{
