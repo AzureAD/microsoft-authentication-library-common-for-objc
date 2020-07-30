@@ -43,8 +43,8 @@
 
 @implementation MSIDWebResponseBrokerInstallOperation
 
-- (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
-                                    error:(NSError * _Nullable *)error
+- (nullable instancetype)initWithResponse:(__unused MSIDWebviewResponse *)response
+                                    error:(__unused NSError **)error
 {
     #if TARGET_OS_IPHONE
         self = [super initWithResponse:response
@@ -71,8 +71,8 @@
     #endif
 }
 
-- (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+- (void)invokeWithInteractiveTokenRequestParameters:(__unused MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(__unused id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(nonnull MSIDRequestCompletionBlock)completion
 {
     #if TARGET_OS_IPHONE
