@@ -44,6 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
           forHomeAccountId:(NSString *)homeAccountId
                      error:(NSError **)error;
 
+- (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                        error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

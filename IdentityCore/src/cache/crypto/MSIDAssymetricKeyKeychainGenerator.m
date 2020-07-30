@@ -110,24 +110,7 @@
     
     // 1. Generate keypair
     NSDictionary *keyPairAttr = [self keychainQueryWithAttributes:[attributes assymetricKeyPairAttributes]];
-    
-    SecKeyRef publicKeyRef = NULL;
-    SecKeyRef privateKeyRef = NULL;
-    OSStatus status = SecKeyGeneratePair((__bridge CFDictionaryRef)keyPairAttr, &publicKeyRef, &privateKeyRef);
-    
-    if (status != errSecSuccess)
-    {
-        [self logAndFillError:@"Failed to generate keypair" status:status error:error];
-        return nil;
-    }
-    
-    // 2. Return keys
-    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef];
-    
-    if (privateKeyRef) CFRelease(privateKeyRef);
-    if (publicKeyRef) CFRelease(publicKeyRef);
-    
-    return keyPair;
+    return [self generateKeyPairForKeyDict:keyPairAttr error:error];
 }
 
 - (MSIDAssymetricKeyPair *)readOrGenerateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
@@ -246,6 +229,36 @@
     [keyPairAttr addEntriesFromDictionary:attributes];
     return keyPairAttr;
 }
+
+- (MSIDAssymetricKeyPair *)generateEphemeralKeyPair:(NSError **)error
+{
+    NSDictionary *attributesDict = @{(__bridge id)kSecAttrKeyType : (__bridge id)kSecAttrKeyTypeRSA,
+                                     (__bridge id)kSecAttrKeySizeInBits : @2048};
+    return [self generateKeyPairForKeyDict:attributesDict error:error];
+}
+
+- (MSIDAssymetricKeyPair *)generateKeyPairForKeyDict:(NSDictionary *)attributes
+                                               error:(NSError **)error
+{
+    SecKeyRef publicKeyRef = NULL;
+    SecKeyRef privateKeyRef = NULL;
+    OSStatus status = SecKeyGeneratePair((__bridge CFDictionaryRef)attributes, &publicKeyRef, &privateKeyRef);
+    
+    if (status != errSecSuccess)
+    {
+        [self logAndFillError:@"Failed to generate keypair" status:status error:error];
+        return nil;
+    }
+    
+    // 2. Return keys
+    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef];
+    
+    if (privateKeyRef) CFRelease(privateKeyRef);
+    if (publicKeyRef) CFRelease(publicKeyRef);
+    
+    return keyPair;
+}
+
 
 #pragma mark - Platform
 
