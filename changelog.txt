@@ -1,3 +1,5 @@
+* Save last request telemetry to disk (#768)
+
 Version 1.5.2
 ------
 * Fix handling of certificate based authentication challenge.
