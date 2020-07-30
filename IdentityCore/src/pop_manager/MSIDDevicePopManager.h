@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDevicePopManager : NSObject
 
-@property (nonatomic, readonly) NSString *requestConfirmation;
+@property (nonatomic, readonly) MSIDAssymetricKeyPair *keyPair;
 
 - (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
                   keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes;
