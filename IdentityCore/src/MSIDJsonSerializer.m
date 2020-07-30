@@ -91,6 +91,11 @@
         return nil;
     }
     
+    if (!jsonDictionary)
+    {
+        return nil;
+    }
+    
     return [[klass alloc] initWithJSONDictionary:jsonDictionary error:error];
 }
 

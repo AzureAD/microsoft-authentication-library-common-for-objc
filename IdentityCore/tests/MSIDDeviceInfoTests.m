@@ -43,6 +43,7 @@
         MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"silent_only",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"token\":\"\",\"dict\":{\"key\":\"value\"},\"feature_flag1\":1}"
     };
     
     NSError *error;
@@ -53,6 +54,29 @@
     XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeSilentOnly);
     XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
     XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
+    
+    NSDictionary *expectedAdditionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
+    XCTAssertEqualObjects(deviceInfo.additionalExtensionData, expectedAdditionalData);
+}
+
+- (void)testInitWithJSONDictionary_whenJsonValid_andAdditionalDataCorrupt_shouldInitWithJsonWithoutAdditionalInfo {
+    NSDictionary *json = @{
+        MSID_BROKER_DEVICE_MODE_KEY : @"shared",
+        MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"silent_only",
+        MSID_BROKER_WPJ_STATUS_KEY : @"joined",
+        MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"token\":\"\",\"dict\":{\"key\":\"value\"},\"feature_flag1\":1"
+    };
+    
+    NSError *error;
+    MSIDDeviceInfo *deviceInfo = [[MSIDDeviceInfo alloc] initWithJSONDictionary:json error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(deviceInfo.deviceMode, MSIDDeviceModeShared);
+    XCTAssertEqual(deviceInfo.ssoExtensionMode, MSIDSSOExtensionModeSilentOnly);
+    XCTAssertEqual(deviceInfo.wpjStatus, MSIDWorkPlaceJoinStatusJoined);
+    XCTAssertEqualObjects(deviceInfo.brokerVersion, @"1.2.3");
+    XCTAssertNil(deviceInfo.additionalExtensionData);
 }
 
 - (void)testInitWithJSONDictionary_whenDeviceInfoMissing_shouldInitWithDefaultValue {
@@ -195,11 +219,15 @@
     deviceInfo.wpjStatus = MSIDWorkPlaceJoinStatusJoined;
     deviceInfo.brokerVersion = @"1.2.3";
     
+    NSDictionary *additionalData = @{@"feature_flag1":@1,@"token":@"",@"dict":@{@"key":@"value"}};
+    deviceInfo.additionalExtensionData = additionalData;
+    
     NSDictionary *expectedJson = @{
         MSID_BROKER_DEVICE_MODE_KEY : @"shared",
         MSID_BROKER_SSO_EXTENSION_MODE_KEY : @"full",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
+        MSID_ADDITIONAL_EXTENSION_DATA_KEY: @"{\"token\":\"\",\"dict\":{\"key\":\"value\"},\"feature_flag1\":1}"
     };
     
     XCTAssertEqualObjects(expectedJson, [deviceInfo jsonDictionary]);

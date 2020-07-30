@@ -37,7 +37,13 @@
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "MSIDJsonObject.h"
 
-NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
+
+#if TARGET_OS_IPHONE
+    NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
+#else
+    NSString *const MSIDAdalKeychainGroup = @"com.microsoft.identity.universalstorage";
+#endif
+
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;
 static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
@@ -437,7 +443,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    NSArray *metadataItems = [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
+    NSArray *metadataItems = [self accountsMetadataWithKey:key serializer:serializer context:context error:error];
     if (!metadataItems) return nil;
     
     if (metadataItems.count < 1)
@@ -447,6 +453,14 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     }
     
     return metadataItems[0];
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                                                             context:(id<MSIDRequestContext>)context
+                                                               error:(NSError **)error
+{
+    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
 }
 
 #pragma mark - Removal

@@ -34,7 +34,7 @@
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDClaimsRequest.h"
 #import "NSDictionary+MSIDTestUtil.h"
-
+#import "MSIDAuthenticationSchemePop.h"
 @interface MSIDBrokerTokenRequestTests : XCTestCase
 
 @end
@@ -61,6 +61,17 @@
     
     MSIDBrokerInvocationOptions *brokerOptions = [[MSIDBrokerInvocationOptions alloc] initWithRequiredBrokerType:MSIDRequiredBrokerTypeDefault protocolType:MSIDBrokerProtocolTypeCustomScheme aadRequestVersion:MSIDBrokerAADRequestVersionV2];
     parameters.brokerInvocationOptions = brokerOptions;
+    return parameters;
+}
+
+- (MSIDInteractiveTokenRequestParameters *)defaultTestParametersATPop
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParameters];
+    NSDictionary *schemeParams = @{
+        @"token_type":@"Pop",
+        @"req_cnf":@"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0"
+    };
+    parameters.authScheme = [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
     return parameters;
 }
 
@@ -166,6 +177,51 @@
                                                @"broker_nonce": brokerNonce
                                                };
 
+    XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
+}
+
+- (void)testInitBrokerRequest_whenValidParameters_shouldReturnValidPayload_ATPopFlow
+{
+    MSIDInteractiveTokenRequestParameters *parameters = [self defaultTestParametersATPop];
+    
+    NSError *error = nil;
+    MSIDBrokerTokenRequest *request = [[MSIDBrokerTokenRequest alloc] initWithRequestParameters:parameters brokerKey:@"brokerKey" brokerApplicationToken:@"brokerApplicationToken" sdkCapabilities:nil error:&error];
+    XCTAssertNotNil(request);
+    XCTAssertNil(error);
+    
+    NSDictionary *expectedRequest = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                      @"client_id": @"my_client_id",
+                                      @"correlation_id": [parameters.correlationId UUIDString],
+                                      @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                      @"broker_key": @"brokerKey",
+                                      @"client_version": [MSIDVersion sdkVersion],
+                                      @"client_app_name": @"MSIDTestsHostApp",
+                                      @"client_app_version": @"1.0",
+                                      @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
+                                      @"application_token" : @"brokerApplicationToken",
+                                      @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
+                                      @"token_type" : @"Pop"
+    };
+    
+    NSURL *actualURL = request.brokerRequestURL;
+    
+    NSString *expectedUrlString = [NSString stringWithFormat:@"msauthv2://broker?%@", [expectedRequest msidURLEncode]];
+    NSURL *expectedURL = [NSURL URLWithString:expectedUrlString];
+    XCTAssertTrue([expectedURL matchesURL:actualURL]);
+    
+    NSString *brokerNonce = [actualURL msidQueryParameters][@"broker_nonce"];
+    XCTAssertNotNil(brokerNonce);
+    
+    NSDictionary *expectedResumeDictionary = @{@"authority": @"https://login.microsoftonline.com/contoso.com",
+                                               @"client_id": @"my_client_id",
+                                               @"correlation_id": [parameters.correlationId UUIDString],
+                                               @"redirect_uri": @"my-redirect://com.microsoft.test",
+                                               @"keychain_group": @"com.microsoft.mygroup",
+                                               @"broker_nonce": brokerNonce,
+                                               @"req_cnf" : @"eyJraWQiOiJlQWkyNE9leml1czc5VlRadDhsZlhldFJTejdsR2thSmloWEJFWkIwMnV3In0",
+                                               @"token_type" : @"Pop"
+    };
+    
     XCTAssertEqualObjects(expectedResumeDictionary, request.resumeDictionary);
 }
 

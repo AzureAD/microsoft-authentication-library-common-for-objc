@@ -22,10 +22,12 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenRequest.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDTokenRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
+                      authScheme:(MSIDAuthenticationScheme *)authScheme
                         clientId:(NSString *)clientId
                            scope:(NSString *)scope
                          context:(nullable id<MSIDRequestContext>)context
@@ -41,6 +43,13 @@
         NSMutableDictionary *parameters = [NSMutableDictionary new];
         parameters[MSID_OAUTH2_CLIENT_ID] = clientId;
         parameters[MSID_OAUTH2_SCOPE] = scope;
+        
+        NSDictionary *authHeaders = authScheme.schemeParameters;
+        if ([authHeaders count] > 0)
+        {
+            [parameters addEntriesFromDictionary:authHeaders];
+        }
+        
         _parameters = parameters;
         
         NSMutableURLRequest *urlRequest = [NSMutableURLRequest new];

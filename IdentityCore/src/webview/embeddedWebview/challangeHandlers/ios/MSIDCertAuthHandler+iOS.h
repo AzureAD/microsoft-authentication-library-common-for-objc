@@ -34,6 +34,7 @@
                    forScheme:(NSString *)scheme;
 
 + (void)setUseAuthSession:(BOOL)useAuthSession;
++ (void)setUseLastRequestURL:(BOOL)useLastRequestURL;
 
 // These are for cert auth challenge for iOS
 + (void)setCustomActivities:(NSArray<UIActivity *> *)activities;

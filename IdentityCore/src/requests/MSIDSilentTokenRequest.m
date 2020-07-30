@@ -44,6 +44,8 @@
 #import "MSIDExternalAADCacheSeeder.h"
 #endif
 
+#import "MSIDAuthenticationScheme.h"
+
 @interface MSIDSilentTokenRequest()
 
 @property (nonatomic) MSIDRequestParameters *requestParameters;
@@ -123,6 +125,7 @@
         }
 
         BOOL enrollmentIdMatch = YES;
+        BOOL accessTokenKeyThumbprintMatch = YES;
         
         // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
         // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
@@ -147,7 +150,12 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id match result = %@, access token's enrollment id : %@, cached enrollment id: %@, ", enrollmentIdMatch ? @"True" : @"False", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
         }
         
-        if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch)
+        if (accessToken && ![NSString msidIsStringNilOrBlank:accessToken.kid])
+        {
+            accessTokenKeyThumbprintMatch = [self.requestParameters.authScheme matchAccessTokenKeyThumbprint:accessToken];
+        }
+        
+        if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
             NSError *rtError = nil;
@@ -196,7 +204,7 @@
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
         }
 
-        if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch)
+        if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
@@ -207,6 +215,10 @@
             if (!enrollmentIdMatch)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached enrollment id is different from access token's enrollment id, removing it..");
+            }
+            else if (!accessTokenKeyThumbprintMatch)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached key thumbprint is different from access token's key thumbprint, removing it..");
             }
             else
             {

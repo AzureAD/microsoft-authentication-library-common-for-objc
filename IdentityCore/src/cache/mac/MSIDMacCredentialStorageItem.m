@@ -355,6 +355,10 @@ static NSString *keyDelimiter = @"-";
     {
         return [[MSIDAccountMetadataCacheItem alloc] initWithJSONDictionary:itemDict error:error];
     }
+    else if([typeKey isEqualToString:MSID_ACCESS_TOKEN_WITH_AUTH_SCHEME_CACHE_TYPE])
+    {
+        return [[MSIDCredentialCacheItem alloc] initWithJSONDictionary:itemDict error:error];
+    }
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, nil, @"Unknown key type passed %@.", MSID_PII_LOG_MASKABLE(typeKey));
     return nil;
@@ -376,6 +380,10 @@ static NSString *keyDelimiter = @"-";
         else if (key.credentialType == MSIDRefreshTokenType)
         {
             return MSID_REFRESH_TOKEN_CACHE_TYPE;
+        }
+        else if (key.credentialType == MSIDAccessTokenWithAuthSchemeType)
+        {
+            return MSID_ACCESS_TOKEN_WITH_AUTH_SCHEME_CACHE_TYPE;
         }
     }
     else if ([itemKey isKindOfClass:[MSIDDefaultAccountCacheKey class]])

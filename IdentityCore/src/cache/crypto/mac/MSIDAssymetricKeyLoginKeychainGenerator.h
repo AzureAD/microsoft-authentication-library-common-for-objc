@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDAssymetricKeyLoginKeychainGenerator : MSIDAssymetricKeyKeychainGenerator
 
-- (instancetype)initWithAccessRef:(nullable SecAccessRef)accessRef error:(NSError * _Nullable * _Nullable)error;
+- (instancetype)initWithKeychainGroup:(nullable NSString *)keychainGroup accessRef:(nullable SecAccessRef)accessRef error:(NSError * _Nullable * _Nullable)error;
 
 @end
 

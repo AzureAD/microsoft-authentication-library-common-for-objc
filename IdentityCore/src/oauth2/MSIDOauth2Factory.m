@@ -46,6 +46,7 @@
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDOauth2Factory
 
@@ -129,11 +130,12 @@
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
                                configuration:(MSIDConfiguration *)configuration
 {
-    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
+    MSIDAccessToken *accessToken = configuration.authScheme.accessToken;
     
     BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
+    
     return accessToken;
 }
 
@@ -426,6 +428,7 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                       authScheme:parameters.authScheme
                                                                                                          clientId:parameters.clientId
                                                                                                             scope:allScopes
                                                                                                       redirectUri:parameters.redirectUri
@@ -445,6 +448,7 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDRefreshTokenGrantRequest *tokenRequest = [[MSIDRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                             authScheme:parameters.authScheme
                                                                                                clientId:parameters.clientId
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken

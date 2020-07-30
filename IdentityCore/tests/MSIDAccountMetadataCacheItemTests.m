@@ -83,6 +83,25 @@
     XCTAssertEqualObjects(metadata, [cacheItem accountMetadataForHomeAccountId:@"uid.utid"]);
 }
 
+- (void)testRemoveAccountMetadataForHomeAccountId_whenAccountMetadataMatched_shouldReturnIt {
+    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"client-id"];
+
+    MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"uid.utid" clientId:@"client-id"];
+    MSIDAccountMetadata *metadata2 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"uid2.utid2" clientId:@"client-id"];
+    XCTAssertTrue([cacheItem addAccountMetadata:metadata forHomeAccountId:@"uid.utid" error:nil]);
+    XCTAssertTrue([cacheItem addAccountMetadata:metadata2 forHomeAccountId:@"uid2.utid2" error:nil]);
+
+    // Remove account metadata
+    NSError *error;
+    XCTAssertTrue([cacheItem removeAccountMetadataForHomeAccountId:@"uid.utid" error:&error]);
+    XCTAssertNil(error);
+
+    
+    XCTAssertNil([cacheItem accountMetadataForHomeAccountId:@"uid.utid"]);
+    MSIDAccountMetadata *metadataFromCache = [cacheItem accountMetadataForHomeAccountId:@"uid2.utid2"];
+    XCTAssertEqualObjects(metadata2, metadataFromCache);
+}
+
 - (void)testJSONDictionary_whenAllFieldsSet_shouldReturnJSONDictionaryWithAccountKey
 {
     MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];

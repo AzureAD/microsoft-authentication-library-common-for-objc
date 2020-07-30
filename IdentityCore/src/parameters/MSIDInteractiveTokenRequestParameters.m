@@ -28,6 +28,7 @@
 @implementation MSIDInteractiveTokenRequestParameters
 
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                       authScheme:(MSIDAuthenticationScheme *)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -41,6 +42,7 @@
                             error:(NSError **)error
 {
     self = [super initWithAuthority:authority
+                         authScheme:authScheme
                         redirectUri:redirectUri
                            clientId:clientId
                              scopes:scopes
