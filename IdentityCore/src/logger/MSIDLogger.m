@@ -161,7 +161,7 @@ static NSDateFormatter *s_dateFormatter = nil;
     
     dispatch_async(self.loggerQueue, ^{
         @autoreleasepool
-        {            
+        {
             NSString *logComponent = [context logComponent];
             NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
             
