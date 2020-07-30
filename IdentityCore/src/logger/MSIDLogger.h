@@ -23,7 +23,7 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol MSIDLoggerConnector;
+@protocol MSIDLoggerConnecting;
 
 /*! Levels of logging. Defines the priority of the logged message */
 typedef NS_ENUM(NSInteger, MSIDLogLevel)
@@ -54,7 +54,7 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
 + (MSIDLogger *)sharedLogger;
 
 /*! Allows to ovveride logger behaviour. */
-@property (nonatomic, weak) id<MSIDLoggerConnector> loggerConnector;
+@property (nonatomic, weak) id<MSIDLoggerConnecting> loggerConnector;
 
 /*!
  The minimum log level for messages to be passed onto the log callback.

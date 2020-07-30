@@ -25,7 +25,7 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDVersion.h"
 #import "MSIDDeviceId.h"
-#import "MSIDLoggerConnector.h"
+#import "MSIDLoggerConnecting.h"
 #import <pthread.h>
 
 static long s_maxQueueSize = 1000;
