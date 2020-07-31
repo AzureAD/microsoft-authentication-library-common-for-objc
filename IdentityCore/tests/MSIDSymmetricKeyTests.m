@@ -30,7 +30,6 @@
 @end
 
 NSString *symmetericKeyString = @"Zfb98mJBAt/UOpnCI/CYdQ==";
-NSString *message = @"Sample Message To Encrypt/Decrypt";
 NSString *context = @"y00sIKRcF2bPFDgbeOques0ymB+R0FP";
 NSString *expectedSignature = @"cspzWzvtSNOJUUzThP3FWWV-9q7mJ_ZB6PYzRcQwe54";
 
