@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithSymmetericKeyBytes:(NSData *)symmetericKeyInBytes;
 
+- (nullable instancetype)initWithSymmetericKeyBase64:(NSString *)symmetericKeyBase64;
+
 - (nullable NSString *)createVerifySignature:(NSData *)context
                                   dataToSign:(NSString *)dataToSign;
 

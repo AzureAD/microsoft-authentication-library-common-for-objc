@@ -37,8 +37,7 @@ NSString *expectedSignature = @"cspzWzvtSNOJUUzThP3FWWV-9q7mJ_ZB6PYzRcQwe54";
 @implementation MSIDSymmetricKeyTests
 
 - (void)testGenerateSymmetericKey_andGetRaw{
-    NSData *symmetericKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetericKeyString options:0];
-    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetericKeyBytes:symmetericKeyBytes];
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetericKeyBase64:symmetericKeyString];
     XCTAssertNotNil(symmetricKey);
 
     NSString *rawKey = [symmetricKey getRaw];
@@ -52,7 +51,7 @@ NSString *expectedSignature = @"cspzWzvtSNOJUUzThP3FWWV-9q7mJ_ZB6PYzRcQwe54";
     XCTAssertNotNil(symmetricKey);
 
     NSData *contextData = [NSData msidDataFromBase64UrlEncodedString:context];
-    NSString * signature = [symmetricKey createVerifySignature:contextData dataToSign:message];
+    NSString *signature = [symmetricKey createVerifySignature:contextData dataToSign:message];
     XCTAssertEqualObjects(expectedSignature, signature);
 }
 

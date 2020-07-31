@@ -46,6 +46,15 @@
     return self;
 }
 
+- (nullable instancetype)initWithSymmetericKeyBase64:(NSString *)symmetericKeyBase64 {
+    if (!symmetericKeyBase64)
+    {
+        return nil;
+    }
+    
+    return [self initWithSymmetericKeyBytes:[[NSData alloc] initWithBase64EncodedString:symmetericKeyBase64 options:0]];
+}
+
 - (nullable NSString *)createVerifySignature:(NSData *)context
                                   dataToSign:(NSString *)dataToSign {
     NSData *data = [dataToSign dataUsingEncoding:NSUTF8StringEncoding];
