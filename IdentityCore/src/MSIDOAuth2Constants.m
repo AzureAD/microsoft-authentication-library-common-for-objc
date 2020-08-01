@@ -111,6 +111,7 @@ NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
 NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
 NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
 NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";
+NSString *const MSID_EXPIRES_IN_CACHE_KEY                = @"expires_in";
 NSString *const MSID_SPE_INFO_CACHE_KEY                  = @"spe_info";
 NSString *const MSID_RESOURCE_RT_CACHE_KEY               = @"resource_refresh_token";
 NSString *const MSID_LOCAL_ACCOUNT_ID_CACHE_KEY          = @"local_account_id";

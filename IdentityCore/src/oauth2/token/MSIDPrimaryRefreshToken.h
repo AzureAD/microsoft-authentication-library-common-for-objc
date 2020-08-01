@@ -33,6 +33,8 @@
 @property (nonatomic) NSString *prtProtocolVersion;
 @property (nonatomic) NSDate *expiresOn;
 @property (nonatomic) NSDate *cachedAt;
+@property (nonatomic) NSUInteger expiryInterval;
+@property (nonatomic, readonly) NSUInteger refreshInterval;
  
 - (BOOL)isDevicelessPRT;
 - (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;
