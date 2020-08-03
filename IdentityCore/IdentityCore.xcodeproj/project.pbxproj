@@ -531,6 +531,11 @@
 		60FDA9C721A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */; };
 		60FDA9DB21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
 		60FDA9DC21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
+		6E4F658C24D488010070CA36 /* MSIDSymmetricKey.h in Headers */ = {isa = PBXBuildFile; fileRef = 6E4F658B24D488010070CA36 /* MSIDSymmetricKey.h */; };
+		6E4F658E24D4883A0070CA36 /* MSIDSymmetricKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4F658D24D4883A0070CA36 /* MSIDSymmetricKey.m */; };
+		6E4F658F24D4883A0070CA36 /* MSIDSymmetricKey.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4F658D24D4883A0070CA36 /* MSIDSymmetricKey.m */; };
+		6E4F659324D48B630070CA36 /* MSIDSymmetricKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */; };
+		6E4F659424D48B6D0070CA36 /* MSIDSymmetricKeyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */; };
 		740340B92460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */; };
 		740340BA2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
 		740340BB2460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */; };
@@ -2081,6 +2086,9 @@
 		60FDA9C621A19DA6001E09B8 /* MSIDDefaultBrokerResponseHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDefaultBrokerResponseHandlerTests.m; sourceTree = "<group>"; };
 		60FDA9D921A5EBBA001E09B8 /* MSIDTestCacheAccessorHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestCacheAccessorHelper.h; sourceTree = "<group>"; };
 		60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestCacheAccessorHelper.m; sourceTree = "<group>"; };
+		6E4F658B24D488010070CA36 /* MSIDSymmetricKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSymmetricKey.h; sourceTree = "<group>"; };
+		6E4F658D24D4883A0070CA36 /* MSIDSymmetricKey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSymmetricKey.m; sourceTree = "<group>"; };
+		6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSymmetricKeyTests.m; sourceTree = "<group>"; };
 		740340B72460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDCurrentRequestTelemetrySerializedItem.h; sourceTree = "<group>"; };
 		740340B82460E5C400DFCF27 /* MSIDCurrentRequestTelemetrySerializedItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetrySerializedItem.m; sourceTree = "<group>"; };
 		74043F7C245CC84B00D3E7C1 /* MSIDCurrentRequestTelemetryTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDCurrentRequestTelemetryTests.m; sourceTree = "<group>"; };
@@ -4236,6 +4244,8 @@
 				B2C0748A246B71300008D701 /* MSIDAssymetricKeyPairWithCert.m */,
 				B278937F2470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.h */,
 				B27893802470CFE700627C28 /* MSIDAssymetricKeyGeneratorFactory.m */,
+				6E4F658B24D488010070CA36 /* MSIDSymmetricKey.h */,
+				6E4F658D24D4883A0070CA36 /* MSIDSymmetricKey.m */,
 			);
 			path = crypto;
 			sourceTree = "<group>";
@@ -4851,6 +4861,7 @@
 				D626FFE91FBD200A00EE4487 /* util */,
 				1E0B144E24CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.h */,
 				1E0B144F24CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.m */,
+				6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -5261,6 +5272,7 @@
 				238A04932089A3C800989EE0 /* MSIDHttpRequestTelemetry.h in Headers */,
 				B286B9C62389DE7B007833AD /* MSIDAccountMetadataCacheKey.h in Headers */,
 				B286B9DB2389DF59007833AD /* MSIDJsonSerializable.h in Headers */,
+				6E4F658C24D488010070CA36 /* MSIDSymmetricKey.h in Headers */,
 				23B39A8120993302000AA905 /* MSIDAadAuthorityResolver.h in Headers */,
 				B2C0748F246B71470008D701 /* MSIDAssymetricKeyGenerating.h in Headers */,
 				B286B9AE2389DD5E007833AD /* MSIDChallengeHandling.h in Headers */,
@@ -5772,6 +5784,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E4F659324D48B630070CA36 /* MSIDSymmetricKeyTests.m in Sources */,
 				B2E7698E206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */,
 				B2DD4B3520A91FA70047A66E /* MSIDDefaultAccountCacheKeyTests.m in Sources */,
 				23419F5A239739AF00EA78C5 /* MSIDBrokerOperationSilentTokenRequestTests.m in Sources */,
@@ -6169,6 +6182,7 @@
 				B26CEAE923653C62009E6E54 /* MSIDASWebAuthenticationSessionHandler.m in Sources */,
 				609E74C8228DCEA1005E3FED /* MSIDAccountMetadata.m in Sources */,
 				B2AF1D30218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.m in Sources */,
+				6E4F658F24D4883A0070CA36 /* MSIDSymmetricKey.m in Sources */,
 				B227035622A3633700030ADC /* MSIDMaskedLogParameter.m in Sources */,
 				04930F961FEDB2E100FC4DCD /* MSIDAuthority.m in Sources */,
 				6080B97B2384BD17009B1322 /* MSIDAccountMetadataCacheItem.m in Sources */,
@@ -6257,6 +6271,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E4F659424D48B6D0070CA36 /* MSIDSymmetricKeyTests.m in Sources */,
 				B29A36B620AFA03200427B63 /* MSIDOauth2FactoryTests.m in Sources */,
 				23CC944920465CEC00AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
 				B86FA7D62383757A00E5195A /* MSIDMacKeychainTokenCacheTests.m in Sources */,
@@ -6488,6 +6503,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6E4F658E24D4883A0070CA36 /* MSIDSymmetricKey.m in Sources */,
 				23B39AC2209BD901000AA905 /* MSIDAdfsAuthorityResolver.m in Sources */,
 				B2000C8E20EC62DF0092790A /* MSIDAADV1IdTokenClaims.m in Sources */,
 				B2000C9020EC633C0092790A /* MSIDConfiguration.m in Sources */,
