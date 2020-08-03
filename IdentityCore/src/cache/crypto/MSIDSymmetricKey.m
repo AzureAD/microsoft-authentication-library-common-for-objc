@@ -28,10 +28,17 @@
 #import <CommonCrypto/CommonHMAC.h>
 #import <CommonCrypto/CommonDigest.h>
 
+@interface MSIDSymmetricKey()
+
+@property (nonatomic) NSString *symmetricKeyBase64;
+
+@end
+
 @implementation MSIDSymmetricKey
 
-- (nullable instancetype)initWithSymmetericKeyBytes:(NSData *)symmetericKey {
-    if (!symmetericKey)
+- (nullable instancetype)initWithSymmetricKeyBytes:(NSData *)symmetricKey
+{
+    if (!symmetricKey)
     {
         return nil;
     }
@@ -40,25 +47,32 @@
     
     if (self)
     {
-        _symmetericKey = symmetericKey;
+        _symmetricKey = symmetricKey;
     }
     
     return self;
 }
 
-- (nullable instancetype)initWithSymmetericKeyBase64:(NSString *)symmetericKeyBase64 {
-    if (!symmetericKeyBase64)
+- (nullable instancetype)initWithSymmetricKeyBase64:(NSString *)symmetricKeyBase64
+{
+    if (!symmetricKeyBase64)
     {
         return nil;
     }
     
-    return [self initWithSymmetericKeyBytes:[[NSData alloc] initWithBase64EncodedString:symmetericKeyBase64 options:0]];
+    return [self initWithSymmetricKeyBytes:[[NSData alloc] initWithBase64EncodedString:symmetricKeyBase64 options:0]];
 }
 
 - (nullable NSString *)createVerifySignature:(NSData *)context
-                                  dataToSign:(NSString *)dataToSign {
+                                  dataToSign:(NSString *)dataToSign
+{
     NSData *data = [dataToSign dataUsingEncoding:NSUTF8StringEncoding];
     NSData *derivedKey = [self computeKDFInCounterMode:context];
+    if (data == nil || data.length == 0 || derivedKey == nil)
+    {
+        return nil;
+    }
+    
     unsigned char cHMAC[CC_SHA256_DIGEST_LENGTH];
     CCHmac(kCCHmacAlgSHA256,
            derivedKey.bytes,
@@ -73,6 +87,11 @@
 
 - (NSData *)computeKDFInCounterMode:(NSData *)ctx
 {
+    if (ctx == nil)
+    {
+        return nil;
+    }
+    
     NSData *labelData = [@"AzureAD-SecureConversation" dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableData *mutData = [NSMutableData new];
     [mutData appendBytes:labelData.bytes length:labelData.length];
@@ -82,8 +101,8 @@
     int32_t size = CFSwapInt32HostToBig(256); //make big-endian
     [mutData appendBytes:&size length:sizeof(size)];
     
-    uint8_t *pbDerivedKey = [self KDFCounterMode:(uint8_t*)_symmetericKey.bytes
-                          keyDerivationKeyLength:_symmetericKey.length
+    uint8_t *pbDerivedKey = [self kdfCounterMode:(uint8_t*)_symmetricKey.bytes
+                          keyDerivationKeyLength:_symmetricKey.length
                                       fixedInput:(uint8_t*)mutData.bytes
                                 fixedInputLength:mutData.length];
     mutData = nil;
@@ -94,10 +113,10 @@
 }
 
 
-- (uint8_t*) KDFCounterMode:(uint8_t*) keyDerivationKey
-     keyDerivationKeyLength:(size_t) keyDerivationKeyLength
-                 fixedInput:(uint8_t*) fixedInput
-           fixedInputLength:(size_t) fixedInputLength
+- (uint8_t *)kdfCounterMode:(uint8_t *)keyDerivationKey
+     keyDerivationKeyLength:(size_t)keyDerivationKeyLength
+                 fixedInput:(uint8_t *)fixedInput
+           fixedInputLength:(size_t)fixedInputLength
 {
     uint8_t ctr;
     unsigned char cHMAC[CC_SHA256_DIGEST_LENGTH];
@@ -110,7 +129,7 @@
     
     numCurrentElements = 0;
     ctr = 1;
-    keyDerivated = (uint8_t*)malloc(outputSizeBit/8); //output is 32 bytes
+    keyDerivated = (uint8_t *)malloc(outputSizeBit / 8); //output is 32 bytes
     
     do{
         
@@ -155,9 +174,9 @@
 /*
  *Function used to shift data of 1 byte. This byte is the "ctr".
  */
-- (uint8_t*)updateDataInput:(uint8_t) ctr
-                 fixedInput:(uint8_t*) fixedInput
-          fixedInput_length:(size_t) fixedInput_length
+- (uint8_t *)updateDataInput:(uint8_t)ctr
+                  fixedInput:(uint8_t *)fixedInput
+           fixedInput_length:(size_t)fixedInput_length
 {
     uint8_t *tmpFixedInput = (uint8_t *)malloc(fixedInput_length + 4); //+4 is caused from the ct
     
@@ -166,12 +185,13 @@
     tmpFixedInput[2] = (ctr >> 8);
     tmpFixedInput[3] = ctr;
     
-    memcpy(tmpFixedInput + 4, fixedInput, fixedInput_length  * sizeof(uint8_t));
+    memcpy(tmpFixedInput + 4, fixedInput, fixedInput_length * sizeof(uint8_t));
     return tmpFixedInput;
 }
 
-- (nonnull NSString *)getRaw {
-    return [_symmetericKey base64EncodedStringWithOptions:0];
+- (NSString *)symmetricKeyBase64
+{
+    return [_symmetricKey base64EncodedStringWithOptions:0];
 }
 
 @end

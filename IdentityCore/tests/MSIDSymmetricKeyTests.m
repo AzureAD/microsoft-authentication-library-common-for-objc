@@ -29,30 +29,59 @@
 
 @end
 
-NSString *symmetericKeyString = @"Zfb98mJBAt/UOpnCI/CYdQ==";
+NSString *symmetricKeyString = @"Zfb98mJBAt/UOpnCI/CYdQ==";
 NSString *message = @"Sample Message To Encrypt/Decrypt";
 NSString *context = @"y00sIKRcF2bPFDgbeOques0ymB+R0FP";
 NSString *expectedSignature = @"cspzWzvtSNOJUUzThP3FWWV-9q7mJ_ZB6PYzRcQwe54";
+NSString *invalidBase64 = @"invalidbase64)";
 
 @implementation MSIDSymmetricKeyTests
 
-- (void)testGenerateSymmetericKey_andGetRaw{
-    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetericKeyBase64:symmetericKeyString];
+- (void)testGenerateSymmetricKey_andGetRaw
+{
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetricKeyBase64:symmetricKeyString];
     XCTAssertNotNil(symmetricKey);
 
-    NSString *rawKey = [symmetricKey getRaw];
-    XCTAssertEqualObjects(symmetericKeyString, rawKey);
+    NSString *rawKey = [symmetricKey symmetricKeyBase64];
+    XCTAssertEqualObjects(symmetricKeyString, rawKey);
+}
+- (void)testGenerateSymmetricKey_withInvalidKey
+{
+    XCTAssertNil([[NSData alloc] initWithBase64EncodedString:invalidBase64 options:0]);
+    XCTAssertNil([[MSIDSymmetricKey alloc] initWithSymmetricKeyBase64:invalidBase64]);
 }
 
 - (void)testCreateVerifySignature
 {
-    NSData *symmetericKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetericKeyString options:0];
-    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetericKeyBytes:symmetericKeyBytes];
+    NSData *symmetricKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetricKeyString options:0];
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetricKeyBytes:symmetricKeyBytes];
     XCTAssertNotNil(symmetricKey);
 
     NSData *contextData = [NSData msidDataFromBase64UrlEncodedString:context];
     NSString *signature = [symmetricKey createVerifySignature:contextData dataToSign:message];
     XCTAssertEqualObjects(expectedSignature, signature);
+}
+
+- (void)testCreateVerifySignature_withInvalidContext
+{
+    NSData *symmetricKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetricKeyString options:0];
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetricKeyBytes:symmetricKeyBytes];
+    XCTAssertNotNil(symmetricKey);
+
+    NSData *contextData = [[NSData alloc] initWithBase64EncodedString:invalidBase64 options:0];
+    NSString *signature = [symmetricKey createVerifySignature:contextData dataToSign:message];
+    XCTAssertNil(signature);
+}
+
+- (void)testCreateVerifySignature_withInvalidMessage
+{
+    NSData *symmetricKeyBytes = [[NSData alloc] initWithBase64EncodedString:symmetricKeyString options:0];
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetricKeyBytes:symmetricKeyBytes];
+    XCTAssertNotNil(symmetricKey);
+
+    NSData *contextData = [NSData msidDataFromBase64UrlEncodedString:context];
+    NSString *signature = [symmetricKey createVerifySignature:contextData dataToSign:@""];
+    XCTAssertNil(signature);
 }
 
 @end

@@ -28,19 +28,19 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDSymmetricKey : NSObject
 {
-    NSData* _symmetericKey;
+    NSData* _symmetricKey;
 }
 
-- (nullable instancetype)initWithSymmetericKeyBytes:(NSData *)symmetericKeyInBytes;
+@property (nonatomic, readonly) NSString *symmetricKeyBase64;
 
-- (nullable instancetype)initWithSymmetericKeyBase64:(NSString *)symmetericKeyBase64;
+- (nullable instancetype)initWithSymmetricKeyBytes:(NSData *)symmetricKeyInBytes;
+
+- (nullable instancetype)initWithSymmetricKeyBase64:(NSString *)symmetricKeyBase64;
 
 - (nullable NSString *)createVerifySignature:(NSData *)context
                                   dataToSign:(NSString *)dataToSign;
 
 - (nullable NSData *)computeKDFInCounterMode:(NSData *)ctx;
-
-- (nonnull NSString *)getRaw;
 
 @end
 
