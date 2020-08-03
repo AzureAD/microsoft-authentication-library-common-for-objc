@@ -45,6 +45,7 @@ NSString *invalidBase64 = @"invalidbase64)";
     NSString *rawKey = [symmetricKey symmetricKeyBase64];
     XCTAssertEqualObjects(symmetricKeyString, rawKey);
 }
+
 - (void)testGenerateSymmetricKey_withInvalidKey
 {
     XCTAssertNil([[NSData alloc] initWithBase64EncodedString:invalidBase64 options:0]);

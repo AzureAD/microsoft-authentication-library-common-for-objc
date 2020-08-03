@@ -131,12 +131,12 @@
     ctr = 1;
     keyDerivated = (uint8_t *)malloc(outputSizeBit / 8); //output is 32 bytes
     
-    do{
-        
+    do
+    {
         //update data using "ctr"
-        dataInput =  [self updateDataInput:ctr
-                                fixedInput:fixedInput
-                         fixedInput_length:fixedInputLength];
+        dataInput = [self updateDataInput:ctr
+                               fixedInput:fixedInput
+                        fixedInput_length:fixedInputLength];
         
         CCHmac(kCCHmacAlgSHA256,
                keyDerivationKey,
@@ -146,9 +146,12 @@
                cHMAC);
         
         //decide how many bytes (so the "length") copy for currently keyDerivated?
-        if (256 >= outputSizeBit) {
+        if (256 >= outputSizeBit)
+        {
             len = outputSizeBit;
-        } else {
+        }
+        else
+        {
             len = MIN(256, outputSizeBit - numCurrentElements);
         }
         
