@@ -25,13 +25,24 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSURL (MSIDBrokerRedirectUri)
+NS_ASSUME_NONNULL_BEGIN
 
-+ (nullable NSURL *)defaultNonBrokerRedirectUri:(nullable NSString *)clientId;
+@interface MSIDTestBundle : NSObject
 
-+ (nullable NSURL *)defaultBrokerCapableRedirectUri;
++ (void)reset;
 
-+ (BOOL)redirectUriIsBrokerCapable:(nullable NSURL *)redirectUri;
+/*!
+    Objects set with this method will override values returned by -[NSBundle
+    objectForInfoDictionaryKey:]
+ */
++ (void)overrideObject:(id)object
+                forKey:(NSString *)key;
+
+/*!
+    Overrides the string returned by -[NSBundle bundleIdentifier]
+ */
++ (void)overrideBundleId:(NSString *)bundleId;
 
 @end
 
+NS_ASSUME_NONNULL_END

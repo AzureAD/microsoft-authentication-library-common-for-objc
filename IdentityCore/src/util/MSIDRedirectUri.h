@@ -23,46 +23,39 @@
 // THE SOFTWARE.  
 
 
-#import "NSURL+MSIDBrokerRedirectUri.h"
+#import <Foundation/Foundation.h>
 
-@implementation NSURL (MSIDBrokerRedirectUri)
+NS_ASSUME_NONNULL_BEGIN
 
-+ (NSURL *)defaultNonBrokerRedirectUri:(NSString *)clientId
-{
-    if ([NSString msidIsStringNilOrBlank:clientId])
-    {
-        return nil;
-    }
-    
-    NSString *redirectUri = [NSString stringWithFormat:@"msal%@://auth", clientId];
-    return [NSURL URLWithString:redirectUri];
-}
+/**
+    MSIDRedirectUri is a representation of an OAuth redirect_uri parameter.
+    A redirect URI, or reply URL, is the location that the authorization server will send the user to once the app has been successfully authorized, and granted an authorization code or access token.
+ */
+@interface MSIDRedirectUri : NSObject <NSCopying>
 
-+ (NSURL *)defaultBrokerCapableRedirectUri
-{
-    NSString *bundleID = [[NSBundle mainBundle] bundleIdentifier];
-    NSString *redirectUri = [NSString stringWithFormat:@"msauth.%@://auth", bundleID];
-    return [NSURL URLWithString:redirectUri];
-}
+#pragma mark - Getting a redirect_uri parameter
 
-+ (BOOL)redirectUriIsBrokerCapable:(NSURL *)redirectUri
-{
-    NSURL *defaultRedirectUri = [NSURL defaultBrokerCapableRedirectUri];
+/**
+    Redirect URI that will be used for network requests
+ */
+@property (nonatomic, readonly) NSURL *url;
 
-    // Check default redirect MSAL format
-    if ([defaultRedirectUri isEqual:redirectUri])
-    {
-        return YES;
-    }
+#pragma mark - Checking redirect uri capabilities
 
-    // Check default ADAL format
-    if ([redirectUri.host isEqualToString:[[NSBundle mainBundle] bundleIdentifier]]
-        && redirectUri.scheme.length > 0)
-    {
-        return YES;
-    }
+/**
+    Indicates if redirect URI can be used to talk to the Microsoft Authenticator application (broker).
+    Broker redirect URIs need to follow particular format, e.g. msauth.your.app.bundleId://auth */
+@property (nonatomic, readonly) BOOL brokerCapable;
 
-    return NO;
-}
+- (nullable instancetype)initWithRedirectUri:(NSURL *)redirectUri
+                               brokerCapable:(BOOL)brokerCapable;
+
++ (nullable NSURL *)defaultNonBrokerRedirectUri:(NSString *)clientId;
+
++ (nullable NSURL *)defaultBrokerCapableRedirectUri;
+
++ (BOOL)redirectUriIsBrokerCapable:(NSURL *)redirectUri;
 
 @end
+
+NS_ASSUME_NONNULL_END
