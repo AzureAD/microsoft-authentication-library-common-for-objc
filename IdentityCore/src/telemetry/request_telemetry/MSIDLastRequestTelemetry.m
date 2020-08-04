@@ -94,7 +94,14 @@ static const NSInteger currentSchemaVersion = 2;
     if (saveLocation && [[NSFileManager defaultManager] fileExistsAtPath:saveLocation])
     {
         NSData *dataToUnarchive = [NSData dataWithContentsOfFile:saveLocation];
-        NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:dataToUnarchive error:nil];
+        NSError *error;
+        NSKeyedUnarchiver *unarchiver = [NSKeyedUnarchiver msidCreateForReadingFromData:dataToUnarchive error:&error];
+        
+        if (error)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to deserialize saved telemetry, error: %@", MSID_PII_LOG_MASKABLE(error));
+            return [self initInternal];
+        }
         
         MSIDLastRequestTelemetry *telemetry = [unarchiver decodeObjectOfClass:[MSIDLastRequestTelemetry class] forKey:NSKeyedArchiveRootObjectKey];
         
@@ -241,6 +248,11 @@ static const NSInteger currentSchemaVersion = 2;
     NSString *saveLocation = [self filePathToSavedTelemetry];
     if (saveLocation)
     {
+        if ([[NSFileManager defaultManager] fileExistsAtPath:saveLocation])
+        {
+            [self setTelemetryArchiveExcludedFromCloudBackup:saveLocation];
+        }
+        
         NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
         
         [dataToArchive writeToFile:saveLocation atomically:YES];
@@ -270,15 +282,30 @@ static const NSInteger currentSchemaVersion = 2;
 
 - (NSString *)filePathToSavedTelemetry
 {
-    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-    if (paths.count > 0)
+    NSString *filePath = NSTemporaryDirectory();
+    filePath = [filePath stringByAppendingPathComponent:@"msal.telemetry.lastRequest"];
+    
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+    NSError *error = nil;
+    [fileURL setResourceValue:[NSNumber numberWithBool:YES] forKey:NSURLIsExcludedFromBackupKey error:&error];
+    
+    return filePath;
+}
+
+- (BOOL)setTelemetryArchiveExcludedFromCloudBackup:(NSString *)filePath
+{
+    BOOL result = false;
+    
+    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
+    NSError *error;
+    result = [fileURL setResourceValue:[NSNumber numberWithBool:YES] forKey:NSURLIsExcludedFromBackupKey error:&error];
+    
+    if (error)
     {
-        NSString *documentsDirectoryPath = [paths objectAtIndex:0];
-        NSString *filePath = [documentsDirectoryPath stringByAppendingPathComponent:@"msal.telemetry.lastRequest"];
-        return filePath;
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to exclude saved telemetry from backup");
     }
     
-    return nil;
+    return result;
 }
 
 #pragma mark - Private: Misc.
