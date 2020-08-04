@@ -248,11 +248,6 @@ static const NSInteger currentSchemaVersion = 2;
     NSString *saveLocation = [self filePathToSavedTelemetry];
     if (saveLocation)
     {
-        if ([[NSFileManager defaultManager] fileExistsAtPath:saveLocation])
-        {
-            [self setTelemetryArchiveExcludedFromCloudBackup:saveLocation];
-        }
-        
         NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
         
         [dataToArchive writeToFile:saveLocation atomically:YES];
@@ -285,27 +280,7 @@ static const NSInteger currentSchemaVersion = 2;
     NSString *filePath = NSTemporaryDirectory();
     filePath = [filePath stringByAppendingPathComponent:@"msal.telemetry.lastRequest"];
     
-    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
-    NSError *error = nil;
-    [fileURL setResourceValue:[NSNumber numberWithBool:YES] forKey:NSURLIsExcludedFromBackupKey error:&error];
-    
     return filePath;
-}
-
-- (BOOL)setTelemetryArchiveExcludedFromCloudBackup:(NSString *)filePath
-{
-    BOOL result = false;
-    
-    NSURL *fileURL = [NSURL fileURLWithPath:filePath];
-    NSError *error;
-    result = [fileURL setResourceValue:[NSNumber numberWithBool:YES] forKey:NSURLIsExcludedFromBackupKey error:&error];
-    
-    if (error)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to exclude saved telemetry from backup");
-    }
-    
-    return result;
 }
 
 #pragma mark - Private: Misc.
