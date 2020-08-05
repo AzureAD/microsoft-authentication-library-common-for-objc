@@ -1,5 +1,6 @@
 * Fix an incorrectly-cased filename (#808)
 * Save PRT expiry interval in cache to calculate PRT refresh interval more reliably (#804)
+* Move broker redirectUri validation logic into common core from MSAL(#807)
 * Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair. #803
 * Add operation factory for broker installation integration with other framework (#779)
 
