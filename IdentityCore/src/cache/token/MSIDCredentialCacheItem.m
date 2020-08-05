@@ -133,6 +133,7 @@
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.extendedExpiresOn = [self.extendedExpiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
+    item.expiryInterval = [self.expiryInterval copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
     item.homeAccountId = [self.homeAccountId copyWithZone:zone];
     item.speInfo = [self.speInfo copyWithZone:zone];
@@ -192,6 +193,7 @@
     _applicationIdentifier = [json msidStringObjectForKey:MSID_APPLICATION_IDENTIFIER_CACHE_KEY];
     _kid = [json msidStringObjectForKey:MSID_KID_CACHE_KEY];
     _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
+    _expiryInterval = [json msidStringObjectForKey:MSID_EXPIRES_IN_CACHE_KEY];
     return self;
 }
 
@@ -218,7 +220,8 @@
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
     dictionary[MSID_ENROLLMENT_ID_CACHE_KEY] = _enrollmentId;
     dictionary[MSID_SPE_INFO_CACHE_KEY] = _speInfo;
-
+    dictionary[MSID_EXPIRES_IN_CACHE_KEY] = _expiryInterval;
+    
     // Last Modification info (currently used on macOS only)
     dictionary[MSID_LAST_MOD_TIME_CACHE_KEY] = [_lastModificationTime msidDateToFractionalTimestamp:3];
     dictionary[MSID_LAST_MOD_APP_CACHE_KEY] = _lastModificationApp;

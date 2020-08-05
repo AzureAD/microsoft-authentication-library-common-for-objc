@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,22 +22,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDLegacyRefreshToken.h"
-#import "MSIDLegacyCredentialCacheCompatible.h"
+#import <Foundation/Foundation.h>
 
-@class MSIDLegacyTokenCacheItem;
+NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDPrimaryRefreshToken : MSIDLegacyRefreshToken <MSIDLegacyCredentialCacheCompatible>
+@interface MSIDSymmetricKey : NSObject
+{
+    NSData* _symmetricKey;
+}
 
-@property (nonatomic) NSData *sessionKey;
-@property (nonatomic) NSString *deviceID;
-@property (nonatomic) NSString *prtProtocolVersion;
-@property (nonatomic) NSDate *expiresOn;
-@property (nonatomic) NSDate *cachedAt;
-@property (nonatomic) NSUInteger expiryInterval;
-@property (nonatomic, readonly) NSUInteger refreshInterval;
- 
-- (BOOL)isDevicelessPRT;
-- (BOOL)shouldRefreshWithInterval:(NSUInteger)refreshInterval;
+@property (nonatomic, readonly) NSString *symmetricKeyBase64;
+
+- (nullable instancetype)initWithSymmetricKeyBytes:(NSData *)symmetricKeyInBytes;
+
+- (nullable instancetype)initWithSymmetricKeyBase64:(NSString *)symmetricKeyBase64;
+
+- (nullable NSString *)createVerifySignature:(NSData *)context
+                                  dataToSign:(NSString *)dataToSign;
+
+- (nullable NSData *)computeKDFInCounterMode:(NSData *)ctx;
 
 @end
+
+NS_ASSUME_NONNULL_END
