@@ -21,37 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "MSIDTelemetryStringSerializable.h"
-
-@interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding>
-
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic, nonnull) NSUUID *correlationId;
-@property (nonatomic, nonnull) NSString *error;
-
-@end
+#import "MSIDLastRequestTelemetry.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDCurrentRequestTelemetrySerializedItem;
+@interface MSIDLastRequestTelemetry ()
 
-@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable, NSSecureCoding>
-
-@property (nonatomic, readonly) NSInteger schemaVersion;
-@property (nonatomic, readonly) NSInteger silentSuccessfulCount;
-@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-+ (instancetype)sharedInstance;
-
-- (void)updateWithApiId:(NSInteger)apiId
-            errorString:(nullable NSString *)errorString
-                context:(nullable id<MSIDRequestContext>)context;
-
-- (void)increaseSilentSuccessfulCount;
+- (instancetype)initTelemetryFromDiskWithQueue:(dispatch_queue_t)queue;
 
 @end
 

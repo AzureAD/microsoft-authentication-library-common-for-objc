@@ -1,3 +1,4 @@
+* Save last request telemetry to disk (#768)
 * Fix an incorrectly-cased filename (#808)
 * Save PRT expiry interval in cache to calculate PRT refresh interval more reliably (#804)
 * Move broker redirectUri validation logic into common core from MSAL(#807)
