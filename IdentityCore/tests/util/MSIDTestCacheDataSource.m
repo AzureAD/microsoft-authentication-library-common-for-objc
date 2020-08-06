@@ -86,6 +86,8 @@
         return NO;
     }
     
+    [self overrideTokenKey:key];
+    
     NSData *serializedItem = [serializer serializeCredentialCacheItem:item];
     return [self saveItemData:serializedItem
                           key:key
@@ -110,6 +112,8 @@
         return nil;
     }
     
+    [self overrideTokenKey:key];
+    
     NSData *itemData = [self itemDataWithKey:key
                               keysDictionary:_tokenKeys
                            contentDictionary:_tokenContents
@@ -124,6 +128,8 @@
                     context:(id<MSIDRequestContext>)context
                       error:(NSError **)error
 {
+    [self overrideTokenKey:key];
+    
     return [self removeItemsWithKey:key context:context error:error];
 }
 
@@ -195,6 +201,8 @@
     }
     
     NSMutableArray *resultItems = [NSMutableArray array];
+    
+    [self overrideTokenKey:key];
     
     NSArray<NSData *> *items = [self itemsWithKey:key
                                    keysDictionary:_tokenKeys
@@ -760,6 +768,12 @@
     }
     
     return results;
+}
+
+// Override the following function in subclasses if special key handling is needed
+- (MSIDCacheKey *)overrideTokenKey:(MSIDCacheKey *)key
+{
+    return key;
 }
 
 @end
