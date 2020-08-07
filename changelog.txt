@@ -1,6 +1,10 @@
 * Cleanup noisy SSO extension logs (#812)
+* Fix a test bug where the MacKeychainTokenCache could fail to initialize (#799)
+* Save last request telemetry to disk (#768)
+* Fix an incorrectly-cased filename (#808)
 * Save PRT expiry interval in cache to calculate PRT refresh interval more reliably (#804)
-* Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair. #803
+* Move broker redirectUri validation logic into common core from MSAL (#807)
+* Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair (#803)
 * Add operation factory for broker installation integration with other framework (#779)
 
 Version 1.5.4
@@ -9,9 +13,10 @@ Version 1.5.4
 * Allow brokered authentication for /consumers authority (#774)
 * Account metadata cleanup on account removal (#791)
 * Fix an issue with guest accounts when UPN mismatches across tenants (#797)
+* Symmetric key support for creating a verify signature and key derivation (#805)
 
 Version 1.5.3
------    
+-----
 * Switch to PkeyAuth on macOS (#734)
 * Support returning additional WPJ info (#742)
 * Fixed PkeyAuth when ADFS challenge is URL encoded (#750)
@@ -34,7 +39,7 @@ Version 1.5.1
 * Fixed authority validation for developer known authorities (#722)
 
 Version 1.5.0
------- 
+------
 * Added Safari SSO support for AAD SSO extension
 * Switched to new lab API
 * Convert access denied error to cancelled

@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,40 +20,21 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDTelemetryStringSerializable.h"
 
-@interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding>
+@class MSIDRedirectUriVerifier;
+@class MSIDRedirectUri;
 
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic, nonnull) NSUUID *correlationId;
-@property (nonatomic, nonnull) NSString *error;
+@interface MSIDRedirectUriVerifier : NSObject
 
-@end
++ (MSIDRedirectUri *)msidRedirectUriWithCustomUri:(NSString *)customRedirectUri
+                                         clientId:(NSString *)clientId
+                         bypassRedirectValidation:(BOOL)bypassRedirectValidation
+                                            error:(NSError * __autoreleasing *)error;
 
-NS_ASSUME_NONNULL_BEGIN
-
-@class MSIDCurrentRequestTelemetrySerializedItem;
-
-@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable, NSSecureCoding>
-
-@property (nonatomic, readonly) NSInteger schemaVersion;
-@property (nonatomic, readonly) NSInteger silentSuccessfulCount;
-@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
-
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-+ (instancetype)sharedInstance;
-
-- (void)updateWithApiId:(NSInteger)apiId
-            errorString:(nullable NSString *)errorString
-                context:(nullable id<MSIDRequestContext>)context;
-
-- (void)increaseSilentSuccessfulCount;
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(NSError **)error;
 
 @end
-
-NS_ASSUME_NONNULL_END
