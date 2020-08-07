@@ -50,7 +50,7 @@
     return self.nsLoggingEnabledValue;
 }
 
-- (void)onLogWithLevel:(MSIDLogLevel)level lineNumber:(NSUInteger)lineNumber function:(NSString *)function message:(NSString *)message
+- (void)onLogWithLevel:(__unused MSIDLogLevel)level lineNumber:(__unused NSUInteger)lineNumber function:(__unused NSString *)function message:(NSString *)message
 {
     self.logMessageValue = message;
 }
@@ -60,7 +60,7 @@
     return self.piiLoggingEnabledValue;
 }
 
-- (BOOL)shouldLog:(MSIDLogLevel)level
+- (BOOL)shouldLog:(__unused MSIDLogLevel)level
 {
     return self.shouldLogValue;
 }
@@ -404,7 +404,7 @@
     connectorMock.loggingQueueEnabledValue = YES;
     [MSIDLogger sharedLogger].level = MSIDLogLevelNothing;
     [MSIDLogger sharedLogger].loggerConnector = connectorMock;
-    [self keyValueObservingExpectationForObject:connectorMock keyPath:@"logMessageValue" handler:^BOOL(id observedObject, NSDictionary *change)
+    [self keyValueObservingExpectationForObject:connectorMock keyPath:@"logMessageValue" handler:^BOOL(id observedObject, __unused NSDictionary *change)
     {
         return [((MSIDLoggerConnectorMock *)observedObject).logMessageValue containsString:@"some message"];
     }];

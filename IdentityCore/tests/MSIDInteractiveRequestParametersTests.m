@@ -35,12 +35,12 @@
 
 - (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError_Popflow
 {
-    testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationSchemePop new];
+    [self testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationSchemePop new]];
 }
 
 - (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError_Bearerflow
 {
-    testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationScheme new];
+    [self testInitWithAllSupportedParameters_shouldInitialize_returnNilError:[MSIDAuthenticationScheme new]];
 }
 
 - (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError:(MSIDAuthenticationScheme *)authScheme
