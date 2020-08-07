@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -22,36 +23,24 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDTelemetryStringSerializable.h"
-
-@interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding>
-
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic, nonnull) NSUUID *correlationId;
-@property (nonatomic, nonnull) NSString *error;
-
-@end
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDCurrentRequestTelemetrySerializedItem;
+@interface MSIDSymmetricKey : NSObject
+{
+    NSData* _symmetricKey;
+}
 
-@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable, NSSecureCoding>
+@property (nonatomic, readonly) NSString *symmetricKeyBase64;
 
-@property (nonatomic, readonly) NSInteger schemaVersion;
-@property (nonatomic, readonly) NSInteger silentSuccessfulCount;
-@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+- (nullable instancetype)initWithSymmetricKeyBytes:(NSData *)symmetricKeyInBytes;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+- (nullable instancetype)initWithSymmetricKeyBase64:(NSString *)symmetricKeyBase64;
 
-+ (instancetype)sharedInstance;
+- (nullable NSString *)createVerifySignature:(NSData *)context
+                                  dataToSign:(NSString *)dataToSign;
 
-- (void)updateWithApiId:(NSInteger)apiId
-            errorString:(nullable NSString *)errorString
-                context:(nullable id<MSIDRequestContext>)context;
-
-- (void)increaseSilentSuccessfulCount;
+- (nullable NSData *)computeKDFInCounterMode:(NSData *)ctx;
 
 @end
 

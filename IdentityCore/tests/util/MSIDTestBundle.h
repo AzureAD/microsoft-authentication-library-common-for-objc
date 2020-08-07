@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,39 +20,28 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDTelemetryStringSerializable.h"
-
-@interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding>
-
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic, nonnull) NSUUID *correlationId;
-@property (nonatomic, nonnull) NSString *error;
-
-@end
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDCurrentRequestTelemetrySerializedItem;
+@interface MSIDTestBundle : NSObject
 
-@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable, NSSecureCoding>
++ (void)reset;
 
-@property (nonatomic, readonly) NSInteger schemaVersion;
-@property (nonatomic, readonly) NSInteger silentSuccessfulCount;
-@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+/*!
+    Objects set with this method will override values returned by -[NSBundle
+    objectForInfoDictionaryKey:]
+ */
++ (void)overrideObject:(id)object
+                forKey:(NSString *)key;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
-
-+ (instancetype)sharedInstance;
-
-- (void)updateWithApiId:(NSInteger)apiId
-            errorString:(nullable NSString *)errorString
-                context:(nullable id<MSIDRequestContext>)context;
-
-- (void)increaseSilentSuccessfulCount;
+/*!
+    Overrides the string returned by -[NSBundle bundleIdentifier]
+ */
++ (void)overrideBundleId:(NSString *)bundleId;
 
 @end
 

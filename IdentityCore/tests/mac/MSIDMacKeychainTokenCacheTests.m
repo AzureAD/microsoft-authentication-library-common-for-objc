@@ -83,7 +83,11 @@
     NSError *error;
     MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
     keychainUtil.teamId = @"FakeTeamId";
+    // To ensure that the _dataSource is initialized, we need mark the loginKeychain as non-empty.
+    // MSIDMacKeychainTokenCache::kLoginKeychainEmpty = @"LoginKeychainEmpty"
+    [[NSUserDefaults standardUserDefaults] setBool:NO forKey:@"LoginKeychainEmpty"];
     _dataSource = [MSIDMacKeychainTokenCache new];
+    XCTAssertNotNil(_dataSource);
     _cache = [[MSIDAccountCredentialCache alloc] initWithDataSource:_dataSource];
     _serializer = [MSIDCacheItemJsonSerializer new];
     [_cache clearWithContext:nil error:nil];
