@@ -1470,6 +1470,24 @@
 		B2E2A94D239320B100BA2EA3 /* MSIDTestParametersProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B286B9F4238A002E007833AD /* MSIDTestParametersProvider.m */; };
 		B2E2A94E239320B100BA2EA3 /* MSIDTestParametersProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = B286B9F4238A002E007833AD /* MSIDTestParametersProvider.m */; };
 		B2E2A94F239320B600BA2EA3 /* MSIDTestParametersProvider.h in Headers */ = {isa = PBXBuildFile; fileRef = B286B9F3238A002E007833AD /* MSIDTestParametersProvider.h */; };
+		B2E4A06A24DDE54B007CE642 /* MSIDRegistrationInformationMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C61220A6DF600768729 /* MSIDRegistrationInformationMock.m */; };
+		B2E4A06B24DDE54C007CE642 /* MSIDRegistrationInformationMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C61220A6DF600768729 /* MSIDRegistrationInformationMock.m */; };
+		B2E4A06C24DDE54F007CE642 /* MSIDRegistrationInformationMock.h in Headers */ = {isa = PBXBuildFile; fileRef = 23CA0C60220A6DF600768729 /* MSIDRegistrationInformationMock.h */; };
+		B2E4A06D24DDE559007CE642 /* MSIDTestContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 2338ECD5208A7B3200809B9E /* MSIDTestContext.m */; };
+		B2E4A06E24DDE559007CE642 /* MSIDTestContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 2338ECD5208A7B3200809B9E /* MSIDTestContext.m */; };
+		B2E4A06F24DDE55C007CE642 /* MSIDTestContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 2338ECD4208A7B3200809B9E /* MSIDTestContext.h */; };
+		B2E4A07024DDE568007CE642 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
+		B2E4A07124DDE568007CE642 /* MSIDTestCacheAccessorHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 60FDA9DA21A5EBCF001E09B8 /* MSIDTestCacheAccessorHelper.m */; };
+		B2E4A07224DDE56A007CE642 /* MSIDTestCacheAccessorHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 60FDA9D921A5EBBA001E09B8 /* MSIDTestCacheAccessorHelper.h */; };
+		B2E4A07324DDE575007CE642 /* MSIDTestTelemetryEventsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 233E970022655E97007FCE2A /* MSIDTestTelemetryEventsObserver.m */; };
+		B2E4A07424DDE576007CE642 /* MSIDTestTelemetryEventsObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 233E970022655E97007FCE2A /* MSIDTestTelemetryEventsObserver.m */; };
+		B2E4A07524DDE578007CE642 /* MSIDTestTelemetryEventsObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 233E96FF22655E97007FCE2A /* MSIDTestTelemetryEventsObserver.h */; };
+		B2E4A07624DDE5CD007CE642 /* NSDate+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C64220A79DD00768729 /* NSDate+MSIDTestUtil.m */; };
+		B2E4A07724DDE5CD007CE642 /* NSDate+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C64220A79DD00768729 /* NSDate+MSIDTestUtil.m */; };
+		B2E4A07824DDE5CF007CE642 /* NSDate+MSIDTestUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 23CA0C63220A79DD00768729 /* NSDate+MSIDTestUtil.h */; };
+		B2E4A07924DDE5D4007CE642 /* NSUUID+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C67220A7B1700768729 /* NSUUID+MSIDTestUtil.m */; };
+		B2E4A07A24DDE5D5007CE642 /* NSUUID+MSIDTestUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 23CA0C67220A7B1700768729 /* NSUUID+MSIDTestUtil.m */; };
+		B2E4A07B24DDE5D7007CE642 /* NSUUID+MSIDTestUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 23CA0C66220A7B1700768729 /* NSUUID+MSIDTestUtil.h */; };
 		B2E7698E206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */; };
 		B2E7698F206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2E7698D206096A7000F3F2B /* MSIDTelemetryCacheEventTests.m */; };
 		B2EB3ADF22F7C74000FA400E /* MSIDBrokerInvocationOptions.m in Sources */ = {isa = PBXBuildFile; fileRef = B2968C8422F3C3E8005AFC33 /* MSIDBrokerInvocationOptions.m */; };
@@ -5326,6 +5344,7 @@
 				B216826023AB09C300F4897A /* MSIDSSOExtensionGetAccountsRequestMock.h in Headers */,
 				D6D9A4561FBD40BF00EFA430 /* NSURL+MSIDTestUtil.h in Headers */,
 				B217861823A57ED800839CE8 /* MSIDAuthorizationControllerMock.h in Headers */,
+				B2E4A07B24DDE5D7007CE642 /* NSUUID+MSIDTestUtil.h in Headers */,
 				B217862923A5839300839CE8 /* MSIDSSOExtensionSignoutRequestMock.h in Headers */,
 				969CCB5622A9EB0300A55515 /* MSIDTestCacheDataSource.h in Headers */,
 				B28AC66421A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h in Headers */,
@@ -5334,15 +5353,19 @@
 				B2BE925D21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.h in Headers */,
 				B2BE923E21A0FD2B00F5AB8C /* MSIDTestSwizzle.h in Headers */,
 				B217862E23A58A0E00839CE8 /* ASAuthorizationSingleSignOnCredentialMock.h in Headers */,
+				B2E4A06C24DDE54F007CE642 /* MSIDRegistrationInformationMock.h in Headers */,
 				B2BE925821A24CB000F5AB8C /* MSIDTestSilentTokenRequest.h in Headers */,
+				B2E4A06F24DDE55C007CE642 /* MSIDTestContext.h in Headers */,
 				B24DE9FE21A60F13003A651D /* MSIDTestBrokerTokenRequest.h in Headers */,
 				B2BE926721A25F7F00F5AB8C /* MSIDTestBrokerResponseHandler.h in Headers */,
 				58543C8B24930FBC00F7AC14 /* MSIDMacKeychainTokenCache+Test.h in Headers */,
 				58D1514224A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.h in Headers */,
 				B253154523DD763B00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.h in Headers */,
 				583BFCB424D908980035B901 /* MSIDTestBundle.h in Headers */,
+				B2E4A07524DDE578007CE642 /* MSIDTestTelemetryEventsObserver.h in Headers */,
 				B2968CA722F67B48005AFC33 /* MSIDTestLocalInteractiveController.h in Headers */,
 				D626FFF91FBD200A00EE4487 /* MSIDTestURLSession.h in Headers */,
+				B2E4A07224DDE56A007CE642 /* MSIDTestCacheAccessorHelper.h in Headers */,
 				B245C2F92106ABDC00CD5A52 /* MSIDTestIdTokenUtil.h in Headers */,
 				1E0B145024CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.h in Headers */,
 				B233F8BE219CE04200DC90E3 /* MSIDTestURLResponse+Util.h in Headers */,
@@ -5351,6 +5374,7 @@
 				964E669620AE97FD00857009 /* MSIDTestWebviewInteractingViewController.h in Headers */,
 				D626FFF31FBD200A00EE4487 /* MSIDTestURLSessionDataTask.h in Headers */,
 				B2E2A94F239320B600BA2EA3 /* MSIDTestParametersProvider.h in Headers */,
+				B2E4A07824DDE5CF007CE642 /* NSDate+MSIDTestUtil.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6449,11 +6473,16 @@
 				B2BE923C21A0FD2B00F5AB8C /* MSIDTestSwizzle.m in Sources */,
 				B253154623DD763E00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m in Sources */,
 				23F32F251FFDAF1900B2905E /* MSIDTestBrokerResponse.m in Sources */,
+				B2E4A07724DDE5CD007CE642 /* NSDate+MSIDTestUtil.m in Sources */,
 				B245C2FA2106ABDC00CD5A52 /* MSIDTestIdTokenUtil.m in Sources */,
+				B2E4A06A24DDE54B007CE642 /* MSIDRegistrationInformationMock.m in Sources */,
 				B24DE9FD21A60F0E003A651D /* MSIDTestBrokerTokenRequest.m in Sources */,
 				B2968CA822F67B4C005AFC33 /* MSIDTestLocalInteractiveController.m in Sources */,
+				B2E4A07A24DDE5D5007CE642 /* NSUUID+MSIDTestUtil.m in Sources */,
 				964E669720AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m in Sources */,
+				B2E4A06D24DDE559007CE642 /* MSIDTestContext.m in Sources */,
 				B28AC66521A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m in Sources */,
+				B2E4A07324DDE575007CE642 /* MSIDTestTelemetryEventsObserver.m in Sources */,
 				B217862A23A5839300839CE8 /* MSIDSSOExtensionSignoutRequestMock.m in Sources */,
 				D6D9A4571FBD40BF00EFA430 /* NSURL+MSIDTestUtil.m in Sources */,
 				D626FFF11FBD200A00EE4487 /* MSIDTestURLResponse.m in Sources */,
@@ -6470,6 +6499,7 @@
 				58D1514324A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m in Sources */,
 				231CE9C31FE871FA00E95D3E /* MSIDKeychainTokenCache+MSIDTestsUtil.m in Sources */,
 				1E0B145124CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.m in Sources */,
+				B2E4A07024DDE568007CE642 /* MSIDTestCacheAccessorHelper.m in Sources */,
 				969CCB5922A9EB9600A55515 /* MSIDTestCacheDataSource.m in Sources */,
 				B233F8BD219CE04000DC90E3 /* MSIDTestURLResponse+Util.m in Sources */,
 				D626FFF71FBD200A00EE4487 /* MSIDTestURLSessionDataTask.m in Sources */,
@@ -6503,6 +6533,7 @@
 				B217862B23A5839300839CE8 /* MSIDSSOExtensionSignoutRequestMock.m in Sources */,
 				D626FFF51FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				B216826223AB09C300F4897A /* MSIDSSOExtensionGetAccountsRequestMock.m in Sources */,
+				B2E4A07424DDE576007CE642 /* MSIDTestTelemetryEventsObserver.m in Sources */,
 				B2E2A94E239320B100BA2EA3 /* MSIDTestParametersProvider.m in Sources */,
 				969CCB5822A9EB7D00A55515 /* MSIDTestCacheDataSource.m in Sources */,
 				96290E5721489BB800FDD5C8 /* NSString+MSIDTestUtil.m in Sources */,
@@ -6510,15 +6541,20 @@
 				58D1514424A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m in Sources */,
 				D6D9A44E1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 				23FB5C39225588CF002BF1EB /* MSIDClaimsRequestMock.m in Sources */,
+				B2E4A06E24DDE559007CE642 /* MSIDTestContext.m in Sources */,
 				B245C2FB2106ABDC00CD5A52 /* MSIDTestIdTokenUtil.m in Sources */,
+				B2E4A07124DDE568007CE642 /* MSIDTestCacheAccessorHelper.m in Sources */,
 				B233F8BC219CE03F00DC90E3 /* MSIDTestURLResponse+Util.m in Sources */,
 				B2968CA922F67B4C005AFC33 /* MSIDTestLocalInteractiveController.m in Sources */,
 				B2BE923D21A0FD2B00F5AB8C /* MSIDTestSwizzle.m in Sources */,
 				B2BE925521A24B8200F5AB8C /* MSIDTestTokenRequestProvider.m in Sources */,
+				B2E4A07924DDE5D4007CE642 /* NSUUID+MSIDTestUtil.m in Sources */,
 				B253154723DD763E00432133 /* MSIDSSOExtensionGetDeviceInfoRequestMock.m in Sources */,
 				B217861923A57EDB00839CE8 /* MSIDAuthorizationControllerMock.m in Sources */,
+				B2E4A07624DDE5CD007CE642 /* NSDate+MSIDTestUtil.m in Sources */,
 				B24DE9FC21A60F0D003A651D /* MSIDTestBrokerTokenRequest.m in Sources */,
 				23185369206D8B1E0024DCA4 /* MSIDTestTokenResponse.m in Sources */,
+				B2E4A06B24DDE54C007CE642 /* MSIDRegistrationInformationMock.m in Sources */,
 				1E0B145224CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.m in Sources */,
 				964E669820AE97FD00857009 /* MSIDTestWebviewInteractingViewController.m in Sources */,
 				B28AC66621A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m in Sources */,
