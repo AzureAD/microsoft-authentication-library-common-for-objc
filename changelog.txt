@@ -1,4 +1,5 @@
 * Mark RSA public key as extractable (#813)
+* Cleanup main product targets from test files (#811)
 * Fix a test bug where the MacKeychainTokenCache could fail to initialize (#799)
 * Save last request telemetry to disk (#768)
 * Fix an incorrectly-cased filename (#808)
