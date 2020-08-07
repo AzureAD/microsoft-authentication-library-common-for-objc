@@ -30,7 +30,7 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
-#import "MSIDOauth2Constants.h"
+#import "MSIDOAuth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
