@@ -42,6 +42,42 @@ OTHER_LDFLAGS = -ObjC
 SKIP_INSTALL = YES
 
 OTHER_CFLAGS=$(inherited) -fstack-protector-strong
+// xcconfig does not support line continuations. This is the most elegant way to keep a long list of flags.
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wall
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Werror
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wextra
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wassign-enum
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wblock-capture-autoreleasing
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wbool-conversion
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wcomma
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wconditional-uninitialized
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wconstant-conversion
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wdeprecated-declarations
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wdeprecated-implementations
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wdeprecated-objc-isa-usage
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wduplicate-method-match
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wdocumentation
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wempty-body
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wenum-conversion
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wfatal-errors
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wfloat-conversion
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wheader-hygiene
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wincompatible-pointer-types
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wint-conversion
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Winvalid-offsetof
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wnewline-eof
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wno-unknown-pragmas
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wnon-literal-null-conversion
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wnon-modular-include-in-framework-module
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wnon-virtual-dtor
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wobjc-literal-conversion
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wobjc-root-class
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wprotocol
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wshorten-64-to-32
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wstrict-prototypes
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wundeclared-selector
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wunreachable-code
+OTHER_CFLAGS=$(OTHER_CFLAGS) -Wunused-parameter
 
 // This is a conditional inclusion. It searches parent projects
 // /xcconfig folder.
