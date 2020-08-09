@@ -1,3 +1,4 @@
+* Cleanup noisy SSO extension logs (#812)
 * Mark RSA public key as extractable (#813)
 * Cleanup main product targets from test files (#811)
 * Fix a test bug where the MacKeychainTokenCache could fail to initialize (#799)
