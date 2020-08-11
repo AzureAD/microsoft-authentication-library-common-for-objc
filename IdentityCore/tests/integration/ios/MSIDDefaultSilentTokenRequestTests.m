@@ -1126,6 +1126,7 @@
                                              @"scope" : @"user.read tasks.read openid profile offline_access",
                                              @"grant_type" : @"refresh_token",
                                              @"refresh_token" : DEFAULT_TEST_REFRESH_TOKEN,
+                                             MSID_OAUTH2_REDIRECT_URI : [[self silentRequestParameters] redirectUri],
                                              @"client_info" : @"1"}
                         responseURLString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
                              responseCode:429

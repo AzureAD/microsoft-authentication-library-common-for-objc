@@ -32,7 +32,7 @@
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                   clientId:(nonnull NSString *)clientId
-                               redirectUri:(NSString *)redirectUri
+                               redirectUri:(nonnull NSString *)redirectUri
                               enrollmentId:(nullable NSString *)enrollmentId
                                      scope:(nullable NSString *)scope
                               refreshToken:(nonnull NSString *)refreshToken
