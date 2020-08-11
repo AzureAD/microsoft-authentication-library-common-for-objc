@@ -8,6 +8,7 @@
 * Move broker redirectUri validation logic into common core from MSAL (#807)
 * Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair (#803)
 * Add operation factory for broker installation integration with other framework (#779)
+* Include redirect uri in body when redeeming refresh token at token endpoint (#815)
 
 Version 1.5.4
 -----
