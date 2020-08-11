@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -25,24 +26,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAssymetricKeyPair : NSObject
+@interface MSIDSymmetricKey : NSObject
 {
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
+    NSData* _symmetricKey;
 }
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *keyExponent;
-@property (nonatomic, readonly) NSString *keyModulus;
-@property (nonatomic, readonly) NSData *keyData;
-@property (nonatomic, readonly) NSString *jsonWebKey;
-@property (nonatomic, readonly) NSString *kid;
+@property (nonatomic, readonly) NSString *symmetricKeyBase64;
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
+- (nullable instancetype)initWithSymmetricKeyBytes:(NSData *)symmetricKeyInBytes;
 
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
+- (nullable instancetype)initWithSymmetricKeyBase64:(NSString *)symmetricKeyBase64;
+
+- (nullable NSString *)createVerifySignature:(NSData *)context
+                                  dataToSign:(NSString *)dataToSign;
+
+- (nullable NSData *)computeKDFInCounterMode:(NSData *)ctx;
 
 @end
 

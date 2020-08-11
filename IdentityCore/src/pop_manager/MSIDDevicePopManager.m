@@ -29,32 +29,16 @@
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
 
-static NSString *s_jwkTemplate = nil;
-static NSString *s_kidTemplate = nil;
-
 @interface MSIDDevicePopManager()
 
 @property (nonatomic) MSIDCacheConfig *cacheConfig;
 @property (nonatomic) id<MSIDAssymetricKeyGenerating> keyGeneratorFactory;
-@property (nonatomic) NSString *requestConfirmation;
-@property (nonatomic) NSString *kid;
 @property (nonatomic) MSIDAssymetricKeyLookupAttributes *keyPairAttributes;
 @property (nonatomic) MSIDAssymetricKeyPair *keyPair;
-@property (nonatomic) NSString *keyExponent;
-@property (nonatomic) NSString *keyModulus;
 
 @end
 
 @implementation MSIDDevicePopManager
-
-+ (void)initialize
-{
-    if (self == [MSIDDevicePopManager self])
-    {
-        s_jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
-        s_kidTemplate = @"{\"kid\":\"%@\"}";
-    }
-}
 
 - (instancetype)initWithCacheConfig:(MSIDCacheConfig *)cacheConfig
                   keyPairAttributes:(MSIDAssymetricKeyLookupAttributes *)keyPairAttributes
@@ -85,76 +69,13 @@ static NSString *s_kidTemplate = nil;
     return _keyPair;
 }
 
-/// <summary>
-/// Example JWK Thumbprint Computation
-/// </summary>
-/// <remarks>
-/// This SDK will use RFC7638
-/// See https://tools.ietf.org/html/rfc7638 Section3.1
-/// </remarks>
-- (NSString *)requestConfirmation
-{
-    if (!_requestConfirmation)
-    {
-        NSString *kid = [NSString stringWithFormat:s_kidTemplate, self.kid];
-        if (!_kid)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError,nil, @"Failed to create req_cnf from kid");
-            return nil;
-        }
-        
-        NSData *kidData = [kid dataUsingEncoding:NSUTF8StringEncoding];
-        _requestConfirmation = [kidData msidBase64UrlEncodedString];
-    }
-    
-    return _requestConfirmation;
-}
-
-- (NSString *)kid
-{
-    if (!_kid)
-    {
-        _kid = [self generateKidFromModulus:self.keyModulus exponent:self.keyExponent];
-    }
-    
-    return _kid;
-}
-
-- (NSString *)keyExponent
-{
-    if (!_keyExponent)
-    {
-        _keyExponent = self.keyPair.keyExponent;
-    }
-    
-    return _keyExponent;
-}
-
-- (NSString *)keyModulus
-{
-    if (!_keyModulus)
-    {
-        _keyModulus = self.keyPair.keyModulus;
-    }
-    
-    return _keyModulus;
-}
-
-- (NSString *)generateKidFromModulus:(NSString *)exponent exponent:(NSString *)modulus
-{
-    NSString *jwk = [NSString stringWithFormat:s_jwkTemplate, exponent, modulus];
-    NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *hashedData = [jwkData msidSHA256];
-    return [hashedData msidBase64UrlEncodedString];
-}
-
 - (NSString *)createSignedAccessToken:(NSString *)accessToken
                            httpMethod:(NSString *)httpMethod
                            requestUrl:(NSString *)requestUrl
                                 nonce:(NSString *)nonce
                                 error:(NSError *__autoreleasing * _Nullable)error
 {
-    NSString *kid = self.kid;
+    NSString *kid = self.keyPair.kid;
     
     if ([NSString msidIsStringNilOrBlank:kid])
     {
@@ -183,13 +104,13 @@ static NSString *s_kidTemplate = nil;
         return nil;
     }
     
-    if ([NSString msidIsStringNilOrBlank:self.keyModulus])
+    if ([NSString msidIsStringNilOrBlank:self.keyPair.keyModulus])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
         return nil;
     }
     
-    if ([NSString msidIsStringNilOrBlank:self.keyExponent])
+    if ([NSString msidIsStringNilOrBlank:self.keyPair.keyExponent])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
         return nil;
@@ -224,8 +145,8 @@ static NSString *s_kidTemplate = nil;
                               @"cnf": @{
                                       @"jwk":@{
                                           @"kty" : @"RSA",
-                                          @"n" : self.keyModulus,
-                                          @"e" : self.keyExponent
+                                          @"n" : self.keyPair.keyModulus,
+                                          @"e" : self.keyPair.keyExponent
                                       }
                               },
                               @"ts" : [NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]],

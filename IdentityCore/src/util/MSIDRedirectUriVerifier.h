@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,31 +20,21 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@class MSIDRedirectUriVerifier;
+@class MSIDRedirectUri;
 
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-}
+@interface MSIDRedirectUriVerifier : NSObject
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *keyExponent;
-@property (nonatomic, readonly) NSString *keyModulus;
-@property (nonatomic, readonly) NSData *keyData;
-@property (nonatomic, readonly) NSString *jsonWebKey;
-@property (nonatomic, readonly) NSString *kid;
++ (MSIDRedirectUri *)msidRedirectUriWithCustomUri:(NSString *)customRedirectUri
+                                         clientId:(NSString *)clientId
+                         bypassRedirectValidation:(BOOL)bypassRedirectValidation
+                                            error:(NSError * __autoreleasing *)error;
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(NSError **)error;
 
 @end
-
-NS_ASSUME_NONNULL_END

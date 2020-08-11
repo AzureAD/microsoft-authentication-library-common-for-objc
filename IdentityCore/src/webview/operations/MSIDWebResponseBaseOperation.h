@@ -22,28 +22,18 @@
 // THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "MSIDConstants.h"
+#import "MSIDTokenRequestProviding.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@class MSIDWebviewResponse;
+@class MSIDInteractiveRequestParameters;
 
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-}
+@interface MSIDWebResponseBaseOperation : NSObject
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *keyExponent;
-@property (nonatomic, readonly) NSString *keyModulus;
-@property (nonatomic, readonly) NSData *keyData;
-@property (nonatomic, readonly) NSString *jsonWebKey;
-@property (nonatomic, readonly) NSString *kid;
+- (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
+                                    error:(NSError * _Nullable *_Nullable)error;
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
-
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull MSIDRequestCompletionBlock)completion;
 @end
-
-NS_ASSUME_NONNULL_END

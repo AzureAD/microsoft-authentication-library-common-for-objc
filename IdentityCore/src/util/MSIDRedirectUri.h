@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,15 +20,41 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDDevicePopManager.h"
+
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDDevicePopManager ()
+/**
+    MSIDRedirectUri is a representation of an OAuth redirect_uri parameter.
+    A redirect URI, or reply URL, is the location that the authorization server will send the user to once the app has been successfully authorized, and granted an authorization code or access token.
+ */
+@interface MSIDRedirectUri : NSObject <NSCopying>
 
-- (NSString *)generateKidFromModulus:(NSString *)exponent exponent:(NSString *)modulus;
+#pragma mark - Getting a redirect_uri parameter
+
+/**
+    Redirect URI that will be used for network requests
+ */
+@property (nonatomic, readonly) NSURL *url;
+
+#pragma mark - Checking redirect uri capabilities
+
+/**
+    Indicates if redirect URI can be used to talk to the Microsoft Authenticator application (broker).
+    Broker redirect URIs need to follow particular format, e.g. msauth.your.app.bundleId://auth */
+@property (nonatomic, readonly) BOOL brokerCapable;
+
+- (nullable instancetype)initWithRedirectUri:(NSURL *)redirectUri
+                               brokerCapable:(BOOL)brokerCapable;
+
++ (nullable NSURL *)defaultNonBrokerRedirectUri:(NSString *)clientId;
+
++ (nullable NSURL *)defaultBrokerCapableRedirectUri;
+
++ (BOOL)redirectUriIsBrokerCapable:(NSURL *)redirectUri;
 
 @end
 

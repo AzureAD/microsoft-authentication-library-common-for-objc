@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,31 +20,32 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
+#import "MSIDRedirectUri.h"
+#import "MSIDRedirectUriVerifier.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDRedirectUriVerifier
 
-@interface MSIDAssymetricKeyPair : NSObject
++ (MSIDRedirectUri *)msidRedirectUriWithCustomUri:(NSString *)customRedirectUri
+                                         clientId:(__unused NSString *)clientId
+                         bypassRedirectValidation:(BOOL)bypassRedirectValidation
+                                            error:(__unused NSError * __autoreleasing *)error
 {
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
+    if (![NSString msidIsStringNilOrBlank:customRedirectUri])
+    {
+        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:customRedirectUri]];
+        return [[MSIDRedirectUri alloc] initWithRedirectUri:[NSURL URLWithString:customRedirectUri]
+                                              brokerCapable:isBrokerCapable];
+    }
+
+    return [[MSIDRedirectUri alloc] initWithRedirectUri:[MSIDRedirectUri defaultBrokerCapableRedirectUri]
+                                          brokerCapable:YES];
 }
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *keyExponent;
-@property (nonatomic, readonly) NSString *keyModulus;
-@property (nonatomic, readonly) NSData *keyData;
-@property (nonatomic, readonly) NSString *jsonWebKey;
-@property (nonatomic, readonly) NSString *kid;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError **)error
+{
+    return YES;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

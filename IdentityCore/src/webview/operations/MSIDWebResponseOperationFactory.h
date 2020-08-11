@@ -23,27 +23,19 @@
 
 #import <Foundation/Foundation.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@class MSIDWebResponseBaseOperation;
+@class MSIDWebviewResponse;
 
-@interface MSIDAssymetricKeyPair : NSObject
-{
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
-}
+@interface MSIDWebResponseOperationFactory : NSObject
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *keyExponent;
-@property (nonatomic, readonly) NSString *keyModulus;
-@property (nonatomic, readonly) NSData *keyData;
-@property (nonatomic, readonly) NSString *jsonWebKey;
-@property (nonatomic, readonly) NSString *kid;
++ (void)registerOperationClass:(nonnull Class)operationClass
+              forResponseClass:(nonnull Class)responseClass;
 
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
++ (void)unregisterAll;
 
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
++ (void)unRegisterforResponse:(nonnull MSIDWebviewResponse *)response;
+
++ (nullable MSIDWebResponseBaseOperation *)createOperationForResponse:(nonnull MSIDWebviewResponse *)response
+                                                                error:(NSError * _Nullable *_Nullable)error;
 
 @end
-
-NS_ASSUME_NONNULL_END

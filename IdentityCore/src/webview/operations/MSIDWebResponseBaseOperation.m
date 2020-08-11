@@ -21,29 +21,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDWebResponseBaseOperation.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation MSIDWebResponseBaseOperation
 
-@interface MSIDAssymetricKeyPair : NSObject
+- (nullable instancetype)initWithResponse:(nonnull __unused MSIDWebviewResponse *)response
+                                    error:(__unused NSError * _Nullable *)error
 {
-    SecKeyRef _privateKeyRef;
-    SecKeyRef _publicKeyRef;
+    self = [super init];
+    return self;
 }
 
-@property (nonatomic, readonly) SecKeyRef privateKeyRef;
-@property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *keyExponent;
-@property (nonatomic, readonly) NSString *keyModulus;
-@property (nonatomic, readonly) NSData *keyData;
-@property (nonatomic, readonly) NSString *jsonWebKey;
-@property (nonatomic, readonly) NSString *kid;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey;
-
-- (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
+- (void)invokeWithInteractiveTokenRequestParameters:(nonnull __unused MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
+                               tokenRequestProvider:(nonnull __unused id<MSIDTokenRequestProviding>)tokenRequestProvider
+                                         completion:(nonnull __unused MSIDRequestCompletionBlock)completion
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
+    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
+    completion(nil, error);
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
