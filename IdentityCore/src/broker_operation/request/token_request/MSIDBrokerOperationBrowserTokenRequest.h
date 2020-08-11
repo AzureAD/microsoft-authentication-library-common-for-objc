@@ -23,7 +23,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDBaseBrokerOperationRequest.h"
-#import "MSIDBrowserRequestValidating.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
                         headers:(NSDictionary *)headers
                            body:(nullable NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
-               requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
                           error:(NSError **)error;
 
 @end

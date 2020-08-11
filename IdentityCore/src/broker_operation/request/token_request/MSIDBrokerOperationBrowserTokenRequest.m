@@ -35,7 +35,6 @@
                         headers:(NSDictionary *)headers
                            body:(NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
-               requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
                           error:(NSError **)error
 {
     self = [super init];
@@ -53,17 +52,6 @@
         }
         
         _requestURL = requestURL;
-        
-        if (![requestValidator shouldHandleURL:_requestURL])
-        {
-            if (error)
-            {
-                NSString *errorMessage = [NSString stringWithFormat:@"Failed to create browser operation request, %@ is not authorize request", _PII_NULLIFY([requestURL absoluteString])];
-                *error = MSIDCreateError(MSIDErrorDomain,MSIDErrorInvalidInternalParameter,errorMessage,nil, nil, nil, nil, nil, YES);
-            }
-                   
-            return nil;
-        }
         
         _headers = headers;
         _httpBody = httpBody;
