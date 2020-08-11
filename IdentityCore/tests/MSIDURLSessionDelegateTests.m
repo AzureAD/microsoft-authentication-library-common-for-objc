@@ -91,12 +91,12 @@
 - (void)testSessionTaskDidReceiveChallenge_whenNoBlockProvided_shouldPerformDefaultHandling
 {
     __auto_type delegate = [MSIDURLSessionDelegate new];
-    __auto_type session = [NSURLSession new];
-    __auto_type challendge = [NSURLAuthenticationChallenge new];
-    __auto_type task = [NSURLSessionTask new];
+    __auto_type session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    __auto_type challenge = [NSURLAuthenticationChallenge new];
+    __auto_type task = [session dataTaskWithURL:[NSURL URLWithString:@""]];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"session:task:didReceiveChallenge:completionHandler"];
-    [delegate URLSession:session task:task didReceiveChallenge:challendge completionHandler:^(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential)
+    [delegate URLSession:session task:task didReceiveChallenge:challenge completionHandler:^(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential)
     {
         XCTAssertEqual(disposition, NSURLSessionAuthChallengePerformDefaultHandling);
         XCTAssertNil(credential);
