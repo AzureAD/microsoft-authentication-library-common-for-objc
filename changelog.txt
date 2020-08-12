@@ -1,3 +1,4 @@
+* Move openBroswerResponse handling into its operation for CPP integration (#817)
 * Cleanup noisy SSO extension logs (#812)
 * Mark RSA public key as extractable (#813)
 * Cleanup main product targets from test files (#811)
