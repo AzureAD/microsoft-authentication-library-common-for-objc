@@ -38,6 +38,8 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAuthorizationCodeResult.h"
 #import "MSIDPkce.h"
+#import "MSIDWebResponseOperationFactory.h"
+#import "MSIDWebResponseBaseOperation.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -160,25 +162,21 @@
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
-            NSURL *browserURL = ((MSIDWebOpenBrowserResponse *)response).browserURL;
-
-#if TARGET_OS_IPHONE
-            if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+            NSError *error = nil;
+            MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response error:&error];
+            if (error)
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Opening a browser - %@", MSID_PII_LOG_MASKABLE(browserURL));
-                [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
-            }
-            else
-            {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
                 returnErrorBlock(error);
                 return;
             }
-#else
-            [[NSWorkspace sharedWorkspace] openURL:browserURL];
-#endif
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-            returnErrorBlock(error);
+            
+            [operation doActionWithCorrelationId:self.requestParameters.correlationId
+                                      completion:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable error) {
+                if (error)
+                {
+                    returnErrorBlock(error);
+                }
+            }];
             return;
         }
     };
@@ -217,7 +215,6 @@
     result.authCode = authCode;
     result.accountIdentifier = self.authCodeClientInfo.accountIdentifier;
     result.pkceVerifier = self.webViewConfiguration.pkce.codeVerifier;
-    
     completionBlock(result, nil, nil);
 }
 
