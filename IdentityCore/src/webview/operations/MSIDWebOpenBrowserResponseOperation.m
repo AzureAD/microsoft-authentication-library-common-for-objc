@@ -64,7 +64,7 @@
 }
 
 - (void)doActionWithCorrelationId:(NSUUID *)correlationId
-                       completion:(MSIDRequestCompletionBlock)completion
+                            error:(NSError * _Nullable __autoreleasing *)error
 {
     #if TARGET_OS_IPHONE
     if (![MSIDAppExtensionUtil isExecutingInAppExtension])
@@ -74,15 +74,13 @@
     }
     else
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, correlationId, nil, YES);
-        completion(nil, error);
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, correlationId, nil, YES);
         return;
     }
     #else
     [[NSWorkspace sharedWorkspace] openURL:self.browserURL];
     #endif
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, correlationId, nil, YES);
-    completion(nil, error);
+    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, correlationId, nil, YES);
 }
 
 @end

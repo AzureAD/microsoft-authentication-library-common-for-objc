@@ -37,5 +37,5 @@
                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(nonnull MSIDRequestCompletionBlock)completion;
 - (void)doActionWithCorrelationId:(nullable NSUUID *)correlationId
-                       completion:(nonnull MSIDRequestCompletionBlock)completion;
+                            error:(NSError * _Nullable *_Nullable)error;
 @end

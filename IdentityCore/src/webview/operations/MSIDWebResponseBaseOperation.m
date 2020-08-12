@@ -42,11 +42,10 @@
 }
 
 - (void)doActionWithCorrelationId:(NSUUID *)correlationId
-                       completion:(nonnull MSIDRequestCompletionBlock)completion
+                            error:(NSError * _Nullable *_Nullable)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Cannot find operation for this response type");
-    NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
-    completion(nil, error);
+    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
 }
 
 @end

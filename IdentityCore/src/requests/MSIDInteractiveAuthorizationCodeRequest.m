@@ -170,13 +170,11 @@
                 return;
             }
             
-            [operation doActionWithCorrelationId:self.requestParameters.correlationId
-                                      completion:^(MSIDTokenResult * _Nullable __unused result, NSError * _Nullable error) {
-                if (error)
-                {
-                    returnErrorBlock(error);
-                }
-            }];
+            [operation doActionWithCorrelationId:self.requestParameters.correlationId error:&error];
+            if (error)
+            {
+                returnErrorBlock(error);
+            }
             return;
         }
     };
