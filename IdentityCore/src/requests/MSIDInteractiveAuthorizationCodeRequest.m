@@ -170,8 +170,8 @@
                 return;
             }
             
-            [operation doActionWithCorrelationId:self.requestParameters.correlationId error:&error];
-            if (error)
+            BOOL isCurrentFlowFinished = [operation doActionWithCorrelationId:self.requestParameters.correlationId error:&error];
+            if (isCurrentFlowFinished && error)
             {
                 returnErrorBlock(error);
             }

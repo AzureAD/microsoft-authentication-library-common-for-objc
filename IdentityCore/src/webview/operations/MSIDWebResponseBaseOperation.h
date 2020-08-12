@@ -36,6 +36,6 @@
 - (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
                                tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
                                          completion:(nonnull MSIDRequestCompletionBlock)completion;
-- (void)doActionWithCorrelationId:(nullable NSUUID *)correlationId
+- (BOOL)doActionWithCorrelationId:(nullable NSUUID *)correlationId
                             error:(NSError * _Nullable *_Nullable)error;
 @end
