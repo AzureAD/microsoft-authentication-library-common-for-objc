@@ -67,6 +67,8 @@
         
         return self;
     #else
+        (void)response;
+        (void)error;
         return nil;
     #endif
 }
@@ -98,6 +100,8 @@
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
         completion(nil, error);
     #else
+        (void)tokenRequestProvider;
+        (void)interactiveTokenRequestParameters;
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Broker installation on Mac is not supported");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
         completion(nil, error);
