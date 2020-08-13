@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,39 +20,41 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDTelemetryStringSerializable.h"
-
-@interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding>
-
-@property (nonatomic) NSInteger apiId;
-@property (nonatomic, nonnull) NSUUID *correlationId;
-@property (nonatomic, nonnull) NSString *error;
-
-@end
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDCurrentRequestTelemetrySerializedItem;
+/**
+    MSIDRedirectUri is a representation of an OAuth redirect_uri parameter.
+    A redirect URI, or reply URL, is the location that the authorization server will send the user to once the app has been successfully authorized, and granted an authorization code or access token.
+ */
+@interface MSIDRedirectUri : NSObject <NSCopying>
 
-@interface MSIDLastRequestTelemetry : NSObject <MSIDTelemetryStringSerializable, NSSecureCoding>
+#pragma mark - Getting a redirect_uri parameter
 
-@property (nonatomic, readonly) NSInteger schemaVersion;
-@property (nonatomic, readonly) NSInteger silentSuccessfulCount;
-@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+/**
+    Redirect URI that will be used for network requests
+ */
+@property (nonatomic, readonly) NSURL *url;
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+#pragma mark - Checking redirect uri capabilities
 
-+ (instancetype)sharedInstance;
+/**
+    Indicates if redirect URI can be used to talk to the Microsoft Authenticator application (broker).
+    Broker redirect URIs need to follow particular format, e.g. msauth.your.app.bundleId://auth */
+@property (nonatomic, readonly) BOOL brokerCapable;
 
-- (void)updateWithApiId:(NSInteger)apiId
-            errorString:(nullable NSString *)errorString
-                context:(nullable id<MSIDRequestContext>)context;
+- (nullable instancetype)initWithRedirectUri:(NSURL *)redirectUri
+                               brokerCapable:(BOOL)brokerCapable;
 
-- (void)increaseSilentSuccessfulCount;
++ (nullable NSURL *)defaultNonBrokerRedirectUri:(NSString *)clientId;
+
++ (nullable NSURL *)defaultBrokerCapableRedirectUri;
+
++ (BOOL)redirectUriIsBrokerCapable:(NSURL *)redirectUri;
 
 @end
 

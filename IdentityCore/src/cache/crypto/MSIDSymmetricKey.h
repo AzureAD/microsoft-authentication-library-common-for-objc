@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,30 +22,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAADV1RefreshTokenGrantRequest.h"
+#import <Foundation/Foundation.h>
 
-@implementation MSIDAADV1RefreshTokenGrantRequest
+NS_ASSUME_NONNULL_BEGIN
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(MSIDAuthenticationScheme *)authScheme
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken
-                     redirectUri:(NSString *)redirectUri
-                        resource:(NSString *)resource
-                 extraParameters:(NSDictionary *)extraParameters
-                         context:(nullable id<MSIDRequestContext>)context
+@interface MSIDSymmetricKey : NSObject
 {
-    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope refreshToken:refreshToken redirectUri:redirectUri extraParameters:extraParameters context:context];
-    if (self)
-    {
-        NSParameterAssert(resource);
-        
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
-        parameters[MSID_OAUTH2_RESOURCE] = resource;
-        _parameters = parameters;
-    }
-    
-    return self;
+    NSData* _symmetricKey;
 }
+
+@property (nonatomic, readonly) NSString *symmetricKeyBase64;
+
+- (nullable instancetype)initWithSymmetricKeyBytes:(NSData *)symmetricKeyInBytes;
+
+- (nullable instancetype)initWithSymmetricKeyBase64:(NSString *)symmetricKeyBase64;
+
+- (nullable NSString *)createVerifySignature:(NSData *)context
+                                  dataToSign:(NSString *)dataToSign;
+
+- (nullable NSData *)computeKDFInCounterMode:(NSData *)ctx;
+
 @end
+
+NS_ASSUME_NONNULL_END

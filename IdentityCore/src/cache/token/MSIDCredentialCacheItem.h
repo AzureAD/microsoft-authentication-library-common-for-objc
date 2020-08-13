@@ -52,6 +52,7 @@
 @property (readwrite, nullable) NSDate *expiresOn;
 @property (readwrite, nullable) NSDate *extendedExpiresOn;
 @property (readwrite, nullable) NSDate *cachedAt;
+@property (readwrite, nullable) NSString *expiryInterval;
 
 // Family ID
 @property (readwrite, nullable) NSString *familyId;

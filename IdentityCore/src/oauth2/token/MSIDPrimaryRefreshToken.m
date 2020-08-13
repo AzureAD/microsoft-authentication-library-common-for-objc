@@ -28,6 +28,8 @@
 #import "MSIDIdTokenClaims.h"
 #import "MSIDAuthority.h"
 
+static NSUInteger kDefaultPRTRefreshInterval = 10800;
+
 @implementation MSIDPrimaryRefreshToken
 
 - (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem
@@ -51,6 +53,7 @@
         _prtProtocolVersion = [jsonDictionary msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
+        _expiryInterval = [tokenCacheItem.expiryInterval integerValue];
     }
     
     return self;
@@ -70,6 +73,7 @@
     prtCacheItem.prtProtocolVersion = self.prtProtocolVersion;
     prtCacheItem.expiresOn = self.expiresOn;
     prtCacheItem.cachedAt = self.cachedAt;
+    prtCacheItem.expiryInterval = [NSString stringWithFormat:@"%lu", (long)self.expiryInterval];
     return prtCacheItem;
 }
 
@@ -154,6 +158,7 @@
     item->_prtProtocolVersion = [_prtProtocolVersion copyWithZone:zone];
     item->_expiresOn = [_expiresOn copyWithZone:zone];
     item->_cachedAt = [_cachedAt copyWithZone:zone];
+    item->_expiryInterval = _expiryInterval;
     return item;
 }
 
@@ -197,6 +202,16 @@
     
     BOOL shouldRefresh = [[NSDate date] timeIntervalSinceDate:self.cachedAt] >= refreshInterval;
     return shouldRefresh;
+}
+
+- (NSUInteger)refreshInterval
+{
+    if (self.expiryInterval > 0)
+    {
+        return self.expiryInterval / 10;
+    }
+    
+    return kDefaultPRTRefreshInterval;
 }
 
 @end
