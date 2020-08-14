@@ -32,7 +32,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andNilParameter_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     NSString *param = nil;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:param];
     NSString *description = [logParameter description];
@@ -41,7 +41,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andNsNullParameter_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:[NSNull null]];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"Masked(not-null)");
@@ -49,7 +49,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameter_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"test@email.com"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081@email.com");
@@ -57,7 +57,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameterWithoutUsername_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"@email.com"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"auth.placeholder-e3b0c442@email.com");
@@ -66,7 +66,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameterWithoutEmailSign_shouldReturnHashedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"contoso.email.com"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"2bf9fb0e");
