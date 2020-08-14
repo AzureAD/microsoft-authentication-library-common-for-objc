@@ -38,6 +38,8 @@
 #import "MSIDWebviewAuthorization.h"
 #import "MSIDAuthorizationCodeResult.h"
 #import "MSIDPkce.h"
+#import "MSIDWebResponseOperationFactory.h"
+#import "MSIDWebResponseBaseOperation.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -160,24 +162,33 @@
         }
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
-            NSURL *browserURL = ((MSIDWebOpenBrowserResponse *)response).browserURL;
-
-#if TARGET_OS_IPHONE
-            if (![MSIDAppExtensionUtil isExecutingInAppExtension])
+            NSError *error = nil;
+            MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
+                                                                                                            error:&error];
+            if (error)
             {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Opening a browser - %@", MSID_PII_LOG_MASKABLE(browserURL));
-                [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
-            }
-            else
-            {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
                 returnErrorBlock(error);
                 return;
             }
-#else
-            [[NSWorkspace sharedWorkspace] openURL:browserURL];
-#endif
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+            
+            BOOL isCurrentFlowFinished = [operation doActionWithCorrelationId:self.requestParameters.correlationId
+                                                                        error:&error];
+            if (isCurrentFlowFinished && error)
+            {
+                returnErrorBlock(error);
+                return;
+            }
+            
+            // This should never happen, create a new error here just in case it would hang if somehow falls into this part
+            error = MSIDCreateError(MSIDErrorDomain,
+                                    MSIDErrorInternal,
+                                    @"Authorization session was not canceled successfully",
+                                    nil,
+                                    nil,
+                                    nil,
+                                    self.requestParameters.correlationId,
+                                    nil,
+                                    YES);
             returnErrorBlock(error);
             return;
         }
@@ -217,7 +228,6 @@
     result.authCode = authCode;
     result.accountIdentifier = self.authCodeClientInfo.accountIdentifier;
     result.pkceVerifier = self.webViewConfiguration.pkce.codeVerifier;
-    
     completionBlock(result, nil, nil);
 }
 

@@ -27,7 +27,7 @@
 
 #import "MSIDWebWPJResponse.h"
 #import "MSIDClientInfo.h"
-#import "MSIDBrokerConstants.h"
+#import "MSIDWebResponseOperationConstants.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBrokerInstallOperation.h"
 
@@ -108,7 +108,7 @@
 
 + (NSString *)operation
 {
-    return MSID_BROKER_INSTALLATION;
+    return MSID_INSTALL_BROKER_OPERATION;
 }
 
 @end

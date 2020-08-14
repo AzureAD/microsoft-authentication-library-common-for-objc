@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,32 +20,31 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAADV1RefreshTokenGrantRequest.h"
 
-@implementation MSIDAADV1RefreshTokenGrantRequest
+#import <Foundation/Foundation.h>
+#import "MSIDLogger.h"
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(MSIDAuthenticationScheme *)authScheme
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken
-                     redirectUri:(NSString *)redirectUri
-                        resource:(NSString *)resource
-                 extraParameters:(NSDictionary *)extraParameters
-                         context:(nullable id<MSIDRequestContext>)context
-{
-    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope refreshToken:refreshToken redirectUri:redirectUri extraParameters:extraParameters context:context];
-    if (self)
-    {
-        NSParameterAssert(resource);
-        
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
-        parameters[MSID_OAUTH2_RESOURCE] = resource;
-        _parameters = parameters;
-    }
-    
-    return self;
-}
+NS_ASSUME_NONNULL_BEGIN
+
+@protocol MSIDLoggerConnecting <NSObject>
+
+- (MSIDLogLevel)level;
+
+- (BOOL)piiLoggingEnabled;
+
+- (BOOL)nsLoggingEnabled;
+
+- (BOOL)sourceLineLoggingEnabled;
+
+- (void)onLogWithLevel:(MSIDLogLevel)level
+            lineNumber:(NSUInteger)lineNumber
+              function:(NSString *)function
+               message:(NSString *)message;
+
+- (BOOL)shouldLog:(MSIDLogLevel)level;
+
 @end
+
+NS_ASSUME_NONNULL_END

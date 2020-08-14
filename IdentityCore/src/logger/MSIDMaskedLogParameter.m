@@ -50,7 +50,7 @@
 
 - (NSString *)description
 {
-    if (![MSIDLogger sharedLogger].PiiLoggingEnabled)
+    if (![MSIDLogger sharedLogger].piiLoggingEnabled)
     {
         if (self.maskedParameterValue) return self.maskedParameterValue;
         
