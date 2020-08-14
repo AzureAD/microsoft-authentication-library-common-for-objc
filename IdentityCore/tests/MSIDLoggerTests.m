@@ -24,6 +24,52 @@
 #import <XCTest/XCTest.h>
 #import "MSIDTestLogger.h"
 #import "MSIDLogger+Internal.h"
+#import "MSIDLoggerConnecting.h"
+
+@interface MSIDLoggerConnectorMock : NSObject <MSIDLoggerConnecting>
+
+@property (nonatomic) MSIDLogLevel levelValue;
+@property (nonatomic) BOOL nsLoggingEnabledValue;
+@property (nonatomic) BOOL piiLoggingEnabledValue;
+@property (nonatomic) BOOL shouldLogValue;
+@property (nonatomic) BOOL sourceLineLoggingEnabledValue;
+@property (nonatomic) NSString *logMessageValue;
+
+@end
+
+@implementation MSIDLoggerConnectorMock
+
+- (MSIDLogLevel)level
+{
+    return self.levelValue;
+}
+
+- (BOOL)nsLoggingEnabled
+{
+    return self.nsLoggingEnabledValue;
+}
+
+- (void)onLogWithLevel:(MSIDLogLevel)level lineNumber:(NSUInteger)lineNumber function:(NSString *)function message:(NSString *)message
+{
+    self.logMessageValue = message;
+}
+
+- (BOOL)piiLoggingEnabled
+{
+    return self.piiLoggingEnabledValue;
+}
+
+- (BOOL)shouldLog:(MSIDLogLevel)level
+{
+    return self.shouldLogValue;
+}
+
+- (BOOL)sourceLineLoggingEnabled
+{
+    return self.sourceLineLoggingEnabledValue;
+}
+
+@end
 
 @interface MSIDLoggerTests : XCTestCase
 
@@ -36,7 +82,7 @@
     [super setUp];
     [[MSIDTestLogger sharedLogger] reset];
     [MSIDTestLogger sharedLogger].callbackInvoked = NO;
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
 }
 
 #pragma mark - Basic logging
@@ -59,7 +105,7 @@
 
 - (void)testLog_whenPiiEnabledPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -73,7 +119,7 @@
 
 - (void)testLog_whenPiiEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -87,7 +133,7 @@
 
 - (void)testLog_whenPiiNotEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -101,7 +147,7 @@
 
 - (void)testLog_whenPiiNotEnabledPiiMessage_shouldInvokeCallbackWithMaskedMessage
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -172,7 +218,7 @@
 
 - (void)testLogErrorPiiMacro_shouldReturnMessagePIITrueErrorLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -187,7 +233,7 @@
 
 - (void)testLogWarningPiiMacro_shouldReturnMessagePIITrueWarningLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -202,7 +248,7 @@
 
 - (void)testLogInfoPiiMacro_shouldReturnMessagePIITrueInfoLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -217,7 +263,7 @@
 
 - (void)testLogVerbosePiiMacro_shouldReturnMessagePIITrueVerboseLevel
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -232,7 +278,7 @@
 
 - (void)testLogWithContextMacro_whenContainsPii_andPiiDisabled_shouldLogMessageWithMaskedPii
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -247,7 +293,7 @@
 
 - (void)testLogWithContextMacro_whenContainsPii_andPiiEnabled_shouldLogMessageWithRawPii
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -301,6 +347,64 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNil(logger.lastMessage);
+}
+
+#pragma mark - Logger Connector
+
+- (void)testLogLevel_whenConnectorIsSet_shouldReturnValueFromConnector
+{
+    MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
+    connectorMock.levelValue = MSIDLogLevelWarning;
+    [MSIDLogger sharedLogger].level = MSIDLogLevelError;
+    [MSIDLogger sharedLogger].loggerConnector = connectorMock;
+    
+    XCTAssertEqual([MSIDLogger sharedLogger].level, MSIDLogLevelWarning);
+}
+
+- (void)testNsLoggingEnabled_whenConnectorIsSet_shouldReturnValueFromConnector
+{
+    MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
+    connectorMock.nsLoggingEnabledValue = YES;
+    [MSIDLogger sharedLogger].nsLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].loggerConnector = connectorMock;
+    
+    XCTAssertTrue([MSIDLogger sharedLogger].nsLoggingEnabled);
+}
+
+- (void)testPiiLoggingEnabled_whenConnectorIsSet_shouldReturnValueFromConnector
+{
+    MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
+    connectorMock.piiLoggingEnabledValue = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].loggerConnector = connectorMock;
+    
+    XCTAssertTrue([MSIDLogger sharedLogger].piiLoggingEnabled);
+}
+
+- (void)testSourceLineLoggingEnabled_whenConnectorIsSet_shouldReturnValueFromConnector
+{
+    MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
+    connectorMock.sourceLineLoggingEnabledValue = YES;
+    [MSIDLogger sharedLogger].sourceLineLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].loggerConnector = connectorMock;
+    
+    XCTAssertTrue([MSIDLogger sharedLogger].sourceLineLoggingEnabled);
+}
+
+- (void)testLogWithLevel_whenConnectorIsSet_shouldReturnValueFromConnector
+{
+    MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
+    connectorMock.shouldLogValue = YES;
+    [MSIDLogger sharedLogger].level = MSIDLogLevelNothing;
+    [MSIDLogger sharedLogger].loggerConnector = connectorMock;
+    [self keyValueObservingExpectationForObject:connectorMock keyPath:@"logMessageValue" handler:^BOOL(id observedObject, NSDictionary *change)
+    {
+        return [((MSIDLoggerConnectorMock *)observedObject).logMessageValue containsString:@"some message"];
+    }];
+    
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO filename:nil lineNumber:1 function:nil format:@"some message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 @end

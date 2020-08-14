@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,32 +20,32 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAADV1RefreshTokenGrantRequest.h"
+#import "MSIDRedirectUri.h"
+#import "MSIDRedirectUriVerifier.h"
 
-@implementation MSIDAADV1RefreshTokenGrantRequest
+@implementation MSIDRedirectUriVerifier
 
-- (instancetype)initWithEndpoint:(NSURL *)endpoint
-                      authScheme:(MSIDAuthenticationScheme *)authScheme
-                        clientId:(NSString *)clientId
-                           scope:(NSString *)scope
-                    refreshToken:(NSString *)refreshToken
-                     redirectUri:(NSString *)redirectUri
-                        resource:(NSString *)resource
-                 extraParameters:(NSDictionary *)extraParameters
-                         context:(nullable id<MSIDRequestContext>)context
++ (MSIDRedirectUri *)msidRedirectUriWithCustomUri:(NSString *)customRedirectUri
+                                         clientId:(__unused NSString *)clientId
+                         bypassRedirectValidation:(BOOL)bypassRedirectValidation
+                                            error:(__unused NSError * __autoreleasing *)error
 {
-    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope refreshToken:refreshToken redirectUri:redirectUri extraParameters:extraParameters context:context];
-    if (self)
+    if (![NSString msidIsStringNilOrBlank:customRedirectUri])
     {
-        NSParameterAssert(resource);
-        
-        NSMutableDictionary *parameters = [_parameters mutableCopy];
-        parameters[MSID_OAUTH2_RESOURCE] = resource;
-        _parameters = parameters;
+        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:customRedirectUri]];
+        return [[MSIDRedirectUri alloc] initWithRedirectUri:[NSURL URLWithString:customRedirectUri]
+                                              brokerCapable:isBrokerCapable];
     }
-    
-    return self;
+
+    return [[MSIDRedirectUri alloc] initWithRedirectUri:[MSIDRedirectUri defaultBrokerCapableRedirectUri]
+                                          brokerCapable:YES];
 }
+
++ (BOOL)verifyAdditionalRequiredSchemesAreRegistered:(__unused NSError **)error
+{
+    return YES;
+}
+
 @end

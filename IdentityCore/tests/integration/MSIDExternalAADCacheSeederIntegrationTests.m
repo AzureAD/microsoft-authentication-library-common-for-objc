@@ -153,6 +153,7 @@
                                           @"client_info": @"1",
                                           @"grant_type": @"refresh_token",
                                           @"refresh_token": @"rt",
+                                          @"redirect_uri": redirectUri,
                                           @"scope": @"scope1 scope2 openid profile offline_access"
                                           } mutableCopy];
     MSIDTestURLResponse *response =
