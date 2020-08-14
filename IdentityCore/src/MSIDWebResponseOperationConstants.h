@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,23 +20,10 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
-#import "MSIDTokenRequestProviding.h"
 
-@class MSIDWebviewResponse;
-@class MSIDInteractiveRequestParameters;
+#import "MSIDWebResponseBaseOperation.h"
 
-@interface MSIDWebResponseBaseOperation : NSObject
-
-- (nullable instancetype)initWithResponse:(nonnull MSIDWebviewResponse *)response
-                                    error:(NSError * _Nullable *_Nullable)error;
-
-- (void)invokeWithInteractiveTokenRequestParameters:(nonnull MSIDInteractiveRequestParameters *)interactiveTokenRequestParameters
-                               tokenRequestProvider:(nonnull id<MSIDTokenRequestProviding>)tokenRequestProvider
-                                         completion:(nonnull MSIDRequestCompletionBlock)completion;
-- (BOOL)doActionWithCorrelationId:(nullable NSUUID *)correlationId
-                            error:(NSError * _Nullable *_Nullable)error;
-@end
+extern NSString * _Nonnull const MSID_INSTALL_BROKER_OPERATION;
+extern NSString * _Nonnull const MSID_OPEN_BROSWER_OPERATION;
