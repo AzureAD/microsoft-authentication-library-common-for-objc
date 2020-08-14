@@ -163,18 +163,33 @@
         else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
         {
             NSError *error = nil;
-            MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response error:&error];
+            MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:response
+                                                                                                            error:&error];
             if (error)
             {
                 returnErrorBlock(error);
                 return;
             }
             
-            BOOL isCurrentFlowFinished = [operation doActionWithCorrelationId:self.requestParameters.correlationId error:&error];
+            BOOL isCurrentFlowFinished = [operation doActionWithCorrelationId:self.requestParameters.correlationId
+                                                                        error:&error];
             if (isCurrentFlowFinished && error)
             {
                 returnErrorBlock(error);
+                return;
             }
+            
+            // This should never happen, create a new error here just in case it would hang if somehow falls into this part
+            error = MSIDCreateError(MSIDErrorDomain,
+                                    MSIDErrorInternal,
+                                    @"Authorization session was not canceled successfully",
+                                    nil,
+                                    nil,
+                                    nil,
+                                    self.requestParameters.correlationId,
+                                    nil,
+                                    YES);
+            returnErrorBlock(error);
             return;
         }
     };
