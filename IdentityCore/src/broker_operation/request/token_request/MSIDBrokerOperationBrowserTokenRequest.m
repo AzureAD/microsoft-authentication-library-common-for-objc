@@ -82,7 +82,7 @@
         authority.metadata = [MSIDOpenIdProviderMetadata new];
         authority.metadata.tokenEndpoint = tokenEndpoint;
         
-        _correlationId = [NSUUID UUID];
+        self.correlationId = [NSUUID UUID];
     }
     
     return self;
