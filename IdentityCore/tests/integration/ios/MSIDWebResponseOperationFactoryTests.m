@@ -30,22 +30,13 @@
 #import "MSIDAADWebviewFactory.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDWebOpenBrowserResponseOperation.h"
 
 @interface MSIDWebResponseOperationFactoryTests : XCTestCase
 
 @end
 
 @implementation MSIDWebResponseOperationFactoryTests
-
-- (void)setUp
-{
-    [super setUp];
-}
-
-- (void)tearDown
-{
-    [super tearDown];
-}
 
 - (void)test_wpjWebResponse_should_return_brokerInstallOperation
 {
@@ -65,13 +56,18 @@
     XCTAssertNotNil(webResponse);
     NSError *error = nil;
     MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:webResponse error:&error];
+#if TARGET_OS_IPHONE
     XCTAssertNil(error);
     XCTAssertNotNil(operation);
     XCTAssertTrue([operation isKindOfClass:MSIDWebResponseBrokerInstallOperation.class]);
+#else
+    XCTAssertNotNil(error);
+    XCTAssertNil(operation);
+#endif
     [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
 }
 
-- (void)test_unsuportedWebResponse_should_return_error
+- (void)test_openBroswerResponse_should_return_openBroserOperation
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
     
@@ -86,8 +82,9 @@
     XCTAssertNil(error);
     MSIDWebResponseBaseOperation *operation = [MSIDWebResponseOperationFactory createOperationForResponse:webResponse
                                                                                                     error:&error];
-    XCTAssertNotNil(error);
-    XCTAssertNil(operation);
+    XCTAssertNil(error);
+    XCTAssertNotNil(operation);
+    XCTAssertTrue([operation isKindOfClass:MSIDWebOpenBrowserResponseOperation.class]);
     [MSIDWebResponseOperationFactory unRegisterforResponse:webResponse];
 }
 

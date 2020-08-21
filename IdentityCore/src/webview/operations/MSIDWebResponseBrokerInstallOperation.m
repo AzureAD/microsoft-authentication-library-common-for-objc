@@ -56,7 +56,7 @@
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"response is not valid");
                 if (error)
                 {
-                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of response or response does not contain a valid app install link ", nil, nil, nil, nil, nil, YES);
+                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Wrong type of response or response does not contain a valid app install link", nil, nil, nil, nil, nil, YES);
                 }
                 return nil;
             }
@@ -67,6 +67,11 @@
         
         return self;
     #else
+        (void)response;
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Broker is not supported on Mac", nil, nil, nil, nil, nil, YES);
+        }
         return nil;
     #endif
 }
@@ -98,6 +103,8 @@
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
         completion(nil, error);
     #else
+        (void)tokenRequestProvider;
+        (void)interactiveTokenRequestParameters;
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Broker installation on Mac is not supported");
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, nil, nil, nil, nil, nil, nil, YES);
         completion(nil, error);

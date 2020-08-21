@@ -25,8 +25,16 @@
 //
 //------------------------------------------------------------------------------
 #import "MSIDWebOpenBrowserResponse.h"
+#import "MSIDWebResponseOperationFactory.h"
+#import "MSIDWebOpenBrowserResponseOperation.h"
+#import "MSIDWebResponseOperationConstants.h"
 
 @implementation MSIDWebOpenBrowserResponse
+
++ (void)load
+{
+    [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebOpenBrowserResponseOperation.class forResponseClass:self];
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -55,4 +63,10 @@
     
     return self;
 }
+
++ (NSString *)operation
+{
+    return MSID_OPEN_BROSWER_OPERATION;
+}
+
 @end
