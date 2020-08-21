@@ -156,7 +156,6 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)increaseSilentSuccessfulCount
 {
     dispatch_barrier_async(self.synchronizationQueue, ^{
-        //self.silentSuccessfulCount += 1;
         self.silentSuccessfulCountVal += 1;
         [self saveTelemetryToDisk];
     });
@@ -267,7 +266,7 @@ static const NSInteger currentSchemaVersion = 2;
         {
             _schemaVersion = schemaVersion;
             _silentSuccessfulCountVal = silentSuccessfulCount;
-            self.errorsInfoVal = errorsInfo;
+            _errorsInfoVal = errorsInfo;
             _synchronizationQueue = [self initializeDispatchQueue];
         }
         else
