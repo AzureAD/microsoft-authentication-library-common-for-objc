@@ -32,12 +32,16 @@
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 
+
+@interface MSIDKeyedArchiverSerializer()
+
+// class mapping for maintaining backward compatibility
+@property (nonatomic) NSMutableDictionary *defaultEncodeClassMap;
+@property (nonatomic) NSMutableDictionary *defaultDecodeClassMap;
+
+@end
+
 @implementation MSIDKeyedArchiverSerializer
-{
-    // class mapping for maintaining backward compatibility
-    NSMutableDictionary *_defaultEncodeClassMap;
-    NSMutableDictionary *_defaultDecodeClassMap;
-}
 
 - (id)init
 {
@@ -67,9 +71,9 @@
     NSData *result = [NSKeyedArchiver msidEncodeObject:item usingBlock:^(NSKeyedArchiver *archiver)
     {
         // Maintain backward compatibility with ADAL.
-        for (NSString *className in _defaultEncodeClassMap)
+        for (NSString *className in self.defaultEncodeClassMap)
         {
-            [archiver setClassName:className forClass:_defaultEncodeClassMap[className]];
+            [archiver setClassName:className forClass:self.defaultEncodeClassMap[className]];
         }
     }];
     

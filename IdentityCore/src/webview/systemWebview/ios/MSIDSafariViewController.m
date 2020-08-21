@@ -37,17 +37,15 @@
 
 @interface MSIDSafariViewController() <SFSafariViewControllerDelegate>
 
+@property (nonatomic) MSIDWebUICompletionHandler completionHandler;
+@property (nonatomic) id<MSIDRequestContext> context;
+@property (nonatomic) SFSafariViewController *safariViewController;
+
 @end
 
 @implementation MSIDSafariViewController
 {
-    SFSafariViewController *_safariViewController;
-    
     NSURL *_startURL;
-    
-    MSIDWebUICompletionHandler _completionHandler;
-    
-    id<MSIDRequestContext> _context;
 }
 
 - (instancetype)initWithURL:(NSURL *)url
@@ -102,16 +100,16 @@
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         
-        UIViewController *viewController = [UIApplication msidCurrentViewController:_parentController];
+        UIViewController *viewController = [UIApplication msidCurrentViewController:self.parentController];
         if (!viewController)
         {
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, _context.correlationId, nil, YES);
+            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorNoMainViewController, @"Failed to start an interactive session - main viewcontroller is nil", nil, nil, nil, self.context.correlationId, nil, YES);
             completionHandler(nil, error);
             return;
         }
         
-        _completionHandler = [completionHandler copy];
-        [viewController presentViewController:_safariViewController animated:YES completion:nil];
+        self.completionHandler = [completionHandler copy];
+        [viewController presentViewController:self.safariViewController animated:YES completion:nil];
     }];
 }
 
@@ -134,8 +132,8 @@
 - (void)dismiss
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        [_safariViewController dismissViewControllerAnimated:YES completion:^{
-            _safariViewController = nil;
+        [self.safariViewController dismissViewControllerAnimated:YES completion:^{
+            self.safariViewController = nil;
         }];
     }];
 }

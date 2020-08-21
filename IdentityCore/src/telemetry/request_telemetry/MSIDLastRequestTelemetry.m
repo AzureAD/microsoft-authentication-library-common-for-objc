@@ -63,9 +63,11 @@
 
 @interface MSIDLastRequestTelemetry()
 
-@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+//@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfoVal;
 @property (nonatomic) NSInteger schemaVersion;
-@property (nonatomic) NSInteger silentSuccessfulCount;
+//@property (nonatomic) NSInteger silentSuccessfulCount;
+@property (nonatomic) NSInteger silentSuccessfulCountVal;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
 
 @end
@@ -156,7 +158,8 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)increaseSilentSuccessfulCount
 {
     dispatch_barrier_async(self.synchronizationQueue, ^{
-        _silentSuccessfulCount += 1;
+        //self.silentSuccessfulCount += 1;
+        self.silentSuccessfulCountVal += 1;
         [self saveTelemetryToDisk];
     });
 }
@@ -182,8 +185,10 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeInteger:_schemaVersion forKey:kSchemaVersion];
-    [encoder encodeInteger:_silentSuccessfulCount forKey:kSilentSuccessfulCount];
-    [encoder encodeObject:_errorsInfo forKey:kErrorsInfo];
+    //[encoder encodeInteger:_silentSuccessfulCount forKey:kSilentSuccessfulCount];
+    [encoder encodeInteger:_silentSuccessfulCountVal forKey:kSilentSuccessfulCount];
+    //[encoder encodeObject:_errorsInfo forKey:kErrorsInfo];
+    [encoder encodeObject:_errorsInfoVal forKey:kErrorsInfo];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)decoder
@@ -224,8 +229,18 @@ static const NSInteger currentSchemaVersion = 2;
     dispatch_barrier_async(_synchronizationQueue, ^{
         if(errorInfo)
         {
-            _errorsInfo = [_errorsInfo count] ? _errorsInfo : [NSMutableArray new];
-           [_errorsInfo addObject:errorInfo];
+//            if (![self.errorsInfo count])
+//            {
+//                self.errorsInfo = [NSMutableArray new];
+//            }
+//            [self.errorsInfo addObject:errorInfo];
+            if (![self.errorsInfoVal count])
+            {
+                self.errorsInfoVal = [NSMutableArray new];
+            }
+            [self.errorsInfoVal addObject:errorInfo];
+            //_errorsInfo = [_errorsInfo count] ? _errorsInfo : [NSMutableArray new];
+           //[_errorsInfo addObject:errorInfo];
         }
         
         [self saveTelemetryToDisk];
@@ -235,8 +250,10 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)resetTelemetry
 {
     dispatch_barrier_async(_synchronizationQueue, ^{
-        _errorsInfo = nil;
-        _silentSuccessfulCount = 0;
+        //_errorsInfo = nil;
+        self.errorsInfoVal = nil;
+        //self.silentSuccessfulCount = 0;
+        self.silentSuccessfulCountVal = 0;
         [self saveTelemetryToDisk];
     });
 }
@@ -262,8 +279,10 @@ static const NSInteger currentSchemaVersion = 2;
         if (schemaVersion == currentSchemaVersion)
         {
             _schemaVersion = schemaVersion;
-            _silentSuccessfulCount = silentSuccessfulCount;
-            _errorsInfo = errorsInfo;
+            //_silentSuccessfulCount = silentSuccessfulCount;
+            _silentSuccessfulCountVal = silentSuccessfulCount;
+            //_errorsInfo = errorsInfo;
+            self.errorsInfoVal = errorsInfo;
             _synchronizationQueue = [self initializeDispatchQueue];
         }
         else
@@ -289,7 +308,8 @@ static const NSInteger currentSchemaVersion = 2;
 {
     __block NSArray *errorsInfoCopy;
     dispatch_sync(self.synchronizationQueue, ^{
-        errorsInfoCopy = [_errorsInfo copy];
+        //errorsInfoCopy = [_errorsInfo copy];
+        errorsInfoCopy = [self.errorsInfoVal copy];
     });
     return errorsInfoCopy;
 }
@@ -298,7 +318,8 @@ static const NSInteger currentSchemaVersion = 2;
 {
     __block NSInteger count;
     dispatch_sync(self.synchronizationQueue, ^{
-        count = _silentSuccessfulCount;
+        //count = self.silentSuccessfulCount;
+        count = self.silentSuccessfulCountVal;
     });
     
     return count;

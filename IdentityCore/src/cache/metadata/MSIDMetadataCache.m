@@ -31,9 +31,14 @@
 #import "MSIDAccountMetadataCacheItem.h"
 #import "NSDictionary+MSIDExtensions.h"
 
+@interface MSIDMetadataCache()
+
+@property (nonatomic) NSMutableDictionary *memoryCache;
+
+@end
+
 @implementation MSIDMetadataCache
 {
-    NSMutableDictionary *_memoryCache;
     id<MSIDMetadataCacheDataSource> _dataSource;
     dispatch_queue_t _synchronizationQueue;
     MSIDCacheItemJsonSerializer *_jsonSerializer;
@@ -148,7 +153,7 @@
     }
     
     dispatch_barrier_async(_synchronizationQueue, ^{
-        _memoryCache[key] = item;
+        self.memoryCache[key] = item;
     });
     
     // return a copy because we don't want external change on the cache status

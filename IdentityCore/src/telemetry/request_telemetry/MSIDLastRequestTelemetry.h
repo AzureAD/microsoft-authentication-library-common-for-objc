@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSInteger schemaVersion;
 @property (nonatomic, readonly) NSInteger silentSuccessfulCount;
-@property (nonatomic, nullable, readonly) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic, nullable, readonly) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
