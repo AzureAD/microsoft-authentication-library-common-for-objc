@@ -20,25 +20,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
- 
+
 #import "MSIDLastRequestTelemetry.h"
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
- 
+
 @implementation MSIDRequestTelemetryErrorInfo
- 
+
 #define kApiId              @"apiId"
 #define kCorrelationID      @"correlationId"
 #define kError              @"error"
- 
+
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeFloat:self.apiId forKey:kApiId];
     [encoder encodeObject:[self.correlationId UUIDString] forKey:kCorrelationID];
     [encoder encodeObject:self.error forKey:kError];
 }
- 
+
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     self = [super init];
@@ -53,30 +53,30 @@
     }
     return self;
 }
- 
+
 + (BOOL)supportsSecureCoding
 {
     return YES;
 }
- 
+
 @end
- 
+
 @interface MSIDLastRequestTelemetry()
- 
-@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfoVal;
+
+@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 @property (nonatomic) NSInteger schemaVersion;
-@property (nonatomic) NSInteger silentSuccessfulCountVal;
+@property (nonatomic) NSInteger silentSuccessfulCount;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
- 
+
 @end
- 
+
 @implementation MSIDLastRequestTelemetry
- 
+
 static bool shouldReadFromDisk = YES;
 static const NSInteger currentSchemaVersion = 2;
- 
+
 #pragma mark - Init
- 
+
 - (instancetype)initInternal
 {
     self = [super init];
@@ -87,7 +87,7 @@ static const NSInteger currentSchemaVersion = 2;
     }
     return self;
 }
- 
+
 - (instancetype)initFromDisk
 {
     NSString *saveLocation = [self filePathToSavedTelemetry];
@@ -112,7 +112,7 @@ static const NSInteger currentSchemaVersion = 2;
     
     return [self initInternal];
 }
- 
+
 + (instancetype)sharedInstance
 {
     static dispatch_once_t once;
@@ -132,9 +132,9 @@ static const NSInteger currentSchemaVersion = 2;
     
     return singleton;
 }
- 
+
 #pragma mark - Update object
- 
+
 - (void)updateWithApiId:(NSInteger)apiId
             errorString:(NSString *)errorString
                 context:(id<MSIDRequestContext>)context
@@ -152,17 +152,17 @@ static const NSInteger currentSchemaVersion = 2;
         [self resetTelemetry];
     }
 }
- 
+
 - (void)increaseSilentSuccessfulCount
 {
     dispatch_barrier_async(self.synchronizationQueue, ^{
-        self.silentSuccessfulCountVal += 1;
+        self->_silentSuccessfulCount += 1;
         [self saveTelemetryToDisk];
     });
 }
- 
+
 #pragma mark - MSIDTelemetryStringSerializable
- 
+
 - (NSString *)telemetryString
 {
     __block NSString *result;
@@ -172,20 +172,20 @@ static const NSInteger currentSchemaVersion = 2;
     
     return result;
 }
- 
+
 #pragma mark - NSSecureCoding
- 
+
 #define kSchemaVersion              @"schemaVersion"
 #define kSilentSuccessfulCount      @"silentSuccessfulCount"
 #define kErrorsInfo                 @"errorsInfo"
- 
+
 - (void)encodeWithCoder:(NSCoder *)encoder
 {
     [encoder encodeInteger:_schemaVersion forKey:kSchemaVersion];
-    [encoder encodeInteger:_silentSuccessfulCountVal forKey:kSilentSuccessfulCount];
-    [encoder encodeObject:_errorsInfoVal forKey:kErrorsInfo];
+    [encoder encodeInteger:_silentSuccessfulCount forKey:kSilentSuccessfulCount];
+    [encoder encodeObject:_errorsInfo forKey:kErrorsInfo];
 }
- 
+
 - (instancetype)initWithCoder:(NSCoder *)decoder
 {
     NSInteger schemaVersion = [decoder decodeIntegerForKey:kSchemaVersion];
@@ -196,56 +196,53 @@ static const NSInteger currentSchemaVersion = 2;
     
     return [self initFromDecodedObjectWithSchemaVersion:schemaVersion silentSuccessfulCount:silentSuccessfulCount errorsInfo:errorsInfo];
 }
- 
+
 + (BOOL)supportsSecureCoding
 {
     return YES;
 }
- 
+
 #pragma mark - Private: Serialization
- 
+
 - (NSString *)serializeLastTelemetryString
 {
     MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItem];
     
     return [lastTelemetryFields serialize];
 }
- 
+
 - (MSIDLastRequestTelemetrySerializedItem *)createSerializedItem
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
     return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
 }
- 
+
 #pragma mark - Update object
- 
+
 - (void)addErrorInfo:(MSIDRequestTelemetryErrorInfo *)errorInfo
 {
     dispatch_barrier_async(_synchronizationQueue, ^{
         if(errorInfo)
         {
-            if (![self.errorsInfoVal count])
-            {
-                self.errorsInfoVal = [NSMutableArray new];
-            }
-            [self.errorsInfoVal addObject:errorInfo];
+            self->_errorsInfo = [self->_errorsInfo count] ? self->_errorsInfo : [NSMutableArray new];
+           [self->_errorsInfo addObject:errorInfo];
         }
         
         [self saveTelemetryToDisk];
     });
 }
- 
+
 - (void)resetTelemetry
 {
     dispatch_barrier_async(_synchronizationQueue, ^{
-        self.errorsInfoVal = nil;
-        self.silentSuccessfulCountVal = 0;
+        self->_errorsInfo = nil;
+        self->_silentSuccessfulCount = 0;
         [self saveTelemetryToDisk];
     });
 }
- 
+
 #pragma mark - Private: Save To Disk
- 
+
 - (void)saveTelemetryToDisk
 {
     NSString *saveLocation = [self filePathToSavedTelemetry];
@@ -256,7 +253,7 @@ static const NSInteger currentSchemaVersion = 2;
         [dataToArchive writeToFile:saveLocation atomically:YES];
     }
 }
- 
+
 - (instancetype)initFromDecodedObjectWithSchemaVersion:(NSInteger)schemaVersion silentSuccessfulCount:(NSInteger)silentSuccessfulCount errorsInfo:(NSMutableArray<MSIDRequestTelemetryErrorInfo *>*) errorsInfo
 {
     self = [super init];
@@ -265,8 +262,8 @@ static const NSInteger currentSchemaVersion = 2;
         if (schemaVersion == currentSchemaVersion)
         {
             _schemaVersion = schemaVersion;
-            _silentSuccessfulCountVal = silentSuccessfulCount;
-            _errorsInfoVal = errorsInfo;
+            _silentSuccessfulCount = silentSuccessfulCount;
+            _errorsInfo = errorsInfo;
             _synchronizationQueue = [self initializeDispatchQueue];
         }
         else
@@ -277,7 +274,7 @@ static const NSInteger currentSchemaVersion = 2;
     }
     return self;
 }
- 
+
 - (NSString *)filePathToSavedTelemetry
 {
     NSString *filePath = NSTemporaryDirectory();
@@ -285,36 +282,36 @@ static const NSInteger currentSchemaVersion = 2;
     
     return filePath;
 }
- 
+
 #pragma mark - Private: Misc.
- 
+
 - (NSArray<MSIDRequestTelemetryErrorInfo *> *)errorsInfo
 {
     __block NSArray *errorsInfoCopy;
     dispatch_sync(self.synchronizationQueue, ^{
-        errorsInfoCopy = [self.errorsInfoVal copy];
+        errorsInfoCopy = [_errorsInfo copy];
     });
     return errorsInfoCopy;
 }
- 
+
 - (NSInteger)silentSuccessfulCount
 {
     __block NSInteger count;
     dispatch_sync(self.synchronizationQueue, ^{
-        count = self.silentSuccessfulCountVal;
+        count = _silentSuccessfulCount;
     });
     
     return count;
 }
- 
+
 - (dispatch_queue_t)initializeDispatchQueue
 {
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
     return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
 }
- 
+
 #pragma mark - MSIDLastRequestTelemetry+Internal
- 
+
 - (instancetype)initTelemetryFromDiskWithQueue:(dispatch_queue_t)queue
 {
     __block MSIDLastRequestTelemetry *result;
@@ -335,5 +332,5 @@ static const NSInteger currentSchemaVersion = 2;
     
     return result;
 }
- 
+
 @end

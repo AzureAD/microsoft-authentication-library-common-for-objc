@@ -40,8 +40,8 @@
     context.correlationId = [[NSUUID alloc] initWithUUIDString:@"00000000-0000-0000-0000-000000000001"];
     self.context = context;
     
-    [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCountVal"];
-    [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfoVal"];
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
 }
 
 - (void)tearDown
@@ -219,8 +219,8 @@
     
     //[[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
     //[[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
-    [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCountVal"];
-    [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfoVal"];
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
+    [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
     
     [telemetryObject updateWithApiId:90 errorString:@"error9" context:self.context];
     
