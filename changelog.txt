@@ -13,6 +13,15 @@
 * Add logger connector which allows to override logger behaviour. (#796)
 * Include redirect uri in body when redeeming refresh token at token endpoint (#815)
 
+Version 1.5.5
+-----
+* Enabled the following XCODE 11.4 recommended settings within
+"identitycore__common.xcconfig"
+ -CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED;
+ -CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS;
+ -CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF;
+* Renamed private properties within "MSIDLastRequestTelemetry.m" to address nested dispatch call issues that arise by enabling above implicit retain self setting.
+
 Version 1.5.4
 -----
 * Support for proof of posession for access tokens (#738)
