@@ -16,7 +16,7 @@
 Version 1.5.5
 -----
 * Enabled the following XCODE 11.4 recommended settings within
-"identitycore__common.xcconfig"
+"identitycore__common.xcconfig" as per customer request.
  -CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED;
  -CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS;
  -CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF;
