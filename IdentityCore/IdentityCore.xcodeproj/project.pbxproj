@@ -78,8 +78,7 @@
 		1EE8FF5924F4BB3800CA1445 /* IdentityCoreSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE8FF5824F4BB3800CA1445 /* IdentityCoreSwift.swift */; };
 		1EE8FF5D24F4BB8A00CA1445 /* libIdentityCoreSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */; };
 		1EE8FF6524F4C0E600CA1445 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE8FF6424F4C0E600CA1445 /* File.swift */; };
-		1EE8FF6624F4C0E600CA1445 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE8FF6424F4C0E600CA1445 /* File.swift */; };
-		1EE8FF6924F4C2F400CA1445 /* libIdentityCoreSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */; };
+		1EE8FF6A24F4C9B300CA1445 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE8FF6424F4C0E600CA1445 /* File.swift */; };
 		1EFD58C622B44BA000ECD86E /* MSIDMacCredentialStorageItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */; };
 		1EFD58C722B44BA200ECD86E /* MSIDMacCredentialStorageItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */; };
 		1EFD703124AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD703024AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h */; };
@@ -1595,13 +1594,6 @@
 			remoteGlobalIDString = 1EE8FF5524F4BB3800CA1445;
 			remoteInfo = IdentityCoreSwift;
 		};
-		1EE8FF6724F4C2EE00CA1445 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1EE8FF5524F4BB3800CA1445;
-			remoteInfo = IdentityCoreSwift;
-		};
 		231CE9B51FE86F1E00E95D3E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
@@ -2906,7 +2898,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1EE8FF6924F4C2F400CA1445 /* libIdentityCoreSwift.a in Frameworks */,
 				B2BD0A5B2376889600DF6AE4 /* AuthenticationServices.framework in Frameworks */,
 				963634D421D4EBD400C60742 /* AppKit.framework in Frameworks */,
 				60D6ED0D20D9BBA0002FCBBB /* IOKit.framework in Frameworks */,
@@ -5607,7 +5598,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				1EE8FF6824F4C2EE00CA1445 /* PBXTargetDependency */,
 				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
 			);
@@ -6454,7 +6444,7 @@
 				23CC944920465CEC00AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
 				B86FA7D62383757A00E5195A /* MSIDMacKeychainTokenCacheTests.m in Sources */,
 				23985AB82391F8D100942308 /* MSIDBrokerOperationInteractiveTokenRequestTests.m in Sources */,
-				1EE8FF6624F4C0E600CA1445 /* File.swift in Sources */,
+				1EE8FF6A24F4C9B300CA1445 /* File.swift in Sources */,
 				1E4252362187DA1B00C149E9 /* MSIDAppMetadataCacheQueryTests.m in Sources */,
 				B286BA03238A091B007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
 				B216825D23AB069900F4897A /* MSIDSSOExtensionGetAccountsRequestIntegrationTests.m in Sources */,
@@ -7017,11 +7007,6 @@
 			isa = PBXTargetDependency;
 			target = 1EE8FF5524F4BB3800CA1445 /* IdentityCoreSwift */;
 			targetProxy = 1EE8FF5E24F4BB9300CA1445 /* PBXContainerItemProxy */;
-		};
-		1EE8FF6824F4C2EE00CA1445 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 1EE8FF5524F4BB3800CA1445 /* IdentityCoreSwift */;
-			targetProxy = 1EE8FF6724F4C2EE00CA1445 /* PBXContainerItemProxy */;
 		};
 		231CE9B61FE86F1E00E95D3E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -7871,7 +7856,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
@@ -7888,7 +7872,6 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UBF8T346G9;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
