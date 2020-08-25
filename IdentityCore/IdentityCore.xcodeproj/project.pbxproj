@@ -75,6 +75,11 @@
 		1EE541402458B30300A86414 /* MSIDDevicePopManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EE5413E2458B30300A86414 /* MSIDDevicePopManager.h */; };
 		1EE541412458B30300A86414 /* MSIDDevicePopManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */; };
 		1EE541422458B30300A86414 /* MSIDDevicePopManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */; };
+		1EE8FF5924F4BB3800CA1445 /* IdentityCoreSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE8FF5824F4BB3800CA1445 /* IdentityCoreSwift.swift */; };
+		1EE8FF5D24F4BB8A00CA1445 /* libIdentityCoreSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */; };
+		1EE8FF6524F4C0E600CA1445 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE8FF6424F4C0E600CA1445 /* File.swift */; };
+		1EE8FF6624F4C0E600CA1445 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EE8FF6424F4C0E600CA1445 /* File.swift */; };
+		1EE8FF6924F4C2F400CA1445 /* libIdentityCoreSwift.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */; };
 		1EFD58C622B44BA000ECD86E /* MSIDMacCredentialStorageItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */; };
 		1EFD58C722B44BA200ECD86E /* MSIDMacCredentialStorageItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */; };
 		1EFD703124AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 1EFD703024AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h */; };
@@ -1583,6 +1588,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1EE8FF5E24F4BB9300CA1445 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1EE8FF5524F4BB3800CA1445;
+			remoteInfo = IdentityCoreSwift;
+		};
+		1EE8FF6724F4C2EE00CA1445 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1EE8FF5524F4BB3800CA1445;
+			remoteInfo = IdentityCoreSwift;
+		};
 		231CE9B51FE86F1E00E95D3E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D68FB47F1FBA698A005308BB /* Project object */;
@@ -1621,6 +1640,15 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		1EE8FF5424F4BB3800CA1445 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B27551C6208179EE00AA7A38 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1714,6 +1742,11 @@
 		1EE42FEE248825CE00899491 /* MSIDAccessTokenWithAuthScheme.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDAccessTokenWithAuthScheme.m; sourceTree = "<group>"; };
 		1EE5413E2458B30300A86414 /* MSIDDevicePopManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDDevicePopManager.h; sourceTree = "<group>"; };
 		1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDDevicePopManager.m; sourceTree = "<group>"; };
+		1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libIdentityCoreSwift.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1EE8FF5824F4BB3800CA1445 /* IdentityCoreSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityCoreSwift.swift; sourceTree = "<group>"; };
+		1EE8FF6224F4C0E600CA1445 /* IdentityCoreTests iOS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCoreTests iOS-Bridging-Header.h"; sourceTree = "<group>"; };
+		1EE8FF6324F4C0E600CA1445 /* IdentityCoreTests Mac-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IdentityCoreTests Mac-Bridging-Header.h"; sourceTree = "<group>"; };
+		1EE8FF6424F4C0E600CA1445 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		1EFD58C322B43A4500ECD86E /* MSIDMacCredentialStorageItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDMacCredentialStorageItem.h; sourceTree = "<group>"; };
 		1EFD58C422B43A4500ECD86E /* MSIDMacCredentialStorageItem.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDMacCredentialStorageItem.m; sourceTree = "<group>"; };
 		1EFD703024AC3D4C007265FF /* MSIDAssymetricKeyKeychainGenerator+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDAssymetricKeyKeychainGenerator+Internal.h"; sourceTree = "<group>"; };
@@ -2805,6 +2838,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		1EE8FF5324F4BB3800CA1445 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		231CE99A1FE86EA300E95D3E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2844,6 +2884,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EE8FF5D24F4BB8A00CA1445 /* libIdentityCoreSwift.a in Frameworks */,
 				B29DB0FC216C4367008F846C /* AuthenticationServices.framework in Frameworks */,
 				60D6ED0C20D9BB89002FCBBB /* Security.framework in Frameworks */,
 				60D6ED0A20D9BB79002FCBBB /* SafariServices.framework in Frameworks */,
@@ -2865,6 +2906,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EE8FF6924F4C2F400CA1445 /* libIdentityCoreSwift.a in Frameworks */,
 				B2BD0A5B2376889600DF6AE4 /* AuthenticationServices.framework in Frameworks */,
 				963634D421D4EBD400C60742 /* AppKit.framework in Frameworks */,
 				60D6ED0D20D9BBA0002FCBBB /* IOKit.framework in Frameworks */,
@@ -2975,6 +3017,14 @@
 				1EE5413F2458B30300A86414 /* MSIDDevicePopManager.m */,
 			);
 			path = pop_manager;
+			sourceTree = "<group>";
+		};
+		1EE8FF5724F4BB3800CA1445 /* IdentityCoreSwift */ = {
+			isa = PBXGroup;
+			children = (
+				1EE8FF5824F4BB3800CA1445 /* IdentityCoreSwift.swift */,
+			);
+			path = IdentityCoreSwift;
 			sourceTree = "<group>";
 		};
 		2306D2AE20AD05A700F875A3 /* session_delegate */ = {
@@ -4645,6 +4695,7 @@
 				D6DA89731FBA6A4E004C56C7 /* tests */,
 				D626FF751FBA7A6600EE4487 /* xcconfig */,
 				231CE99E1FE86EA300E95D3E /* MSIDTestsHostApp */,
+				1EE8FF5724F4BB3800CA1445 /* IdentityCoreSwift */,
 				D68FB4881FBA698A005308BB /* Products */,
 				D6D9A4C21FBE718C00EFA430 /* Frameworks */,
 				B214C39A1FE851F20070C4F2 /* Recovered References */,
@@ -4665,6 +4716,7 @@
 				B27551D520817A1E00AA7A38 /* libIdentityAutomationAppLib Mac.dylib */,
 				B2ED1BA62204D24700A24E82 /* libIdentityAutomationTestLib iOS.a */,
 				B2ED1BB32204D26700A24E82 /* libIdentityAutomationTestLib Mac.a */,
+				1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -4918,6 +4970,9 @@
 				1E0B144F24CF5ADD00825143 /* MSIDAssymetricKeyPair+Test.m */,
 				6E4F659024D48B120070CA36 /* MSIDSymmetricKeyTests.m */,
 				5828740624D49C4100466916 /* MSIDBrokerRedirectUriTest.m */,
+				1EE8FF6424F4C0E600CA1445 /* File.swift */,
+				1EE8FF6224F4C0E600CA1445 /* IdentityCoreTests iOS-Bridging-Header.h */,
+				1EE8FF6324F4C0E600CA1445 /* IdentityCoreTests Mac-Bridging-Header.h */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -5400,6 +5455,24 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		1EE8FF5524F4BB3800CA1445 /* IdentityCoreSwift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1EE8FF5C24F4BB3800CA1445 /* Build configuration list for PBXNativeTarget "IdentityCoreSwift" */;
+			buildPhases = (
+				1EE8FF5224F4BB3800CA1445 /* Sources */,
+				1EE8FF5324F4BB3800CA1445 /* Frameworks */,
+				1EE8FF5424F4BB3800CA1445 /* CopyFiles */,
+				1EE8FF6124F4BEDB00CA1445 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IdentityCoreSwift;
+			productName = IdentityCoreSwift;
+			productReference = 1EE8FF5624F4BB3800CA1445 /* libIdentityCoreSwift.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 231CE9B31FE86EA300E95D3E /* Build configuration list for PBXNativeTarget "MSIDTestsHostApp" */;
@@ -5496,6 +5569,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1EE8FF5F24F4BB9300CA1445 /* PBXTargetDependency */,
 				D6D9A4C11FBE718200EFA430 /* PBXTargetDependency */,
 				D626FF511FBA6DFD00EE4487 /* PBXTargetDependency */,
 				231CE9B61FE86F1E00E95D3E /* PBXTargetDependency */,
@@ -5533,6 +5607,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1EE8FF6824F4C2EE00CA1445 /* PBXTargetDependency */,
 				D6D9A4C71FBE719D00EFA430 /* PBXTargetDependency */,
 				D626FF6F1FBA6EDF00EE4487 /* PBXTargetDependency */,
 			);
@@ -5599,9 +5674,14 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = MSID;
+				LastSwiftUpdateCheck = 1160;
 				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = Microsoft;
 				TargetAttributes = {
+					1EE8FF5524F4BB3800CA1445 = {
+						CreatedOnToolsVersion = 11.6;
+						ProvisioningStyle = Automatic;
+					};
 					231CE99C1FE86EA300E95D3E = {
 						CreatedOnToolsVersion = 8.3.3;
 						ProvisioningStyle = Automatic;
@@ -5629,7 +5709,7 @@
 					};
 					D626FF491FBA6DFC00EE4487 = {
 						CreatedOnToolsVersion = 9.1;
-						LastSwiftMigration = 0940;
+						LastSwiftMigration = 1160;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 231CE99C1FE86EA300E95D3E;
 					};
@@ -5639,7 +5719,7 @@
 					};
 					D626FF671FBA6EDF00EE4487 = {
 						CreatedOnToolsVersion = 9.1;
-						LastSwiftMigration = 0940;
+						LastSwiftMigration = 1160;
 						ProvisioningStyle = Automatic;
 					};
 					D626FFD21FBD1F2B00EE4487 = {
@@ -5680,6 +5760,7 @@
 				B27551D420817A1E00AA7A38 /* IdentityAutomationAppLib Mac */,
 				B2ED1BA52204D24700A24E82 /* IdentityAutomationTestLib iOS */,
 				B2ED1BB22204D26700A24E82 /* IdentityAutomationTestLib Mac */,
+				1EE8FF5524F4BB3800CA1445 /* IdentityCoreSwift */,
 			);
 		};
 /* End PBXProject section */
@@ -5711,7 +5792,35 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		1EE8FF6124F4BEDB00CA1445 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n# target directory is Project root directory\ntarget_dir=${SRCROOT}/include/\n# Ensure the target include path exists\nmkdir -p ${target_dir}\n# Copy any file that looks like a Swift generated header to the include path\ncp ${DERIVED_SOURCES_DIR}/*-Swift.h ${target_dir}\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		1EE8FF5224F4BB3800CA1445 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1EE8FF5924F4BB3800CA1445 /* IdentityCoreSwift.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		231CE9991FE86EA300E95D3E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -5970,6 +6079,7 @@
 				23CA0C4A220A3B6900768729 /* MSIDPKeyAuthHandlerTests.m in Sources */,
 				80B6BF3C2480A3E30031BFE8 /* MSIDWorkPlaceJoinUtilTests.m in Sources */,
 				B223B0A622ADEE5900FB8713 /* MSIDMaskedLogParameterTests.m in Sources */,
+				1EE8FF6524F4C0E600CA1445 /* File.swift in Sources */,
 				239FE699236A593300D846AC /* MSIDJsonSerializableFactoryTests.m in Sources */,
 				B2DD4B4220A934BC0047A66E /* MSIDTokenFilteringHelperTests.m in Sources */,
 				239DF9C320E04BC9002D428B /* MSIDADFSAuthorityTests.m in Sources */,
@@ -6344,6 +6454,7 @@
 				23CC944920465CEC00AA0551 /* MSIDTokenCacheDataSourceIntegrationTests.m in Sources */,
 				B86FA7D62383757A00E5195A /* MSIDMacKeychainTokenCacheTests.m in Sources */,
 				23985AB82391F8D100942308 /* MSIDBrokerOperationInteractiveTokenRequestTests.m in Sources */,
+				1EE8FF6624F4C0E600CA1445 /* File.swift in Sources */,
 				1E4252362187DA1B00C149E9 /* MSIDAppMetadataCacheQueryTests.m in Sources */,
 				B286BA03238A091B007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */,
 				B216825D23AB069900F4897A /* MSIDSSOExtensionGetAccountsRequestIntegrationTests.m in Sources */,
@@ -6902,6 +7013,16 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1EE8FF5F24F4BB9300CA1445 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1EE8FF5524F4BB3800CA1445 /* IdentityCoreSwift */;
+			targetProxy = 1EE8FF5E24F4BB9300CA1445 /* PBXContainerItemProxy */;
+		};
+		1EE8FF6824F4C2EE00CA1445 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1EE8FF5524F4BB3800CA1445 /* IdentityCoreSwift */;
+			targetProxy = 1EE8FF6724F4C2EE00CA1445 /* PBXContainerItemProxy */;
+		};
 		231CE9B61FE86F1E00E95D3E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 231CE99C1FE86EA300E95D3E /* MSIDTestsHostApp */;
@@ -6949,6 +7070,133 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		1EE8FF5A24F4BB3800CA1445 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1EE8FF5B24F4BB3800CA1445 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UBF8T346G9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		231CE9B11FE86EA300E95D3E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -7561,10 +7809,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
 			name = Debug;
@@ -7573,9 +7826,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E961FC3626A00CD70C5 /* identitycore__tests__ios.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests iOS-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MSIDTestsHostApp.app/MSIDTestsHostApp";
 			};
 			name = Release;
@@ -7609,12 +7866,17 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UBF8T346G9;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
 		};
@@ -7622,11 +7884,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D6CF4E9B1FC3626B00CD70C5 /* identitycore__tests__mac.xcconfig */;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = UBF8T346G9;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/include/";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				SWIFT_OBJC_BRIDGING_HEADER = "tests/IdentityCoreTests Mac-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -7711,6 +7977,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		1EE8FF5C24F4BB3800CA1445 /* Build configuration list for PBXNativeTarget "IdentityCoreSwift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1EE8FF5A24F4BB3800CA1445 /* Debug */,
+				1EE8FF5B24F4BB3800CA1445 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		231CE9B31FE86EA300E95D3E /* Build configuration list for PBXNativeTarget "MSIDTestsHostApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
