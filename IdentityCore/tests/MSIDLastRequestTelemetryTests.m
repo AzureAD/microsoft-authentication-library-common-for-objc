@@ -217,8 +217,6 @@
     
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
     
-    //[[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
-    //[[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
     [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
     [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
     
