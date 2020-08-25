@@ -1,3 +1,4 @@
+* Add swift static lib target to support AES GCM.
 * Fix unused parameter errors for macOS target. (#816)
 * Move openBroswerResponse handling into its operation for CPP integration (#817)
 * Cleanup noisy SSO extension logs (#812)
