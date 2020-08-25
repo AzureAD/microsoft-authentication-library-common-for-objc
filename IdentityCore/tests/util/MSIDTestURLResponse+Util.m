@@ -128,6 +128,7 @@
                                            @"scope" : requestScopes,
                                            @"grant_type" : @"refresh_token",
                                            @"refresh_token" : requestRT,
+                                           @"redirect_uri" : @"my_redirect_uri",
                                            @"client_info" : @"1"} mutableCopy];
 
     if (requestClaims)
@@ -179,6 +180,7 @@
                                           @"scope" : requestScopes,
                                           @"grant_type" : @"refresh_token",
                                           @"refresh_token" : requestRT,
+                                          @"redirect_uri" : @"my_redirect_uri",
                                           @"client_info" : @"1"} mutableCopy];
 
     if (requestClaims)

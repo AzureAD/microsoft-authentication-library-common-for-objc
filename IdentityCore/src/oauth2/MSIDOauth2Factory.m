@@ -287,7 +287,7 @@
     
     if (!token.refreshToken)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize refresh token when missing refresh token field");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Trying to initialize refresh token when missing refresh token field");
         return NO;
     }
 
@@ -452,6 +452,7 @@
                                                                                                clientId:parameters.clientId
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken
+                                                                                            redirectUri:parameters.redirectUri
                                                                                         extraParameters:parameters.extraTokenRequestParameters
                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];

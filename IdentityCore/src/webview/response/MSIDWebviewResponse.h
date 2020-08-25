@@ -33,6 +33,7 @@
 
 @property (readonly) NSDictionary *parameters;
 @property (readonly) NSURL *url;
+@property (nonatomic, class, readonly) NSString *operation;
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context

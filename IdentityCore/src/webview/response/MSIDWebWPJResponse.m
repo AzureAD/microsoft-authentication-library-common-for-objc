@@ -27,8 +27,16 @@
 
 #import "MSIDWebWPJResponse.h"
 #import "MSIDClientInfo.h"
+#import "MSIDWebResponseOperationConstants.h"
+#import "MSIDWebResponseOperationFactory.h"
+#import "MSIDWebResponseBrokerInstallOperation.h"
 
 @implementation MSIDWebWPJResponse
+
++ (void)load
+{
+    [MSIDWebResponseOperationFactory registerOperationClass:MSIDWebResponseBrokerInstallOperation.class forResponseClass:self];
+}
 
 - (instancetype)initWithURL:(NSURL *)url
                     context:(id<MSIDRequestContext>)context
@@ -98,5 +106,9 @@
     return NO;
 }
 
++ (NSString *)operation
+{
+    return MSID_INSTALL_BROKER_OPERATION;
+}
 
 @end

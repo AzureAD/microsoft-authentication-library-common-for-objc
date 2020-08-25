@@ -39,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                               error:(NSError **)error;
 
+- (MSIDAssymetricKeyPair *)generateEphemeralKeyPair:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -226,6 +226,7 @@
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
                                                                                                    authScheme:parameters.authScheme
                                                                                                      clientId:parameters.clientId
+                                                                                                  redirectUri:parameters.redirectUri
                                                                                                  enrollmentId:enrollmentId
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken

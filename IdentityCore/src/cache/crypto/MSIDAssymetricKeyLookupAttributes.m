@@ -41,6 +41,7 @@
 
     NSMutableDictionary *publicKeyAttr = [NSMutableDictionary new];
     publicKeyAttr[(__bridge id)kSecAttrApplicationTag] = [self.publicKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
+    publicKeyAttr[(__bridge id)kSecAttrIsExtractable] = @YES;
     
     keyPairAttr[(__bridge id)kSecPrivateKeyAttrs] = privateKeyAttr;
     keyPairAttr[(__bridge id)kSecPublicKeyAttrs] = publicKeyAttr;

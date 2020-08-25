@@ -24,7 +24,7 @@
 #import <XCTest/XCTest.h>
 #import "MSIDAssymetricKeyKeychainGenerator.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
-#import "MSIDAssymetricKeyPair.h"
+#import "MSIDAssymetricKeyPair+Test.h"
 #if !TARGET_OS_IPHONE
 #import "MSIDAssymetricKeyLoginKeychainGenerator.h"
 #endif

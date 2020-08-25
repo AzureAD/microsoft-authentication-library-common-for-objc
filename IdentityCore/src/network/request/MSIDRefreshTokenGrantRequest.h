@@ -31,6 +31,7 @@
                                   clientId:(nonnull NSString *)clientId
                                      scope:(nullable NSString *)scope
                               refreshToken:(nonnull NSString *)refreshToken
+                               redirectUri:(nullable NSString *)redirectUri
                            extraParameters:(nullable NSDictionary *)extraParameters
                                    context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;
 
