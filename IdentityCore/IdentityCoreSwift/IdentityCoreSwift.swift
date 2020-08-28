@@ -30,6 +30,5 @@ which will be used in Objective C file.
 */
 @objc open class SwiftOneFileA: NSObject {
 @objc public func testOne() {
-      print("Swift One Library - File A - testOne function")
 }
 }
