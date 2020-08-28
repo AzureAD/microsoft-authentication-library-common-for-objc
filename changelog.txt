@@ -1,13 +1,9 @@
 Version 1.5.6
 -----
-* Enabled the following XCODE 11.4 recommended settings within "identitycore__common.xcconfig" as per customer request. (#821)
- -CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED;
- -CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS;
- -CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF;
-
+* Enabled XCODE 11.4 recommended settings by default(#821)
+* Add swift static lib target to support AES GCM.
 
 Version 1.5.5
-------
 * Fix unused parameter errors for macOS target. (#816)
 * Move openBroswerResponse handling into its operation for CPP integration (#817)
 * Cleanup noisy SSO extension logs (#812)
