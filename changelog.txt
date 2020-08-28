@@ -1,3 +1,11 @@
+Version 1.5.6
+-----
+* Enabled the following XCODE 11.4 recommended settings within "identitycore__common.xcconfig" as per customer request.
+ -CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED;
+ -CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS;
+ -CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF;
+
+
 Version 1.5.5
 ------
 * Fix unused parameter errors for macOS target. (#816)
@@ -14,15 +22,6 @@ Version 1.5.5
 * Add operation factory for broker installation integration with other framework (#779)
 * Add logger connector which allows to override logger behaviour. (#796)
 * Include redirect uri in body when redeeming refresh token at token endpoint (#815)
-
-Version 1.5.5
------
-* Enabled the following XCODE 11.4 recommended settings within
-"identitycore__common.xcconfig" as per customer request.
- -CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED;
- -CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS;
- -CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF;
-
 
 Version 1.5.4
 -----
