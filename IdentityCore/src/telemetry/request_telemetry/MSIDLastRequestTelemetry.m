@@ -224,7 +224,7 @@ static const NSInteger currentSchemaVersion = 2;
     dispatch_barrier_async(_synchronizationQueue, ^{
         if(errorInfo)
         {
-            self->_errorsInfo = [self->_errorsInfo count] ? self->_errorsInfo : [NSMutableArray new];
+           self->_errorsInfo = [self->_errorsInfo count] ? self->_errorsInfo : [NSMutableArray new];
            [self->_errorsInfo addObject:errorInfo];
         }
         
