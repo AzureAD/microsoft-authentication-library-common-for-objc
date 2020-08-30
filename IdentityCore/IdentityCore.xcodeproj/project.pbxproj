@@ -5665,7 +5665,7 @@
 			attributes = {
 				CLASSPREFIX = MSID;
 				LastSwiftUpdateCheck = 1160;
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = Microsoft;
 				TargetAttributes = {
 					1EE8FF5524F4BB3800CA1445 = {
@@ -7937,6 +7937,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				SWIFT_COMPILATION_MODE = wholemodule;
 			};
 			name = Release;
 		};
