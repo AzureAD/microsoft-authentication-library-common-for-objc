@@ -102,6 +102,15 @@ static BOOL s_useLastRequestURL = NO;
         return NO;
     }
     
+    if (s_certAuthInProgress)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Certificate authentication challenge already in progress, ignoring duplicate cert auth challenge.");
+        
+        // Cancel the Cert Auth Challenge happened in the webview, as we have already handled it in SFSafariViewController
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
+        return YES;
+    }
+    
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Received CertAuthChallengehost from : %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));
     
     NSURL *requestURL = [currentSession.webviewController startURL];
