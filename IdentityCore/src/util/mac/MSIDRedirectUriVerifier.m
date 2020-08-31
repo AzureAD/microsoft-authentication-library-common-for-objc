@@ -34,7 +34,7 @@
 {
     if (![NSString msidIsStringNilOrBlank:customRedirectUri])
     {
-        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:customRedirectUri]];
+        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:customRedirectUri]] || bypassRedirectValidation;
         return [[MSIDRedirectUri alloc] initWithRedirectUri:[NSURL URLWithString:customRedirectUri]
                                               brokerCapable:isBrokerCapable];
     }
