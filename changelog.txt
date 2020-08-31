@@ -1,6 +1,8 @@
 * Ignore duplicate certificate authentication challenge in system webview.
+* Indicate whether SSO extension account is available for device wide SSO (#825)
+* Add swift static lib target to support AES GCM.
+
 Version 1.5.5
-------
 * Fix unused parameter errors for macOS target. (#816)
 * Move openBroswerResponse handling into its operation for CPP integration (#817)
 * Cleanup noisy SSO extension logs (#812)
