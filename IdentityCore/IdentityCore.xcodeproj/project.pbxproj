@@ -7675,6 +7675,43 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				WARNING_CFLAGS = (
+          "-Wall",
+          "-Werror",
+          "-Wextra",
+          "-Wassign-enum",
+          "-Wblock-capture-autoreleasing",
+          "-Wbool-conversion",
+          "-Wcomma",
+          "-Wconditional-uninitialized",
+          "-Wconstant-conversion",
+          "-Wdeprecated-declarations",
+          "-Wdeprecated-implementations",
+          "-Wdeprecated-objc-isa-usage",
+          "-Wduplicate-method-match",
+          "-Wdocumentation",
+          "-Wempty-body",
+          "-Wenum-conversion",
+          "-Wfatal-errors",
+          "-Wfloat-conversion",
+          "-Wheader-hygiene",
+          "-Wincompatible-pointer-types",
+          "-Wint-conversion",
+          "-Winvalid-offsetof",
+          "-Wnewline-eof",
+          "-Wno-unknown-pragmas",
+          "-Wnon-literal-null-conversion",
+          "-Wnon-modular-include-in-framework-module",
+          "-Wnon-virtual-dtor",
+          "-Wobjc-literal-conversion",
+          "-Wobjc-root-class",
+          "-Wprotocol",
+          "-Wshorten-64-to-32",
+          "-Wstrict-prototypes",
+          "-Wundeclared-selector",
+          "-Wunreachable-code",
+          "-Wunused-parameter",
+				);
 			};
 			name = Debug;
 		};
@@ -7688,6 +7725,43 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				WARNING_CFLAGS = (
+          "-Wall",
+          "-Werror",
+          "-Wextra",
+          "-Wassign-enum",
+          "-Wblock-capture-autoreleasing",
+          "-Wbool-conversion",
+          "-Wcomma",
+          "-Wconditional-uninitialized",
+          "-Wconstant-conversion",
+          "-Wdeprecated-declarations",
+          "-Wdeprecated-implementations",
+          "-Wdeprecated-objc-isa-usage",
+          "-Wduplicate-method-match",
+          "-Wdocumentation",
+          "-Wempty-body",
+          "-Wenum-conversion",
+          "-Wfatal-errors",
+          "-Wfloat-conversion",
+          "-Wheader-hygiene",
+          "-Wincompatible-pointer-types",
+          "-Wint-conversion",
+          "-Winvalid-offsetof",
+          "-Wnewline-eof",
+          "-Wno-unknown-pragmas",
+          "-Wnon-literal-null-conversion",
+          "-Wnon-modular-include-in-framework-module",
+          "-Wnon-virtual-dtor",
+          "-Wobjc-literal-conversion",
+          "-Wobjc-root-class",
+          "-Wprotocol",
+          "-Wshorten-64-to-32",
+          "-Wstrict-prototypes",
+          "-Wundeclared-selector",
+          "-Wunreachable-code",
+          "-Wunused-parameter",
+				);
 			};
 			name = Release;
 		};
