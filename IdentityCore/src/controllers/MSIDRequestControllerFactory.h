@@ -45,6 +45,7 @@
 + (nullable MSIDSignoutController *)signoutControllerForParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                                 shouldWipeAccount:(BOOL)shouldWipeAccount
                                                              error:(NSError * _Nullable * _Nullable)error;
 
 @end

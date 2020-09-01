@@ -37,12 +37,32 @@
 
 @implementation MSIDSSOExtensionSignoutController
 
+- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                 shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                        shouldWipeAccount:(BOOL)shouldWipeAccount
+                             oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                                    error:(NSError * _Nullable * _Nullable)error
+{
+    self = [super initWithRequestParameters:parameters
+                   shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                               oauthFactory:oauthFactory
+                                      error:error];
+    
+    if (self)
+    {
+        _shouldWipeAccount = shouldWipeAccount;
+    }
+    
+    return self;
+}
+
 - (void)executeRequestWithCompletion:(MSIDSignoutRequestCompletionBlock)completionBlock
 {
     if (!completionBlock) return;
     
     self.currentSSORequest = [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:self.parameters
                                                                       shouldSignoutFromBrowser:NO
+                                                                             shouldWipeAccount:self.shouldWipeAccount
                                                                       clearSSOExtensionCookies:NO
                                                                                   oauthFactory:self.factory];
         

@@ -27,9 +27,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@class MSIDInteractiveRequestParameters;
+@class MSIDOauth2Factory;
+
 API_AVAILABLE(ios(13.0), macos(10.15))
 @interface MSIDSSOExtensionSignoutController : MSIDSignoutController
 
+@property (nonatomic, readonly) BOOL shouldWipeAccount;
+
+- (instancetype)initWithRequestParameters:(MSIDInteractiveRequestParameters *)parameters
+                 shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                        shouldWipeAccount:(BOOL)shouldWipeAccount
+                             oauthFactory:(MSIDOauth2Factory *)oauthFactory
+                                    error:(NSError * _Nullable * _Nullable)error;
+ 
 + (BOOL)canPerformRequest;
 
 @end
