@@ -50,7 +50,7 @@ static WKWebViewConfiguration *s_webConfig;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         s_webConfig = [WKWebViewConfiguration new];
-        
+        s_webConfig.applicationNameForUserAgent = @"PKeyAuth/1.0";
         if (@available(iOS 13.0, *))
         {
             s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;

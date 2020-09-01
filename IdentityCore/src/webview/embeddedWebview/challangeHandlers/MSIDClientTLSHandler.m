@@ -44,6 +44,9 @@
                 context:(id<MSIDRequestContext>)context
       completionHandler:(ChallengeCompletionHandler)completionHandler
 {
+#if TARGET_OS_IPHONE
+    return NO;
+#else
     NSString *host = challenge.protectionSpace.host;
     
     MSID_LOG_INFO(context, @"Attempting to handle client TLS challenge");
@@ -55,9 +58,7 @@
     {
         return [self handleWPJChallenge:challenge context:context completionHandler:completionHandler];
     }
-#if TARGET_OS_IPHONE
-    return NO;
-#else
+    
     return [self handleCertAuthChallenge:challenge webview:webview context:context completionHandler:completionHandler];
 #endif
 }
