@@ -1,3 +1,7 @@
+Version 1.0.19
+-------------
+* Disable WPJ Challenge & append "PKeyAuth/1.0" to the User-Agent string field to enable PKeyAuth challenge on iOS
+
 Version 1.0.17
 -------------
 * Remove SHA-1 dependency for ADAL (#696)
