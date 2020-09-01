@@ -26,6 +26,10 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBaseBrokerOperationRequest : NSObject
+{
+@protected
+    NSUUID *_correlationId;
+}
 
 @property (nonatomic, class, readonly) NSString *operation;
 @property (nonatomic) NSUUID *correlationId;
