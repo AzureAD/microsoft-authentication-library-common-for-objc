@@ -34,8 +34,16 @@
 {
     if (![NSString msidIsStringNilOrBlank:customRedirectUri])
     {
-        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:[NSURL URLWithString:customRedirectUri]] || bypassRedirectValidation;
-        return [[MSIDRedirectUri alloc] initWithRedirectUri:[NSURL URLWithString:customRedirectUri]
+        NSURL *customRedirectURL = [NSURL URLWithString:customRedirectUri];
+        
+        if (!customRedirectURL.scheme && !bypassRedirectValidation)
+        {
+            MSIDFillAndLogError(error, MSIDErrorInvalidDeveloperParameter, @"Invalid redirect URI provided", nil);
+            return nil;
+        }
+        
+        BOOL isBrokerCapable = [MSIDRedirectUri redirectUriIsBrokerCapable:customRedirectURL] || bypassRedirectValidation;
+        return [[MSIDRedirectUri alloc] initWithRedirectUri:customRedirectURL
                                               brokerCapable:isBrokerCapable];
     }
 
