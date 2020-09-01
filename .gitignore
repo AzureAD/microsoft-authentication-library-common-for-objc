@@ -5,6 +5,7 @@
 ## Build generated
 build/
 DerivedData/
+IdentityCore/include/
 
 ## Various settings
 *.pbxuser
