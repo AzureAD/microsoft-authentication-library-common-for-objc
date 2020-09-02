@@ -81,14 +81,23 @@ MSID_FORM_ACCESSOR(@"scope", scope);
     return self.formDictionary[@"suberror"];
 }
 
-- (NSString *)httpHeaders
+- (NSDictionary *)httpHeaders
 {
-    return self.errorMetadata[@"http_response_headers"];
-}
-
-- (NSString *)username
-{
-    return self.errorMetadata[@"username"];
+    // Currently broker may return http headers as both dictionary or string due to bug fix,
+    // we need to handle both to support broker with/without the fix
+    id headers = self.errorMetadata[@"http_response_headers"];
+    
+    if ([headers isKindOfClass:NSDictionary.class])
+    {
+        return headers;
+    }
+    
+    if ([headers isKindOfClass:NSString.class])
+    {
+        return [NSDictionary msidDictionaryFromWWWFormURLEncodedString:headers];
+    }
+    
+    return nil;
 }
 
 @end

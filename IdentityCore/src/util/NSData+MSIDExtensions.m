@@ -28,15 +28,6 @@
 
 @implementation NSData (MSIDExtensions)
 
-- (NSData *)msidSHA1
-{
-    unsigned char hash[CC_SHA1_DIGEST_LENGTH];
-    CC_SHA1(self.bytes, (CC_LONG)self.length, hash);
-    
-    return [NSData dataWithBytes:hash length:CC_SHA1_DIGEST_LENGTH];
-}
-
-
 - (NSData *)msidSHA256
 {
     unsigned char hash[CC_SHA256_DIGEST_LENGTH];
@@ -101,5 +92,32 @@
     return data;
 }
 
+- (NSData *)msidDecryptedDataWithAlgorithm:(SecKeyAlgorithm)algorithm
+                                privateKey:(SecKeyRef)privateKey API_AVAILABLE(ios(10.0), macos(10.12))
+{
+    if ([self length] == 0)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to encrypt was empty");
+        return nil;
+    }
+    
+    if (!SecKeyIsAlgorithmSupported(privateKey, kSecKeyOperationTypeDecrypt, algorithm))
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
+        return nil;
+    }
+    
+    CFErrorRef error = nil;
+    NSData *decryptedMessage = (NSData *)CFBridgingRelease(SecKeyCreateDecryptedData(privateKey, algorithm, (__bridge CFDataRef)self, &error));
+    
+    if (error)
+    {
+        NSError *err = CFBridgingRelease(error);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to decrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", err.code]]);
+        return nil;
+    }
+    
+    return decryptedMessage;
+}
 
 @end

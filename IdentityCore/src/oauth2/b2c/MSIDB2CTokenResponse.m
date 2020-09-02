@@ -28,12 +28,25 @@
 #import "MSIDB2CTokenResponse.h"
 #import "MSIDB2CIdTokenClaims.h"
 #import "MSIDTokenResponse+Internal.h"
+#import "MSIDJsonSerializableTypes.h"
+#import "MSIDJsonSerializableFactory.h"
 
 @implementation MSIDB2CTokenResponse
+
++ (void)load
+{
+    [MSIDJsonSerializableFactory registerClass:self forClassType:MSID_JSON_TYPE_B2C_TOKEN_RESPONSE];
+    [MSIDJsonSerializableFactory mapJSONKey:MSID_PROVIDER_TYPE_JSON_KEY keyValue:MSID_JSON_TYPE_PROVIDER_B2C kindOfClass:MSIDTokenResponse.class toClassType:MSID_JSON_TYPE_B2C_TOKEN_RESPONSE];
+}
 
 - (MSIDIdTokenClaims *)tokenClaimsFromRawIdToken:(NSString *)rawIdToken error:(NSError **)error
 {
     return [[MSIDB2CIdTokenClaims alloc] initWithRawIdToken:rawIdToken error:error];
+}
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeB2C;
 }
 
 @end

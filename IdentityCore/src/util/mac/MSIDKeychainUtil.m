@@ -23,6 +23,9 @@
 
 #import "MSIDKeychainUtil.h"
 #import "MSIDKeychainUtil+Internal.h"
+#import "MSIDKeychainUtil+MacInternal.h"
+
+static NSString *MSIDKeychainAccessGroupEntitlement = @"keychain-access-groups";
 
 @implementation MSIDKeychainUtil
 
@@ -63,25 +66,29 @@
         if (!cfDic)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
-            CFRelease(selfCode);
-            return nil;
         }
-        
-        NSDictionary* signingDic = CFBridgingRelease(cfDic);
-        keychainTeamId = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
-        
-        if (!keychainTeamId)
+        else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");
-            NSString *bundleIdentifier = [signingDic objectForKey:(__bridge NSString*)kSecCodeInfoIdentifier];
-            CFRelease(selfCode);
-            return bundleIdentifier;
+            NSDictionary *signingDic = CFBridgingRelease(cfDic);
+            NSString *appIdPrefix = [self appIdPrefixFromSigningInformation:signingDic];
+            keychainTeamId = appIdPrefix ? appIdPrefix : [self teamIdFromSigningInformation:signingDic];
         }
-        
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
         CFRelease(selfCode);
     }
     
+    if (!keychainTeamId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve team identifier. Using bundle Identifier instead.");\
+        keychainTeamId = [[NSBundle mainBundle] bundleIdentifier];
+
+        if (!keychainTeamId)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve bundle identifier. Using process name instead.");
+            keychainTeamId = [NSProcessInfo processInfo].processName;
+        }
+    }
+
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Using \"%@\" Team ID.", MSID_PII_LOG_MASKABLE(keychainTeamId));
     return keychainTeamId;
 }
 
@@ -98,6 +105,35 @@
     }
     
     return [[NSString alloc] initWithFormat:@"%@.%@", self.teamId, group];
+}
+
+#pragma mark - Signing group prefix
+
+- (NSString *)teamIdFromSigningInformation:(NSDictionary *)signingInformation
+{
+    return [signingInformation objectForKey:(__bridge NSString*)kSecCodeInfoTeamIdentifier];
+}
+
+- (NSString *)appIdPrefixFromSigningInformation:(NSDictionary *)signingInformation
+{
+    NSDictionary *entitlementsDictionary = [signingInformation msidObjectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict ofClass:[NSDictionary class]];
+    NSArray *keychainGroups = [entitlementsDictionary msidObjectForKey:MSIDKeychainAccessGroupEntitlement ofClass:[NSArray class]];
+    
+    NSString *keychainTeamId = nil;
+    
+    if (keychainGroups && [keychainGroups count])
+    {
+        NSString *firstGroup = keychainGroups[0];
+        NSArray *components = [firstGroup componentsSeparatedByString:@"."];
+        
+        if ([components count] > 1)
+        {
+            NSString *bundleSeedID = [components firstObject];
+            keychainTeamId = [bundleSeedID length] ? bundleSeedID : nil;
+        }
+    }
+    
+    return keychainTeamId;
 }
 
 @end

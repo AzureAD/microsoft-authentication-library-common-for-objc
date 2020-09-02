@@ -1,3 +1,100 @@
+* Support bypassing redirectUri validation also on macOS
+* Indicate whether SSO extension account is available for device wide SSO (#825)
+* Add swift static lib target to support AES GCM.
+
+Version 1.5.5
+* Fix unused parameter errors for macOS target. (#816)
+* Move openBroswerResponse handling into its operation for CPP integration (#817)
+* Cleanup noisy SSO extension logs (#812)
+* Mark RSA public key as extractable (#813)
+* Cleanup main product targets from test files (#811)
+* Fix a test bug where the MacKeychainTokenCache could fail to initialize (#799)
+* Save last request telemetry to disk (#768)
+* Fix an incorrectly-cased filename (#808)
+* Save PRT expiry interval in cache to calculate PRT refresh interval more reliably (#804)
+* Move broker redirectUri validation logic into common core from MSAL (#807)
+* Refactor crypto code for cpp integration and add api to generate ephemeral asymmetric key pair (#803)
+* Add operation factory for broker installation integration with other framework (#779)
+* Add logger connector which allows to override logger behaviour. (#796)
+* Include redirect uri in body when redeeming refresh token at token endpoint (#815)
+
+Version 1.5.4
+-----
+* Support for proof of posession for access tokens (#738)
+* Allow brokered authentication for /consumers authority (#774)
+* Account metadata cleanup on account removal (#791)
+* Fix an issue with guest accounts when UPN mismatches across tenants (#797)
+* Symmetric key support for creating a verify signature and key derivation (#805)
+
+Version 1.5.3
+-----
+* Switch to PkeyAuth on macOS (#734)
+* Support returning additional WPJ info (#742)
+* Fixed PkeyAuth when ADFS challenge is URL encoded (#750)
+* Fixed CBA handling in MSAL (#751)
+* Fixed failing unit tests on 10.15 (#760)
+
+Version 1.5.2
+------
+* Fix handling of certificate based authentication challenge.
+
+Version 1.5.1
+------
+* Support client side telemetry in ESTS requests (#740, #732, #712)
+* Add logging for enrollment id mismatch for access tokens (#743)
+* Fix signout state caching in account metadata (#736)
+* Change unit test constants to use a GUID for home account (#733)
+* Support clearing SSO extension cookies (#726)
+* Protect legacy macOS cache when MSAL writes into ADAL cache (#729)
+* Fix NTLM crash when window is not key (#724)
+* Fixed authority validation for developer known authorities (#722)
+
+Version 1.5.0
+------
+* Added Safari SSO support for AAD SSO extension
+* Switched to new lab API
+* Convert access denied error to cancelled
+* Removed default urn redirect uri dependency
+
+Version 1.4.1
+------
+* Fixed macOS cache on 10.15 when App Identifier Prefix is different from TeamId (#697)
+* Remove SHA-1 dependency from production library (#695)
+* Fixed SSO extension + MSIT MFA (#704)
+* Fixed SSO extension swipe down cancellation case (#703)
+* Handle http headers coming from iOS broker when it is either a NSDictionary or NSString (#706)
+
+Version 1.4.0
+------
+* iOS 13 SSO extension support
+* FLW shared device mode support
+* macOS 10.15 system webview support (ASWebAuthenticationSession)
+* Account sign-in state tracking
+
+Version 1.3.12
+-------
+* Keyed unarchiver deserialization fix for iOS 11.2
+* Fixed account lookups and validation with the same email (#669)
+
+Version 1.3.11
+-------
+* Set web config content mode to mobile on iPad
+* Enable dogfood authenticator support by default
+
+Version 1.3.10
+--------
+* Account lookup fix when no refresh tokens present
+
+Version 1.3.9
+---------
+* Fix build issues for cpp repo to compile with CMake build
+
+Version 1.3.8
+---------
+* Componentize macOS ACL keychain operations
+* Improve logging of errors when not needed
+* Added default implementation for ADAL legacy persistence
+
 Version 1.3.7
 ---------
 * Write wipe data to the macOS data protection keychain on 10.15 
@@ -11,6 +108,14 @@ Version 1.3.6
 * Expose instance_aware flag in MSAL config
 * Remove amr64e architecture
 * Fixed static analyser warnings
+
+Version 1.3.5-hotfix2
+---------
+* [Broker patch] Keyed unarchiver deserialization fix for iOS 11.2
+
+Version 1.3.5-hotfix1
+----------
+* [Broker patch] Fixed account lookups and validation with the same email (#669)
 
 Version 1.3.5
 -----------
@@ -66,6 +171,15 @@ Version 1.1.4
 Version 1.1.0
 ------------
 * Added Auth broker support to common core
+
+Version 1.0.17
+-------------
+* Remove SHA-1 dependency for ADAL (#696)
+
+Version 1.0.16
+-------------
+* Fix a presentation bug when both parent controller and webview are set
+* Set default WKWebView content mode
 
 Version 1.0.15
 -------------

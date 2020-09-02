@@ -23,6 +23,7 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDCredentialType.h"
+#import "MSIDProviderType.h"
 
 @class MSIDTokenResponse;
 @class MSIDBaseToken;
@@ -40,8 +41,8 @@
 @class MSIDAuthorizationCodeGrantRequest;
 @class MSIDRequestParameters;
 @class MSIDRefreshTokenGrantRequest;
-@class MSIDWebviewConfiguration;
-@class MSIDInteractiveRequestParameters;
+@class MSIDAuthorizeWebRequestConfiguration;
+@class MSIDInteractiveTokenRequestParameters;
 @class MSIDClientInfo;
 
 @protocol MSIDRequestContext;
@@ -86,6 +87,8 @@
 
 // Webview Factory
 @property (readonly) MSIDWebviewFactory *webviewFactory;
+
+@property (nonatomic, readonly, class) MSIDProviderType providerType;
 
 @end
 

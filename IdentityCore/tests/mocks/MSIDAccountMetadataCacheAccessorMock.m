@@ -73,4 +73,46 @@
     return YES;
 }
 
+- (MSIDAccountIdentifier *)principalAccountIdForClientId:(__unused NSString *)clientId
+                                                 context:(__unused id<MSIDRequestContext>)context
+                                                   error:(NSError **)error
+{
+    if (error) *error = self.mockedPrincipalAccountIdError;
+    return self.mockedPrincipalAccountId;
+}
+
+- (BOOL)updatePrincipalAccountIdForClientId:(NSString *)clientId
+                         principalAccountId:(MSIDAccountIdentifier *)principalAccountId
+                principalAccountEnvironment:(NSString *)principalAccountEnvironment
+                                    context:(__unused id<MSIDRequestContext>)context
+                                      error:(NSError **)error
+{
+    if (error) *error = self.updatePrincipalAccountIdError;
+    
+    struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams s  = self.updatePrincipalAccountIdParams;
+    s.principalAccountId = principalAccountId;
+    s.clientId = clientId;
+    s.accountEnvironment = principalAccountEnvironment;
+    self.updatePrincipalAccountIdParams = s;
+    
+    self.updatePrincipalAccountIdInvokedCount++;
+    
+    return self.updatePrincipalAccountIdResult;
+}
+
+- (BOOL)removeAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                      context:(__unused id<MSIDRequestContext>)context
+                                        error:(NSError **)error
+{
+    if (error) *error = self.removeAccountMetadataForHomeAccountIdError;
+    
+    struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams s  = self.removeAccountMetadataForHomeAccountIdParams;
+    s.homeAccountId = homeAccountId;
+    self.removeAccountMetadataForHomeAccountIdParams = s;
+    
+    self.removeAccountMetadataForHomeAccountIdInvokedCount++;
+    
+    return self.removeAccountMetadataForHomeAccountIdResult;
+}
+
 @end

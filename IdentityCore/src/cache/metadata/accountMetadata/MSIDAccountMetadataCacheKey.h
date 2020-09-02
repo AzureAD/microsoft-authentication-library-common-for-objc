@@ -25,7 +25,6 @@
 
 @interface MSIDAccountMetadataCacheKey : MSIDCacheKey
 
-- (instancetype)initWitHomeAccountId:(NSString *)homeAccountId
-                            clientId:(NSString *)clientId;
+- (instancetype)initWithClientId:(NSString *)clientId;
 
 @end

@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDApplicationTestUtil.h"
+#import <objc/message.h>
 
 BOOL (^s_onOpenUrl)(NSURL *url, NSDictionary<NSString *, id> *options) = nil;
 static NSArray *s_canOpenURLSchemes = nil;
@@ -56,11 +57,27 @@ static NSArray *s_canOpenURLSchemes = nil;
 @end
 
 
-#pragma push
+#pragma mark push
 #pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
 @implementation UIApplication (TestOverride)
 
-- (BOOL)openURL:(NSURL *)url
++ (void)load
+{
+    
+    Method openUrlStr = class_getInstanceMethod(UIApplication.class, @selector(openURL:));
+    Method msidOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(msidOpenURL:));
+    method_exchangeImplementations(openUrlStr, msidOpenUrlStr);
+    
+    Method openUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(openURL:options:completionHandler:));
+    Method msidOpenUrlOptionsCompletionHandlerStr = class_getInstanceMethod(UIApplication.class, @selector(msidOpenURL:options:completionHandler:));
+    method_exchangeImplementations(openUrlOptionsCompletionHandlerStr, msidOpenUrlOptionsCompletionHandlerStr);
+    
+    Method canOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(canOpenURL:));
+    Method msidCanOpenUrlStr = class_getInstanceMethod(UIApplication.class, @selector(msidCanOpenURL:));
+    method_exchangeImplementations(canOpenUrlStr, msidCanOpenUrlStr);
+}
+
+- (BOOL)msidOpenURL:(NSURL *)url
 {
     if (!s_onOpenUrl)
     {
@@ -70,7 +87,7 @@ static NSArray *s_canOpenURLSchemes = nil;
     return s_onOpenUrl(url, nil);
 }
 
-- (BOOL)canOpenURL:(NSURL *)url
+- (BOOL)msidCanOpenURL:(NSURL *)url
 {
     if (s_canOpenURLSchemes)
     {
@@ -80,13 +97,13 @@ static NSArray *s_canOpenURLSchemes = nil;
     return YES;
 }
 
-- (void)openURL:(NSURL*)url
+- (void)msidOpenURL:(NSURL*)url
         options:(NSDictionary<NSString *, id> *)options
 completionHandler:(void (^ __nullable)(BOOL success))completionHandler
 {
     completionHandler(s_onOpenUrl(url, options));
 }
 
-#pragma pop
+#pragma mark pop
 
 @end

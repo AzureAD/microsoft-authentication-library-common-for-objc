@@ -40,10 +40,12 @@
                              MSID_OAUTH2_CLIENT_INFO,
                              MSID_FAMILY_ID,
                              MSID_TELEMETRY_KEY_SPE_INFO,
-                             MSID_OAUTH2_EXT_EXPIRES_IN, @"url",
+                             MSID_OAUTH2_EXT_EXPIRES_IN,
+                             @"url",
+                             @"ext_expires_on",
                              MSID_OAUTH2_SUB_ERROR];
     
-    NSDictionary *additionalInfo = [additionalServerInfo dictionaryByRemovingFields:knownFields];
+    NSDictionary *additionalInfo = [additionalServerInfo msidDictionaryByRemovingFields:knownFields];
     
     [super setAdditionalServerInfo:additionalInfo];
 }
@@ -90,7 +92,11 @@
     json[MSID_OAUTH2_SUB_ERROR] = self.suberror;
     json[@"adi"] = self.additionalUserId;
     json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;
-    json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
+    if (!self.error)
+    {
+        json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
+        json[@"ext_expires_on"] = [@(self.extendedExpiresOn) stringValue];
+    }
     
     return json;
 }

@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDSilentController.h"
+#import "MSIDSilentController+Internal.h"
 #import "MSIDSilentTokenRequest.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDTelemetry+Internal.h"
@@ -33,6 +33,7 @@
 @interface MSIDSilentController()
 
 @property (nonatomic, readwrite) BOOL forceRefresh;
+@property (nonatomic) MSIDSilentTokenRequest *currentRequest;
 
 @end
 
@@ -77,6 +78,23 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent flow.");
     
+    MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        completionBlock(result, error);
+    };
+    
+    __auto_type request = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
+                                                                         forceRefresh:self.forceRefresh];
+    
+    [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
+}
+
+#pragma mark - Protected
+
+- (void)acquireTokenWithRequest:(MSIDSilentTokenRequest *)request
+                completionBlock:(MSIDRequestCompletionBlock)completionBlock
+{
     if (!completionBlock)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Passed nil completionBlock");
@@ -85,28 +103,23 @@
 
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
 
-    MSIDSilentTokenRequest *silentRequest = [self.tokenRequestProvider silentTokenRequestWithParameters:self.requestParameters
-                                                                                           forceRefresh:self.forceRefresh];
-
-    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
+    self.currentRequest = request;
+    [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {
-        MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent flow finished result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
-            completionBlock(result, error);
-        };
-        
         if (result || !self.fallbackController)
         {
             MSIDTelemetryAPIEvent *telemetryEvent = [self telemetryAPIEvent];
             [telemetryEvent setUserInformation:result.account];
             [telemetryEvent setIsExtendedLifeTimeToken:result.extendedLifeTimeToken ? MSID_TELEMETRY_VALUE_YES : MSID_TELEMETRY_VALUE_NO];
             [self stopTelemetryEvent:telemetryEvent error:error];
-            completionBlockWrapper(result, error);
+            self.currentRequest = nil;
+            
+            completionBlock(result, error);
             return;
         }
 
-        [self.fallbackController acquireToken:completionBlockWrapper];
+        self.currentRequest = nil;
+        [self.fallbackController acquireToken:completionBlock];
     }];
 }
 

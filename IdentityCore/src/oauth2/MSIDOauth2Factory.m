@@ -30,7 +30,7 @@
 #import "MSIDLegacySingleResourceToken.h"
 #import "MSIDIdToken.h"
 #import "MSIDAccount.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDLegacyAccessToken.h"
 #import "MSIDLegacyRefreshToken.h"
 #import "MSIDWebviewFactory.h"
@@ -40,14 +40,20 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDRefreshTokenGrantRequest.h"
-#import "MSIDWebviewConfiguration.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDOpenIdProviderMetadata.h"
 #import "MSIDTokenResponseSerializer.h"
 #import "MSIDV1IdToken.h"
 #import "MSIDClaimsRequest.h"
+#import "MSIDAuthenticationScheme.h"
 
 @implementation MSIDOauth2Factory
+
++ (MSIDProviderType)providerType
+{
+    @throw @"Abstract method was invoked.";
+}
 
 #pragma mark - Response
 
@@ -76,6 +82,9 @@
     {
         if (error)
         {
+            NSMutableDictionary *userInfo = [NSMutableDictionary new];
+            userInfo[MSIDBrokerVersionKey] = response.clientAppVersion;
+            
             *error = MSIDCreateError(MSIDOAuthErrorDomain,
                                      response.oauthErrorCode,
                                      response.errorDescription,
@@ -83,7 +92,7 @@
                                      nil,
                                      nil,
                                      context.correlationId,
-                                     nil, NO);
+                                     userInfo, NO);
         }
         return NO;
     }
@@ -121,11 +130,12 @@
 - (MSIDAccessToken *)accessTokenFromResponse:(MSIDTokenResponse *)response
                                configuration:(MSIDConfiguration *)configuration
 {
-    MSIDAccessToken *accessToken = [[MSIDAccessToken alloc] init];
+    MSIDAccessToken *accessToken = configuration.authScheme.accessToken;
     
     BOOL result = [self fillAccessToken:accessToken fromResponse:response configuration:configuration];
 
     if (!result) return nil;
+    
     return accessToken;
 }
 
@@ -277,7 +287,7 @@
     
     if (!token.refreshToken)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Trying to initialize refresh token when missing refresh token field");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Trying to initialize refresh token when missing refresh token field");
         return NO;
     }
 
@@ -418,6 +428,7 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                       authScheme:parameters.authScheme
                                                                                                          clientId:parameters.clientId
                                                                                                             scope:allScopes
                                                                                                       redirectUri:parameters.redirectUri
@@ -437,9 +448,11 @@
     NSString *allScopes = [parameters allTokenRequestScopes];
 
     MSIDRefreshTokenGrantRequest *tokenRequest = [[MSIDRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                             authScheme:parameters.authScheme
                                                                                                clientId:parameters.clientId
                                                                                                   scope:allScopes
                                                                                            refreshToken:refreshToken
+                                                                                            redirectUri:parameters.redirectUri
                                                                                         extraParameters:parameters.extraTokenRequestParameters
                                                                                                 context:parameters];
     tokenRequest.responseSerializer = [[MSIDTokenResponseSerializer alloc] initWithOauth2Factory:self];

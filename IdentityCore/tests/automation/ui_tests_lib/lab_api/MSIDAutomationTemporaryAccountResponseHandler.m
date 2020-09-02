@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDAutomationTemporaryAccountResponseHandler.h"
-#import "MSIDTestAutomationConfiguration.h"
+#import "MSIDTestAutomationAccount.h"
 
 @implementation MSIDAutomationTemporaryAccountResponseHandler
 
@@ -42,7 +42,7 @@
         return nil;
     }
     
-    MSIDTestAccount *testAccount = [[MSIDTestAccount alloc] initWithJSONResponse:accountsArray[0]];
+    MSIDTestAutomationAccount *testAccount = [[MSIDTestAutomationAccount alloc] initWithJSONDictionary:accountsArray[0] error:nil];
     testAccount.password = nil;
     return testAccount;
 }

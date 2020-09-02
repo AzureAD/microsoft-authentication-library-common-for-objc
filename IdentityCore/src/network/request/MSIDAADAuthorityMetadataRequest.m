@@ -54,6 +54,7 @@
         [requestConfigurator configure:self];
         
         _responseSerializer = [MSIDAADAuthorityMetadataResponseSerializer new];
+        _shouldCacheResponse = YES;
     }
     
     return self;

@@ -25,6 +25,7 @@
 #import "MSIDNTLMUIPrompt.h"
 #import "MSIDCredentialCollectionController.h"
 #import "MSIDMainThreadUtil.h"
+#import <WebKit/WebKit.h>
 
 @interface MSIDNTLMUIPrompt ()
 
@@ -46,7 +47,7 @@ __weak static NSAlert *_presentedPrompt = nil;
     }];
 }
 
-+ (void)presentPrompt:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler
++ (void)presentPromptWithWebView:(WKWebView *)webview completion:(void (^)(NSString *username, NSString *password, BOOL cancel))completionHandler
 {
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         NSAlert *alert = [NSAlert new];
@@ -62,7 +63,9 @@ __weak static NSAlert *_presentedPrompt = nil;
         
         [[alert window] setInitialFirstResponder:view.usernameField];
         
-        [alert beginSheetModalForWindow:[NSApp keyWindow] completionHandler:^(NSModalResponse returnCode)
+        NSWindow *window = webview.window ? webview.window : [NSApp keyWindow];
+        
+        [alert beginSheetModalForWindow:window completionHandler:^(NSModalResponse returnCode)
          {
              // The first button being added is "Login" button
              if (returnCode == NSAlertFirstButtonReturn)

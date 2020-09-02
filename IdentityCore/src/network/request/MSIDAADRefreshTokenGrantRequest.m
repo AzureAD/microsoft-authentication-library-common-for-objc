@@ -27,7 +27,9 @@
 @implementation MSIDAADRefreshTokenGrantRequest
 
 - (instancetype)initWithEndpoint:(NSURL *)endpoint
+                      authScheme:(MSIDAuthenticationScheme *)authScheme
                         clientId:(NSString *)clientId
+                     redirectUri:(NSString *)redirectUri
                     enrollmentId:(NSString *)enrollmentId
                            scope:(NSString *)scope
                     refreshToken:(NSString *)refreshToken
@@ -35,7 +37,7 @@
                  extraParameters:(NSDictionary *)extraParameters
                          context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope refreshToken:refreshToken extraParameters:extraParameters context:context];
+    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope refreshToken:refreshToken redirectUri:redirectUri extraParameters:extraParameters context:context];
     if (self)
     {
         __auto_type requestConfigurator = [MSIDAADRequestConfigurator new];

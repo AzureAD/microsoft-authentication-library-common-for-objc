@@ -28,7 +28,7 @@
 #import "MSIDCredentialCacheItem+MSIDBaseToken.h"
 #import "MSIDAccountCacheItem.h"
 #import "MSIDAppMetadataCacheItem.h"
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDJsonObject.h"
 
 #if !TARGET_OS_IPHONE

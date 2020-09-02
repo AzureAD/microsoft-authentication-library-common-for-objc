@@ -34,8 +34,9 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAppMetadataCacheKey.h"
 #import "MSIDAppMetadataCacheQuery.h"
-#import "MSIDAccountMetadataCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheKey.h"
+#import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDKeychainTokenCacheIntegrationTests : XCTestCase
 
@@ -166,6 +167,25 @@
     MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
     token2.secret = @"some token";
     token2.credentialType = MSIDAccessTokenType;
+    MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    [keychainTokenCache saveToken:token key:key serializer:serializer context:nil error:nil];
+    [keychainTokenCache saveToken:token2 key:key serializer:serializer context:nil error:nil];
+    MSIDCredentialCacheItem *tokenResult = [keychainTokenCache tokenWithKey:key serializer:serializer context:nil error:nil];
+    
+    XCTAssertEqualObjects(tokenResult, token2);
+}
+
+- (void)testSetItem_whenItemAlreadyExistInKeychain_shouldUpdateIt_ATPopFlow
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCredentialCacheItem *token = [MSIDCredentialCacheItem new];
+    token.secret = @"some token";
+    token.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    MSIDCredentialCacheItem *token2 = [MSIDCredentialCacheItem new];
+    token2.secret = @"some token";
+    token2.credentialType = MSIDAccessTokenWithAuthSchemeType;
     MSIDCacheKey *key = [[MSIDCacheKey alloc] initWithAccount:@"test_account" service:@"test_service" generic:self.generic type:nil];
     MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
@@ -629,30 +649,31 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId" clientId:@"clientId"];
-    MSIDAccountMetadataCacheItem *item = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
-    
-    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:@"clientId"];
+    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
+    MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    [metadata setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
+    [cacheItem addAccountMetadata:metadata forHomeAccountId:@"homeAccountId" error:nil];
     
     NSError *error;
-    XCTAssertTrue([keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:&error]);
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:cacheItem key:key serializer:serializer context:nil error:&error]);
     XCTAssertNil(error);
     
-    MSIDAccountMetadataCacheItem *cachedItem = [keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:&error];
-    XCTAssertNotNil(cachedItem);
+    MSIDAccountMetadataCacheItem *itemFromCache = [keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:&error];
+    XCTAssertNotNil(itemFromCache);
     XCTAssertNil(error);
-    XCTAssertEqualObjects(item, cachedItem);
+    XCTAssertEqualObjects(cacheItem, itemFromCache);
     
     // Resave with different item
-    XCTAssertTrue([item setCachedURL:[NSURL URLWithString:@"https://internalContoso2.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:&error]);
+    XCTAssertTrue([metadata setCachedURL:[NSURL URLWithString:@"https://internalContoso2.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:&error]);
     XCTAssertNil(error);
     
-    XCTAssertTrue([keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:&error]);
-    cachedItem = [keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:&error];
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:cacheItem key:key serializer:serializer context:nil error:&error]);
+    itemFromCache = [keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:&error];
     
-    XCTAssertNotNil(item);
+    XCTAssertNotNil(itemFromCache);
     XCTAssertNil(error);
-    XCTAssertEqualObjects(item, cachedItem);
+    XCTAssertEqualObjects(cacheItem, itemFromCache);
 }
 
 - (void)testRemoveAccountMetadata_shouldRemoveItem
@@ -660,10 +681,13 @@
     MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
     MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
     
-    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWitHomeAccountId:@"homeAccountId" clientId:@"clientId"];
-    MSIDAccountMetadataCacheItem *item = [[MSIDAccountMetadataCacheItem alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
-    [item setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
-    [keychainTokenCache saveAccountMetadata:item key:key serializer:serializer context:nil error:nil];
+    MSIDAccountMetadataCacheKey *key = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:@"clientId"];
+    MSIDAccountMetadataCacheItem *cacheItem = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId"];
+    MSIDAccountMetadata *metadata = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId"];
+    [metadata setCachedURL:[NSURL URLWithString:@"https://internalContoso.com"] forRequestURL:[NSURL URLWithString:@"https://contoso.com"] instanceAware:NO error:nil];
+    [cacheItem addAccountMetadata:metadata forHomeAccountId:@"homeAccountId" error:nil];
+    
+    [keychainTokenCache saveAccountMetadata:cacheItem key:key serializer:serializer context:nil error:nil];
     
     XCTAssertNotNil([keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:nil]);
     
@@ -671,7 +695,52 @@
     XCTAssertTrue([keychainTokenCache removeAccountMetadataForKey:key context:nil error:&error]);
     XCTAssertNil(error);
     XCTAssertNil([keychainTokenCache accountMetadataWithKey:key serializer:serializer context:nil error:nil]);
-    
-    
 }
+
+- (void)testAccountsMetadataWithKey_whenMultipleAccountMetadata_shouldReturnThem
+{
+    MSIDKeychainTokenCache *keychainTokenCache = [MSIDKeychainTokenCache new];
+    MSIDCacheItemJsonSerializer *serializer = [MSIDCacheItemJsonSerializer new];
+    
+    // Save account metadata item 1
+    MSIDAccountMetadataCacheKey *key1 = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:@"clientId1"];
+    MSIDAccountMetadataCacheItem *cacheItem1 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId1"];
+    
+    MSIDAccountMetadata *metadata1 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId" clientId:@"clientId1"];
+    [metadata1 setCachedURL:[NSURL URLWithString:@"https://internalContoso1.com"] forRequestURL:[NSURL URLWithString:@"https://contoso1.com"] instanceAware:NO error:nil];
+    MSIDAccountMetadata *metadata2 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId2" clientId:@"clientId1"];
+    [metadata2 setCachedURL:[NSURL URLWithString:@"https://internalContoso2.com"] forRequestURL:[NSURL URLWithString:@"https://contoso2.com"] instanceAware:NO error:nil];
+    [cacheItem1 addAccountMetadata:metadata1 forHomeAccountId:@"homeAccountId" error:nil];
+    [cacheItem1 addAccountMetadata:metadata2 forHomeAccountId:@"homeAccountId2" error:nil];
+
+    NSError *error;
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:cacheItem1 key:key1 serializer:serializer context:nil error:&error]);
+    XCTAssertNil(error);
+    
+    // Save account metadata item 2
+    MSIDAccountMetadataCacheKey *key2 = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:@"clientId2"];
+    MSIDAccountMetadataCacheItem *cacheItem2 = [[MSIDAccountMetadataCacheItem alloc] initWithClientId:@"clientId2"];
+    
+    MSIDAccountMetadata *metadata3 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId3" clientId:@"clientId2"];
+    [metadata3 setCachedURL:[NSURL URLWithString:@"https://internalContoso3.com"] forRequestURL:[NSURL URLWithString:@"https://contoso3.com"] instanceAware:NO error:nil];
+    MSIDAccountMetadata *metadata4 = [[MSIDAccountMetadata alloc] initWithHomeAccountId:@"homeAccountId4" clientId:@"clientId2"];
+    [metadata4 setCachedURL:[NSURL URLWithString:@"https://internalContoso4.com"] forRequestURL:[NSURL URLWithString:@"https://contoso4.com"] instanceAware:NO error:nil];
+    [cacheItem2 addAccountMetadata:metadata3 forHomeAccountId:@"homeAccountId3" error:nil];
+    [cacheItem2 addAccountMetadata:metadata4 forHomeAccountId:@"homeAccountId4" error:nil];
+    
+    error = nil;
+    XCTAssertTrue([keychainTokenCache saveAccountMetadata:cacheItem2 key:key2 serializer:serializer context:nil error:&error]);
+    XCTAssertNil(error);
+    
+    // Verify items from cache
+    MSIDAccountMetadataCacheKey *retrieveKey = [[MSIDAccountMetadataCacheKey alloc] initWithClientId:nil];
+    NSArray *itemsFromCache = [keychainTokenCache accountsMetadataWithKey:retrieveKey serializer:serializer context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqual(itemsFromCache.count, 2);
+    
+    XCTAssertEqualObjects(itemsFromCache[0], cacheItem1);
+    XCTAssertEqualObjects(itemsFromCache[1], cacheItem2);
+}
+
 @end

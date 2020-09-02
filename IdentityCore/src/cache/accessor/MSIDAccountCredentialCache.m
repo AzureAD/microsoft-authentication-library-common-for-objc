@@ -228,6 +228,7 @@
                                                                                        credentialType:credential.credentialType];
     
     key.familyId = credential.familyId;
+    key.tokenType = credential.tokenType;
     key.realm = credential.realm;
     key.target = credential.target;
     key.applicationIdentifier = credential.applicationIdentifier;
@@ -282,7 +283,7 @@
 }
 
 // Remove credentials
-- (BOOL)removeCredetialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
+- (BOOL)removeCredentialsWithQuery:(nonnull MSIDDefaultCredentialCacheQuery *)cacheQuery
                           context:(nullable id<MSIDRequestContext>)context
                             error:(NSError * _Nullable * _Nullable)error
 {
@@ -323,6 +324,7 @@
     key.target = credential.target;
     key.applicationIdentifier = credential.applicationIdentifier;
     key.appKey = credential.appKey;
+    key.tokenType = credential.tokenType;
     
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
     

@@ -27,9 +27,11 @@
 @interface MSIDAADV1RefreshTokenGrantRequest : MSIDAADRefreshTokenGrantRequest
 
 - (instancetype _Nullable )initWithEndpoint:(nonnull NSURL *)endpoint
+                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                    clientId:(nonnull NSString *)clientId
                                       scope:(nullable NSString *)scope
                                refreshToken:(nonnull NSString *)refreshToken
+                                redirectUri:(nonnull NSString *)redirectUri
                                    resource:(nonnull NSString *)resource
                             extraParameters:(nullable NSDictionary *)extraParameters
                                     context:(nullable id<MSIDRequestContext>)context NS_DESIGNATED_INITIALIZER;

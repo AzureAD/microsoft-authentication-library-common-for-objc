@@ -28,5 +28,6 @@
 @property (nonatomic) NSURL *authorizationEndpoint;
 @property (nonatomic) NSURL *tokenEndpoint;
 @property (nonatomic) NSURL *issuer;
+@property (nonatomic) NSURL *endSessionEndpoint;
 
 @end

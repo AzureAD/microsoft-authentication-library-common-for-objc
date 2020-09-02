@@ -35,8 +35,15 @@
 #import "MSIDAppMetadataCacheItem.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
+#import "MSIDJsonObject.h"
 
-NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
+
+#if TARGET_OS_IPHONE
+    NSString *const MSIDAdalKeychainGroup = @"com.microsoft.adalcache";
+#else
+    NSString *const MSIDAdalKeychainGroup = @"com.microsoft.identity.universalstorage";
+#endif
+
 static NSString *const s_wipeLibraryString = @"Microsoft.ADAL.WipeAll.1";
 static MSIDKeychainTokenCache *s_defaultCache = nil;
 static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
@@ -436,16 +443,24 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError **)error
 {
-    NSArray *items = [self itemsWithKey:key context:context error:error];
+    NSArray *metadataItems = [self accountsMetadataWithKey:key serializer:serializer context:context error:error];
+    if (!metadataItems) return nil;
     
-    if (!items || items.count < 1)
+    if (metadataItems.count < 1)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Found no metadata item.");
         return nil;
     }
     
-    NSData *itemData = [items[0] objectForKey:(id)kSecValueData];
-    return (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:itemData ofClass:[MSIDAccountMetadataCacheItem class]];
+    return metadataItems[0];
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                                                             context:(id<MSIDRequestContext>)context
+                                                               error:(NSError **)error
+{
+    return [self cacheItemsWithKey:key serializer:serializer cacheItemClass:MSIDAccountMetadataCacheItem.class context:context error:error];
 }
 
 #pragma mark - Removal
@@ -662,9 +677,9 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
                 [tokenItems addObject:tokenItem];
             }
         }
-        else
+        else if ([attrs objectForKey:(id)kSecAttrType])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Failed to deserialize token item.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to deserialize token item.");
         }
     }
     

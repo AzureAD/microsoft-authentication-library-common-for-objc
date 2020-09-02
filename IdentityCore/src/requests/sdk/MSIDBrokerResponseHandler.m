@@ -35,6 +35,11 @@
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
+#import "MSIDDeviceInfo.h"
+#import "NSMutableDictionary+MSIDExtensions.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthScheme.h"
 
 @interface MSIDBrokerResponseHandler()
 
@@ -42,9 +47,12 @@
 @property (nonatomic, readwrite) MSIDBrokerCryptoProvider *brokerCryptoProvider;
 @property (nonatomic, readwrite) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic, readwrite) id<MSIDCacheAccessor> tokenCache;
+@property (nonatomic, readwrite) MSIDAccountMetadataCacheAccessor *accountMetadataCacheAccessor;
 
 @property (nonatomic, readwrite) BOOL sourceApplicationAvailable;
 @property (nonatomic, readwrite) NSString *brokerNonce;
+@property (nonatomic, readwrite) NSURL *providedAuthority;
+@property (nonatomic, readwrite) BOOL instanceAware;
 
 @end
 
@@ -83,6 +91,9 @@
     NSUUID *correlationId = [[NSUUID alloc] initWithUUIDString:[resumeState objectForKey:@"correlation_id"]];
     NSString *keychainGroup = resumeState[@"keychain_group"];
     NSString *oidcScope = resumeState[@"oidc_scope"];
+    NSString *providedAuthorityStr = [resumeState msidStringObjectForKey:@"provided_authority_url"] ?: [resumeState msidStringObjectForKey:@"authority"];
+    self.providedAuthority = providedAuthorityStr ? [NSURL URLWithString:providedAuthorityStr] : nil;
+    self.instanceAware = [resumeState msidBoolObjectForKey:@"instance_aware"];
     self.brokerNonce = resumeState[@"broker_nonce"];
     self.sourceApplicationAvailable = sourceApplication != nil;
 
@@ -115,11 +126,22 @@
         if (error) *error = cacheError;
         return nil;
     }
+    
+    NSError *accountMetadataError;
+    self.accountMetadataCacheAccessor = [self accountMetadataCacheWithKeychainGroup:keychainGroup error:&accountMetadataError];
+    
+    if (accountMetadataError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create account metadata cache with error %@", MSID_PII_LOG_MASKABLE(accountMetadataError));
+    }
+    
+    MSIDAuthenticationScheme *authScheme = [self authSchemeFromResumeState:resumeState];
 
     NSError *brokerError = nil;
     MSIDBrokerResponse *brokerResponse = [self brokerResponseFromEncryptedQueryParams:queryParamsMap
                                                                             oidcScope:oidcScope
                                                                         correlationId:correlationId
+                                                                           authScheme:authScheme
                                                                                 error:&brokerError];
 
     if (!brokerResponse)
@@ -144,10 +166,32 @@
     
     return [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                             oidcScope:oidcScope
+                                                     requestAuthority:self.providedAuthority
+                                                        instanceAware:self.instanceAware
                                                          oauthFactory:self.oauthFactory
                                                            tokenCache:self.tokenCache
+                                                 accountMetadataCache:self.accountMetadataCacheAccessor
                                                         correlationID:correlationId
+                                                     saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                           authScheme:authScheme
                                                                 error:error];
+}
+
+- (MSIDAuthenticationScheme *)authSchemeFromResumeState:(NSDictionary *)resumeState
+{
+    NSMutableDictionary *schemeParams = [NSMutableDictionary new];
+    NSString *tokenType = resumeState[MSID_OAUTH2_TOKEN_TYPE];
+    NSString *requestConf = resumeState[MSID_OAUTH2_REQUEST_CONFIRMATION];
+    [schemeParams msidSetNonEmptyString:tokenType forKey:MSID_OAUTH2_TOKEN_TYPE];
+    [schemeParams msidSetNonEmptyString:requestConf forKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
+    if (![NSString msidIsStringNilOrBlank:tokenType] && MSIDAuthSchemeTypeFromString(tokenType) == MSIDAuthSchemePop)
+    {
+        return [[MSIDAuthenticationSchemePop alloc] initWithSchemeParameters:schemeParams];
+    }
+    else
+    {
+        return [[MSIDAuthenticationScheme alloc] initWithSchemeParameters:schemeParams];
+    }
 }
 
 - (BOOL)canHandleBrokerResponse:(NSURL *)response
@@ -238,6 +282,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(__unused NSDictionary *)encryptedParams
                                                      oidcScope:(__unused NSString *)oidcScope
                                                  correlationId:(__unused NSUUID *)correlationID
+                                                    authScheme:(__unused MSIDAuthenticationScheme *)authScheme
                                                          error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
@@ -246,6 +291,13 @@
 
 - (id<MSIDCacheAccessor>)cacheAccessorWithKeychainGroup:(__unused NSString *)keychainGroup
                                                   error:(__unused NSError **)error
+{
+    NSAssert(NO, @"Abstract method, implemented in subclasses");
+    return nil;
+}
+
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
 {
     NSAssert(NO, @"Abstract method, implemented in subclasses");
     return nil;

@@ -87,14 +87,21 @@
 
     NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
-    NSDictionary *symmetricKeyQuery =
-    @{
+    NSMutableDictionary *symmetricKeyQuery =
+    [@{
       (id)kSecClass : (id)kSecClassKey,
       (id)kSecAttrApplicationTag : symmetricTag,
       (id)kSecAttrKeyType : @(CSSM_ALGID_AES),
       (id)kSecReturnData : @(YES),
       (id)kSecAttrAccessGroup : self.keychainAccessGroup
-      };
+      } mutableCopy];
+    
+#if !TARGET_OS_IPHONE
+    if (@available(macOS 10.15, *))
+    {
+        symmetricKeyQuery[(id)kSecUseDataProtectionKeychain] = @YES;
+    }
+#endif
 
     // Get the key bits.
     CFDataRef symmetricKey = nil;
@@ -136,6 +143,36 @@
     return [self createBrokerKeyWithError:error];
 }
 
+- (NSString *)base64BrokerKeyWithContext:(id<MSIDRequestContext>)context
+                                   error:(NSError **)error
+{
+    NSError *localError;
+    NSData *brokerKey = [self brokerKeyWithError:&localError];
+    
+    if (!brokerKey)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, context, @"Failed to retrieve broker key with error %@", MSID_PII_LOG_MASKABLE(localError));
+        
+        if (error) *error = localError;
+        return nil;
+    }
+    
+    NSString *base64UrlKey = [[NSString msidBase64UrlEncodedStringFromData:brokerKey] msidWWWFormURLEncode];
+    
+    if (!base64UrlKey)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Unable to base64 encode broker key");
+
+        NSError *localError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to base64 encode broker key", nil, nil, nil, context.correlationId, nil, YES);
+        
+        if (error) *error = localError;
+        
+        return nil;
+    }
+    
+    return base64UrlKey;
+}
+
 - (NSData *)createBrokerKeyWithError:(NSError **)error
 {
     uint8_t *symmetricKey = NULL;
@@ -162,8 +199,8 @@
 
     NSData *symmetricTag = [self.keyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
 
-    NSDictionary *symmetricKeyAttr =
-    @{
+    NSMutableDictionary *symmetricKeyAttr =
+    [@{
       (id)kSecClass : (id)kSecClassKey,
       (id)kSecAttrKeyClass : (id)kSecAttrKeyClassSymmetric,
       (id)kSecAttrApplicationTag : (id)symmetricTag,
@@ -175,7 +212,14 @@
       (id)kSecValueData : keyData,
       (id)kSecAttrAccessible : (id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
       (id)kSecAttrAccessGroup : self.keychainAccessGroup
-      };
+      } mutableCopy];
+    
+#if !TARGET_OS_IPHONE
+    if (@available(macOS 10.15, *))
+    {
+        symmetricKeyAttr[(id)kSecUseDataProtectionKeychain] = @YES;
+    }
+#endif
 
     // First delete current symmetric key.
     if (![self deleteSymmetricKeyWithError:error])

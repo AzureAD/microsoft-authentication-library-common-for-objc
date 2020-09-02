@@ -45,6 +45,7 @@
 #import "MSIDCacheItemJsonSerializer.h"
 #import "MSIDDefaultCredentialCacheQuery.h"
 #import "MSIDConstants.h"
+#import "MSIDLoginKeychainUtil.h"
 
 /**
  This Mac cache stores serialized cache credentials in the macOS "login" Keychain.
@@ -297,7 +298,6 @@ References(s):
 static NSString *s_defaultKeychainGroup = @"com.microsoft.identity.universalstorage";
 static NSString *s_defaultKeychainLabel = @"Microsoft Credentials";
 static MSIDMacKeychainTokenCache *s_defaultCache = nil;
-static dispatch_queue_t s_synchronizationQueue;
 static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 @interface MSIDMacKeychainTokenCache ()
@@ -308,8 +308,6 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 @property MSIDMacCredentialStorageItem *appStorageItem;
 @property MSIDMacCredentialStorageItem *sharedStorageItem;
 @property MSIDCacheItemJsonSerializer *serializer;
-@property (readwrite, nonnull) id accessForSharedBlob;
-@property (readwrite, nonnull) id accessForNonSharedBlob;
 
 @end
 
@@ -384,7 +382,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 {
     MSID_TRACE;
 
-    self = [super init];
+    self = [super initWithTrustedApplications:trustedApplications accessLabel:s_defaultKeychainLabel error:error];
     if (self)
     {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
@@ -412,7 +410,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
             keychainGroup = [[NSBundle mainBundle] bundleIdentifier];
         }
 
-        MSIDKeychainUtil *keychainUtil = [MSIDKeychainUtil sharedInstance];
+        MSIDKeychainUtil *keychainUtil = [MSIDLoginKeychainUtil sharedInstance];
         
         if (!keychainUtil.teamId)
         {
@@ -444,45 +442,8 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
             return nil;
         }
         
-        NSArray *appList = [self createTrustedAppListWithCurrentApp:error];
-        
-        if (![appList count])
-        {
-            return nil;
-        }
-        
-        if (![trustedApplications count])
-        {
-            trustedApplications = appList;
-        }
-        
-        self.accessForSharedBlob = [self accessCreateWithChangeACL:trustedApplications error:error];
-        if (!self.accessForSharedBlob)
-        {
-            return nil;
-        }
-        
-        self.accessForNonSharedBlob = [self accessCreateWithChangeACL:appList error:error];
-        if (!self.accessForNonSharedBlob)
-        {
-            return nil;
-        }
-        
         self.appIdentifier = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
                               NSProcessInfo.processInfo.processIdentifier];
-
-        // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
-        // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
-        // However, it's not entirely clear if this applies to all keychain APIs.
-        // Since our applications often perform a large number of cache reads on mulitple threads, it would be preferable to
-        // allow concurrent readers, even if writes are serialized. For this reason this is a concurrent queue, and the
-        // dispatch queue calls are used. We intend to clarify this behavior with Apple.
-        //
-        // To protect the underlying keychain API, a single queue is used even if multiple instances of this class are allocated.
-        static dispatch_once_t s_once;
-        dispatch_once(&s_once, ^{
-            s_synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
-        });
 
         self.defaultCacheQuery = @{
                                    // All account items are saved as generic passwords.
@@ -817,31 +778,11 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     [query addEntriesFromDictionary:[self primaryAttributesForItem:isShared context:context error:error]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
-    NSMutableDictionary *update = [NSMutableDictionary dictionary];
-    update[(id)kSecValueData] = itemData;
     
-    __block OSStatus status;
-    dispatch_barrier_sync(s_synchronizationQueue, ^{
-        status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)update);
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d.", (int)status);
-        
-        if (status == errSecItemNotFound)
-        {
-            [query addEntriesFromDictionary:update];
-            status = SecItemAdd((CFDictionaryRef)query, NULL);
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain add status: %d.", (int)status);
-        }
-    });
-    
-    if (status != errSecSuccess)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to write item to keychain (status: %d).", (int)status);
-        [self createError:@"Failed to write item to keychain."
-                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-        return NO;
-    }
-    
-    return YES;
+    return [self saveData:itemData
+               attributes:query
+                  context:context
+                    error:error];
 }
 
 - (BOOL)removeStorageItem:(BOOL)isShared
@@ -852,23 +793,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     [query addEntriesFromDictionary:[self primaryAttributesForItem:isShared context:context error:error]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
-    __block OSStatus status;
-    dispatch_barrier_sync(s_synchronizationQueue, ^{
-        status = SecItemDelete((CFDictionaryRef)query);
-    });
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain delete status: %d.", (int)status);
-    
-    if (status != errSecSuccess && status != errSecItemNotFound)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to remove multiple items from keychain (status: %d).", (int)status);
-        [self createError:@"Failed to remove multiple items from keychain."
-                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-        return NO;
-    }
-    
-    return YES;
+    return [self removeItemWithAttributes:query context:context error:error];
 }
 
 - (MSIDMacCredentialStorageItem *)queryStorageItem:(BOOL)isShared
@@ -892,27 +817,15 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
     [query addEntriesFromDictionary:[self primaryAttributesForItem:isShared context:context error:error]];
     query[(id)kSecAttrService] = s_defaultKeychainLabel;
-    query[(id)kSecReturnAttributes] = (__bridge id)kCFBooleanTrue;
-    query[(id)kSecReturnData] = (__bridge id)kCFBooleanTrue;
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Trying to find keychain items...");
-    
-    __block CFDictionaryRef result = nil;
-    __block OSStatus status;
-    
-    dispatch_sync(s_synchronizationQueue, ^{
-        status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&result);
-    });
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Keychain find status: %d.", (int)status);
     
     BOOL storageItemIsEmpty = NO;
     
-    if (status == errSecSuccess)
+    NSError *readError = nil;
+    NSData *data = [self getDataWithAttributes:query context:context error:&readError];
+    
+    if (data)
     {
-        NSDictionary *resultDict = (__bridge_transfer NSDictionary *)result;
-        NSData *storageData = [resultDict objectForKey:(id)kSecValueData];
-        storageItem = (MSIDMacCredentialStorageItem *)[serializer deserializeCredentialStorageItem:storageData];
+        storageItem = (MSIDMacCredentialStorageItem *)[serializer deserializeCredentialStorageItem:data];
         
         if (!storageItem)
         {
@@ -927,15 +840,13 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         
         storageItemIsEmpty = !storageItem.count;
     }
-    else if (status == errSecItemNotFound)
+    else if (readError)
     {
-        storageItemIsEmpty = YES;
+        if (error) *error = readError;
     }
     else
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to read stored item from keychain (status: %d).", (int)status);
-        [self createError:@"Failed to read stored item from keychain."
-                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
+        storageItemIsEmpty = YES;
     }
     
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
@@ -987,13 +898,13 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     {
         // Shareable item attributes: <keychainGroup>
         [attributes setObject:self.keychainGroup forKey:(id)kSecAttrAccount];
-        [attributes setObject:self.accessForSharedBlob forKey:(id)kSecAttrAccess];
+        [attributes setObject:self.accessControlForSharedItems forKey:(id)kSecAttrAccess];
     }
     else
     {
         // Non-Shareable item attributes: <keychainGroup>-<app_bundle_id>
         [attributes setObject:[NSString stringWithFormat:@"%@-%@", self.keychainGroup, [[NSBundle mainBundle] bundleIdentifier]] forKey:(id)kSecAttrAccount];
-        [attributes setObject:self.accessForNonSharedBlob forKey:(id)kSecAttrAccess];
+        [attributes setObject:self.accessControlForNonSharedItems forKey:(id)kSecAttrAccess];
     }
     
     return attributes;
@@ -1064,16 +975,12 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                                                  context:(id<MSIDRequestContext>)context
                                                    error:(NSError *__autoreleasing *)error
 {
-    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
-    NSArray *itemList = [storageItem storedItemsForKey:key];
-    
-    /*
-     Merge in memory with persistence only if not found in memory to cover the case when 2 apps sharing the same clientId can modify the same entry in the keychain.
-     */
-    if (![itemList count])
+    NSError *localError;
+    NSArray *itemList = [self accountsMetadataWithKey:key serializer:serializer context:context error:&localError];
+    if (localError)
     {
-        storageItem = [self syncStorageItem:key.isShared serializer:serializer context:context error:error];
-        itemList = [storageItem storedItemsForKey:key];
+        if (error) *error = localError;
+        return nil;
     }
     
     if (itemList.count > 1)
@@ -1086,6 +993,26 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     
     return itemList.firstObject;
     
+}
+
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key
+                                                          serializer:(id<MSIDExtendedCacheItemSerializing>)serializer
+                                                             context:(id<MSIDRequestContext>)context
+                                                               error:(NSError **)error
+{
+    MSIDMacCredentialStorageItem *storageItem = key.isShared ? self.sharedStorageItem : self.appStorageItem;
+    NSArray *itemList = [storageItem storedItemsForKey:key];
+    
+    /*
+     Merge in memory with persistence only if not found in memory to cover the case when 2 apps sharing the same clientId can modify the same entry in the keychain.
+     */
+    if (![itemList count])
+    {
+        storageItem = [self syncStorageItem:key.isShared serializer:serializer context:context error:error];
+        itemList = [storageItem storedItemsForKey:key];
+    }
+    
+    return itemList;
 }
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
@@ -1118,114 +1045,12 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                    error:(NSError **)error
 
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"Clearing the whole context. This should only be executed in tests.");
-    
-    // Delete all accounts for the keychainGroup
-    NSMutableDictionary *query = [self.defaultCacheQuery mutableCopy];
-    query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to delete keychain items...");
-    __block OSStatus status;
-    dispatch_barrier_sync(s_synchronizationQueue, ^{
-        status = SecItemDelete((CFDictionaryRef)query);
-    });
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain delete status: %d.", (int)status);
+    // Clear in-memory cache
+    self.appStorageItem = [MSIDMacCredentialStorageItem new];
+    self.sharedStorageItem = [MSIDMacCredentialStorageItem new];
 
-    if (status != errSecSuccess && status != errSecItemNotFound)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Failed to remove items from keychain.", nil, nil, nil, context.correlationId, nil, NO);
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to delete keychain items (status: %d).", (int)status);
-        }
-        return NO;
-    }
-
-    return YES;
-}
-
-#pragma mark - Access Control Lists
-
-- (NSArray *)createTrustedAppListWithCurrentApp:(NSError **)error
-{
-    SecTrustedApplicationRef trustedApplication = nil;
-    OSStatus status = SecTrustedApplicationCreateFromPath(nil, &trustedApplication);
-    if (status != errSecSuccess)
-    {
-        [self createError:@"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."
-                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:nil];
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecTrustedApplicationRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
-        return nil;
-    }
-    
-    NSArray *trustedApplications = @[(__bridge_transfer id)trustedApplication];
-    return trustedApplications;
-}
-
-- (id)accessCreateWithChangeACL:(NSArray<id> *)trustedApplications error:(NSError **)error
-{
-    SecAccessRef access;
-    OSStatus status = SecAccessCreate((__bridge CFStringRef)s_defaultKeychainLabel, (__bridge CFArrayRef)trustedApplications, &access);
-    
-    if (status != errSecSuccess)
-    {
-        [self createError:@"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured."
-                   domain:MSIDKeychainErrorDomain errorCode:status error:error context:nil];
-         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create SecAccessRef for current application. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
-        return nil;
-    }
-    
-    if (![self accessSetACLTrustedApplications:access
-                           aclAuthorizationTag:kSecACLAuthorizationDecrypt
-                           trustedApplications:trustedApplications
-                                       context:nil
-                                         error:error])
-    {
-        CFReleaseNull(access);
-        return nil;
-    }
-    
-    return CFBridgingRelease(access);
-}
-
-- (BOOL)accessSetACLTrustedApplications:(SecAccessRef)access
-                     aclAuthorizationTag:(CFStringRef)aclAuthorizationTag
-                     trustedApplications:(NSArray<id> *)trustedApplications
-                                 context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
-{
-    NSArray *acls = (__bridge_transfer NSArray*)SecAccessCopyMatchingACLList(access, aclAuthorizationTag);
-    OSStatus status;
-    CFStringRef description = nil;
-    CFArrayRef oldtrustedAppList = nil;
-    SecKeychainPromptSelector selector;
-    
-    // TODO: handle case where tag is not found?
-    for (id acl in acls)
-    {
-        status = SecACLCopyContents((__bridge SecACLRef)acl, &oldtrustedAppList, &description, &selector);
-        
-        if (status != errSecSuccess)
-        {
-            [self createError:@"Failed to get contents from ACL. Please make sure the app you're running is properly signed and keychain access group is configured." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-             MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to get contents from ACL. Please make sure the app you're running is properly signed and keychain access group is configured(status: %d).", (int)status);
-            return NO;
-        }
-        
-        status = SecACLSetContents((__bridge SecACLRef)acl, (__bridge CFArrayRef)trustedApplications, description, selector);
-        
-        if (status != errSecSuccess)
-        {
-            [self createError:@"Failed to set contents for ACL. Please make sure the app you're running is properly signed and keychain access group is configured." domain:MSIDKeychainErrorDomain errorCode:status error:error context:context];
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to set contents for ACL. Please make sure the app you're running is properly signed and keychain access group is configured (status: %d).", (int)status);
-            CFReleaseNull(oldtrustedAppList);
-            CFReleaseNull(description);
-            return NO;
-        }
-    }
-    
-    CFReleaseNull(oldtrustedAppList);
-    CFReleaseNull(description);
-    return YES;
+    // Clear disk cache
+    return [self clearWithAttributes:self.defaultCacheQuery context:context error:error];
 }
 
 #pragma mark - Utilities
@@ -1239,22 +1064,6 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                    errorCode:MSIDErrorUnsupportedFunctionality
                        error:error
                      context:context];
-}
-
-// Allocate an NEError, logging a warning.
-- (BOOL) createError:(NSString*)message
-              domain:(NSErrorDomain)domain
-           errorCode:(NSInteger)code
-               error:(NSError *_Nullable *_Nullable)error
-             context:(id<MSIDRequestContext>)context
-{
-    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,context, @"%@", message);
-    if (error)
-    {
-        *error = MSIDCreateError(domain, code, message, nil, nil, nil, context.correlationId, nil, NO);
-    }
-    
-    return YES;
 }
 
 - (NSString *)keychainGroupLoggingName

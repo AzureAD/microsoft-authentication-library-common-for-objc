@@ -25,6 +25,8 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDVersion.h"
 #import "NSString+MSIDTestUtil.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
 
 @interface MSIDRequestParametersTests : XCTestCase
 
@@ -32,7 +34,14 @@
 
 @implementation MSIDRequestParametersTests
 
-- (void)testInitParameters_withValidParameters_shouldInitReturnNonNil
+
+- (void )testInitParameters_withValidParameters_shouldInitReturnNonNil
+{
+    [self testInitParameters_withValidParameters_shouldInitReturnNonNil_withAuthScheme:[MSIDAuthenticationScheme new]];
+    [self testInitParameters_withValidParameters_shouldInitReturnNonNil_withAuthScheme:[MSIDAuthenticationSchemePop new]];
+}
+
+- (void)testInitParameters_withValidParameters_shouldInitReturnNonNil_withAuthScheme:(MSIDAuthenticationScheme *)authScheme
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
@@ -40,6 +49,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:authScheme
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
@@ -47,6 +57,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNil(error);
@@ -61,9 +72,16 @@
     XCTAssertEqualObjects(parameters.logComponent, [MSIDVersion sdkName]);
     XCTAssertNotNil(parameters.appRequestMetadata);
     XCTAssertEqualObjects(parameters.intuneApplicationIdentifier, @"com.microsoft.mytest");
+    XCTAssertEqualObjects(parameters.authScheme, authScheme);
+}
+- (void)testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme
+{
+    [self testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme:[MSIDAuthenticationScheme new]];
+    [self testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme:[MSIDAuthenticationSchemePop new]];
+
 }
 
-- (void)testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil
+- (void)testInitParameters_withIntersectingOIDCScopes_shouldFailAndReturnNil_withAuthScheme:(MSIDAuthenticationScheme *)authScheme
 {
     MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", @"offline_access", nil];
@@ -71,6 +89,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:authScheme
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
@@ -78,6 +97,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -93,6 +113,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
@@ -100,6 +121,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNotNil(error);
@@ -115,6 +137,7 @@
 
     NSError *error = nil;
     MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
                                                                              redirectUri:@"myredirect"
                                                                                 clientId:@"myclient_id"
                                                                                   scopes:scopes
@@ -122,6 +145,7 @@
                                                                            correlationId:nil
                                                                           telemetryApiId:nil
                                                                      intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
                                                                                    error:&error];
 
     XCTAssertNil(error);

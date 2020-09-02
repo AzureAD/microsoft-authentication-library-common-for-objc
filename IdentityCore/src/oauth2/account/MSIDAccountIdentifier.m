@@ -22,9 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDAccountIdentifier.h"
-#import "MSIDClientInfo.h"
 #import "MSIDMaskedHashableLogParameter.h"
 #import "MSIDMaskedUsernameLogParameter.h"
+
+static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
+static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
 
 @interface MSIDAccountIdentifier()
 
@@ -43,14 +45,7 @@
 #pragma mark - Init
 
 - (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                             clientInfo:(MSIDClientInfo *)clientInfo
-{
-    return [self initWithDisplayableId:legacyAccountId
-                         homeAccountId:clientInfo.accountIdentifier];
-}
-
-- (instancetype)initWithDisplayableId:(NSString *)legacyAccountId
-                          homeAccountId:(NSString *)homeAccountId
+                        homeAccountId:(NSString *)homeAccountId
 {
     if (!(self = [self init]))
     {
@@ -159,6 +154,40 @@
     result &= (!self.localAccountId && !account.localAccountId) || [self.localAccountId isEqualToString:account.localAccountId];
     result &= self.legacyAccountIdentifierType == account.legacyAccountIdentifierType;
     return result;
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    NSString *displayableId = [json msidStringObjectForKey:MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY];
+    NSString *homeAccountId = [json msidStringObjectForKey:MSID_ACCOUNT_HOME_ID_JSON_KEY];
+    
+    if (!displayableId && !homeAccountId)
+    {
+        NSString *message = [NSString stringWithFormat:@"Failed to init %@ from json: displayableId and homeAccountId are nil.", self.class];
+        if (error) *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, message, nil, nil, nil, nil, nil, YES);
+        
+        return nil;
+    }
+    
+    return [self initWithDisplayableId:displayableId homeAccountId:homeAccountId];;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    
+    if (!self.displayableId && !self.homeAccountId)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create json for %@: displayableId and homeAccountId are nil.", self.class);
+        return nil;
+    }
+    
+    json[MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY] = self.displayableId;
+    json[MSID_ACCOUNT_HOME_ID_JSON_KEY] = self.homeAccountId;
+    
+    return json;
 }
 
 @end

@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDRequestContext.h"
 #import "MSIDCacheAccessor.h"
+#import "MSIDConstants.h"
 
 @class MSIDAuthority;
 @class MSIDAccountIdentifier;
@@ -31,10 +32,13 @@
 @class MSIDTokenResponseValidator;
 @class MSIDConfiguration;
 @class MSIDClaimsRequest;
+@class MSIDAuthenticationScheme;
+@class MSIDCurrentRequestTelemetry;
 
-@interface MSIDRequestParameters : NSObject <MSIDRequestContext>
+@interface MSIDRequestParameters : NSObject <NSCopying, MSIDRequestContext>
 
 @property (nonatomic) MSIDAuthority *authority;
+@property (nonatomic) MSIDAuthenticationScheme *authScheme;
 /*
  Authority provided by the developer. It could be different from the `authority` property.
  */
@@ -54,6 +58,8 @@
 @property (nonatomic) BOOL extendedLifetimeEnabled;
 @property (nonatomic) BOOL instanceAware;
 @property (nonatomic) NSString *intuneApplicationIdentifier;
+@property (nonatomic) MSIDRequestType requestType;
+@property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;
@@ -85,6 +91,7 @@
 
 #pragma mark - Init
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
+                       authScheme:(MSIDAuthenticationScheme *)authScheme
                       redirectUri:(NSString *)redirectUri
                          clientId:(NSString *)clientId
                            scopes:(NSOrderedSet<NSString *> *)scopes
@@ -92,6 +99,7 @@
                     correlationId:(NSUUID *)correlationId
                    telemetryApiId:(NSString *)telemetryApiId
               intuneAppIdentifier:(NSString *)intuneApplicationIdentifier
+                      requestType:(MSIDRequestType)requestType
                             error:(NSError **)error;
 
 @end

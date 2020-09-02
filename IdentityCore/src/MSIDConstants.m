@@ -23,41 +23,36 @@
 
 #import "MSIDConstants.h"
 
-NSString *const MSID_PLATFORM_KEY               = @"x-client-SKU";
-NSString *const MSID_SOURCE_PLATFORM_KEY        = @"x-client-src-SKU";
-NSString *const MSID_VERSION_KEY                = @"x-client-Ver";
-NSString *const MSID_CPU_KEY                    = @"x-client-CPU";
-NSString *const MSID_OS_VER_KEY                 = @"x-client-OS";
-NSString *const MSID_DEVICE_MODEL_KEY           = @"x-client-DM";
-NSString *const MSID_APP_NAME_KEY               = @"x-app-name";
-NSString *const MSID_APP_VER_KEY                = @"x-app-ver";
-NSString *const MSID_BROKER_RESUME_DICTIONARY_KEY   =   @"adal-broker-resume-dictionary";
-NSString *const MSID_BROKER_SYMMETRIC_KEY_TAG   = @"com.microsoft.adBrokerKey\0";
-NSString *const MSID_BROKER_ADAL_SCHEME         = @"msauth";
-NSString *const MSID_BROKER_MSAL_SCHEME         = @"msauthv2";
-NSString *const MSID_BROKER_NONCE_SCHEME        = @"msauthv3";
-NSString *const MSID_BROKER_APP_BUNDLE_ID        = @"com.microsoft.azureauthenticator";
-NSString *const MSID_BROKER_APP_BUNDLE_ID_DF     = @"com.microsoft.azureauthenticator-df";
-NSString *const MSID_BROKER_MAX_PROTOCOL_VERSION = @"max_protocol_ver";
-NSString *const MSID_BROKER_PROTOCOL_VERSION_KEY = @"msg_protocol_ver";
-NSString *const MSID_ADAL_BROKER_MESSAGE_VERSION = @"2";
-NSString *const MSID_MSAL_BROKER_MESSAGE_VERSION = @"3";
-NSString *const MSID_AUTHENTICATOR_REDIRECT_URI  = @"urn:ietf:wg:oauth:2.0:oob";
-NSString *const MSID_DEFAULT_FAMILY_ID           = @"1";
-NSString *const MSID_ADAL_SDK_NAME               = @"adal-objc";
-NSString *const MSID_MSAL_SDK_NAME               = @"msal-objc";
-NSString *const MSID_SDK_NAME_KEY                = @"sdk_name";
-NSString *const MSID_BROKER_APPLICATION_TOKEN_TAG = @"com.microsoft.adBrokerAppToken";
+NSString *const MSID_PLATFORM_KEY                  = @"x-client-SKU";
+NSString *const MSID_SOURCE_PLATFORM_KEY           = @"x-client-src-SKU";
+NSString *const MSID_VERSION_KEY                   = @"x-client-Ver";
+NSString *const MSID_CPU_KEY                       = @"x-client-CPU";
+NSString *const MSID_OS_VER_KEY                    = @"x-client-OS";
+NSString *const MSID_DEVICE_MODEL_KEY              = @"x-client-DM";
+NSString *const MSID_APP_NAME_KEY                  = @"x-app-name";
+NSString *const MSID_APP_VER_KEY                   = @"x-app-ver";
+
+NSString *const MSID_DEFAULT_FAMILY_ID             = @"1";
+NSString *const MSID_ADAL_SDK_NAME                 = @"adal-objc";
+NSString *const MSID_MSAL_SDK_NAME                 = @"msal-objc";
+NSString *const MSID_SDK_NAME_KEY                  = @"sdk_name";
 
 
-NSString *const MSIDTrustedAuthority             = @"login.windows.net";
-NSString *const MSIDTrustedAuthorityUS           = @"login.microsoftonline.us";
-NSString *const MSIDTrustedAuthorityChina        = @"login.chinacloudapi.cn";
-NSString *const MSIDTrustedAuthorityChina2       = @"login.partner.microsoftonline.cn";
-NSString *const MSIDTrustedAuthorityGermany      = @"login.microsoftonline.de";
-NSString *const MSIDTrustedAuthorityWorldWide    = @"login.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityUSGovernment = @"login-us.microsoftonline.com";
-NSString *const MSIDTrustedAuthorityCloudGovApi  = @"login.usgovcloudapi.net";
+NSString *const MSIDTrustedAuthority               = @"login.windows.net";
+NSString *const MSIDTrustedAuthorityUS             = @"login.microsoftonline.us";
+NSString *const MSIDTrustedAuthorityChina          = @"login.chinacloudapi.cn";
+NSString *const MSIDTrustedAuthorityChina2         = @"login.partner.microsoftonline.cn";
+NSString *const MSIDTrustedAuthorityGermany        = @"login.microsoftonline.de";
+NSString *const MSIDTrustedAuthorityWorldWide      = @"login.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityUSGovernment   = @"login-us.microsoftonline.com";
+NSString *const MSIDTrustedAuthorityCloudGovApi    = @"login.usgovcloudapi.net";
 
-NSString *const MSID_DEFAULT_AAD_AUTHORITY       = @"https://login.microsoftonline.com/common";
-NSString *const MSID_DEFAULT_MSA_TENANTID        = @"9188040d-6c67-4c5b-b112-36a304b66dad";
+NSString *const MSID_DEFAULT_AAD_AUTHORITY         = @"https://login.microsoftonline.com/common";
+NSString *const MSID_DEFAULT_MSA_TENANTID          = @"9188040d-6c67-4c5b-b112-36a304b66dad";
+
+NSString *const MSID_CLIENT_SDK_TYPE_MSAL         = @"sdk_msal";
+NSString *const MSID_CLIENT_SDK_TYPE_ADAL         = @"sdk_adal";
+
+NSString *const MSID_POP_TOKEN_PRIVATE_KEY = @"com.microsoft.token.private.key";
+NSString *const MSID_POP_TOKEN_PUBLIC_KEY = @"com.microsoft.token.public.key";
+NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";

@@ -33,6 +33,8 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDIntuneApplicationStateManager.h"
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDTokenResponseValidator
 
@@ -98,6 +100,15 @@
         
         return nil;
     }
+    // Verify if the auth scheme from server's response match with the request
+    NSString *tokenType = [tokenResponse.tokenType lowercaseString];
+    MSIDAuthScheme scheme = configuration.authScheme.authScheme;
+    NSString *tokenTypeFromConfiguration = [MSIDAuthSchemeParamFromType(scheme) lowercaseString];
+    if (![NSString msidIsStringNilOrBlank:tokenType] && ![tokenType isEqualToString:tokenTypeFromConfiguration])
+    {
+        MSIDFillAndLogError(error, MSIDErrorServerInvalidResponse, @"Please update Microsoft Authenticator to the latest version. Pop tokens are not supported with this broker version.", correlationID);
+        return nil;
+    }
     
     MSIDTokenResult *result = [[MSIDTokenResult alloc] initWithAccessToken:accessToken
                                                               refreshToken:refreshToken
@@ -130,9 +141,14 @@
 
 - (MSIDTokenResult *)validateAndSaveBrokerResponse:(MSIDBrokerResponse *)brokerResponse
                                          oidcScope:(NSString *)oidcScope
+                                  requestAuthority:(NSURL *)requestAuthority
+                                     instanceAware:(BOOL)instanceAware
                                       oauthFactory:(MSIDOauth2Factory *)factory
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                      correlationID:(NSUUID *)correlationID
+                                  saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                                        authScheme:(MSIDAuthenticationScheme *)authScheme
                                              error:(NSError **)error
 {
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating broker response.");
@@ -158,6 +174,8 @@
                                                                            clientId:brokerResponse.clientId
                                                                              target:brokerResponse.target];
     
+    configuration.authScheme = authScheme;
+    
     configuration.applicationIdentifier = [MSIDIntuneApplicationStateManager intuneApplicationIdentifierForAuthority:brokerResponse.msidAuthority
                                                                                                        appIdentifier:[[NSBundle mainBundle] bundleIdentifier]];
 
@@ -175,38 +193,30 @@
         return nil;
     }
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Broker response is valid.");
-
-    BOOL shouldSaveSSOStateOnly = brokerResponse.accessTokenInvalidForResponse;
-    MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Saving broker response, only save SSO state %d", shouldSaveSSOStateOnly);
-
-    NSError *savingError = nil;
-    BOOL isSaved = NO;
-
-    if (shouldSaveSSOStateOnly)
+    
+    [self saveTokenResponseToCache:tokenResponse
+                     configuration:configuration
+                      oauthFactory:factory
+                        tokenCache:tokenCache
+                  saveSSOStateOnly:saveSSOStateOnly
+                           context:nil
+                             error:nil];
+    
+    //save metadata
+    NSError *authorityError;
+    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:configuration tokenResponse:tokenResponse error:&authorityError];
+    if (authorityError)
     {
-        isSaved = [tokenCache saveSSOStateWithConfiguration:configuration
-                                                   response:tokenResponse
-                                                    factory:factory
-                                                    context:nil
-                                                      error:&savingError];
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to create resulting authority for metadata update. Error %@", MSID_PII_LOG_MASKABLE(authorityError));
     }
-    else
-    {
-        isSaved = [tokenCache saveTokensWithConfiguration:configuration
-                                                 response:tokenResponse
-                                                  factory:factory
-                                                  context:nil
-                                                    error:&savingError];
-    }
-
-    if (!isSaved)
-    {
-        MSID_LOG_WITH_CORR_PII(MSIDLogLevelError, correlationID, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
-    }
-    else
-    {
-        MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Saved broker response.");
-    }
+    [self updateAccountMetadataForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
+                                       clientId:configuration.clientId
+                                  instanceAware:instanceAware
+                                          state:MSIDAccountMetadataStateSignedIn
+                               requestAuthority:requestAuthority
+                             resultingAuthority:resultingAuthority.url
+                           accountMetadataCache:accountMetadataCache
+                                        context:nil];
 
     MSID_LOG_WITH_CORR(MSIDLogLevelInfo, correlationID, @"Validating token result.");
     BOOL resultValid = [self validateTokenResult:tokenResult
@@ -232,6 +242,7 @@
                                        tokenCache:(id<MSIDCacheAccessor>)tokenCache
                              accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
                                 requestParameters:(MSIDRequestParameters *)parameters
+                                 saveSSOStateOnly:(BOOL)saveSSOStateOnly
                                             error:(NSError **)error
 {
     MSIDTokenResult *tokenResult = [self validateTokenResponse:tokenResponse
@@ -247,36 +258,31 @@
     }
     
     //save metadata
-    NSError *updateMetadataError = nil;
-    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&updateMetadataError];
-    if (resultingAuthority && !updateMetadataError)
+    NSError *authorityError;
+    MSIDAuthority *resultingAuthority = [factory resultAuthorityWithConfiguration:parameters.msidConfiguration tokenResponse:tokenResponse error:&authorityError];
+    if (authorityError)
     {
-        MSIDAuthority *providedAuthority = parameters.providedAuthority ?: parameters.authority;
-        [accountMetadataCache updateAuthorityURL:resultingAuthority.url
-                                   forRequestURL:providedAuthority.url
-                                   homeAccountId:tokenResult.account.accountIdentifier.homeAccountId
-                                        clientId:parameters.clientId
-                                   instanceAware:parameters.instanceAware
-                                         context:parameters
-                                           error:&updateMetadataError];
-        
-        if (updateMetadataError)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
-        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to create resulting authority for metadata update. Error %@", MSID_PII_LOG_MASKABLE(authorityError));
     }
-
-    NSError *savingError = nil;
-    BOOL isSaved = [tokenCache saveTokensWithConfiguration:parameters.msidConfiguration
-                                                  response:tokenResponse
-                                                   factory:factory
-                                                   context:parameters
-                                                     error:&savingError];
-
-    if (!isSaved)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, parameters, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
-    }
+    MSIDAuthority *providedAuthority = parameters.providedAuthority ?: parameters.authority;
+    [self updateAccountMetadataForHomeAccountId:tokenResult.account.accountIdentifier.homeAccountId
+                                       clientId:parameters.clientId
+                                  instanceAware:parameters.instanceAware
+                                          state:MSIDAccountMetadataStateSignedIn
+                               requestAuthority:providedAuthority.url
+                             resultingAuthority:resultingAuthority.url
+                           accountMetadataCache:accountMetadataCache
+                                        context:parameters];
+    
+    // Note, if there's an error saving result, we log it, but we don't fail validation
+    // This is by design because even if we fail to cache, we still should return tokens back to the app
+    [self saveTokenResponseToCache:tokenResponse
+                     configuration:parameters.msidConfiguration
+                      oauthFactory:factory
+                        tokenCache:tokenCache
+                  saveSSOStateOnly:saveSSOStateOnly
+                           context:parameters
+                             error:nil];
 
     BOOL resultValid = [self validateTokenResult:tokenResult
                                    configuration:parameters.msidConfiguration
@@ -292,5 +298,88 @@
     return tokenResult;
 }
 
+#pragma mark - Internal
+
+- (BOOL)saveTokenResponseToCache:(MSIDTokenResponse *)tokenResponse
+                   configuration:(MSIDConfiguration *)configuration
+                    oauthFactory:(MSIDOauth2Factory *)factory
+                      tokenCache:(id<MSIDCacheAccessor>)tokenCache
+                saveSSOStateOnly:(BOOL)saveSSOStateOnly
+                         context:(id<MSIDRequestContext>)context
+                           error:(NSError **)error
+{
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Saving token response, only save SSO state %d", saveSSOStateOnly);
+    
+    NSError *savingError;
+    BOOL isSaved = NO;
+
+    if (saveSSOStateOnly)
+    {
+        isSaved = [tokenCache saveSSOStateWithConfiguration:configuration
+                                                   response:tokenResponse
+                                                    factory:factory
+                                                    context:context
+                                                      error:&savingError];
+    }
+    else
+    {
+        isSaved = [tokenCache saveTokensWithConfiguration:configuration
+                                                 response:tokenResponse
+                                                  factory:factory
+                                                  context:context
+                                                    error:&savingError];
+    }
+
+    if (!isSaved)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to save tokens in cache. Error %@", MSID_PII_LOG_MASKABLE(savingError));
+        if (error) *error = savingError;
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Saved token response successfully.");
+    }
+    
+    return isSaved;
+}
+
+- (void)updateAccountMetadataForHomeAccountId:(NSString *)homeAccountId
+                                     clientId:(NSString *)clientId
+                                instanceAware:(BOOL)instanceAware
+                                        state:(MSIDAccountMetadataState)state
+                             requestAuthority:(NSURL *)requestAuthority
+                           resultingAuthority:(NSURL *)resultingAuthority
+                         accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                      context:(id<MSIDRequestContext>)context
+{
+    //save metadata
+    NSError *updateMetadataError = nil;
+    [accountMetadataCache updateSignInStateForHomeAccountId:homeAccountId
+                                                   clientId:clientId
+                                                      state:state
+                                                    context:context
+                                                      error:&updateMetadataError];
+    if (updateMetadataError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to update sign in state in metadata cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+    }
+    
+    
+    if (requestAuthority && resultingAuthority)
+    {
+        [accountMetadataCache updateAuthorityURL:resultingAuthority
+                                   forRequestURL:requestAuthority
+                                   homeAccountId:homeAccountId
+                                        clientId:clientId
+                                   instanceAware:instanceAware
+                                         context:context
+                                           error:&updateMetadataError];
+        
+        if (updateMetadataError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Failed to update auhtority map in cache. Error %@", MSID_PII_LOG_MASKABLE(updateMetadataError));
+        }
+    }
+}
 
 @end

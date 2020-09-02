@@ -21,24 +21,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDInteractiveTokenRequest.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequest+Internal.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDAuthority.h"
-#import "MSIDWebviewConfiguration.h"
-#import "MSIDOpenIdProviderMetadata.h"
-#import "MSIDWebviewResponse.h"
-#import "MSIDWebOAuth2Response.h"
-#import "MSIDWebAADAuthResponse.h"
-#import "MSIDWebWPJResponse.h"
-#import "MSIDWebOpenBrowserResponse.h"
-#import "MSIDCBAWebAADAuthResponse.h"
-#import "MSIDWebviewAuthorization.h"
-#import "MSIDAADAuthorizationCodeGrantRequest.h"
-#import "MSIDPkce.h"
 #import "MSIDTokenResponseValidator.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDWebviewFactory.h"
+#import "MSIDTokenResponseHandler.h"
+#import "MSIDAccount.h"
+#import "NSError+MSIDServerTelemetryError.h"
+#import "MSIDAuthorizationCodeResult.h"
+#import "MSIDAuthorizationCodeGrantRequest.h"
+#import "MSIDOauth2Factory.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -50,32 +44,26 @@
 
 @interface MSIDInteractiveTokenRequest()
 
-@property (nonatomic) MSIDInteractiveRequestParameters *requestParameters;
-@property (nonatomic) MSIDOauth2Factory *oauthFactory;
-@property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
-@property (nonatomic) id<MSIDCacheAccessor> tokenCache;
-@property (nonatomic) MSIDWebviewConfiguration *webViewConfiguration;
-@property (nonatomic) MSIDClientInfo *authCodeClientInfo;
+@property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
 
 @end
 
 @implementation MSIDInteractiveTokenRequest
 
-- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
+- (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveTokenRequestParameters *)parameters
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                               accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
-    self = [super init];
+    self = [super initWithRequestParameters:parameters oauthFactory:oauthFactory];
 
     if (self)
     {
-        _requestParameters = parameters;
-        _oauthFactory = oauthFactory;
         _tokenResponseValidator = tokenResponseValidator;
         _tokenCache = tokenCache;
         _accountMetadataCache = accountMetadataCache;
+        _tokenResponseHandler = [MSIDTokenResponseHandler new];
     }
 
     return self;
@@ -83,235 +71,47 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
-    NSString *upn = self.requestParameters.accountIdentifier.displayableId ?: self.requestParameters.loginHint;
-
-    [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
-                                       userPrincipalName:upn
-                                                 context:self.requestParameters
-                                         completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                         __unused BOOL validated, NSError *error)
-     {
-         if (error)
-         {
-             completionBlock(nil, error, nil);
-             return;
-         }
-
-         [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
-                                                         completionBlock:^(__unused MSIDOpenIdProviderMetadata *metadata, NSError *error)
-          {
-              if (error)
-              {
-                  completionBlock(nil, error, nil);
-                  return;
-              }
-
-              [self acquireTokenImpl:completionBlock];
-          }];
-     }];
-}
-
-- (void)acquireTokenImpl:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
-{
-    void (^webAuthCompletion)(MSIDWebviewResponse *, NSError *) = ^void(MSIDWebviewResponse *response, NSError *error)
+    [super getAuthCodeWithCompletion:^(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse)
     {
-        if (error)
+        if (!result)
         {
-            completionBlock(nil, error, nil);
+            completionBlock(nil, error, installBrokerResponse);
             return;
         }
-
-        /*
-
-         TODO: this code has been moved from MSAL almost as is to avoid any changes in the MSIDWebviewAuthorization logic.
-         Some minor refactoring to MSIDWebviewAuthorization response logic and to the interactive requests tests will be done separately: https://github.com/AzureAD/microsoft-authentication-library-common-for-objc/issues/297
-         */
-
-        if ([response isKindOfClass:MSIDWebOAuth2Response.class])
-        {
-            MSIDWebOAuth2Response *oauthResponse = (MSIDWebOAuth2Response *)response;
-
-            if (oauthResponse.authorizationCode)
-            {
-                if ([response isKindOfClass:MSIDCBAWebAADAuthResponse.class])
-                {
-                    MSIDCBAWebAADAuthResponse *cbaResponse = (MSIDCBAWebAADAuthResponse *)response;
-                    self.requestParameters.redirectUri = cbaResponse.redirectUri;
-                }
-                // handle instance aware flow (cloud host)
-                
-                if ([response isKindOfClass:MSIDWebAADAuthResponse.class])
-                {
-                    MSIDWebAADAuthResponse *aadResponse = (MSIDWebAADAuthResponse *)response;
-                    [self.requestParameters setCloudAuthorityWithCloudHostName:aadResponse.cloudHostName];
-                    self.authCodeClientInfo = aadResponse.clientInfo;
-                }
-
-                [self acquireTokenWithCode:oauthResponse.authorizationCode completion:completionBlock];
-                return;
-            }
-
-            completionBlock(nil, oauthResponse.oauthError, nil);
-            return;
-        }
-        else if ([response isKindOfClass:MSIDWebWPJResponse.class])
-        {
-            completionBlock(nil, nil, (MSIDWebWPJResponse *)response);
-        }
-        else if ([response isKindOfClass:MSIDWebOpenBrowserResponse.class])
-        {
-            NSURL *browserURL = ((MSIDWebOpenBrowserResponse *)response).browserURL;
-
-#if TARGET_OS_IPHONE
-            if (![MSIDAppExtensionUtil isExecutingInAppExtension])
-            {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Opening a browser - %@", MSID_PII_LOG_MASKABLE(browserURL));
-                [MSIDAppExtensionUtil sharedApplicationOpenURL:browserURL];
-            }
-            else
-            {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAttemptToOpenURLFromExtension, @"unable to redirect to browser from extension", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-                completionBlock(nil, error, nil);
-                return;
-            }
-#else
-            [[NSWorkspace sharedWorkspace] openURL:browserURL];
-#endif
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorSessionCanceledProgrammatically, @"Authorization session was cancelled programatically.", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-            completionBlock(nil, error, nil);
-            return;
-        }
-    };
-
-    self.webViewConfiguration = [self.oauthFactory.webviewFactory webViewConfigurationWithRequestParameters:self.requestParameters];
-    [self showWebComponentWithCompletion:webAuthCompletion];
-}
-
-- (void)showWebComponentWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
-{
-#if TARGET_OS_IPHONE && !MSID_EXCLUDE_SYSTEMWV
-
-    BOOL useSession = YES;
-    BOOL allowSafariViewController = YES;
-    
-    switch (self.requestParameters.webviewType) {
-        case MSIDWebviewTypeWKWebView:
-        {
-            [self showEmbeddedWebviewWithCompletion:completionHandler];
-            return;
-        }
-        case MSIDWebviewTypeAuthenticationSession:
-            useSession = YES;
-            allowSafariViewController = NO;
-            break;
-
-        case MSIDWebviewTypeSafariViewController:
-            useSession = NO;
-            allowSafariViewController = YES;
-            break;
-
-        default:
-            break;
-    }
-
-    [MSIDWebviewAuthorization startSystemWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                        oauth2Factory:self.oauthFactory
-                                             useAuthenticationSession:useSession
-                                            allowSafariViewController:allowSafariViewController
-                                                              context:self.requestParameters
-                                                    completionHandler:completionHandler];
-#else
-    [self showEmbeddedWebviewWithCompletion:completionHandler];
-#endif
-}
-
-- (void)showEmbeddedWebviewWithCompletion:(MSIDWebviewAuthCompletionHandler)completionHandler
-{
-    [MSIDWebviewAuthorization startEmbeddedWebviewAuthWithConfiguration:self.webViewConfiguration
-                                                          oauth2Factory:self.oauthFactory
-                                                                webview:self.requestParameters.customWebview
-                                                                context:self.requestParameters
-                                                      completionHandler:completionHandler];
+        
+        [self acquireTokenWithCodeResult:result completion:completionBlock];
+    }];
 }
 
 #pragma mark - Helpers
 
-- (void)acquireTokenWithCode:(NSString *)authCode
-                  completion:(MSIDInteractiveRequestCompletionBlock)completionBlock
+- (void)acquireTokenWithCodeResult:(MSIDAuthorizationCodeResult *)authCodeResult
+                        completion:(MSIDInteractiveRequestCompletionBlock)completionBlock
 {
     MSIDAuthorizationCodeGrantRequest *tokenRequest = [self.oauthFactory authorizationGrantRequestWithRequestParameters:self.requestParameters
-                                                                                                           codeVerifier:self.webViewConfiguration.pkce.codeVerifier
-                                                                                                               authCode:authCode
-                                                                                                          homeAccountId:self.authCodeClientInfo.accountIdentifier];
+                                                                                                           codeVerifier:authCodeResult.pkceVerifier
+                                                                                                               authCode:authCodeResult.authCode
+                                                                                                          homeAccountId:authCodeResult.accountIdentifier];
 
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {
-        if (error)
-        {
-            completionBlock(nil, error, nil);
-            return;
-        }
-        
-        NSError *validationError;
-        MSIDTokenResult *tokenResult = [self.tokenResponseValidator validateAndSaveTokenResponse:tokenResponse
-                                                                                    oauthFactory:self.oauthFactory
-                                                                                      tokenCache:self.tokenCache
-                                                                            accountMetadataCache:self.accountMetadataCache
-                                                                               requestParameters:self.requestParameters
-                                                                                           error:&validationError];
-        
-        if (!tokenResult)
-        {
-            // Special case - need to return homeAccountId in case of Intune policies required.
-            if (validationError.code == MSIDErrorServerProtectionPoliciesRequired)
-            {
-                NSMutableDictionary *updatedUserInfo = [validationError.userInfo mutableCopy];
-                updatedUserInfo[MSIDHomeAccountIdkey] = self.authCodeClientInfo.accountIdentifier;
-                
-                validationError = MSIDCreateError(validationError.domain,
-                                                  validationError.code,
-                                                  nil,
-                                                  nil,
-                                                  nil,
-                                                  nil,
-                                                  nil,
-                                                  updatedUserInfo, NO);
-            }
-            
-            completionBlock(nil, validationError, nil);
-            return;
-        }
-        
-        void (^validateAccountAndCompleteBlock)(void) = ^
-        {
-            NSError *validationError;
-            BOOL accountChecked = [self.tokenResponseValidator validateAccount:self.requestParameters.accountIdentifier
-                                                                   tokenResult:tokenResult
-                                                                 correlationID:self.requestParameters.correlationId
-                                                                         error:&validationError];
-            
-            if (!accountChecked)
-            {
-                completionBlock(nil, validationError, nil);
-                return;
-            }
-            
-            completionBlock(tokenResult, nil, nil);
-        };
-        
 #if TARGET_OS_OSX
-        if (self.externalCacheSeeder != nil)
-        {
-            [self.externalCacheSeeder seedTokenResponse:tokenResponse
-                                                factory:self.oauthFactory
-                                      requestParameters:self.requestParameters
-                                        completionBlock:validateAccountAndCompleteBlock];
-        }
-        else
+        self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
 #endif
-        {
-            validateAccountAndCompleteBlock();
-        }
+        [self.tokenResponseHandler handleTokenResponse:tokenResponse
+                                     requestParameters:self.requestParameters
+                                         homeAccountId:authCodeResult.accountIdentifier
+                                tokenResponseValidator:self.tokenResponseValidator
+                                          oauthFactory:self.oauthFactory
+                                            tokenCache:self.tokenCache
+                                  accountMetadataCache:self.accountMetadataCache
+                                       validateAccount:self.requestParameters.shouldValidateResultAccount
+                                      saveSSOStateOnly:NO
+                                                 error:error
+                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
+         {
+            completionBlock(result, error, nil);
+        }];
     }];
 }
 

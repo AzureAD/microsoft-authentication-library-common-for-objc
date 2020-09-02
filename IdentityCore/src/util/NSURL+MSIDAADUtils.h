@@ -47,6 +47,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSURL *)msidAADURLWithEnvironment:(NSString *)environment;
 
+- (BOOL)msidContainsPathComponent:(NSString *)pathComponent;
+
+- (BOOL)msidContainsPathComponents:(NSArray *)allowedPathComponents;
+
+- (BOOL)msidContainsCaseInsensitivePath:(NSString *)caseInsensitivePath;
+
 @end
 
 NS_ASSUME_NONNULL_END

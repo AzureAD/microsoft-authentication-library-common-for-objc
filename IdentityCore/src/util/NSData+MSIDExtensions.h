@@ -30,7 +30,6 @@
  Hashing
  =============================================================================
  */
-- (NSData *)msidSHA1;
 - (NSData *)msidSHA256;
 
 /*!
@@ -50,5 +49,7 @@
 
 /*! Converts NSData to base64 String */
 - (NSString *)msidBase64UrlEncodedString;
+
+- (NSData *)msidDecryptedDataWithAlgorithm:(SecKeyAlgorithm)algorithm privateKey:(SecKeyRef)privateKey API_AVAILABLE(ios(10.0), macos(10.12));
 
 @end

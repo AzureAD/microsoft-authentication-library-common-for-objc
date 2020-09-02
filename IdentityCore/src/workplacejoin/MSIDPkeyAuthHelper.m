@@ -29,6 +29,7 @@
 #import "MSIDError.h"
 #import "MSIDJWTHelper.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDWorkplaceJoinChallenge.h"
 
 @implementation MSIDPkeyAuthHelper
 
@@ -36,8 +37,7 @@
                                   challengeData:(nullable NSDictionary *)challengeData
                                         context:(nullable id<MSIDRequestContext>)context
 {
-    MSIDRegistrationInformation *info =
-    [MSIDWorkPlaceJoinUtil getRegistrationInformation:context urlChallenge:nil];
+    MSIDAssymetricKeyPairWithCert *info = [MSIDWorkPlaceJoinUtil getWPJKeysWithContext:context];
     NSString *authToken = @"";
     NSString *challengeContext = challengeData ? [challengeData valueForKey:@"Context"] : @"";
     NSString *challengeVersion = challengeData ? [challengeData valueForKey:@"Version"] : @"";
@@ -51,14 +51,13 @@
         // Error should have been logged before this where there is more information on why the challenge data was bad
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request with no challenge data.");
     }
-    else if (![info isWorkPlaceJoined])
+    else if (!info.certificateRef)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"PKeyAuth: Received PKeyAuth request but no WPJ info.");
     }
     else
     {
         NSString *certAuths = [challengeData valueForKey:@"CertAuthorities"];
-        NSString *expectedThumbprint = [challengeData valueForKey:@"CertThumbprint"];
         
         if (certAuths)
         {
@@ -66,17 +65,7 @@
             if (![self isValidIssuer:certAuths keychainCertIssuer:issuerOU])
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Authority specified by device auth request does not match certificate in keychain.");
-                info = nil;
-            }
-        }
-        else if (expectedThumbprint)
-        {
-            NSString *thumbprint = [[[info certificateData] msidSHA1] msidHexString];
-            thumbprint = [[thumbprint stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] uppercaseString];
-
-            if (![expectedThumbprint isEqualToString:thumbprint])
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"PKeyAuth Error: Certificate Thumbprint does not match certificate in keychain.");
+                MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Issuer of certificate in keychain %@, requested cert authorities in the challenge %@", issuerOU, certAuths);
                 info = nil;
             }
         }
@@ -114,7 +103,7 @@
 {
     NSString *regexString = @"OU=[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}";
     keychainCertIssuer = [keychainCertIssuer uppercaseString];
-    certAuths = [certAuths uppercaseString];
+    certAuths = [certAuths.msidURLDecode uppercaseString];
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regexString options:0 error:NULL];
     
     for (NSTextCheckingResult *myMatch in [regex matchesInString:certAuths options:0 range:NSMakeRange(0, [certAuths length])]){
@@ -133,7 +122,7 @@
 
 + (NSString *)createDeviceAuthResponse:(NSString *)audience
                                  nonce:(NSString *)nonce
-                              identity:(MSIDRegistrationInformation *)identity
+                              identity:(MSIDAssymetricKeyPairWithCert *)identity
 {
     if (!audience || !nonce)
     {
@@ -154,7 +143,7 @@
                               @"iat" : [NSString stringWithFormat:@"%d", (CC_LONG)[[NSDate date] timeIntervalSince1970]]
                               };
     
-    return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKey]];
+    return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKeyRef]];
 }
 
 @end

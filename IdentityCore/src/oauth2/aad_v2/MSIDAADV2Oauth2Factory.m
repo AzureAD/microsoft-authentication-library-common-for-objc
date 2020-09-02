@@ -37,15 +37,23 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDAADAuthorizationCodeGrantRequest.h"
 #import "MSIDAADRefreshTokenGrantRequest.h"
-#import "MSIDWebviewConfiguration.h"
+#import "MSIDAuthorizeWebRequestConfiguration.h"
 #import "MSIDInteractiveRequestParameters.h"
 #import "MSIDAccountIdentifier.h"
 #import "MSIDAADTokenResponseSerializer.h"
 #import "MSIDClaimsRequest.h"
 #import "MSIDClaimsRequest+ClientCapabilities.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDLastRequestTelemetry.h"
+#import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADV2Oauth2Factory
+
++ (MSIDProviderType)providerType
+{
+    return MSIDProviderTypeAADV2;
+}
 
 #pragma mark - Helpers
 
@@ -179,6 +187,7 @@
     }
 
     MSIDAADAuthorizationCodeGrantRequest *tokenRequest = [[MSIDAADAuthorizationCodeGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                             authScheme:parameters.authScheme
                                                                                                                clientId:parameters.clientId
                                                                                                            enrollmentId:enrollmentId
                                                                                                                   scope:allScopes
@@ -188,7 +197,15 @@
                                                                                                            codeVerifier:pkceCodeVerifier
                                                                                                         extraParameters:parameters.extraTokenRequestParameters
                                                                                                                 context:parameters];
+
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
 }
@@ -207,14 +224,24 @@
                                                                           error:nil];
 
     MSIDAADRefreshTokenGrantRequest *tokenRequest = [[MSIDAADRefreshTokenGrantRequest alloc] initWithEndpoint:parameters.tokenEndpoint
+                                                                                                   authScheme:parameters.authScheme
                                                                                                      clientId:parameters.clientId
+                                                                                                  redirectUri:parameters.redirectUri
                                                                                                  enrollmentId:enrollmentId
                                                                                                         scope:allScopes
                                                                                                  refreshToken:refreshToken
                                                                                                        claims:claims
                                                                                               extraParameters:parameters.extraTokenRequestParameters
                                                                                                       context:parameters];
+    
     tokenRequest.responseSerializer = [[MSIDAADTokenResponseSerializer alloc] initWithOauth2Factory:self];
+    
+    if (parameters.currentRequestTelemetry)
+    {
+        __auto_type serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        serverTelemetry.currentRequestTelemetry = parameters.currentRequestTelemetry;
+        tokenRequest.serverTelemetry = serverTelemetry;
+    }
 
     return tokenRequest;
 }

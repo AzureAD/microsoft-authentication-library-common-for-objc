@@ -25,7 +25,6 @@
 #import "MSIDAuthority.h"
 #import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetry+Internal.h"
-#import "MSIDTelemetryAPIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDErrorConverter.h"
 

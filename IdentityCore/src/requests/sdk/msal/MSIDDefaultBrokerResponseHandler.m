@@ -30,11 +30,13 @@
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
 #import "MSIDConstants.h"
+#import "MSIDOAuth2Constants.h"
 #import "MSIDBrokerResponseHandler+Internal.h"
-
-#if TARGET_OS_IPHONE
+#import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDKeychainTokenCache.h"
-#endif
+#import "MSIDAuthenticationScheme.h"
+#import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAuthScheme.h"
 
 @implementation MSIDDefaultBrokerResponseHandler
 {
@@ -67,6 +69,7 @@
 - (MSIDBrokerResponse *)brokerResponseFromEncryptedQueryParams:(NSDictionary *)encryptedParams
                                                      oidcScope:(NSString *)oidcScope
                                                  correlationId:(NSUUID *)correlationID
+                                                    authScheme:(MSIDAuthenticationScheme *)authScheme
                                                          error:(NSError **)error
 {
     NSDictionary *decryptedResponse = [self.brokerCryptoProvider decryptBrokerResponse:encryptedParams
@@ -83,7 +86,7 @@
         MSIDFillAndLogError(error, MSIDErrorBrokerMismatchedResumeState, @"Broker nonce mismatch!", correlationID);
         return nil;
     }
-    
+
     // Save additional tokens,
     // assuming they could come in both successful case and failure case.
     if (decryptedResponse[@"additional_tokens"])
@@ -98,11 +101,25 @@
             
             if (!additionalTokensError)
             {
+                //If Broker responds with different auth scheme, switch auth scheme to default Bearer.
+                NSString *tokenType = [brokerResponse.tokenResponse.tokenType lowercaseString];
+                NSString *tokenTypeFromAuthScheme = [MSIDAuthSchemeParamFromType(authScheme.authScheme) lowercaseString];
+                
+                if (![tokenType isEqualToString:tokenTypeFromAuthScheme])
+                {
+                    authScheme = [MSIDAuthenticationScheme new];
+                }
+                
                 tokenResult = [self.tokenResponseValidator validateAndSaveBrokerResponse:brokerResponse
                                                                                oidcScope:oidcScope
+                                                                        requestAuthority:self.providedAuthority
+                                                                           instanceAware:self.instanceAware
                                                                             oauthFactory:self.oauthFactory
                                                                               tokenCache:self.tokenCache
+                                                                    accountMetadataCache:self.accountMetadataCacheAccessor
                                                                            correlationID:correlationID
+                                                                        saveSSOStateOnly:brokerResponse.ignoreAccessTokenCache
+                                                                              authScheme:authScheme
                                                                                    error:&additionalTokensError];
             }
         }
@@ -171,6 +188,25 @@
 #endif
 }
 
+- (MSIDAccountMetadataCacheAccessor *)accountMetadataCacheWithKeychainGroup:(__unused NSString *)keychainGroup
+                                                                      error:(__unused NSError **)error
+{
+    MSIDKeychainTokenCache *dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:keychainGroup error:error];
+    
+    if (!dataSource)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to initialize keychain cache.", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    MSIDAccountMetadataCacheAccessor *accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
+    return accountMetadataCache;
+}
+
 - (NSError *)resultFromBrokerErrorResponse:(MSIDAADV2BrokerResponse *)errorResponse
 {
     NSString *errorDomain = errorResponse.errorDomain;
@@ -203,7 +239,7 @@
         }
     }
     //Special handling for non-string error metadata
-    NSDictionary *httpHeaders = [NSDictionary msidDictionaryFromWWWFormURLEncodedString:errorResponse.httpHeaders];
+    NSDictionary *httpHeaders = errorResponse.httpHeaders;
     if (httpHeaders)
         userInfo[MSIDHTTPHeadersKey] = httpHeaders;
     

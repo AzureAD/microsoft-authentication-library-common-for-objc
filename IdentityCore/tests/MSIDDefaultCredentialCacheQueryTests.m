@@ -51,6 +51,23 @@
     XCTAssertEqualObjects(query.generic, [@"accesstoken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
+- (void)testDefaultCredentialCacheQuery_whenATPopAccessToken_allParametersSet_shouldBeExactMatch
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.realm = @"contoso.com";
+    query.target = @"user.read";
+    query.clientId = @"client";
+    query.tokenType = @"Pop";
+    XCTAssertTrue(query.exactMatch);
+    XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(query.service, @"accesstoken_with_authscheme-client-contoso.com-user.read-pop");
+    XCTAssertEqualObjects(query.type, @2007);
+    XCTAssertEqualObjects(query.generic, [@"accesstoken_with_authscheme-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding]);
+}
+
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_allParametersSet_andIntuneEnrolled_shouldBeExactMatch
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
@@ -67,6 +84,25 @@
     XCTAssertEqualObjects(query.service, @"accesstoken-client-contoso.com-app.bundle.id-user.read");
     XCTAssertEqualObjects(query.type, @2001);
     XCTAssertEqualObjects(query.generic, [@"accesstoken-client-contoso.com-app.bundle.id" dataUsingEncoding:NSUTF8StringEncoding]);
+}
+
+- (void)testDefaultCredentialCacheQuery_whenATPopAccessToken_allParametersSet_andIntuneEnrolled_shouldBeExactMatch
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.realm = @"contoso.com";
+    query.target = @"user.read";
+    query.clientId = @"client";
+    query.applicationIdentifier = @"app.bundle.id";
+    query.tokenType = @"Pop";
+    
+    XCTAssertTrue(query.exactMatch);
+    XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(query.service, @"accesstoken_with_authscheme-client-contoso.com-app.bundle.id-user.read-pop");
+    XCTAssertEqualObjects(query.type, @2007);
+    XCTAssertEqualObjects(query.generic, [@"accesstoken_with_authscheme-client-contoso.com-app.bundle.id" dataUsingEncoding:NSUTF8StringEncoding]);
 }
 
 - (void)testDefaultCredentialCacheQuery_whenIDToken_allParametersSet_shouldBeExactMatch
@@ -254,6 +290,23 @@
     XCTAssertEqualObjects(query.type, @2001);
 }
 
+- (void)testDefaultCredentialCacheQuery_whenATPopAccessToken_andNoClientId_shouldReturnNilServiceNilGeneric
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    query.realm = @"contoso.com";
+    query.target = @"user.read";
+    query.tokenType = @"Pop";
+    
+    XCTAssertFalse(query.exactMatch);
+    XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertNil(query.service);
+    XCTAssertNil(query.generic);
+    XCTAssertEqualObjects(query.type, @2007);
+}
+
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_andNoRealm_shouldReturnNilServiceNilGeneric
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
@@ -268,6 +321,23 @@
     XCTAssertNil(query.service);
     XCTAssertNil(query.generic);
     XCTAssertEqualObjects(query.type, @2001);
+}
+
+- (void)testDefaultCredentialCacheQuery_whenATPopAccessToken_andNoRealm_shouldReturnNilServiceNilGeneric
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    query.clientId = @"client";
+    query.target = @"user.read";
+    query.tokenType = @"Pop";
+    
+    XCTAssertFalse(query.exactMatch);
+    XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertNil(query.service);
+    XCTAssertNil(query.generic);
+    XCTAssertEqualObjects(query.type, @2007);
 }
 
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_andNoTarget_shouldReturnNilServiceAndNonNilGenetic
@@ -286,6 +356,23 @@
     XCTAssertEqualObjects(query.type, @2001);
 }
 
+- (void)testDefaultCredentialCacheQuery_whenATPopAccessToken_andNoTarget_shouldReturnNilServiceAndNonNilGenetic
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.tokenType = @"Pop";
+    
+    XCTAssertFalse(query.exactMatch);
+    XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertNil(query.service);
+    XCTAssertEqualObjects(query.generic, [@"accesstoken_with_authscheme-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(query.type, @2007);
+}
+
 - (void)testDefaultCredentialCacheQuery_whenAccessToken_andTargetMatchingAny_shouldReturnNilServiceAndNonNilGenetic
 {
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
@@ -300,6 +387,23 @@
     XCTAssertNil(query.service);
     XCTAssertEqualObjects(query.generic, [@"accesstoken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding]);
     XCTAssertEqualObjects(query.type, @2001);
+}
+
+- (void)testDefaultCredentialCacheQuery_whenATPopAccessToken_andTargetMatchingAny_shouldReturnNilServiceAndNonNilGenetic
+{
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.credentialType = MSIDAccessTokenWithAuthSchemeType;
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.tokenType = @"Pop";
+    
+    XCTAssertFalse(query.exactMatch);
+    XCTAssertEqualObjects(query.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertNil(query.service);
+    XCTAssertEqualObjects(query.generic, [@"accesstoken_with_authscheme-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding]);
+    XCTAssertEqualObjects(query.type, @2007);
 }
 
 - (void)testDefaultCredentialCacheQuery_whenMatchAnyType_shouldReturnNilType

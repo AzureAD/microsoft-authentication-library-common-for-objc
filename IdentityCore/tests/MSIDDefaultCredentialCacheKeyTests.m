@@ -48,6 +48,24 @@
     XCTAssertEqualObjects(key.generic, genericData);
 }
 
+- (void)testDefaultKeyForATPopAccessToken_withRealm_shouldReturnKey
+{
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                          environment:@"login.microsoftonline.com"
+                                                                                             clientId:@"client"
+                                                                                       credentialType:MSIDAccessTokenWithAuthSchemeType];
+    
+    key.realm = @"contoso.com";
+    key.target = @"user.read user.write";
+    key.tokenType = @"Pop";
+    XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"accesstoken_with_authscheme-client-contoso.com-user.read user.write-pop");
+    XCTAssertEqualObjects(key.type, @2007);
+    
+    NSData *genericData = [@"accesstoken_with_authscheme-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(key.generic, genericData);
+}
+
 - (void)testDefaultKeyForAccessToken_withRealmAndEnrollmentId_shouldReturnKey
 {
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
@@ -67,6 +85,25 @@
     XCTAssertEqualObjects(key.generic, genericData);
 }
 
+- (void)testDefaultKeyForATPopAccessToken_withRealmAndEnrollmentId_shouldReturnKey
+{
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"uid.utid"
+                                                                                          environment:@"login.microsoftonline.com"
+                                                                                             clientId:@"client"
+                                                                                       credentialType:MSIDAccessTokenWithAuthSchemeType];
+    
+    key.realm = @"contoso.com";
+    key.target = @"user.read user.write";
+    key.applicationIdentifier = @"app.bundle.id";
+    key.tokenType = @"Pop";
+    XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"accesstoken_with_authscheme-client-contoso.com-app.bundle.id-user.read user.write-pop");
+    XCTAssertEqualObjects(key.type, @2007);
+    
+    NSData *genericData = [@"accesstoken_with_authscheme-client-contoso.com-app.bundle.id" dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(key.generic, genericData);
+}
+
 - (void)testDefaultKeyForAccessToken_withUpperCaseComponents_shouldReturnKeyLowerCase
 {
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"UID.utid"
@@ -82,6 +119,24 @@
     XCTAssertEqualObjects(key.type, @2001);
 
     NSData *genericData = [@"accesstoken-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
+    XCTAssertEqualObjects(key.generic, genericData);
+}
+
+- (void)testDefaultKeyForATPopAccessToken_withUpperCaseComponents_shouldReturnKeyLowerCase
+{
+    MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:@"UID.utid"
+                                                                                          environment:@"LOGIN.microsoftonline.com"
+                                                                                             clientId:@"CLIENT"
+                                                                                       credentialType:MSIDAccessTokenWithAuthSchemeType];
+    
+    key.realm = @"CONTOSO.COM";
+    key.target = @"User.read User.write";
+    key.tokenType = @"Pop";
+    XCTAssertEqualObjects(key.account, @"uid.utid-login.microsoftonline.com");
+    XCTAssertEqualObjects(key.service, @"accesstoken_with_authscheme-client-contoso.com-user.read user.write-pop");
+    XCTAssertEqualObjects(key.type, @2007);
+    
+    NSData *genericData = [@"accesstoken_with_authscheme-client-contoso.com" dataUsingEncoding:NSUTF8StringEncoding];
     XCTAssertEqualObjects(key.generic, genericData);
 }
 

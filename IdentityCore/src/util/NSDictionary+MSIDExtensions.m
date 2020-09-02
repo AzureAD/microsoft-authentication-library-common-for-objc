@@ -89,7 +89,7 @@
 }
 
 
-- (NSDictionary *)dictionaryByRemovingFields:(NSArray *)fieldsToRemove
+- (NSDictionary *)msidDictionaryByRemovingFields:(NSArray *)fieldsToRemove
 {
     NSMutableDictionary *mutableDict = [self mutableCopy];
     [mutableDict removeObjectsForKeys:fieldsToRemove];
@@ -239,6 +239,16 @@
     return 0;
 }
 
+- (BOOL)msidBoolObjectForKey:(NSString *)key
+{
+    if ([self msidAssertTypeIsOneOf:@[NSString.class, NSNumber.class] ofKey:key required:NO error:nil])
+    {
+        return [self[key] boolValue];
+    }
+    
+    return NO;
+}
+
 - (id)msidObjectForKey:(NSString *)key ofClass:(Class)requiredClass
 {
     id object = [self objectForKey:key];
@@ -263,7 +273,7 @@
         {
             copy = [value mutableDeepCopy];
         }
-        else if ([value respondsToSelector:@selector(mutableCopy)])
+        else if ([value respondsToSelector:@selector(mutableCopyWithZone:)])
         {
             copy = [value mutableCopy];
         }

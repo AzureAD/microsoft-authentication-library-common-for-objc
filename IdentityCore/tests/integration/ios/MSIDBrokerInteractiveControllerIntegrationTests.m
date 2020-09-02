@@ -28,7 +28,7 @@
 #import "MSIDAADV2Oauth2Factory.h"
 #import "MSIDTokenResponse.h"
 #import "MSIDAccessToken.h"
-#import "MSIDInteractiveRequestParameters.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDTelemetryTestDispatcher.h"
 #import "MSIDTelemetry.h"
 #import "MSIDApplicationTestUtil.h"
@@ -42,6 +42,7 @@
 #import "MSIDAadAuthorityCache.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDTestLocalInteractiveController.h"
+#import "MSIDTestIdentifiers.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -57,18 +58,20 @@
 
 - (void)tearDown
 {
+   
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:MSID_BROKER_RESUME_DICTIONARY_KEY];
     [super tearDown];
 }
 
 #pragma mark - Helpers
 
-- (MSIDInteractiveRequestParameters *)requestParameters
+- (MSIDInteractiveTokenRequestParameters *)requestParameters
 {
-    MSIDInteractiveRequestParameters *parameters = [MSIDInteractiveRequestParameters new];
+    MSIDInteractiveTokenRequestParameters *parameters = [MSIDInteractiveTokenRequestParameters new];
     parameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
     parameters.clientId = @"my_client_id";
     parameters.target = @"user.read tasks.read";
@@ -130,7 +133,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
@@ -194,7 +197,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"1234-5678-90abcdefg");
+        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
@@ -313,7 +316,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_failure";
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
@@ -412,7 +415,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
@@ -486,7 +489,7 @@
         XCTAssertEqualObjects(telemetryEvent[@"status"], @"succeeded");
         XCTAssertEqualObjects(telemetryEvent[@"login_hint"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
         XCTAssertEqualObjects(telemetryEvent[@"user_id"], @"d24dfead25359b0c562c8a02a6a0e6db8de4a8b235d56e122a75a8e1f2e473ee");
-        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], @"1234-5678-90abcdefg");
+        XCTAssertEqualObjects(telemetryEvent[@"tenant_id"], DEFAULT_TEST_UTID);
         XCTAssertEqualObjects(telemetryEvent[@"client_id"], @"my_client_id");
         XCTAssertEqualObjects(telemetryEvent[@"correlation_id"], parameters.correlationId.UUIDString);
         XCTAssertNotNil(telemetryEvent[@"response_time"]);
@@ -524,7 +527,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_failure";
 
     NSError *testError = MSIDCreateError(MSIDErrorDomain, 1234567, @"Failed to create broker request", nil, nil, nil, nil, nil, YES);
@@ -593,7 +596,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_response_not_received";
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
@@ -694,7 +697,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
 
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_response_not_received";
 
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",
@@ -815,7 +818,7 @@
     [MSIDTelemetry sharedInstance].piiEnabled = YES;
     
     // Setup test request providers
-    MSIDInteractiveRequestParameters *parameters = [self requestParameters];
+    MSIDInteractiveTokenRequestParameters *parameters = [self requestParameters];
     parameters.telemetryApiId = @"api_broker_success";
     
     NSDictionary *testResumeDictionary = @{@"test-resume-key1": @"test-resume-value2",

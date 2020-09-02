@@ -26,13 +26,15 @@
 @implementation MSIDRefreshTokenGrantRequest
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
+                                authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                   clientId:(nonnull NSString *)clientId
                                      scope:(nullable NSString *)scope
                               refreshToken:(nonnull NSString *)refreshToken
+                               redirectUri:(NSString *)redirectUri
                            extraParameters:(nullable NSDictionary *)extraParameters
                                    context:(nullable id<MSIDRequestContext>)context
 {
-    self = [super initWithEndpoint:endpoint clientId:clientId scope:scope context:context];
+    self = [super initWithEndpoint:endpoint authScheme:authScheme clientId:clientId scope:scope context:context];
     if (self)
     {
         NSParameterAssert(refreshToken);
@@ -40,6 +42,7 @@
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_GRANT_TYPE] = MSID_OAUTH2_REFRESH_TOKEN;
         parameters[MSID_OAUTH2_REFRESH_TOKEN] = refreshToken;
+        parameters[MSID_OAUTH2_REDIRECT_URI] = redirectUri;
         
         if (extraParameters)
         {

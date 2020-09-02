@@ -26,6 +26,7 @@
 #import "MSIDAccountType.h"
 #import "MSIDConfiguration.h"
 #import "MSIDError.h"
+#import "MSIDProviderType.h"
 
 @protocol MSIDRefreshableToken;
 @class MSIDBaseToken;
@@ -51,6 +52,9 @@
 // Additional properties that server sends
 @property (nonatomic, nullable) NSDictionary *additionalServerInfo;
 
+// When SSO extension creates token response, this property will contain authenticator app version.
+@property (nonatomic, nullable) NSString *clientAppVersion;
+
 /* Derived properties */
 
 // Error code based on oauth error response
@@ -70,6 +74,8 @@
 
 // Account type for an account generated from this response
 @property (nonatomic, readonly) MSIDAccountType accountType;
+
+@property (nonatomic, class, readonly) MSIDProviderType providerType;
 
 - (nullable instancetype)initWithJSONDictionary:(nonnull NSDictionary *)json
                                    refreshToken:(nullable MSIDBaseToken<MSIDRefreshableToken> *)token

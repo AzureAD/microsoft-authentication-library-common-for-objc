@@ -332,4 +332,17 @@ static NSMutableArray* s_responses = nil;
 {
 }
 
+- (Class)_protocolClassForRequest:(id)arg1
+{
+    (void)arg1;
+    return nil;
+}
+
+- (BOOL)_cfurlRequest:(id)arg1 isCacheEquivalentTo:(id)arg2
+{
+    (void)arg1;
+    (void)arg2;
+    return NO;
+}
+
 @end

@@ -55,12 +55,11 @@
     MSIDTelemetryUIEvent *_telemetryEvent;
 }
 
-
-
 - (id)initWithStartURL:(NSURL *)startURL
                 endURL:(NSURL *)endURL
                webview:(WKWebView *)webview
          customHeaders:(NSDictionary<NSString *, NSString *> *)customHeaders
+        platfromParams:(MSIDWebViewPlatformParams *)platformParams
                context:(id<MSIDRequestContext>)context
 {
     if (!startURL)
@@ -75,8 +74,9 @@
         return nil;
     }
     
-    self = [super initWithContext:context];
-    
+    self = [super initWithContext:context
+                   platformParams:platformParams];
+
     if (self)
     {
         self.webView = webview;
@@ -88,7 +88,7 @@
 
         _context = context;
         
-        self.complete = NO;
+        _complete = NO;
     }
     
     return self;
@@ -134,7 +134,7 @@
     }];
 }
 
-- (void)cancel
+- (void)cancelProgrammatically
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Canceled web view contoller.");
     
@@ -143,6 +143,11 @@
     
     [_telemetryEvent setIsCancelled:YES];
     [self endWebAuthWithURL:nil error:error];
+}
+
+- (void)dismiss
+{
+    [self cancelProgrammatically];
 }
 
 - (void)userCancel
@@ -169,6 +174,11 @@
 - (void)endWebAuthWithURL:(NSURL *)endURL
                     error:(NSError *)error
 {
+    if (self.complete)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"endWebAuthWithURL called for a second time, disregarding");
+        return;
+    }
     self.complete = YES;
     
     if (error)

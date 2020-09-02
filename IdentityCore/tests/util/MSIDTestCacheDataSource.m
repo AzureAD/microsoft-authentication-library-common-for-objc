@@ -33,6 +33,7 @@
 #import "MSIDAccount.h"
 #import "MSIDAppMetadataCacheItem.h"
 #import "MSIDAccountCacheItem.h"
+#import "MSIDAccountMetadata.h"
 #import "MSIDAccountMetadataCacheItem.h"
 
 @interface MSIDTestCacheDataSource()
@@ -547,6 +548,31 @@
     return (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
 }
 
+- (NSArray<MSIDAccountMetadataCacheItem *> *)accountsMetadataWithKey:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!serializer)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Missing parameter", nil, nil, nil, nil, nil, YES);
+        }
+        
+        return nil;
+    }
+    
+    NSArray *items = [self itemsWithKey:key keysDictionary:_accountKeys contentDictionary:_accountContents context:context error:error];
+    
+    NSMutableArray *metadataItems = [NSMutableArray new];
+    for(NSData *data in items)
+    {
+        MSIDAccountMetadataCacheItem *metadata = (MSIDAccountMetadataCacheItem *)[serializer deserializeCacheItem:data ofClass:[MSIDAccountMetadataCacheItem class]];
+        if (metadata)
+        {
+            [metadataItems addObject:metadata];
+        }
+    }
+    return metadataItems;
+}
 
 - (BOOL)removeAccountMetadataForKey:(MSIDCacheKey *)key context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
@@ -554,7 +580,7 @@
 }
 
 
-- (BOOL)saveAccountMetadata:(MSIDAccountMetadataCacheItem *)item key:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+- (BOOL)saveAccountMetadata:(MSIDAccountMetadata *)item key:(MSIDCacheKey *)key serializer:(id<MSIDExtendedCacheItemSerializing>)serializer context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
 {
     if (!item || !serializer)
     {

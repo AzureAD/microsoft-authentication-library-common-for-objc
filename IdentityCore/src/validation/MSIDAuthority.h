@@ -24,15 +24,16 @@
 #import <Foundation/Foundation.h>
 #import "MSIDAuthorityResolving.h"
 #import "MSIDCache.h"
+#import "MSIDJsonSerializable.h"
 
-extern NSString * _Nonnull const MSIDTrustedAuthority;
-extern NSString * _Nonnull const MSIDTrustedAuthorityWorldWide;
+extern NSString * _Nonnull const MSID_AUTHORITY_URL_JSON_KEY;
+extern NSString * _Nonnull const MSID_AUTHORITY_TYPE_JSON_KEY;
 
 @class MSIDOpenIdProviderMetadata;
 
 typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error);
 
-@interface MSIDAuthority : NSObject <NSCopying>
+@interface MSIDAuthority : NSObject <NSCopying, MSIDJsonSerializable>
 {
 @protected
     NSURL *_url;
@@ -51,6 +52,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 @property (readonly, nullable) NSURL *openIdConfigurationEndpoint;
 
 @property (readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
+
+@property (nonatomic) BOOL isDeveloperKnown;
 
 - (instancetype _Nullable )init NS_UNAVAILABLE;
 + (instancetype _Nullable )new NS_UNAVAILABLE;

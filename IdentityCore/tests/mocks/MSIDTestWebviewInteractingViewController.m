@@ -46,11 +46,20 @@
     }
 }
 
-- (void)cancel
+- (void)cancelProgrammatically
 {
     
 }
 
+- (void)dismiss
+{
+    
+}
+
+- (void)userCancel
+{
+    
+}
 
 - (BOOL)isKindOfClass:(Class)aClass
 {

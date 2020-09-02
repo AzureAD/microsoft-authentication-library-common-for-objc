@@ -34,7 +34,7 @@
 
 - (void)testDescription_whenPIIDisabled_andParameterOfNSStringType_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:@"secret-test"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"Masked(not-null)");
@@ -42,7 +42,7 @@
 
 - (void)testDescription_whenPIIEnabled_andParameterOfNSStringType_shouldReturnRawValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:@"secret-test"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"secret-test");
@@ -50,7 +50,7 @@
 
 - (void)testDescription_whenPIIDisabled_andParameterOfArrayType_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     NSArray *param = @[@"1", @"2", @"3"];
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:param];
     NSString *description = [logParameter description];
@@ -59,7 +59,7 @@
 
 - (void)testDescription_whenPIIDisabled_andParameterOfErrorType_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
     NSString *description = [logParameter description];
@@ -68,7 +68,7 @@
 
 - (void)testDescription_whenPIIEnabled_andParameterOfErrorType_shouldReturnNonMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     NSError *error = MSIDCreateError(MSIDErrorDomain, -10003, @"test", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:error];
     NSString *description = [logParameter description];
@@ -77,7 +77,7 @@
 
 - (void)testDescription_whenPIIDisabled_andParameterOfNSNullType_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:[NSNull null]];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"Masked(not-null)");
@@ -85,7 +85,7 @@
 
 - (void)testDescription_whenPIIEnabled_andParameterOfNSNullType_shouldReturnNonMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:[NSNull null]];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"<null>");
@@ -93,7 +93,7 @@
 
 - (void)testDescription_whenPIIEnabled_andNilParameter_shouldReturnNonMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     NSString *param = nil;
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:param];
     NSString *description = [logParameter description];
@@ -102,7 +102,7 @@
 
 - (void)testDescription_whenPIIEnabled_andNilParameter_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].PiiLoggingEnabled = YES;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     NSString *param = nil;
     MSIDMaskedLogParameter *logParameter = [[MSIDMaskedLogParameter alloc] initWithParameterValue:param];
     NSString *description = [logParameter description];

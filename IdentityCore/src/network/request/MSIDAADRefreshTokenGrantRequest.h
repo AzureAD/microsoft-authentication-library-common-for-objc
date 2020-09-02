@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 
 #import "MSIDRefreshTokenGrantRequest.h"
-
 /**
  Refreshing the access token.
  
@@ -31,7 +30,9 @@
 @interface MSIDAADRefreshTokenGrantRequest : MSIDRefreshTokenGrantRequest
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
+                                authScheme:(nonnull MSIDAuthenticationScheme *)authScheme
                                   clientId:(nonnull NSString *)clientId
+                               redirectUri:(nonnull NSString *)redirectUri
                               enrollmentId:(nullable NSString *)enrollmentId
                                      scope:(nullable NSString *)scope
                               refreshToken:(nonnull NSString *)refreshToken

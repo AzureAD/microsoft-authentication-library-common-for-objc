@@ -30,6 +30,7 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDAADAuthority.h"
+#import <CommonCrypto/CommonDigest.h>
 
 @implementation MSIDClientCredentialHelper
 
@@ -155,7 +156,7 @@
     
     [[session dataTaskWithRequest:request
                 completionHandler:^(NSData * _Nullable data,
-                                    NSURLResponse * _Nullable response, NSError * _Nullable error)
+                                    __unused NSURLResponse * _Nullable response, NSError * _Nullable error)
       {
           if (error)
           {
@@ -261,7 +262,7 @@
     
     NSData *certData = (__bridge NSData *)(data);
 
-    NSString *thumbprint = certData.msidSHA1.msidBase64UrlEncodedString;
+    NSString *thumbprint = [self sha1FromData:certData].msidBase64UrlEncodedString;
     CFRelease(data);
     CFRelease(certificate);
     
@@ -305,6 +306,15 @@
     }
     
     return nil;
+}
+
+// Use of sha1 is permissible here since this is not part of production library and is only used for testing
+// WARNING! Use of SHA-1 is not permitted in production code. Hash collisions are computationally feasible for these algorithms, which effectively "breaks" them.
++ (NSData *)sha1FromData:(NSData *)inputData
+{
+    unsigned char hash[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(inputData.bytes, (CC_LONG)inputData.length, hash);
+    return [NSData dataWithBytes:hash length:CC_SHA1_DIGEST_LENGTH];
 }
 
 @end
