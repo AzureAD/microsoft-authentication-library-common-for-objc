@@ -1,4 +1,5 @@
 * Move correlationId to MSIDBaseBrokerOperationRequest 
+* Support bypassing redirectUri validation also on macOS
 * Indicate whether SSO extension account is available for device wide SSO (#825)
 * Add swift static lib target to support AES GCM.
 
