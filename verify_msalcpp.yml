@@ -13,7 +13,7 @@ resources:
  repositories:
    - repository: microsoft-authentication-library-common-for-objc
      type: github
-     endpoint: GitHub for AzureAD
+     endpoint: https://identitydivision.visualstudio.com/IDDP/_settings/adminservices?resourceId=058c68c6-48c1-44c9-9f68-da8c12a58a8d
      name: microsoft-authentication-library-common-for-objc
      ref: develop
 
