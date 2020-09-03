@@ -26,61 +26,40 @@ steps:
 # - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc $AGENT_BUILDDIRECTORY/CommonCore HEAD
 #   displayName: Update the CommonCore subtree
 
-- task: DownloadSecureFile@1
-  displayName: 'Download the certificate'
-  inputs:
-    secureFile: LabVaultAccessCert.pfx
+# - task: UsePythonVersion@0
+#   displayName: Use Python 3.x
+  
+# - template: azure_pipelines/templates/prebuild.yml@microsoft-authentication-library-for-cpp
 
-# - template: select-xcode.yml
-#   parameters:
-#     version: 11.5
+# - script: |
+#    cd msalcpp
+#    python3 ./build.py --platform iOS
+#   displayName: 'Run a multi-line script'
 
-- task: Bash@3
-  displayName: (Hosted Agent Only) Select Xcode Version ${{ 11.5 }}
-  inputs:
-    targetType: inline
-    script: |
-      # If this is a hosted agent, let's explicitly set the Xcode version we want to use:
-      XCODE_PATH=/Applications/Xcode_${{ 11.5 }}.app/Contents/Developer
-      if [[ -d "$XCODE_PATH" ]]; then
-        sudo xcode-select -s "$XCODE_PATH"
-      else
-        XCODE_PATH=$(xcode-select -p)
-        echo "Xcode ${{ 11.5 }} not found. Using default Xcode at $XCODE_PATH"
-      fi
-  condition: or(startsWith(variables['Agent.Name'], 'Hosted'), startsWith(variables['Agent.Name'], 'Azure Pipelines'))
+jobs:
+- job: iOS_OnPrCommit
+  displayName: iOS OnPRCommit
+  pool:
+    vmImage: macOS-10.15
+  timeoutInMinutes: 40
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
 
-- task: UsePythonVersion@0
-  displayName: Use Python 3.x
+  steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 1
 
-- task: InstallAppleCertificate@2
-  inputs:
-    certSecureFile: 'MSALiOSBuildCertificate.p12'
-    certPwd: '$(MSALCPPiOSBuildCertificatePassword)'
+  - template: templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
-- task: InstallAppleProvisioningProfile@1
-  inputs:
-    # NOTE: If this provisioning profile stops working, follow these steps to
-    # regenerate it. Note that the typical iOS_Team_Provisioning_Profile will
-    # *NOT* work as that has IsXcodeManaged set to false, so Xcode will ignore
-    # it for automatic code-signing.
-    # 1. Clear out any provisioning profiles on your local machine by
-    # emptying the contents of ~/Library/MobileDevice/Provisioning Profiles/*
-    # (either back them up first or just have Xcode redownload them later).
-    # 2. Follow the instructions in the link below to build a dummy project
-    # with the com.example bundle-identifer to ensure that profile will work
-    # with CMake TryCompile projects
-    # https://polly.readthedocs.io/en/latest/toolchains/ios/bundle-id.html
-    # 3. Xcode will now generate a new provisioning profile at
-    # ~/Library/MobileDevice/Provisioning Profiles/<UUID>.mobileprovision.
-    # Since you deleted all the other profiles in step 1, this should be the
-    # only one.
-    # 4. Copy it out of that folder, re-name it to match the filename in the
-    # 'provProfileSecureFile' property of this task, then upload it to Azure
-    # DevOps Secure files.
-    provProfileSecureFile: 'iOS_Team_Provisioning_Profile_XcodeManaged.mobileprovision'
+  - template: templates/build-and-test.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      configuration: Debug
+      platform: iOS
+      arch: x64
 
-- script: |
-   cd msalcpp
-   python3 ./build.py --platform iOS
-  displayName: 'Run a multi-line script'
+  - template: templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      build: true
+      testLogArtifactName: 'iOS Test Logs'
