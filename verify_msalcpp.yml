@@ -27,6 +27,6 @@ steps:
 #   displayName: Update the CommonCore subtree
 
 - script: |
-   cd $AGENT_BUILDDIRECTORY/microsoft-authentication-library-for-cpp/scripts
+   cd $AGENT_BUILDDIRECTORY/scripts
    python ./update_msalobjc_subtree.py
   displayName: 'Run a multi-line script'
