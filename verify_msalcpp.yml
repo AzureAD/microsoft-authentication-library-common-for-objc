@@ -43,7 +43,7 @@ jobs:
       platform: iOS
       arch: x64
 
-  # - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
-  #   parameters:
-  #     build: true
-  #     testLogArtifactName: 'iOS Test Logs'
+  - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      build: true
+      testLogArtifactName: 'iOS Test Logs'
