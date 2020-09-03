@@ -54,13 +54,13 @@ jobs:
 
   - template: azure_pipelins/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
-  - template: azure_pipelins/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
-    parameters:
-      configuration: Debug
-      platform: iOS
-      arch: x64
+  # - template: azure_pipelins/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
+  #   parameters:
+  #     configuration: Debug
+  #     platform: iOS
+  #     arch: x64
 
-  - template: templates/publish-logs.yml@microsoft-authentication-library-for-cpp
-    parameters:
-      build: true
-      testLogArtifactName: 'iOS Test Logs'
+  # - template: templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+  #   parameters:
+  #     build: true
+  #     testLogArtifactName: 'iOS Test Logs'
