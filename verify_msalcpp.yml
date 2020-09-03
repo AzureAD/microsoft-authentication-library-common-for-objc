@@ -39,12 +39,10 @@ jobs:
   #   displayName: Update subtree
 
   - task: UsePythonVersion@0
-  displayName: 'Use Python 3.x'
   inputs:
     versionSpec: 3.x
 
   - task: PythonScript@0
-    displayName: Ensure generated Podspec for macOS is up to date
     inputs:
       # build.py runs Podspec generation even with --no-build, so we can just call that for this step.
       scriptPath: scripts/build.py
