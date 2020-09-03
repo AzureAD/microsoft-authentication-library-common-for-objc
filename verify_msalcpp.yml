@@ -52,7 +52,7 @@ jobs:
   - checkout: microsoft-authentication-library-for-cpp
     path: s
 
-  - template: azure_pipelins/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
+  - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
   # - template: azure_pipelins/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
   #   parameters:
