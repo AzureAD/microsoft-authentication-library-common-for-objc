@@ -30,6 +30,8 @@ steps:
   displayName: Use Python 3.x
   
 - template: azure_pipelines/ios-on-pr-commit.yml@microsoft-authentication-library-for-cpp
+  parameters:
+    runCodesignValidationInjection: false
 
 # - script: |
 #    cd msalcpp
