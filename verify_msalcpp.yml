@@ -32,5 +32,6 @@ steps:
     versionSpec: 3.x
 
 - script: |
-   python3 ./build.py --platform ios --test
+   cd msalcpp
+   python3 ./build.py --platform iOS
   displayName: 'Run a multi-line script'
