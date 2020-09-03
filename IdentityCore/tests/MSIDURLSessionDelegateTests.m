@@ -91,12 +91,12 @@
 - (void)testSessionTaskDidReceiveChallenge_whenNoBlockProvided_shouldPerformDefaultHandling
 {
     __auto_type delegate = [MSIDURLSessionDelegate new];
-    __auto_type session = [NSURLSession new];
-    __auto_type challendge = [NSURLAuthenticationChallenge new];
-    __auto_type task = [NSURLSessionTask new];
+    __auto_type session = [NSURLSession sharedSession];
+    __auto_type challenge = [NSURLAuthenticationChallenge new];
+    __auto_type task = [session dataTaskWithURL:[NSURL URLWithString:@"https://microsoft.com"]];
     
     XCTestExpectation *expectation = [self expectationWithDescription:@"session:task:didReceiveChallenge:completionHandler"];
-    [delegate URLSession:session task:task didReceiveChallenge:challendge completionHandler:^(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential)
+    [delegate URLSession:session task:task didReceiveChallenge:challenge completionHandler:^(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential)
     {
         XCTAssertEqual(disposition, NSURLSessionAuthChallengePerformDefaultHandling);
         XCTAssertNil(credential);
@@ -110,10 +110,10 @@
 - (void)testSessionTaskDidReceiveChallenge_whenBlockProvided_shouldUseHandlingProvidedByBlock
 {
     __auto_type delegate = [MSIDURLSessionDelegate new];
-    __auto_type session = [NSURLSession new];
+    __auto_type session = [NSURLSession sharedSession];
     __auto_type challendge = [NSURLAuthenticationChallenge new];
     __auto_type credential = [NSURLCredential new];
-    __auto_type task = [NSURLSessionTask new];
+    __auto_type task = [session dataTaskWithURL:[NSURL URLWithString:@"https://microsoft.com"]];
     
     delegate.taskDidReceiveAuthenticationChallengeBlock = ^void (NSURLSession *s, NSURLSessionTask *t, NSURLAuthenticationChallenge *ch, ChallengeCompletionHandler completionHandler)
     {
