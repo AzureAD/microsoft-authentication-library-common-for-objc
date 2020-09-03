@@ -1,6 +1,7 @@
 * Support bypassing redirectUri validation also on macOS
 * Indicate whether SSO extension account is available for device wide SSO (#825)
 * Add swift static lib target to support AES GCM.
+* Append PKeyAuth/1.0 keyword to the UserAgent String within the HTTP header.
 
 Version 1.5.5
 * Fix unused parameter errors for macOS target. (#816)
