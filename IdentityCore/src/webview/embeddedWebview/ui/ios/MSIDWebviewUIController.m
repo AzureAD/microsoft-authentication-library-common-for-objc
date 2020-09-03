@@ -27,6 +27,7 @@
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -50,6 +51,7 @@ static WKWebViewConfiguration *s_webConfig;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         s_webConfig = [WKWebViewConfiguration new];
+        s_webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
         
         if (@available(iOS 13.0, *))
         {
