@@ -27,6 +27,7 @@
 @interface MSIDLastRequestTelemetrySerializedItem()
 
 @property (nonatomic) NSArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *unserializedErrors;
 
 @end
 
@@ -74,10 +75,16 @@
         
         // Only add error info into string if the resulting string smaller than 4KB
         if ([currentFailedRequest lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < 4000)
+                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
         {
             failedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
             errorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
+        }
+        else
+        {
+            [self addRemainingErrorsToUnserializedTelemetry:lastIndex];
+            
+            return [NSString stringWithFormat:@"%@|%@", failedRequestsString, errorMessagesString];
         }
 
         // Fill in remaining errors with comma at the end of each error
@@ -92,19 +99,38 @@
             // Only add next error into string if the resulting string smaller than 4KB, otherwise stop building
             // the string
             if ([newFailedRequestsString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < 4000)
+                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
             {
                 failedRequestsString = newFailedRequestsString;
                 errorMessagesString = newErrorMessagesString;
             }
             else
             {
-                break;
+                [self addRemainingErrorsToUnserializedTelemetry:i];
+                
+                return [NSString stringWithFormat:@"%@|%@", failedRequestsString, errorMessagesString];
             }
         }
     }
     NSString *telemetryString = [NSString stringWithFormat:@"%@|%@", failedRequestsString, errorMessagesString];
     return telemetryString;
+}
+
+- (NSMutableArray<MSIDRequestTelemetryErrorInfo *> *)getUnserialzedTelemetry
+{
+    return self.unserializedErrors;
+}
+
+- (void)addRemainingErrorsToUnserializedTelemetry:(int)index
+{
+    for (int i = 0; i <= index; i++)
+    {
+        if (!self.unserializedErrors)
+        {
+            self.unserializedErrors = [NSMutableArray<MSIDRequestTelemetryErrorInfo *> new];
+        }
+        [self.unserializedErrors addObject:self.errorsInfo[i]];
+    }
 }
 
 @end
