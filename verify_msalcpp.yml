@@ -22,7 +22,7 @@ variables:
 
 jobs:
 - job: MSAL_CPP_checks_subtree_update
-  displayName: iOS OnPRCommit
+  displayName: MSAL CPP checks per commit
   pool:
     vmImage: macOS-10.15
   timeoutInMinutes: 40
