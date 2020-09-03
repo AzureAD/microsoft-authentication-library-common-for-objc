@@ -31,9 +31,24 @@ steps:
   inputs:
     secureFile: LabVaultAccessCert.pfx
 
-- template: select-xcode.yml
-  parameters:
-    version: 11.5
+# - template: select-xcode.yml
+#   parameters:
+#     version: 11.5
+
+- task: Bash@3
+  displayName: (Hosted Agent Only) Select Xcode Version ${{ 11.5 }}
+  inputs:
+    targetType: inline
+    script: |
+      # If this is a hosted agent, let's explicitly set the Xcode version we want to use:
+      XCODE_PATH=/Applications/Xcode_${{ 11.5 }}.app/Contents/Developer
+      if [[ -d "$XCODE_PATH" ]]; then
+        sudo xcode-select -s "$XCODE_PATH"
+      else
+        XCODE_PATH=$(xcode-select -p)
+        echo "Xcode ${{ 11.5 }} not found. Using default Xcode at $XCODE_PATH"
+      fi
+  condition: or(startsWith(variables['Agent.Name'], 'Hosted'), startsWith(variables['Agent.Name'], 'Azure Pipelines'))
 
 - task: UsePythonVersion@0
   displayName: Use Python 3.x
