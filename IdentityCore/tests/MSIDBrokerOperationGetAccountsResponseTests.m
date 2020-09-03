@@ -276,6 +276,7 @@
     MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     account.clientInfo = clientInfo;
     account.alternativeAccountId = @"AltID";
+    account.isSSOAccount = YES;
     
     MSIDAccount *account2 = [account copy];
     account2.realm = @"tenant";
@@ -304,6 +305,7 @@
             @"realm" : @"common",
             @"storage_environment" : @"login.windows2.net",
             @"username" : @"username",
+            @"is_sso_account": @YES
         },
         @{
             @"home_account_id" : @"uid.utid",
@@ -319,6 +321,7 @@
             @"realm" : @"tenant",
             @"storage_environment" : @"login.windows2.net",
             @"username" : @"username",
+            @"is_sso_account": @NO
         }
     ];
     

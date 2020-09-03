@@ -24,7 +24,9 @@
 
 #import "MSIDWebResponseBrokerInstallOperation.h"
 #import "MSIDWebviewResponse.h"
+#if TARGET_OS_IPHONE
 #import "MSIDBrokerInteractiveController.h"
+#endif
 #import "MSIDInteractiveTokenRequestParameters.h"
 #import "MSIDWebWPJResponse.h"
 #import "MSIDTokenRequestProviding.h"
