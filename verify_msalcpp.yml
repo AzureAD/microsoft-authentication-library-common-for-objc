@@ -11,10 +11,10 @@ pool:
 
 resources:
  repositories:
-   - repository: microsoft-authentication-library-common-for-objc
+   - repository: microsoft-authentication-library-for-cpp
      type: github
-     endpoint: https://identitydivision.visualstudio.com/IDDP/_settings/adminservices?resourceId=058c68c6-48c1-44c9-9f68-da8c12a58a8d
-     name: microsoft-authentication-library-common-for-objc
+     endpoint: 'GitHub for AzureAD'
+     name: AzureAD/microsoft-authentication-library-for-cpp
      ref: develop
 
 steps:
