@@ -26,6 +26,11 @@ steps:
 # - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc $AGENT_BUILDDIRECTORY/CommonCore HEAD
 #   displayName: Update the CommonCore subtree
 
+- task: UsePythonVersion@0
+  displayName: 'Use Python 3.x'
+  inputs:
+    versionSpec: 3.x
+
 - script: |
    cd scripts
    python3 ./build.py --platform ios --test
