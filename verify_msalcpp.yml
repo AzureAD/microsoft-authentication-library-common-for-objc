@@ -17,11 +17,11 @@ resources:
      name: AzureAD/microsoft-authentication-library-for-cpp
      ref: develop
 
-steps:
+# steps:
 # - checkout: self
 #   path: CommonCore
-- checkout: microsoft-authentication-library-for-cpp
-  path: s # Check out OneAuth to the default working directory so we can use OneAuth templates as-is
+# - checkout: microsoft-authentication-library-for-cpp
+#   path: s # Check out OneAuth to the default working directory so we can use OneAuth templates as-is
 
 # - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc $AGENT_BUILDDIRECTORY/CommonCore HEAD
 #   displayName: Update the CommonCore subtree
@@ -47,7 +47,7 @@ jobs:
     clean: all
 
   steps:
-  - checkout: self
+  - checkout: microsoft-authentication-library-for-cpp
     clean: true
     fetchDepth: 1
 
