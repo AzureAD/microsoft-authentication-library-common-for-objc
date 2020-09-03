@@ -26,12 +26,44 @@ steps:
 # - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc $AGENT_BUILDDIRECTORY/CommonCore HEAD
 #   displayName: Update the CommonCore subtree
 
-- task: UsePythonVersion@0
-  displayName: 'Use Python 3.x'
+- task: DownloadSecureFile@1
+  displayName: 'Download the certificate'
   inputs:
-    versionSpec: 3.x
+    secureFile: LabVaultAccessCert.pfx
 
-- template: azure_pipelines/templates/ios-setup.yml
+- template: select-xcode.yml
+  parameters:
+    version: 11.5
+
+- task: UsePythonVersion@0
+  displayName: Use Python 3.x
+
+- task: InstallAppleCertificate@2
+  inputs:
+    certSecureFile: 'MSALiOSBuildCertificate.p12'
+    certPwd: '$(MSALCPPiOSBuildCertificatePassword)'
+
+- task: InstallAppleProvisioningProfile@1
+  inputs:
+    # NOTE: If this provisioning profile stops working, follow these steps to
+    # regenerate it. Note that the typical iOS_Team_Provisioning_Profile will
+    # *NOT* work as that has IsXcodeManaged set to false, so Xcode will ignore
+    # it for automatic code-signing.
+    # 1. Clear out any provisioning profiles on your local machine by
+    # emptying the contents of ~/Library/MobileDevice/Provisioning Profiles/*
+    # (either back them up first or just have Xcode redownload them later).
+    # 2. Follow the instructions in the link below to build a dummy project
+    # with the com.example bundle-identifer to ensure that profile will work
+    # with CMake TryCompile projects
+    # https://polly.readthedocs.io/en/latest/toolchains/ios/bundle-id.html
+    # 3. Xcode will now generate a new provisioning profile at
+    # ~/Library/MobileDevice/Provisioning Profiles/<UUID>.mobileprovision.
+    # Since you deleted all the other profiles in step 1, this should be the
+    # only one.
+    # 4. Copy it out of that folder, re-name it to match the filename in the
+    # 'provProfileSecureFile' property of this task, then upload it to Azure
+    # DevOps Secure files.
+    provProfileSecureFile: 'iOS_Team_Provisioning_Profile_XcodeManaged.mobileprovision'
 
 - script: |
    cd msalcpp
