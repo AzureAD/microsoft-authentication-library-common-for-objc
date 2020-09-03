@@ -1,0 +1,41 @@
+parameters:
+- name: captureNetworkLogs
+  type: boolean
+  default: false
+- name: enableWamTestSetup
+  type: boolean
+  default: false
+
+steps:
+- task: DownloadSecureFile@1
+  displayName: 'Download the certificate'
+  inputs:
+    secureFile: LabVaultAccessCert.pfx
+
+- task: PowerShell@2
+  displayName: 'Install the certificate in the store'
+  inputs:
+    targetType: filePath
+    filePath: './scripts/install_server_cert.ps1'
+
+- ${{ if parameters.captureNetworkLogs }}:
+  - task: Bash@3
+    displayName: Capture Winhttp traces 
+    inputs:
+      targetType: inline
+      script: netsh trace start scenario=InternetClient_dbg capture=yes persistent=yes correlation=disabled traceFile=$BUILD_ARTIFACTSTAGINGDIRECTORY/nettrace.etl
+    condition: succeededOrFailed()
+    continueOnError: true
+
+- ${{ if parameters.enableWamTestSetup }}:
+  - bash: takeown //F '$(SYSTEMROOT)\SystemApps\Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy\js\tokenProviderManager.js'
+    displayName: Take ownership of the WAM javascript automation file.
+    continueOnError: true
+
+  - bash: icacls '$(SYSTEMROOT)\SystemApps\Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy\js\tokenProviderManager.js' //grant Everyone:F
+    displayName: Change permissions of the WAM javascript automation file.
+    continueOnError: true
+
+- task: UsePythonVersion@0
+  displayName: Use Python 3.x
+

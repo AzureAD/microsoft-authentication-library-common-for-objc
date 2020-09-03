@@ -1,0 +1,85 @@
+parameters:
+- name: captureNetworkLogs
+  type: boolean
+  default: false
+- name: buildArtifactsName
+  type: string
+- name: enableWamTestSetup
+  type: boolean
+  default: false
+- name: enableAADTestBinary
+  type: boolean
+  default: false
+  
+steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 1
+
+  - template: windows-setup.yml
+    parameters:
+      captureNetworkLogs: ${{ parameters.captureNetworkLogs }}
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download build artifacts'
+    inputs:
+      artifactName: ${{ parameters.buildArtifactsName }}
+      itemPattern: '**/*'
+
+  - task: CopyFiles@2
+    displayName: Copy MSAL build artifacts to the default working directory
+    inputs:
+      SourceFolder: '$(System.ArtifactsDirectory)\${{ parameters.buildArtifactsName }}'
+      TargetFolder: '$(System.DefaultWorkingDirectory)'
+      overwrite: true
+
+  - ${{ if parameters.enableWamTestSetup }}:
+    - bash: takeown //F '$(SYSTEMROOT)\SystemApps\Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy\js\tokenProviderManager.js'
+      displayName: Take ownership of the WAM javascript automation file.
+      continueOnError: true
+
+    - bash: icacls '$(SYSTEMROOT)\SystemApps\Microsoft.Windows.CloudExperienceHost_cw5n1h2txyewy\js\tokenProviderManager.js' //grant Everyone:F
+      displayName: Change permissions of the WAM javascript automation file.
+      continueOnError: true
+      
+  - ${{ if parameters.enableAADTestBinary }}:
+    - task: DownloadSecureFile@1
+      name: sfpcopy_18362
+      displayName: 'Download sfpcopy for windows version 18362'
+      inputs:
+        secureFile: sfpcopy-18362.exe
+    
+    - task: DownloadSecureFile@1
+      name: AADBinary_18362
+      displayName: 'Download the WAM AAD Binary for windows version 18362'
+      inputs:
+        secureFile: AAD.Core.Hooks-18362.dll
+
+    - task: DownloadSecureFile@1
+      name: sfpcopy_17763
+      displayName: 'Download sfpcopy for windows version 17763'
+      inputs:
+        secureFile: sfpcopy-17763.exe
+    
+    - task: DownloadSecureFile@1
+      name: AADBinary_17763
+      displayName: 'Download the WAM AAD Binary for windows version 17763'
+      inputs:
+        secureFile: AAD.Core.Hooks-17763.dll
+    - task: PowerShell@2
+      displayName: 'Replace the original AAD.Core.dll with matched version'
+      inputs:
+        targetType: filePath
+        filePath: scripts/replace_aad_binary.ps1
+        arguments: -sfpcopy_18362_path $(sfpcopy_18362.secureFilePath)
+                   -AADBinary_18362_path $(AADBinary_18362.secureFilePath)
+                   -sfpcopy_17763_path $(sfpcopy_17763.secureFilePath)
+                   -AADBinary_17763_path $(AADBinary_17763.secureFilePath)
+                   
+    - task: DownloadSecureFile@1
+      name: CleanupWPJ
+      displayName: 'Download the CleanupWPJ executable'
+      inputs:
+        secureFile: CleanupWPJ.exe
+    
+  - template: windows-enable-vstest-googletest.yml

@@ -1,0 +1,33 @@
+# This template should only be run after build-and-test.yml
+# build-and-test.yml must have measureTime set to true.
+
+parameters:
+- name: platform
+  type: string
+- name: arch
+  type: string
+- name: configuration
+  type: string
+- name: binaryPaths
+  type: object # This is a list, which doesn't have its own data type
+
+steps:
+- task: Bash@3
+  displayName: Install the azure-cosmosdb-table package for uploading build metrics
+  inputs:
+    targetType: inline
+    script: pip install azure-cosmosdb-table
+  condition: and(variables['buildEndTime'], eq(variables['Build.Reason'], 'Schedule'))
+
+- task: PythonScript@0
+  displayName: Upload build metrics
+  inputs:
+    scriptPath: scripts/upload_build_metrics.py
+  condition: variables['buildEndTime'] # As long as the build succeeded, we should upload metrics
+  env:
+    LIBRARY: Msal
+    ONEAUTHSTORAGE_CONNECTIONSTRING: $(OneAuthStorageConnectionString)
+    PLATFORM: ${{ parameters.platform }}
+    ARCH: ${{ parameters.arch }}
+    CONFIGURATION: ${{ parameters.configuration }}
+    BINARY_PATHS: ${{ join(',', parameters.binaryPaths) }}

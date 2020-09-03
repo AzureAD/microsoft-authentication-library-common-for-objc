@@ -1,0 +1,16 @@
+steps:
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Artifact: Build logs'
+  inputs:
+    path: 'source/android/msal/app/build/outputs/logs'
+    artifact: 'Build Logs [Attempt $(System.StageAttempt)]'
+  continueOnError: true
+  condition: succeededOrFailed()
+
+- task: PublishPipelineArtifact@1
+  displayName: 'Publish Artifact: MSAL logs'
+  inputs:
+    path: '$(Build.ArtifactStagingDirectory)/msaltest.tsv'
+    artifact: 'Android Test Logs [Attempt $(System.StageAttempt)]'
+  continueOnError: true
+  condition: succeededOrFailed()

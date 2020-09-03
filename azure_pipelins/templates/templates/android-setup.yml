@@ -1,0 +1,7 @@
+steps:
+- bash: brew install ninja
+  displayName: Install ninja on macOS
+  condition: eq(variables['Agent.OS'],'Darwin')
+
+- task: UsePythonVersion@0
+  displayName: Use Python 3.x

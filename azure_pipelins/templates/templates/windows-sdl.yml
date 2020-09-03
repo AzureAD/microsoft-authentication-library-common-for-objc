@@ -1,0 +1,129 @@
+parameters:
+- name: arch
+  type: string
+  default: x64
+- name: configuration
+  type: string
+  default: Debug
+
+jobs:
+- job: Windows_SecurityChecksSDL
+  displayName: Security Checks - SDL Native Rules
+  pool:
+    vmImage: windows-2019
+  timeoutInMinutes: 20
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 1
+
+  - template: windows-setup.yml
+
+  - task: PythonScript@0
+    displayName: Generate MSAL solution and set toolchain variable
+    name: build
+    inputs:
+      scriptPath: build.py
+      arguments: --platform windows --arch ${{ parameters.arch }} --configuration ${{ parameters.configuration }} --clean --djinni hashfail --no-build
+
+  - task: PowerShell@2
+    displayName: Find MSBuild.exe
+    inputs:
+      targetType: inline
+      script: |
+        $msbuildpath = & vswhere.exe -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe | select-object -first 1
+        Write-Host "##vso[task.setvariable variable=msbuildpath]$msbuildpath"
+        $lastexitcode = 0
+
+  - task: SDLNativeRules@2
+    inputs:
+      userProvideBuildInfo: 'msBuildInfo'
+      msBuildVersion: '16.0'
+      msBuildArchitecture: '${{ parameters.arch }}'
+      msBuildCommandline: '"$(msbuildpath)" _builds/$(build.toolchain)/msalsdk.sln -m -p:Configuration=${{ parameters.configuration }} -t:msalsdk'
+    continueOnError: true
+
+  - task: PublishSecurityAnalysisLogs@2
+    displayName: 'Publish Security Analysis Logs'
+    inputs:
+      ArtifactName: 'CodeAnalysisLogs'
+      ArtifactType: 'Container'
+
+  - task: PostAnalysis@1
+    displayName: 'Post Analysis'
+    inputs:
+      SDLNativeRules: true
+      ToolLogsNotFoundAction: 'Error'
+
+
+- job: Windows_SecurityChecksOther
+  displayName: Security Checks - Other Checks
+  pool:
+    vmImage: windows-2019
+  timeoutInMinutes: 20
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 1
+
+  - task: AutoApplicability@1
+    displayName: 'Run AutoApplicability'
+    inputs:
+      InternalRelease: true
+
+  # Full identifier needed below to avoid conflict with 'OneBranch - CredScan' task
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
+    displayName: 'Run CredScan'
+    inputs:
+      toolMajorVersion: V2
+      suppressionsFile: azure_pipelines/CredScanSuppressions.json
+    continueOnError: true
+
+  - task: PoliCheck@1
+    displayName: 'Run PoliCheck'
+    inputs:
+      optionsUEPATH: $(Build.SourcesDirectory)/azure_pipelines/PoliCheckExclusions.xml
+    continueOnError: true
+
+  - task: VulnerabilityAssessment@0
+    displayName: 'Run Vulnerability Assessment'
+
+  - task: AntiMalware@3
+    displayName: 'Run MpCmdRun.exe'
+    inputs:
+      InputType: 'Basic'
+      ScanType: 'CustomScan'
+      FileDirPath: '$(Pipeline.Workspace)'
+      EnableServices: true
+      SupportLogOnError: false
+      TreatSignatureUpdateFailureAs: 'Warning'
+      SignatureFreshness: 'OneDay'
+      TreatStaleSignatureAs: 'Error'
+
+  - task: PublishSecurityAnalysisLogs@2
+    displayName: 'Publish Security Analysis Logs'
+    inputs:
+      ArtifactName: 'CodeAnalysisLogs'
+      ArtifactType: 'Container'
+
+  - task: PostAnalysis@1
+    displayName: 'Post Analysis'
+    inputs:
+      CredScan: true
+      PoliCheck: true
+      ToolLogsNotFoundAction: 'Error'
+
+  - task: ComponentGovernanceComponentDetection@0
+    inputs:
+      scanType: 'Register'
+      verbosity: 'Verbose'
+      alertWarningLevel: 'High'
+      failOnAlert: true

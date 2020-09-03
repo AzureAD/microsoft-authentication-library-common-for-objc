@@ -1,0 +1,31 @@
+parameters:
+- name: platform
+  type: string
+
+jobs:
+- job: ${{ parameters.platform }}
+  displayName: Build and Test ${{ parameters.platform }}
+  pool:
+    ${{ if eq(parameters.platform, 'Win32') }}:
+      vmImage: windows-2019
+    ${{ if in(parameters.platform, 'macOS', 'iOS', 'Android') }}:
+      vmImage: macOS-10.15
+  timeoutInMinutes: 20
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - template: oneauth-subtree.yml
+
+  - template: azure_pipelines/templates/prebuild.yml@OneAuth
+    parameters:
+      platform: ${{ parameters.platform }}
+
+  - template: azure_pipelines/templates/build-and-test.yml@OneAuth
+    parameters:
+      platform: ${{ parameters.platform }}
+      arch: x64
+      configuration: Debug
+      ${{ if not(eq(parameters.platform, 'Android')) }}:
+        testTypes: [ unit ]

@@ -1,0 +1,19 @@
+parameters:
+- name: version
+  type: string
+
+steps:
+- task: Bash@3
+  displayName: (Hosted Agent Only) Select Xcode Version ${{ parameters.version }}
+  inputs:
+    targetType: inline
+    script: |
+      # If this is a hosted agent, let's explicitly set the Xcode version we want to use:
+      XCODE_PATH=/Applications/Xcode_${{ parameters.version }}.app/Contents/Developer
+      if [[ -d "$XCODE_PATH" ]]; then
+        sudo xcode-select -s "$XCODE_PATH"
+      else
+        XCODE_PATH=$(xcode-select -p)
+        echo "Xcode ${{ parameters.version }} not found. Using default Xcode at $XCODE_PATH"
+      fi
+  condition: or(startsWith(variables['Agent.Name'], 'Hosted'), startsWith(variables['Agent.Name'], 'Azure Pipelines'))

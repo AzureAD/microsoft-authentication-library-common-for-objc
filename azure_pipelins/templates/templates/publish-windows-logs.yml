@@ -1,0 +1,43 @@
+parameters:
+- name: build
+  type: boolean
+  default: true
+- name: testLogArtifactName
+  type: string
+  default: ''
+- name: captureNetworkLogs
+  type: boolean
+  default: false
+
+steps:
+- ${{ if parameters.captureNetworkLogs }}:
+  - bash: netsh trace stop
+    displayName: Stop winhttp traces
+    condition: succeededOrFailed()
+    continueOnError: true
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Artifact: nettrace.etl'
+    inputs:
+      path: '$(Build.ArtifactStagingDirectory)/nettrace.etl'
+      artifact: '${{ parameters.testLogArtifactName }} - Http Logs nettrace.etl [Attempt $(System.StageAttempt)]'
+    condition: succeededOrFailed()
+    continueOnError: true
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish Artifact:nettrace.cab'
+    inputs:
+      path: '$(Build.ArtifactStagingDirectory)/nettrace.cab'
+      artifact: '${{ parameters.testLogArtifactName }} - Http Logs nettrace.cab [Attempt $(System.StageAttempt)]'
+    condition: succeededOrFailed()
+    continueOnError: true
+
+- bash: taskkill //FI "IMAGENAME eq msal_test_*" //F //T
+  displayName: Ensure tests have been terminated.
+  condition: succeededOrFailed()
+  continueOnError: true
+
+- template: publish-logs.yml
+  parameters:
+    build: ${{ parameters.build }}
+    testLogArtifactName: ${{ parameters.testLogArtifactName }}

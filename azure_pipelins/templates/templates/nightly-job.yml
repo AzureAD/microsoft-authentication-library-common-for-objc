@@ -1,0 +1,50 @@
+parameters:
+- name: platform
+  type: string
+- name: arch
+  type: string
+- name: configuration
+  type: string
+
+jobs:
+- job: '${{ parameters.platform }}_${{ parameters.arch }}_${{ parameters.configuration }}Build'
+  displayName: '${{ parameters.platform }}_${{ parameters.arch }}_${{ parameters.configuration }} (Build)'
+  pool:
+    vmImage: windows-2019
+  timeoutInMinutes: 150
+  variables:
+  - group: MSAL CPP - OneAuthBuildSecrets
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    clean: true
+    fetchDepth: 1
+
+  - template: windows-setup.yml
+
+  - template: build-and-publish.yml
+    parameters:
+      platform: ${{ parameters.platform }}
+      arch: ${{ parameters.arch }}
+      configuration: ${{ parameters.configuration }}
+      measureTime: true
+      buildArtifactsName: 'Build artifacts ${{ parameters.platform }} ${{ parameters.arch }} ${{ parameters.configuration }}'
+
+  - template: upload-build-metrics.yml
+    parameters:
+      platform: ${{ parameters.platform }}
+      arch: ${{ parameters.arch }}
+      configuration: ${{ parameters.configuration }}
+      binaryPaths: [ '_install/$(Build.Toolchain)/bin/windows_sample.exe' ]
+
+- template: test-only.yml
+  parameters:
+    testName: '${{ parameters.platform }}_${{ parameters.arch }}_${{ parameters.configuration }}'
+    dependsOn: '${{ parameters.platform }}_${{ parameters.arch }}_${{ parameters.configuration }}Build'
+    platform: ${{ parameters.platform }}
+    arch: ${{ parameters.arch }}
+    configuration: ${{ parameters.configuration }}
+    timeoutInMinutes: 150

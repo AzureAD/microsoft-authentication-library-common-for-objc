@@ -1,0 +1,69 @@
+parameters:
+- name: platform
+  type: string
+- name: arch
+  type: string
+- name: configuration
+  type: string
+- name: domainJoined
+  type: boolean
+  default: false
+- name: additionalTestArgs
+  type: string
+  default: ''
+- name: measureTime
+  type: boolean
+  default: false
+
+steps:
+- ${{ if parameters.measureTime }}:
+  - task: PythonScript@0
+    displayName: Get build start time
+    inputs:
+      scriptSource: inline
+      script: |
+        import time
+        print(f'##vso[task.setvariable variable=buildStartTime;]{time.time()}')
+
+- task: PythonScript@0
+  name: Build
+  displayName: 'Build ${{ parameters.arch }} ${{ parameters.configuration }} ${{ parameters.platform }}'
+  inputs:
+    scriptPath: build.py
+    arguments: '--clean --arch ${{ parameters.arch }} --configuration ${{ parameters.configuration }} --platform ${{ parameters.platform }} --djinni hashfail'
+  env:
+    MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
+    MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)
+
+- ${{ if parameters.measureTime }}:
+  - task: PythonScript@0
+    displayName: Get build end time
+    inputs:
+      scriptSource: inline
+      script: |
+        import time
+        print(f'##vso[task.setvariable variable=buildEndTime;]{time.time()}')
+
+- task: PythonScript@0
+  displayName: 'Run ${{ parameters.arch }} ${{ parameters.configuration }} ${{ parameters.platform }} Tests'
+  condition: and(succeeded(), not(${{ parameters.domainJoined }}))
+  inputs:
+    scriptPath: build.py
+    # The - in gtest_filter chains across :, so this runs neither MANUAL, DJ, nor WPJ tests.
+    arguments: '--test-only --gtest_filter=-*.MANUAL_*:*.DJ_*:*.WPJ_* --disable-colors --arch ${{ parameters.arch }} --configuration ${{ parameters.configuration }} --platform ${{ parameters.platform }} ${{ parameters.additionalTestArgs }}'
+  env:
+    MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
+    MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)
+
+- task: PythonScript@0
+  displayName: 'Run ${{ parameters.arch }} ${{ parameters.configuration }} Domain Joined Tests'
+  condition: and(succeeded(), ${{ parameters.domainJoined }})
+  inputs:
+    scriptPath: build.py
+    arguments: '--test-only --gtest_filter=*.DJ_* --disable-colors'
+
+- task: PublishTestResults@2
+  displayName: Publish Test Results
+  inputs:
+    testResultsFiles: _testresults/**.xml
+  condition: succeededOrFailed()

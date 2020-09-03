@@ -1,0 +1,143 @@
+parameters:
+- name: testName
+  type: string
+  default: ''
+- name: dependsOn
+  type: string
+  default: ''
+- name: arch
+  type: string
+- name: configuration
+  type: string
+- name: platform
+  type: string
+- name: additionalTestArgs
+  type: string
+  default: ''
+- name: captureNetworkLogs
+  type: boolean
+  default: false
+- name: timeoutInMinutes
+  type: number
+  default: 25
+
+jobs:
+- job: '${{ parameters.testName }}CommonTests'
+  displayName: '${{ parameters.testName }} (Common Tests)'
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: and(succeeded(), eq('${{ parameters.platform }}', 'Windows')) # This job is configured to run only on Windows
+  pool:
+    vmImage: windows-2019
+  timeoutInMinutes: ${{ parameters.timeoutInMinutes }}
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - template: windows-test-setup.yml
+    parameters:
+      buildArtifactsName: 'Build artifacts ${{ parameters.platform }} ${{ parameters.arch }} ${{ parameters.configuration }}'
+      enableWamTestSetup: true
+      enableAADTestBinary: true
+
+  - task: VSTest@2
+    displayName: 'Run ${{ parameters.arch }} ${{ parameters.configuration }} ${{ parameters.platform }} Tests'
+    timeoutInMinutes: 20
+    inputs:
+      testRunTitle: Common Tests
+      testSelector: testAssemblies
+      testAssemblyVer2: '_install\*\bin\msal_test_*'
+      testFiltercriteria: "FullyQualifiedName!~.DJ_&FullyQualifiedName!~.WPJ_&FullyQualifiedName!~.MANUAL_&FullyQualifiedName!~DISABLED_"
+      uiTests: true
+      platform: ${{ parameters.arch }}
+      configuration: ${{ parameters.configuration }}
+      pathtoCustomTestAdapters: $(Build.BinariesDirectory)\GoogleTestAdapter
+      collectDumpOn: 'onAbortOnly'
+    env:
+      MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
+      MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)
+
+  - template: publish-windows-logs.yml
+    parameters:
+      build: false
+      testLogArtifactName: '${{ parameters.platform }} ${{ parameters.arch }} ${{ parameters.configuration }} Common Test Logs'
+      captureNetworkLogs: ${{ parameters.captureNetworkLogs }}
+
+- job: '${{ parameters.testName }}DjTests'
+  displayName: '${{ parameters.testName }} (Domain Joined Tests)'
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: and(succeeded(), eq('${{ parameters.platform }}', 'Windows')) # This job is configured to run only on Windows
+  pool:
+    name: DevEx CI CPP
+    demands: DomainJoined
+  timeoutInMinutes: 20
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - template: windows-test-setup.yml
+    parameters:
+      buildArtifactsName: 'Build artifacts ${{ parameters.platform }} ${{ parameters.arch }} ${{ parameters.configuration }}'
+      enableAADTestBinary: true
+
+  - task: VSTest@2
+    displayName: 'Run ${{ parameters.arch }} ${{ parameters.configuration }} Domain Joined Tests'
+    timeoutInMinutes: 15
+    inputs:
+      testRunTitle: Domain Joined Tests
+      testSelector: testAssemblies
+      testAssemblyVer2: '_install\*\bin\msal_test_*.exe'
+      testFiltercriteria: "FullyQualifiedName~.DJ_"
+      uiTests: True
+      platform: ${{ parameters.arch }}
+      configuration: ${{ parameters.configuration }}
+      pathtoCustomTestAdapters: $(Build.BinariesDirectory)\GoogleTestAdapter
+    env:
+      MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
+      MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)
+
+  - template: publish-logs.yml
+    parameters:
+      build: false
+      testLogArtifactName: '${{ parameters.platform }} ${{ parameters.arch }} ${{ parameters.configuration }} DJ Test Logs'
+
+- job: '${{ parameters.testName }}WpjTests'
+  displayName: '${{ parameters.testName }} (Workplace Joined Tests)'
+  dependsOn: ${{ parameters.dependsOn }}
+  condition: and(succeeded(), eq('${{ parameters.platform }}', 'Windows')) # This job is configured to run only on Windows
+  pool:
+    name: DevEx Win8 Automation
+    demands:
+    - WPJ
+    - VisualStudioVersion -equals 2017
+  timeoutInMinutes: 20
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - template: windows-test-setup.yml
+    parameters:
+      buildArtifactsName: 'Build artifacts ${{ parameters.platform }} ${{ parameters.arch }} ${{ parameters.configuration }}'
+
+  - task: VSTest@2
+    displayName: 'Run ${{ parameters.arch }} ${{ parameters.configuration }} Workplace Joined Tests'
+    timeoutInMinutes: 15
+    inputs:
+      testRunTitle: Workplace Joined Tests
+      testSelector: testAssemblies
+      testAssemblyVer2: '_install\*\bin\msal_test_*.exe'
+      testFiltercriteria: "FullyQualifiedName~.WPJ_"
+      uiTests: True
+      platform: ${{ parameters.arch }}
+      configuration: ${{ parameters.configuration }}
+      pathtoCustomTestAdapters: $(Build.BinariesDirectory)\GoogleTestAdapter
+    env:
+      MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
+      MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)
+
+  - template: publish-logs.yml
+    parameters:
+      build: false
+      testLogArtifactName: '${{ parameters.platform }} ${{ parameters.arch }} ${{ parameters.configuration }} WPJ Test Logs'

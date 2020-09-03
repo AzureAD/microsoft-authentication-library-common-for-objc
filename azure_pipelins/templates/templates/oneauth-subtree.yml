@@ -1,0 +1,8 @@
+steps:
+- checkout: self
+  path: MSAL
+- checkout: OneAuth
+  path: s # Check out OneAuth to the default working directory so we can use OneAuth templates as-is
+
+- bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=msal $AGENT_BUILDDIRECTORY/MSAL HEAD
+  displayName: Update the MSAL subtree
