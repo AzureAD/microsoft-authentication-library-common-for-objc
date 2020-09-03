@@ -34,6 +34,7 @@ jobs:
     path: s
   - bash: git subtree pull --prefix=deps/msalobjc --squash $AGENT_BUILDDIRECTORY/CommonCore HEAD
     displayName: Update subtree
+    
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
   # - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
