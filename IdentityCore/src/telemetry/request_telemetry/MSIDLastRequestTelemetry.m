@@ -63,10 +63,12 @@
 
 @interface MSIDLastRequestTelemetry()
 
-@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic, readwrite) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
+@property (nonatomic) NSMutableArray<NSString *> *platformFields;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
+@property (nonatomic) MSIDLastRequestTelemetrySerializedItem *telemetrySerializedItem;
 
 @end
 
@@ -74,6 +76,16 @@
 
 static bool shouldReadFromDisk = YES;
 static const NSInteger currentSchemaVersion = 2;
+
++ (int)telemetryStringSizeLimit
+{
+    return [MSIDLastRequestTelemetrySerializedItem telemetryStringSizeLimit];
+}
+
++ (void)updateTelemetryStringSizeLimit:(int)newLimit
+{
+    [MSIDLastRequestTelemetrySerializedItem updateTelemetryStringSizeLimit:newLimit];
+}
 
 #pragma mark - Init
 
@@ -84,6 +96,7 @@ static const NSInteger currentSchemaVersion = 2;
     {
         _schemaVersion = currentSchemaVersion;
         _synchronizationQueue = [self initializeDispatchQueue];
+        _platformFields = [NSMutableArray<NSString *> new];
     }
     return self;
 }
@@ -206,15 +219,15 @@ static const NSInteger currentSchemaVersion = 2;
 
 - (NSString *)serializeLastTelemetryString
 {
-    MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItem];
+    self.telemetrySerializedItem = [self createSerializedItem];
     
-    return [lastTelemetryFields serialize];
+    return [self.telemetrySerializedItem serialize];
 }
 
 - (MSIDLastRequestTelemetrySerializedItem *)createSerializedItem
 {
     NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
-    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
+    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:self.platformFields];
 }
 
 #pragma mark - Update object
@@ -235,8 +248,20 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)resetTelemetry
 {
     dispatch_barrier_async(_synchronizationQueue, ^{
-        _errorsInfo = nil;
-        _silentSuccessfulCount = 0;
+        self->_silentSuccessfulCount = 0;
+        
+        if (self.telemetrySerializedItem && [self.telemetrySerializedItem getUnserialzedTelemetry])
+        {
+            self->_errorsInfo = [NSMutableArray arrayWithArray:[self.telemetrySerializedItem getUnserialzedTelemetry]];
+            // "1" in platform fields indicates entry contains telemetry cut off in previous
+            // request. Pending investigation into which platform fields are needed
+            [self->_platformFields addObject:@"1"];
+        }
+        else
+        {
+            self->_errorsInfo = nil;
+        }
+        
         [self saveTelemetryToDisk];
     });
 }
@@ -249,6 +274,21 @@ static const NSInteger currentSchemaVersion = 2;
     if (saveLocation)
     {
         NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
+        
+        // If data is larger than 10x the 4kB limit, start removing errors from the telemetry
+        // object until it fits under the limit. Limit is 10x to allow for additional metadata
+        // that NSKeyedArchiver adds to the archive
+        if (dataToArchive.length > [MSIDLastRequestTelemetry telemetryStringSizeLimit] * 10)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Telemetry size over limit when saving to disk, cutting down to limit", nil);
+            
+            while (_errorsInfo.count > 0 &&
+                   [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil].length > [MSIDLastRequestTelemetry telemetryStringSizeLimit] * 10)
+            {
+                [_errorsInfo removeObjectAtIndex:0];
+            }
+            dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
+        }
         
         [dataToArchive writeToFile:saveLocation atomically:YES];
     }
@@ -265,6 +305,7 @@ static const NSInteger currentSchemaVersion = 2;
             _silentSuccessfulCount = silentSuccessfulCount;
             _errorsInfo = errorsInfo;
             _synchronizationQueue = [self initializeDispatchQueue];
+            _platformFields = [NSMutableArray<NSString *> new];
         }
         else
         {
