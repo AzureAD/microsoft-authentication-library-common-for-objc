@@ -32,8 +32,8 @@ jobs:
     path: CommonCore
   - checkout: microsoft-authentication-library-for-cpp
     path: s
-  - bash: git subtree pull --prefix=deps/msalobjc --squash $AGENT_BUILDDIRECTORY/CommonCore HEAD
-    displayName: Update subtree
+  # - bash: git subtree pull --prefix=deps/msalobjc --squash $AGENT_BUILDDIRECTORY/CommonCore HEAD
+  #   displayName: Update subtree
     
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
