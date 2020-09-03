@@ -28,5 +28,5 @@ steps:
 
 - script: |
    cd $(Agent.BuildDirectory)/MSAL_CPP/microsoft-authentication-library-for-cpp/scripts
-   python ./build.py
+   python ./update_msalobjc_subtree.py
   displayName: 'Run a multi-line script'
