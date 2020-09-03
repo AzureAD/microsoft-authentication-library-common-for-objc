@@ -17,9 +17,6 @@ resources:
      name: AzureAD/microsoft-authentication-library-for-cpp
      ref: develop
 
-variables:
-  runCodesignValidationInjection: false
-
 jobs:
 - job: iOS_OnPrCommit
   displayName: iOS OnPRCommit
@@ -35,9 +32,9 @@ jobs:
     path: CommonCore
   - checkout: microsoft-authentication-library-for-cpp
     path: s
-    clean: 
+  - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc $AGENT_BUILDDIRECTORY/CommonCore HEAD
 
-  - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
+  # - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
   # - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
   #   parameters:
