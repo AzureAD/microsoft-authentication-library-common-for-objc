@@ -213,6 +213,7 @@
         @"realm" : @"common",
         @"storage_environment" : @"login.windows2.net",
         @"username" : @"username",
+        @"is_sso_account": @NO, 
         @"id_token_claims" : @{ @"sub" : @"abc",
                                 @"middle_name" : @"Middle" }
     };
