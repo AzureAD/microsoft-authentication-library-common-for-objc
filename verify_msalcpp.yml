@@ -17,7 +17,7 @@ resources:
      name: AzureAD/microsoft-authentication-library-for-cpp
      ref: develop
 
-# steps:
+steps:
 # - checkout: self
 #   path: CommonCore
 - checkout: microsoft-authentication-library-for-cpp
