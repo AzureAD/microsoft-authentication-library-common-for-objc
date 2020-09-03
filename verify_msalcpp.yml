@@ -17,8 +17,11 @@ resources:
      name: AzureAD/microsoft-authentication-library-for-cpp
      ref: develop
 
+variables:
+  runCodesignValidationInjection: false
+
 jobs:
-- job: iOS_OnPrCommit
+- job: MSAL_CPP_checks_subtree_update
   displayName: iOS OnPRCommit
   pool:
     vmImage: macOS-10.15
@@ -34,7 +37,18 @@ jobs:
     path: s
   # - bash: git subtree pull --prefix=deps/msalobjc --squash $AGENT_BUILDDIRECTORY/CommonCore HEAD
   #   displayName: Update subtree
-    
+
+  - task: UsePythonVersion@0
+  displayName: 'Use Python 3.x'
+  inputs:
+    versionSpec: 3.x
+
+  - task: PythonScript@0
+    displayName: Ensure generated Podspec for macOS is up to date
+    inputs:
+      # build.py runs Podspec generation even with --no-build, so we can just call that for this step.
+      scriptPath: scripts/build.py
+  
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
   - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
