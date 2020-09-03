@@ -35,25 +35,24 @@ jobs:
     path: CommonCore
   - checkout: microsoft-authentication-library-for-cpp
     path: s
-  # - bash: git subtree pull --prefix=deps/msalobjc --squash $AGENT_BUILDDIRECTORY/CommonCore HEAD
-  #   displayName: Update subtree
-  
-  - task: UsePythonVersion@0
-    displayName: 'Use Python 3.x'
-  - task: PythonScript@0
-    displayName: Ensure generated Podspec for macOS is up to date
-    inputs:
-      scriptPath: scripts/update_msalobjc_subtree.py
 
-  # - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
+# Update Subtree will be on hold as there is no way to take local in yet  
+  # - task: UsePythonVersion@0
+  #   displayName: 'Use Python 3.x'
+  # - task: PythonScript@0
+  #   displayName: Ensure generated Podspec for macOS is up to date
+  #   inputs:
+  #     scriptPath: scripts/update_msalobjc_subtree.py
 
-  # - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
-  #   parameters:
-  #     configuration: Debug
-  #     platform: iOS
-  #     arch: x64
+  - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
-  # - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
-  #   parameters:
-  #     build: true
-  #     testLogArtifactName: 'iOS Test Logs'
+  - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      configuration: Debug
+      platform: iOS
+      arch: x64
+
+  - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      build: true
+      testLogArtifactName: 'iOS Test Logs'
