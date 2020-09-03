@@ -3,35 +3,33 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- dev
+# trigger:
+# - dev
 
-pool:
-  vmImage: 'macOS-10.15'
+# pool:
+#   vmImage: 'macOS-10.15'
 
-resources:
- repositories:
-   - repository: microsoft-authentication-library-for-cpp
-     type: github
-     endpoint: 'GitHub for AzureAD and Azure-Samples (as aadidgit service)'
-     name: AzureAD/microsoft-authentication-library-for-cpp
-     ref: develop
+# resources:
+#  repositories:
+#    - repository: microsoft-authentication-library-for-cpp
+#      type: github
+#      endpoint: 'GitHub for AzureAD and Azure-Samples (as aadidgit service)'
+#      name: AzureAD/microsoft-authentication-library-for-cpp
+#      ref: develop
 
 steps:
 # - checkout: self
 #   path: CommonCore
-- checkout: microsoft-authentication-library-for-cpp
-  path: s
+# - checkout: microsoft-authentication-library-for-cpp
+#   path: s
 
 # - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc $AGENT_BUILDDIRECTORY/CommonCore HEAD
 #   displayName: Update the CommonCore subtree
 
-- task: UsePythonVersion@0
-  displayName: Use Python 3.x
+# - task: UsePythonVersion@0
+#   displayName: Use Python 3.x
   
 - template: azure_pipelines/ios-on-pr-commit.yml@microsoft-authentication-library-for-cpp
-  parameters:
-    runCodesignValidationInjection: false
 
 # - script: |
 #    cd msalcpp
