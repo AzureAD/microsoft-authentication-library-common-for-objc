@@ -13,7 +13,7 @@ resources:
  repositories:
    - repository: microsoft-authentication-library-for-cpp
      type: github
-     endpoint: 'GitHub for AzureAD'
+     endpoint: 'GitHub for AzureAD and Azure-Samples (as aadidgit service)'
      name: AzureAD/microsoft-authentication-library-for-cpp
      ref: develop
 
