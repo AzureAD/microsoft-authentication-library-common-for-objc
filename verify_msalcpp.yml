@@ -27,7 +27,5 @@ steps:
 #   displayName: Update the CommonCore subtree
 
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
+- script: dir $(Build.SourcesDirectory)
   displayName: 'Run a multi-line script'
