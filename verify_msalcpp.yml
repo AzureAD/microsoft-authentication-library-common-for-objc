@@ -31,6 +31,8 @@ steps:
   inputs:
     versionSpec: 3.x
 
+- template: azure_pipelines/templates/ios-setup.yml
+
 - script: |
    cd msalcpp
    python3 ./build.py --platform iOS
