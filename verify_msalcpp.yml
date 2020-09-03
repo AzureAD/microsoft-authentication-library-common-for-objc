@@ -28,5 +28,5 @@ steps:
 
 - script: |
    cd scripts
-   python ./update_msalobjc_subtree.py
+   python3 ./build.py --platform ios --test
   displayName: 'Run a multi-line script'
