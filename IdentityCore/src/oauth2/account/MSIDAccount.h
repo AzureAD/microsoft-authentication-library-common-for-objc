@@ -59,6 +59,7 @@
 @property (readwrite) MSIDAccountIdentifier *accountIdentifier;
 @property (readwrite) MSIDClientInfo *clientInfo;
 @property (readwrite) NSString *alternativeAccountId;
+@property (readwrite) BOOL isSSOAccount;
 
 - (instancetype)initWithAccountCacheItem:(MSIDAccountCacheItem *)cacheItem;
 - (MSIDAccountCacheItem *)accountCacheItem;
