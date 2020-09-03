@@ -48,8 +48,7 @@ jobs:
 
   steps:
   - checkout: microsoft-authentication-library-for-cpp
-    clean: true
-    fetchDepth: 1
+    path: s
 
   - template: azure_pipelins/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
