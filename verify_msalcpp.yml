@@ -18,8 +18,14 @@ resources:
      ref: develop
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- checkout: self
+  path: CommonCore
+- checkout: microsoft-authentication-library-for-cpp
+  path: s # Check out OneAuth to the default working directory so we can use OneAuth templates as-is
+
+# - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=commoncore $AGENT_BUILDDIRECTORY/CommonCore HEAD
+#   displayName: Update the CommonCore subtree
+
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
