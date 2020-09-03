@@ -32,7 +32,7 @@ jobs:
     path: CommonCore
   - checkout: microsoft-authentication-library-for-cpp
     path: s
-  - bash: git subtree pull --prefix=deps/msalobjc --squash $AGENT_BUILDDIRECTORY/CommonCore HEAD
+  - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc --squash $AGENT_BUILDDIRECTORY/CommonCore HEAD
 
   # - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
