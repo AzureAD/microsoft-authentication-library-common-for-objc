@@ -29,7 +29,7 @@ resources:
 - task: UsePythonVersion@0
   displayName: Use Python 3.x
   
-- template: azure_pipelines/templates/ios-on-pr-commit.yml@microsoft-authentication-library-for-cpp
+- template: azure_pipelines/ios-on-pr-commit.yml@microsoft-authentication-library-for-cpp
 
 # - script: |
 #    cd msalcpp
