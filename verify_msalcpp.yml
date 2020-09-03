@@ -17,42 +17,42 @@ resources:
      name: AzureAD/microsoft-authentication-library-for-cpp
      ref: develop
 
-steps:
+# steps:
 # - checkout: self
 #   path: CommonCore
-- checkout: microsoft-authentication-library-for-cpp
-  path: s
+# - checkout: microsoft-authentication-library-for-cpp
+#   path: s
 
 # - bash: git -c "user.name=_" -c "user.email=_" subtree pull --prefix=deps/msalobjc $AGENT_BUILDDIRECTORY/CommonCore HEAD
 #   displayName: Update the CommonCore subtree
 
-- task: UsePythonVersion@0
-  displayName: Use Python 3.x
+# - task: UsePythonVersion@0
+#   displayName: Use Python 3.x
   
-- template: azure_pipelines/ios-on-pr-commit.yml@microsoft-authentication-library-for-cpp
+# - template: azure_pipelines/ios-on-pr-commit.yml@microsoft-authentication-library-for-cpp
 
 # - script: |
 #    cd msalcpp
 #    python3 ./build.py --platform iOS
 #   displayName: 'Run a multi-line script'
 
-# jobs:
-# - job: iOS_OnPrCommit
-#   displayName: iOS OnPRCommit
-#   pool:
-#     vmImage: macOS-10.15
-#   timeoutInMinutes: 40
-#   cancelTimeoutInMinutes: 1
-#   workspace:
-#     clean: all
+jobs:
+- job: iOS_OnPrCommit
+  displayName: iOS OnPRCommit
+  pool:
+    vmImage: macOS-10.15
+  timeoutInMinutes: 40
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
 
-#   steps:
-#   - checkout: self
-#     path: CommonCore
-#   - checkout: microsoft-authentication-library-for-cpp
-#     path: s
+  steps:
+  - checkout: self
+    path: CommonCore
+  - checkout: microsoft-authentication-library-for-cpp
+    path: s
 
-  # - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
+  - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
   # - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
   #   parameters:
