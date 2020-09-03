@@ -32,6 +32,5 @@ steps:
     versionSpec: 3.x
 
 - script: |
-   cd scripts
    python3 ./build.py --platform ios --test
   displayName: 'Run a multi-line script'
