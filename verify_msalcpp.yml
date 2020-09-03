@@ -52,15 +52,15 @@ jobs:
   - checkout: microsoft-authentication-library-for-cpp
     path: s
 
-  - template: azure_pipelines/templates/ios-setup.yml
+  - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
-  # - template: azure_pipelins/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
+  # - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
   #   parameters:
   #     configuration: Debug
   #     platform: iOS
   #     arch: x64
 
-  # - template: templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+  # - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
   #   parameters:
   #     build: true
   #     testLogArtifactName: 'iOS Test Logs'
