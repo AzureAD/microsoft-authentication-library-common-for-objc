@@ -28,3 +28,4 @@ NSString *const kMSIDProtectionSpaceDistinguishedName   = @"MS-Organization-Acce
 NSString *const kMSIDPKeyAuthUrn                        = @"urn:http-auth:PKeyAuth?";
 NSString *const kMSIDPKeyAuthHeader                     = @"x-ms-PkeyAuth";
 NSString *const kMSIDPKeyAuthHeaderVersion              = @"1.0";
+NSString *const kMSIDPKeyAuthKeyWordForUserAgent        = @"PKeyAuth/1.0";

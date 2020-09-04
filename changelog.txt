@@ -1,3 +1,8 @@
+Version 1.0.19
+-------------
+* Disabled WPJChallenge on iOS as there's a known issue with WKWebview handling NSURLAuthenticationMethodClientCertificate; It swallows the challenge response rather than sending it to server.
+* Append 'PkeyAuth/1.0' keyword to the User Agent String to reliably advertise PkeyAuth capability to ADFS
+
 Version 1.0.17
 -------------
 * Remove SHA-1 dependency for ADAL (#696)
