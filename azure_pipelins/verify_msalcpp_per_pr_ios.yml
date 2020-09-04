@@ -56,3 +56,64 @@ jobs:
     parameters:
       build: true
       testLogArtifactName: 'iOS Test Logs'
+
+- job: macOS_OnPrCommit
+  displayName: x64 Debug
+  pool:
+    vmImage: macOS-10.15
+  timeoutInMinutes: 40
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    path: CommonCore
+  - checkout: microsoft-authentication-library-for-cpp
+    path: s
+
+
+# Update Subtree will be on hold as there is no way to take local in yet (1131656)
+  # - task: UsePythonVersion@0
+  #   displayName: 'Use Python 3.x'
+  # - task: PythonScript@0
+  #   displayName: Ensure generated Podspec for macOS is up to date
+  #   inputs:
+  #     scriptPath: scripts/update_msalobjc_subtree.py
+
+  - template: templates/macos-setup.yml@microsoft-authentication-library-for-cpp
+
+  - template: templates/build-and-test.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      arch: x64
+      configuration: Debug
+      platform: macOS
+
+  - template: templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      build: true
+      testLogArtifactName: 'macOS Test Logs'
+
+- job: macOS_OnPrCommitHeaderCheck
+  displayName: Ensure that all headers are self-contained
+  pool:
+    vmImage: macOS-10.15
+  timeoutInMinutes: 20
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: microsoft-authentication-library-for-cpp
+    path: s
+
+  - template: templates/macos-setup.yml@microsoft-authentication-library-for-cpp
+
+  - template: templates/build-and-publish.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      arch: x64
+      configuration: Debug
+      platform: macOS
+      buildArtifactsName: '' # No artifacts are generated because skipPublish is true
+      skipPublish: true
+      additionalBuildArgs: --header-check
