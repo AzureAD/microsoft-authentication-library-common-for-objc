@@ -52,10 +52,10 @@ jobs:
       platform: iOS
       arch: x64
 
-  - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
-    parameters:
-      build: true
-      testLogArtifactName: 'iOS Test Logs'
+  # - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+  #   parameters:
+  #     build: true
+  #     testLogArtifactName: 'iOS Test Logs'
 
 - job: macOS_OnPrCommit
   displayName: x64 Debug
@@ -89,10 +89,10 @@ jobs:
       configuration: Debug
       platform: macOS
 
-  - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
-    parameters:
-      build: true
-      testLogArtifactName: 'macOS Test Logs'
+  # - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+  #   parameters:
+  #     build: true
+  #     testLogArtifactName: 'macOS Test Logs'
 
 - job: macOS_OnPrCommitHeaderCheck
   displayName: Ensure that all headers are self-contained
