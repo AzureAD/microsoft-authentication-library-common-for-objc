@@ -81,15 +81,15 @@ jobs:
   #   inputs:
   #     scriptPath: scripts/update_msalobjc_subtree.py
 
-  - template: templates/macos-setup.yml@microsoft-authentication-library-for-cpp
+  - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
 
-  - template: templates/build-and-test.yml@microsoft-authentication-library-for-cpp
+  - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
     parameters:
       arch: x64
       configuration: Debug
       platform: macOS
 
-  - template: templates/publish-logs.yml@microsoft-authentication-library-for-cpp
+  - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
     parameters:
       build: true
       testLogArtifactName: 'macOS Test Logs'
@@ -107,9 +107,9 @@ jobs:
   - checkout: microsoft-authentication-library-for-cpp
     path: s
 
-  - template: templates/macos-setup.yml@microsoft-authentication-library-for-cpp
+  - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
 
-  - template: templates/build-and-publish.yml@microsoft-authentication-library-for-cpp
+  - template: azure_pipelines/templates/build-and-publish.yml@microsoft-authentication-library-for-cpp
     parameters:
       arch: x64
       configuration: Debug
