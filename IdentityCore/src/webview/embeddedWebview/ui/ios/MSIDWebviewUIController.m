@@ -150,7 +150,7 @@ static WKWebViewConfiguration *s_webConfig;
 #endif
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        [_parentController presentViewController:navController animated:YES completion:nil];
+        [self.parentController presentViewController:navController animated:YES completion:nil];
     }];
 }
 
