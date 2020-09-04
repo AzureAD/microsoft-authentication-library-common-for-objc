@@ -21,7 +21,7 @@ variables:
   runCodesignValidationInjection: false
 
 jobs:
-- job: CHECK_MSAL_CPP_IOS_PER_COMMIT
+- job: iOS_OnPrCommit
   displayName: MSAL CPP checks per commit
   pool:
     vmImage: macOS-10.15
