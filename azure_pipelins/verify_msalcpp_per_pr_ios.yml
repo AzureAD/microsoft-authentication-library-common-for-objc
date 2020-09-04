@@ -36,7 +36,7 @@ jobs:
   - checkout: microsoft-authentication-library-for-cpp
     path: s
 
-# Update Subtree will be on hold as there is no way to take local in yet  
+# Update Subtree will be on hold as there is no way to take local in yet (1131656)
   # - task: UsePythonVersion@0
   #   displayName: 'Use Python 3.x'
   # - task: PythonScript@0
