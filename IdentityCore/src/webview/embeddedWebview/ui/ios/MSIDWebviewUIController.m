@@ -28,6 +28,7 @@
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -47,6 +48,7 @@ static WKWebViewConfiguration *s_webConfig;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         s_webConfig = [WKWebViewConfiguration new];
+        s_webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
         if (@available(iOS 13.0, *))
         {
@@ -148,7 +150,7 @@ static WKWebViewConfiguration *s_webConfig;
 #endif
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
-        [_parentController presentViewController:navController animated:YES completion:nil];
+        [self.parentController presentViewController:navController animated:YES completion:nil];
     }];
 }
 
