@@ -32,6 +32,7 @@
 #import "MSIDSSOExtensionSignoutRequestMock.h"
 #import "MSIDAuthorizationControllerMock.h"
 #import "ASAuthorizationSingleSignOnCredentialMock.h"
+#import "NSDictionary+MSIDQueryItems.h"
 
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 
@@ -49,6 +50,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequest *request = [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:params
                                                                                        shouldSignoutFromBrowser:YES
+                                                                                              shouldWipeAccount:NO
                                                                                        clearSSOExtensionCookies:NO
                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(request);
@@ -77,6 +79,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequest *request = [[MSIDSSOExtensionSignoutRequest alloc] initWithRequestParameters:params
                                                                                        shouldSignoutFromBrowser:YES
+                                                                                              shouldWipeAccount:NO
                                                                                        clearSSOExtensionCookies:NO
                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]];
     XCTAssertNotNil(request);
@@ -168,6 +171,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequestMock *request = [[MSIDSSOExtensionSignoutRequestMock alloc] initWithRequestParameters:params
                                                                                                shouldSignoutFromBrowser:YES
+                                                                                                      shouldWipeAccount:YES
                                                                                                clearSSOExtensionCookies:NO
                                                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]];
     
@@ -192,6 +196,11 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     XCTAssertNotNil(authorizationControllerMock.delegate);
     XCTAssertNotNil(authorizationControllerMock.request);
     
+    NSDictionary *requestDictionary = [NSDictionary msidDictionaryFromQueryItems:authorizationControllerMock.request.authorizationOptions];
+    XCTAssertEqualObjects(requestDictionary[@"wipe_account"], @"1");
+    XCTAssertEqualObjects(requestDictionary[@"signout_from_browser"], @"1");
+    XCTAssertEqualObjects(requestDictionary[@"clear_sso_extension_cookies"], @"0");
+    
     NSDictionary *responseHeaders = @{
         @"client_app_version": @"1.0",
         @"operation_response_type": @"operation_generic_response",
@@ -213,6 +222,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDSSOExtensionSignoutRequestMock *request = [[MSIDSSOExtensionSignoutRequestMock alloc] initWithRequestParameters:params
                                                                                                shouldSignoutFromBrowser:YES
+                                                                                                      shouldWipeAccount:NO
                                                                                                clearSSOExtensionCookies:NO
                                                                                                            oauthFactory:[MSIDAADV2Oauth2Factory new]];
     
