@@ -2343,7 +2343,7 @@
     XCTAssertEqualObjects(results[0], account2);
 }
 
-- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByHomeAccountId_shouldReturnAccount
+- (void)testGetAccountsWithQuery_whenQueryNotExactMatch_andMatchingByHomeAccountIdWithDifferentCasing_shouldReturnAccount
 {
     [self saveAccount:[self createTestAccountCacheItem]];
 
@@ -2355,7 +2355,7 @@
     NSError *error = nil;
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
-    query.homeAccountId = @"uid.utid2";
+    query.homeAccountId = @"uid.uTID2";
     XCTAssertFalse(query.exactMatch);
 
     NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];

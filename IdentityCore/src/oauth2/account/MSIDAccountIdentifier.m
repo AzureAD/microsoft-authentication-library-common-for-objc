@@ -24,6 +24,7 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDMaskedHashableLogParameter.h"
 #import "MSIDMaskedUsernameLogParameter.h"
+#import "NSString+MSIDExtensions.h"
 
 static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
 static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
@@ -53,7 +54,7 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
     }
 
     _displayableId = legacyAccountId;
-    _homeAccountId = homeAccountId;
+    _homeAccountId = homeAccountId.msidNormalizedString;
     _maskedHomeAccountId = MSID_PII_LOG_TRACKABLE(_homeAccountId);
     _maskedDisplayableId = MSID_PII_LOG_EMAIL(_displayableId);
     _legacyAccountIdentifierType = MSIDLegacyIdentifierTypeRequiredDisplayableId;
@@ -97,7 +98,7 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
 {
     if (uid && utid)
     {
-        return [NSString stringWithFormat:@"%@.%@", uid, utid];
+        return [NSString stringWithFormat:@"%@.%@", uid.msidNormalizedString, utid.msidNormalizedString];
     }
     else return nil;
 }
