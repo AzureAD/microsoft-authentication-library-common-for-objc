@@ -60,27 +60,3 @@ jobs:
     parameters:
        build: true
        testLogArtifactName: 'macOS Test Logs'
-
-- job: macOS_OnPrCommitHeaderCheck
-  displayName: Ensure that all headers are self-contained
-  pool:
-    vmImage: macOS-10.15
-  timeoutInMinutes: 20
-  cancelTimeoutInMinutes: 1
-  workspace:
-    clean: all
-
-  steps:
-  - checkout: microsoft-authentication-library-for-cpp
-    path: s
-
-  - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
-
-  - template: azure_pipelines/templates/build-and-publish.yml@microsoft-authentication-library-for-cpp
-    parameters:
-      arch: x64
-      configuration: Debug
-      platform: macOS
-      buildArtifactsName: '' # No artifacts are generated because skipPublish is true
-      skipPublish: true
-      additionalBuildArgs: --header-check
