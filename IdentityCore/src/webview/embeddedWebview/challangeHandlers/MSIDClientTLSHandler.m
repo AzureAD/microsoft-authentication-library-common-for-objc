@@ -33,7 +33,10 @@
     [MSIDChallengeHandler registerHandler:self authMethod:NSURLAuthenticationMethodClientCertificate];
 }
 
-+ (void)resetHandler { }
++ (void)resetHandler
+{
+    [MSIDCertAuthHandler resetHandler];
+}
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
