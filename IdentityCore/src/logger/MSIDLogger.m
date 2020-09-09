@@ -204,7 +204,7 @@ static NSDateFormatter *s_dateFormatter = nil;
             
             if (self.nsLoggingEnabled)
             {
-                NSString *logLevelStr = [self stringForLogLevel:_level];
+                NSString *logLevelStr = [self stringForLogLevel:self.level];
                 
                 NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@:%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, logLevelStr, sourceInfo, message];
                 

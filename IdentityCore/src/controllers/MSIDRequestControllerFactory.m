@@ -235,6 +235,7 @@
 + (nullable MSIDSignoutController *)signoutControllerForParameters:(MSIDInteractiveRequestParameters *)parameters
                                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory
                                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                                 shouldWipeAccount:(BOOL)shouldWipeAccount
                                                              error:(NSError **)error
 {
     if ([parameters shouldUseBroker])
@@ -245,6 +246,7 @@
             {
                 return [[MSIDSSOExtensionSignoutController alloc] initWithRequestParameters:parameters
                                                                    shouldSignoutFromBrowser:shouldSignoutFromBrowser
+                                                                          shouldWipeAccount:shouldWipeAccount
                                                                                oauthFactory:oauthFactory
                                                                                       error:error];
             }

@@ -156,7 +156,7 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)increaseSilentSuccessfulCount
 {
     dispatch_barrier_async(self.synchronizationQueue, ^{
-        _silentSuccessfulCount += 1;
+        self->_silentSuccessfulCount += 1;
         [self saveTelemetryToDisk];
     });
 }
@@ -224,8 +224,8 @@ static const NSInteger currentSchemaVersion = 2;
     dispatch_barrier_async(_synchronizationQueue, ^{
         if(errorInfo)
         {
-            _errorsInfo = [_errorsInfo count] ? _errorsInfo : [NSMutableArray new];
-           [_errorsInfo addObject:errorInfo];
+           self->_errorsInfo = [self->_errorsInfo count] ? self->_errorsInfo : [NSMutableArray new];
+           [self->_errorsInfo addObject:errorInfo];
         }
         
         [self saveTelemetryToDisk];
@@ -235,8 +235,8 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)resetTelemetry
 {
     dispatch_barrier_async(_synchronizationQueue, ^{
-        _errorsInfo = nil;
-        _silentSuccessfulCount = 0;
+        self->_errorsInfo = nil;
+        self->_silentSuccessfulCount = 0;
         [self saveTelemetryToDisk];
     });
 }
