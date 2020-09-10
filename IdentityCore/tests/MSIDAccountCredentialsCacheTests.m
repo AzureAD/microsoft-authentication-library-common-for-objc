@@ -1683,6 +1683,102 @@
     XCTAssertTrue([results containsObject:accessToken]);
     XCTAssertTrue([results containsObject:accessToken2]);
 }
+
+- (void)testGetCredentialsWithQuery_whenAccessTokensHaveRequestedClaims_shouldReturnItems
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    item.requestedClaims = @"ClaimsA";
+    [self saveItem:item];
+
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    query.requestedClaims = @"ClaimsA";
+    //query.tokenType = @"Bearer";
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 1);
+    XCTAssertEqualObjects(results[0], item);
+}
+
+- (void)testGetCredentialsWithQuery_whenAccessTokensDontHaveRequestedClaims_shouldNotReturnItems
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    [self saveItem:item];
+
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    query.requestedClaims = @"ClaimsA";
+    //query.tokenType = @"Bearer";
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
+- (void)testGetCredentialsWithQuery_whenAccessTokensHaveRequestedClaims_shouldNotReturnItems
+{
+    // First save the token
+    MSIDCredentialCacheItem *item = [MSIDCredentialCacheItem new];
+    item.credentialType = MSIDAccessTokenType;
+    item.homeAccountId = @"uid.utid";
+    item.environment = @"login.microsoftonline.com";
+    item.realm = @"contoso.com";
+    item.target = @"user.read user.write";
+    item.clientId = @"client";
+    item.secret = @"at";
+    item.requestedClaims = @"ClaimsA";
+    [self saveItem:item];
+
+    // Now query
+    MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
+    query.credentialType = MSIDAccessTokenType;
+    query.homeAccountId = @"uid.utid";
+    query.environment = @"login.microsoftonline.com";
+    query.clientId = @"client";
+    query.realm = @"contoso.com";
+    query.target = @"user.read user.write";
+    //query.tokenType = @"Bearer";
+    XCTAssertTrue(query.exactMatch);
+    NSError *error = nil;
+    NSArray *results = [self.cache getCredentialsWithQuery:query context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(results);
+    XCTAssertEqual([results count], 0);
+}
+
 #pragma mark - getCredential
 
 - (void)testGetCredentialWithKey_whenAccessTokenKey_noItemsInCache_shouldReturnNil
