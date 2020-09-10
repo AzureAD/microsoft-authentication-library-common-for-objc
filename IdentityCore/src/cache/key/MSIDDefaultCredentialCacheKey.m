@@ -51,7 +51,7 @@ static NSInteger kCredentialTypePrefix = 2000;
     target = target.msidTrimmedString.lowercaseString;
     applicationIdentifier = applicationIdentifier.msidTrimmedString.lowercaseString;
     tokenType = tokenType.msidTrimmedString.lowercaseString;
-    requestedClaims = requestedClaims.msaimsidTrimmedString.lowercaseString;
+    requestedClaims = requestedClaims.msidTrimmedString.lowercaseString;
 
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm applicationIdentifier:applicationIdentifier];
     NSString *service = [NSString stringWithFormat:@"%@%@%@%@%@",
@@ -66,9 +66,9 @@ static NSInteger kCredentialTypePrefix = 2000;
         service  = [NSString stringWithFormat:@"%@|%@", service, appKey];
     }
 
-    if (![NSString msaimsidIsStringNilOrBlank:requestedClaims])
+    if (![NSString msidIsStringNilOrBlank:requestedClaims])
     {
-        service  = [NSString stringWithFormat:@"%@|%@", service, requestedClaims.msaimsidTokenHash];
+        service  = [NSString stringWithFormat:@"%@|%@", service, requestedClaims.msidTokenHash];
     }
 
     

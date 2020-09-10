@@ -321,17 +321,17 @@
         return YES;
     }
 
-    if ([NSString msaimsidIsStringNilOrBlank:self.requestedClaims] && ![NSString msaimsidIsStringNilOrBlank:requestedClaims])
+    if ([NSString msidIsStringNilOrBlank:self.requestedClaims] && ![NSString msidIsStringNilOrBlank:requestedClaims])
     {
         return NO;
     }
     
-    if (![NSString msaimsidIsStringNilOrBlank:self.requestedClaims] && [NSString msaimsidIsStringNilOrBlank:requestedClaims])
+    if (![NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims])
     {
         return NO;
     }
     
-    if (requestedClaims && self.requestedClaims && ![requestedClaims.msaimsidNormalizedString isEqualToString:self.requestedClaims.msaimsidNormalizedString])
+    if (requestedClaims && self.requestedClaims && ![requestedClaims.msidNormalizedString isEqualToString:self.requestedClaims.msidNormalizedString])
     {
         return NO;
     }
