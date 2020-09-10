@@ -311,12 +311,15 @@
 {
     MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
     
-    [MSIDLastRequestTelemetry updateTelemetryStringSizeLimit:20];
+    int maxErrors = 10;
+    [MSIDLastRequestTelemetry updateMaxErrorCountToArchive:maxErrors];
     
-    int errorNum = 10;
+    NSMutableArray<NSString *> *allErrors = [NSMutableArray<NSString *> new];
+    int errorNum = 15;
     for (int i = 1; i <= errorNum; i++)
     {
         NSString *errorString = [NSString stringWithFormat:@"error%d", i];
+        [allErrors addObject:errorString];
         [telemetryObject updateWithApiId:i errorString:errorString context:self.context];
     }
     
@@ -324,6 +327,10 @@
     MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     
     XCTAssertTrue(restoredTelemetryObject.errorsInfo.count < errorNum);
+    for (int i = 0; i < restoredTelemetryObject.errorsInfo.count; i++)
+    {
+        XCTAssertEqualObjects([restoredTelemetryObject.errorsInfo objectAtIndex:i].error, [allErrors objectAtIndex:i + (errorNum - maxErrors)]);
+    }
 }
 
 @end

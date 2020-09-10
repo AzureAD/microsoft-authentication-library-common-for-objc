@@ -116,19 +116,20 @@
     return telemetryString;
 }
 
-- (NSMutableArray<MSIDRequestTelemetryErrorInfo *> *)getUnserialzedTelemetry
+- (NSMutableArray<MSIDRequestTelemetryErrorInfo *> *)getUnserializedTelemetry
 {
     return self.unserializedErrors;
 }
 
 - (void)addRemainingErrorsToUnserializedTelemetry:(int)index
 {
+    if (!self.unserializedErrors)
+    {
+        self.unserializedErrors = [NSMutableArray<MSIDRequestTelemetryErrorInfo *> new];
+    }
+    
     for (int i = 0; i <= index; i++)
     {
-        if (!self.unserializedErrors)
-        {
-            self.unserializedErrors = [NSMutableArray<MSIDRequestTelemetryErrorInfo *> new];
-        }
         [self.unserializedErrors addObject:self.errorsInfo[i]];
     }
 }

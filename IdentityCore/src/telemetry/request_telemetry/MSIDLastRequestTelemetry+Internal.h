@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (void)updateTelemetryStringSizeLimit:(int)newLimit;
 
++ (void)updateMaxErrorCountToArchive:(int)newMax;
+
 @end
 
 NS_ASSUME_NONNULL_END

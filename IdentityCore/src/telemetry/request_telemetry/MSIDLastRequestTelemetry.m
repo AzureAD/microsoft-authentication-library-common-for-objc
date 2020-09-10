@@ -63,7 +63,7 @@
 
 @interface MSIDLastRequestTelemetry()
 
-@property (nonatomic, readwrite) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
+@property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
 @property (nonatomic) NSMutableArray<NSString *> *platformFields;
@@ -76,15 +76,21 @@
 
 static bool shouldReadFromDisk = YES;
 static const NSInteger currentSchemaVersion = 2;
+static int maxErrorCountToArchive = 75;
 
 + (int)telemetryStringSizeLimit
 {
-    return [MSIDLastRequestTelemetrySerializedItem telemetryStringSizeLimit];
+    return MSIDLastRequestTelemetrySerializedItem.telemetryStringSizeLimit;
 }
 
 + (void)updateTelemetryStringSizeLimit:(int)newLimit
 {
-    [MSIDLastRequestTelemetrySerializedItem updateTelemetryStringSizeLimit:newLimit];
+    MSIDLastRequestTelemetrySerializedItem.telemetryStringSizeLimit = newLimit;
+}
+
++ (void)updateMaxErrorCountToArchive:(int)newMax
+{
+    maxErrorCountToArchive = newMax;
 }
 
 #pragma mark - Init
@@ -250,9 +256,9 @@ static const NSInteger currentSchemaVersion = 2;
     dispatch_barrier_async(_synchronizationQueue, ^{
         self->_silentSuccessfulCount = 0;
         
-        if (self.telemetrySerializedItem && [self.telemetrySerializedItem getUnserialzedTelemetry])
+        if (self.telemetrySerializedItem && [self.telemetrySerializedItem getUnserializedTelemetry])
         {
-            self->_errorsInfo = [NSMutableArray arrayWithArray:[self.telemetrySerializedItem getUnserialzedTelemetry]];
+            self->_errorsInfo = [NSMutableArray arrayWithArray:[self.telemetrySerializedItem getUnserializedTelemetry]];
             // "1" in platform fields indicates entry contains telemetry cut off in previous
             // request. Pending investigation into which platform fields are needed
             [self->_platformFields addObject:@"1"];
@@ -273,22 +279,18 @@ static const NSInteger currentSchemaVersion = 2;
     NSString *saveLocation = [self filePathToSavedTelemetry];
     if (saveLocation)
     {
-        NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
-        
-        // If data is larger than 10x the 4kB limit, start removing errors from the telemetry
-        // object until it fits under the limit. Limit is 10x to allow for additional metadata
-        // that NSKeyedArchiver adds to the archive
-        if (dataToArchive.length > [MSIDLastRequestTelemetry telemetryStringSizeLimit] * 10)
+        // Some testing has determined that 75 errors corresponds to an archive size of about 8kb. 
+        if (_errorsInfo.count > maxErrorCountToArchive)
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Telemetry size over limit when saving to disk, cutting down to limit", nil);
             
-            while (_errorsInfo.count > 0 &&
-                   [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil].length > [MSIDLastRequestTelemetry telemetryStringSizeLimit] * 10)
-            {
-                [_errorsInfo removeObjectAtIndex:0];
-            }
-            dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
+            NSRange rangeToRemove;
+            rangeToRemove.location = 0;
+            rangeToRemove.length = _errorsInfo.count - maxErrorCountToArchive;
+            [_errorsInfo removeObjectsInRange:rangeToRemove];
         }
+        
+        NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
         
         [dataToArchive writeToFile:saveLocation atomically:YES];
     }

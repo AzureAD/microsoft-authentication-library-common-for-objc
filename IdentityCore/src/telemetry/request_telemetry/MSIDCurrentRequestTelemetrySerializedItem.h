@@ -28,12 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDCurrentRequestTelemetrySerializedItem : NSObject
 
+@property (class, nonatomic) int telemetryStringSizeLimit;
+
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray * _Nullable)defaultFields platformFields:(NSArray * _Nullable)platformFields;
 - (NSString *)serialize;
-
-+ (int)telemetryStringSizeLimit;
-
-+ (void)updateTelemetryStringSizeLimit:(int)newLimit;
 
 @end
 
