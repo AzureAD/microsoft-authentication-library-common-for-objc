@@ -91,6 +91,7 @@
     result &= (!self.speInfo && !item.speInfo) || [self.speInfo isEqual:item.speInfo];
     result &= (!self.tokenType && !item.tokenType) || [self.tokenType isEqual:item.tokenType];
     result &= (!self.kid && !item.kid) || [self.kid isEqual:item.kid];
+    result &= (!self.requestedClaims && !item.requestedClaims) || [self.requestedClaims isEqual:item.requestedClaims];
     // Ignore the lastMod properties (two otherwise-identical items with different
     // last modification informational values should be considered equal)
     return result;
@@ -116,6 +117,7 @@
     hash = hash * 31 + self.applicationIdentifier.hash;
     hash = hash * 31 + self.tokenType.hash;
     hash = hash * 31 + self.kid.hash;
+    hash = hash * 31 + self.requestedClaims.hash;
     return hash;
 }
 
@@ -143,6 +145,7 @@
     item.applicationIdentifier = [self.applicationIdentifier copyWithZone:zone];
     item.tokenType = [self.tokenType copyWithZone:zone];
     item.kid = [self.kid copyWithZone:zone];
+    item.requestedClaims = [self.requestedClaims copyWithZone:zone];
     return item;
 }
 
@@ -194,6 +197,8 @@
     _kid = [json msidStringObjectForKey:MSID_KID_CACHE_KEY];
     _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
     _expiryInterval = [json msidStringObjectForKey:MSID_EXPIRES_IN_CACHE_KEY];
+    _requestedClaims = [json msidStringObjectForKey:MSID_REQUESTED_CLAIMS_CACHE_KEY];
+
     return self;
 }
 
@@ -228,6 +233,7 @@
     dictionary[MSID_APPLICATION_IDENTIFIER_CACHE_KEY] = _applicationIdentifier;
     dictionary[MSID_KID_CACHE_KEY] = _kid;
     dictionary[MSID_OAUTH2_TOKEN_TYPE] = _tokenType;
+    dictionary[MSID_REQUESTED_CLAIMS_CACHE_KEY] = _requestedClaims;
     return dictionary;
 }
 
@@ -296,6 +302,7 @@
                 clientId:(nullable NSString *)clientId
                 familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
+         requestedClaims:(nullable NSString *)requestedClaims
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions
 {
@@ -312,6 +319,21 @@
     if (!clientId && !familyId)
     {
         return YES;
+    }
+
+    if ([NSString msaimsidIsStringNilOrBlank:self.requestedClaims] && ![NSString msaimsidIsStringNilOrBlank:requestedClaims])
+    {
+        return NO;
+    }
+    
+    if (![NSString msaimsidIsStringNilOrBlank:self.requestedClaims] && [NSString msaimsidIsStringNilOrBlank:requestedClaims])
+    {
+        return NO;
+    }
+    
+    if (requestedClaims && self.requestedClaims && ![requestedClaims.msaimsidNormalizedString isEqualToString:self.requestedClaims.msaimsidNormalizedString])
+    {
+        return NO;
     }
 
     if (clientIDMatchingOptions == MSIDSuperSet)
