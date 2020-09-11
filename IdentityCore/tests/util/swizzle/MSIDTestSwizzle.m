@@ -84,6 +84,15 @@ static NSMutableArray<MSIDTestSwizzle *> *s_currentMonkeyPatches = nil;
     }
 }
 
++ (void)resetWithSwizzleArray:(NSMutableArray<MSIDTestSwizzle *> *)swizzleArrays
+{
+        for (NSInteger i = swizzleArrays.count - 1; i >= 0; i--)
+        {
+            MSIDTestSwizzle *patch = swizzleArrays[i];
+            method_setImplementation(patch->_m, patch->_originalImp);
+        }
+}
+
 + (MSIDTestSwizzle *)instanceMethod:(SEL)sel class:(Class)class impl:(IMP)impl
 {
     return [[MSIDTestSwizzle instanceMethod:sel class:class] swizzle:impl];

@@ -30,6 +30,7 @@
 @interface MSIDTestSwizzle : NSObject
 
 + (void)reset;
++ (void)resetWithSwizzleArray:(NSMutableArray<MSIDTestSwizzle *> *)swizzleArrays;
 
 + (MSIDTestSwizzle *)instanceMethod:(SEL)sel
                               class:(Class)cls

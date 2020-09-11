@@ -77,6 +77,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.clearSSOExtensionCookies = YES;
+    request.wipeAccount = NO;
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -88,9 +89,10 @@
                                    @"msg_protocol_ver": @"99",
                                    @"provider_type": @"provider_aad_v2",
                                    @"redirect_uri": @"myredirect",
-                                   @"signout_from_browser": @YES,
+                                   @"signout_from_browser": @"1",
                                    @"username": @"upn@upn.com",
-                                   @"clear_sso_extension_cookies": @YES
+                                   @"clear_sso_extension_cookies": @"1",
+                                   @"wipe_account": @"0"
     };
     
     XCTAssertTrue([json compareAndPrintDiff:expectedJson]);
@@ -159,8 +161,10 @@
                                    @"msg_protocol_ver": @"99",
                                    @"provider_type": @"provider_aad_v2",
                                    @"redirect_uri": @"myredirect",
-                                   @"signout_from_browser": @YES,
-                                   @"username": @"upn@upn.com"};
+                                   @"signout_from_browser": @"1",
+                                   @"username": @"upn@upn.com",
+                                   @"wipe_account": @"1"
+    };
     
     NSError *error;
     __auto_type request = [[MSIDBrokerOperationSignoutFromDeviceRequest alloc] initWithJSONDictionary:json error:&error];
@@ -176,6 +180,7 @@
     XCTAssertEqual(request.providerType, MSIDProviderTypeAADV2);
     XCTAssertEqualObjects(request.redirectUri, @"myredirect");
     XCTAssertTrue(request.signoutFromBrowser);
+    XCTAssertTrue(request.wipeAccount);
 }
 
 @end

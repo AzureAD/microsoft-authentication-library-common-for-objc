@@ -148,7 +148,7 @@
     }
     
     dispatch_barrier_async(_synchronizationQueue, ^{
-        _memoryCache[key] = item;
+        self->_memoryCache[key] = item;
     });
     
     // return a copy because we don't want external change on the cache status
