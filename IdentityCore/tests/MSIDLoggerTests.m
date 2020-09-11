@@ -397,10 +397,11 @@
     XCTAssertTrue([MSIDLogger sharedLogger].sourceLineLoggingEnabled);
 }
 
-- (void)testLogWithLevel_whenConnectorIsSet_shouldReturnValueFromConnector
+- (void)testLogWithLevel_whenConnectorIsSetAndLogQueueEnabled_shouldReturnValueFromConnector
 {
     MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
     connectorMock.shouldLogValue = YES;
+    connectorMock.loggingQueueEnabledValue = YES;
     [MSIDLogger sharedLogger].level = MSIDLogLevelNothing;
     [MSIDLogger sharedLogger].loggerConnector = connectorMock;
     [self keyValueObservingExpectationForObject:connectorMock keyPath:@"logMessageValue" handler:^BOOL(id observedObject, NSDictionary *change)
@@ -413,4 +414,20 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
+- (void)testLogWithLevel_whenConnectorIsSetAndLogQueueDisabled_shouldReturnValueFromConnector
+{
+    MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
+    connectorMock.shouldLogValue = YES;
+    connectorMock.loggingQueueEnabledValue = NO;
+    [MSIDLogger sharedLogger].level = MSIDLogLevelNothing;
+    [MSIDLogger sharedLogger].loggerConnector = connectorMock;
+    [self keyValueObservingExpectationForObject:connectorMock keyPath:@"logMessageValue" handler:^BOOL(id observedObject, NSDictionary *change)
+    {
+        return [((MSIDLoggerConnectorMock *)observedObject).logMessageValue containsString:@"some message"];
+    }];
+    
+    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO filename:nil lineNumber:1 function:nil format:@"some message"];
+    
+    [self waitForExpectationsWithTimeout:1 handler:nil];
+}
 @end

@@ -213,8 +213,15 @@ static NSDateFormatter *s_dateFormatter = nil;
             
             BOOL lineContainsPII = self.piiLoggingEnabled ? containsPII : NO;
             
-            if (self.callback) self.callback(level, log, lineContainsPII);
-            if (self.loggerConnector) [self.loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];
+            if (self.loggerConnector)
+            {
+                [self.loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];
+            }
+            else if (self.callback)
+            {
+                self.callback(level, log, lineContainsPII);
+            }
+                
         }
     };
     
