@@ -10,6 +10,7 @@ Version 1.5.6
 * Append 'PkeyAuth/1.0' keyword to the User Agent String to reliably advertise PkeyAuth capability to ADFS
 * Update Identity Core within WPJ to the latest dev branch
 * Add a flag to disable logger queue.
+* Fix un-reliable test case using swizzle
 
 Version 1.5.5
 * Fix unused parameter errors for macOS target. (#816)
