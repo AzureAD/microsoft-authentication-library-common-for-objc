@@ -71,7 +71,13 @@ static BOOL s_useLastRequestURL = NO;
 + (BOOL)completeCertAuthChallenge:(NSURL *)endUrl
 {
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Complete cert auth challenge with end URL: %@", [endUrl msidPIINullifiedURL]);
-    return [s_systemWebViewController handleURLResponse:endUrl];
+    
+    if (s_certAuthInProgress)
+    {
+        return [s_systemWebViewController handleURLResponse:endUrl];
+    }
+    
+    return NO;
 }
 
 #endif
