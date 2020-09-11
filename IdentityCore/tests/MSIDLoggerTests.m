@@ -33,6 +33,7 @@
 @property (nonatomic) BOOL piiLoggingEnabledValue;
 @property (nonatomic) BOOL shouldLogValue;
 @property (nonatomic) BOOL sourceLineLoggingEnabledValue;
+@property (nonatomic) BOOL loggingQueueEnabledValue;
 @property (nonatomic) NSString *logMessageValue;
 
 @end
@@ -67,6 +68,11 @@
 - (BOOL)sourceLineLoggingEnabled
 {
     return self.sourceLineLoggingEnabledValue;
+}
+
+- (BOOL)loggingQueueEnabled
+{
+    return self.loggingQueueEnabledValue;
 }
 
 @end
