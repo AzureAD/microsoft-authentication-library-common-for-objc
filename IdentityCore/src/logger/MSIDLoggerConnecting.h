@@ -38,6 +38,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)sourceLineLoggingEnabled;
 
+- (BOOL)loggingQueueEnabled;
+
 - (void)onLogWithLevel:(MSIDLogLevel)level
             lineNumber:(NSUInteger)lineNumber
               function:(NSString *)function
