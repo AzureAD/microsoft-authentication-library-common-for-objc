@@ -1,3 +1,4 @@
+* Ignore duplicate certificate authentication challenge in system webview.
 Version 1.5.6
 
 * Normalize home account id in cache lookups #839
