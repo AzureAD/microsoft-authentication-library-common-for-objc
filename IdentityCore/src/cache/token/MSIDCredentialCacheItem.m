@@ -321,30 +321,13 @@
         return YES;
     }
 
-    if ([NSString msidIsStringNilOrBlank:self.requestedClaims] && ![NSString msidIsStringNilOrBlank:requestedClaims])
-    {
-        return NO;
-    }
-    
-    if (![NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims])
-    {
-        return NO;
-    }
-    
-    if (requestedClaims && self.requestedClaims && ![requestedClaims.msidNormalizedString isEqualToString:self.requestedClaims.msidNormalizedString])
-    {
-        return NO;
-    }
-
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
-        if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
-            || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
+        if (!(clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
+            && !(familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
-            return YES;
+            return NO;
         }
-
-        return NO;
     }
     else
     {
@@ -359,7 +342,15 @@
         }
     }
 
-    return YES;
+    if(([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) || ([self.requestedClaims isEqualToString:requestedClaims]))
+    {
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+    
 }
 
 - (BOOL)isTombstone
