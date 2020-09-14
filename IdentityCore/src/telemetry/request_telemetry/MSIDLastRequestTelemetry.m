@@ -185,7 +185,7 @@ static int maxErrorCountToArchive = 75;
 - (NSString *)telemetryString
 {
     __block NSString *result;
-    dispatch_sync(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         result = [self serializeLastTelemetryString];
     });
     
@@ -232,8 +232,8 @@ static int maxErrorCountToArchive = 75;
 
 - (MSIDLastRequestTelemetrySerializedItem *)createSerializedItem
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
-    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:self.platformFields];
+    NSArray *defaultFields = @[[NSNumber numberWithInteger:self->_silentSuccessfulCount]];
+    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self->_errorsInfo platformFields:self.platformFields];
 }
 
 #pragma mark - Update object
