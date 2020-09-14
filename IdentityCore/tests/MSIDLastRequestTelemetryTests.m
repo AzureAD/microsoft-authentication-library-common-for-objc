@@ -42,6 +42,8 @@
     
     [[MSIDLastRequestTelemetry sharedInstance] setValue:@0 forKey:@"silentSuccessfulCount"];
     [[MSIDLastRequestTelemetry sharedInstance] setValue:nil forKey:@"errorsInfo"];
+    
+    [MSIDLastRequestTelemetry updateTelemetryStringSizeLimit:4000];
 }
 
 - (void)tearDown
@@ -258,6 +260,77 @@
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
     MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
     XCTAssertEqualObjects([restoredTelemetryObject telemetryString], [telemetryObject telemetryString]);
+}
+
+- (void)testSerializationSizeLimit_whenStringTooLong_shouldBreakUpIntoMulitpleRequests
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    
+    [MSIDLastRequestTelemetry updateTelemetryStringSizeLimit:200];
+    
+    int errorNum = 10;
+    for (int i = 1; i <= errorNum; i++)
+    {
+        NSString *errorString = [NSString stringWithFormat:@"error%d", i];
+        [telemetryObject updateWithApiId:i errorString:errorString context:self.context];
+    }
+    
+    dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
+    
+    NSString *result = [restoredTelemetryObject telemetryString];
+    // Simulates a successful request to server, string up to limit size is sent to server
+    [restoredTelemetryObject updateWithApiId:0 errorString:nil context:self.context];
+    
+    NSUInteger afterFirstCutoff = restoredTelemetryObject.errorsInfo.count;
+    XCTAssertTrue(afterFirstCutoff > 0);
+    XCTAssertTrue(afterFirstCutoff < errorNum);
+    
+    // Check if least recently added errors are left over after telemetry is sent to server
+    for (int i = 0; i < afterFirstCutoff; i++)
+    {
+        XCTAssertEqualObjects([restoredTelemetryObject.errorsInfo objectAtIndex:i].error, [telemetryObject.errorsInfo objectAtIndex:i].error);
+    }
+    
+    
+    result = [restoredTelemetryObject telemetryString];
+    // Simulates a successful request to server, string up to limit size is sent to server
+    [restoredTelemetryObject updateWithApiId:1 errorString:nil context:self.context];
+    
+    NSUInteger afterSecondCutoff = restoredTelemetryObject.errorsInfo.count;
+    XCTAssertTrue(afterSecondCutoff > 0);
+    XCTAssertTrue(afterSecondCutoff < afterFirstCutoff);
+    
+    for (int i = 0; i < afterSecondCutoff; i++)
+    {
+        XCTAssertEqualObjects([restoredTelemetryObject.errorsInfo objectAtIndex:i].error, [telemetryObject.errorsInfo objectAtIndex:i].error);
+    }
+}
+
+- (void)testArchiveSizeLimit_whenObjectTooBig_shouldCutOffLeastRecentTelemetry
+{
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    
+    int maxErrors = 10;
+    [MSIDLastRequestTelemetry updateMaxErrorCountToArchive:maxErrors];
+    
+    NSMutableArray<NSString *> *allErrors = [NSMutableArray<NSString *> new];
+    int errorNum = 15;
+    for (int i = 1; i <= errorNum; i++)
+    {
+        NSString *errorString = [NSString stringWithFormat:@"error%d", i];
+        [allErrors addObject:errorString];
+        [telemetryObject updateWithApiId:i errorString:errorString context:self.context];
+    }
+    
+    dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
+    MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
+    
+    XCTAssertTrue(restoredTelemetryObject.errorsInfo.count < errorNum);
+    for (int i = 0; i < restoredTelemetryObject.errorsInfo.count; i++)
+    {
+        XCTAssertEqualObjects([restoredTelemetryObject.errorsInfo objectAtIndex:i].error, [allErrors objectAtIndex:i + (errorNum - maxErrors)]);
+    }
 }
 
 @end
