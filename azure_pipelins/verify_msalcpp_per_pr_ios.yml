@@ -48,8 +48,7 @@ jobs:
      branch_name = $(git branch --show-current)
      git fetch origin
      git checkout master
-     print($branch_name)
-     git merge $branch_name
+     git merge $branch_name -m "update to latest"
     displayName: 'Checkout MSAL and Update Master'
   - task: PythonScript@0
     displayName: Update subtree and rename files
