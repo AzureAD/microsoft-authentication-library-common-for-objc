@@ -72,11 +72,11 @@
     XCTAssertNil(identifier.displayableId);
 }
 
-- (void)testInitWithJSONDictionary_whenDisplayableAndHomeAccountIDs_shouldInit
+- (void)testInitWithJSONDictionary_whenDisplayableAndHomeAccountIDs_shouldInitAndNormalize
 {
     NSDictionary *json = @{
         @"username": @"user@contoso.com",
-        @"home_account_id": @"1.1234-5678-90abcdefg",
+        @"home_account_id": @"1.1234-5678-90ABCdefg",
     };
     
     NSError *error;
@@ -97,10 +97,10 @@
     XCTAssertNil(json);
 }
 
-- (void)testJsonDictionary_whenAllIDsSet_shouldReturnJson
+- (void)testJsonDictionary_whenAllIDsSet_shouldReturnNormalizedJson
 {
     __auto_type identifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com"
-                                                                    homeAccountId:@"1.1234-5678-90abcdefg"];
+                                                                    homeAccountId:@"1.1234-5678-90abcdEFG"];
     
     NSDictionary *json = [identifier jsonDictionary];
     

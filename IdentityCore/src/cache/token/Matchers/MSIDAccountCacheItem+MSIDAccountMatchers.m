@@ -31,7 +31,7 @@
                      environment:(nullable NSString *)environment
               environmentAliases:(nullable NSArray<NSString *> *)environmentAliases
 {
-    if (homeAccountId && ![self.homeAccountId isEqualToString:homeAccountId])
+    if (homeAccountId && ![self.homeAccountId.msidNormalizedString isEqualToString:homeAccountId.msidNormalizedString])
     {
         return NO;
     }
