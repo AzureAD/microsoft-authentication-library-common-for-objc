@@ -45,7 +45,7 @@ jobs:
   - script: |
      cd $(Agent.BuildDirectory)
      cd CommonCore
-     branch_name = git branch --show-current
+     branch_name = $(git branch --show-current)
      git fetch origin
      git checkout master
      git merge $branch_name
@@ -54,9 +54,7 @@ jobs:
     displayName: Update subtree and rename files
     inputs:
      scriptPath: scripts/update_msalobjc_subtree.py
-     arguments: 
-      msal_common_repo = $(Agent.BuildDirectory)/CommonCore
-      build_ci = True
+     arguments: '$(Agent.BuildDirectory)/CommonCore True'
 
 #   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
