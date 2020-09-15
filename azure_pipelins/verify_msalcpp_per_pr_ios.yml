@@ -52,7 +52,7 @@ jobs:
      branch_name = git branch --show-current
      git fetch origin
      git checkout master
-     git merge branch_name
+     git merge $branch_name
     displayName: 'Checkout MSAL and Update Master'
 
 #   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
