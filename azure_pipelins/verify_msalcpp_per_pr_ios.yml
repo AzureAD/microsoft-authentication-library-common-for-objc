@@ -50,13 +50,13 @@ jobs:
      git checkout master
      git merge $branch_name
     displayName: 'Checkout MSAL and Update Master'
-  # - task: PythonScript@0
-  #   displayName: Update subtree and rename files
-  #   inputs:
-  #    scriptPath: scripts/update_msalobjc_subtree.py
-  #    arguments: 
-  #     msal_common_repo = $(Agent.BuildDirectory)/CommonCore
-  #     build_ci = True
+  - task: PythonScript@0
+    displayName: Update subtree and rename files
+    inputs:
+     scriptPath: scripts/update_msalobjc_subtree.py
+     arguments: 
+      msal_common_repo = $(Agent.BuildDirectory)/CommonCore
+      build_ci = True
 
 #   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
