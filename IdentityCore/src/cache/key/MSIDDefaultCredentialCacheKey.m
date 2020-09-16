@@ -44,7 +44,6 @@ static NSInteger kCredentialTypePrefix = 2000;
                        appKey:(NSString *)appKey
                     tokenType:(NSString *)tokenType
               requestedClaims:(NSString *)requestedClaims
-
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
@@ -71,7 +70,6 @@ static NSInteger kCredentialTypePrefix = 2000;
         service  = [NSString stringWithFormat:@"%@|%@", service, requestedClaims.msidTokenHash];
     }
 
-    
     return service;
 }
 
@@ -185,7 +183,6 @@ static NSInteger kCredentialTypePrefix = 2000;
     item->_credentialType = _credentialType;
     item->_tokenType = [_tokenType copyWithZone:zone];
     item->_requestedClaims = [_requestedClaims copyWithZone:zone];
-
     return item;
 }
 

@@ -198,7 +198,6 @@
     _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
     _expiryInterval = [json msidStringObjectForKey:MSID_EXPIRES_IN_CACHE_KEY];
     _requestedClaims = [json msidStringObjectForKey:MSID_REQUESTED_CLAIMS_CACHE_KEY];
-
     return self;
 }
 
@@ -342,7 +341,7 @@
         }
     }
 
-    if(([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) || ([self.requestedClaims isEqualToString:requestedClaims]))
+    if (([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) || ([self.requestedClaims isEqualToString:requestedClaims]))
     {
         return YES;
     }

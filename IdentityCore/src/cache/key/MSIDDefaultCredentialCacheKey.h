@@ -1,4 +1,4 @@
-   // Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
 // This code is licensed under the MIT License.
@@ -53,7 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
                        appKey:(nullable NSString *)appKey
                     tokenType:(nullable NSString *)tokenType
               requestedClaims:(nullable NSString *)requestedClaims;
-
 
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId
