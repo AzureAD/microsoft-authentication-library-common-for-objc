@@ -45,7 +45,7 @@ jobs:
   - script: |
      cd $(Agent.BuildDirectory)
      cd CommonCore
-     branch_name=$(git rev-parse HEAD)
+     branch_name=$(git rev-parse --abbrev-ref HEAD)
      git fetch origin
      git checkout master
      git merge $branch_name -m "update to latest"
