@@ -5,3 +5,5 @@ GENERATE_MASTER_OBJECT_FILE = YES
 
 // Enable warnings
 OTHER_CFLAGS=$(inherited) -Wunknown-pragmas
+OTHER_CFLAGS=$(inherited) -Wfloat-conversion
+OTHER_CFLAGS=$(inherited) -Wint-conversion
