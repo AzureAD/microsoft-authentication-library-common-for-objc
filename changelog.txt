@@ -1,6 +1,5 @@
-* Ignore duplicate certificate authentication challenge in system webview.
 Version 1.5.6
-
+* Ignore duplicate certificate authentication challenge in system webview.
 * Limit telemetry archive size on disk, and save unserialized telemetry (#837)
 * Normalize home account id in cache lookups #839
 * Support forgetting cached account (#830)
