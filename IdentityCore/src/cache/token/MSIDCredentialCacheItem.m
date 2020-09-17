@@ -329,11 +329,9 @@
             {
                 return YES;
             }       
-            else
-            {
-                return NO;
-            }
         }
+        
+        return NO;
     }
     else
     {
