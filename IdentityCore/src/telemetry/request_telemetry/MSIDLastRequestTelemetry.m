@@ -66,7 +66,9 @@
 @property (nonatomic) NSMutableArray<MSIDRequestTelemetryErrorInfo *> *errorsInfo;
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger silentSuccessfulCount;
+@property (nonatomic) NSMutableArray<NSString *> *platformFields;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
+@property (nonatomic) MSIDLastRequestTelemetrySerializedItem *telemetrySerializedItem;
 
 @end
 
@@ -74,6 +76,22 @@
 
 static bool shouldReadFromDisk = YES;
 static const NSInteger currentSchemaVersion = 2;
+static int maxErrorCountToArchive = 75;
+
++ (int)telemetryStringSizeLimit
+{
+    return MSIDLastRequestTelemetrySerializedItem.telemetryStringSizeLimit;
+}
+
++ (void)updateTelemetryStringSizeLimit:(int)newLimit
+{
+    MSIDLastRequestTelemetrySerializedItem.telemetryStringSizeLimit = newLimit;
+}
+
++ (void)updateMaxErrorCountToArchive:(int)newMax
+{
+    maxErrorCountToArchive = newMax;
+}
 
 #pragma mark - Init
 
@@ -84,6 +102,7 @@ static const NSInteger currentSchemaVersion = 2;
     {
         _schemaVersion = currentSchemaVersion;
         _synchronizationQueue = [self initializeDispatchQueue];
+        _platformFields = [NSMutableArray<NSString *> new];
     }
     return self;
 }
@@ -156,7 +175,7 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)increaseSilentSuccessfulCount
 {
     dispatch_barrier_async(self.synchronizationQueue, ^{
-        _silentSuccessfulCount += 1;
+        self->_silentSuccessfulCount += 1;
         [self saveTelemetryToDisk];
     });
 }
@@ -166,7 +185,7 @@ static const NSInteger currentSchemaVersion = 2;
 - (NSString *)telemetryString
 {
     __block NSString *result;
-    dispatch_sync(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         result = [self serializeLastTelemetryString];
     });
     
@@ -206,15 +225,15 @@ static const NSInteger currentSchemaVersion = 2;
 
 - (NSString *)serializeLastTelemetryString
 {
-    MSIDLastRequestTelemetrySerializedItem *lastTelemetryFields = [self createSerializedItem];
+    self.telemetrySerializedItem = [self createSerializedItem];
     
-    return [lastTelemetryFields serialize];
+    return [self.telemetrySerializedItem serialize];
 }
 
 - (MSIDLastRequestTelemetrySerializedItem *)createSerializedItem
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.silentSuccessfulCount]];
-    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self.errorsInfo platformFields:nil];
+    NSArray *defaultFields = @[[NSNumber numberWithInteger:self->_silentSuccessfulCount]];
+    return [[MSIDLastRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields errorInfo:self->_errorsInfo platformFields:self.platformFields];
 }
 
 #pragma mark - Update object
@@ -224,8 +243,8 @@ static const NSInteger currentSchemaVersion = 2;
     dispatch_barrier_async(_synchronizationQueue, ^{
         if(errorInfo)
         {
-            _errorsInfo = [_errorsInfo count] ? _errorsInfo : [NSMutableArray new];
-           [_errorsInfo addObject:errorInfo];
+           self->_errorsInfo = [self->_errorsInfo count] ? self->_errorsInfo : [NSMutableArray new];
+           [self->_errorsInfo addObject:errorInfo];
         }
         
         [self saveTelemetryToDisk];
@@ -235,8 +254,20 @@ static const NSInteger currentSchemaVersion = 2;
 - (void)resetTelemetry
 {
     dispatch_barrier_async(_synchronizationQueue, ^{
-        _errorsInfo = nil;
-        _silentSuccessfulCount = 0;
+        self->_silentSuccessfulCount = 0;
+        
+        if (self.telemetrySerializedItem && [self.telemetrySerializedItem getUnserializedTelemetry])
+        {
+            self->_errorsInfo = [NSMutableArray arrayWithArray:[self.telemetrySerializedItem getUnserializedTelemetry]];
+            // "1" in platform fields indicates entry contains telemetry cut off in previous
+            // request. Pending investigation into which platform fields are needed
+            [self->_platformFields addObject:@"1"];
+        }
+        else
+        {
+            self->_errorsInfo = nil;
+        }
+
         [self saveTelemetryToDisk];
     });
 }
@@ -248,6 +279,17 @@ static const NSInteger currentSchemaVersion = 2;
     NSString *saveLocation = [self filePathToSavedTelemetry];
     if (saveLocation)
     {
+        // Some testing has determined that 75 errors corresponds to an archive size of about 8kb. 
+        if (_errorsInfo.count > maxErrorCountToArchive)
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Telemetry size over limit when saving to disk, cutting down to limit", nil);
+            
+            NSRange rangeToRemove;
+            rangeToRemove.location = 0;
+            rangeToRemove.length = _errorsInfo.count - maxErrorCountToArchive;
+            [_errorsInfo removeObjectsInRange:rangeToRemove];
+        }
+        
         NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
         
         [dataToArchive writeToFile:saveLocation atomically:YES];
@@ -265,6 +307,7 @@ static const NSInteger currentSchemaVersion = 2;
             _silentSuccessfulCount = silentSuccessfulCount;
             _errorsInfo = errorsInfo;
             _synchronizationQueue = [self initializeDispatchQueue];
+            _platformFields = [NSMutableArray<NSString *> new];
         }
         else
         {

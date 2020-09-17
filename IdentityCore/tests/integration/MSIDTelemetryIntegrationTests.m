@@ -33,9 +33,8 @@
 #import "NSData+MSIDExtensions.h"
 
 @interface MSIDTelemetryIntegrationTests : XCTestCase
-{
-    NSMutableArray *_receivedEvents;
-}
+
+@property (nonatomic) NSMutableArray *receivedEvents;
 
 @end
 
@@ -49,7 +48,7 @@
     MSIDTelemetryTestDispatcher* dispatcher = [MSIDTelemetryTestDispatcher new];
     [dispatcher setTestCallback:^(id<MSIDTelemetryEventInterface> event)
      {
-         [_receivedEvents addObject:event];
+        [self.receivedEvents addObject:event];
      }];
     
     // register the dispatcher

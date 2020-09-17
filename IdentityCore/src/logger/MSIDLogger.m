@@ -156,74 +156,95 @@ static NSDateFormatter *s_dateFormatter = nil;
     __uint64_t tid;
     pthread_threadid_np(NULL, &tid);
     
-    // Prevent queue from growing infinitely large.
-    dispatch_semaphore_wait(self.queueSemaphore, DISPATCH_TIME_FOREVER);
-    
-    dispatch_async(self.loggerQueue, ^{
-        @autoreleasepool
+    void (^logBlock)(void) = ^
+    {
+        NSString *logComponent = [context logComponent];
+        NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
+        
+        NSString *correlationIdStr = @"";
+        
+        if (correlationId)
         {
-            NSString *logComponent = [context logComponent];
-            NSString *componentStr = logComponent ? [NSString stringWithFormat:@" [%@]", logComponent] : @"";
-            
-            NSString *correlationIdStr = @"";
-            
-            if (correlationId)
+            if ([correlationId isKindOfClass:[NSUUID class]])
             {
-                if ([correlationId isKindOfClass:[NSUUID class]])
-                {
-                    correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
-                }
-                else
-                {
-                    NSAssert(NO, @"Correlation ID not of NSUUID class");
-                    correlationIdStr = @"[Invalid non-NSUUID correlationID]";
-                }
+                correlationIdStr = [NSString stringWithFormat:@" - %@", correlationId.UUIDString];
             }
-            else if (context)
+            else
             {
-                correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
+                NSAssert(NO, @"Correlation ID not of NSUUID class");
+                correlationIdStr = @"[Invalid non-NSUUID correlationID]";
             }
-            
-            NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
-            
-            NSString *sdkName = [MSIDVersion sdkName];
-            NSString *sdkVersion = [MSIDVersion sdkVersion];
-            
-            NSString *sourceInfo = @"";
-            if (self.sourceLineLoggingEnabled && filename.length)
-            {
-                sourceInfo = [NSString stringWithFormat:@" %@:%lu: %@", filename.lastPathComponent, (unsigned long)lineNumber, function];
-            }
-            
-            __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
-            if (!threadName) {
-                threadName = [NSThread currentThread].name ?: @"";
-            }
-            
-            __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID=%llu%@", tid, threadName];
-            
-            if (self.nsLoggingEnabled)
-            {
-                NSString *logLevelStr = [self stringForLogLevel:_level];
-                
-                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@:%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, logLevelStr, sourceInfo, message];
-                
-                NSLog(@"%@", log);
-            }
-            
-            if (self.callback || self.loggerConnector)
-            {
-                NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
-                
-                BOOL lineContainsPII = self.piiLoggingEnabled ? containsPII : NO;
-                
-                if (self.callback) self.callback(level, log, lineContainsPII);
-                if (self.loggerConnector) [self.loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];
-            }
-            
-            dispatch_semaphore_signal(self.queueSemaphore);
         }
-    });
+        else if (context)
+        {
+            correlationIdStr = [NSString stringWithFormat:@" - %@", [context correlationId]];
+        }
+        
+        NSString *dateStr = [s_dateFormatter stringFromDate:[NSDate date]];
+        
+        NSString *sdkName = [MSIDVersion sdkName];
+        NSString *sdkVersion = [MSIDVersion sdkVersion];
+        
+        NSString *sourceInfo = @"";
+        if (self.sourceLineLoggingEnabled && filename.length)
+        {
+            sourceInfo = [NSString stringWithFormat:@" %@:%lu: %@", filename.lastPathComponent, (unsigned long)lineNumber, function];
+        }
+        
+        __auto_type threadName = [[NSThread currentThread] isMainThread] ? @" (main thread)" : nil;
+        if (!threadName) {
+            threadName = [NSThread currentThread].name ?: @"";
+        }
+        
+        __auto_type threadInfo = [[NSString alloc] initWithFormat:@"TID=%llu%@", tid, threadName];
+        
+        if (self.nsLoggingEnabled)
+        {
+            NSString *logLevelStr = [self stringForLogLevel:self.level];
+            
+            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@ %@:%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, logLevelStr, sourceInfo, message];
+            
+            NSLog(@"%@", log);
+        }
+        
+        if (self.callback || self.loggerConnector)
+        {
+            NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
+            
+            BOOL lineContainsPII = self.piiLoggingEnabled ? containsPII : NO;
+            
+            if (self.loggerConnector)
+            {
+                [self.loggerConnector onLogWithLevel:level lineNumber:lineNumber function:function message:log];
+            }
+            else if (self.callback)
+            {
+                self.callback(level, log, lineContainsPII);
+            }
+                
+        }
+    };
+    
+    BOOL loggingQueueEnabled = YES;
+    if (self.loggerConnector) loggingQueueEnabled = self.loggerConnector.loggingQueueEnabled;
+    
+    if (loggingQueueEnabled)
+    {
+        // Prevent queue from growing infinitely large.
+        dispatch_semaphore_wait(self.queueSemaphore, DISPATCH_TIME_FOREVER);
+        
+        dispatch_async(self.loggerQueue, ^{
+            @autoreleasepool
+            {
+                logBlock();
+                
+                dispatch_semaphore_signal(self.queueSemaphore);
+            }
+        });
+        return;
+    }
+    
+    logBlock();
 }
 
 - (NSString*)stringForLogLevel:(MSIDLogLevel)level

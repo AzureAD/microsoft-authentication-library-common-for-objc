@@ -127,7 +127,7 @@ static NSTimeInterval s_requestTimeoutInterval = 300;
               
               MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,self.context, @"Parsed response: %@, error %@, error domain: %@, error code: %ld", _PII_NULLIFY(responseObject), _PII_NULLIFY(error), error.domain, (long)error.code);
               
-              if (responseObject && _shouldCacheResponse)
+              if (responseObject && self->_shouldCacheResponse)
               {
                   NSCachedURLResponse *cachedResponse = [[NSCachedURLResponse alloc] initWithResponse:response data:data];
                   [self setCachedResponse:cachedResponse forRequest:self.urlRequest];

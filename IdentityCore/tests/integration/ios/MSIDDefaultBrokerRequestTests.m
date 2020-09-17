@@ -152,7 +152,7 @@
                                       @"prompt" : @"select_account",
                                       @"msg_protocol_ver" : @"3",
                                       //if account set, both of the following should be set
-                                      @"home_account_id" : @"myHomeAccountId",
+                                      @"home_account_id" : @"myhomeaccountid",
                                       @"username" : @"user",
                                       @"broker_nonce" : [MSIDTestIgnoreSentinel sentinel],
                                       @"application_token" : @"brokerApplicationToken"

@@ -74,7 +74,6 @@ static BOOL s_useLastRequestURL = NO;
     
     if (s_certAuthInProgress)
     {
-        s_certAuthInProgress = NO;
         return [s_systemWebViewController handleURLResponse:endUrl];
     }
     
@@ -83,7 +82,10 @@ static BOOL s_useLastRequestURL = NO;
 
 #endif
 
-+ (void)resetHandler { }
++ (void)resetHandler
+{
+    s_certAuthInProgress = NO;
+}
 
 + (BOOL)handleChallenge:(NSURLAuthenticationChallenge *)challenge
                 webview:(WKWebView *)webview
@@ -100,6 +102,15 @@ static BOOL s_useLastRequestURL = NO;
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"There is no current session open to continue with the cert auth challenge.");
         return NO;
+    }
+    
+    if (s_certAuthInProgress)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Certificate authentication challenge already in progress, ignoring duplicate cert auth challenge.");
+        
+        // Cancel the Cert Auth Challenge happened in the webview, as we have already handled it in SFSafariViewController
+        completionHandler(NSURLSessionAuthChallengeCancelAuthenticationChallenge, NULL);
+        return YES;
     }
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Received CertAuthChallengehost from : %@", MSID_PII_LOG_TRACKABLE(challenge.protectionSpace.host));

@@ -40,12 +40,17 @@
 
 #if !MSID_EXCLUDE_WEBKIT
 
+@interface MSIDOAuth2EmbeddedWebviewController()
+
+@property (nonatomic) NSDictionary<NSString *, NSString *> *customHeaders;
+
+@end
+
 @implementation MSIDOAuth2EmbeddedWebviewController
 {
     NSURL *_endURL;
     MSIDWebUICompletionHandler _completionHandler;
-    NSDictionary<NSString *, NSString *> *_customHeaders;
-    
+
     NSLock *_completionLock;
     NSTimer *_spinnerTimer; // Used for managing the activity spinner
     
@@ -125,9 +130,9 @@
             return;
         }
         
-        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:_startURL];
-        for (NSString *headerKey in _customHeaders)
-            [request addValue:_customHeaders[headerKey] forHTTPHeaderField:headerKey];
+        NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:self.startURL];
+        for (NSString *headerKey in self.customHeaders)
+            [request addValue:self.customHeaders[headerKey] forHTTPHeaderField:headerKey];
         
         [self startRequest:request];
         

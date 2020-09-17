@@ -29,6 +29,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initTelemetryFromDiskWithQueue:(dispatch_queue_t)queue;
 
++ (int)telemetryStringSizeLimit;
+
++ (void)updateTelemetryStringSizeLimit:(int)newLimit;
+
++ (void)updateMaxErrorCountToArchive:(int)newMax;
+
 @end
 
 NS_ASSUME_NONNULL_END

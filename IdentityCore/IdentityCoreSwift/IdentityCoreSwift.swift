@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,20 +20,15 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDLastRequestTelemetry.h"
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDCurrentRequestTelemetrySerializedItem : NSObject
-
-@property (class, nonatomic) int telemetryStringSizeLimit;
-
-- (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray * _Nullable)defaultFields platformFields:(NSArray * _Nullable)platformFields;
-- (NSString *)serialize;
-
-@end
-
-NS_ASSUME_NONNULL_END
+import Foundation
+/*
+the class file must be "open" so that it will be added to SwiftLibararyOne-Swift.h header file
+which will be used in Objective C file.
+*/
+@objc open class SwiftOneFileA: NSObject {
+@objc public func testOne() {
+}
+}

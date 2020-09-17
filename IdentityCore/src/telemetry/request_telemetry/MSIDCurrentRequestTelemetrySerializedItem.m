@@ -33,6 +33,19 @@
 
 @implementation MSIDCurrentRequestTelemetrySerializedItem
 
+// Represents 4kB limit for size of telemetry string sent to server
+static int telemetryStringSizeLimit = 4000;
+
++ (int)telemetryStringSizeLimit
+{
+    return telemetryStringSizeLimit;
+}
+
++ (void)setTelemetryStringSizeLimit:(int)newLimit
+{
+    telemetryStringSizeLimit = newLimit;
+}
+
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray *)defaultFields platformFields:(NSArray *)platformFields
 {
     self = [super init];

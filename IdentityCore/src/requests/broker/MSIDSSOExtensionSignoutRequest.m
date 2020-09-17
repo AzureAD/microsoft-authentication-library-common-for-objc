@@ -51,6 +51,7 @@
 
 - (nullable instancetype)initWithRequestParameters:(nonnull MSIDInteractiveRequestParameters *)parameters
                           shouldSignoutFromBrowser:(BOOL)shouldSignoutFromBrowser
+                                 shouldWipeAccount:(BOOL)shouldWipeAccount
                           clearSSOExtensionCookies:(BOOL)clearSSOExtensionCookies
                                       oauthFactory:(nonnull MSIDOauth2Factory *)oauthFactory
 {
@@ -60,6 +61,7 @@
     {
         _shouldSignoutFromBrowser = shouldSignoutFromBrowser;
         _clearSSOExtensionCookies = clearSSOExtensionCookies;
+        _shouldWipeAccount = shouldWipeAccount;
     }
     
     return self;
@@ -115,6 +117,7 @@
     signoutRequest.accountIdentifier = self.requestParameters.accountIdentifier;
     signoutRequest.signoutFromBrowser = self.shouldSignoutFromBrowser;
     signoutRequest.clearSSOExtensionCookies = self.clearSSOExtensionCookies;
+    signoutRequest.wipeAccount = self.shouldWipeAccount;
     
     [MSIDBrokerOperationRequest fillRequest:signoutRequest
                         keychainAccessGroup:self.requestParameters.keychainAccessGroup
