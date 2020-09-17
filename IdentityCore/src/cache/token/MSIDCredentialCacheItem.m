@@ -330,7 +330,7 @@
                 return YES;
             }       
         }
-        
+
         return NO;
     }
     else
@@ -346,7 +346,7 @@
         }
     }
 
-    return NO;
+    return YES;
     
 }
 
