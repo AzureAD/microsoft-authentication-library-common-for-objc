@@ -74,8 +74,8 @@
         NSString *currentErrorMessage = [NSString stringWithFormat:@"%@", self.errorsInfo[lastIndex].error ?: @""];
         
         // Only add error info into string if the resulting string smaller than 4KB
-        if ([currentFailedRequest lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
+        if ((int)([currentFailedRequest lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
+                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength) < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
         {
             failedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
             errorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
