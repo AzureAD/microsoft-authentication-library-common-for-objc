@@ -98,8 +98,8 @@
             
             // Only add next error into string if the resulting string smaller than 4KB, otherwise stop building
             // the string
-            if ([newFailedRequestsString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
+            if ((int)([newFailedRequestsString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
+                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength) < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
             {
                 failedRequestsString = newFailedRequestsString;
                 errorMessagesString = newErrorMessagesString;
