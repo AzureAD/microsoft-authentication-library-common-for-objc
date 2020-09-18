@@ -18,7 +18,7 @@ resources:
      type: github
      endpoint: 'GitHub for AzureAD and Azure-Samples (as aadidgit service)'
      name: AzureAD/microsoft-authentication-library-for-cpp
-     ref: kaisong1990/change-python-minor
+     ref: develop
 
 variables:
   runCodesignValidationInjection: false
