@@ -55,7 +55,7 @@ jobs:
     displayName: Update subtree and rename files
     inputs:
      scriptPath: scripts/update_msalobjc_subtree.py
-     arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore'
+     arguments: '--msal-common-repo $(Agent.BuildDirectory)/CommonCore'
 
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
