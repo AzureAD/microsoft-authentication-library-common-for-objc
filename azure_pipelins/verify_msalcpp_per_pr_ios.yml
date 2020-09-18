@@ -50,11 +50,12 @@ jobs:
      git checkout master
      git merge $branch_name -m "update to latest"
     displayName: 'Checkout MSAL and Update Master'
+
   - task: PythonScript@0
     displayName: Update subtree and rename files
     inputs:
      scriptPath: scripts/update_msalobjc_subtree.py
-     arguments: '--msal-common-repo $(Agent.BuildDirectory)/CommonCore --local-repo True'
+     arguments: '--msal-common-repo $(Agent.BuildDirectory)/CommonCore --skip-checkout True'
 
   - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
 
