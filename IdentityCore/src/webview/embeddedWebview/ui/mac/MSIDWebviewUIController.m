@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDWebviewUIController.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -44,12 +45,20 @@ static WKWebViewConfiguration *s_webConfig;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         s_webConfig = [WKWebViewConfiguration new];
+        s_webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
         
         if (@available(macOS 10.15, *))
         {
             s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
         }
     });
+}
+
++ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent
+{
+    WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
+    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    return webConfig;
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context

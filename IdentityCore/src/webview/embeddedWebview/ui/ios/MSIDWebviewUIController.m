@@ -60,6 +60,14 @@ static WKWebViewConfiguration *s_webConfig;
     });
 }
 
++ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent
+{
+    WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
+    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    return webConfig;
+}
+
+
 - (id)initWithContext:(id<MSIDRequestContext>)context
 {
     self = [super init];

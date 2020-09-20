@@ -42,6 +42,8 @@ NSWindowController
 @property UIModalPresentationStyle presentationType;
 #endif
 
++ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent;
+
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 
 - (BOOL)loadView:(NSError **)error;
