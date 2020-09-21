@@ -1,3 +1,7 @@
+Version 1.5.7
+* Enabled PKeyAuth via UserAgent String on MacOS 
+* Added an API for both iOS and MacOS for returning a custom WKWebviewConfig object with PKeyAuth UserAgent String within MSIDWebviewUIController;
+
 Version 1.5.6
 * Ignore duplicate certificate authentication challenge in system webview.
 * Limit telemetry archive size on disk, and save unserialized telemetry (#837)

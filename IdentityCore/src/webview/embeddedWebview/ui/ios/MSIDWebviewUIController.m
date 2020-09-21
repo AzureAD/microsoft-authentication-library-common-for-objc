@@ -28,7 +28,6 @@
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDBackgroundTaskManager.h"
 #import "MSIDMainThreadUtil.h"
-#import "MSIDWorkPlaceJoinConstants.h"
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -56,6 +55,18 @@ static WKWebViewConfiguration *s_webConfig;
         }
 #endif
     });
+}
+
++ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent
+{
+    WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
+    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    
+    if (@available(iOS 13.0, *))
+    {
+        webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
+    }
+    return webConfig;
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
