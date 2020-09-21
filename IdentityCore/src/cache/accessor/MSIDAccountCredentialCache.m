@@ -106,6 +106,7 @@
                                     clientId:cacheQuery.clientId
                                     familyId:cacheQuery.familyId
                                       target:cacheQuery.target
+                             requestedClaims:cacheQuery.requestedClaims
                               targetMatching:cacheQuery.targetMatchingOptions
                             clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {
@@ -232,6 +233,8 @@
     key.realm = credential.realm;
     key.target = credential.target;
     key.applicationIdentifier = credential.applicationIdentifier;
+    key.requestedClaims = credential.requestedClaims;
+
     
     return [_dataSource saveToken:credential
                               key:key
@@ -325,6 +328,7 @@
     key.applicationIdentifier = credential.applicationIdentifier;
     key.appKey = credential.appKey;
     key.tokenType = credential.tokenType;
+    key.requestedClaims = credential.requestedClaims;
     
     BOOL result = [_dataSource removeTokensWithKey:key context:context error:error];
     
