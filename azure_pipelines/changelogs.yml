@@ -56,15 +56,15 @@ jobs:
         pr = github.pull_request(github_org, repo, $(System.PullRequest.PullRequestNumber))
 
         changelog_comment = next((comment for comment in pr.review_comments() if "<!-- changelog-comment -->" in comment.body), None)
-        changelog_modified = "changelogs.txt" in (pullfile.filename for pullfile in pr.files())
+        changelog_modified = "changelog.txt" in (pullfile.filename for pullfile in pr.files())
 
         if changelog_comment and changelog_modified:
             changelog_comment.delete()
         elif not changelog_comment and not changelog_modified:
             message = textwrap.dedent("""\
-                This pull request does not update changelogs.txt.
+                This pull request does not update changelog.txt.
 
-                Please consider if this change would be noticeable to a partner or user and either update changelogs.txt or resolve this conversation.
+                Please consider if this change would be noticeable to a partner or user and either update changelog.txt or resolve this conversation.
                 <!-- changelog-comment -->""")
             # Only comments on files have the nice "Resolve conversation" button, so we'll just comment on position 0
             # of the first non-deleted file
