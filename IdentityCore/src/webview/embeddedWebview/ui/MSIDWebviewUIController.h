@@ -40,9 +40,10 @@ NSWindowController
 #if TARGET_OS_IPHONE
 @property (weak) UIViewController *parentController;
 @property UIModalPresentationStyle presentationType;
-#endif
 
 + (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent;
+
+#endif
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 
