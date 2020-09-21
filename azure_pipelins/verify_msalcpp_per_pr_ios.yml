@@ -25,9 +25,7 @@ variables:
 
 jobs:
 - job: iOS_OnPrCommit
-  displayName: MSAL CPP checks per commit
-  pool:
-    vmImage: macOS-10.15
+  displayName: MSAL CPP checks per commit for iOS
   timeoutInMinutes: 40
   cancelTimeoutInMinutes: 1
   workspace:
@@ -43,12 +41,11 @@ jobs:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
   - script: |
-     cd $(Agent.BuildDirectory)
-     cd CommonCore
-     branch_name=$(git rev-parse HEAD)
+     cd $(Agent.BuildDirectory)/CommonCore
+     commit_number=$(git rev-parse HEAD)
      git fetch origin
      git checkout master
-     git merge $branch_name -m "update to latest"
+     git merge $commit_number -m "update to latest"
     displayName: 'Checkout MSAL and Update Master'
 
   - task: PythonScript@0
@@ -64,8 +61,3 @@ jobs:
       configuration: Debug
       platform: iOS
       arch: x64
-
-  - template: azure_pipelines/templates/publish-logs.yml@microsoft-authentication-library-for-cpp
-    parameters:
-      build: true
-      testLogArtifactName: 'iOS Test Logs'
