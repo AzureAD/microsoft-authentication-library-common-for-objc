@@ -46,7 +46,7 @@ jobs:
   #    git checkout master
   #    git merge $commit_number -m "update to latest"
   #   displayName: 'Checkout MSAL and Update Master'
-  - script |
+  - script: |
       git rm -r deps/msalobjc
       git commit -am "remove subtree from master"
       git subtree add --prefix=deps/msalobjc $(Agent.BuildDirectory)/CommonCore dev
