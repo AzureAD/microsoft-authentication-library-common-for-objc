@@ -46,26 +46,21 @@ static WKWebViewConfiguration *s_webConfig;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        s_webConfig = [WKWebViewConfiguration new];
-        s_webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
-        if (@available(iOS 13.0, *))
-        {
-            s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
-        }
-#endif
+        s_webConfig = [MSIDWebviewUIController defaultWKWebviewConfiguration];
     });
 }
 
-+ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-    
+
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *))
     {
         webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
     }
+#endif
     return webConfig;
 }
 

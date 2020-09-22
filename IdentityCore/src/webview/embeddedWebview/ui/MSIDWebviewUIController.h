@@ -48,7 +48,7 @@ NSWindowController
 @property (nonatomic) UIModalPresentationStyle presentationType;
 #endif
 
-+ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent;
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 
