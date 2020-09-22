@@ -43,12 +43,14 @@ static NSInteger kCredentialTypePrefix = 2000;
                        target:(NSString *)target
                        appKey:(NSString *)appKey
                     tokenType:(NSString *)tokenType
+              requestedClaims:(NSString *)requestedClaims
 {
     realm = realm.msidTrimmedString.lowercaseString;
     clientId = clientId.msidTrimmedString.lowercaseString;
     target = target.msidTrimmedString.lowercaseString;
     applicationIdentifier = applicationIdentifier.msidTrimmedString.lowercaseString;
     tokenType = tokenType.msidTrimmedString.lowercaseString;
+    requestedClaims = requestedClaims.msidTrimmedString.lowercaseString;
 
     NSString *credentialId = [self credentialIdWithType:type clientId:clientId realm:realm applicationIdentifier:applicationIdentifier];
     NSString *service = [NSString stringWithFormat:@"%@%@%@%@%@",
@@ -62,7 +64,12 @@ static NSInteger kCredentialTypePrefix = 2000;
     {
         service  = [NSString stringWithFormat:@"%@|%@", service, appKey];
     }
-    
+
+    if (![NSString msidIsStringNilOrBlank:requestedClaims])
+    {
+        service  = [NSString stringWithFormat:@"%@|%@", service, requestedClaims.msidTokenHash];
+    }
+
     return service;
 }
 
@@ -141,7 +148,7 @@ static NSInteger kCredentialTypePrefix = 2000;
 - (NSString *)service
 {
     NSString *clientId = self.familyId ? self.familyId : self.clientId;
-    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm applicationIdentifier:self.applicationIdentifier target:self.target appKey:self.appKey tokenType:self.tokenType];
+    return [self serviceWithType:self.credentialType clientID:clientId realm:self.realm applicationIdentifier:self.applicationIdentifier target:self.target appKey:self.appKey tokenType:self.tokenType requestedClaims:self.requestedClaims];
 }
 
 - (BOOL)isShared
@@ -175,6 +182,7 @@ static NSInteger kCredentialTypePrefix = 2000;
     item->_applicationIdentifier = [_applicationIdentifier copyWithZone:zone];
     item->_credentialType = _credentialType;
     item->_tokenType = [_tokenType copyWithZone:zone];
+    item->_requestedClaims = [_requestedClaims copyWithZone:zone];
     return item;
 }
 
