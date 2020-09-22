@@ -25,6 +25,7 @@
 
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @interface MSIDWebviewUIController :
 #if TARGET_OS_IPHONE
@@ -41,7 +42,7 @@ NSWindowController
 @property (weak) UIViewController *parentController;
 @property UIModalPresentationStyle presentationType;
 
-+ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent;
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
 
 #endif
 

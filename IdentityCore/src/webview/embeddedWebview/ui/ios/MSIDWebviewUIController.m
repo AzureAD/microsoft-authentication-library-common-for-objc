@@ -27,7 +27,6 @@
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
-#import "MSIDWorkPlaceJoinConstants.h"
 
 static WKWebViewConfiguration *s_webConfig;
 
@@ -50,17 +49,11 @@ static WKWebViewConfiguration *s_webConfig;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        s_webConfig = [WKWebViewConfiguration new];
-        s_webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
-        
-        if (@available(iOS 13.0, *))
-        {
-            s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
-        }
+        s_webConfig = [MSIDWebviewUIController defaultWKWebviewConfiguration];
     });
 }
 
-+ (WKWebViewConfiguration *)createWebViewConfigWithPKeyAuthUserAgent
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
     webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
