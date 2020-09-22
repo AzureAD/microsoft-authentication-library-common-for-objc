@@ -41,6 +41,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
+                               creationDate:(NSDate *)creationDate
 {
     if (!privateKey || !publicKey)
     {
@@ -56,6 +57,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         
         _publicKeyRef = publicKey;
         CFRetain(_publicKeyRef);
+        _creationDate = creationDate;
     }
     
     return self;

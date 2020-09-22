@@ -118,7 +118,7 @@
 {
     NSError *readError = nil;
     MSIDAssymetricKeyPair *keyPair = [self readKeyPairForAttributes:attributes error:&readError];
-    
+
     if (keyPair || readError)
     {
         if (error) *error = readError;
@@ -161,10 +161,12 @@
         return nil;
     }
     
-    MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
-                                                                             publicKey:publicKeyRef];
-
+    NSDate *creationDate = [privateKeyAttributes objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
     
+    MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
+                                                                             publicKey:publicKeyRef
+                                                                          creationDate:creationDate];
+
     return keypair;
 }
 
@@ -250,8 +252,27 @@
         return nil;
     }
     
-    // 2. Return keys
-    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef];
+    NSDictionary* publicKeyQuery = @{ (id)kSecValueRef: (__bridge id)publicKeyRef,
+     (id)kSecClass: (id)kSecClassKey,
+     (id)kSecReturnAttributes:(id)kCFBooleanTrue
+    };
+    
+    /*
+     We need this additional query because there is only one API SecKeychainItemCopyAttributesAndData
+     to query keychain item attributes which relies on SecKeychainAttributeList param which is only available
+     on macOS
+     */
+    CFDictionaryRef result = nil;
+    status = SecItemCopyMatching((CFDictionaryRef)publicKeyQuery, (CFTypeRef *)&result);
+    
+    if (status != errSecSuccess)
+    {
+        [self logAndFillError:@"Failed to read key attributes" status:status error:error];
+        return nil;
+    }
+    
+    NSDate *creationDate = [publicKeyQuery objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
+    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef creationDate:creationDate];
     
     if (privateKeyRef) CFRelease(privateKeyRef);
     if (publicKeyRef) CFRelease(publicKeyRef);
