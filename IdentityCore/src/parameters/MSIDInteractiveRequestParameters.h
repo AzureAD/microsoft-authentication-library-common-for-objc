@@ -42,4 +42,5 @@
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
 
+
 @end
