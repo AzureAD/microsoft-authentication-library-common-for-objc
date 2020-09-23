@@ -40,9 +40,9 @@ jobs:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
   - script: |
-      # cd $(Agent.BuildDirectory)/CommonCore
-      # git fetch origin
-      # git checkout $(Build.SourceBranchName)
+      cd $(Agent.BuildDirectory)/CommonCore
+      git fetch origin
+      git checkout $(Build.SourceBranchName)
     #  commit_number=$(git rev-parse HEAD)      
   #    git checkout master
   #    git merge $commit_number -m "update to latest"
