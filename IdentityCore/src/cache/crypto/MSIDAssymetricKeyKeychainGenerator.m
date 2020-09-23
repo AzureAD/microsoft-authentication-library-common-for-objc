@@ -252,34 +252,17 @@
         return nil;
     }
     
-    NSDictionary* publicKeyQuery = @{ (id)kSecValueRef: (__bridge id)publicKeyRef,
-     (id)kSecClass: (id)kSecClassKey,
-     (id)kSecReturnAttributes:(id)kCFBooleanTrue
-    };
-    
     /*
-     We need this additional query because there is only one API SecKeychainItemCopyAttributesAndData
-     to query keychain item attributes which relies on SecKeychainAttributeList param which is only available
-     on macOS
+     Setting creationDate to nil here intentionally as it is only needed for cpp code.
+     CreationDate will be initialized using lazy loading once it is queried for the first time on key pair object.
      */
-    CFDictionaryRef result = nil;
-    status = SecItemCopyMatching((CFDictionaryRef)publicKeyQuery, (CFTypeRef *)&result);
-    
-    if (status != errSecSuccess)
-    {
-        [self logAndFillError:@"Failed to read key attributes" status:status error:error];
-        return nil;
-    }
-    
-    NSDate *creationDate = [publicKeyQuery objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
-    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef creationDate:creationDate];
+    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef creationDate:nil];
     
     if (privateKeyRef) CFRelease(privateKeyRef);
     if (publicKeyRef) CFRelease(publicKeyRef);
     
     return keyPair;
 }
-
 
 #pragma mark - Platform
 

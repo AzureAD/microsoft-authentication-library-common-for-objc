@@ -42,11 +42,11 @@ NS_ASSUME_NONNULL_BEGIN
                                   publicKey:(SecKeyRef)publicKey
                                 certificate:(SecCertificateRef)certificate
                           certificateIssuer:(NSString *)issuer
-                               creationDate:(NSDate *)creationDate;
+                               creationDate:(nullable NSDate *)creationDate;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
-                               creationDate:(NSDate *)creationDate NS_UNAVAILABLE;
+                               creationDate:(nullable NSDate *)creationDate NS_UNAVAILABLE;
 
 @end
 

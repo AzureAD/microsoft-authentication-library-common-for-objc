@@ -38,13 +38,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSData *keyData;
 @property (nonatomic, readonly) NSString *jsonWebKey;
 @property (nonatomic, readonly) NSString *kid;
-@property (nonatomic, readonly) NSDate *creationDate;
+@property (nonatomic, nullable, readonly) NSDate *creationDate;
+@property (nonatomic, readonly) NSString *stkJwk;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
-                               creationDate:(NSDate *)creationDate;
+                               creationDate:(nullable NSDate *)creationDate;
 
 - (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
+
+- (nullable NSString *)signData:(nonnull NSString *)message;
 
 @end
 

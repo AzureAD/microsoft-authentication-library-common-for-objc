@@ -34,6 +34,8 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 @property (nonatomic) NSData *keyData;
 @property (nonatomic) NSString *jsonWebKey;
 @property (nonatomic) NSString *kid;
+@property (nonatomic) NSString *stkJwk;
+@property (nonatomic) NSDate *creationDate;
 
 @end
 
@@ -144,13 +146,22 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 {
     if (!_kid)
     {
-        NSString *jwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
-        NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *jwkData = [self.stkJwk dataUsingEncoding:NSUTF8StringEncoding];
         NSData *hashedData = [jwkData msidSHA256];
         _kid = [hashedData msidBase64UrlEncodedString];
     }
     
     return _kid;
+}
+
+- (NSString *)stkJwk
+{
+    if (!_stkJwk)
+    {
+        _stkJwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
+    }
+    
+    return _stkJwk;
 }
 
 - (int)derEncodingGetSizeFrom:(NSData *)buf at:(int *)iterator
@@ -218,6 +229,36 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     {
         return nil;
     }
+}
+
+- (NSString *)signData:(NSString *)message
+{
+    NSData *signedData = [[message dataUsingEncoding:NSUTF8StringEncoding] msidSignHashWithPrivateKey:self.privateKeyRef];
+    return [[NSString alloc] initWithData:signedData encoding:NSUTF8StringEncoding];
+}
+
+- (NSDate *)creationDate
+{
+    if (!_creationDate)
+    {
+        NSDictionary* publicKeyQuery = @{ (id)kSecValueRef: (__bridge id)self.publicKeyRef,
+         (id)kSecClass: (id)kSecClassKey,
+         (id)kSecReturnAttributes:(id)kCFBooleanTrue
+        };
+        
+        CFDictionaryRef result = nil;
+        OSStatus status = SecItemCopyMatching((CFDictionaryRef)publicKeyQuery, (CFTypeRef *)&result);
+        
+        if (status != errSecSuccess)
+        {
+            return nil;
+        }
+        
+        NSDictionary *attributeDict = CFBridgingRelease(result);
+        _creationDate = [attributeDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
+    }
+    
+    return _creationDate;
 }
 
 - (void)dealloc
