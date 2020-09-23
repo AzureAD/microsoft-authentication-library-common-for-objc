@@ -41,11 +41,10 @@ jobs:
     displayName: 'Use Python 3.x'
   - script: |
      cd $(Agent.BuildDirectory)/CommonCore
-     git checkout $(Build.SourceBranchName)
-     branch_name=$(git rev-parse --abbrev-ref HEAD)
+     commit_number=$(git rev-parse HEAD)
      git checkout master
-     git merge $branch_name -m "update to latest"
-     displayName: 'Checkout MSAL and Update Master'
+     git merge $commit_number -m "update to latest"
+    displayName: 'Checkout MSAL and Update Master'
 
   - task: PythonScript@0
     displayName: Update subtree and rename files
