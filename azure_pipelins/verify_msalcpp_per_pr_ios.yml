@@ -47,12 +47,9 @@ jobs:
   #    git merge $commit_number -m "update to latest"
   #   displayName: 'Checkout MSAL and Update Master'
   - script: |
-      import github3
-      import requests
-      import textwrap
       git rm -r deps/msalobjc
       git commit -am "remove subtree from master"
-      git subtree add --prefix=deps/msalobjc $(Agent.BuildDirectory)/CommonCore $(System.PullRequest.SourceBranch)
+      git subtree add --prefix=deps/msalobjc $(Agent.BuildDirectory)/CommonCore $(Build.SourceBranchName)
 
   - task: PythonScript@0
     displayName: Update subtree and rename files
