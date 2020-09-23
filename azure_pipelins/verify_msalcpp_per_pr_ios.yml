@@ -49,7 +49,7 @@ jobs:
   - script: |
       git rm -r deps/msalobjc
       git commit -am "remove subtree from master"
-      git subtree add --prefix=deps/msalobjc $(Agent.BuildDirectory)/CommonCore
+      git subtree add --prefix=deps/msalobjc $(Agent.BuildDirectory)/CommonCore $(Build.Repository.Name)
 
   - task: PythonScript@0
     displayName: Update subtree and rename files
