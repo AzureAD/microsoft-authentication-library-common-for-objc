@@ -33,13 +33,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
 @property (nonatomic, readonly) SecKeyRef publicKeyRef;
-@property (nonatomic, readonly) NSString *keyExponent;
-@property (nonatomic, readonly) NSString *keyModulus;
-@property (nonatomic, readonly) NSData *keyData;
 @property (nonatomic, readonly) NSString *jsonWebKey;
+
+/*
+ The kid holds the public key thumbprint
+ */
 @property (nonatomic, readonly) NSString *kid;
 @property (nonatomic, nullable, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSString *stkJwk;
+@property (nonatomic, readonly) NSString *publicKey;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey

@@ -34,7 +34,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 @property (nonatomic) NSData *keyData;
 @property (nonatomic) NSString *jsonWebKey;
 @property (nonatomic) NSString *kid;
-@property (nonatomic) NSString *stkJwk;
+@property (nonatomic) NSString *publicKey;
 @property (nonatomic) NSDate *creationDate;
 
 @end
@@ -146,7 +146,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 {
     if (!_kid)
     {
-        NSData *jwkData = [self.stkJwk dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *jwkData = [self.publicKey dataUsingEncoding:NSUTF8StringEncoding];
         NSData *hashedData = [jwkData msidSHA256];
         _kid = [hashedData msidBase64UrlEncodedString];
     }
@@ -154,14 +154,14 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     return _kid;
 }
 
-- (NSString *)stkJwk
+- (NSString *)publicKey
 {
-    if (!_stkJwk)
+    if (!_publicKey)
     {
-        _stkJwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
+        _publicKey = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
     }
     
-    return _stkJwk;
+    return _publicKey;
 }
 
 - (int)derEncodingGetSizeFrom:(NSData *)buf at:(int *)iterator
@@ -241,21 +241,21 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 {
     if (!_creationDate)
     {
-        NSDictionary* publicKeyQuery = @{ (id)kSecValueRef: (__bridge id)self.publicKeyRef,
+        NSDictionary* privateKeyQuery = @{ (id)kSecValueRef: (__bridge id)self.privateKeyRef,
          (id)kSecClass: (id)kSecClassKey,
          (id)kSecReturnAttributes:(id)kCFBooleanTrue
         };
         
         CFDictionaryRef result = nil;
-        OSStatus status = SecItemCopyMatching((CFDictionaryRef)publicKeyQuery, (CFTypeRef *)&result);
+        OSStatus status = SecItemCopyMatching((CFDictionaryRef)privateKeyQuery, (CFTypeRef *)&result);
         
         if (status != errSecSuccess)
         {
             return nil;
         }
         
-        NSDictionary *attributeDict = CFBridgingRelease(result);
-        _creationDate = [attributeDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
+        NSDictionary *privateKeyDict = CFBridgingRelease(result);
+        _creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
     }
     
     return _creationDate;
