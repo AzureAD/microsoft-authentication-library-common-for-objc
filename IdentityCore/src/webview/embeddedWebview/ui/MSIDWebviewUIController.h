@@ -25,7 +25,6 @@
 
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
-#import "MSIDWorkPlaceJoinConstants.h"
 
 @interface MSIDWebviewUIController :
 #if TARGET_OS_IPHONE

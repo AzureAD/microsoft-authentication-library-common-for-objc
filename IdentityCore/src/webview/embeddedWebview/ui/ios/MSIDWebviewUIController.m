@@ -27,6 +27,7 @@
 #import "UIApplication+MSIDExtensions.h"
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 static WKWebViewConfiguration *s_webConfig;
 
