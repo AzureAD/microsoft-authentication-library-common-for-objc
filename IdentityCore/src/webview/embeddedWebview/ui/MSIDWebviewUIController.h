@@ -42,9 +42,9 @@ NSWindowController
 @property (weak) UIViewController *parentController;
 @property UIModalPresentationStyle presentationType;
 
-+ (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
-
 #endif
+
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 

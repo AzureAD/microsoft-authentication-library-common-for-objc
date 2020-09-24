@@ -52,6 +52,17 @@ static WKWebViewConfiguration *s_webConfig;
     });
 }
 
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration
+{
+    WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
+
+    if (@available(macOS 10.15, *))
+    {
+        s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
+    }
+    return webConfig;
+}
+
 - (id)initWithContext:(id<MSIDRequestContext>)context
 {
     self = [super init];
