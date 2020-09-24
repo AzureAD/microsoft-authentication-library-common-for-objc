@@ -1,7 +1,8 @@
-Version 1.0.19
+Version 1.0.19 (09/24/2020)
 -------------
 * Disabled WPJChallenge on iOS as there's a known issue with WKWebview handling NSURLAuthenticationMethodClientCertificate; It swallows the challenge response rather than sending it to server.
 * Append 'PkeyAuth/1.0' keyword to the User Agent String to reliably advertise PkeyAuth capability to ADFS
+* Added a public API in MSIDWebviewUIController for iOS & MacOS to generate a custom WKWebViewConfig with default recommended settings for developers. Additionally, On iOS, "PKeyAuth/1.0" Keyword appended to the UserAgent String in order to enable PKeyAuth Challenge. 
 
 Version 1.0.17
 -------------

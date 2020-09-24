@@ -43,13 +43,20 @@ static WKWebViewConfiguration *s_webConfig;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        s_webConfig = [WKWebViewConfiguration new];
+        s_webConfig = [MSIDWebviewUIController defaultWKWebviewConfiguration];
         
-        if (@available(macOS 10.15, *))
-        {
-            s_webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
-        }
     });
+}
+
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration
+{
+    WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
+
+    if (@available(macOS 10.15, *))
+    {
+        webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
+    }
+    return webConfig;
 }
 
 - (id)initWithContext:(id<MSIDRequestContext>)context
