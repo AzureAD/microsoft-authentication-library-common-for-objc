@@ -34,7 +34,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 @property (nonatomic) NSData *keyData;
 @property (nonatomic) NSString *jsonWebKey;
 @property (nonatomic) NSString *kid;
-@property (nonatomic) NSString *publicKey;
+@property (nonatomic) NSString *stkJwk;
 @property (nonatomic) NSDate *creationDate;
 
 @end
@@ -146,7 +146,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 {
     if (!_kid)
     {
-        NSData *jwkData = [self.publicKey dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *jwkData = [self.stkJwk dataUsingEncoding:NSUTF8StringEncoding];
         NSData *hashedData = [jwkData msidSHA256];
         _kid = [hashedData msidBase64UrlEncodedString];
     }
@@ -154,14 +154,14 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     return _kid;
 }
 
-- (NSString *)publicKey
+- (NSString *)stkJwk
 {
-    if (!_publicKey)
+    if (!_stkJwk)
     {
-        _publicKey = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
+        _stkJwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
     }
     
-    return _publicKey;
+    return _stkJwk;
 }
 
 - (int)derEncodingGetSizeFrom:(NSData *)buf at:(int *)iterator

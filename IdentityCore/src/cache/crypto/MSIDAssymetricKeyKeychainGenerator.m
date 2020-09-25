@@ -145,12 +145,14 @@
     SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
     if (!privateKeyRef)
     {
+        [self logAndFillError:@"Failed to query private key reference from keychain." status:-1 error:error];
         return nil;
     }
     
     SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
     if (!publicKeyRef)
     {
+        [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
         return nil;
     }
     
@@ -160,6 +162,7 @@
                                                                              publicKey:publicKeyRef
                                                                           creationDate:creationDate];
 
+    CFRelease(publicKeyRef);
     return keypair;
 }
 
@@ -245,6 +248,7 @@
     if (!publicKeyRef)
     {
         [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+        CFRelease(privateKeyRef);
         return nil;
     }
     

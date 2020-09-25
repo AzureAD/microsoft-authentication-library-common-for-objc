@@ -29,6 +29,10 @@ NS_ASSUME_NONNULL_BEGIN
 {
     SecKeyRef _privateKeyRef;
     SecKeyRef _publicKeyRef;
+    
+@protected
+    NSDate *_creationDate;
+    
 }
 
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
@@ -40,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, readonly) NSString *kid;
 @property (nonatomic, nullable, readonly) NSDate *creationDate;
-@property (nonatomic, readonly) NSString *publicKey;
+@property (nonatomic, readonly) NSString *stkJwk;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey

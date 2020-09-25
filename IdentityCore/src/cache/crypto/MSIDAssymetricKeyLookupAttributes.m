@@ -35,9 +35,13 @@
     NSDictionary* attributes =
         @{ (id)kSecAttrKeyType:               (id)kSecAttrKeyTypeRSA,
            (id)kSecAttrKeySizeInBits:         @2048,
+           (id)kSecAttrLabel:self.keyDisplayableLabel,
            (id)kSecPrivateKeyAttrs:
                @{ (id)kSecAttrIsPermanent:    @YES,
                   (id)kSecAttrApplicationTag: tag,
+                  (id)kSecAttrAccessible:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
+                  (id)kSecAttrIsExtractable:@NO,
+                  (id)kSecAttrIsSensitive:@YES
                   },
          };
     
@@ -51,7 +55,7 @@ SecKeyCopyPublicKey(privateKey) to query the corresponding the public key.
 - (NSDictionary *)privateKeyAttributes
 {
     NSDictionary *getQuery = @{ (id)kSecClass: (id)kSecClassKey,
-                                (id)kSecAttrApplicationTag: self.privateKeyIdentifier,
+                                (id)kSecAttrApplicationTag: [self.privateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding],
                                 (id)kSecAttrKeyType: (id)kSecAttrKeyTypeRSA,
                                 (id)kSecReturnRef: @YES,
                                 (id)kSecReturnAttributes: @YES,

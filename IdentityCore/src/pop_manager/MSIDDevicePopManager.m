@@ -104,13 +104,13 @@
         return nil;
     }
     
-    if ([NSString msidIsStringNilOrBlank:self.keyPair.publicKey])
+    if ([NSString msidIsStringNilOrBlank:self.keyPair.stkJwk])
     {
         [self logAndFillError:@"Failed to create signed access token, unable to generate public key." error:error];
         return nil;
     }
     
-    NSData *publicKeyData = [self.keyPair.publicKey dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *publicKeyData = [self.keyPair.stkJwk dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary *publicKeyDict = [NSJSONSerialization JSONObjectWithData:publicKeyData options:0 error:error];
     if (!publicKeyDict)
     {
