@@ -27,7 +27,7 @@
 #import <Security/SecKey.h>
 #import "NSString+MSIDExtensions.h"
 #import "MSIDLogger+Internal.h"
-#import "NSData+JWT.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDJWTHelper
 
@@ -38,8 +38,7 @@
     NSString *headerJSON = [self JSONFromDictionary:header];
     NSString *payloadJSON = [self JSONFromDictionary:payload];
     NSString *signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON msidBase64UrlEncode], [payloadJSON msidBase64UrlEncode]];
-    NSData *signedData = [self sign:signingKey
-                               data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
+    NSData *signedData = [[signingInput dataUsingEncoding:NSUTF8StringEncoding] msidSignHashWithPrivateKey:signingKey];
     NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
 
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
@@ -73,15 +72,6 @@
 
     [bits setLength:keyBufferSize];
     return [[NSString alloc] initWithData:bits encoding:NSUTF8StringEncoding];
-}
-
-+ (NSData *)sign:(SecKeyRef)privateKey
-            data:(NSData *)plainData
-{
-
-    NSMutableData *hashData = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(plainData.bytes, (CC_LONG)plainData.length, [hashData mutableBytes]);
-    return [hashData msidSignHashWithPrivateKey:privateKey];
 }
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary

@@ -54,7 +54,8 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Attempting to get WPJ registration information.");
     NSString *certIssuer = nil;
-    SecIdentityRef identity = [self copyWPJIdentityWithAuthorities:certAuthorities issuer:&certIssuer]; // +1 identity
+    NSDate *certCreationDate = nil;
+    SecIdentityRef identity = [self copyWPJIdentityWithAuthorities:certAuthorities issuer:&certIssuer creationDate:&certCreationDate]; // +1 identity
     
     // If there's no identity in the keychain, return nil. adError won't be set if the
     // identity can't be found since this isn't considered an error condition.
@@ -102,7 +103,8 @@
                                                           privateKey:privateKeyRef
                                                            publicKey:publicKeyRef
                                                          certificate:certificateRef
-                                                   certificateIssuer:certIssuer];
+                                                   certificateIssuer:certIssuer
+                                                        creationDate:certCreationDate];
     }
     
     CFReleaseNull(identity);
@@ -112,7 +114,7 @@
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentityWithAuthorities:(NSArray<NSData *> *)authorities issuer:(NSString **)issuer
++ (SecIdentityRef)copyWPJIdentityWithAuthorities:(NSArray<NSData *> *)authorities issuer:(NSString **)issuer creationDate:(NSDate **)creationDate
 {
     if (![authorities count])
     {
@@ -131,6 +133,7 @@
     NSDictionary *identityDict = nil;
     NSData *currentIssuer = nil;
     NSString *currentIssuerName = nil;
+    NSDate *certCreationDate = nil;
     
     OSStatus status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&identityList);
     
@@ -161,10 +164,15 @@
                 if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
                 {
                     identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
-                    
+                    certCreationDate = [identityDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
                     if (issuer)
                     {
                         *issuer = currentIssuerName;
+                    }
+                    
+                    if (creationDate)
+                    {
+                        *creationDate = certCreationDate;
                     }
                     
                     break;
@@ -241,6 +249,7 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Retrieving WPJ public key reference.");
     SecKeyRef publicKeyRef = NULL;
     NSString *issuer = nil;
+    NSDate *certCreationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
     
     if (certRef)
     {
@@ -269,7 +278,8 @@
     MSIDAssymetricKeyPairWithCert *keyPair = [[MSIDAssymetricKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
                                                                                              publicKey:publicKeyRef
                                                                                            certificate:certRef
-                                                                                     certificateIssuer:issuer];
+                                                                                     certificateIssuer:issuer
+                                                                                          creationDate:certCreationDate];
     CFReleaseNull(certRef);
     CFReleaseNull(publicKeyRef);
     return keyPair;

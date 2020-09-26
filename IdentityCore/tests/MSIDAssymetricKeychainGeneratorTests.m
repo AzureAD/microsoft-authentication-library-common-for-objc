@@ -33,7 +33,6 @@
 
 @end
 NSString *privateKeyIdentifier = @"com.msal.unittest.privateKey";
-NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 
 @implementation MSIDAssymetricKeychainGeneratorTests
 
@@ -70,11 +69,9 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 - (void)testGenerateKeyPair_whenValidAttributesProvided_andKeyDoesNotExist_shouldGenerateKeyAndReturnIt
 {
     [self deleteKeyWithTag:privateKeyIdentifier];
-    [self deleteKeyWithTag:publicKeyIdentifier];
     
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     attr.privateKeyIdentifier = privateKeyIdentifier;
-    attr.publicKeyIdentifier = publicKeyIdentifier;
     
     MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
@@ -89,12 +86,6 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
     BOOL privateKeyExists = [self keyExists:privateKeyIdentifier];
     XCTAssertTrue(privateKeyExists);
     
-    BOOL publicKeyExists = [self keyExists:publicKeyIdentifier];
-    XCTAssertTrue(publicKeyExists);
-    
-    XCTAssertNotNil([result keyExponent]);
-    XCTAssertNotNil([result keyModulus]);
-    
     NSString *messageString = [@"Sample Message To Encrypt/Decrypt" msidBase64UrlEncode];
     NSString *encryptedMessage = [result encryptForTest:messageString];
     XCTAssertNotNil(encryptedMessage);
@@ -108,7 +99,6 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 {
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     attr.privateKeyIdentifier = privateKeyIdentifier;
-    attr.publicKeyIdentifier = publicKeyIdentifier;
     
     // Generate first time
     MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
@@ -135,9 +125,6 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
     
     BOOL privateKeyExists = [self keyExists:privateKeyIdentifier];
     XCTAssertTrue(privateKeyExists);
-    
-    BOOL publicKeyExists = [self keyExists:publicKeyIdentifier];
-    XCTAssertTrue(publicKeyExists);
 }
 
 - (void)testReadKeyForAttributes_whenNilAttributes_shouldReturnNilAndFillError
@@ -174,7 +161,6 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 {
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     attr.privateKeyIdentifier = privateKeyIdentifier;
-    attr.publicKeyIdentifier = publicKeyIdentifier;
     attr.keyDisplayableLabel = @"My key";
     
     // First generate key
@@ -206,11 +192,9 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
         
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     attr.privateKeyIdentifier = privateKeyIdentifier;
-    attr.publicKeyIdentifier = publicKeyIdentifier;
     attr.keyDisplayableLabel = @"My key";
     
     [self deleteKeyWithTag:privateKeyIdentifier];
-    [self deleteKeyWithTag:publicKeyIdentifier];
     
     NSError *error = nil;
     MSIDAssymetricKeyPair *readResult = [generator readKeyPairForAttributes:attr error:&error];
@@ -218,13 +202,12 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
     XCTAssertNil(error);
 }
 
-- (void)testReadKeyForAttributes_whenOnlyPrivateKeyExists_shouldReturnNilAndFillError
+- (void)testReadKeyForAttributes_whenNoPrivateKeyExists_shouldReturnNilAndFillError
 {
     MSIDAssymetricKeyKeychainGenerator *generator = [self keyGenerator];
     
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     attr.privateKeyIdentifier = privateKeyIdentifier;
-    attr.publicKeyIdentifier = publicKeyIdentifier;
     attr.keyDisplayableLabel = @"My key";
     
     NSError *error = nil;
@@ -233,7 +216,7 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
     XCTAssertNil(error);
     
     // Delete public key part
-    [self deleteKeyWithTag:publicKeyIdentifier];
+    [self deleteKeyWithTag:privateKeyIdentifier];
     
     // Try to read the key
     MSIDAssymetricKeyPair *readResult = [generator readKeyPairForAttributes:attr error:&error];
@@ -260,7 +243,6 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 {
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     attr.privateKeyIdentifier = privateKeyIdentifier;
-    attr.publicKeyIdentifier = publicKeyIdentifier;
     attr.keyDisplayableLabel = @"My key";
     
     // First generate key
@@ -290,7 +272,6 @@ NSString *publicKeyIdentifier = @"com.msal.unittest.publicKey";
 {
     MSIDAssymetricKeyLookupAttributes *attr = [MSIDAssymetricKeyLookupAttributes new];
     attr.privateKeyIdentifier = privateKeyIdentifier;
-    attr.publicKeyIdentifier = publicKeyIdentifier;
     attr.keyDisplayableLabel = @"My key";
     
     // First generate key

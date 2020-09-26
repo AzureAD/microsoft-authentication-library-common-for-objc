@@ -92,16 +92,15 @@
 - (MSIDAssymetricKeyPair *)generateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                                   error:(NSError **)error
 {
-    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier]
-        || [NSString msidIsStringNilOrBlank:attributes.publicKeyIdentifier])
+    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
     {
         [self logAndFillError:@"Invalid key generation attributes provided" status:-1 error:error];
         return nil;
     }
     
     // 0. Cleanup any previous state
-    BOOL cleanupResult = [self cleanupKeychainForAttributes:attributes error:error];
-    
+    BOOL cleanupResult = [self deleteItemWithAttributes:[attributes privateKeyAttributes] error:error];
+
     if (!cleanupResult)
     {
         [self logAndFillError:@"Failed to cleanup keychain prior to generating new keypair. Proceeding might result in unexpected results. Keychain might need to be manually cleaned to recover." status:-1 error:error];
@@ -118,7 +117,7 @@
 {
     NSError *readError = nil;
     MSIDAssymetricKeyPair *keyPair = [self readKeyPairForAttributes:attributes error:&readError];
-    
+
     if (keyPair || readError)
     {
         if (error) *error = readError;
@@ -131,52 +130,45 @@
 - (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                              error:(NSError **)error
 {
-    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier]
-        || [NSString msidIsStringNilOrBlank:attributes.publicKeyIdentifier])
+    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
     {
         [self logAndFillError:@"Invalid key lookup attributes provided" status:-1 error:error];
         return nil;
     }
     
-    NSDictionary *privateKeyAttributes = [self keyAttributesWithQueryDictionary:[attributes privateKeyAttributes] keyTitle:@"private key" error:error];
-    
-    if (!privateKeyAttributes)
+    NSDictionary *privateKeyDict = [self keyAttributesWithQueryDictionary:[attributes privateKeyAttributes] error:error];
+    if (!privateKeyDict)
     {
         return nil;
     }
     
-    NSDictionary *publicKeyAttributes = [self keyAttributesWithQueryDictionary:[attributes publicKeyAttributes] keyTitle:@"public key" error:error];
-    
-    if (!publicKeyAttributes)
+    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+    if (!privateKeyRef)
     {
+        [self logAndFillError:@"Failed to query private key reference from keychain." status:-1 error:error];
         return nil;
     }
     
-    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyAttributes[(__bridge id)kSecValueRef];
-    SecKeyRef publicKeyRef = (__bridge SecKeyRef)publicKeyAttributes[(__bridge id)kSecValueRef];
-    
-    if (!privateKeyRef || !publicKeyRef)
+    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+    if (!publicKeyRef)
     {
-        [self logAndFillError:@"Invalid keychain attributes. No key ref returned" status:-1 error:error];
+        [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
         return nil;
     }
+    
+    NSDate *creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
     
     MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
-                                                                             publicKey:publicKeyRef];
+                                                                             publicKey:publicKeyRef
+                                                                          creationDate:creationDate];
 
-    
+    CFRelease(publicKeyRef);
     return keypair;
 }
 
 #pragma mark - Cleanup
 
-- (BOOL)cleanupKeychainForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes error:(NSError **)error
-{
-    return [self deleteItemWithAttributes:[attributes privateKeyAttributes] itemTitle:@"private key" error:error]
-        && [self deleteItemWithAttributes:[attributes publicKeyAttributes] itemTitle:@"public key" error:error];
-}
-
-- (BOOL)deleteItemWithAttributes:(NSDictionary *)attributes itemTitle:(NSString *)itemTitle error:(NSError **)error
+- (BOOL)deleteItemWithAttributes:(NSDictionary *)attributes error:(NSError **)error
 {
     NSDictionary *queryAttributes = [self keychainQueryWithAttributes:attributes];
     OSStatus result = SecItemDelete((CFDictionaryRef)queryAttributes);
@@ -184,7 +176,7 @@
     if (result != errSecSuccess
         && result != errSecItemNotFound)
     {
-        [self logAndFillError:[NSString stringWithFormat:@"Failed to remove %@", itemTitle]
+        [self logAndFillError:@"Failed to remove keychain item"
                        status:result
                         error:error];
         return NO;
@@ -195,21 +187,17 @@
 
 #pragma mark - Private
 
-- (NSDictionary *)keyAttributesWithQueryDictionary:(NSDictionary *)queryDictionary keyTitle:(NSString *)keyTitle error:(NSError **)error
+- (NSDictionary *)keyAttributesWithQueryDictionary:(NSDictionary *)queryDictionary error:(NSError **)error
 {
     NSMutableDictionary *keychainQuery = [[self keychainQueryWithAttributes:queryDictionary] mutableCopy];
-    keychainQuery[(__bridge id)kSecReturnAttributes] = @YES;
-    keychainQuery[(__bridge id)kSecReturnRef] = @YES;
-    
-    CFTypeRef keyCFDict = NULL;
-    
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)keychainQuery, (CFTypeRef*)&keyCFDict);
+    CFDictionaryRef keyCFDict = NULL;
+    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)keychainQuery, (CFTypeRef *)&keyCFDict);
     
     if (status != errSecSuccess)
     {
         if (status != errSecItemNotFound)
         {
-            [self logAndFillError:[NSString stringWithFormat:@"Failed to find %@", keyTitle]
+            [self logAndFillError:@"Failed to query private key"
                            status:status
                             error:error];
         }
@@ -240,25 +228,35 @@
 - (MSIDAssymetricKeyPair *)generateKeyPairForKeyDict:(NSDictionary *)attributes
                                                error:(NSError **)error
 {
-    SecKeyRef publicKeyRef = NULL;
-    SecKeyRef privateKeyRef = NULL;
-    OSStatus status = SecKeyGeneratePair((__bridge CFDictionaryRef)attributes, &publicKeyRef, &privateKeyRef);
+    CFErrorRef keyGenerationError = NULL;
+    SecKeyRef privateKeyRef = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &keyGenerationError);
     
-    if (status != errSecSuccess)
+    if (!privateKeyRef)
     {
-        [self logAndFillError:@"Failed to generate keypair" status:status error:error];
+        NSError *keyError = CFBridgingRelease(keyGenerationError);
+        [self logAndFillError:@"Failed to generate private key." status:(int)keyError.code error:error];
         return nil;
     }
     
-    // 2. Return keys
-    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef];
+    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+    if (!publicKeyRef)
+    {
+        [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+        CFRelease(privateKeyRef);
+        return nil;
+    }
+    
+    /*
+     Setting creationDate to nil here intentionally as it is only needed for cpp code.
+     CreationDate will be initialized using lazy loading once it is queried for the first time on key pair object.
+     */
+    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef creationDate:nil];
     
     if (privateKeyRef) CFRelease(privateKeyRef);
     if (publicKeyRef) CFRelease(publicKeyRef);
     
     return keyPair;
 }
-
 
 #pragma mark - Platform
 
