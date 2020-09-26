@@ -1,0 +1,61 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none # Non-PR branches
+pr:
+  branches:
+    include:
+    - '*'
+
+pool:
+  vmImage: 'macOS-10.15'
+
+resources:
+ repositories:
+   - repository: microsoft-authentication-library-for-cpp
+     type: github
+     endpoint: 'GitHub for AzureAD and Azure-Samples (as aadidgit service)'
+     name: AzureAD/microsoft-authentication-library-for-cpp
+     ref: develop
+
+variables:
+  runCodesignValidationInjection: false
+
+jobs:
+- job: iOS_OnPrCommit
+  displayName: MSAL CPP checks per commit for iOS
+  timeoutInMinutes: 40
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    path: CommonCore
+  - checkout: microsoft-authentication-library-for-cpp
+    path: s
+
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+  - script: |
+     cd $(Agent.BuildDirectory)/CommonCore
+     commit_number=$(git rev-parse HEAD)
+     git checkout master
+     git merge $commit_number -m "update to latest"
+    displayName: 'Checkout MSAL and Update Master'
+
+  - task: PythonScript@0
+    displayName: Update subtree and rename files
+    inputs:
+     scriptPath: scripts/update_msalobjc_subtree.py
+     arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore'
+
+  - template: azure_pipelines/templates/ios-setup.yml@microsoft-authentication-library-for-cpp
+
+  - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
+    parameters:
+      configuration: Debug
+      platform: iOS
+      arch: x64
