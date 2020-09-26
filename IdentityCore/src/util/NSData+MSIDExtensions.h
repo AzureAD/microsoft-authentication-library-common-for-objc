@@ -52,4 +52,6 @@
 
 - (NSData *)msidDecryptedDataWithAlgorithm:(SecKeyAlgorithm)algorithm privateKey:(SecKeyRef)privateKey API_AVAILABLE(ios(10.0), macos(10.12));
 
+- (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey API_AVAILABLE(ios(10.0), macos(10.12));
+
 @end

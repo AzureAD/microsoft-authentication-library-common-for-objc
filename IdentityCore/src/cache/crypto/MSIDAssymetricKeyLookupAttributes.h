@@ -28,13 +28,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDAssymetricKeyLookupAttributes : NSObject
 
 @property (nonatomic, nullable) NSString *privateKeyIdentifier;
-@property (nonatomic, nullable) NSString *publicKeyIdentifier;
 @property (nonatomic, nullable) NSString *keyDisplayableLabel;
 @property (nonatomic, nullable) NSString *certificateCommonName;
 
 - (NSDictionary *)assymetricKeyPairAttributes;
+
 - (NSDictionary *)privateKeyAttributes;
-- (NSDictionary *)publicKeyAttributes;
 
 @end
 

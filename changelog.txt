@@ -1,3 +1,4 @@
+* Add missing functionality to MSIDAssymetricKeyPair to match Djinni Interface
 * Add requested_claims to access tokens in cache for MSAL CPP (#840)
 * Update changelogs.txt pipeline check
 
