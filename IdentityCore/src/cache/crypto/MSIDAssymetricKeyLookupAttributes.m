@@ -31,21 +31,20 @@
  */
 - (NSDictionary *)assymetricKeyPairAttributes
 {
-    NSData *tag = [self.privateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary* attributes =
-        @{ (id)kSecAttrKeyType:               (id)kSecAttrKeyTypeRSA,
-           (id)kSecAttrKeySizeInBits:         @2048,
-           (id)kSecAttrLabel:self.keyDisplayableLabel,
-           (id)kSecPrivateKeyAttrs:
-               @{ (id)kSecAttrIsPermanent:    @YES,
-                  (id)kSecAttrApplicationTag: tag,
-                  (id)kSecAttrAccessible:(id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly,
-                  (id)kSecAttrIsExtractable:@NO,
-                  (id)kSecAttrIsSensitive:@YES
-                  },
-         };
+    NSMutableDictionary *keyPairAttr = [NSMutableDictionary new];
+    keyPairAttr[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
+    keyPairAttr[(__bridge id)kSecAttrKeySizeInBits] = @2048;
+    keyPairAttr[(__bridge id)kSecAttrLabel] = self.keyDisplayableLabel;
     
-    return attributes;
+    NSMutableDictionary *privateKeyAttr = [NSMutableDictionary new];
+    privateKeyAttr[(__bridge id)kSecAttrIsPermanent] = @YES;
+    privateKeyAttr[(__bridge id)kSecAttrApplicationTag] = [self.privateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
+    privateKeyAttr[(__bridge id)kSecAttrAccessible] = (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
+    privateKeyAttr[(__bridge id)kSecAttrIsSensitive] = @YES;
+    privateKeyAttr[(__bridge id)kSecAttrIsExtractable] = @NO;
+    
+    keyPairAttr[(__bridge id)kSecPrivateKeyAttrs] = privateKeyAttr;
+    return keyPairAttr;
 }
 
 /*
@@ -54,13 +53,12 @@ SecKeyCopyPublicKey(privateKey) to query the corresponding the public key.
 */
 - (NSDictionary *)privateKeyAttributes
 {
-    NSDictionary *getQuery = @{ (id)kSecClass: (id)kSecClassKey,
-                                (id)kSecAttrApplicationTag: [self.privateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding],
-                                (id)kSecAttrKeyType: (id)kSecAttrKeyTypeRSA,
-                                (id)kSecReturnRef: @YES,
-                                (id)kSecReturnAttributes: @YES,
-    };
-    
+    NSMutableDictionary *getQuery = [NSMutableDictionary new];
+    getQuery[(__bridge id)kSecAttrApplicationTag] = [self.privateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
+    getQuery[(__bridge id)kSecClass] = (__bridge id)kSecClassKey;
+    getQuery[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
+    getQuery[(__bridge id)kSecReturnAttributes] = @YES;
+    getQuery[(__bridge id)kSecReturnRef] = @YES;
     return getQuery;
 }
 
