@@ -99,7 +99,7 @@
     }
     
     // 0. Cleanup any previous state
-    BOOL cleanupResult = [self deleteKeyWithAttributes:attributes error:error];
+    BOOL cleanupResult = [self deleteItemWithAttributes:[attributes privateKeyAttributes] error:error];
 
     if (!cleanupResult)
     {
@@ -168,21 +168,15 @@
 
 #pragma mark - Cleanup
 
-- (BOOL)deleteKeyWithAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes error:(NSError **)error
+- (BOOL)deleteItemWithAttributes:(NSDictionary *)attributes error:(NSError **)error
 {
-    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
-    {
-        [self logAndFillError:@"Invalid key deletion attributes provided" status:-1 error:error];
-        return NO;
-    }
-    
-    NSDictionary *queryAttributes = [self keychainQueryWithAttributes:[attributes privateKeyAttributes]];
+    NSDictionary *queryAttributes = [self keychainQueryWithAttributes:attributes];
     OSStatus result = SecItemDelete((CFDictionaryRef)queryAttributes);
     
     if (result != errSecSuccess
         && result != errSecItemNotFound)
     {
-        [self logAndFillError:@"Failed to remove private key"
+        [self logAndFillError:@"Failed to remove keychain item"
                        status:result
                         error:error];
         return NO;
