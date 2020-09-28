@@ -50,7 +50,11 @@ static WKWebViewConfiguration *s_webConfig;
 + (WKWebViewConfiguration *)defaultWKWebviewConfiguration
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
-    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    
+    if (@available(macOS 10.11, *))
+    {
+        webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    }
     
     if (@available(macOS 10.15, *))
     {
