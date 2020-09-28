@@ -242,7 +242,8 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     
     NSData *hashedData = [[message dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
     NSData *signedData = [hashedData msidSignHashWithPrivateKey:self.privateKeyRef];
-    return [signedData msidHexString];
+    NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
+    return signedEncodedDataString;
 }
 
 - (NSDate *)creationDate
