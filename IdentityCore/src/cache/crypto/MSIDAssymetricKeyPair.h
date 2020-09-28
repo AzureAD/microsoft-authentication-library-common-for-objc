@@ -35,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
     
 }
 
+@property (nonatomic, readonly) NSString *keyExponent;
+@property (nonatomic, readonly) NSString *keyModulus;
+@property (nonatomic, readonly) NSData *keyData;
+
 @property (nonatomic, readonly) SecKeyRef privateKeyRef;
 @property (nonatomic, readonly) SecKeyRef publicKeyRef;
 @property (nonatomic, readonly) NSString *jsonWebKey;

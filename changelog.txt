@@ -1,3 +1,4 @@
+* Update RSA signing code and add conditional check for supported iOS/osx platforms.
 Version 1.5.7
 * Enabled PKeyAuth via UserAgent String on MacOS 
 * Added an API for both iOS and MacOS for returning a WKWebView config setting with default recommended settings for developers. 

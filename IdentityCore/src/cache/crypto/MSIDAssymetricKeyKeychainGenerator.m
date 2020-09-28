@@ -130,40 +130,48 @@
 - (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                              error:(NSError **)error
 {
-    if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
+    if (@available(iOS 10.0, macOS 10.12, *))
     {
-        [self logAndFillError:@"Invalid key lookup attributes provided" status:-1 error:error];
-        return nil;
-    }
-    
-    NSDictionary *privateKeyDict = [self keyAttributesWithQueryDictionary:[attributes privateKeyAttributes] error:error];
-    if (!privateKeyDict)
-    {
-        return nil;
-    }
-    
-    SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
-    if (!privateKeyRef)
-    {
-        [self logAndFillError:@"Failed to query private key reference from keychain." status:-1 error:error];
-        return nil;
-    }
-    
-    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
-    if (!publicKeyRef)
-    {
-        [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
-        return nil;
-    }
-    
-    NSDate *creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
-    
-    MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
-                                                                             publicKey:publicKeyRef
-                                                                          creationDate:creationDate];
+        if ([NSString msidIsStringNilOrBlank:attributes.privateKeyIdentifier])
+        {
+            [self logAndFillError:@"Invalid key lookup attributes provided" status:-1 error:error];
+            return nil;
+        }
+        
+        NSDictionary *privateKeyDict = [self keyAttributesWithQueryDictionary:[attributes privateKeyAttributes] error:error];
+        if (!privateKeyDict)
+        {
+            return nil;
+        }
+        
+        SecKeyRef privateKeyRef = (__bridge SecKeyRef)privateKeyDict[(__bridge id)kSecValueRef];
+        if (!privateKeyRef)
+        {
+            [self logAndFillError:@"Failed to query private key reference from keychain." status:-1 error:error];
+            return nil;
+        }
+        
+        SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+        if (!publicKeyRef)
+        {
+            [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+            return nil;
+        }
+        
+        NSDate *creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
+        
+        MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
+                                                                                 publicKey:publicKeyRef
+                                                                              creationDate:creationDate];
 
-    CFRelease(publicKeyRef);
-    return keypair;
+        CFRelease(publicKeyRef);
+        return keypair;
+    }
+    else
+    {
+        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:-1 error:error];
+        return nil;
+    }
 }
 
 #pragma mark - Cleanup
@@ -228,34 +236,42 @@
 - (MSIDAssymetricKeyPair *)generateKeyPairForKeyDict:(NSDictionary *)attributes
                                                error:(NSError **)error
 {
-    CFErrorRef keyGenerationError = NULL;
-    SecKeyRef privateKeyRef = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &keyGenerationError);
-    
-    if (!privateKeyRef)
+    if (@available(iOS 10.0, macOS 10.12, *))
     {
-        NSError *keyError = CFBridgingRelease(keyGenerationError);
-        [self logAndFillError:@"Failed to generate private key." status:(int)keyError.code error:error];
+        CFErrorRef keyGenerationError = NULL;
+        SecKeyRef privateKeyRef = SecKeyCreateRandomKey((__bridge CFDictionaryRef)attributes, &keyGenerationError);
+        
+        if (!privateKeyRef)
+        {
+            NSError *keyError = CFBridgingRelease(keyGenerationError);
+            [self logAndFillError:@"Failed to generate private key." status:(int)keyError.code error:error];
+            return nil;
+        }
+        
+        SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+        if (!publicKeyRef)
+        {
+            [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+            CFRelease(privateKeyRef);
+            return nil;
+        }
+        
+        /*
+         Setting creationDate to nil here intentionally as it is only needed for cpp code.
+         CreationDate will be initialized using lazy loading once it is queried for the first time on key pair object.
+         */
+        MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef creationDate:nil];
+        
+        if (privateKeyRef) CFRelease(privateKeyRef);
+        if (publicKeyRef) CFRelease(publicKeyRef);
+        
+        return keyPair;
+    }
+    else
+    {
+        [self logAndFillError:@"Failed to generate asymmetric key pair due to unsupported iOS/OSX platform." status:-1 error:error];
         return nil;
     }
-    
-    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
-    if (!publicKeyRef)
-    {
-        [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
-        CFRelease(privateKeyRef);
-        return nil;
-    }
-    
-    /*
-     Setting creationDate to nil here intentionally as it is only needed for cpp code.
-     CreationDate will be initialized using lazy loading once it is queried for the first time on key pair object.
-     */
-    MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef creationDate:nil];
-    
-    if (privateKeyRef) CFRelease(privateKeyRef);
-    if (publicKeyRef) CFRelease(publicKeyRef);
-    
-    return keyPair;
 }
 
 #pragma mark - Platform

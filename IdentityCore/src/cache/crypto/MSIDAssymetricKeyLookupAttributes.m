@@ -35,11 +35,11 @@
     keyPairAttr[(__bridge id)kSecAttrKeyType] = (__bridge id)kSecAttrKeyTypeRSA;
     keyPairAttr[(__bridge id)kSecAttrKeySizeInBits] = @2048;
     keyPairAttr[(__bridge id)kSecAttrLabel] = self.keyDisplayableLabel;
+    keyPairAttr[(__bridge id)kSecAttrAccessible] = (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
     
     NSMutableDictionary *privateKeyAttr = [NSMutableDictionary new];
     privateKeyAttr[(__bridge id)kSecAttrIsPermanent] = @YES;
     privateKeyAttr[(__bridge id)kSecAttrApplicationTag] = [self.privateKeyIdentifier dataUsingEncoding:NSUTF8StringEncoding];
-    privateKeyAttr[(__bridge id)kSecAttrAccessible] = (__bridge id)kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly;
     privateKeyAttr[(__bridge id)kSecAttrIsSensitive] = @YES;
     privateKeyAttr[(__bridge id)kSecAttrIsExtractable] = @NO;
     
