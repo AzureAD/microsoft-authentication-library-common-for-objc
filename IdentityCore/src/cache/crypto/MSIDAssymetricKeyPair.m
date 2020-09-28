@@ -23,6 +23,7 @@
 
 #import "MSIDAssymetricKeyPair.h"
 #import "NSData+MSIDExtensions.h"
+#import "NSData+JWT.h"
 
 static NSString *s_jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
 static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
@@ -233,8 +234,15 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 
 - (NSString *)signData:(NSString *)message
 {
-    NSData *signedData = [[message dataUsingEncoding:NSUTF8StringEncoding] msidSignHashWithPrivateKey:self.privateKeyRef];
-    return [[NSString alloc] initWithData:signedData encoding:NSUTF8StringEncoding];
+    if ([message length] == 0)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to sign was empty");
+        return nil;
+    }
+    
+    NSData *hashedData = [[message dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
+    NSData *signedData = [hashedData msidSignHashWithPrivateKey:self.privateKeyRef];
+    return [signedData msidHexString];
 }
 
 - (NSDate *)creationDate

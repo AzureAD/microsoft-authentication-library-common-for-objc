@@ -120,25 +120,4 @@
     return decryptedMessage;
 }
 
-- (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey
-{
-    if (!SecKeyIsAlgorithmSupported(privateKey, kSecKeyOperationTypeSign, kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256))
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
-        return nil;
-    }
-    
-    CFErrorRef error = nil;
-    NSData *signedData = CFBridgingRelease(SecKeyCreateSignature(privateKey, kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256, (__bridge CFDataRef )self,&error));
-    
-    if (error)
-    {
-        NSError *err = CFBridgingRelease(error);
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to sign data" stringByAppendingString:[NSString stringWithFormat:@"%ld", err.code]]);
-        return nil;
-    }
-    
-    return signedData;
-}
-
 @end

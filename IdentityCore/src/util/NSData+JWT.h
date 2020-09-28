@@ -23,33 +23,8 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSData (MSIDExtensions)
+@interface NSData (JWT)
 
-/*!
- =============================================================================
- Hashing
- =============================================================================
- */
-- (NSData *)msidSHA256;
-
-/*!
- =============================================================================
- Constructors
- =============================================================================
- */
-+ (NSData *)msidDataFromBase64UrlEncodedString:(NSString *)encodedString;
-
-/*!
- =============================================================================
- Convenience methods
- =============================================================================
- */
-/*! Converts to hex string */
-- (NSString *)msidHexString;
-
-/*! Converts NSData to base64 String */
-- (NSString *)msidBase64UrlEncodedString;
-
-- (NSData *)msidDecryptedDataWithAlgorithm:(SecKeyAlgorithm)algorithm privateKey:(SecKeyRef)privateKey API_AVAILABLE(ios(10.0), macos(10.12));
+- (NSData *)msidSignHashWithPrivateKey:(SecKeyRef)privateKey;
 
 @end

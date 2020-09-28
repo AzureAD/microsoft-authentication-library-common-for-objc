@@ -149,10 +149,19 @@
         return nil;
     }
     
-    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
-    if (!publicKeyRef)
+    SecKeyRef publicKeyRef = NULL;
+    if (@available(iOS 10.0, macOS 10.12, *))
     {
-        [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+        publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+        if (!publicKeyRef)
+        {
+            [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+            return nil;
+        }
+    }
+    else
+    {
+        [self logAndFillError:@"Failed to copy public key from private key due to unsupported platform." status:-1 error:error];
         return nil;
     }
     
@@ -238,10 +247,20 @@
         return nil;
     }
     
-    SecKeyRef publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
-    if (!publicKeyRef)
+    SecKeyRef publicKeyRef = NULL;
+    if (@available(iOS 10.0, macOS 10.12, *))
     {
-        [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+        publicKeyRef = SecKeyCopyPublicKey(privateKeyRef);
+        if (!publicKeyRef)
+        {
+            [self logAndFillError:@"Failed to copy public key from private key." status:-1 error:error];
+            CFRelease(privateKeyRef);
+            return nil;
+        }
+    }
+    else
+    {
+        [self logAndFillError:@"Failed to copy public key from private key due to unsupported platform." status:-1 error:error];
         CFRelease(privateKeyRef);
         return nil;
     }
