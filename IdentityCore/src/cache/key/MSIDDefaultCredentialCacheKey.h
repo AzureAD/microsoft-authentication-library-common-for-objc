@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic) NSString *applicationIdentifier;
 @property (nonatomic) MSIDCredentialType credentialType;
 @property (nonatomic) NSString *tokenType;
+@property (nullable, nonatomic) NSString *requestedClaims;
 
 - (instancetype)initWithHomeAccountId:(NSString *)homeAccountId
                           environment:(NSString *)environment
@@ -50,7 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
         applicationIdentifier:(nullable NSString *)applicationIdentifier
                        target:(nullable NSString *)target
                        appKey:(nullable NSString *)appKey
-                    tokenType:(nullable NSString *)tokenType;
+                    tokenType:(nullable NSString *)tokenType
+              requestedClaims:(nullable NSString *)requestedClaims;
 
 - (NSString *)credentialIdWithType:(MSIDCredentialType)type
                           clientId:(NSString *)clientId

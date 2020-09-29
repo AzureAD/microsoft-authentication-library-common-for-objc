@@ -51,6 +51,9 @@
 @property (nonatomic) NSString *kid;
 @property (nonatomic) NSString *tokenType;
 
+// Claims string sent to the server to produce this AT. Used by MSAL C++
+@property (readwrite) NSString *requestedClaims;
+
 - (BOOL)isExpired;
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
 - (BOOL)isExtendedLifetimeValid;
