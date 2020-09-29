@@ -1,0 +1,39 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger: none # Non-PR branches
+pr:
+  branches:
+    include:
+    - '*'
+
+pool:
+  vmImage: 'macOS-10.15'
+
+variables:
+  runCodesignValidationInjection: false
+
+jobs:
+- job: commonCore_checks
+  displayName: Common Core checks per PR
+  timeoutInMinutes: 40
+  cancelTimeoutInMinutes: 1
+  workspace:
+    clean: all
+
+  steps:
+  - checkout: self
+    path: s
+
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+  - script: |
+     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_12.app"
+    displayName: 'Switch to use Xcode 12'
+    
+  - task: PythonScript@0
+    displayName: Build and Test Common Core
+    inputs:
+     scriptPath: build.py
