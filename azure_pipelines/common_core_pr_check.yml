@@ -37,3 +37,4 @@ jobs:
     displayName: Build and Test Common Core
     inputs:
      scriptPath: build.py
+     arguments: '--no-clean --show-build-settings'
