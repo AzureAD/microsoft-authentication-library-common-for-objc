@@ -1,3 +1,9 @@
+* Update RSA signing code and add conditional check for supported iOS/osx platforms.
+* Enabled PKeyAuth via UserAgent String on MacOS 
+* Added an API for both iOS and MacOS for returning a WKWebView config setting with default recommended settings for developers. 
+* Add missing functionality to MSIDAssymetricKeyPair to match Djinni Interface
+* Update changelogs.txt pipeline check
+
 Version 1.5.7
 * Add requested_claims to access tokens in cache for MSAL CPP (#840)
 
@@ -8,6 +14,7 @@ Version 1.5.6
 * Support forgetting cached account (#830)
 * Enabling XCODE 11.4 recommended settings by default per customer request.
 * Move correlationId to MSIDBaseBrokerOperationRequest 
+* Add a new pipeline for MSAL C++ checks
 * Support bypassing redirectUri validation also on macOS
 * Indicate whether SSO extension account is available for device wide SSO (#825)
 * Add swift static lib target to support AES GCM.

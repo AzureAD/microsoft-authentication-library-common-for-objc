@@ -23,6 +23,7 @@
 
 #import "MSIDAssymetricKeyPair.h"
 #import "NSData+MSIDExtensions.h"
+#import "NSData+JWT.h"
 
 static NSString *s_jwkTemplate = @"{\"e\":\"%@\",\"kty\":\"RSA\",\"n\":\"%@\"}";
 static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
@@ -34,6 +35,8 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 @property (nonatomic) NSData *keyData;
 @property (nonatomic) NSString *jsonWebKey;
 @property (nonatomic) NSString *kid;
+@property (nonatomic) NSString *stkJwk;
+@property (nonatomic) NSDate *creationDate;
 
 @end
 
@@ -41,6 +44,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
+                               creationDate:(NSDate *)creationDate
 {
     if (!privateKey || !publicKey)
     {
@@ -56,6 +60,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         
         _publicKeyRef = publicKey;
         CFRetain(_publicKeyRef);
+        _creationDate = creationDate;
     }
     
     return self;
@@ -142,13 +147,22 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 {
     if (!_kid)
     {
-        NSString *jwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
-        NSData *jwkData = [jwk dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *jwkData = [self.stkJwk dataUsingEncoding:NSUTF8StringEncoding];
         NSData *hashedData = [jwkData msidSHA256];
         _kid = [hashedData msidBase64UrlEncodedString];
     }
     
     return _kid;
+}
+
+- (NSString *)stkJwk
+{
+    if (!_stkJwk)
+    {
+        _stkJwk = [NSString stringWithFormat:s_jwkTemplate, self.keyExponent, self.keyModulus];
+    }
+    
+    return _stkJwk;
 }
 
 - (int)derEncodingGetSizeFrom:(NSData *)buf at:(int *)iterator
@@ -216,6 +230,44 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     {
         return nil;
     }
+}
+
+- (NSString *)signData:(NSString *)message
+{
+    if ([message length] == 0)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to sign was empty");
+        return nil;
+    }
+    
+    NSData *hashedData = [[message dataUsingEncoding:NSUTF8StringEncoding] msidSHA256];
+    NSData *signedData = [hashedData msidSignHashWithPrivateKey:self.privateKeyRef];
+    NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
+    return signedEncodedDataString;
+}
+
+- (NSDate *)creationDate
+{
+    if (!_creationDate)
+    {
+        NSDictionary* privateKeyQuery = @{ (id)kSecValueRef: (__bridge id)self.privateKeyRef,
+         (id)kSecClass: (id)kSecClassKey,
+         (id)kSecReturnAttributes:(id)kCFBooleanTrue
+        };
+        
+        CFDictionaryRef result = nil;
+        OSStatus status = SecItemCopyMatching((CFDictionaryRef)privateKeyQuery, (CFTypeRef *)&result);
+        
+        if (status != errSecSuccess)
+        {
+            return nil;
+        }
+        
+        NSDictionary *privateKeyDict = CFBridgingRelease(result);
+        _creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
+    }
+    
+    return _creationDate;
 }
 
 - (void)dealloc

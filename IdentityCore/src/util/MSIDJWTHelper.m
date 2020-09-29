@@ -28,6 +28,7 @@
 #import "NSString+MSIDExtensions.h"
 #import "MSIDLogger+Internal.h"
 #import "NSData+JWT.h"
+#import "NSData+MSIDExtensions.h"
 
 @implementation MSIDJWTHelper
 
@@ -79,8 +80,7 @@
             data:(NSData *)plainData
 {
 
-    NSMutableData *hashData = [NSMutableData dataWithLength:CC_SHA256_DIGEST_LENGTH];
-    CC_SHA256(plainData.bytes, (CC_LONG)plainData.length, [hashData mutableBytes]);
+    NSData *hashData = [plainData msidSHA256];
     return [hashData msidSignHashWithPrivateKey:privateKey];
 }
 
