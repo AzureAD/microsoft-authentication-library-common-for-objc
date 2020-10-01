@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,27 +20,11 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDRequestParameters.h"
-#import "MSIDConstants.h"
-#import "MSIDBrokerInvocationOptions.h"
 
-@class WKWebView;
-#if TARGET_OS_IPHONE
-@class UIViewController;
-#endif
+#import "MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.h"
 
-@interface MSIDInteractiveRequestParameters : MSIDRequestParameters
-
-@property (nonatomic) MSIDWebviewType webviewType;
-@property (nonatomic) WKWebView *customWebview;
-@property (readwrite) NSDictionary<NSString *, NSString *> *customWebviewHeaders;
-@property (nonatomic) MSIDViewController *parentViewController;
-#if TARGET_OS_IPHONE
-@property (nonatomic) UIModalPresentationStyle presentationType;
-#endif
-@property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
-@property (nonatomic) NSString *telemetryWebviewType;
+@implementation MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams
 
 @end

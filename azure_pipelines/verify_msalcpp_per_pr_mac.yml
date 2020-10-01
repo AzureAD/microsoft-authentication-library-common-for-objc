@@ -54,8 +54,12 @@ jobs:
 
   - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
 
-  - template: azure_pipelines/templates/build-and-test.yml@microsoft-authentication-library-for-cpp
-    parameters:
-      arch: x64
-      configuration: Debug
-      platform: macOS
+  - task: PythonScript@0
+    name: Build
+    displayName: 'Build x64 Debug macOS'
+    inputs:
+      scriptPath: build.py
+      arguments: '--clean --arch x64 --configuration Debug --platform macOS --djinni hashfail'
+    env:
+      MSAL_LAB_VAULT_ACCESS_CERT_LOCATION: $(Agent.TempDirectory)
+      MSAL_CERTIFICATE_PASSWORD: $(MSAL_CERTIFICATE_PASSWORD)
