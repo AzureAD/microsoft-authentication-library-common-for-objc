@@ -300,6 +300,11 @@
     NSArray *legacyRefreshTokens = [self getAllLegacyRefreshTokens];
     XCTAssertEqual([legacyRefreshTokens count], 2);
     XCTAssertNotEqualObjects(legacyRefreshTokens[0], legacyRefreshTokens[1]);
+    legacyRefreshTokens = [legacyRefreshTokens sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
+        NSString *clientId1 = [(MSIDLegacyRefreshToken *)a clientId];
+        NSString *clientId2 = [(MSIDLegacyRefreshToken *)b clientId];
+        return [clientId2 compare:clientId1];
+    }];
 
     MSIDLegacyRefreshToken *refreshToken1 = legacyRefreshTokens[0];
     MSIDLegacyRefreshToken *refreshToken2 = legacyRefreshTokens[1];
