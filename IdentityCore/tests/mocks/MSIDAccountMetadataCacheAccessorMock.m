@@ -22,6 +22,10 @@
 // THE SOFTWARE.
 
 #import "MSIDAccountMetadataCacheAccessorMock.h"
+#import "MSIDAccountMetadataCacheMockUpdateAuthorityParameters.h"
+#import "MSIDAccountMetadataCacheMockGetAuthorityParameters.h"
+#import "MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.h"
+#import "MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.h"
 
 @implementation MSIDAccountMetadataCacheAccessorMock
 
@@ -34,7 +38,7 @@
 {
     self.getAuthorityURLInvokedCount++;
     
-    struct MSIDAccountMetadataCacheMockGetAuthorityParameters s = self.getAuthorityProvidedParams;
+    MSIDAccountMetadataCacheMockGetAuthorityParameters *s = [MSIDAccountMetadataCacheMockGetAuthorityParameters new];
     s.requestAuthorityURL = requestAuthorityURL;
     s.homeAccountId = homeAccountId;
     s.clientId = clientId;
@@ -54,7 +58,7 @@
 {
     self.updateAuthorityURLInvokedCount++;
     
-    struct MSIDAccountMetadataCacheMockUpdateAuthorityParameters s = self.updateAuthorityProvidedParams;
+    MSIDAccountMetadataCacheMockUpdateAuthorityParameters *s = [MSIDAccountMetadataCacheMockUpdateAuthorityParameters new];
     s.cacheAuthorityURL = cacheAuthorityURL;
     s.requestAuthorityURL = requestAuthorityURL;
     s.homeAccountId = homeAccountId;
@@ -89,7 +93,7 @@
 {
     if (error) *error = self.updatePrincipalAccountIdError;
     
-    struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams s  = self.updatePrincipalAccountIdParams;
+    MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams *s  = [MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams new];
     s.principalAccountId = principalAccountId;
     s.clientId = clientId;
     s.accountEnvironment = principalAccountEnvironment;
@@ -106,7 +110,7 @@
 {
     if (error) *error = self.removeAccountMetadataForHomeAccountIdError;
     
-    struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams s  = self.removeAccountMetadataForHomeAccountIdParams;
+    MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams *s  = [MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams new];
     s.homeAccountId = homeAccountId;
     self.removeAccountMetadataForHomeAccountIdParams = s;
     
