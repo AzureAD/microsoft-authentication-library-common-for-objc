@@ -52,6 +52,12 @@ jobs:
      scriptPath: scripts/update_msalobjc_subtree.py
      arguments: '--skip-checkout --msal-common-repo $(Agent.BuildDirectory)/CommonCore'
 
+  - task: UsePythonVersion@0
+    displayName: 'Use Python 3.x'
+  - script: |
+     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_12.app"
+    displayName: 'Switch to use Xcode 12'
+
   - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
 
   - task: PythonScript@0
