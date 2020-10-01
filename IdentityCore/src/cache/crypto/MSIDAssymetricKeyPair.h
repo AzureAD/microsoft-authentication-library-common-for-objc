@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
-                               creationDate:(nullable NSDate *)creationDate;
+                             privateKeyDict:(NSDictionary *)keyDict;
 
 - (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
 

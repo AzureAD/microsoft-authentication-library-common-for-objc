@@ -29,7 +29,7 @@
                                   publicKey:(SecKeyRef)publicKey
                                 certificate:(SecCertificateRef)certificate
                           certificateIssuer:(NSString *)issuer
-                               creationDate:(NSDate *)creationDate
+                             privateKeyDict:(NSDictionary *)keyDict
 {
     if (!certificate)
     {
@@ -43,7 +43,7 @@
         return nil;
     }
     
-    self = [super initWithPrivateKey:privateKey publicKey:publicKey creationDate:creationDate];
+    self = [super initWithPrivateKey:privateKey publicKey:publicKey privateKeyDict:keyDict];
     
     if (self)
     {

@@ -37,14 +37,14 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 @property (nonatomic) NSString *kid;
 @property (nonatomic) NSString *stkJwk;
 @property (nonatomic) NSDate *creationDate;
-
+@property (nonatomic) NSDictionary *privateKeyDict;
 @end
 
 @implementation MSIDAssymetricKeyPair
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
-                               creationDate:(NSDate *)creationDate
+                             privateKeyDict:(NSDictionary *)keyDict
 {
     if (!privateKey || !publicKey)
     {
@@ -60,7 +60,11 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         
         _publicKeyRef = publicKey;
         CFRetain(_publicKeyRef);
-        _creationDate = creationDate;
+        if (keyDict)
+        {
+            _privateKeyDict = keyDict;
+            _creationDate = [keyDict objectForKey:(id)kSecAttrCreationDate];
+        }
     }
     
     return self;
@@ -250,10 +254,21 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
 {
     if (!_creationDate)
     {
-        NSDictionary* privateKeyQuery = @{ (id)kSecValueRef: (__bridge id)self.privateKeyRef,
-         (id)kSecClass: (id)kSecClassKey,
-         (id)kSecReturnAttributes:(id)kCFBooleanTrue
-        };
+        NSMutableDictionary *privateKeyQuery = [NSMutableDictionary new];
+        [privateKeyQuery setObject:(id)kSecClassKey forKey:(id)kSecClass];
+        [privateKeyQuery setObject:[self.privateKeyDict objectForKey:(id)kSecAttrAccessGroup] forKey:(id)kSecAttrAccessGroup];
+        [privateKeyQuery setObject:[self.privateKeyDict objectForKey:(id)kSecAttrApplicationTag] forKey:(id)kSecAttrApplicationTag];
+        [privateKeyQuery setObject:[self.privateKeyDict objectForKey:(id)kSecAttrLabel] forKey:(id)kSecAttrLabel];
+        [privateKeyQuery setObject:@YES forKey:(id)kSecReturnRef];
+        [privateKeyQuery setObject:@YES forKey:(id)kSecReturnAttributes];
+        
+        #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
+        #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
+            if (@available(macOS 10.15, *)) {
+                [privateKeyQuery setObject:@YES forKey:(id)kSecUseDataProtectionKeychain];
+            }
+        #endif
+        #endif
         
         CFDictionaryRef result = nil;
         OSStatus status = SecItemCopyMatching((CFDictionaryRef)privateKeyQuery, (CFTypeRef *)&result);
