@@ -255,17 +255,17 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
     if (!_creationDate)
     {
         NSMutableDictionary *privateKeyQuery = [NSMutableDictionary new];
-        [privateKeyQuery setObject:(id)kSecClassKey forKey:(id)kSecClass];
-        [privateKeyQuery setObject:[self.privateKeyDict objectForKey:(id)kSecAttrAccessGroup] forKey:(id)kSecAttrAccessGroup];
-        [privateKeyQuery setObject:[self.privateKeyDict objectForKey:(id)kSecAttrApplicationTag] forKey:(id)kSecAttrApplicationTag];
-        [privateKeyQuery setObject:[self.privateKeyDict objectForKey:(id)kSecAttrLabel] forKey:(id)kSecAttrLabel];
-        [privateKeyQuery setObject:@YES forKey:(id)kSecReturnRef];
-        [privateKeyQuery setObject:@YES forKey:(id)kSecReturnAttributes];
+        privateKeyQuery[(id)kSecAttrAccessGroup] = [self.privateKeyDict objectForKey:(id)kSecAttrAccessGroup];
+        privateKeyQuery[(id)kSecClass] = (id)kSecClassKey;
+        privateKeyQuery[(id)kSecAttrApplicationTag] = [self.privateKeyDict objectForKey:(id)kSecAttrApplicationTag];
+        privateKeyQuery[(id)kSecAttrLabel] = [self.privateKeyDict objectForKey:(id)kSecAttrLabel];
+        privateKeyQuery[(id)kSecReturnRef] = @YES;
+        privateKeyQuery[(id)kSecReturnAttributes] = @YES;
         
         #ifdef __MAC_OS_X_VERSION_MAX_ALLOWED
         #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
             if (@available(macOS 10.15, *)) {
-                [privateKeyQuery setObject:@YES forKey:(id)kSecUseDataProtectionKeychain];
+                privateKeyQuery[(id)kSecUseDataProtectionKeychain] = @YES;
             }
         #endif
         #endif
