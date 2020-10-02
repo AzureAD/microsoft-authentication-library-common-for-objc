@@ -70,7 +70,7 @@ jobs:
             # of the first non-deleted file
             try:
                 comment_file = next(f for f in pr.files() if f.status != "removed")
-                pr.create_review_comment(message, "$(System.PullRequest.SourceCommitId)", comment_file.filename, position=(1 if comment_file.status == "added" else 0))
+                pr.create_review_comment(message, "$(System.PullRequest.SourceCommitId)", comment_file.filename, position=1)
             except StopIteration:
                 # No added files in this PR
                 pass
