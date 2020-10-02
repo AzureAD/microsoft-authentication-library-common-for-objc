@@ -22,7 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
 #import "MSIDWebResponseOperationConstants.h"
 
 NSString *const MSID_INSTALL_BROKER_OPERATION    = @"install_broker_operation";
