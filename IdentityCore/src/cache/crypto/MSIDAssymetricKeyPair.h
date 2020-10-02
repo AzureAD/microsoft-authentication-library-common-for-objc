@@ -50,9 +50,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, nullable, readonly) NSDate *creationDate;
 @property (nonatomic, readonly) NSString *stkJwk;
 
+@property (nonatomic, readonly) NSDictionary *privateKeyDict;
+
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
-                               creationDate:(nullable NSDate *)creationDate;
+                             privateKeyDict:(NSDictionary *)keyDict;
 
 - (nullable NSData *)decrypt:(nonnull NSString *)encryptedMessageString;
 

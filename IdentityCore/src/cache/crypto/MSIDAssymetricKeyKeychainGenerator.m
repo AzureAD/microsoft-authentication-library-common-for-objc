@@ -158,11 +158,9 @@
             return nil;
         }
         
-        NSDate *creationDate = [privateKeyDict objectForKey:(__bridge NSDate *)kSecAttrCreationDate];
-        
         MSIDAssymetricKeyPair *keypair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef
                                                                                  publicKey:publicKeyRef
-                                                                              creationDate:creationDate];
+                                                                            privateKeyDict:privateKeyDict];
 
         CFRelease(publicKeyRef);
         return keypair;
@@ -260,7 +258,8 @@
          Setting creationDate to nil here intentionally as it is only needed for cpp code.
          CreationDate will be initialized using lazy loading once it is queried for the first time on key pair object.
          */
-        MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef creationDate:nil];
+        
+        MSIDAssymetricKeyPair *keyPair = [[MSIDAssymetricKeyPair alloc] initWithPrivateKey:privateKeyRef publicKey:publicKeyRef privateKeyDict:attributes];
         
         if (privateKeyRef) CFRelease(privateKeyRef);
         if (publicKeyRef) CFRelease(publicKeyRef);
