@@ -48,6 +48,7 @@
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self createRequest];
     ssoRequest.requestedOperation = [operationRequest.class operation];
     
+    
     NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
     
     if (!jsonDictionary)
