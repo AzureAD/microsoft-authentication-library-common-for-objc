@@ -55,11 +55,11 @@
     SecKeyRef privateKey = NULL;
     OSStatus status = noErr;
     NSString *certificateIssuer = nil;
-    NSDate *creationDate = nil;
+    NSDictionary *keyDict = nil;
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group.", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
     
-    identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer creationDate:&creationDate];
+    identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
@@ -94,7 +94,7 @@
                                                            publicKey:publicKey
                                                          certificate:certificate
                                                    certificateIssuer:certificateIssuer
-                                                        creationDate:creationDate];
+                                                      privateKeyDict:keyDict];
     }
     
     CFReleaseNull(identity);
@@ -108,7 +108,7 @@
 + (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
                 sharedAccessGroup:(NSString *)accessGroup
                 certificateIssuer:(NSString **)issuer
-                     creationDate:(NSDate **)creationDate
+                   privateKeyDict:(NSDictionary **)keyDict
 
 {
     NSMutableDictionary *identityDict = [[NSMutableDictionary alloc] init];
@@ -134,10 +134,9 @@
         *issuer = [[NSString alloc] initWithData:certIssuer encoding:NSASCIIStringEncoding];
     }
     
-    NSDate *certCreationDate = [resultDict objectForKey:(__bridge NSDate*)kSecAttrCreationDate];
-    if (creationDate && certCreationDate)
+    if (keyDict)
     {
-        *creationDate = certCreationDate;
+        *keyDict = resultDict;
     }
     
     SecIdentityRef identityRef = (__bridge_retained SecIdentityRef)[resultDict objectForKey:(__bridge NSString*)kSecValueRef];
