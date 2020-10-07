@@ -319,16 +319,18 @@
     {
         return YES;
     }
+    if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
+    {
+        return NO;
+    }
 
     if (clientIDMatchingOptions == MSIDSuperSet)
     {
         if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
             || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
-            if (([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) || ([self.requestedClaims isEqualToString:requestedClaims]))
-            {
-                return YES;
-            }       
+            
+            return YES;       
         }
 
         return NO;
