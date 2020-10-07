@@ -329,7 +329,6 @@
         if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
             || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
-            
             return YES;       
         }
 
