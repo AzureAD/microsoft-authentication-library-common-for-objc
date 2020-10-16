@@ -276,6 +276,7 @@
     return YES;
 }
 
+
 #pragma mark - Common identifiers
 
 - (MSIDAccountIdentifier *)accountIdentifierFromResponse:(MSIDAADTokenResponse *)response
