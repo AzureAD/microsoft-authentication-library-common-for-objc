@@ -23,44 +23,20 @@
 
 #import "MSIDAccountMetadataCacheAccessor.h"
 
+@class MSIDAccountMetadataCacheMockUpdateAuthorityParameters;
+@class MSIDAccountMetadataCacheMockGetAuthorityParameters;
+@class MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams;
+@class MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams;
+
 NS_ASSUME_NONNULL_BEGIN
-
-struct MSIDAccountMetadataCacheMockUpdateAuthorityParameters
-{
-    NSURL * _Nullable cacheAuthorityURL;
-    NSURL * _Nullable requestAuthorityURL;
-    NSString * _Nullable homeAccountId;
-    NSString *_Nullable clientId;
-    BOOL instanceAware;
-};
-
-struct MSIDAccountMetadataCacheMockGetAuthorityParameters
-{
-    NSURL * _Nullable requestAuthorityURL;
-    NSString * _Nullable homeAccountId;
-    NSString *_Nullable clientId;
-    BOOL instanceAware;
-};
-
-struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams
-{
-    MSIDAccountIdentifier * _Nullable principalAccountId;
-    NSString * _Nullable clientId;
-    NSString * _Nullable accountEnvironment;
-};
-
-struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams
-{
-    NSString * _Nullable homeAccountId;
-};
 
 @interface MSIDAccountMetadataCacheAccessorMock : MSIDAccountMetadataCacheAccessor
 
 @property (nonatomic) NSInteger updateAuthorityURLInvokedCount;
-@property (nonatomic) struct MSIDAccountMetadataCacheMockUpdateAuthorityParameters updateAuthorityProvidedParams;
+@property (nonatomic) MSIDAccountMetadataCacheMockUpdateAuthorityParameters *updateAuthorityProvidedParams;
 
 @property (nonatomic) NSInteger getAuthorityURLInvokedCount;
-@property (nonatomic) struct MSIDAccountMetadataCacheMockGetAuthorityParameters getAuthorityProvidedParams;
+@property (nonatomic) MSIDAccountMetadataCacheMockGetAuthorityParameters *getAuthorityProvidedParams;
 @property (nonatomic) NSURL *authorityURLToReturn;
 
 @property (nonatomic, nullable) MSIDAccountIdentifier *mockedPrincipalAccountId;
@@ -69,12 +45,12 @@ struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams
 @property (nonatomic) BOOL updatePrincipalAccountIdResult;
 @property (nonatomic) NSError *updatePrincipalAccountIdError;
 @property (nonatomic) NSInteger updatePrincipalAccountIdInvokedCount;
-@property (nonatomic) struct MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams updatePrincipalAccountIdParams;
+@property (nonatomic) MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams *updatePrincipalAccountIdParams;
 
 @property (nonatomic) BOOL removeAccountMetadataForHomeAccountIdResult;
 @property (nonatomic) NSError *removeAccountMetadataForHomeAccountIdError;
 @property (nonatomic) NSInteger removeAccountMetadataForHomeAccountIdInvokedCount;
-@property (nonatomic) struct MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams removeAccountMetadataForHomeAccountIdParams;
+@property (nonatomic) MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams *removeAccountMetadataForHomeAccountIdParams;
 
 
 @end

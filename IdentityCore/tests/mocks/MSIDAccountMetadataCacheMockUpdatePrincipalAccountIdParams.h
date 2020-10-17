@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,34 +20,18 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAssymetricKeyPair.h"
+
+#import "MSIDAccountMetadataCacheAccessor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAssymetricKeyPairWithCert : MSIDAssymetricKeyPair
-{
-    SecCertificateRef _certificateRef;
-    NSData *_certificateData;
-    NSString *_certificateSubject;
-    NSString *_certificateIssuer;
-}
+@interface MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams : NSObject
 
-@property (nonatomic, readonly) SecCertificateRef certificateRef;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey
-                                certificate:(SecCertificateRef)certificate
-                          certificateIssuer:(NSString *)issuer
-                             privateKeyDict:(NSDictionary *)keyDict;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey
-                             privateKeyDict:(NSDictionary *)keyDict NS_UNAVAILABLE;
+@property (nonatomic) MSIDAccountIdentifier * _Nullable principalAccountId;
+@property (nonatomic) NSString * _Nullable clientId;
+@property (nonatomic) NSString * _Nullable accountEnvironment;
 
 @end
 

@@ -55,10 +55,11 @@
     SecKeyRef privateKey = NULL;
     OSStatus status = noErr;
     NSString *certificateIssuer = nil;
+    NSDictionary *keyDict = nil;
     
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Attempting to get registration information - %@ shared access Group.", MSID_PII_LOG_MASKABLE(sharedAccessGroup));
     
-    identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer];
+    identity = [self copyWPJIdentity:context sharedAccessGroup:sharedAccessGroup certificateIssuer:&certificateIssuer privateKeyDict:&keyDict];
     if (!identity || CFGetTypeID(identity) != SecIdentityGetTypeID())
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Failed to retrieve WPJ identity.");
@@ -92,7 +93,8 @@
                                                           privateKey:privateKey
                                                            publicKey:publicKey
                                                          certificate:certificate
-                                                   certificateIssuer:certificateIssuer];
+                                                   certificateIssuer:certificateIssuer
+                                                      privateKeyDict:keyDict];
     }
     
     CFReleaseNull(identity);
@@ -106,6 +108,7 @@
 + (SecIdentityRef)copyWPJIdentity:(__unused id<MSIDRequestContext>)context
                 sharedAccessGroup:(NSString *)accessGroup
                 certificateIssuer:(NSString **)issuer
+                   privateKeyDict:(NSDictionary **)keyDict
 
 {
     NSMutableDictionary *identityDict = [[NSMutableDictionary alloc] init];
@@ -129,6 +132,11 @@
     if (issuer && certIssuer)
     {
         *issuer = [[NSString alloc] initWithData:certIssuer encoding:NSASCIIStringEncoding];
+    }
+    
+    if (keyDict)
+    {
+        *keyDict = resultDict;
     }
     
     SecIdentityRef identityRef = (__bridge_retained SecIdentityRef)[resultDict objectForKey:(__bridge NSString*)kSecValueRef];

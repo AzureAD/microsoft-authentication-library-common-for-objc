@@ -26,6 +26,7 @@
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
 #import "MSIDWebViewPlatformParams.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 @interface MSIDWebviewUIController :
 #if TARGET_OS_IPHONE
@@ -46,6 +47,8 @@ NSWindowController
 @property (nonatomic, weak) UIViewController *parentController;
 @property (nonatomic) UIModalPresentationStyle presentationType;
 #endif
+
++ (WKWebViewConfiguration *)defaultWKWebviewConfiguration;
 
 - (id)initWithContext:(id<MSIDRequestContext>)context;
 

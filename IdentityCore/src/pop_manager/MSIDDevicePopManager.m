@@ -104,15 +104,17 @@
         return nil;
     }
     
-    if ([NSString msidIsStringNilOrBlank:self.keyPair.keyModulus])
+    if ([NSString msidIsStringNilOrBlank:self.keyPair.stkJwk])
     {
-        [self logAndFillError:@"Failed to create signed access token, unable to read public key modulus." error:error];
+        [self logAndFillError:@"Failed to create signed access token, unable to generate public key." error:error];
         return nil;
     }
     
-    if ([NSString msidIsStringNilOrBlank:self.keyPair.keyExponent])
+    NSData *publicKeyData = [self.keyPair.stkJwk dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *publicKeyDict = [NSJSONSerialization JSONObjectWithData:publicKeyData options:0 error:error];
+    if (!publicKeyDict)
     {
-        [self logAndFillError:@"Failed to create signed access token, unable to read public key exponent." error:error];
+        [self logAndFillError:@"Failed to create signed access token, unable to serialize public key." error:error];
         return nil;
     }
     
@@ -143,11 +145,7 @@
     NSDictionary *payload = @{
                               @"at" : accessToken,
                               @"cnf": @{
-                                      @"jwk":@{
-                                          @"kty" : @"RSA",
-                                          @"n" : self.keyPair.keyModulus,
-                                          @"e" : self.keyPair.keyExponent
-                                      }
+                                      @"jwk":publicKeyDict
                               },
                               @"ts" : [NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]],
                               @"m" : httpMethod,

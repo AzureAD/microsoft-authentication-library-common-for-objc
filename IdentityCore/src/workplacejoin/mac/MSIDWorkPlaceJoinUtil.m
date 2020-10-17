@@ -54,7 +54,8 @@
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"Attempting to get WPJ registration information.");
     NSString *certIssuer = nil;
-    SecIdentityRef identity = [self copyWPJIdentityWithAuthorities:certAuthorities issuer:&certIssuer]; // +1 identity
+    NSDictionary *keyDict = nil;
+    SecIdentityRef identity = [self copyWPJIdentityWithAuthorities:certAuthorities issuer:&certIssuer privateKeyDict:&keyDict]; // +1 identity
     
     // If there's no identity in the keychain, return nil. adError won't be set if the
     // identity can't be found since this isn't considered an error condition.
@@ -102,7 +103,8 @@
                                                           privateKey:privateKeyRef
                                                            publicKey:publicKeyRef
                                                          certificate:certificateRef
-                                                   certificateIssuer:certIssuer];
+                                                   certificateIssuer:certIssuer
+                                                      privateKeyDict:keyDict];
     }
     
     CFReleaseNull(identity);
@@ -112,7 +114,7 @@
     return info;
 }
 
-+ (SecIdentityRef)copyWPJIdentityWithAuthorities:(NSArray<NSData *> *)authorities issuer:(NSString **)issuer
++ (SecIdentityRef)copyWPJIdentityWithAuthorities:(NSArray<NSData *> *)authorities issuer:(NSString **)issuer privateKeyDict:(NSDictionary **)keyDict
 {
     if (![authorities count])
     {
@@ -161,10 +163,14 @@
                 if ([challengeIssuerName caseInsensitiveCompare:currentIssuerName] == NSOrderedSame)
                 {
                     identityRef = (__bridge_retained SecIdentityRef)[identityDict objectForKey:(__bridge NSString*)kSecValueRef];
-                    
                     if (issuer)
                     {
                         *issuer = currentIssuerName;
+                    }
+                    
+                    if (keyDict)
+                    {
+                        *keyDict = identityDict;
                     }
                     
                     break;
@@ -269,7 +275,8 @@
     MSIDAssymetricKeyPairWithCert *keyPair = [[MSIDAssymetricKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
                                                                                              publicKey:publicKeyRef
                                                                                            certificate:certRef
-                                                                                     certificateIssuer:issuer];
+                                                                                     certificateIssuer:issuer
+                                                                                          privateKeyDict:privateKeyDict];
     CFReleaseNull(certRef);
     CFReleaseNull(publicKeyRef);
     return keyPair;

@@ -1,3 +1,17 @@
+Version 1.5.9
+* Fix for filtering access tokens by requested claims.
+
+Version 1.5.8
+* Return private key attributes on key pair generation.
+* Update RSA signing code and add conditional check for supported iOS/osx platforms.
+* Enabled PKeyAuth via UserAgent String on MacOS 
+* Added an API for both iOS and MacOS for returning a WKWebView config setting with default recommended settings for developers. 
+* Add missing functionality to MSIDAssymetricKeyPair to match Djinni Interface
+* Update changelogs.txt pipeline check
+
+Version 1.5.7
+* Add requested_claims to access tokens in cache for MSAL CPP (#840)
+
 Version 1.5.6
 * Ignore duplicate certificate authentication challenge in system webview.
 * Limit telemetry archive size on disk, and save unserialized telemetry (#837)
@@ -5,6 +19,7 @@ Version 1.5.6
 * Support forgetting cached account (#830)
 * Enabling XCODE 11.4 recommended settings by default per customer request.
 * Move correlationId to MSIDBaseBrokerOperationRequest 
+* Add a new pipeline for MSAL C++ checks
 * Support bypassing redirectUri validation also on macOS
 * Indicate whether SSO extension account is available for device wide SSO (#825)
 * Add swift static lib target to support AES GCM.
@@ -31,7 +46,7 @@ Version 1.5.5
 
 Version 1.5.4
 -----
-* Support for proof of posession for access tokens (#738)
+* Support for proof of possession for access tokens (#738)
 * Allow brokered authentication for /consumers authority (#774)
 * Account metadata cleanup on account removal (#791)
 * Fix an issue with guest accounts when UPN mismatches across tenants (#797)

@@ -31,6 +31,7 @@
                        publicKey:(SecKeyRef)publicKey
                      certificate:(SecCertificateRef)certificate
                certificateIssuer:(NSString *)issuer
+                  privateKeyDict:(NSDictionary *)keyDict
 {
     if (!identity)
     {
@@ -40,7 +41,8 @@
     self = [super initWithPrivateKey:privateKey
                            publicKey:publicKey
                          certificate:certificate
-                   certificateIssuer:issuer];
+                   certificateIssuer:issuer
+                        privateKeyDict:keyDict];
     if (self)
     {
         _securityIdentity = identity;
