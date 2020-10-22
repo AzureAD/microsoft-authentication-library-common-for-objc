@@ -1,4 +1,6 @@
 * Fix code in kDF function
+
+Version 1.5.8
 * Return private key attributes on key pair generation.
 * Update RSA signing code and add conditional check for supported iOS/osx platforms.
 * Enabled PKeyAuth via UserAgent String on MacOS 
