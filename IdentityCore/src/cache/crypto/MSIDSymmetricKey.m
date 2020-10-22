@@ -118,7 +118,7 @@
                  fixedInput:(uint8_t *)fixedInput
            fixedInputLength:(size_t)fixedInputLength
 {
-    uint8_t ctr;
+    uint32_t ctr;
     unsigned char cHMAC[CC_SHA256_DIGEST_LENGTH];
     uint8_t *keyDerivated;
     uint8_t *dataInput;
@@ -175,13 +175,13 @@
 
 
 /*
- *Function used to shift data of 1 byte. This byte is the "ctr".
+ *Function used to shift data by 4 byte and insert ctr in the first 4 bytes.
  */
-- (uint8_t *)updateDataInput:(uint8_t)ctr
+- (uint8_t *)updateDataInput:(uint32_t)ctr
                   fixedInput:(uint8_t *)fixedInput
            fixedInput_length:(size_t)fixedInput_length
 {
-    uint8_t *tmpFixedInput = (uint8_t *)malloc(fixedInput_length + 4); //+4 is caused from the ct
+    uint8_t *tmpFixedInput = (uint8_t *)malloc(fixedInput_length + sizeof(uint32_t)); //+4 is caused from the ct
     
     tmpFixedInput[0] = (ctr >> 24);
     tmpFixedInput[1] = (ctr >> 16);
