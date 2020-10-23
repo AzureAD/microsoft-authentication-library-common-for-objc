@@ -1,3 +1,6 @@
+Version 1.5.9
+* Fix for filtering access tokens by requested claims.
+
 Version 1.5.8
 * Return private key attributes on key pair generation.
 * Update RSA signing code and add conditional check for supported iOS/osx platforms.
