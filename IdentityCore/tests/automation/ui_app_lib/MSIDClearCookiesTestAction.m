@@ -57,10 +57,14 @@
 
     // Clear WKWebView cookies
     if (@available(macOS 10.11, *)) {
-        NSSet *allTypes = [WKWebsiteDataStore allWebsiteDataTypes];
-        [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:allTypes
-                                                   modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
-                                               completionHandler:^{}];
+        WKWebsiteDataStore *dateStore = [WKWebsiteDataStore defaultDataStore];
+        
+        [dateStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
+                         completionHandler:^(NSArray<WKWebsiteDataRecord *> *records) {
+            for (WKWebsiteDataRecord *record in records) {
+                [dateStore removeDataOfTypes:record.dataTypes forDataRecords:@[record] completionHandler:^{}];
+            }
+        }];
     }
 
     MSIDAutomationTestResult *testResult = [[MSIDAutomationTestResult alloc] initWithAction:self.actionIdentifier
