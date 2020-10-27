@@ -79,6 +79,9 @@
 @property (readwrite, nullable) NSString *tokenType;
 @property (readwrite, nullable) NSString *kid;
 
+// Requested claims for access tokens, currently only used by MSAL C++
+@property (readwrite, nullable) NSString *requestedClaims;
+
 - (BOOL)isEqualToItem:(nullable MSIDCredentialCacheItem *)item;
 
 - (BOOL)matchesTarget:(nullable NSString *)target comparisonOptions:(MSIDComparisonOptions)comparisonOptions;
@@ -91,6 +94,7 @@
                 clientId:(nullable NSString *)clientId
                 familyId:(nullable NSString *)familyId
                   target:(nullable NSString *)target
+         requestedClaims:(nullable NSString *)requestedClaims
           targetMatching:(MSIDComparisonOptions)matchingOptions
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions;
 

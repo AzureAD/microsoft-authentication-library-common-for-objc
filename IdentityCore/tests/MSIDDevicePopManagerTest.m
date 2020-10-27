@@ -76,7 +76,6 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
     }
 #endif
     keyPairAttributes.privateKeyIdentifier = MSID_POP_TOKEN_PRIVATE_KEY;
-    keyPairAttributes.publicKeyIdentifier = MSID_POP_TOKEN_PUBLIC_KEY;
     
     manager = [[MSIDDevicePopManager alloc] initWithCacheConfig:msidCacheConfig keyPairAttributes:keyPairAttributes];
     XCTAssertNil(error);
@@ -112,8 +111,7 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
     NSString *nonce = @"48D1E0E2-2AB4-491A-87F9-BCBAAAD777CC";
     NSError *error = nil;
     
-    // Delete publickey
-    [self deleteKeyWithTag:MSID_POP_TOKEN_PUBLIC_KEY];
+    // Delete privateKey
     [self deleteKeyWithTag:MSID_POP_TOKEN_PRIVATE_KEY];
     
     NSString *signedAT = [manager createSignedAccessToken:accesToken

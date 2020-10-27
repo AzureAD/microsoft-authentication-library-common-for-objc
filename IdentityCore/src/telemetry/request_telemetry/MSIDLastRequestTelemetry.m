@@ -44,8 +44,7 @@
     self = [super init];
     if (self)
     {
-        self.apiId = (NSInteger)[decoder decodeFloatForKey:kApiId];
-        
+        self.apiId = (int)[decoder decodeFloatForKey:kApiId];
         NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
         self.correlationId = ![NSString msidIsStringNilOrBlank:uuIdString] ? [[NSUUID UUID] initWithUUIDString:uuIdString] : nil;
         
@@ -280,7 +279,7 @@ static int maxErrorCountToArchive = 75;
     if (saveLocation)
     {
         // Some testing has determined that 75 errors corresponds to an archive size of about 8kb. 
-        if (_errorsInfo.count > (NSUInteger)maxErrorCountToArchive)
+        if ((int)_errorsInfo.count > maxErrorCountToArchive)
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"Telemetry size over limit when saving to disk, cutting down to limit", nil);
             

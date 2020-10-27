@@ -41,6 +41,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (MSIDAssymetricKeyPair *)generateEphemeralKeyPair:(NSError **)error;
 
+- (BOOL)deleteItemWithAttributes:(NSDictionary *)attributes
+                          error:(NSError **)error;
+
 @end
 
 NS_ASSUME_NONNULL_END
