@@ -85,6 +85,39 @@
     return [NSString msidBase64UrlEncodedStringFromData:signedData];
 }
 
+/**
+ Key Derivation using Pseudorandom Functions in Counter Mode: SP 800-108
+ Spec link: https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-108.pdf
+ Formula:
+ 
+ Fixed values:
+ 1. h - The length of the output of the PRF in bits
+ 2. r - The length of the binary representation of the counter i.
+ Input: KI, Label, Context, and L.
+ Process:
+ 1. n := ⎡L/h⎤.
+ 2. If n > 2^r -1, then indicate an error and stop.
+ 3. result(0):= ∅.
+ 4. For i = 1 to n, do
+ a. K(i) := PRF (KI, [i]2 || Label || 0x00 || Context || [L]2)
+ 12
+ SP 800-108 Recommendation for Key Derivation Using Pseudorandom Functions
+ b. result(i) := result(i-1) || K(i).
+ 5. Return: KO := the leftmost L bits of result(n).
+ Output: KO.
+ 
+ Implementation notes:
+ 1. PRF: we use HMAC-SHA256
+ h: 256
+ r: 32
+ L: 256
+ Label: AzureAD-SecureConversation
+ 
+ the input of HMAC-SHA256 would look like:
+ 0x00 0x00 0x00 0x01 || AzureAD-SecureConversation String in binary || 0x00 || context in binary || (256) in big-endian binary
+ 
+ */
+
 - (NSData *)computeKDFInCounterMode:(NSData *)ctx
 {
     if (ctx == nil)
@@ -111,7 +144,6 @@
     
     return dataToReturn;
 }
-
 
 - (uint8_t *)kdfCounterMode:(uint8_t *)keyDerivationKey
      keyDerivationKeyLength:(size_t)keyDerivationKeyLength
@@ -177,11 +209,11 @@
 /*
  *Function used to shift data by 4 byte and insert ctr in the first 4 bytes.
  */
-- (uint8_t *)updateDataInput:(uint32_t)ctr
+- (uint8_t *)updateDataInput:(uint8_t)ctr
                   fixedInput:(uint8_t *)fixedInput
            fixedInput_length:(size_t)fixedInput_length
 {
-    uint8_t *tmpFixedInput = (uint8_t *)malloc(fixedInput_length + sizeof(uint32_t)); //+4 is caused from the ct
+    uint8_t *tmpFixedInput = (uint8_t *)malloc(fixedInput_length + 4); //+4 is caused from the ct
     
     tmpFixedInput[0] = (ctr >> 24);
     tmpFixedInput[1] = (ctr >> 16);
