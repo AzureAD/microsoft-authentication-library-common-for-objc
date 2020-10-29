@@ -377,6 +377,18 @@
         return;
     }
     
+    // Handle anchor links that were clicked
+    if([navigationAction navigationType] == WKNavigationTypeLinkActivated) {
+        UIApplication *application = [UIApplication performSelector:@selector(sharedApplication)];
+        //Open secure web links with target=new window in default browser
+        if(([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame.isMainFrame) ||
+           (![requestURL.scheme.lowercaseString hasPrefix:@"http"])) {  // Open non-web links with URL schemes that can be opened by the application
+            [application performSelector:@selector(openURL:) withObject:requestURL];
+            decisionHandler(WKNavigationActionPolicyCancel);
+            return;
+        }
+    }
+    
     // redirecting to non-https url is not allowed
     if (![requestURL.scheme.lowercaseString isEqualToString:@"https"])
     {
