@@ -46,7 +46,7 @@ contents = []
 with open(file_path, "r") as f:
     contents = list(f.readlines())
 
-for i in range(contents):
+for i in range(len(contents)):
     if contents[i] == "OTHER_CFLAGS=$(inherited) -fstack-protector-strong\n":
 
         new_lines = []
