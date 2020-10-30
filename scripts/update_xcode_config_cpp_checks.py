@@ -44,18 +44,15 @@ file_path = current_directory + "/IdentityCore/xcconfig/identitycore__common.xcc
 
 contents = []
 with open(file_path, "r") as f:
-    contents = list(f.readlines())
+    contents = f.read().split("\n")
 
 for i in range(len(contents)):
-    if contents[i] == "OTHER_CFLAGS=$(inherited) -fstack-protector-strong\n":
-
+    if contents[i] == "OTHER_CFLAGS=$(inherited) -fstack-protector-strong":
         new_lines = []
         for configuration in configurations:
-            new_lines.append("OTHER_CFLAGS=$(OTHER_CFLAGS) -" + configuration + "\n")
+            new_lines.append("OTHER_CFLAGS=$(OTHER_CFLAGS) -" + configuration)
         contents = contents[:i] + new_lines + contents[i:]
-
-print('\n'.join(contents))
 
 # write into file
 with open(file_path, "w") as f:
-    f.writelines(contents)
+    f.write("\n".join(contents))
