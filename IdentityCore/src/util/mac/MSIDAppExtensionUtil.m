@@ -54,7 +54,7 @@ static BOOL s_isRunningInCompliantExtension = NO;
     return [mainBundlePath hasSuffix:@"appex"] && !self.runningInCompliantExtension;
 }
 
-#pragma mark - UIApplication
+#pragma mark - NSWorkspace
 
 + (NSWorkspace *)sharedApplication
 {
