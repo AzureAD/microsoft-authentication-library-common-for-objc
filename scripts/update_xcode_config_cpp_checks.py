@@ -52,6 +52,7 @@ for i in range(len(contents)):
         for configuration in configurations:
             new_lines.append("OTHER_CFLAGS=$(OTHER_CFLAGS) -" + configuration)
         contents = contents[:i] + new_lines + contents[i:]
+        break
 
 # write into file
 with open(file_path, "w") as f:

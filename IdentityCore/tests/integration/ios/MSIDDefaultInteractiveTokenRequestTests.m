@@ -397,7 +397,7 @@
 
     }];
 
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testInteractiveRequestFlow_whenProtectionPolicyRequired_shouldReturnNilResultWithError
