@@ -37,6 +37,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDAppExtensionUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -379,15 +380,10 @@
     
     // Handle anchor links that were clicked
     if([navigationAction navigationType] == WKNavigationTypeLinkActivated) {
-#if TARGET_OS_IPHONE
-        UIApplication *application = [UIApplication performSelector:@selector(sharedApplication)];
-#else
-        NSWorkspace *application = [NSWorkspace sharedWorkspace];
-#endif
         //Open secure web links with target=new window in default browser
         if(([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame.isMainFrame) ||
            (![requestURL.scheme.lowercaseString hasPrefix:@"http"])) {  // Open non-web links with URL schemes that can be opened by the application
-            [application performSelector:@selector(openURL:) withObject:requestURL];
+            [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
             decisionHandler(WKNavigationActionPolicyCancel);
             return;
         }
