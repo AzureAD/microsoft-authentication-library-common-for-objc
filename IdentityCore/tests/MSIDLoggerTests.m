@@ -421,7 +421,7 @@
     connectorMock.loggingQueueEnabledValue = NO;
     [MSIDLogger sharedLogger].level = MSIDLogLevelNothing;
     [MSIDLogger sharedLogger].loggerConnector = connectorMock;
-    [self keyValueObservingExpectationForObject:connectorMock keyPath:@"logMessageValue" handler:^BOOL(id observedObject, NSDictionary *change)
+    [self keyValueObservingExpectationForObject:connectorMock keyPath:@"logMessageValue" handler:^BOOL(id observedObject, __unused NSDictionary *change)
     {
         return [((MSIDLoggerConnectorMock *)observedObject).logMessageValue containsString:@"some message"];
     }];
