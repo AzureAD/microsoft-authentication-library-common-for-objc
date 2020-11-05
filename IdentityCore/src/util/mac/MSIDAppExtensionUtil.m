@@ -64,7 +64,7 @@ static BOOL s_isRunningInCompliantExtension = NO;
         return nil;
     }
     
-    return [NSWorkspace performSelector:NSSelectorFromString(@"sharedApplication")];
+    return [NSWorkspace performSelector:NSSelectorFromString(@"sharedWorkspace")];
 }
 
 + (void)sharedApplicationOpenURL:(NSURL*)url
@@ -85,7 +85,7 @@ static BOOL s_isRunningInCompliantExtension = NO;
 }
 
 + (void)sharedApplicationOpenURL:(NSURL *)url
-                         configuration:(NSWorkspaceOpenConfiguration *)options
+                   configuration:(NSWorkspaceOpenConfiguration *)options
                completionHandler:(void (^ __nullable)(BOOL success))completionHandler
 API_AVAILABLE(macos(10.15)){
     if ([self isExecutingInAppExtension])

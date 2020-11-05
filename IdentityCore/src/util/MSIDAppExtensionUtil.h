@@ -46,11 +46,12 @@
                          options:(nullable NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options
                completionHandler:(void (^ __nullable)(BOOL success))completionHandler;
 #else
+/// Application extension safe replacement for `[NSWorkspace sharedWorkspace]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
 + (nullable NSWorkspace *)sharedApplication;
 
-/// Application extension safe replacement for `[[NSWorkspace sharedApplication] openURL:configuration:completionHandler:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
+/// Application extension safe replacement for `[[NSWorkspace sharedWorkspace] openURL:configuration:completionHandler:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
 + (void)sharedApplicationOpenURL:(nonnull NSURL *)url
-                         configuration:(nullable NSWorkspaceOpenConfiguration *)options
+                   configuration:(nullable NSWorkspaceOpenConfiguration *)options
                completionHandler:(void (^ __nullable)(BOOL success))completionHandler API_AVAILABLE(macos(10.15));
 #endif
 @end
