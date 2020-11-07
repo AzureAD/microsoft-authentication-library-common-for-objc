@@ -36,12 +36,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) MSIDAADAuthority *authority;
 @property (nonatomic, readonly) NSDictionary *headers;
 @property (nonatomic, readonly) NSData *httpBody;
+@property (nonatomic, readonly) BOOL useSSOCookieFallback;
 
 - (instancetype)initWithRequest:(NSURL *)requestURL
                         headers:(NSDictionary *)headers
                            body:(nullable NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
+           useSSOCookieFallback:(BOOL)useSSOCookieFallback
                           error:(NSError **)error;
 
 @end

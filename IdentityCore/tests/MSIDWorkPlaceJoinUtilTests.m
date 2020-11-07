@@ -89,7 +89,7 @@ NSString * const dummyKeyIdendetifier = @"com.microsoft.workplacejoin.dummyKeyId
 
 + (OSStatus) insertDummyStringDataIntoKeychain: (NSString *) stringData
                                 dataIdentifier: (NSString *) dataIdentifier
-                                   accessGroup: (NSString *) accessGroup
+                                   accessGroup: (__unused NSString *) accessGroup
 {
     NSMutableDictionary *insertStringDataQuery = [[NSMutableDictionary alloc] init];
     [insertStringDataQuery setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
@@ -103,7 +103,7 @@ NSString * const dummyKeyIdendetifier = @"com.microsoft.workplacejoin.dummyKeyId
 }
 
 + (OSStatus) deleteDummyStringDataIntoKeychain: (NSString *) dataIdentifier
-                                   accessGroup: (NSString *) accessGroup
+                                   accessGroup: (__unused NSString *) accessGroup
 {
     NSMutableDictionary *deleteStringDataQuery = [[NSMutableDictionary alloc] init];
     [deleteStringDataQuery setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];

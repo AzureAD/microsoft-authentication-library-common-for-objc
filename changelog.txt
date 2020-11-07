@@ -1,3 +1,5 @@
+* Enabled various warnings (which we were mostly compliant with) (#814)
+
 Version 1.5.9
 * Fix for filtering access tokens by requested claims.
 
