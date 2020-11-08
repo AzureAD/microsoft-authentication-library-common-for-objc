@@ -42,5 +42,6 @@
 + (void)sharedApplicationOpenURL:(nonnull NSURL *)url
                          options:(nullable NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options
                completionHandler:(void (^ __nullable)(BOOL success))completionHandler;
-
+// Helper method to check if the app state
++ (BOOL)runningInActiveState;
 @end
