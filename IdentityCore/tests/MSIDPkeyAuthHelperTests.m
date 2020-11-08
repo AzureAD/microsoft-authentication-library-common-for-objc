@@ -203,7 +203,7 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     method_exchangeImplementations(originalMethod, mockMethod);
 }
 
-+ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(id<MSIDRequestContext>)context
++ (MSIDAssymetricKeyPairWithCert *)getWPJKeysWithContext:(__unused id<MSIDRequestContext>)context
 {
     return s_registrationInformationToReturn;
 }

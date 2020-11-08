@@ -31,7 +31,7 @@
     NSMutableData *result = [NSMutableData new];
     unsigned char wholeByte;
     char byteChars[3] = {'\0','\0','\0'};
-    int i;
+    unsigned long i;
     for (i = 0; i < [dataHexString length] / 2; i++)
     {
         byteChars[0] = [dataHexString characterAtIndex:i * 2];

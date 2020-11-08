@@ -282,7 +282,7 @@
     // Simulates a successful request to server, string up to limit size is sent to server
     [restoredTelemetryObject updateWithApiId:0 errorString:nil context:self.context];
     
-    NSUInteger afterFirstCutoff = restoredTelemetryObject.errorsInfo.count;
+    NSInteger afterFirstCutoff = restoredTelemetryObject.errorsInfo.count;
     XCTAssertTrue(afterFirstCutoff > 0);
     XCTAssertTrue(afterFirstCutoff < errorNum);
     
@@ -297,7 +297,7 @@
     // Simulates a successful request to server, string up to limit size is sent to server
     [restoredTelemetryObject updateWithApiId:1 errorString:nil context:self.context];
     
-    NSUInteger afterSecondCutoff = restoredTelemetryObject.errorsInfo.count;
+    NSInteger afterSecondCutoff = restoredTelemetryObject.errorsInfo.count;
     XCTAssertTrue(afterSecondCutoff > 0);
     XCTAssertTrue(afterSecondCutoff < afterFirstCutoff);
     
@@ -325,9 +325,9 @@
     
     dispatch_queue_t queue = [telemetryObject valueForKey:@"synchronizationQueue"];
     MSIDLastRequestTelemetry *restoredTelemetryObject = [[MSIDLastRequestTelemetry alloc] initTelemetryFromDiskWithQueue:queue];
-    
-    XCTAssertTrue(restoredTelemetryObject.errorsInfo.count < errorNum);
-    for (int i = 0; i < restoredTelemetryObject.errorsInfo.count; i++)
+    NSInteger afterSecondCutoff = restoredTelemetryObject.errorsInfo.count;
+    XCTAssertTrue(afterSecondCutoff < errorNum);
+    for (int i = 0; i < afterSecondCutoff; i++)
     {
         XCTAssertEqualObjects([restoredTelemetryObject.errorsInfo objectAtIndex:i].error, [allErrors objectAtIndex:i + (errorNum - maxErrors)]);
     }
