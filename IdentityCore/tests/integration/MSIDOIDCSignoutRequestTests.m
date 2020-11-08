@@ -69,8 +69,13 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startSessionWithWebView:oauth2Factory:configuration:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, NSObject<MSIDWebviewInteracting> * webview, MSIDOauth2Factory *oauth2Factory, MSIDBaseWebRequestConfiguration *configuration, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
-    {
+                           block:(id)^(
+                              __unused id obj,
+                              __unused NSObject<MSIDWebviewInteracting> *webview,
+                              __unused MSIDOauth2Factory *oauth2Factory,
+                              MSIDBaseWebRequestConfiguration *configuration,
+                              __unused id<MSIDRequestContext> context,
+                              MSIDWebviewAuthCompletionHandler completionHandler) {
          NSString *responseString = [NSString stringWithFormat:@"x-msauth-test://com.microsoft.testapp?state=%@", configuration.state];
 
          MSIDWebOAuth2Response *oauthResponse = [[MSIDWebOAuth2Response alloc] initWithURL:[NSURL URLWithString:responseString]
@@ -110,7 +115,13 @@
     // Swizzle out the main entry point for WebUI, WebUI is tested in its own component tests
     [MSIDTestSwizzle classMethod:@selector(startSessionWithWebView:oauth2Factory:configuration:context:completionHandler:)
                            class:[MSIDWebviewAuthorization class]
-                           block:(id)^(id obj, NSObject<MSIDWebviewInteracting> * webview, MSIDOauth2Factory *oauth2Factory, MSIDBaseWebRequestConfiguration *configuration, id<MSIDRequestContext>context, MSIDWebviewAuthCompletionHandler completionHandler)
+                           block:(id)^(
+                                __unused id obj,
+                                __unused NSObject<MSIDWebviewInteracting> *webview,
+                                __unused MSIDOauth2Factory *oauth2Factory,
+                                MSIDBaseWebRequestConfiguration *configuration,
+                                __unused id<MSIDRequestContext> context,
+                                MSIDWebviewAuthCompletionHandler completionHandler)
     {
          NSString *responseString = @"x-msauth-test://com.microsoft.testapp?state=fakestate";
 
