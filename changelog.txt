@@ -1,4 +1,5 @@
 * Enabled various warnings (which we were mostly compliant with) (#814)
+* Added client-side fix for the known ADFS PKeyAuth issue. (#1150)
 
 Version 1.5.9
 * Fix for filtering access tokens by requested claims.
