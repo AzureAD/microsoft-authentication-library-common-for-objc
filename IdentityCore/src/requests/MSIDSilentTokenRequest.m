@@ -218,9 +218,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     }
     
     [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
-        if (error)
+        if (!refreshToken)
         {
-            completionBlock(nil, error);
+            NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
+            completionBlock(nil, interactionError);
             return;
         }
         
@@ -270,18 +271,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         return;
     }
     
-    if (!refreshableToken)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Didn't find family refresh token");
-        completionHandler(nil, MSIDFamilyRefreshTokenType, nil);
-    }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found family refresh token.");
-        completionHandler(refreshableToken, MSIDFamilyRefreshTokenType, nil);
-        return;
-    }
-
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found family refresh token.");
+    completionHandler(refreshableToken, MSIDFamilyRefreshTokenType, nil);
+    return;
 }
 
 - (void)tryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
@@ -310,9 +302,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                         return;
                     }
                 }
-                
-                // Handle error case when try with Family refresh token
-                [self handleErrorResponseForFamilyRefreshToken:error];
+                else
+                {
+                    // Handle error case when try with Family refresh token
+                    [self handleErrorResponseForFamilyRefreshToken:error];
+                }
+                                
                 NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
                 completionBlock(nil, interactionError);
             }
@@ -383,7 +378,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
     if (!refreshToken)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         completionBlock(nil, error);
         return;
     }
