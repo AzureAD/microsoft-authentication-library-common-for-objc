@@ -34,6 +34,7 @@ NSString *message = @"Sample Message To Encrypt/Decrypt";
 NSString *context = @"y00sIKRcF2bPFDgbeOques0ymB+R0FP";
 NSString *expectedSignature = @"cspzWzvtSNOJUUzThP3FWWV-9q7mJ_ZB6PYzRcQwe54";
 NSString *invalidBase64 = @"invalidbase64)";
+NSString *KDFCounterModeSampleOutput = @"zH1haRHx2I8Tznc37ibDEGcEORs9xk8Qmubd3qkTg2o";
 
 @implementation MSIDSymmetricKeyTests
 
@@ -85,4 +86,12 @@ NSString *invalidBase64 = @"invalidbase64)";
     XCTAssertNil(signature);
 }
 
+- (void)testComputeKDFCounterMode
+{
+    MSIDSymmetricKey *symmetricKey = [[MSIDSymmetricKey alloc] initWithSymmetricKeyBase64:symmetricKeyString];
+    NSData *contextData = [NSData msidDataFromBase64UrlEncodedString:context];
+    NSData *derivedKey = [symmetricKey computeKDFInCounterMode:contextData];
+    NSString *derivedKeyString = [NSString msidBase64UrlEncodedStringFromData:derivedKey];
+    XCTAssertTrue([derivedKeyString isEqualToString:KDFCounterModeSampleOutput]);
+}
 @end

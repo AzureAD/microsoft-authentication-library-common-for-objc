@@ -102,4 +102,8 @@ static BOOL s_isRunningInCompliantExtension = NO;
     }];
 }
 
++ (BOOL)runningInActiveState
+{
+    return [[self sharedApplication] applicationState] == UIApplicationStateActive;
+}
 @end

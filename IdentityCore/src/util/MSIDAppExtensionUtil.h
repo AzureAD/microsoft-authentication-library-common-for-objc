@@ -38,6 +38,9 @@
 + (void)sharedApplicationOpenURL:(nonnull NSURL *)url;
 
 #if TARGET_OS_IPHONE
+// Helper method to check if the app state
++ (BOOL)runningInActiveState;
+
 /// Application extension safe replacement for `[UIApplication sharedApplication]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
 + (nullable UIApplication *)sharedApplication;
 
