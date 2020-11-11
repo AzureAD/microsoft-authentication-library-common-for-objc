@@ -30,7 +30,6 @@
 
 - (NSString *)msidURLEncode;
 - (NSString *)msidWWWFormURLEncode;
-- (NSString *)msidURLEncodePKeyAuth;
 
 - (NSDictionary *)msidDictionaryByRemovingFields:(NSArray *)fieldsToRemove;
 - (NSString *)msidJSONSerializeWithContext:(id<MSIDRequestContext>)context;

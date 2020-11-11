@@ -88,56 +88,6 @@
     return [NSString msidWWWFormURLEncodedStringFromDictionary:self];
 }
 
-- (NSString *)msidURLEncodePKeyAuth
-{
-    __block NSMutableString *encodedString = nil;
-    
-    [self enumerateKeysAndObjectsUsingBlock: ^(id key, id value, BOOL __unused *stop)
-     {
-         if ([NSString msidIsStringNilOrBlank:key])
-         {
-             return;
-         }
-         
-         NSString *trimmedKey = [key msidTrimmedString];
-         NSString *encodedKey = [trimmedKey msidURLEncode];
-         
-         if (!encodedString)
-         {
-             encodedString = [NSMutableString new];
-         }
-         else
-         {
-             [encodedString appendString:@"&"];
-         }
-         
-         [encodedString appendString:encodedKey];
-         
-         NSString *v = [value description];
-         if ([value isKindOfClass:NSUUID.class])
-         {
-             v = ((NSUUID *)value).UUIDString;
-         }
-         
-         NSString *trimmedValue = [v msidTrimmedString];
-         NSString *encodedValue = [trimmedValue msidURLEncode];
-         
-         if (![NSString msidIsStringNilOrBlank:encodedValue])
-         {
-             [encodedString appendFormat:@"=%@", encodedValue];
-         }
-        
-         else if ((encodedValue && ![encodedValue isKindOfClass:[NSNull class]]) && !encodedValue.length)
-         {
-             [encodedString appendFormat:@"=%@", encodedValue];
-         }
-         
-     }];
-    return encodedString;
-    
-}
-
-
 - (NSDictionary *)msidDictionaryByRemovingFields:(NSArray *)fieldsToRemove
 {
     NSMutableDictionary *mutableDict = [self mutableCopy];
