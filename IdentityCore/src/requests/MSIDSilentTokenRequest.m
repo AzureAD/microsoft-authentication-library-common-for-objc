@@ -400,10 +400,10 @@
         }
         
         // Check if token endpoint (from open id metadata) is the same cloud as the RT issuer cloud
-        // If not the same cloud, we don't send RT
-        if (![self checkTokenEndpoint])
+        // If not the same cloud, we don't send RT to wrong cloud.
+        if (![self.requestParameters.authority checkTokenEndpointForRTRefresh:self.requestParameters.tokenEndpoint])
         {
-            NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+            NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required (unable to use token from a different cloud).", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
             completionBlock(nil, interactionError);
             return;
         }
@@ -483,18 +483,6 @@
             completionBlock(result, error);
         }];
     }];
-}
-
-- (BOOL)checkTokenEndpoint
-{
-    NSArray *environmentAliases = self.requestParameters.authority.defaultCacheEnvironmentAliases;
-    if ([environmentAliases count] &&
-        ![self.requestParameters.tokenEndpoint.host.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases])
-    {
-        return NO;
-    }
-    
-    return YES;
 }
 
 #pragma mark - Abstract

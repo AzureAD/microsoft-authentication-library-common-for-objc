@@ -92,6 +92,9 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 // Only certain authorities support MAM CA scenarios
 - (BOOL)supportsMAMScenarios;
 
+// Check if token endpoint is the same cloud as the authoirty
+- (BOOL)checkTokenEndpointForRTRefresh:(nullable NSURL *)tokenEndpoint;
+
 /* It is used in telemetry */
 - (nonnull NSString *)telemetryAuthorityType;
 
