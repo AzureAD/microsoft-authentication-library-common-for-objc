@@ -156,7 +156,7 @@
     XCTAssertEqualObjects(url.host, @"contoso.com");
     XCTAssertTrue([url.query containsString:@"eqp1=val1"]);
     XCTAssertTrue([url.query containsString:@"eqp2=val2"]);
-    XCTAssertTrue([url.query containsString:@"eqp3&"]);
+    XCTAssertTrue([url.query containsString:@"eqp3=&"]);
 }
 
 #pragma mark - Webview (Response)
