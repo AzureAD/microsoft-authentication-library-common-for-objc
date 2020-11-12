@@ -32,7 +32,7 @@
 {
     NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
     
-    if (mainBundlePath.length == 0)
+    if ([NSString msidIsStringNilOrBlank:mainBundlePath])
     {
         MSID_LOG_ERROR(nil, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
         
