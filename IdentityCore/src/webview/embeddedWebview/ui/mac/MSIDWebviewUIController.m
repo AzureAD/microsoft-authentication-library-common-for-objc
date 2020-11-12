@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDWebviewUIController.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -52,6 +53,11 @@ static WKWebViewConfiguration *s_webConfig;
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
 
+    if (@available(macOS 10.11, *))
+    {
+        webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    }
+    
     if (@available(macOS 10.15, *))
     {
         webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;

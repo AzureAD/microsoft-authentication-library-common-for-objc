@@ -263,7 +263,7 @@
 {
     NSDictionary *dictionary = @{@"key":@""};
     NSString *result = [NSString msidWWWFormURLEncodedStringFromDictionary:dictionary];
-    XCTAssertEqualObjects(result, @"key");
+    XCTAssertEqualObjects(result, @"key=");
 }
 
 @end

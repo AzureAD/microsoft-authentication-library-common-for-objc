@@ -94,7 +94,6 @@ typedef unsigned char byte;
     return [self stringByTrimmingCharactersInSet:set];
 }
 
-
 - (NSString *)msidWWWFormURLDecode
 {
     // Two step decode: first replace + with a space, then percent unescape
@@ -109,6 +108,10 @@ typedef unsigned char byte;
     return CFBridgingRelease(unescapedString);
 }
 
+- (NSString *)msidURLDecode
+{
+    return CFBridgingRelease(CFURLCreateStringByReplacingPercentEscapes(kCFAllocatorDefault, (CFStringRef)self, CFSTR("")));
+}
 
 - (NSString *)msidWWWFormURLEncode
 {
@@ -224,6 +227,11 @@ typedef unsigned char byte;
          NSString *encodedValue = [[v msidTrimmedString] msidWWWFormURLEncode];
          
          if (![NSString msidIsStringNilOrBlank:encodedValue])
+         {
+             [encodedString appendFormat:@"=%@", encodedValue];
+         }
+        
+         else if ((encodedValue && ![encodedValue isKindOfClass:[NSNull class]]) && !encodedValue.length)
          {
              [encodedString appendFormat:@"=%@", encodedValue];
          }
