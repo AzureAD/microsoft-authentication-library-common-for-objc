@@ -88,7 +88,6 @@
     return [NSString msidWWWFormURLEncodedStringFromDictionary:self];
 }
 
-
 - (NSDictionary *)msidDictionaryByRemovingFields:(NSArray *)fieldsToRemove
 {
     NSMutableDictionary *mutableDict = [self mutableCopy];

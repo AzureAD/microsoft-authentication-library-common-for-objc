@@ -54,6 +54,11 @@ static WKWebViewConfiguration *s_webConfig;
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
 
+    if (@available(iOS 9.0, *))
+    {
+        webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    }
+    
     if (@available(iOS 13.0, *))
     {
         webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeMobile;
