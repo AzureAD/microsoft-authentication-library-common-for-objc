@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDWebviewUIController.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
