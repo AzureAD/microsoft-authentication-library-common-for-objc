@@ -384,7 +384,7 @@
         //Open secure web links with target=new window in default browser or non-web links with URL schemes that can be opened by the application
         if (([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame.isMainFrame) || ![requestURL.scheme.lowercaseString hasPrefix:@"http"])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Opening URL outside embedded webview : %@",requestURLString);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening URL outside embedded webview with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
             [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
             decisionHandler(WKNavigationActionPolicyCancel);
             return;
