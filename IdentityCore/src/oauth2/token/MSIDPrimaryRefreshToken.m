@@ -208,7 +208,7 @@ static NSUInteger kDefaultPRTRefreshInterval = 10800;
 {
     if (self.expiryInterval > 0)
     {
-        return self.expiryInterval / 20;
+        return self.expiryInterval / 30;
     }
     
     return kDefaultPRTRefreshInterval;
