@@ -243,6 +243,11 @@ typedef unsigned char byte;
          {
              [encodedString appendFormat:@"=%@", encodedValue];
          }
+        
+         else if ((encodedValue && ![encodedValue isKindOfClass:[NSNull class]]) && !encodedValue.length)
+         {
+             [encodedString appendFormat:@"=%@", encodedValue];
+         }
          
      }];
     return encodedString;
