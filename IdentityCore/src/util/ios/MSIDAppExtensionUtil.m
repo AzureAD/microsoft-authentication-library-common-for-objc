@@ -32,7 +32,7 @@
     
     if (mainBundlePath.length == 0)
     {
-        MSID_LOG_ERROR(nil, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
+        MSID_LOG_WARN(nil, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
         
         return NO;
     }
