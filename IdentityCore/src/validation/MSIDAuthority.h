@@ -92,7 +92,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 // Only certain authorities support MAM CA scenarios
 - (BOOL)supportsMAMScenarios;
 
-// Check if token endpoint is the same cloud as the authoirty
+// Check if token endpoint is consistent with the authoirty
+// E.g., currently AAD Authority checks if the host is the same, which requires resolving authority beforehand
 - (BOOL)checkTokenEndpointForRTRefresh:(nullable NSURL *)tokenEndpoint;
 
 /* It is used in telemetry */

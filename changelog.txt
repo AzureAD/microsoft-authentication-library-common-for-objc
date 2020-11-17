@@ -1,3 +1,4 @@
+* Avoid sending RT to wrong cloud
 * Added logic to handle links that should open in new window in embedded webView.
 * Fix code in kDF function. Add test cases
 * Enabled various warnings (which we were mostly compliant with) (#814)
