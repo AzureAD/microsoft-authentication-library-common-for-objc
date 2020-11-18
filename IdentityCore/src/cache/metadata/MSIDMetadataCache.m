@@ -37,6 +37,9 @@
     id<MSIDMetadataCacheDataSource> _dataSource;
     dispatch_queue_t _synchronizationQueue;
     MSIDCacheItemJsonSerializer *_jsonSerializer;
+    
+    dispatch_semaphore_t _barrierBlockSemaphore;
+    NSMutableArray *_barrierBlockQueue;
 }
 
 - (instancetype)initWithPersistentDataSource:(id<MSIDMetadataCacheDataSource>)dataSource
@@ -52,9 +55,43 @@
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidmetadatacache-%@", [NSUUID UUID].UUIDString];
         _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
         _jsonSerializer = [MSIDCacheItemJsonSerializer new];
+        
+        _barrierBlockSemaphore = dispatch_semaphore_create(0);
+        _barrierBlockQueue = [NSMutableArray new];
+        [self runBarrierBlockQueue];
     }
     
     return self;
+}
+
+- (void)runBarrierBlockQueue
+{
+    // Reserver a thread to run barrier block
+    // Because there is a max limit (i.e. 64) on how many GCD threads an app can create
+    // If no thread can be created to execute barrier block, deadlock could happen
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        while (true)
+        {
+            dispatch_semaphore_wait(self->_barrierBlockSemaphore, DISPATCH_TIME_FOREVER);
+            
+            // Get a barrier block from queue
+            void (^block)(void);
+            @synchronized(self) {
+                block = [self->_barrierBlockQueue firstObject];
+                [self->_barrierBlockQueue removeObjectAtIndex:0];
+            }
+            
+            // Execute it
+            if (block)
+            {
+                // Use sync to let it run on the current thread
+                dispatch_barrier_sync(self->_synchronizationQueue, ^{
+                    block();
+                });
+            }
+        }
+    });
+
 }
 
 - (BOOL)saveAccountMetadataCacheItem:(MSIDAccountMetadataCacheItem *)item
@@ -147,9 +184,15 @@
         return [item copy];
     }
     
-    dispatch_barrier_async(_synchronizationQueue, ^{
+    void (^barrierBlock)(void) = ^
+    {
         self->_memoryCache[key] = item;
-    });
+    };
+    
+    @synchronized(self) {
+        [_barrierBlockQueue addObject:barrierBlock];
+        dispatch_semaphore_signal(_barrierBlockSemaphore);
+    }
     
     // return a copy because we don't want external change on the cache status
     return [item copy];
