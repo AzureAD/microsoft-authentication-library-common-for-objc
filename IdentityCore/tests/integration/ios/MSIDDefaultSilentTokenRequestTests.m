@@ -1163,6 +1163,57 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
+- (void)testAcquireTokenSilent_whenTokenEndpointInDifferentCloud_shouldReturnInteractionRequired
+{
+    // Prepare RT in cache
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+    
+    [self saveTokensInCache:tokenCache configuration:silentParameters.msidConfiguration];
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:silentParameters.accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
+    
+    XCTAssertNotNil(accessToken);
+    
+    BOOL removeResult = [tokenCache removeToken:accessToken context:nil error:nil];
+    XCTAssertTrue(removeResult);
+    
+    // Prepare Open Id Configuration response with token endpoint in a different cloud
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+    
+    MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
+    NSDictionary *oidcJson =
+    @{ @"token_endpoint" : [NSString stringWithFormat:@"%@/oauth2/v2.0/token", @"login.partner.microsoftonline.cn"],
+       @"authorization_endpoint" : @"auth_endpoint",
+       @"issuer" : @"issuer"
+    };
+    [oidcResponse setResponseJSON:oidcJson];
+    [MSIDTestURLSession addResponse:oidcResponse];
+    
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                      accountMetadataCache:self.accountMetadataCache];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+    
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+        XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"User interaction is required (unable to use token from a different cloud).");
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
 #pragma mark - B2C
 
 - (void)testAcquireTokenSilent_whenExpiredB2CAccessTokenInCache_shouldReturnToken

@@ -234,6 +234,16 @@
     return YES;
 }
 
+- (BOOL)checkTokenEndpointForRTRefresh:(NSURL *)tokenEndpoint
+{
+    NSArray *environmentAliases = self.defaultCacheEnvironmentAliases;
+    
+    if (!tokenEndpoint || ![environmentAliases count])
+        return YES;
+    
+    return [tokenEndpoint.host.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases];
+}
+
 #pragma mark - NSCopying
 
 - (id)copyWithZone:(NSZone *)zone
