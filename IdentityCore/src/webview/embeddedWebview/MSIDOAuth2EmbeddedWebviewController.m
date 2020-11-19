@@ -263,11 +263,7 @@
     NSURL *url = webView.URL;
     __auto_type isKnown = [MSIDAADNetworkConfiguration.defaultConfiguration isAADPublicCloud:url.host];
     MSID_LOG_VERBOSE(self.context, @"-didFinishNavigation host: %@", isKnown ? url.host : @"unknown host");
-    MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
-    
-    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
-    
-    [self stopSpinner];
+    [self notifyFinishedNavigation:url webView:webView];
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error
@@ -364,6 +360,7 @@
         {
             MSID_LOG_INFO_PII(self.context, @"Opening URL outside embedded webview with scheme: %@ host: %@",requestURL.scheme,requestURL.host);
             [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
+            [self notifyFinishedNavigation:requestURL webView:webView];
             decisionHandler(WKNavigationActionPolicyCancel);
             return;
         }
@@ -410,6 +407,15 @@
     }
     
     [self dismissLoadingIndicator];
+}
+
+-(void)notifyFinishedNavigation:(NSURL *)url webView:(WKWebView *)webView
+{
+    MSID_LOG_VERBOSE_PII(self.context, @"-didFinishNavigation host: %@", url.host);
+    
+    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
+    
+    [self stopSpinner];
 }
 
 @end
