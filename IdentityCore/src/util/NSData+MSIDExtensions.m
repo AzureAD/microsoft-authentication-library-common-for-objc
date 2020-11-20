@@ -25,6 +25,9 @@
 #import "NSString+MSIDExtensions.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonHMAC.h>
+#import <CommonCrypto/CommonCryptor.h>
+#import <Security/Security.h>
 
 @implementation NSData (MSIDExtensions)
 
@@ -100,7 +103,9 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Message to encrypt was empty");
         return nil;
     }
-    
+    // Debug for dogfood only, will be removed
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"%@", [@" Message to encrypt: " stringByAppendingString:[NSString msidBase64UrlEncodedStringFromData:self]] );
+
     if (!SecKeyIsAlgorithmSupported(privateKey, kSecKeyOperationTypeDecrypt, algorithm))
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Unable to use the requested crypto algorithm with the provided key.");
@@ -109,11 +114,11 @@
     
     CFErrorRef error = nil;
     NSData *decryptedMessage = (NSData *)CFBridgingRelease(SecKeyCreateDecryptedData(privateKey, algorithm, (__bridge CFDataRef)self, &error));
-    
+
     if (error)
     {
         NSError *err = CFBridgingRelease(error);
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to decrypt data" stringByAppendingString:[NSString stringWithFormat:@"%ld", err.code]]);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", [@"Unable to decrypt data: " stringByAppendingString:[NSString stringWithFormat:@"error code: %ld domain: %@ localizedDescription: %@", err.code, err.domain, err.localizedDescription]]);
         return nil;
     }
     
