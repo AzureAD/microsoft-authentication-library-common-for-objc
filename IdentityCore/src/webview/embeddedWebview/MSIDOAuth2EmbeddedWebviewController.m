@@ -284,12 +284,7 @@
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified __unused WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
-    
-    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
-    
-    [self stopSpinner];
+    [self notifyFinishedNavigation:url webView:webView];
 }
 
 - (void)webView:(__unused WKWebView *)webView didFailNavigation:(null_unspecified __unused WKNavigation *)navigation withError:(NSError *)error
@@ -386,6 +381,7 @@
         {
             MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening URL outside embedded webview with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
             [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
+            [self notifyFinishedNavigation:requestURL webView:webView];
             decisionHandler(WKNavigationActionPolicyCancel);
             return;
         }
@@ -432,6 +428,15 @@
     }
     
     [self dismissLoadingIndicator];
+}
+
+-(void)notifyFinishedNavigation:(NSURL *)url webView:(WKWebView *)webView
+{
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
+    
+    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
+    
+    [self stopSpinner];
 }
 
 @end
