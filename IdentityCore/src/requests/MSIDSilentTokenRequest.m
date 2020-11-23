@@ -280,67 +280,69 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
               tokenType:(MSIDRefreshTokenTypes)tokenType
         completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
-    BOOL isAppRefreshToken = tokenType == MSIDAppRefreshTokenType;
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.requestParameters, @"Trying to acquire access token using %@ for clientId %@, authority %@, account %@", (!isAppRefreshToken ? @"App Refresh Token" : @"Family Refresh Token"), self.requestParameters.authority, self.requestParameters.clientId, self.requestParameters.accountIdentifier.maskedHomeAccountId);
+    BOOL isTryingWithAppRefreshToken = tokenType == MSIDAppRefreshTokenType;
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.requestParameters, @"Trying to acquire access token using %@ for clientId %@, authority %@, account %@", (isTryingWithAppRefreshToken ? @"App Refresh Token" : @"Family Refresh Token"), self.requestParameters.authority, self.requestParameters.clientId, self.requestParameters.accountIdentifier.maskedHomeAccountId);
     
     // When using ART or FRT, it will go through the same method below, and handle differently within the completion block
     [self redeemAccessTokenWith:refreshToken
                 completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-        if (error)
+        if (!error)
         {
-            if ([self isErrorRecoverableByUserInteraction:error])
+            completionBlock(result, nil);
+            return;
+        }
+        
+        if ([self isErrorRecoverableByUserInteraction:error])
+        {
+            if (isTryingWithAppRefreshToken)
             {
-                if (isAppRefreshToken)
+                // Handle error case when try with App refresh token
+                BOOL canTryWithFamilyRefreshToken = [self handleErrorResponseForAppRefreshToken:refreshToken
+                                                                                completionBlock:completionBlock];
+                if (canTryWithFamilyRefreshToken)
                 {
-                    // Handle error case when try with App refresh token
-                    MSIDBaseToken<MSIDRefreshableToken> *familyRefreshToken = [self handleErrorResponseForAppRefreshToken:refreshToken];
-                    if (familyRefreshToken)
-                    {
-                        [self tryRefreshToken:familyRefreshToken
-                                    tokenType:MSIDFamilyRefreshTokenType
-                              completionBlock:completionBlock];
-                        return;
-                    }
+                    return;
                 }
-                else
-                {
-                    // Handle error case when try with Family refresh token
-                    [self handleErrorResponseForFamilyRefreshToken:error];
-                }
-                                
-                NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
-                completionBlock(nil, interactionError);
             }
             else
             {
-                completionBlock(nil, error);
+                // Handle error case when try with Family refresh token
+                [self handleErrorResponseForFamilyRefreshToken:error];
             }
+                            
+            NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
+            completionBlock(nil, interactionError);
         }
         else
         {
-            completionBlock(result, nil);
+            completionBlock(nil, error);
         }
+
     }];
 }
 
 #pragma mark - Helpers
 
-- (MSIDBaseToken<MSIDRefreshableToken> *)handleErrorResponseForAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+- (BOOL)handleErrorResponseForAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+                                                               completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     NSError *error = nil;
     MSIDRefreshToken *familyRefreshToken = [self familyRefreshTokenWithError:&error];
     if (error)
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve Family Refresh token with error %@, and user interaction is required", MSID_PII_LOG_MASKABLE(error));
-        return nil;
+        return NO;
     }
 
     if (familyRefreshToken && ![[familyRefreshToken refreshToken] isEqualToString:[refreshToken refreshToken]])
     {
-        return familyRefreshToken;
+        [self tryRefreshToken:familyRefreshToken
+                    tokenType:MSIDFamilyRefreshTokenType
+              completionBlock:completionBlock];
+        return YES;
     }
     
-    return nil;
+    return NO;
 }
 
 - (void)handleErrorResponseForFamilyRefreshToken:(NSError *)error

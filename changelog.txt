@@ -1,3 +1,4 @@
+* Revert FRT and ART lookup orders (#884)
 * Avoid sending RT to wrong cloud (#892)
 * Added logic to handle links that should open in new window in embedded webView.
 * Fix code in kDF function. Add test cases
