@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
 
@@ -30,7 +32,7 @@
 {
     NSString *mainBundlePath = [[NSBundle mainBundle] bundlePath];
     
-    if (mainBundlePath.length == 0)
+    if ([NSString msidIsStringNilOrBlank:mainBundlePath])
     {
         MSID_LOG_WARN(nil, @"Expected `[[NSBundle mainBundle] bundlePath]` to be non-nil. Defaulting to non-application-extension safe API.");
         
@@ -40,9 +42,9 @@
     return [mainBundlePath hasSuffix:@"appex"];
 }
 
-#pragma mark - UIApplication
+#pragma mark - NSWorkspace
 
-+ (UIApplication*)sharedApplication
++ (NSWorkspace *)sharedApplication
 {
     if ([self isExecutingInAppExtension])
     {
@@ -50,7 +52,7 @@
         return nil;
     }
     
-    return [UIApplication performSelector:NSSelectorFromString(@"sharedApplication")];
+    return [NSWorkspace performSelector:NSSelectorFromString(@"sharedWorkspace")];
 }
 
 + (void)sharedApplicationOpenURL:(NSURL*)url
@@ -68,6 +70,26 @@
         [[self sharedApplication] performSelector:NSSelectorFromString(@"openURL:") withObject:url];
     }];
 #pragma clang diagnostic pop
+}
+
++ (void)sharedApplicationOpenURL:(NSURL *)url
+                   configuration:(NSWorkspaceOpenConfiguration *)options
+               completionHandler:(void (^ __nullable)(BOOL success))completionHandler
+API_AVAILABLE(macos(10.15)){
+    if ([self isExecutingInAppExtension])
+    {
+        // The caller should do this check but we will double check to fail safely
+        return;
+    }
+    
+    [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
+        
+        SEL openURLSelector = @selector(openURL:configuration:completionHandler:);
+        NSWorkspace *application = [self sharedApplication];
+        id (*safeOpenURL)(id, SEL, id, id, id) = (void *)[application methodForSelector:openURLSelector];
+        
+        safeOpenURL(application, openURLSelector, url, options, completionHandler);
+    }];
 }
 
 @end
