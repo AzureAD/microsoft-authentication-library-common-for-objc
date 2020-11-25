@@ -73,4 +73,5 @@ extern NSString * _Nonnull const MSID_ADAL_BROKER_MESSAGE_VERSION;
 extern NSString * _Nonnull const MSID_MSAL_BROKER_MESSAGE_VERSION;
 extern NSString * _Nonnull const MSID_BROKER_SDK_CAPABILITIES_KEY;
 extern NSString * _Nonnull const MSID_BROKER_SDK_SSO_EXTENSION_CAPABILITY;
+extern NSString * _Nonnull const MSID_IS_BROKER_CBA;
 extern NSString * _Nonnull const MSID_ADDITIONAL_EXTENSION_DATA_KEY;
