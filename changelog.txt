@@ -3,6 +3,7 @@
 * Fix code in kDF function. Add test cases
 * Enabled various warnings (which we were mostly compliant with) (#814)
 * Added client-side fix for the known ADFS PKeyAuth issue. (#890)
+* Broker CBA flow fix to stop SSOExtension interference. 
 
 Version 1.5.9
 * Fix for filtering access tokens by requested claims.
