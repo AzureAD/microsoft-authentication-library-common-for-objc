@@ -126,7 +126,6 @@ static BOOL s_useLastRequestURL = NO;
         NSMutableDictionary *newQueryItems = [NSMutableDictionary new];
         NSString *redirectSchemePrefix = [NSString stringWithFormat:@"%@://", s_redirectScheme];
         
-        newQueryItems[MSID_BROKER_IS_PERFORMING_CBA] = @"true";
         for (NSURLQueryItem *item in queryItems)
         {
             if ([item.name isEqualToString:MSID_OAUTH2_REDIRECT_URI]
