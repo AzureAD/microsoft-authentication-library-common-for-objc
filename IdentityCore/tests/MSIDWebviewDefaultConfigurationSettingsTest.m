@@ -45,7 +45,7 @@
         [expectation fulfill];
     }];
     
-    [self waitForExpectationsWithTimeout:3 handler:nil];
+    [self waitForExpectationsWithTimeout:10 handler:nil];
     
 }
 
