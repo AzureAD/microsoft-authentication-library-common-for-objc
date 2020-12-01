@@ -66,8 +66,9 @@
     {
         _startURL = url;
         _context = context;
-        
-        _safariViewController = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:NO];
+        SFSafariViewControllerConfiguration *config = [[SFSafariViewControllerConfiguration alloc] init];
+        config.entersReaderIfAvailable = NO;
+        _safariViewController = [[SFSafariViewController alloc] initWithURL:url configuration:config];
         _safariViewController.delegate = self;
         
         _parentController = parentController;
