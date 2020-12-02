@@ -44,6 +44,10 @@
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details. */
 - (NSString *)msidWWWFormURLDecode;
 
+/*! URL decode (Percentage decode), in accordance to
+ https://tools.ietf.org/html/rfc3986 */
+- (NSString *)msidURLDecode;
+
 /*! Encodes the string to be application/x-www-form-urlencoded.
  See https://www.w3.org/TR/html401/interact/forms.html#h-17.13.4 for more details.  */
 - (NSString *)msidWWWFormURLEncode;

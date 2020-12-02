@@ -57,7 +57,11 @@ static WKWebViewConfiguration *s_webConfig;
 + (WKWebViewConfiguration *)defaultWKWebviewConfiguration
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
-    webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+
+    if (@available(iOS 9.0, *))
+    {
+        webConfig.applicationNameForUserAgent = kMSIDPKeyAuthKeyWordForUserAgent;
+    }
     
     if (@available(iOS 13.0, *))
     {

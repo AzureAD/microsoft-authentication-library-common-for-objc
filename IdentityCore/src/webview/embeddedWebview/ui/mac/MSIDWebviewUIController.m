@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDWebviewUIController.h"
+#import "MSIDWorkPlaceJoinConstants.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -51,7 +52,6 @@ static WKWebViewConfiguration *s_webConfig;
 + (WKWebViewConfiguration *)defaultWKWebviewConfiguration
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
-
     if (@available(macOS 10.15, *))
     {
         webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
@@ -140,7 +140,7 @@ static WKWebViewConfiguration *s_webConfig;
     NSRect centerRect = [self getCenterRect:windowRect rect2:NSMakeRect(0, 0, DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)];
     
     NSWindow *window = [[NSWindow alloc] initWithContentRect:centerRect
-                                                   styleMask:NSTitledWindowMask | NSClosableWindowMask
+                                                   styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable
                                                      backing:NSBackingStoreBuffered
                                                        defer:YES];
     [window setDelegate:self];

@@ -28,9 +28,21 @@
 
 /// Determine whether or not the host app is an application extension based on the main bundle path
 + (BOOL)isExecutingInAppExtension;
-/// Application extension safe replacement for `[UIApplication sharedApplication]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
-+ (UIApplication *)sharedApplication;
-/// Application extension safe replacement for `[[UIApplication sharedApplication] openURL:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
-+ (void)sharedApplicationOpenURL:(NSURL *)url;
 
+/// Application extension safe replacement for `openURL:`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
++ (void)sharedApplicationOpenURL:(nonnull NSURL *)url;
+
+#if TARGET_OS_IPHONE
+/// Application extension safe replacement for `[UIApplication sharedApplication]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
++ (nullable UIApplication *)sharedApplication;
+
+#else
+/// Application extension safe replacement for `[NSWorkspace sharedWorkspace]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
++ (nullable NSWorkspace *)sharedApplication;
+
+/// Application extension safe replacement for `[[NSWorkspace sharedWorkspace] openURL:configuration:completionHandler:]`. The caller should make sure `isExecutingInAppExtension == NO` before calling this method.
++ (void)sharedApplicationOpenURL:(nonnull NSURL *)url
+                   configuration:(nullable NSWorkspaceOpenConfiguration *)options
+               completionHandler:(void (^ __nullable)(BOOL success))completionHandler API_AVAILABLE(macos(10.15));
+#endif
 @end
