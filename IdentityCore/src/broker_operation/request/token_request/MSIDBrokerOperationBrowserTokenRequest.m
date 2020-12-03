@@ -36,6 +36,7 @@
                            body:(NSData *)httpBody
                bundleIdentifier:(NSString *)bundleIdentifier
                requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
+           useSSOCookieFallback:(BOOL)useSSOCookieFallback
                           error:(NSError **)error
 {
     self = [super init];
@@ -65,6 +66,7 @@
             return nil;
         }
         
+        _useSSOCookieFallback = useSSOCookieFallback;
         _headers = headers;
         _httpBody = httpBody;
         _bundleIdentifier = bundleIdentifier;

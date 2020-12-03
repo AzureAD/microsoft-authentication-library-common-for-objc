@@ -191,6 +191,11 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
     return NO;
 }
 
+- (BOOL)checkTokenEndpointForRTRefresh:(NSURL *)tokenEndpoint
+{
+    return YES;
+}
+
 - (nonnull NSString *)telemetryAuthorityType
 {
     NSAssert(NO, @"Abstract method.");
