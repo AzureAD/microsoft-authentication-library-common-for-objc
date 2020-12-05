@@ -1,3 +1,6 @@
+TBD (Throttling)
+* Added headers for thumbprint calculation components
+
 * Avoid sending RT to wrong cloud (#892)
 * Added logic to handle links that should open in new window in embedded webView.
 * Fix code in kDF function. Add test cases
