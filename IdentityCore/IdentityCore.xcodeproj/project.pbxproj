@@ -1596,6 +1596,8 @@
 		E7B671BA257B16380053773F /* MSIDThumbprintCalculatable.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671B9257B16380053773F /* MSIDThumbprintCalculatable.h */; };
 		E7B671D4257B17DA0053773F /* MSIDFullThumbprintCalculator.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671D3257B17DA0053773F /* MSIDFullThumbprintCalculator.h */; };
 		E7B671E3257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */; };
+		E7B67216257EA84B0053773F /* MSIDThrottlingCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */; };
+		E7B67250257EAE030053773F /* MSIDThrottlingCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2851,6 +2853,8 @@
 		E7B671B9257B16380053773F /* MSIDThumbprintCalculatable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThumbprintCalculatable.h; sourceTree = "<group>"; };
 		E7B671D3257B17DA0053773F /* MSIDFullThumbprintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFullThumbprintCalculator.h; sourceTree = "<group>"; };
 		E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDStrictThumbrpintCalculator.h; sourceTree = "<group>"; };
+		E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheRecord.h; sourceTree = "<group>"; };
+		E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheNode.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5005,6 +5009,7 @@
 		E7B671B7257B15790053773F /* throttling */ = {
 			isa = PBXGroup;
 			children = (
+				E7B67214257EA7930053773F /* cache */,
 				E7B671B8257B15880053773F /* thumbprint_calculation */,
 			);
 			path = throttling;
@@ -5018,6 +5023,15 @@
 				E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */,
 			);
 			path = thumbprint_calculation;
+			sourceTree = "<group>";
+		};
+		E7B67214257EA7930053773F /* cache */ = {
+			isa = PBXGroup;
+			children = (
+				E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */,
+				E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */,
+			);
+			path = cache;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -5264,6 +5278,7 @@
 				B2AF1D2E218BCEDE0080C1A0 /* MSIDInteractiveTokenRequest.h in Headers */,
 				1E707FE22407337300716148 /* MSIDBrokerOperationResponse.h in Headers */,
 				B251CC48204105A7005E0179 /* MSIDBaseToken.h in Headers */,
+				E7B67250257EAE030053773F /* MSIDThrottlingCacheNode.h in Headers */,
 				1E62D0E6228B760A000E2BBC /* MSIDKeychainUtil.h in Headers */,
 				2306D2B820AD07C400F875A3 /* MSIDURLSessionManager.h in Headers */,
 				232173F02182B195009852C6 /* MSIDIntuneCacheDataSource.h in Headers */,
@@ -5435,6 +5450,7 @@
 				B286B9AE2389DD5E007833AD /* MSIDChallengeHandling.h in Headers */,
 				B2C7089221991CED00D917B8 /* MSIDAADV1BrokerResponse.h in Headers */,
 				239E3BBE23E1004F00F7A50A /* MSIDClientSDKType.h in Headers */,
+				E7B67216257EA84B0053773F /* MSIDThrottlingCacheRecord.h in Headers */,
 				B286B9822389DC13007833AD /* MSIDBrokerOperationInteractiveTokenRequest.h in Headers */,
 				B2C708B1219A615100D917B8 /* MSIDLegacyBrokerResponseHandler.h in Headers */,
 				B286B9BC2389DDF3007833AD /* MSIDAADAuthorityValidationRequest.h in Headers */,

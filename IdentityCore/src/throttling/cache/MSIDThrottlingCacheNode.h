@@ -20,15 +20,16 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDThumbprintCalculatable.h"
+#import "MSIDThrottlingCacheRecord.h"
 
-@class MSIDTokenRequest;
+@interface MSIDThrottlingCacheNode : NSObject
 
-@interface MSIDFullThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
+@property (nonatomic, readonly) NSString *requestThumbprintKey;
+@property (nonatomic) NSString *prevRequestThumbprintKey; //prev and next node keys should be mutable
+@property (nonatomic) NSString *nextRequestThumbprintKey;
+@property (nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
 
-+ (NSString *)getThumbprintFromTokenRequest(MSIDTokenRequest *request);
 
 @end

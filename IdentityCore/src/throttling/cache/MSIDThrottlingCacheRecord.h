@@ -20,15 +20,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
-#import "MSIDThumbprintCalculatable.h"
 
-@class MSIDTokenRequest;
+@interface MSIDThrottlingCacheRecord : NSObject
 
-@interface MSIDFullThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
-
-+ (NSString *)getThumbprintFromTokenRequest(MSIDTokenRequest *request);
+@property (nonatomic, readonly) NSDate *creationTime;
+@property (nonatomic, readonly) NSDate *expirationTime;
+@property (nonatomic) NSUInteger throttledCount; //number of times this request has been throttled
+@property (nonatomic) NSString *throttleType;
+@property (nonatomic) NSString *throttleReason;
+@property (nonatomic) NSString *lastResponseFromServer;
+@property (nonatomic) NSHTTPURLResponse *cachedResponse;
 
 @end
