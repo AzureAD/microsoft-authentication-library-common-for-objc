@@ -701,6 +701,19 @@
     XCTAssertNotEqualObjects(lhs, rhs);
 }
 
+- (void)testCheckTokenEndpointForRTRefresh_whenTokenEndpointNil_shouldReturnTrue
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    XCTAssertTrue([authority checkTokenEndpointForRTRefresh:nil]);
+}
+
+- (void)testCheckTokenEndpointForRTRefresh_whenTokenEndpointInDifferentCloud_shouldReturnFalse
+{
+    MSIDAADAuthority *authority = (MSIDAADAuthority *)[@"https://login.microsoftonline.com/common" aadAuthority];
+    NSURL *urlFromDifferentCloud = [NSURL URLWithString:@"https://login.partner.microsoftonline.cn/oauth2/v2.0/token"];
+    XCTAssertFalse([authority checkTokenEndpointForRTRefresh:urlFromDifferentCloud]);
+}
+
 #pragma mark - Private
 
 - (void)setupAADAuthorityCache

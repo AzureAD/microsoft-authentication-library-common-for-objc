@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,7 +20,8 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import "MSIDAppExtensionUtil.h"
 #import "MSIDMainThreadUtil.h"
@@ -52,9 +54,9 @@ static BOOL s_isRunningInCompliantExtension = NO;
     return [mainBundlePath hasSuffix:@"appex"] && !self.runningInCompliantExtension;
 }
 
-#pragma mark - UIApplication
+#pragma mark - NSWorkspace
 
-+ (UIApplication*)sharedApplication
++ (NSWorkspace *)sharedApplication
 {
     if ([self isExecutingInAppExtension])
     {
@@ -62,7 +64,7 @@ static BOOL s_isRunningInCompliantExtension = NO;
         return nil;
     }
     
-    return [UIApplication performSelector:NSSelectorFromString(@"sharedApplication")];
+    return [NSWorkspace performSelector:NSSelectorFromString(@"sharedWorkspace")];
 }
 
 + (void)sharedApplicationOpenURL:(NSURL*)url
@@ -83,9 +85,9 @@ static BOOL s_isRunningInCompliantExtension = NO;
 }
 
 + (void)sharedApplicationOpenURL:(NSURL *)url
-                         options:(NSDictionary<UIApplicationOpenExternalURLOptionsKey, id> *)options
+                   configuration:(NSWorkspaceOpenConfiguration *)options
                completionHandler:(void (^ __nullable)(BOOL success))completionHandler
-{
+API_AVAILABLE(macos(10.15)){
     if ([self isExecutingInAppExtension])
     {
         // The caller should do this check but we will double check to fail safely
@@ -94,16 +96,12 @@ static BOOL s_isRunningInCompliantExtension = NO;
     
     [MSIDMainThreadUtil executeOnMainThreadIfNeeded:^{
         
-        SEL openURLSelector = @selector(openURL:options:completionHandler:);
-        UIApplication *application = [self sharedApplication];
+        SEL openURLSelector = @selector(openURL:configuration:completionHandler:);
+        NSWorkspace *application = [self sharedApplication];
         id (*safeOpenURL)(id, SEL, id, id, id) = (void *)[application methodForSelector:openURLSelector];
         
         safeOpenURL(application, openURLSelector, url, options, completionHandler);
     }];
 }
 
-+ (BOOL)runningInActiveState
-{
-    return [[self sharedApplication] applicationState] == UIApplicationStateActive;
-}
 @end

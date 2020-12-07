@@ -392,17 +392,26 @@
 
     [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
                                                     completionBlock:^(__unused MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
-
-                                                        if (error)
-                                                        {
-                                                            completionBlock(nil, error);
-                                                            return;
-                                                        }
-
-                                                        [self acquireTokenWithRefreshTokenImpl:refreshToken
-                                                                               completionBlock:completionBlock];
-
-                                                    }];
+        
+        if (error)
+        {
+            completionBlock(nil, error);
+            return;
+        }
+        
+        // Check if token endpoint (from open id metadata) is the same cloud as the RT issuer cloud
+        // If not the same cloud, we don't send RT to wrong cloud.
+        if (![self.requestParameters.authority checkTokenEndpointForRTRefresh:self.requestParameters.tokenEndpoint])
+        {
+            NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required (unable to use token from a different cloud).", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+            completionBlock(nil, interactionError);
+            return;
+        }
+        
+        [self acquireTokenWithRefreshTokenImpl:refreshToken
+                               completionBlock:completionBlock];
+        
+    }];
 }
 
 - (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
