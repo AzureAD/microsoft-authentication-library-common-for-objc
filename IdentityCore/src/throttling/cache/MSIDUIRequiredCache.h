@@ -22,14 +22,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import "MSIDLRUCache.h"
 
-#import <Foundation/Foundation.h>
-#import "MSIDThumbprintCalculatable.h"
+@class MSIDThrottlingCacheRecord;
 
-@class MSIDTokenRequest;
+//static MSIDCache instance that will act as a pseudo-doubly-linkedList will be in the implementation file.
+@interface MSIDUIRequiredCache : NSObject <MSIDLRUCache>
 
-@interface MSIDStrictThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
+- (instancetype)initializeCache;
 
-+ (NSString *)getThumbprintFromTokenRequest(id request);
+- (void)addToFront:(id)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+      httpResponse:(NSHTTPURLResponse *)httpResponse;
+
+- (MSIDThrottlingCacheRecord *)getCacheRecord:(id)tokenRequest;
+
+- (void)removeNode;
 
 @end

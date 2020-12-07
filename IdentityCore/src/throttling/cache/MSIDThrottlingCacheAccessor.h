@@ -23,13 +23,16 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDThumbprintCalculatable.h"
+//singleton instances of MSIDServerDelayCache & MSIDUIRequiredCache will be in the implementation file as private properties.
+@interface MSIDThrottlingCacheAccessor : NSObject
 
-@class MSIDTokenRequest;
+//Will implement getters in the .m file. 
+@property (nonatomic, readonly) NSDate *lastCleanUpTimeForUICache;
+@property (nonatomic, readonly) NSDate *lastCleanUpTimeForServerDelayCache;
 
-@interface MSIDStrictThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
+- (instancetype)initializeThrottlingCacheAccessor;
 
-+ (NSString *)getThumbprintFromTokenRequest(id request);
+- (void)addRequestToCache:(id)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+             httpResponse:(NSHTTPURLResponse *)httpResponse;
 
 @end

@@ -23,13 +23,20 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDThumbprintCalculatable.h"
+#import "MSIDLRUCache.h"
 
-@class MSIDTokenRequest;
+@class MSIDThrottlingCacheRecord;
 
-@interface MSIDStrictThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
+//static MSIDCache instance that will act as a pseudo-doubly-linkedList will be in the implementation file.
+@interface MSIDServerDelayCache : NSObject <MSIDLRUCache>
 
-+ (NSString *)getThumbprintFromTokenRequest(id request);
+- (instancetype)initializeCache;
+
+- (void)addToFront:(id)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+      httpResponse:(NSHTTPURLResponse *)httpResponse;
+
+- (MSIDThrottlingCacheRecord *)getCacheRecord:(id)tokenRequest;
+
+- (void)removeNode;
 
 @end

@@ -1598,6 +1598,10 @@
 		E7B671E3257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */; };
 		E7B67216257EA84B0053773F /* MSIDThrottlingCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */; };
 		E7B67250257EAE030053773F /* MSIDThrottlingCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */; };
+		E7B6725E257EC7C60053773F /* MSIDLRUCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B6725D257EC7C60053773F /* MSIDLRUCache.h */; };
+		E7B6726C257EC9AF0053773F /* MSIDUIRequiredCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B6726B257EC9AF0053773F /* MSIDUIRequiredCache.h */; };
+		E7B67286257ECAEE0053773F /* MSIDServerDelayCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67285257ECAEE0053773F /* MSIDServerDelayCache.h */; };
+		E7B67294257ED6E30053773F /* MSIDThrottlingCacheAccessor.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67293257ED6E30053773F /* MSIDThrottlingCacheAccessor.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2855,6 +2859,10 @@
 		E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDStrictThumbrpintCalculator.h; sourceTree = "<group>"; };
 		E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheRecord.h; sourceTree = "<group>"; };
 		E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheNode.h; sourceTree = "<group>"; };
+		E7B6725D257EC7C60053773F /* MSIDLRUCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLRUCache.h; sourceTree = "<group>"; };
+		E7B6726B257EC9AF0053773F /* MSIDUIRequiredCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDUIRequiredCache.h; sourceTree = "<group>"; };
+		E7B67285257ECAEE0053773F /* MSIDServerDelayCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDServerDelayCache.h; sourceTree = "<group>"; };
+		E7B67293257ED6E30053773F /* MSIDThrottlingCacheAccessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheAccessor.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5030,6 +5038,10 @@
 			children = (
 				E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */,
 				E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */,
+				E7B6725D257EC7C60053773F /* MSIDLRUCache.h */,
+				E7B6726B257EC9AF0053773F /* MSIDUIRequiredCache.h */,
+				E7B67285257ECAEE0053773F /* MSIDServerDelayCache.h */,
+				E7B67293257ED6E30053773F /* MSIDThrottlingCacheAccessor.h */,
 			);
 			path = cache;
 			sourceTree = "<group>";
@@ -5106,6 +5118,7 @@
 				1E36589B247EF3260044A072 /* MSIDAuthenticationSchemePop.h in Headers */,
 				B286B9E22389DFAB007833AD /* MSIDDRSType.h in Headers */,
 				96F94A39208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h in Headers */,
+				E7B6726C257EC9AF0053773F /* MSIDUIRequiredCache.h in Headers */,
 				B2000C9920EC64CA0092790A /* MSIDCredentialType.h in Headers */,
 				B8F16E90245B548D0047457F /* MSIDWebViewPlatformParams.h in Headers */,
 				B26CEADA23652795009E6E54 /* MSIDMacACLKeychainAccessor.h in Headers */,
@@ -5129,6 +5142,7 @@
 				B23ECEEF1FF2F6270015FC1D /* MSIDAADV2IdTokenClaims.h in Headers */,
 				B2DD4B2120A7D2F90047A66E /* MSIDLegacyAccessToken.h in Headers */,
 				D62600151FBD380500EE4487 /* NSDictionary+MSIDExtensions.h in Headers */,
+				E7B67286257ECAEE0053773F /* MSIDServerDelayCache.h in Headers */,
 				2306D2B520AD05A700F875A3 /* MSIDURLSessionDelegate.h in Headers */,
 				1E2EDFF9219125400054FAD9 /* MSIDTokenResponse+Internal.h in Headers */,
 				238E19E02086FE28004DF483 /* MSIDAADRefreshTokenGrantRequest.h in Headers */,
@@ -5301,6 +5315,7 @@
 				239FE695236A507700D846AC /* MSIDJsonSerializableTypes.h in Headers */,
 				B2C7B3B3213C681F009FFCC1 /* MSIDErrorConverter.h in Headers */,
 				B2C7B3B7213C6839009FFCC1 /* MSIDErrorConverting.h in Headers */,
+				E7B67294257ED6E30053773F /* MSIDThrottlingCacheAccessor.h in Headers */,
 				23B39A90209A85EB000AA905 /* MSIDWebFingerRequest.h in Headers */,
 				B2C708A5219A593C00D917B8 /* MSIDLegacyTokenRequestProvider.h in Headers */,
 				B286B9D32389DF1C007833AD /* MSIDAuthority.h in Headers */,
@@ -5320,6 +5335,7 @@
 				B2C07492246B735B0008D701 /* MSIDAssymetricKeyKeychainGenerator.h in Headers */,
 				B2EB3AE022F7C74300FA400E /* MSIDBrokerInvocationOptions.h in Headers */,
 				B286B9B22389DD75007833AD /* MSIDWebOAuth2AuthCodeResponse.h in Headers */,
+				E7B6725E257EC7C60053773F /* MSIDLRUCache.h in Headers */,
 				238EF042208FE88C0035ABE6 /* MSIDAADAuthorizationCodeGrantRequest.h in Headers */,
 				B28686C6240655EF004E83FC /* MSIDLoginKeychainUtil.h in Headers */,
 				05566D102204BB8A002DBA40 /* MSIDMacKeychainTokenCache.h in Headers */,

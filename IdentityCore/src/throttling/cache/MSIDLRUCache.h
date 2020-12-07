@@ -22,14 +22,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+@class MSIDThrottlingCacheRecord;
 
-#import <Foundation/Foundation.h>
-#import "MSIDThumbprintCalculatable.h"
+@protocol MSIDLRUCache <NSObject>
 
-@class MSIDTokenRequest;
+- (void)addToFront:(id)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+      httpResponse:(NSHTTPURLResponse *)httpResponse;
 
-@interface MSIDStrictThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
+- (MSIDThrottlingCacheRecord *)getCacheRecord:(id)tokenRequest;
 
-+ (NSString *)getThumbprintFromTokenRequest(id request);
+- (void)removeNode;
 
 @end

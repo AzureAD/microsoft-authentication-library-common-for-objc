@@ -29,6 +29,6 @@
 
 @interface MSIDFullThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
 
-+ (NSString *)getThumbprintFromTokenRequest(MSIDTokenRequest *request);
++ (NSString *)getThumbprintFromTokenRequest(id request);
 
 @end

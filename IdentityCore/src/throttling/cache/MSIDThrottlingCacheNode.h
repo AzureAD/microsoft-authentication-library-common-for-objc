@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import "MSIDThrottlingCacheRecord.h"
+@class MSIDThrottlingCacheRecord;
 
 @interface MSIDThrottlingCacheNode : NSObject
 
@@ -31,5 +31,10 @@
 @property (nonatomic) NSString *nextRequestThumbprintKey;
 @property (nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
 
+- (instancetype)initWithTokenRequest:(id)tokenRequest
+                        httpResponse:(NSHTTPURLResponse *)httpResponse
+                      throttleReason:(NSString *)throttleReason
+            prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
+            nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
 
 @end

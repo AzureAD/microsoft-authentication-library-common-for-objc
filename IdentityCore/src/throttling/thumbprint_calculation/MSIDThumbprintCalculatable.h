@@ -22,10 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@class MSIDTokenRequest
+@protocol MSIDThumbprintCalculatable <NSObject>
 
-@protocol MSIDThumbprintCalculating <NSObject>
-
-+ (NSString *)getThumbprintFromTokenRequest(MSIDTokenRequest *request);
++ (NSString *)getThumbprintFromTokenRequest(id request);
 
 @end

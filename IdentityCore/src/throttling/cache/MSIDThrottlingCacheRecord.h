@@ -33,4 +33,7 @@
 @property (nonatomic) NSString *lastResponseFromServer;
 @property (nonatomic) NSHTTPURLResponse *cachedResponse;
 
+- (instancetype)initWithResponse:(NSHTTPURLResponse *)httpResponse
+                  throttleReason:(NSString *)throttleReason;
+
 @end
