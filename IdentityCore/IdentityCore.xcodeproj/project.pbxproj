@@ -1595,13 +1595,17 @@
 		D6D9A4BF1FBE712900EFA430 /* MSIDStringExtensionsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */; };
 		E7B671BA257B16380053773F /* MSIDThumbprintCalculatable.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671B9257B16380053773F /* MSIDThumbprintCalculatable.h */; };
 		E7B671D4257B17DA0053773F /* MSIDFullThumbprintCalculator.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671D3257B17DA0053773F /* MSIDFullThumbprintCalculator.h */; };
-		E7B671E3257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */; };
+		E7B671E3257B18EE0053773F /* MSIDStrictThumbprintCalculator.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B671E2257B18EE0053773F /* MSIDStrictThumbprintCalculator.h */; };
 		E7B67216257EA84B0053773F /* MSIDThrottlingCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */; };
 		E7B67250257EAE030053773F /* MSIDThrottlingCacheNode.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */; };
 		E7B6725E257EC7C60053773F /* MSIDLRUCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B6725D257EC7C60053773F /* MSIDLRUCache.h */; };
 		E7B6726C257EC9AF0053773F /* MSIDUIRequiredCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B6726B257EC9AF0053773F /* MSIDUIRequiredCache.h */; };
 		E7B67286257ECAEE0053773F /* MSIDServerDelayCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67285257ECAEE0053773F /* MSIDServerDelayCache.h */; };
 		E7B67294257ED6E30053773F /* MSIDThrottlingCacheAccessor.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67293257ED6E30053773F /* MSIDThrottlingCacheAccessor.h */; };
+		E7B672A2257EF2970053773F /* MSIDStrictThumbprintCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = E7B672A1257EF2970053773F /* MSIDStrictThumbprintCalculator.m */; };
+		E7B672A3257EF2970053773F /* MSIDStrictThumbprintCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = E7B672A1257EF2970053773F /* MSIDStrictThumbprintCalculator.m */; };
+		E7B672B1257EF40E0053773F /* MSIDFullThumbprintCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = E7B672B0257EF40E0053773F /* MSIDFullThumbprintCalculator.m */; };
+		E7B672B2257EF40E0053773F /* MSIDFullThumbprintCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = E7B672B0257EF40E0053773F /* MSIDFullThumbprintCalculator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2856,13 +2860,15 @@
 		D6D9A4BB1FBE712900EFA430 /* MSIDStringExtensionsTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDStringExtensionsTests.m; sourceTree = "<group>"; };
 		E7B671B9257B16380053773F /* MSIDThumbprintCalculatable.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThumbprintCalculatable.h; sourceTree = "<group>"; };
 		E7B671D3257B17DA0053773F /* MSIDFullThumbprintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDFullThumbprintCalculator.h; sourceTree = "<group>"; };
-		E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDStrictThumbrpintCalculator.h; sourceTree = "<group>"; };
+		E7B671E2257B18EE0053773F /* MSIDStrictThumbprintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDStrictThumbprintCalculator.h; sourceTree = "<group>"; };
 		E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheRecord.h; sourceTree = "<group>"; };
 		E7B6724F257EAE030053773F /* MSIDThrottlingCacheNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheNode.h; sourceTree = "<group>"; };
 		E7B6725D257EC7C60053773F /* MSIDLRUCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLRUCache.h; sourceTree = "<group>"; };
 		E7B6726B257EC9AF0053773F /* MSIDUIRequiredCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDUIRequiredCache.h; sourceTree = "<group>"; };
 		E7B67285257ECAEE0053773F /* MSIDServerDelayCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDServerDelayCache.h; sourceTree = "<group>"; };
 		E7B67293257ED6E30053773F /* MSIDThrottlingCacheAccessor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheAccessor.h; sourceTree = "<group>"; };
+		E7B672A1257EF2970053773F /* MSIDStrictThumbprintCalculator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDStrictThumbprintCalculator.m; sourceTree = "<group>"; };
+		E7B672B0257EF40E0053773F /* MSIDFullThumbprintCalculator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDFullThumbprintCalculator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5028,7 +5034,9 @@
 			children = (
 				E7B671B9257B16380053773F /* MSIDThumbprintCalculatable.h */,
 				E7B671D3257B17DA0053773F /* MSIDFullThumbprintCalculator.h */,
-				E7B671E2257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h */,
+				E7B671E2257B18EE0053773F /* MSIDStrictThumbprintCalculator.h */,
+				E7B672A1257EF2970053773F /* MSIDStrictThumbprintCalculator.m */,
+				E7B672B0257EF40E0053773F /* MSIDFullThumbprintCalculator.m */,
 			);
 			path = thumbprint_calculation;
 			sourceTree = "<group>";
@@ -5410,7 +5418,7 @@
 				23AE20982342D3BF00108F76 /* MSIDSilentController+Internal.h in Headers */,
 				23B39A8620993572000AA905 /* MSIDAADAuthorityMetadataRequest.h in Headers */,
 				B28D90AA218FD1F800E230D6 /* MSIDDefaultTokenResponseValidator.h in Headers */,
-				E7B671E3257B18EE0053773F /* MSIDStrictThumbrpintCalculator.h in Headers */,
+				E7B671E3257B18EE0053773F /* MSIDStrictThumbprintCalculator.h in Headers */,
 				B2F671E82467A34400649855 /* MSIDAuthorizationCodeResult.h in Headers */,
 				B286B9A02389DCC1007833AD /* MSIDInteractiveTokenRequest+Internal.h in Headers */,
 				B29A36BF20B1289D00427B63 /* MSIDAccountIdentifier.h in Headers */,
@@ -6330,6 +6338,7 @@
 				B286B9992389DC9D007833AD /* MSIDSSOExtensionSilentTokenRequest.m in Sources */,
 				B2C7089921991D0000D917B8 /* MSIDAADV2BrokerResponse.m in Sources */,
 				B20E3CB61FC4FE400029C097 /* MSIDOAuth2Constants.m in Sources */,
+				E7B672B2257EF40E0053773F /* MSIDFullThumbprintCalculator.m in Sources */,
 				B2BE924D21A2331A00F5AB8C /* MSIDTelemetryAuthorityValidationEvent.m in Sources */,
 				B2807FF9204CAFDF00944D89 /* MSIDHelpers.m in Sources */,
 				B297E1E320A1272600F370EC /* MSIDLegacyTokenCacheQuery.m in Sources */,
@@ -6354,6 +6363,7 @@
 				235480CF20DDF81000246F72 /* MSIDAADTenant.m in Sources */,
 				230847A82082C5830024CE7C /* MSIDHttpRequest.m in Sources */,
 				B2AF1D42218BD10A0080C1A0 /* MSIDRequestParameters.m in Sources */,
+				E7B672A3257EF2970053773F /* MSIDStrictThumbprintCalculator.m in Sources */,
 				04D32CB31FD62141000B123E /* MSIDError.m in Sources */,
 				05566D112204BB8A002DBA40 /* MSIDMacKeychainTokenCache.m in Sources */,
 				23D2049021D1B499009B5975 /* MSIDAADJsonResponsePreprocessor.m in Sources */,
@@ -6904,6 +6914,7 @@
 				B2F671E92467A34400649855 /* MSIDAuthorizationCodeResult.m in Sources */,
 				23FB5C2B225517AA002BF1EB /* MSIDIndividualClaimRequestAdditionalInfo.m in Sources */,
 				1E707FDD2406FA9200716148 /* MSIDBrokerBrowserOperationResponse.m in Sources */,
+				E7B672B1257EF40E0053773F /* MSIDFullThumbprintCalculator.m in Sources */,
 				609E74BD228CA5CA005E3FED /* MSIDAccountMetadataCacheAccessor.m in Sources */,
 				238EF043208FE88C0035ABE6 /* MSIDAADAuthorizationCodeGrantRequest.m in Sources */,
 				2338ECCB208A675D00809B9E /* MSIDAADRequestErrorHandler.m in Sources */,
@@ -6912,6 +6923,7 @@
 				238EF039208FDBA20035ABE6 /* MSIDAADV1RefreshTokenGrantRequest.m in Sources */,
 				23B3A4522187AFD3009070B2 /* MSIDJsonSerializer.m in Sources */,
 				23FB5C2A225517AA002BF1EB /* MSIDClaimsRequest.m in Sources */,
+				E7B672A2257EF2970053773F /* MSIDStrictThumbprintCalculator.m in Sources */,
 				B4A5ACD221F7F25400D2A780 /* MSIDAccountCacheItem+MSIDAccountMatchers.m in Sources */,
 				232C65892138BDC5002A41FE /* MSIDAADAuthorityMetadataResponse.m in Sources */,
 				1EA58A0B23CD479000CAE2D2 /* MSIDUrlResponseSerializer.m in Sources */,

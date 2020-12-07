@@ -30,6 +30,6 @@
 
 @interface MSIDStrictThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
 
-+ (NSString *)getThumbprintFromTokenRequest(id request);
++ (NSString *)getThumbprintFromTokenRequest:(id)request;
 
 @end

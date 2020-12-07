@@ -22,8 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@protocol MSIDThumbprintCalculatable <NSObject>
 
-+ (NSString *)getThumbprintFromTokenRequest:(id)request;
+#import <Foundation/Foundation.h>
+#import "MSIDStrictThumbprintCalculator.h"
+
+@implementation MSIDStrictThumbprintCalculator
+
++ (NSString *)getThumbprintFromTokenRequest:(id)request
+{
+    //TODO: implement
+    return nil;
+}
 
 @end

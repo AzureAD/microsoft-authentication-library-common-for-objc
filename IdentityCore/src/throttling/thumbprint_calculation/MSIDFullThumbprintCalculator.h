@@ -25,10 +25,11 @@
 #import <Foundation/Foundation.h>
 #import "MSIDThumbprintCalculatable.h"
 
+//use black list scheme to filter out unwanted params from being considered as part of thumbprint calculation group
 @class MSIDTokenRequest;
 
 @interface MSIDFullThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
 
-+ (NSString *)getThumbprintFromTokenRequest(id request);
++ (NSString *)getThumbprintFromTokenRequest:(id)request;
 
 @end
