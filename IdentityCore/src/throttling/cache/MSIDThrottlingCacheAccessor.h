@@ -33,7 +33,10 @@
 
 - (instancetype)initializeThrottlingCacheAccessor;
 
-- (void)addRequestToCache:(id<MSIDThumbprintCalculatable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
-            errorResponse:(NSError *)errrorResponse;
+- (void)addRequestToUICache:(id<MSIDThumbprintCalculatable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+              errorResponse:(NSError *)errrorResponse;
+
+- (void)addRequestToServerDelayCache:(id<MSIDThumbprintCalculatable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+                       errorResponse:(NSError *)errrorResponse;
 
 @end
