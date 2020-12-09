@@ -26,16 +26,17 @@
 #import "MSIDLRUCache.h"
 
 @class MSIDThrottlingCacheRecord;
+@class MSIDThumbprintCalculatable;
 
 //static MSIDCache instance that will act as a pseudo-doubly-linkedList will be in the implementation file.
 @interface MSIDServerDelayCache : NSObject <MSIDLRUCache>
 
 - (instancetype)initializeCache;
 
-- (void)addToFront:(id)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
-      httpResponse:(NSHTTPURLResponse *)httpResponse;
+- (void)addToFront:(id<MSIDThumbprintCalcultable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+     errorResponse:(NSError *)errorResponse;
 
-- (MSIDThrottlingCacheRecord *)getCacheRecord:(id)tokenRequest;
+- (MSIDThrottlingCacheRecord *)getCachedResponse:(id<MSIDThumbprintCalcultable>)tokenRequest;
 
 - (void)removeNode;
 

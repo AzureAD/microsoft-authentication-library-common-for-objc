@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+@class MSIDThumbprintCalculatable;
 
 //singleton instances of MSIDServerDelayCache & MSIDUIRequiredCache will be in the implementation file as private properties.
 @interface MSIDThrottlingCacheAccessor : NSObject
@@ -32,7 +33,7 @@
 
 - (instancetype)initializeThrottlingCacheAccessor;
 
-- (void)addRequestToCache:(id)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
-             httpResponse:(NSHTTPURLResponse *)httpResponse;
+- (void)addRequestToCache:(id<MSIDThumbprintCalculatable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+            errorResponse:(NSError *)errrorResponse;
 
 @end

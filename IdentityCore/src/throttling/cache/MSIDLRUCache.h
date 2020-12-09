@@ -20,16 +20,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 @class MSIDThrottlingCacheRecord;
+@class MSIDThumbprintCalculatable;
 
 @protocol MSIDLRUCache <NSObject>
 
-- (void)addToFront:(id)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
-      httpResponse:(NSHTTPURLResponse *)httpResponse;
+- (void)addToFront:(id<MSIDThumbprintCalcultable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+     errorResponse:(NSError *)errorResponse;
 
-- (MSIDThrottlingCacheRecord *)getCacheRecord:(id)tokenRequest;
+- (MSIDThrottlingCacheRecord *)getCachedResponse:(id<MSIDThumbprintCalcultable>)tokenRequest;
 
 - (void)removeNode;
 

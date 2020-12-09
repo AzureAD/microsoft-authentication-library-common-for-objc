@@ -24,14 +24,13 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDFullThumbprintCalculator.h"
+#import "MSIDSilentRequestThumbprintCalculator.h"
 
-@implementation MSIDFullThumbprintCalculator
+@interface MSIDSSOSilentRequestThumbprintCalculator : MSIDSilentRequestThumbprintCalculator
 
-+ (NSString *)getThumbprintFromTokenRequest:(id)request
-{
-    //TODO: implement
-    return nil;
-}
+- (instancetype)initWithParamaters:(NSDictionary *)parameters;
+
+- (NSString *)getFullRequestThumbprint;
+- (NSString *)getStrictRequestThumbprint;
 
 @end

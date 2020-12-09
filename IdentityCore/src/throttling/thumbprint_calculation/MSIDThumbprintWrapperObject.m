@@ -24,12 +24,20 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDThumbprintCalculatable.h"
+#import "MSIDThumbprintWrapperObject.h"
 
-@class MSIDTokenRequest;
+@implementation MSIDThumbprintWrapperObject
 
-@interface MSIDStrictThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
+- (instancetype)initWithParameters:(NSString *)key
+                             value:(id)value
+{
+    self = [super init];
+    if (self)
+    {
+        _key = key;
+        _value = value;
+    }
+    return self;
+}
 
-+ (NSString *)getThumbprintFromTokenRequest:(id)request;
-
-@end
+@end;

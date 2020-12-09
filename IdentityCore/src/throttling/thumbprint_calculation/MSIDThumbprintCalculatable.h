@@ -24,6 +24,7 @@
 
 @protocol MSIDThumbprintCalculatable <NSObject>
 
-+ (NSString *)getThumbprintFromTokenRequest:(id)request;
+- (NSString *)getFullRequestThumbprint;
+- (NSString *)getStrictRequestThumbprint;
 
 @end

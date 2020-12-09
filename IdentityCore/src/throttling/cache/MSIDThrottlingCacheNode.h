@@ -31,10 +31,10 @@
 @property (nonatomic) NSString *nextRequestThumbprintKey;
 @property (nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
 
-- (instancetype)initWithTokenRequest:(id)tokenRequest
-                        httpResponse:(NSHTTPURLResponse *)httpResponse
-                      throttleReason:(NSString *)throttleReason
-            prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
-            nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
+- (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
+                        errorResponse:(NSError *)errorResponse
+                         throttleType:(NSString *)throttleReason
+             prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
+             nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
 
 @end

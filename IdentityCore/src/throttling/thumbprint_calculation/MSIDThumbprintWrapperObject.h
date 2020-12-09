@@ -22,16 +22,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+@interface MSIDThumbprintWrapperObject : NSObject
 
-#import <Foundation/Foundation.h>
-#import "MSIDStrictThumbprintCalculator.h"
+@property (nonatomic) NSString *key;
+@property (nonatomic) id value;
 
-@implementation MSIDStrictThumbprintCalculator
-
-+ (NSString *)getThumbprintFromTokenRequest:(id)request
-{
-    //TODO: implement
-    return nil;
-}
+- (instancetype)initWithParameters:(NSString *)key
+                             value:(id)value;
 
 @end
