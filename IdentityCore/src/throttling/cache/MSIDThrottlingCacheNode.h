@@ -33,8 +33,7 @@
 
 - (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
                         errorResponse:(NSError *)errorResponse
-                         throttleType:(NSString *)throttleReason
+                         throttleType:(NSString *)throttleType
              prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
              nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
-
 @end

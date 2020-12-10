@@ -22,9 +22,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@class MSIDThumbprintCalculatable;
+@class MSIDThrottlingCacheRecord;
 
 //singleton instances of MSIDServerDelayCache & MSIDUIRequiredCache will be in the implementation file as private properties.
+//Additionally, there will be dummy head and tail node in the .m file to maintain pseudo doubly-linked-list so we can better handle all corner cases.
 @interface MSIDThrottlingCacheAccessor : NSObject
 
 //Will implement getters in the .m file. 
@@ -33,10 +34,22 @@
 
 - (instancetype)initializeThrottlingCacheAccessor;
 
-- (void)addRequestToUICache:(id<MSIDThumbprintCalculatable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+//add new node to the front of LRU cache.
+//if node already exists, update and move it to the front of LRU cache
+- (void)addRequestToUICache:(NSString *)thumbprintKey
               errorResponse:(NSError *)errrorResponse;
 
-- (void)addRequestToServerDelayCache:(id<MSIDThumbprintCalculatable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+
+- (void)removeRequestFromUICache:(NSString *)thumbprintKey;
+
+//retrieve cache record from the corresponding node, and move the node to the front of LRU cache.
+- (MSIDThrottlingCacheRecord *)getCachedResponseFromUICache:(NSString *)thumbprintKey;
+
+- (void)addRequestToServerDelayCache:(NSString *)thumbprintKey
                        errorResponse:(NSError *)errrorResponse;
+
+- (void)removeRequestFromServerDelayCache:(NSString *)thumbprintKey;
+
+- (MSIDThrottlingCacheRecord *)getCachedResponseFromServerDelayCache:(NSString *)thumbprintKey;
 
 @end

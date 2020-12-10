@@ -23,15 +23,16 @@
 // THE SOFTWARE.
 
 @class MSIDThrottlingCacheRecord;
-@class MSIDThumbprintCalculatable;
 
 @protocol MSIDLRUCache <NSObject>
 
-- (void)addToFront:(id<MSIDThumbprintCalcultable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
+//NOTE: We don't need to pass in throttle type here, because we already know it will be 429/5xx if it goes into serverDelayCache
+//and UI_Required if it goes into UIRequiredCache, so we pass in those info into CacheNode objects within each subclass' virtual methods.
+- (void)addToFront:(NSString *)thumbprintKey
      errorResponse:(NSError *)errorResponse;
 
-- (MSIDThrottlingCacheRecord *)getCachedResponse:(id<MSIDThumbprintCalcultable>)tokenRequest;
+- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey;
 
-- (void)removeNode;
+- (void)removeNode:(NSString *)thumbprintKey; //remove node using the thumbprintKey identifier.
 
 @end

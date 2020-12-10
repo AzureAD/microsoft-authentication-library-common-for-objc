@@ -33,11 +33,4 @@
 
 - (instancetype)initializeCache;
 
-- (void)addToFront:(id<MSIDThumbprintCalcultable>)tokenRequest //MSIDTokenRequest, or custom request object for the SSO extension
-     errorResponse:(NSError *)errorResponse;
-
-- (MSIDThrottlingCacheRecord *)getCachedResponse:(id<MSIDThumbprintCalcultable>)tokenRequest;
-
-- (void)removeNode;
-
 @end

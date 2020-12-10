@@ -27,13 +27,13 @@
 
 @property (nonatomic, readonly) NSDate *creationTime;
 @property (nonatomic, readonly) NSDate *expirationTime;
+@property (nonatomic, readonly) NSString *throttleType;
 @property (nonatomic) NSUInteger throttledCount; //number of times this request has been throttled
-@property (nonatomic) NSString *throttleType;
-@property (nonatomic) NSString *lastResponseFromServer;
 @property (nonatomic) NSError *cachedErrorResponse;
 
 - (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
-                    throttleType:(NSString *)throttleType;
+                         throttleType:(NSString *)throttleType;
+                    
 
 
 @end
