@@ -1,3 +1,4 @@
+* Fix possible deadlock caused by thread explosion
 * Revert FRT and ART lookup orders (#884)
 
 Version 1.6.0
