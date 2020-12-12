@@ -31,8 +31,8 @@
 @property (nonatomic, readonly) NSUInteger cacheSizeUI;
 @property (nonatomic, readonly) NSUInteger cacheSizeServerDelay;
 
-- initThrottlingCacheService:(NSUInteger cacheSizeUI)
-        cacheSizeServerDelay:(NSUInteger cacheSizeServerDelay);
+- (instancetype)initThrottlingCacheService:(NSUInteger cacheSizeUI)
+                      cacheSizeServerDelay:(NSUInteger cacheSizeServerDelay);
 
 //add new node to the front of LRU cache.
 //if node already exists, update and move it to the front of LRU cache
