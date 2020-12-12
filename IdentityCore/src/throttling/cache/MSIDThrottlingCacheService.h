@@ -26,13 +26,13 @@
 
 //singleton instances of MSIDServerDelayCache & MSIDUIRequiredCache will be in the implementation file as private properties.
 //Additionally, there will be dummy head and tail node in the .m file to maintain pseudo doubly-linked-list so we can better handle all corner cases.
-@interface MSIDThrottlingCacheAccessor : NSObject
+@interface MSIDThrottlingCacheService : NSObject
 
-//Will implement getters in the .m file. 
-@property (nonatomic, readonly) NSDate *lastCleanUpTimeForUICache;
-@property (nonatomic, readonly) NSDate *lastCleanUpTimeForServerDelayCache;
+@property (nonatomic, readonly) NSUInteger cacheSizeUI;
+@property (nonatomic, readonly) NSUInteger cacheSizeServerDelay;
 
-- (instancetype)initializeThrottlingCacheAccessor;
+- initThrottlingCacheService:(NSUInteger cacheSizeUI)
+        cacheSizeServerDelay:(NSUInteger cacheSizeServerDelay);
 
 //add new node to the front of LRU cache.
 //if node already exists, update and move it to the front of LRU cache

@@ -20,24 +20,23 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+@class MSIDThrottlingCacheRecord;
 
-#import <Foundation/Foundation.h>
-#import "MSIDThumbprintWrapperObject.h"
+@protocol MSIDThrottlingLRUCache <NSObject>
 
-@implementation MSIDThumbprintWrapperObject
+@property (nonatomic, readonly) NSUInteger cacheSize;
 
-- (instancetype)initWithParameters:(NSString *)key
-                             value:(id)value
-{
-    self = [super init];
-    if (self)
-    {
-        _key = key;
-        _value = value;
-    }
-    return self;
-}
+- (instancetype)initWithCacheSize:(NSUInteger)cacheSize;
 
-@end;
+//NOTE: We don't need to pass in throttle type here, because we already know it will be 429/5xx if it goes into serverDelayCache
+//and UI_Required if it goes into UIRequiredCache, so we pass in those info into CacheNode objects within each subclass' virtual methods.
+- (void)addToFront:(NSString *)thumbprintKey
+     errorResponse:(NSError *)errorResponse;
+
+- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey;
+
+- (void)removeNode:(NSString *)thumbprintKey; //remove node using the thumbprintKey identifier.
+
+@end

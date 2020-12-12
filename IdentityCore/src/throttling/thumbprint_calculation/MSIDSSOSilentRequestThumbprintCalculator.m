@@ -26,10 +26,10 @@
 #import <Foundation/Foundation.h>
 #import "MSIDSSOSilentRequestThumbprintCalculator.h"
 #import "MSIDTokenRequest.h"
-#import "MSIDThumbprintWrapperObject.h"
 #import "MSIDOAuth2Constants.h"
 #import "MSIDConfiguration.h"
 #import "MSIDAuthority.h"
+#import "MSIDBrokerConstants.h"
 
 static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
 static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
@@ -38,6 +38,9 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
 
 - (NSArray *)sortRequestParametersUsingFilteredSet:(NSSet *)filteringSet
                                    comparePolarity:(BOOL)comparePolarity;
+
+- (NSString *)getRequestThumbprintImpl:(NSSet *)filteringSet
+                       comparePolarity:(BOOL)comparePolarity;
 
 @end
 
@@ -59,32 +62,33 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
     {
         _requestParameters = [parameters mutableCopy];
         _strictThumbprintIncludeSet = [NSSet setWithArray:@[MSID_REDIRECT_URI_JSON_KEY,MSID_SCOPE_JSON_KEY,MSID_AUTHORITY_URL_JSON_KEY,MSID_ACCOUNT_HOME_ID_JSON_KEY]];
-        _fullThumbprintExcludeSet = [NSSet new];
+        _fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY, MSID_BROKER_CLIENT_CAPABILITIES_KEY, MSID_BROKER_CLIENT_VERSION_KEY, MSID_BROKER_CLIENT_APP_VERSION_KEY, MSID_BROKER_CLIENT_APP_NAME_KEY, MSID_BROKER_CORRELATION_ID_KEY]];
     }
     return self;
 }
 
 - (NSString *)getFullRequestThumbprint
 {
-    NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:self.fullThumbprintExcludeSet
-                                                                       comparePolarity:NO];
-    if (sortedThumbprintRequestList)
+    NSString *fullRequestThumbprintKey = [self getRequestThumbprintImpl:self.fullThumbprintExcludeSet
+                                                        comparePolarity:NO];
+    if (!fullRequestThumbprintKey)
     {
-        //TODO: use sortedArrayList to calculate Full Request Thumbprint
+        //Log Error
+        return nil;
     }
-
-    return nil;
+    return fullRequestThumbprintKey;
 }
 
 - (NSString *)getStrictRequestThumbprint
 {
-    NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:self.strictThumbprintIncludeSet
-                                                                       comparePolarity:YES];
-    if (sortedThumbprintRequestList)
+    NSString *strictRequestThumbprintKey = [self getRequestThumbprintImpl:self.strictThumbprintIncludeSet
+                                                          comparePolarity:YES];
+    if (!strictRequestThumbprintKey)
     {
-        //TODO: use sortedArrayList to calculate Strict Request Thumbprint
+        //Log Error
+        return nil;
     }
-    return nil;
+    return strictRequestThumbprintKey;
 }
 
 

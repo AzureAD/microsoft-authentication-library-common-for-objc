@@ -25,7 +25,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDSilentRequestThumbprintCalculator.h"
-#import "MSIDThumbprintWrapperObject.h"
 #import "MSIDOAuth2Constants.h"
 
 @interface MSIDSilentRequestThumbprintCalculator ()
@@ -60,23 +59,45 @@
 
 - (NSString *)getFullRequestThumbprint
 {
-    NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:self.fullThumbprintExcludeSet
-                                                                       comparePolarity:NO];
-    if (sortedThumbprintRequestList)
+    NSString *fullRequestThumbprintKey = [self getRequestThumbprintImpl:self.fullThumbprintExcludeSet
+                                                        comparePolarity:NO];
+    if (!fullRequestThumbprintKey)
     {
-        //TODO: use sortedArrayList to calculate Full Request Thumbprint
+        //Log Error
+        return nil;
     }
-
-    return nil;
+    return fullRequestThumbprintKey;
 }
 
 - (NSString *)getStrictRequestThumbprint
 {
-    NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:self.strictThumbprintIncludeSet
-                                                                       comparePolarity:YES];
+    NSString *strictRequestThumbprintKey = [self getRequestThumbprintImpl:self.strictThumbprintIncludeSet
+                                                          comparePolarity:YES];
+    if (!strictRequestThumbprintKey)
+    {
+        //Log Error
+        return nil;
+    }
+    return strictRequestThumbprintKey;
+}
+
+- (NSString *)getRequestThumbprintImpl:(NSSet *)filteringSet
+                       comparePolarity:(BOOL)comparePolarity
+{
+    NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:filteringSet
+                                                                       comparePolarity:comparePolarity];
     if (sortedThumbprintRequestList)
     {
-        //TODO: use sortedArrayList to calculate Strict Request Thumbprint
+        NSUInteger thumbprintKey = [self hash:sortedThumbprintRequestList];
+        if (thumbprintKey == -1)
+        {
+            return nil;
+        }
+        
+        else
+        {
+            return [NSString stringWithFormat: @"%lu", thumbprintKey];
+        }
     }
     return nil;
 }
@@ -90,18 +111,38 @@
         {
             if ([filteringSet containsObject:key] == comparePolarity)
             {
-                MSIDThumbprintWrapperObject *thumbprintWrapperObject = [[MSIDThumbprintWrapperObject alloc] initWithParameters:key
-                                                                                                                         value:obj];
-                [arrayList addObject:thumbprintWrapperObject];
+                NSArray *thumbprintObject = [NSArray arrayWithObjects:key, obj, nil];
+                [arrayList addObject:thumbprintObject];
             }
         }
     }];
     
-    NSArray *sortedArrayList = [arrayList sortedArrayUsingComparator:^NSComparisonResult(MSIDThumbprintWrapperObject *obj1, MSIDThumbprintWrapperObject *obj2)
+    NSArray *sortedArrayList = [arrayList sortedArrayUsingComparator:^NSComparisonResult(NSArray *obj1, NSArray *obj2)
     {
-        return [obj1.key caseInsensitiveCompare:obj2.key];
+        return [[obj1 objectAtIndex:0] caseInsensitiveCompare:[obj2 objectAtIndex:0]];
     }];
     return sortedArrayList;
 }
+
+- (NSUInteger)hash:(NSArray *)thumbprintRequestList
+{
+    if (!thumbprintRequestList) return -1;
+    
+    NSUInteger hash = [super hash];
+    for (id object in thumbprintRequestList)
+    {
+        if ([object isKindOfClass:[NSString class]])
+        {
+            hash = hash * 31 + ((NSString *)object).hash;
+        }
+        
+        else
+        {
+            return -1;
+        }
+    }
+    return hash;
+}
+
 
 @end

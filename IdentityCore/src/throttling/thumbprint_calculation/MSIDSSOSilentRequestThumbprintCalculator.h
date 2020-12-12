@@ -30,7 +30,4 @@
 
 - (instancetype)initWithParamaters:(NSDictionary *)parameters;
 
-- (NSString *)getFullRequestThumbprint;
-- (NSString *)getStrictRequestThumbprint;
-
 @end

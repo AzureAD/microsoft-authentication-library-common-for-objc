@@ -20,19 +20,68 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-@class MSIDThrottlingCacheRecord;
 
-@protocol MSIDLRUCache <NSObject>
+#import <Foundation/Foundation.h>
+#import "MSIDServerDelayCache.h"
+#import "MSIDThrottlingCacheRecord.h"
+#import "MSIDThrottlingCacheNode.h"
+#import "MSIDCache.h"
 
-//NOTE: We don't need to pass in throttle type here, because we already know it will be 429/5xx if it goes into serverDelayCache
-//and UI_Required if it goes into UIRequiredCache, so we pass in those info into CacheNode objects within each subclass' virtual methods.
+@interface MSIDServerDelayCache ()
+
+@property (nonatomic) NSUInteger cacheSizeInt;
+
+@end
+
+@implementation MSIDServerDelayCache
+
+- (instancetype)initWithCacheSize:(NSUInteger)cacheSize
+{
+    self = [super init];
+    if (self)
+    {
+        _cacheSizeInt = cacheSize;
+    }
+    return self;
+}
+
+- (NSUInteger)cacheSize
+{
+    return self.cacheSizeInt;
+}
+
 - (void)addToFront:(NSString *)thumbprintKey
-     errorResponse:(NSError *)errorResponse;
+     errorResponse:(NSError *)errorResponse
+{
+    //TODO: Implement this
+    return;
+}
 
-- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey;
+- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey
+{
+    //TODO: Implement this
+    return nil;
+}
 
-- (void)removeNode:(NSString *)thumbprintKey; //remove node using the thumbprintKey identifier.
+- (void)removeNode:(NSString *)thumbprintKey
+{
+    //TODO: implement this
+    return;
+}
+
+- (MSIDCache *)internalCache
+{
+    static MSIDCache *m_cache;
+    static dispatch_once_t once_token;
+    dispatch_once(&once_token, ^{
+        m_cache = [MSIDCache new];
+    });
+    
+    return m_cache;
+}
+
+
 
 @end

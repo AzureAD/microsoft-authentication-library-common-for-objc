@@ -33,7 +33,4 @@
                        environment:(NSString *)environment
                      homeAccountId:(NSString *)homeAccountId;
 
-- (NSString *)getFullRequestThumbprint;
-- (NSString *)getStrictRequestThumbprint;
-
 @end

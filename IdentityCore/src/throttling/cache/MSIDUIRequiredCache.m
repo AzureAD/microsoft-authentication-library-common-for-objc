@@ -22,12 +22,65 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@interface MSIDThumbprintWrapperObject : NSObject
 
-@property (nonatomic) NSString *key;
-@property (nonatomic) id value;
+#import <Foundation/Foundation.h>
+#import "MSIDUIRequiredCache.h"
+#import "MSIDThrottlingCacheRecord.h"
+#import "MSIDThrottlingCacheNode.h"
+#import "MSIDCache.h"
 
-- (instancetype)initWithParameters:(NSString *)key
-                             value:(id)value;
+@interface MSIDUIRequiredCache ()
+
+@property (nonatomic) NSUInteger cacheSizeInt;
+
+@end
+
+@implementation MSIDUIRequiredCache
+
+- (instancetype)initWithCacheSize:(NSUInteger)cacheSize
+{
+    self = [super init];
+    if (self)
+    {
+        _cacheSizeInt = cacheSize;
+    }
+    return self;
+}
+
+- (NSUInteger)cacheSize
+{
+    return self.cacheSizeInt;
+}
+
+- (void)addToFront:(NSString *)thumbprintKey
+     errorResponse:(NSError *)errorResponse
+{
+    //TODO: Implement this
+    return;
+}
+
+- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey
+{
+    //TODO: Implement this
+    return nil;
+}
+
+- (void)removeNode:(NSString *)thumbprintKey
+{
+    //TODO: implement this
+    return;
+}
+
+- (MSIDCache *)internalCache
+{
+    static MSIDCache *m_cache;
+    static dispatch_once_t once_token;
+    dispatch_once(&once_token, ^{
+        m_cache = [MSIDCache new];
+    });
+    
+    return m_cache;
+}
+
 
 @end

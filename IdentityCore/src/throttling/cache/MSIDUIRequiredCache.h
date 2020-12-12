@@ -22,14 +22,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import "MSIDLRUCache.h"
+#import "MSIDThrottlingLRUCache.h"
 
 @class MSIDThrottlingCacheRecord;
 @class MSIDThumbprintCalculatable;
 
 //static MSIDCache instance that will act as a pseudo-doubly-linkedList will be in the implementation file.
-@interface MSIDUIRequiredCache : NSObject <MSIDLRUCache>
+@interface MSIDUIRequiredCache : NSObject <MSIDThrottlingLRUCache>
 
-- (instancetype)initializeCache;
 
 @end
