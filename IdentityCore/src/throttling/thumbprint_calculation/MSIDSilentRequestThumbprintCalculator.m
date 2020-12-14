@@ -89,7 +89,7 @@
     if (sortedThumbprintRequestList)
     {
         NSUInteger thumbprintKey = [self hash:sortedThumbprintRequestList];
-        if (thumbprintKey == -1)
+        if (thumbprintKey == 0)
         {
             return nil;
         }
@@ -126,7 +126,7 @@
 
 - (NSUInteger)hash:(NSArray *)thumbprintRequestList
 {
-    if (!thumbprintRequestList) return -1;
+    if (!thumbprintRequestList) return 0;
     
     NSUInteger hash = [super hash];
     for (id object in thumbprintRequestList)
@@ -138,7 +138,7 @@
         
         else
         {
-            return -1;
+            return 0;
         }
     }
     return hash;
