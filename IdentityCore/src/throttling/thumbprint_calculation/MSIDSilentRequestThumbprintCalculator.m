@@ -35,6 +35,9 @@
 
 @end
 
+//Exclude List:
+//1) Client ID - same across all requests
+//2) Grant type - fixed as @"refresh_token"
 @implementation MSIDSilentRequestThumbprintCalculator
 
 - (instancetype)initWithParamaters:(NSDictionary *)parameters
@@ -51,8 +54,8 @@
         _requestParameters[@"realm"] = realm;
         _requestParameters[@"environment"] = environment;
         _requestParameters[@"homeAccountId"] = homeAccountId;
-        _strictThumbprintIncludeSet = [NSSet setWithArray:@[@"realm",@"environment",@"homeAccountId",MSID_OAUTH2_CLIENT_ID,MSID_OAUTH2_SCOPE]];
-        _fullThumbprintExcludeSet = [NSSet new];
+        _strictThumbprintIncludeSet = [NSSet setWithArray:@[@"realm",@"environment",@"homeAccountId",MSID_OAUTH2_SCOPE]];
+        _fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID,MSID_OAUTH2_GRANT_TYPE]];
     }
     return self;
 }
@@ -121,19 +124,22 @@
     {
         return [[obj1 objectAtIndex:0] caseInsensitiveCompare:[obj2 objectAtIndex:0]];
     }];
+    
     return sortedArrayList;
 }
 
 - (NSUInteger)hash:(NSArray *)thumbprintRequestList
 {
-    if (!thumbprintRequestList) return 0;
+    if (!thumbprintRequestList || !thumbprintRequestList.count) return 0;
     
     NSUInteger hash = [super hash];
     for (id object in thumbprintRequestList)
     {
-        if ([object isKindOfClass:[NSString class]])
+        if ([object isKindOfClass:[NSArray class]] &&
+            ((NSArray *)object).count == 2 &&
+            [object[0] isKindOfClass:[NSString class]])
         {
-            hash = hash * 31 + ((NSString *)object).hash;
+            hash = hash * 31 + ((NSString *)object[0]).hash;
         }
         
         else

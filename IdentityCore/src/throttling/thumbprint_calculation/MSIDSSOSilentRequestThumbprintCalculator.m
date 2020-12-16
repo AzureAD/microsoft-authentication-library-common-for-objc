@@ -45,6 +45,16 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
 @end
 
 
+//Exclude:
+//1) MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY (username), since home_account_id serves the same purpose
+//2) client-related items, since they are the same across all requests
+//  i)MSID_BROKER_CLIENT_CAPABILITIES_KEY
+// ii)MSID_BROKER_CLIENT_VERSION_KEY
+//iii)MSID_BROKER_CLIENT_APP_VERSION_KEY
+// iv)MSID_BROKER_CLIENT_APP_NAME_KEY
+//  v)MSID_BROKER_CORRELATION_ID_KEY (correlation id is a randomly generated guid)
+// vi)MSID_CLIENT_ID_JSON_KEY
+
 @interface MSIDSSOSilentRequestThumbprintCalculator ()
 
 @property (nonatomic) NSMutableDictionary *requestParameters;
@@ -61,8 +71,16 @@ static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
     if (self)
     {
         _requestParameters = [parameters mutableCopy];
-        _strictThumbprintIncludeSet = [NSSet setWithArray:@[MSID_REDIRECT_URI_JSON_KEY,MSID_SCOPE_JSON_KEY,MSID_AUTHORITY_URL_JSON_KEY,MSID_ACCOUNT_HOME_ID_JSON_KEY]];
-        _fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY, MSID_BROKER_CLIENT_CAPABILITIES_KEY, MSID_BROKER_CLIENT_VERSION_KEY, MSID_BROKER_CLIENT_APP_VERSION_KEY, MSID_BROKER_CLIENT_APP_NAME_KEY, MSID_BROKER_CORRELATION_ID_KEY]];
+        _strictThumbprintIncludeSet = [NSSet setWithArray:@[MSID_SCOPE_JSON_KEY,
+                                                            MSID_AUTHORITY_URL_JSON_KEY,
+                                                            MSID_ACCOUNT_HOME_ID_JSON_KEY]];
+        _fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY,
+                                                          MSID_BROKER_CLIENT_CAPABILITIES_KEY,
+                                                          MSID_BROKER_CLIENT_VERSION_KEY,
+                                                          MSID_BROKER_CLIENT_APP_VERSION_KEY,
+                                                          MSID_BROKER_CLIENT_APP_NAME_KEY,
+                                                          MSID_BROKER_CORRELATION_ID_KEY,
+                                                          MSID_CLIENT_ID_JSON_KEY]];
     }
     return self;
 }

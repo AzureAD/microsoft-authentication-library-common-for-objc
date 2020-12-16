@@ -25,6 +25,8 @@
 #import <Foundation/Foundation.h>
 #import "MSIDThumbprintCalculatable.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDSilentRequestThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
 
 - (instancetype)initWithParamaters:(NSDictionary *)parameters
@@ -34,3 +36,5 @@
                      homeAccountId:(NSString *)homeAccountId;
 
 @end
+
+NS_ASSUME_NONNULL_END
