@@ -37,6 +37,7 @@
 #import "MSIDTelemetryUIEvent.h"
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDAppExtensionUtil.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -283,12 +284,7 @@
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified __unused WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
-    
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
-    
-    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
-    
-    [self stopSpinner];
+    [self notifyFinishedNavigation:url webView:webView];
 }
 
 - (void)webView:(__unused WKWebView *)webView didFailNavigation:(null_unspecified __unused WKNavigation *)navigation withError:(NSError *)error
@@ -377,6 +373,20 @@
         return;
     }
     
+    // Handle anchor links that were clicked
+    if ([navigationAction navigationType] == WKNavigationTypeLinkActivated)
+    {
+        //Open secure web links with target=new window in default browser or non-web links with URL schemes that can be opened by the application
+        if (([requestURL.scheme.lowercaseString isEqualToString:@"https"] && !navigationAction.targetFrame.isMainFrame) || ![requestURL.scheme.lowercaseString hasPrefix:@"http"])
+        {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.context, @"Opening URL outside embedded webview with scheme: %@ host: %@", requestURL.scheme, MSID_PII_LOG_TRACKABLE(requestURL.host));
+            [MSIDAppExtensionUtil sharedApplicationOpenURL:requestURL];
+            [self notifyFinishedNavigation:requestURL webView:webView];
+            decisionHandler(WKNavigationActionPolicyCancel);
+            return;
+        }
+    }
+    
     // redirecting to non-https url is not allowed
     if (![requestURL.scheme.lowercaseString isEqualToString:@"https"])
     {
@@ -418,6 +428,15 @@
     }
     
     [self dismissLoadingIndicator];
+}
+
+-(void)notifyFinishedNavigation:(NSURL *)url webView:(WKWebView *)webView
+{
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.context, @"-didFinishNavigation host: %@", MSID_PII_LOG_TRACKABLE(url.host));
+    
+    [MSIDNotifications notifyWebAuthDidFinishLoad:url userInfo:webView ? @{@"webview": webView} : nil];
+    
+    [self stopSpinner];
 }
 
 @end
