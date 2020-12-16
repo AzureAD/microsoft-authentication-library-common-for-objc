@@ -38,6 +38,8 @@
 @property (nonatomic, nullable) NSString *errorDescription;
 // Default properties for a successful openid response
 @property (nonatomic) NSInteger expiresIn;
+//Optional field for refresh
+@property (nonatomic) NSInteger refreshIn;
 /*!
  expiresOn isn't part of the spec, but we use it when we need to serialize/deserialize token reponse to/from JSON,
  because it contains more precise time then expiresIn.
