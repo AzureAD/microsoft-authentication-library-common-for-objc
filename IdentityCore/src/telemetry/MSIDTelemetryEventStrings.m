@@ -42,6 +42,8 @@ NSString *const MSID_TELEMETRY_EVENT_TOKEN_CACHE_WRITE      = @"token_cache_writ
 NSString *const MSID_TELEMETRY_EVENT_TOKEN_CACHE_DELETE     = @"token_cache_delete";
 NSString *const MSID_TELEMETRY_EVENT_APP_METADATA_WRITE     = @"app_metadata_write";
 NSString *const MSID_TELEMETRY_EVENT_APP_METADATA_DELETE     = @"app_metadata_delete";
+NSString *const MSID_TELEMETRY_EVENT_TOKEN_REFRESHED_DUE_TO_REFRESH_EXPIRATION = @"token_refreshed_due_to_refresh_expiration";
+NSString *const MSID_TELEMETRY_EVENT_TOKEN_REFRESH_DUE_TO_REFRESH_EXPIRATION_FAILED = @"token_refresh_due_to_refresh_expiration_failed";
 
 // Telemetry property name, only alphabetic letters, dots, and underscores are allowed.
 NSString *const MSID_TELEMETRY_KEY_EVENT_NAME                   = @"event_name";
@@ -69,6 +71,8 @@ NSString *const MSID_TELEMETRY_KEY_BROKER_PROTOCOL_VERSION      = @"broker_proto
 NSString *const MSID_TELEMETRY_KEY_BROKER_APP_USED              = @"broker_app_used";
 NSString *const MSID_TELEMETRY_KEY_CLIENT_ID                    = @"client_id";
 NSString *const MSID_TELEMETRY_KEY_HTTP_EVENT_COUNT             = @"http_event_count";
+NSString *const MSID_TELEMETRY_KEY_GET_TOKEN_REFRESH_DUE_TO_REFRESH_EXPIRATION_COUNT = @"get_token_refresh_due_to_refresh_expiration_count"
+NSString *const MSID_TELEMETRY_KEY_GET_TOKEN_REFRESH_DUE_TO_REFRESH_EXPIRATION_FAILED_COUNT = @"get_token_refresh_due_to_refresh_expiration_failed_count"
 NSString *const MSID_TELEMETRY_KEY_GET_V1_IDTOKEN_HTTP_EVENT_COUNT = @"get_v1_id_token_http_event_count";
 NSString *const MSID_TELEMETRY_KEY_GET_V1_IDTOKEN_CACHE_EVENT_COUNT = @"get_v1_id_token_cache_event_count";
 NSString *const MSID_TELEMETRY_KEY_CACHE_EVENT_COUNT            = @"cache_event_count";

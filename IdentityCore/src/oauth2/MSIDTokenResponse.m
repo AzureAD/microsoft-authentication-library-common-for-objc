@@ -64,7 +64,8 @@
                              MSID_OAUTH2_STATE,
                              MSID_OAUTH2_ID_TOKEN,
                              MSID_OAUTH2_EXPIRES_IN,
-                             MSID_OAUTH2_EXPIRES_ON];
+                             MSID_OAUTH2_EXPIRES_ON,
+                             MSID_OAUTH2_REFRESH_IN];
     
     NSDictionary *additionalInfo = [additionalServerInfo msidDictionaryByRemovingFields:knownFields];
     _additionalServerInfo = additionalInfo.count > 0 ? additionalInfo : nil;
@@ -150,6 +151,7 @@
         _accessToken = [json msidStringObjectForKey:MSID_OAUTH2_ACCESS_TOKEN];
         _refreshToken = [json msidStringObjectForKey:MSID_OAUTH2_REFRESH_TOKEN];
         _expiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_IN];
+        _refreshIn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_IN];
         _expiresOn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_ON];
         _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
         _scope = [json msidStringObjectForKey:MSID_OAUTH2_SCOPE];
@@ -179,6 +181,7 @@
         json[MSID_OAUTH2_ACCESS_TOKEN] = self.accessToken;
         json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
         json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
+        json[MSID_OAUTH2_REFRESH_IN] = [@(self.refreshIn) stringValue];
         json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
         json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
         json[MSID_OAUTH2_SCOPE] = self.scope;

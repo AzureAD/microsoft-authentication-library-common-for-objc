@@ -51,8 +51,8 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@",
-            self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, refreshOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@",
+            self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn, self.refreshOn,
             self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash]];
 }
 
@@ -83,6 +83,7 @@
     result &= (!self.realm && !item.realm) || [self.realm isEqualToString:item.realm];
     result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
     result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqual:item.expiresOn];
+    result &= (!self.expiresOn && !item.refreshOn) || [self.expiresOn isEqual:item.refreshOn];
     result &= (!self.extendedExpiresOn && !item.extendedExpiresOn) || [self.extendedExpiresOn isEqual:item.extendedExpiresOn];
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
@@ -109,6 +110,7 @@
     hash = hash * 31 + self.realm.hash;
     hash = hash * 31 + self.environment.hash;
     hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.refreshOn.hash;
     hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
@@ -133,6 +135,7 @@
     item.realm = [self.realm copyWithZone:zone];
     item.environment = [self.environment copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
+    item.refreshOn = [self.refreshOn copyWithZone:zone];
     item.extendedExpiresOn = [self.extendedExpiresOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.expiryInterval = [self.expiryInterval copyWithZone:zone];
@@ -181,6 +184,7 @@
     _realm = [json msidStringObjectForKey:MSID_REALM_CACHE_KEY];
     _environment = [json msidStringObjectForKey:MSID_ENVIRONMENT_CACHE_KEY];
     _expiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXPIRES_ON_CACHE_KEY]];
+    _refreshOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_REFRESH_ON_CACHE_KEY]];
     _extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
     _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
     _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
@@ -218,6 +222,7 @@
     dictionary[MSID_REALM_CACHE_KEY] = _realm;
     dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
     dictionary[MSID_EXPIRES_ON_CACHE_KEY] = _expiresOn.msidDateToTimestamp;
+    dictionary[MSID_REFRESH_ON_CACHE_KEY] = _refreshOn.msidDateToTimestamp;
     dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = _extendedExpiresOn.msidDateToTimestamp;
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;

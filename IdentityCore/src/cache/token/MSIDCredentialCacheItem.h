@@ -50,6 +50,7 @@
 
 // Dates
 @property (readwrite, nullable) NSDate *expiresOn;
+@property (readwrite, nullable) NSDate *refreshOn;
 @property (readwrite, nullable) NSDate *extendedExpiresOn;
 @property (readwrite, nullable) NSDate *cachedAt;
 @property (readwrite, nullable) NSString *expiryInterval;
@@ -99,5 +100,6 @@
         clientIdMatching:(MSIDComparisonOptions)clientIDMatchingOptions;
 
 - (BOOL)isTombstone;
+
 
 @end

@@ -51,6 +51,8 @@ static NSDictionary *s_telemetryCollectionRules;
                                        MSID_TELEMETRY_KEY_CACHE_EVENT_COUNT: @(MSIDTelemetryCollectionBehaviorCollectAndCount),
                                        MSID_TELEMETRY_KEY_GET_V1_IDTOKEN_HTTP_EVENT_COUNT: @(MSIDTelemetryCollectionBehaviorCollectAndCount),
                                        MSID_TELEMETRY_KEY_GET_V1_IDTOKEN_CACHE_EVENT_COUNT: @(MSIDTelemetryCollectionBehaviorCollectAndCount),
+                                       MSID_TELEMETRY_KEY_GET_TOKEN_REFRESH_DUE_TO_REFRESH_EXPIRATION_COUNT: @(MSIDTelemetryCollectionBehaviorCollectAndCount),
+                                       MSID_TELEMETRY_KEY_GET_TOKEN_REFRESH_DUE_TO_REFRESH_EXPIRATION_FAILED_COUNT: @(MSIDTelemetryCollectionBehaviorCollectAndCount),
                                        };
     }
 }

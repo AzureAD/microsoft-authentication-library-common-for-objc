@@ -47,6 +47,7 @@ static NSUInteger s_expirationBuffer = 300;
 {
     MSIDAccessToken *item = [super copyWithZone:zone];
     item->_expiresOn = [_expiresOn copyWithZone:zone];
+    item->_refreshOn = [_refreshOn copyWithZone:zone];
     item->_extendedExpiresOn = [_extendedExpiresOn copyWithZone:zone];
     item->_cachedAt = [_cachedAt copyWithZone:zone];
     item->_enrollmentId = [_enrollmentId copyWithZone:zone];
@@ -79,6 +80,7 @@ static NSUInteger s_expirationBuffer = 300;
 {
     NSUInteger hash = [super hash];
     hash = hash * 31 + self.expiresOn.hash;
+    hash = hash * 31 + self.refreshOn.hash;
     hash = hash * 31 + self.extendedExpiresOn.hash;
     hash = hash * 31 + self.accessToken.hash;
     hash = hash * 31 + self.target.hash;
@@ -97,6 +99,7 @@ static NSUInteger s_expirationBuffer = 300;
     
     BOOL result = [super isEqualToItem:token];
     result &= (!self.expiresOn && !token.expiresOn) || [self.expiresOn isEqualToDate:token.expiresOn];
+    result &= (!self.refreshOn && !token.refreshOn) || [self.refreshOn isEqualToDate:token.refreshOn];
     result &= (!self.extendedExpiresOn && !token.extendedExpiresOn) || [self.extendedExpiresOn isEqualToDate:token.extendedExpiresOn];
     result &= (!self.accessToken && !token.accessToken) || [self.accessToken isEqualToString:token.accessToken];
     result &= (!self.target && !token.target) || [self.target isEqualToString:token.target];
@@ -115,6 +118,7 @@ static NSUInteger s_expirationBuffer = 300;
     if (self)
     {
         _expiresOn = tokenCacheItem.expiresOn;
+        _refreshOn = tokenCacheItem.refreshOn;
         _extendedExpiresOn = tokenCacheItem.extendedExpiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _enrollmentId = tokenCacheItem.enrollmentId;
@@ -146,6 +150,7 @@ static NSUInteger s_expirationBuffer = 300;
 {
     MSIDCredentialCacheItem *cacheItem = [super tokenCacheItem];
     cacheItem.expiresOn = self.expiresOn;
+    cacheItem.refreshOn = self.refreshOn;
     cacheItem.extendedExpiresOn = self.extendedExpiresOn;
     cacheItem.cachedAt = self.cachedAt;
     cacheItem.secret = self.accessToken;
@@ -163,6 +168,21 @@ static NSUInteger s_expirationBuffer = 300;
 - (MSIDCredentialType)credentialType
 {
     return MSIDAccessTokenType;
+}
+
+#pragma mark - RefreshNeeded
+
+-(BOOL)refreshNeeded
+{
+    if(self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
+    {
+        return YES;
+    }
+    if(self.refreshOn)
+    {
+        return [self.refreshOn compare:[NSDate date]] == NSOrderedAscending;
+    }
+    return NO;
 }
 
 #pragma mark - Expiry
