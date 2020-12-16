@@ -55,7 +55,8 @@
         _requestParameters[@"environment"] = environment;
         _requestParameters[@"homeAccountId"] = homeAccountId;
         _strictThumbprintIncludeSet = [NSSet setWithArray:@[@"realm",@"environment",@"homeAccountId",MSID_OAUTH2_SCOPE]];
-        _fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID,MSID_OAUTH2_GRANT_TYPE]];
+        _fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID,
+                                                          MSID_OAUTH2_GRANT_TYPE]];
     }
     return self;
 }
