@@ -100,7 +100,7 @@
         
         else
         {
-            return [NSString stringWithFormat: @"%lu", thumbprintKey];
+            return [NSString stringWithFormat:@"%lu", thumbprintKey];
         }
     }
     return nil;
@@ -119,6 +119,7 @@
                 [arrayList addObject:thumbprintObject];
             }
         }
+        
     }];
     
     NSArray *sortedArrayList = [arrayList sortedArrayUsingComparator:^NSComparisonResult(NSArray *obj1, NSArray *obj2)
@@ -133,14 +134,14 @@
 {
     if (!thumbprintRequestList || !thumbprintRequestList.count) return 0;
     
-    NSUInteger hash = [super hash];
+    NSUInteger hash = 0;
     for (id object in thumbprintRequestList)
     {
         if ([object isKindOfClass:[NSArray class]] &&
             ((NSArray *)object).count == 2 &&
             [object[0] isKindOfClass:[NSString class]])
         {
-            hash = hash * 31 + ((NSString *)object[0]).hash;
+            hash = hash * 31 + ((NSString *)object[1]).hash;
         }
         
         else

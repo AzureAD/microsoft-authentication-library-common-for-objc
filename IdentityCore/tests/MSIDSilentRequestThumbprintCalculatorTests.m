@@ -25,7 +25,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDSilentRequestThumbprintCalculator.h"
-
+#import "MSIDOAuth2Constants.h"
 
 @interface MSIDSilentRequestThumbprintCalculator (Test)
 
@@ -34,6 +34,8 @@
 
 - (NSString *)getRequestThumbprintImpl:(NSSet *)filteringSet
                        comparePolarity:(BOOL)comparePolarity;
+
+- (NSUInteger)hash:(NSArray *)thumbprintRequestList;
 
 @end
 
@@ -52,6 +54,8 @@
 @property (nonatomic) NSString *environment;
 @property (nonatomic) NSString *homeAccountId;
 @property (nonatomic) MSIDSilentRequestThumbprintCalculator *silentRequestThumbprintCalculator;
+@property (nonatomic) NSSet *whiteListSet;
+@property (nonatomic) NSSet *blackListSet;
 
 @end
 
@@ -70,7 +74,7 @@
                                 @"refresh_token": self.refresh_token,
                                 @"redirect_uri": self.redirect_uri,
                                 @"grant_type": self.grant_type
-                              };
+                                };
     
     self.endpointUrl = @"https://login.microsoftonline.com/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/oauth2/v2.0/token";
     self.realm = @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
@@ -81,6 +85,14 @@
                                                                                                          realm:self.realm
                                                                                                    environment:self.environment
                                                                                                  homeAccountId:self.homeAccountId];
+    self.whiteListSet = [NSSet setWithArray:@[@"realm",
+                                              @"environment",
+                                              @"homeAccountId",
+                                              MSID_OAUTH2_SCOPE]];
+    
+    self.blackListSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID,
+                                              MSID_OAUTH2_GRANT_TYPE]];
+    
 }
     // Put setup code here. This method is called before the invocation of each test method in the class.
 
@@ -94,6 +106,7 @@
                                                                                                   comparePolarity:NO];
     
     XCTAssertNotNil(sortedThumbprintList);
+    XCTAssertEqual(sortedThumbprintList.count,9);
     XCTAssertEqualObjects(sortedThumbprintList[0][0],@"client_id");
     XCTAssertEqualObjects(sortedThumbprintList[1][0],@"endpointUrl");
     XCTAssertEqualObjects(sortedThumbprintList[2][0],@"environment");
@@ -104,6 +117,194 @@
     XCTAssertEqualObjects(sortedThumbprintList[7][0],@"refresh_token");
     XCTAssertEqualObjects(sortedThumbprintList[8][0],@"scope");
 
+}
+
+- (void)testSilentRequestThumbprintCalculator_whenFilteredSetContainsParamsToInclude_ShouldOnlyIncludeThoseElementsInTheFinalArray
+{
+    NSArray *sortedThumbprintList = [self.silentRequestThumbprintCalculator sortRequestParametersUsingFilteredSet:self.whiteListSet
+                                                                                                  comparePolarity:YES];
+    
+    XCTAssertNotNil(sortedThumbprintList);
+    XCTAssertEqual(sortedThumbprintList.count,4);
+    XCTAssertEqualObjects(sortedThumbprintList[0][0],@"environment");
+    XCTAssertEqualObjects(sortedThumbprintList[1][0],@"homeAccountId");
+    XCTAssertEqualObjects(sortedThumbprintList[2][0],@"realm");
+    XCTAssertEqualObjects(sortedThumbprintList[3][0],@"scope");
+}
+
+- (void)testSilentRequestThumbprintCalculator_whenFilteredSetContainsParamsToExclude_ShouldExcludeThoseElementsFromTheFinalArray
+{
+    NSArray *sortedThumbprintList = [self.silentRequestThumbprintCalculator sortRequestParametersUsingFilteredSet:self.blackListSet
+                                                                                                  comparePolarity:NO];
+    
+    XCTAssertNotNil(sortedThumbprintList);
+    XCTAssertEqual(sortedThumbprintList.count,7);
+    XCTAssertEqualObjects(sortedThumbprintList[0][0],@"endpointUrl");
+    XCTAssertEqualObjects(sortedThumbprintList[1][0],@"environment");
+    XCTAssertEqualObjects(sortedThumbprintList[2][0],@"homeAccountId");
+    XCTAssertEqualObjects(sortedThumbprintList[3][0],@"realm");
+    XCTAssertEqualObjects(sortedThumbprintList[4][0],@"redirect_uri");
+    XCTAssertEqualObjects(sortedThumbprintList[5][0],@"refresh_token");
+    XCTAssertEqualObjects(sortedThumbprintList[6][0],@"scope");
+}
+
+- (void)testSilentRequestThumbprintCalculator_whenInvalidInputProvided_hashFunctionShouldReturnZero
+{
+    NSMutableArray *inputRequestArr = [NSMutableArray new];
+    NSArray *dummyThumbprintObject = [NSArray arrayWithObjects:@"environment", @"login.ucla.edu", @"login.microsoftonline.com",nil];
+    
+    //empty input
+    NSUInteger val = [self.silentRequestThumbprintCalculator hash:inputRequestArr];
+    XCTAssertEqual(val,0);
+    
+    //input contains invalid sub-array; expect all subarrays to be size of 2 and containing NSString type objects in them
+    [inputRequestArr addObject:dummyThumbprintObject];
+    val = [self.silentRequestThumbprintCalculator hash:inputRequestArr];
+    XCTAssertEqual(val,0);
+}
+
+- (void)testSilentRequestThumbprintCalculator_whenTheSameRequestParametersProvidedMultipleTimes_hashFunctionShouldReturnSameConsistentHash
+{
+    NSString *thumbprintOne = [self.silentRequestThumbprintCalculator getRequestThumbprintImpl:[NSSet new]
+                                                                               comparePolarity:NO];
+    NSString *thumbprintTwo = [self.silentRequestThumbprintCalculator getRequestThumbprintImpl:[NSSet new]
+                                                                               comparePolarity:NO];
+    NSString *thumbprintThree = [self.silentRequestThumbprintCalculator getRequestThumbprintImpl:[NSSet new]
+                                                                                 comparePolarity:NO];
+    NSString *thumbprintFour = [self.silentRequestThumbprintCalculator getRequestThumbprintImpl:[NSSet new]
+                                                                                comparePolarity:NO];
+    NSString *thumbprintFive = [self.silentRequestThumbprintCalculator getRequestThumbprintImpl:[NSSet new]
+                                                                                comparePolarity:NO];
+    XCTAssertNotNil(thumbprintOne);
+    XCTAssertEqualObjects(thumbprintOne,thumbprintTwo);
+    XCTAssertEqualObjects(thumbprintOne,thumbprintThree);
+    XCTAssertEqualObjects(thumbprintOne,thumbprintFour);
+    XCTAssertEqualObjects(thumbprintOne,thumbprintFive);
+}
+
+
+- (void)testSilentRequestThumbprintCalculator_whenFixedRequestParamSetIsUsed_thumbprintCalculatorsShouldReturnExpectedValues
+{
+    NSString *strictRequestThumbprint = [self.silentRequestThumbprintCalculator getStrictRequestThumbprint];
+    NSString *fullRequestThumbprint = [self.silentRequestThumbprintCalculator getFullRequestThumbprint];
+    XCTAssertEqualObjects(strictRequestThumbprint,@"5072015491213839942");
+    XCTAssertEqualObjects(fullRequestThumbprint,@"10251421432256759120");
+}
+
+- (void)testSilentRequestThumbprintCalculator_whenMultipleRequestsAreIncoming_thumbprintCalculatorShouldProvideStableFullRequestThumbprintsWithMinimalCollision
+{
+    NSMutableDictionary* virtualBucket = [NSMutableDictionary new];
+    __block int collisionCnt = 0;
+    
+    for (int i = 0; i < 10000; i++)
+    {
+        MSIDSilentRequestThumbprintCalculator *randomThumbprintCalculator = [self generateRandomThumbprintCalculatorInstance:YES
+                                                                                                       setRandomRefreshToken:YES
+                                                                                                        setRandomRedirectUrl:YES
+                                                                                                        setRandomEndpointUrl:YES
+                                                                                                              setRandomRealm:YES
+                                                                                                        setRandomEnvironment:YES
+                                                                                                      setRandomHomeAccountId:YES];
+        NSString *randomThumbprintKey = [randomThumbprintCalculator getFullRequestThumbprint];
+        if ([virtualBucket objectForKey:randomThumbprintKey])
+        {
+            int val = [virtualBucket[randomThumbprintKey] intValue];
+            virtualBucket[randomThumbprintKey] = @(val + 1);
+        }
+        else
+        {
+            virtualBucket[randomThumbprintKey] = @1;
+        }
+    }
+    
+    [virtualBucket enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
+        if ([obj intValue] > 1)
+        {
+            collisionCnt++;
+        }
+    }];
+    XCTAssertNotNil(virtualBucket);
+    XCTAssertLessThanOrEqual(collisionCnt,0);
+}
+
+- (void)testSilentRequestThumbprintCalculator_whenMultipleRequestsAreIncoming_thumbprintCalculatorShouldProvideStableStrictRequestThumbprintsWithMinimalCollision
+{
+    NSMutableDictionary* virtualBucket = [NSMutableDictionary new];
+    __block int collisionCnt = 0;
+    
+    for (int i = 0; i < 20000; i++)
+    {
+        MSIDSilentRequestThumbprintCalculator *randomThumbprintCalculator = [self generateRandomThumbprintCalculatorInstance:YES
+                                                                                                       setRandomRefreshToken:NO
+                                                                                                        setRandomRedirectUrl:NO
+                                                                                                        setRandomEndpointUrl:NO
+                                                                                                              setRandomRealm:NO
+                                                                                                        setRandomEnvironment:NO
+                                                                                                      setRandomHomeAccountId:YES];
+        NSString *randomThumbprintKey = [randomThumbprintCalculator getStrictRequestThumbprint];
+        if ([virtualBucket objectForKey:randomThumbprintKey])
+        {
+            int val = [virtualBucket[randomThumbprintKey] intValue];
+            virtualBucket[randomThumbprintKey] = @(val + 1);
+        }
+        else
+        {
+            virtualBucket[randomThumbprintKey] = @1;
+        }
+    }
+    
+    [virtualBucket enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
+        if ([obj intValue] > 1)
+        {
+            collisionCnt++;
+        }
+    }];
+    XCTAssertNotNil(virtualBucket);
+    XCTAssertLessThanOrEqual(collisionCnt,0);
+}
+
+- (MSIDSilentRequestThumbprintCalculator *)generateRandomThumbprintCalculatorInstance:(BOOL)setRandomScope
+                                                                setRandomRefreshToken:(BOOL)setRandomRT
+                                                                 setRandomRedirectUrl:(BOOL)setRandomRedirectUrl
+                                                                 setRandomEndpointUrl:(BOOL)setRandomEndpointUrl
+                                                                       setRandomRealm:(BOOL)setRandomRealm
+                                                                 setRandomEnvironment:(BOOL)setRandomEnvironment
+                                                               setRandomHomeAccountId:(BOOL)setRandomHomeAccountId
+{
+    NSString *randomScope = (setRandomScope == YES) ? [self generateRandomStringWithLen:(int)[self.scope length]] : self.scope;
+    NSString *randomRefreshToken = (setRandomRT == YES) ? [self generateRandomStringWithLen:(int)[self.refresh_token length]] : self.refresh_token;
+    NSString *randomRedirectUrl = (setRandomRedirectUrl == YES) ? [self generateRandomStringWithLen:(int)[self.redirect_uri length]] : self.redirect_uri;
+    
+    NSDictionary *requestParams = @{ @"client_id" : self.clientId, //unused in the thumbprint calculation
+                                     @"scope" : randomScope,
+                                     @"refresh_token": randomRefreshToken,
+                                     @"redirect_uri": randomRedirectUrl,
+                                     @"grant_type": self.grant_type //unused in the thumbprint calculation
+                                    };
+
+    NSString *randomEndpointUrl = (setRandomEndpointUrl == YES) ? [self generateRandomStringWithLen:(int)[self.endpointUrl length]] : self.endpointUrl;
+    NSString *randomRealm = (setRandomRealm == YES) ? [self generateRandomStringWithLen:(int)[self.realm length]] : self.realm;
+    NSString *randomEnvironment = (setRandomEnvironment == YES) ? [self generateRandomStringWithLen:(int)[self.environment length]] : self.environment;
+    NSString *randomHomeAccountId = (setRandomHomeAccountId) ? [self generateRandomStringWithLen:(int)[self.homeAccountId length]] : self.homeAccountId;
+    MSIDSilentRequestThumbprintCalculator *silentRequestThumbprintCalculator = [[MSIDSilentRequestThumbprintCalculator alloc] initWithParamaters:requestParams
+                                                                                                                                     endpointUrl:randomEndpointUrl
+                                                                                                                                           realm:randomRealm
+                                                                                                                                     environment:randomEnvironment
+                                                                                                                                   homeAccountId:randomHomeAccountId];
+    return silentRequestThumbprintCalculator;
+}
+
+- (NSString *)generateRandomStringWithLen:(int)len
+{
+    NSString *validLetters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-/:. ";
+    NSMutableString *randomString = [NSMutableString stringWithCapacity:len];
+
+    for (int i=0; i< len; i++)
+    {
+        [randomString appendFormat:@"%C", [validLetters characterAtIndex:arc4random_uniform((int)[validLetters length])]];
+    }
+
+    return randomString;
 }
 
 
