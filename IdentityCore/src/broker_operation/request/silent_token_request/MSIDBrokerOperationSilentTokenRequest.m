@@ -29,6 +29,12 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDThumbprintCalculator.h"
+#import "MSIDConfiguration.h"
+
+
+static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
+static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 
@@ -95,6 +101,29 @@
     [json addEntriesFromDictionary:accountIdentifierJson];
     
     return json;
+}
+
+- (NSString *)getFullRequestThumbprint
+{
+    NSSet *fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY,
+                                                            MSID_BROKER_CLIENT_CAPABILITIES_KEY,
+                                                            MSID_BROKER_CLIENT_VERSION_KEY,
+                                                            MSID_BROKER_CLIENT_APP_VERSION_KEY,
+                                                            MSID_BROKER_CLIENT_APP_NAME_KEY,
+                                                            MSID_BROKER_CORRELATION_ID_KEY,
+                                                            MSID_CLIENT_ID_JSON_KEY]];
+    return [MSIDThumbprintCalculator calculateThumbprint:[self jsonDictionary]
+                                            filteringSet:fullThumbprintExcludeSet
+                                         includePolarity:NO];
+}
+
+- (NSString *)getStrictRequestThumbprint
+{
+    NSSet *strictThumbprintIncludeSet = [NSSet setWithArray:@[MSID_SCOPE_JSON_KEY, MSID_AUTHORITY_URL_JSON_KEY, MSID_ACCOUNT_HOME_ID_JSON_KEY]];
+    return [MSIDThumbprintCalculator calculateThumbprint:[self jsonDictionary]
+                                            filteringSet:strictThumbprintIncludeSet
+                                         includePolarity:YES];
+  
 }
 
 @end

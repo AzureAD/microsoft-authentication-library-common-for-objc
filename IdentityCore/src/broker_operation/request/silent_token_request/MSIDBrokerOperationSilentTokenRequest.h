@@ -24,13 +24,14 @@
 #if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDBrokerOperationTokenRequest.h"
 #import "MSIDProviderType.h"
+#import "MSIDThumbprintCalculatable.h"
 
 @class MSIDConfiguration;
 @class MSIDAccountIdentifier;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest
+@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest <MSIDThumbprintCalculatable>
 
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 

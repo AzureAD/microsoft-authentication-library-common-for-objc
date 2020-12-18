@@ -22,6 +22,15 @@
 // THE SOFTWARE.
 
 #import "MSIDRefreshTokenGrantRequest.h"
+#import "MSIDThumbprintCalculator.h"
+#import "MSIDRequestParameters.h"
+#import "MSIDAccountIdentifier.h"
+
+@interface MSIDRefreshTokenGrantRequest ()
+
+@property (nonatomic) NSMutableDictionary *thumbprintParameters;
+
+@end
 
 @implementation MSIDRefreshTokenGrantRequest
 
@@ -50,9 +59,29 @@
         }
         
         _parameters = parameters;
+        _thumbprintParameters = [_parameters mutableCopy];
+        _thumbprintParameters[MSID_OAUTH2_REQUEST_ENDPOINT] = endpoint;
+        _thumbprintParameters[MSID_OAUTH2_HOME_ACCOUNT_ID] = ((MSIDRequestParameters *)context).accountIdentifier.homeAccountId;
     }
     
     return self;
+}
+
+- (NSString *)getFullRequestThumbprint
+{
+    NSSet *fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID, MSID_OAUTH2_GRANT_TYPE]];
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:fullThumbprintExcludeSet
+                                         includePolarity:NO];
+}
+
+- (NSString *)getStrictRequestThumbprint
+{
+    NSSet *strictThumbprintIncludeSet = [NSSet setWithArray:@[@"realm",@"environment",MSID_OAUTH2_HOME_ACCOUNT_ID,MSID_OAUTH2_SCOPE]];
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:strictThumbprintIncludeSet
+                                         includePolarity:YES];
+  
 }
 
 @end
