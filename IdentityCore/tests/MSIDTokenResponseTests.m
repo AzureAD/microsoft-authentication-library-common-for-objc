@@ -328,4 +328,33 @@
     XCTAssertEqualObjects(json[@"state"], @"state 1");
 }
 
+- (void)testJsonDictionary_withAccessTokenTypePop_shouldReturnValue
+{
+    NSDictionary *jsonInput = @{@"access_token": @"at",
+                                @"token_type": @"Pop",
+                                @"req_cnf": @"kid",
+                                @"expires_in": @"3600",
+                                @"refresh_token": @"rt"};
+    
+    NSError *error = nil;
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:jsonInput error:&error];
+    
+    XCTAssertNotNil(response);
+    XCTAssertNil(error);
+    
+    XCTAssertTrue([response.tokenType isEqualToString:MSID_OAUTH2_POP]);
+    XCTAssertTrue([response.requestConf isEqualToString:@"kid"]);
+}
+
+- (void)testJsonDictionary_whenPopPropertiesShow_shouldReturnJson
+{
+    __auto_type tokenResponse = [MSIDTestTokenResponseStub new];
+    tokenResponse.tokenType = MSID_OAUTH2_POP;
+    tokenResponse.requestConf = @"kid";
+    NSDictionary *json = [tokenResponse jsonDictionary];
+    
+    XCTAssertEqualObjects(json[MSID_OAUTH2_TOKEN_TYPE], MSID_OAUTH2_POP);
+    XCTAssertEqualObjects(json[MSID_OAUTH2_REQUEST_CONFIRMATION], @"kid");
+}
+
 @end
