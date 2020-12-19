@@ -23,12 +23,25 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDThrottlingLRUCache.h"
+#import <Foundation/Foundation.h>
+#import "MSIDThrottlingCacheRecord.h"
 
-@class MSIDThrottlingCacheRecord;
-@class MSIDThumbprintCalculatable;
+@implementation MSIDThrottlingCacheRecord
 
-//static MSIDCache instance that will act as a pseudo-doubly-linkedList will be in the implementation file.
-@interface MSIDServerDelayCache : NSObject <MSIDThrottlingLRUCache>
+- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
+                         throttleType:(NSString *)throttleType
+                     throttleDuration:(NSInteger)throttleDuration
+{
+    self = [super init];
+    if (self)
+    {
+        _creationTime = [NSDate date];
+        _expirationTime = [NSDate dateWithTimeIntervalSinceNow:throttleDuration];
+        _throttleType = throttleType;
+        _throttledCount = 1;
+        _cachedErrorResponse = cachedErrorResponse;
+    }
+    return self;
+}
 
 @end

@@ -24,64 +24,30 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDServerDelayCache.h"
-#import "MSIDThrottlingCacheRecord.h"
 #import "MSIDThrottlingCacheNode.h"
-#import "MSIDCache.h"
+#import "MSIDThrottlingCacheRecord.h"
 
-@interface MSIDServerDelayCache ()
+@implementation MSIDThrottlingCacheNode
 
-@property (nonatomic) NSUInteger cacheSizeInt;
-
-@end
-
-@implementation MSIDServerDelayCache
-
-- (instancetype)initWithCacheSize:(NSUInteger)cacheSize
+- (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
+                        errorResponse:(NSError *)errorResponse
+                         throttleType:(NSString *)throttleType
+                     throttleDuration:(NSInteger)throttleDuration
+             prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
+             nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey
 {
     self = [super init];
-    if (self)
+    if (self )
     {
-        _cacheSizeInt = cacheSize;
+        _requestThumbprintKey = thumbprintKey;
+        _prevRequestThumbprintKey = prevRequestThumbprintKey;
+        _nextRequestThumbprintKey = nextRequestThumbprintKey;
+        _cacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:errorResponse
+                                                                   throttleType:throttleType
+                                                               throttleDuration:throttleDuration];
+        
     }
     return self;
 }
-
-- (NSUInteger)cacheSize
-{
-    return self.cacheSizeInt;
-}
-
-- (void)addToFront:(NSString *)thumbprintKey
-     errorResponse:(NSError *)errorResponse
-{
-    //TODO: Implement this
-    return;
-}
-
-- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey
-{
-    //TODO: Implement this
-    return nil;
-}
-
-- (void)removeNode:(NSString *)thumbprintKey
-{
-    //TODO: implement this
-    return;
-}
-
-- (MSIDCache *)internalCache
-{
-    static MSIDCache *m_cache;
-    static dispatch_once_t once_token;
-    dispatch_once(&once_token, ^{
-        m_cache = [MSIDCache new];
-    });
-    
-    return m_cache;
-}
-
-
 
 @end

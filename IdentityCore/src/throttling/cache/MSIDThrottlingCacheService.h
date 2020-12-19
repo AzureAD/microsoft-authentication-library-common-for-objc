@@ -23,33 +23,34 @@
 // THE SOFTWARE.  
 
 @class MSIDThrottlingCacheRecord;
+@class MSIDThrottlingCacheNode;
 
-//singleton instances of MSIDServerDelayCache & MSIDUIRequiredCache will be in the implementation file as private properties.
-//Additionally, there will be dummy head and tail node in the .m file to maintain pseudo doubly-linked-list so we can better handle all corner cases.
+NS_ASSUME_NONNULL_BEGIN
+
 @interface MSIDThrottlingCacheService : NSObject
 
-@property (nonatomic, readonly) NSUInteger cacheSizeUI;
-@property (nonatomic, readonly) NSUInteger cacheSizeServerDelay;
+@property (nonatomic, readonly) NSUInteger cacheSize;
 
-- (instancetype)initThrottlingCacheService:(NSUInteger cacheSizeUI)
-                      cacheSizeServerDelay:(NSUInteger cacheSizeServerDelay);
+- (instancetype)initThrottlingCacheService:(NSUInteger)cacheSize;
 
-//add new node to the front of LRU cache.
-//if node already exists, update and move it to the front of LRU cache
-- (void)addRequestToUICache:(NSString *)thumbprintKey
-              errorResponse:(NSError *)errrorResponse;
+/* add new node to the front of LRU cache.
+if node already exists, update and move it to the front of LRU cache */
+- (NSError *)addRequestToCache:(NSString *)thumbprintKey
+                 errorResponse:(nullable NSError *)errorResponse
+                  throttleType:(NSString *)throttleType
+              throttleDuration:(NSInteger)throttleDuration;
 
-
-- (void)removeRequestFromUICache:(NSString *)thumbprintKey;
+- (void)removeRequestFromCache:(NSString *)thumbprintKey;
 
 //retrieve cache record from the corresponding node, and move the node to the front of LRU cache.
-- (MSIDThrottlingCacheRecord *)getCachedResponseFromUICache:(NSString *)thumbprintKey;
+- (MSIDThrottlingCacheRecord *)getResponseFromCache:(NSString *)thumbprintKey;
 
-- (void)addRequestToServerDelayCache:(NSString *)thumbprintKey
-                       errorResponse:(NSError *)errrorResponse;
+- (MSIDThrottlingCacheNode *)getHeadNode; //query first element without disturbing order
 
-- (void)removeRequestFromServerDelayCache:(NSString *)thumbprintKey;
+- (MSIDThrottlingCacheNode *)getTailNode; //query last element without disturbing order
 
-- (MSIDThrottlingCacheRecord *)getCachedResponseFromServerDelayCache:(NSString *)thumbprintKey;
+- (NSArray *)enumerateAndReturnAllCachedObjects; //return all cached elements without disturbing order 
 
 @end
+
+NS_ASSUME_NONNULL_END

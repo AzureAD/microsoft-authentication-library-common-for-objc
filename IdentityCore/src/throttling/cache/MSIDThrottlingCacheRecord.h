@@ -32,8 +32,7 @@
 @property (nonatomic) NSError *cachedErrorResponse;
 
 - (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
-                         throttleType:(NSString *)throttleType;
+                         throttleType:(NSString *)throttleType
+                     throttleDuration:(NSInteger)throttleDuration;
                     
-
-
 @end
