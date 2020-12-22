@@ -64,7 +64,7 @@
 @property (nonatomic) BOOL ssoExtensionHooksEnabled;
 @property (nonatomic) NSUInteger ssoExtensionSharedDeviceMode;
 @property (nonatomic) NSUInteger ssoExtensionInteractiveMode;
-
+@property (nonatomic) NSString *tokenType;
 - (BOOL)usesEmbeddedWebView;
 
 @end
