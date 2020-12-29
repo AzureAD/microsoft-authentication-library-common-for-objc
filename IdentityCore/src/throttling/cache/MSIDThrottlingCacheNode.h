@@ -27,8 +27,8 @@
 @interface MSIDThrottlingCacheNode : NSObject
 
 @property (nonatomic, readonly) NSString *requestThumbprintKey;
-@property (nonatomic) NSString *prevRequestThumbprintKey; //prev and next node keys should be mutable
-@property (nonatomic) NSString *nextRequestThumbprintKey;
+@property (nonatomic, readonly) NSString *prevRequestThumbprintKey;
+@property (nonatomic, readonly) NSString *nextRequestThumbprintKey;
 @property (nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
 
 - (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
@@ -37,4 +37,5 @@
                      throttleDuration:(NSInteger)throttleDuration
              prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
              nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
+
 @end

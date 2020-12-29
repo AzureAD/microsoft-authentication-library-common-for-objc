@@ -31,25 +31,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSUInteger cacheSize;
 
-- (instancetype)initThrottlingCacheService:(NSUInteger)cacheSize;
+- (instancetype)initWithThrottlingCacheSize:(NSUInteger)cacheSize;
 
 /* add new node to the front of LRU cache.
 if node already exists, update and move it to the front of LRU cache */
-- (NSError *)addRequestToCache:(NSString *)thumbprintKey
-                 errorResponse:(nullable NSError *)errorResponse
-                  throttleType:(NSString *)throttleType
-              throttleDuration:(NSInteger)throttleDuration;
+- (void)addRequestToCache:(NSString *)thumbprintKey
+            errorResponse:(nullable NSError *)errorResponse
+             throttleType:(NSString *)throttleType
+         throttleDuration:(NSInteger)throttleDuration
+                    error:(NSError *__nullable*__nullable)error;
 
-- (void)removeRequestFromCache:(NSString *)thumbprintKey;
+- (void)removeRequestFromCache:(NSString *)thumbprintKey
+                         error:(NSError *__nullable*__nullable)error;
 
 //retrieve cache record from the corresponding node, and move the node to the front of LRU cache.
-- (MSIDThrottlingCacheRecord *)getResponseFromCache:(NSString *)thumbprintKey;
+- (nullable MSIDThrottlingCacheRecord *)getResponseFromCache:(NSString *)thumbprintKey
+                                                       error:(NSError *__nullable*__nullable)error;
 
-- (MSIDThrottlingCacheNode *)getHeadNode; //query first element without disturbing order
+- (nullable NSArray *)enumerateAndReturnAllObjects; //return all cached elements without disturbing order
 
-- (MSIDThrottlingCacheNode *)getTailNode; //query last element without disturbing order
-
-- (NSArray *)enumerateAndReturnAllCachedObjects; //return all cached elements without disturbing order 
+- (void)removeAllExpiredObjects:(NSError *__nullable*__nullable)error;
 
 @end
 

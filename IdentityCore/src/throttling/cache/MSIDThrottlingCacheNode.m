@@ -27,7 +27,35 @@
 #import "MSIDThrottlingCacheNode.h"
 #import "MSIDThrottlingCacheRecord.h"
 
+
+@interface MSIDThrottlingCacheNode ()
+
+@property (nonatomic) NSMutableString *prevKeyInt;
+@property (nonatomic) NSMutableString *nextKeyInt;
+
+@end
+
 @implementation MSIDThrottlingCacheNode
+
+- (NSString *)prevRequestThumbprintKey
+{
+    return self.prevKeyInt;
+}
+
+- (NSString *)nextRequestThumbprintKey
+{
+    return self.nextKeyInt;
+}
+
+- (void)setPrevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
+{
+    self.prevKeyInt = [prevRequestThumbprintKey mutableCopy];
+}
+
+- (void)setNextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey
+{
+    self.nextKeyInt = [nextRequestThumbprintKey mutableCopy];
+}
 
 - (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
                         errorResponse:(NSError *)errorResponse
@@ -40,14 +68,14 @@
     if (self )
     {
         _requestThumbprintKey = thumbprintKey;
-        _prevRequestThumbprintKey = prevRequestThumbprintKey;
-        _nextRequestThumbprintKey = nextRequestThumbprintKey;
+        _prevKeyInt = [prevRequestThumbprintKey mutableCopy];
+        _nextKeyInt = [nextRequestThumbprintKey mutableCopy];
         _cacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:errorResponse
                                                                    throttleType:throttleType
                                                                throttleDuration:throttleDuration];
-        
     }
     return self;
 }
+
 
 @end
