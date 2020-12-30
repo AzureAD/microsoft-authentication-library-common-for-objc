@@ -22,6 +22,13 @@
 // THE SOFTWARE.
 
 #import "MSIDRefreshTokenGrantRequest.h"
+#import "MSIDThumbprintCalculator.h"
+
+@interface MSIDRefreshTokenGrantRequest ()
+
+@property (nonatomic) NSMutableDictionary *thumbprintParameters;
+
+@end
 
 @implementation MSIDRefreshTokenGrantRequest
 
@@ -50,9 +57,52 @@
         }
         
         _parameters = parameters;
+        _thumbprintParameters = [_parameters mutableCopy];
+        _thumbprintParameters[MSID_OAUTH2_REQUEST_ENDPOINT] = endpoint;
     }
     
     return self;
+}
+
+- (NSString *)getFullRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest getExcludeSet]
+                                       shouldIncludeKeys:NO];
+}
+
+- (NSString *)getStrictRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest getIncludeSet]
+                                       shouldIncludeKeys:YES];
+  
+}
+
++ (NSSet *)getExcludeSet
+{
+    static dispatch_once_t once_token;
+    static NSSet *excludeSet;
+    
+    dispatch_once(&once_token, ^{
+        excludeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID, MSID_OAUTH2_GRANT_TYPE]];
+    });
+    return excludeSet;
+    
+}
+
++ (NSSet *)getIncludeSet
+{
+    static dispatch_once_t once_token;
+    static NSSet *includeSet;
+    
+    dispatch_once(&once_token, ^{
+        includeSet = [NSSet setWithArray:@[MSID_OAUTH2_REQUEST_ENDPOINT,
+                                           MSID_OAUTH2_REFRESH_TOKEN,
+                                           MSID_OAUTH2_SCOPE]];
+    });
+    return includeSet;
+    
 }
 
 @end

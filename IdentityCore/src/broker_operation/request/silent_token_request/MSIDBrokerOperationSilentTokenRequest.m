@@ -29,6 +29,12 @@
 #import "MSIDAccountIdentifier.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDJsonSerializableTypes.h"
+#import "MSIDThumbprintCalculator.h"
+#import "MSIDConfiguration.h"
+
+
+static NSString *const MSID_ACCOUNT_HOME_ID_JSON_KEY = @"home_account_id";
+static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
 
 @implementation MSIDBrokerOperationSilentTokenRequest
 
@@ -95,6 +101,50 @@
     [json addEntriesFromDictionary:accountIdentifierJson];
     
     return json;
+}
+
+- (NSString *)getFullRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:[self jsonDictionary]
+                                            filteringSet:[MSIDBrokerOperationSilentTokenRequest getExcludeSet]
+                                       shouldIncludeKeys:NO];
+}
+
+- (NSString *)getStrictRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:[self jsonDictionary]
+                                            filteringSet:[MSIDBrokerOperationSilentTokenRequest getIncludeSet]
+                                       shouldIncludeKeys:YES];
+}
+
++ (NSSet *)getExcludeSet
+{
+    static dispatch_once_t once_token;
+    static NSSet *excludeSet;
+    
+    dispatch_once(&once_token, ^{
+        excludeSet = [NSSet setWithArray:@[MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY,
+                                           MSID_BROKER_CLIENT_CAPABILITIES_KEY,
+                                           MSID_BROKER_CLIENT_VERSION_KEY,
+                                           MSID_BROKER_CLIENT_APP_VERSION_KEY,
+                                           MSID_BROKER_CLIENT_APP_NAME_KEY,
+                                           MSID_BROKER_CORRELATION_ID_KEY,
+                                           MSID_CLIENT_ID_JSON_KEY]];
+    });
+    return excludeSet;
+    
+}
+
++ (NSSet *)getIncludeSet
+{
+    static dispatch_once_t once_token;
+    static NSSet *includeSet;
+    
+    dispatch_once(&once_token, ^{
+        includeSet = [NSSet setWithArray:@[MSID_SCOPE_JSON_KEY, MSID_AUTHORITY_URL_JSON_KEY, MSID_ACCOUNT_HOME_ID_JSON_KEY]];
+    });
+    return includeSet;
+    
 }
 
 @end

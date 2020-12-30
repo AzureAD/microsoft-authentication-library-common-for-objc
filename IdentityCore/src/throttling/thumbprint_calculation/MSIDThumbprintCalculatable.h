@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,28 +20,11 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#if MSID_ENABLE_SSO_EXTENSION
-#import "MSIDBrokerOperationTokenRequest.h"
-#import "MSIDProviderType.h"
-#import "MSIDThumbprintCalculatable.h"
+@protocol MSIDThumbprintCalculatable <NSObject>
 
-@class MSIDConfiguration;
-@class MSIDAccountIdentifier;
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDBrokerOperationSilentTokenRequest : MSIDBrokerOperationTokenRequest <MSIDThumbprintCalculatable>
-
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
-
-+ (instancetype)tokenRequestWithParameters:(MSIDRequestParameters *)parameters
-                              providerType:(MSIDProviderType)providerType
-                             enrollmentIds:(nullable NSDictionary *)enrollmentIds
-                              mamResources:(nullable NSDictionary *)mamResources;
+- (NSString *)getFullRequestThumbprint;
+- (NSString *)getStrictRequestThumbprint;
 
 @end
-
-NS_ASSUME_NONNULL_END
-#endif
