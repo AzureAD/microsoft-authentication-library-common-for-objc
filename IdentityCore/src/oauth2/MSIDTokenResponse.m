@@ -152,6 +152,7 @@
         _expiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_IN];
         _expiresOn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXPIRES_ON];
         _tokenType = [json msidStringObjectForKey:MSID_OAUTH2_TOKEN_TYPE];
+        _requestConf = [json msidStringObjectForKey:MSID_OAUTH2_REQUEST_CONFIRMATION];
         _scope = [json msidStringObjectForKey:MSID_OAUTH2_SCOPE];
         _state = [json msidStringObjectForKey:MSID_OAUTH2_STATE];
         [self setIdToken:[json msidStringObjectForKey:MSID_OAUTH2_ID_TOKEN]];
@@ -183,6 +184,7 @@
         json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
         json[MSID_OAUTH2_SCOPE] = self.scope;
         json[MSID_OAUTH2_ID_TOKEN] = self.idToken;
+        json[MSID_OAUTH2_REQUEST_CONFIRMATION] = self.requestConf;
     }
     
     json[MSID_OAUTH2_STATE] = self.state;
