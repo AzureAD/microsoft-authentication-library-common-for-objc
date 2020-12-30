@@ -32,7 +32,7 @@
 
 + (NSArray *)sortRequestParametersUsingFilteredSet:(NSDictionary *)requestParameters
                                       filteringSet:(NSSet *)filteringSet
-                                   includePolarity:(BOOL)includePolarity;
+                                 shouldIncludeKeys:(BOOL)includePolarity;
 
 + (NSUInteger)hash:(NSArray *)thumbprintRequestList;
 
@@ -107,7 +107,7 @@
 {
     NSArray *sortedThumbprintList = [MSIDThumbprintCalculator sortRequestParametersUsingFilteredSet:self.requestParameters
                                                                                        filteringSet:[NSSet new]
-                                                                                    includePolarity:NO];
+                                                                                  shouldIncludeKeys:NO];
     
     XCTAssertNotNil(sortedThumbprintList);
     XCTAssertEqual(sortedThumbprintList.count,9);
@@ -127,7 +127,7 @@
 {
     NSArray *sortedThumbprintList = [MSIDThumbprintCalculator sortRequestParametersUsingFilteredSet:self.requestParameters
                                                                                        filteringSet:self.whiteListSet
-                                                                                    includePolarity:YES];
+                                                                                  shouldIncludeKeys:YES];
 
     XCTAssertNotNil(sortedThumbprintList);
     XCTAssertEqual(sortedThumbprintList.count,4);
@@ -141,7 +141,7 @@
 {
     NSArray *sortedThumbprintList = [MSIDThumbprintCalculator sortRequestParametersUsingFilteredSet:self.requestParameters
                                                                                        filteringSet:self.blackListSet
-                                                                                    includePolarity:NO];
+                                                                                  shouldIncludeKeys:NO];
 
     XCTAssertNotNil(sortedThumbprintList);
     XCTAssertEqual(sortedThumbprintList.count,7);
@@ -174,19 +174,19 @@
 
     NSString *thumbprintOne = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                filteringSet:[NSSet new]
-                                                            includePolarity:NO];
+                                                          shouldIncludeKeys:NO];
     NSString *thumbprintTwo = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                filteringSet:[NSSet new]
-                                                            includePolarity:NO];
+                                                          shouldIncludeKeys:NO];
     NSString *thumbprintThree = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                  filteringSet:[NSSet new]
-                                                              includePolarity:NO];
+                                                            shouldIncludeKeys:NO];
     NSString *thumbprintFour = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                 filteringSet:[NSSet new]
-                                                             includePolarity:NO];
+                                                           shouldIncludeKeys:NO];
     NSString *thumbprintFive = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                 filteringSet:[NSSet new]
-                                                             includePolarity:NO];
+                                                           shouldIncludeKeys:NO];
     XCTAssertNotNil(thumbprintOne);
     XCTAssertEqualObjects(thumbprintOne,thumbprintTwo);
     XCTAssertEqualObjects(thumbprintOne,thumbprintThree);
@@ -211,7 +211,7 @@
                                                            setRandomHomeAccountId:YES];
         NSString *randomThumbprintKey = [MSIDThumbprintCalculator calculateThumbprint:randomRequestParams
                                                                          filteringSet:self.blackListSet
-                                                                      includePolarity:NO];
+                                                                    shouldIncludeKeys:NO];
         if ([virtualBucket objectForKey:randomThumbprintKey])
         {
             int val = [virtualBucket[randomThumbprintKey] intValue];

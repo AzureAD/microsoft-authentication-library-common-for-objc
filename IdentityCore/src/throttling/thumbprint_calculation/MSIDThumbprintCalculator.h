@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)calculateThumbprint:(NSDictionary *)requestParameters
                      filteringSet:(NSSet *)filteringSet
-                  includePolarity:(BOOL)includePolarity;
+                shouldIncludeKeys:(BOOL)shouldIncludeKeys;
 
 @end
 

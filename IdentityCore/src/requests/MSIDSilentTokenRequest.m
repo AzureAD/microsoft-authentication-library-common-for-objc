@@ -194,6 +194,7 @@
                                                           refreshToken:refreshableToken
                                                                  error:&resultError];
             
+            
             if (tokenResult)
             {
                 [self.lastRequestTelemetry increaseSilentSuccessfulCount];

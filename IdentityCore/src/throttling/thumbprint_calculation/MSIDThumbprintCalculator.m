@@ -34,11 +34,11 @@
 
 + (NSString *)calculateThumbprint:(NSDictionary *)requestParameters
                      filteringSet:(NSSet *)filteringSet
-                  includePolarity:(BOOL)includePolarity
+                shouldIncludeKeys:(BOOL)shouldIncludeKeys
 {
     NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:requestParameters
                                                                           filteringSet:filteringSet
-                                                                       includePolarity:includePolarity];
+                                                                     shouldIncludeKeys:shouldIncludeKeys];
     if (sortedThumbprintRequestList)
     {
         NSUInteger thumbprintKey = [self hash:sortedThumbprintRequestList];
@@ -58,13 +58,13 @@
 
 + (NSArray *)sortRequestParametersUsingFilteredSet:(NSDictionary *)requestParameters
                                       filteringSet:(NSSet *)filteringSet
-                                   includePolarity:(BOOL)includePolarity
+                                 shouldIncludeKeys:(BOOL)shouldIncludeKeys
 {
     NSMutableArray *arrayList = [NSMutableArray new];
     [requestParameters enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
         if ([key isKindOfClass:[NSString class]] && [obj isKindOfClass:[NSString class]])
         {
-            if ([filteringSet containsObject:key] == includePolarity)
+            if ([filteringSet containsObject:key] == shouldIncludeKeys)
             {
                 NSArray *thumbprintObject = [NSArray arrayWithObjects:key, obj, nil];
                 [arrayList addObject:thumbprintObject];

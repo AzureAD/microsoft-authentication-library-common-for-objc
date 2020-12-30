@@ -23,6 +23,21 @@
 
 #import "MSIDAADRefreshTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
+#import "MSIDThumbprintCalculator.h"
+
+@interface MSIDAADRefreshTokenGrantRequest ()
+
+@property (nonatomic) NSMutableDictionary *thumbprintParameters;
+
+@end
+
+@interface MSIDRefreshTokenGrantRequest ()
+
++ (NSSet *)getExcludeSet;
++ (NSSet *)getIncludeSet;
+
+@end
+
 
 @implementation MSIDAADRefreshTokenGrantRequest
 
@@ -49,9 +64,28 @@
         parameters[MSID_ENROLLMENT_ID] = enrollmentId;
         
         _parameters = parameters;
+        
+        _thumbprintParameters = [_parameters mutableCopy];
+        _thumbprintParameters[MSID_OAUTH2_REQUEST_ENDPOINT] = endpoint;
     }
     
     return self;
 }
+
+- (NSString *)getFullRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest getExcludeSet]
+                                       shouldIncludeKeys:NO];
+}
+
+- (NSString *)getStrictRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest getIncludeSet]
+                                       shouldIncludeKeys:YES];
+  
+}
+
 
 @end
