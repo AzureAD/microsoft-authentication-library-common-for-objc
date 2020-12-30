@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithThrottlingCacheSize:(NSUInteger)cacheSize;
 
++ (MSIDThrottlingCacheService *)sharedInstance:(NSUInteger)cacheSize;
+
 /* add new node to the front of LRU cache.
 if node already exists, update and move it to the front of LRU cache */
 - (void)addRequestToCache:(NSString *)thumbprintKey

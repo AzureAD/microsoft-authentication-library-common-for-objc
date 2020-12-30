@@ -35,6 +35,8 @@
 
 - (MSIDThrottlingCacheNode *)getTailNode; //query last element without disturbing order
 
+- (void)threadSafetyTest;
+
 @end
 
 @interface MSIDThrottlingCacheTest : XCTestCase
@@ -46,7 +48,7 @@
 @implementation MSIDThrottlingCacheTest
 
 - (void)setUp {
-    self.throttlingCacheService = [[MSIDThrottlingCacheService alloc] initWithThrottlingCacheSize:5];
+    self.throttlingCacheService = [MSIDThrottlingCacheService sharedInstance:5];
 }
 
 - (void)tearDown
@@ -254,5 +256,107 @@
         
 }
 
+- (void)testThrottlingCacheService_uponHeavyCacheReadAttempts_cacheShouldReturnExpectedResultsReliably
+{
+    NSError *subError = nil;
+    [self.throttlingCacheService addRequestToCache:@"1"
+                                     errorResponse:nil
+                                      throttleType:@"matthew"
+                                  throttleDuration:20
+                                             error:&subError];
+    
+    [self.throttlingCacheService addRequestToCache:@"2"
+                                     errorResponse:nil
+                                      throttleType:@"mark"
+                                  throttleDuration:20
+                                             error:&subError];
+    
+    
+    [self.throttlingCacheService addRequestToCache:@"3"
+                                     errorResponse:nil
+                                      throttleType:@"luke"
+                                  throttleDuration:20
+                                             error:&subError];
+    
+    [self.throttlingCacheService addRequestToCache:@"4"
+                                     errorResponse:nil
+                                      throttleType:@"john"
+                                  throttleDuration:20
+                                             error:&subError];
+    
+    [self.throttlingCacheService addRequestToCache:@"5"
+                                     errorResponse:nil
+                                      throttleType:@"thomas"
+                                  throttleDuration:20
+                                             error:&subError];
+    
+    //head->5->4->3->2->1->tail
+    //head<-5<-4<-3<-2<-1<-tail
+    
+    NSArray *thumbprintKeys = [NSArray arrayWithObjects:@"1", @"2", @"3",@"4",@"5", nil];
+    NSArray *thumbprintVals = [NSArray arrayWithObjects:@"matthew", @"mark", @"luke", @"john", @"thomas", nil];
+    
+    
+    //getResponseFromCache uses dispatch_sync. using dispatch_async will lead to thread starvation & race condition well before loop reaches the end.
+    for (int i = 0; i < 1000; i++)
+    {
+        MSIDThrottlingCacheRecord *record = [self.throttlingCacheService getResponseFromCache:thumbprintKeys[i % 5]
+                                                                                        error:&subError];
+        XCTAssertNil(subError);
+        XCTAssertEqualObjects(record.throttleType,thumbprintVals[i % 5]);
+        
+    }
+    
+    
+}
+
+- (void)testThrottlingCacheService_whenMultipleOperationsPerformed_cacheShouldReturnExpectedResultsReliably
+{
+    
+    __block NSError *subError = nil;
+
+    
+    NSArray *thumbprintVals = [NSArray arrayWithObjects:@"matthew", @"mark", @"luke", @"john", @"thomas", nil];
+
+    for (int i = 0; i < 500; i++)
+    {
+        NSString *thumbprintKey = [NSString stringWithFormat:@"%i", i];
+        NSString *tailKey = [NSString stringWithFormat:@"%i", (i >= 4) ? i-4 : 0];
+        [self.throttlingCacheService addRequestToCache:thumbprintKey
+                                         errorResponse:nil
+                                          throttleType:thumbprintVals[i % 5]
+                                      throttleDuration:100
+                                                 error:&subError];
+        
+        MSIDThrottlingCacheRecord *record = [self.throttlingCacheService getResponseFromCache:thumbprintKey
+                                                                                        error:&subError];
+        
+        XCTAssertNil(subError);
+        XCTAssertEqualObjects(record.throttleType, thumbprintVals[i % 5]);
+        XCTAssertEqualObjects([[self.throttlingCacheService getHeadNode] requestThumbprintKey],thumbprintKey);
+        XCTAssertEqualObjects([[self.throttlingCacheService getTailNode] requestThumbprintKey],tailKey);
+        
+    }
+
+    for (int i = 0; i < 500; i++)
+    {
+        NSString *thumbprintKey = [NSString stringWithFormat:@"%i", i];
+        [self.throttlingCacheService removeRequestFromCache:thumbprintKey
+                                                      error:&subError];
+        
+        if (i < 495)
+        {
+            XCTAssertNotNil(subError);
+        }
+        
+        else
+        {
+            XCTAssertNil(subError);
+        }
+
+    }
+
+    
+}
 
 @end

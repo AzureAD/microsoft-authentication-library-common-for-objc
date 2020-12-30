@@ -90,6 +90,18 @@ static NSString *const TAIL_NODE_KEY = @"TAIL";
     return self;
 }
 
++ (MSIDThrottlingCacheService *)sharedInstance:(NSUInteger)cacheSize
+{
+    static MSIDThrottlingCacheService *m_service;
+    static dispatch_once_t once_token;
+    
+    dispatch_once(&once_token, ^{
+        m_service = [[MSIDThrottlingCacheService alloc] initWithThrottlingCacheSize:cacheSize];
+    });
+    
+    return m_service;
+}
+
 /* add new node to the front of LRU cache.
 if node already exists, update and move it to the front of LRU cache */
 - (void)addRequestToCache:(NSString *)thumbprintKey
