@@ -224,7 +224,7 @@
     }
     
     [virtualBucket enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
-        if ([obj intValue] > 1)
+        if (key && [obj intValue] > 1)
         {
             collisionCnt++;
         }
