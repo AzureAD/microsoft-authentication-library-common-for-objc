@@ -29,7 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThrottlingCacheService : NSObject
 
-@property (nonatomic, readonly) NSUInteger cacheSize;
+@property (nonatomic, readonly) NSUInteger cacheSize; //size of the LRU cache
+@property (nonatomic, readonly) NSUInteger numCacheRecords; //number of valid records currently stored in the LRU cache 
 
 - (instancetype)initWithThrottlingCacheSize:(NSUInteger)cacheSize;
 

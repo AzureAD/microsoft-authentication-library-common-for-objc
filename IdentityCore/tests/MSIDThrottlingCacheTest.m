@@ -355,8 +355,193 @@
         }
 
     }
+}
 
+- (void)testThrottlingCacheService_whenAttempingToRetrieveCacheRecords_expiredRecordsShouldBeInvalidated
+{
     
+    NSError *subError = nil;
+    MSIDThrottlingCacheRecord *record;
+    [self.throttlingCacheService addRequestToCache:@"1"
+                                     errorResponse:nil
+                                      throttleType:@"satya"
+                                  throttleDuration:3
+                                             error:&subError];
+    
+    [self.throttlingCacheService addRequestToCache:@"2"
+                                     errorResponse:nil
+                                      throttleType:@"bill"
+                                  throttleDuration:100
+                                             error:&subError];
+    
+    
+    [self.throttlingCacheService addRequestToCache:@"3"
+                                     errorResponse:nil
+                                      throttleType:@"steve"
+                                  throttleDuration:2
+                                             error:&subError];
+    
+    [self.throttlingCacheService addRequestToCache:@"4"
+                                     errorResponse:nil
+                                      throttleType:@"jeff"
+                                  throttleDuration:100
+                                             error:&subError];
+    
+    [self.throttlingCacheService addRequestToCache:@"5"
+                                     errorResponse:nil
+                                      throttleType:@"mark"
+                                  throttleDuration:100
+                                             error:&subError];
+    
+    sleep(5);
+
+    //stale cache - invalidate internally
+    record = [self.throttlingCacheService getResponseFromCache:@"1"
+                                                         error:&subError];
+    
+    XCTAssertNil(record);
+    
+    record = [self.throttlingCacheService getResponseFromCache:@"3"
+                                                         error:&subError];
+    
+    XCTAssertNil(record);
+    
+    //move to front
+    record = [self.throttlingCacheService getResponseFromCache:@"4"
+                                                         error:&subError];
+    
+    //head<-4<-5<-2<-tail
+    //head->4->5->2->tail
+    XCTAssertNotNil(record);
+    
+    NSArray *cachedElements = [self.throttlingCacheService enumerateAndReturnAllObjects];
+    
+    XCTAssertEqual(self.throttlingCacheService.numCacheRecords,3);
+    XCTAssertEqual(cachedElements.count,3);
+    XCTAssertEqualObjects(((MSIDThrottlingCacheNode *)cachedElements[0]).requestThumbprintKey,@"4");
+    XCTAssertEqualObjects(((MSIDThrottlingCacheNode *)cachedElements[0]).cacheRecord.throttleType,@"jeff");
+    XCTAssertEqualObjects(((MSIDThrottlingCacheNode *)cachedElements[1]).requestThumbprintKey,@"5");
+    XCTAssertEqualObjects(((MSIDThrottlingCacheNode *)cachedElements[1]).cacheRecord.throttleType,@"mark");
+    XCTAssertEqualObjects(((MSIDThrottlingCacheNode *)cachedElements[2]).requestThumbprintKey,@"2");
+    XCTAssertEqualObjects(((MSIDThrottlingCacheNode *)cachedElements[2]).cacheRecord.throttleType,@"bill");
+    
+}
+
+
+- (void)testThrottlingCacheService_whenCallingAPIsUseThrottlingCacheWithinGCDBlocks_throttlingCacheShouldPerformOperationsWithThreadSafety
+{
+  
+    dispatch_queue_t parentQ1 = dispatch_queue_create([@"parentQ1" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    dispatch_queue_t parentQ2 = dispatch_queue_create([@"parentQ2" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+
+    XCTestExpectation *expectation1 = [[XCTestExpectation alloc] initWithDescription:@"Calling API1"];
+    XCTestExpectation *expectation2 = [[XCTestExpectation alloc] initWithDescription:@"Calling API2"];
+    XCTestExpectation *expectation3 = [[XCTestExpectation alloc] initWithDescription:@"Calling API1"];
+    XCTestExpectation *expectation4 = [[XCTestExpectation alloc] initWithDescription:@"Calling API2"];
+
+    NSArray<XCTestExpectation *> *expectationsAdd = @[expectation1, expectation2];
+    NSArray<XCTestExpectation *> *expectationsRemove = @[expectation3, expectation4];
+
+    MSIDThrottlingCacheService *throttlingCache = [[MSIDThrottlingCacheService alloc] initWithThrottlingCacheSize:100];
+    __block NSError *subError = nil;
+
+
+    dispatch_async(parentQ1, ^{
+        for (int i = 0; i < 50; i++)
+        {
+            NSLog(@"block1 thread %@ ", [NSThread currentThread]);
+            NSString *thumbprintKey = [NSString stringWithFormat:@"%i", i];
+            [throttlingCache addRequestToCache:thumbprintKey
+                                 errorResponse:nil
+                                  throttleType:thumbprintKey
+                              throttleDuration:100
+                                         error:&subError];
+        }
+        [expectation1 fulfill];
+    });
+        
+
+
+    dispatch_async(parentQ2, ^{
+        for (int i = 50; i < 100; i++)
+        {
+            NSLog(@"block2 thread %@ ", [NSThread currentThread]);
+            NSString *thumbprintKey = [NSString stringWithFormat:@"%i", i];
+            [throttlingCache addRequestToCache:thumbprintKey
+                                 errorResponse:nil
+                                  throttleType:thumbprintKey
+                              throttleDuration:100
+                                         error:&subError];
+        }
+        [expectation2 fulfill];
+    });
+    
+
+    [self waitForExpectations:expectationsAdd timeout:10];
+    XCTAssertEqual(throttlingCache.numCacheRecords,100);
+    
+    dispatch_async(parentQ1, ^{
+        for (int i = 0; i < 50; i++)
+        {
+            NSString *thumbprintKey = [NSString stringWithFormat:@"%i", i];
+            NSString *thumbprintKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i + 50)];
+            if (i % 2)
+            {
+                [throttlingCache removeRequestFromCache:thumbprintKey
+                                                  error:&subError];
+                XCTAssertNil(subError);
+                
+                [throttlingCache addRequestToCache:thumbprintKeyFromOtherQueue
+                                     errorResponse:nil
+                                      throttleType:thumbprintKeyFromOtherQueue
+                                  throttleDuration:100
+                                             error:&subError];
+                
+                XCTAssertNil(subError);
+            }
+            
+        }
+        
+        [expectation3 fulfill];
+    });
+    
+    dispatch_async(parentQ2, ^{
+        for (int i = 50; i < 100; i++)
+        {
+            NSString *thumbprintKey = [NSString stringWithFormat:@"%i", i];
+            NSString *thumbprintKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i - 50)];
+            if (i % 2)
+            {
+                [throttlingCache removeRequestFromCache:thumbprintKey
+                                                  error:&subError];
+                XCTAssertNil(subError);
+                
+                [throttlingCache addRequestToCache:thumbprintKeyFromOtherQueue
+                                     errorResponse:nil
+                                      throttleType:thumbprintKeyFromOtherQueue
+                                  throttleDuration:100
+                                             error:&subError];
+                
+                XCTAssertNil(subError);
+            };
+        }
+        
+        [expectation4 fulfill];
+    });
+    
+    [self waitForExpectations:expectationsRemove timeout:10];
+    
+    XCTAssertEqual(throttlingCache.numCacheRecords,100);
+    
+    for (int i = 0; i < 100; i++)
+    {
+        NSString *thumbprintKey = [NSString stringWithFormat:@"%i", i];
+        MSIDThrottlingCacheRecord *record = [throttlingCache getResponseFromCache:thumbprintKey
+                                                                            error:&subError];
+        
+        XCTAssertNil(subError);
+        XCTAssertEqual(record.throttleType,thumbprintKey);
+    }
 }
 
 @end

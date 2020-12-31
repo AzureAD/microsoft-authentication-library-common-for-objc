@@ -56,6 +56,11 @@ static NSString *const TAIL_NODE_KEY = @"TAIL";
     return self.cacheSizeInt-2;
 }
 
+- (NSUInteger)numCacheRecords
+{
+    return self.container.allKeys.count-2;
+}
+
 - (instancetype)initWithThrottlingCacheSize:(NSUInteger)cacheSize
 {
     self = [super init];
@@ -223,7 +228,18 @@ if node already exists, update and move it to the front of LRU cache */
         return nil;
     }
     
+    NSDate *currentTime = [NSDate date];
     MSIDThrottlingCacheNode *node = [self.container objectForKey:thumbprintKey];
+    //check if record has expired. If so, we would simply remove the entry from cache.
+    if (([currentTime compare:node.cacheRecord.expirationTime] == NSOrderedDescending) ||
+        ([currentTime compare:node.cacheRecord.creationTime] == NSOrderedAscending))
+    {
+        [self removeRequestFromCacheImpl:thumbprintKey
+                                   error:error];
+        return nil;
+    }
+    
+    
     node.cacheRecord.throttledCount += 1; //update throttledCount for telemetry purpose
     //remove from current cache slot
     [self removeRequestFromCacheImpl:thumbprintKey
