@@ -1,6 +1,9 @@
-TBD (Throttling)
+TBD 
 * Added the cache service component for the throttling feature.
+* Fix possible deadlock caused by thread explosion
+* Revert FRT and ART lookup orders (#884)
 
+Version 1.6.0
 * Avoid sending RT to wrong cloud (#892)
 * Added logic to handle links that should open in new window in embedded webView.
 * Fix code in kDF function. Add test cases
