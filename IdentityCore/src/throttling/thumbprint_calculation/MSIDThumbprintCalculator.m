@@ -34,11 +34,11 @@
 
 + (NSString *)calculateThumbprint:(NSDictionary *)requestParameters
                      filteringSet:(NSSet *)filteringSet
-                  includePolarity:(BOOL)includePolarity
+                shouldIncludeKeys:(BOOL)shouldIncludeKeys
 {
     NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:requestParameters
                                                                           filteringSet:filteringSet
-                                                                       includePolarity:includePolarity];
+                                                                     shouldIncludeKeys:shouldIncludeKeys];
     if (sortedThumbprintRequestList)
     {
         NSUInteger thumbprintKey = [self hash:sortedThumbprintRequestList];
@@ -58,13 +58,14 @@
 
 + (NSArray *)sortRequestParametersUsingFilteredSet:(NSDictionary *)requestParameters
                                       filteringSet:(NSSet *)filteringSet
-                                   includePolarity:(BOOL)includePolarity
+                                 shouldIncludeKeys:(BOOL)shouldIncludeKeys
 {
+    
     NSMutableArray *arrayList = [NSMutableArray new];
     [requestParameters enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, __unused BOOL * _Nonnull stop) {
         if ([key isKindOfClass:[NSString class]] && [obj isKindOfClass:[NSString class]])
         {
-            if ([filteringSet containsObject:key] == includePolarity)
+            if ([filteringSet containsObject:key] == shouldIncludeKeys)
             {
                 NSArray *thumbprintObject = [NSArray arrayWithObjects:key, obj, nil];
                 [arrayList addObject:thumbprintObject];
@@ -76,26 +77,20 @@
     {
         return [[obj1 objectAtIndex:0] caseInsensitiveCompare:[obj2 objectAtIndex:0]];
     }];
-    return sortedArrayList;
+    
+    return [sortedArrayList valueForKeyPath: @"@unionOfArrays.self"];
 }
 
-+ (NSUInteger)hash:(NSArray *)thumbprintRequestList
++ (NSUInteger)hash:(NSArray<NSString *> *)thumbprintRequestList
 {
     if (!thumbprintRequestList || !thumbprintRequestList.count) return 0;
     
     NSUInteger hash = 0;
-    for (id object in thumbprintRequestList)
+    for (int i = 0; (unsigned)i < thumbprintRequestList.count; i++)
     {
-        if ([object isKindOfClass:[NSArray class]] &&
-            ((NSArray *)object).count == 2 &&
-            [object[0] isKindOfClass:[NSString class]])
+        if (i % 2)
         {
-            hash = hash * 31 + ((NSString *)object[1]).hash;
-        }
-        
-        else
-        {
-            return 0;
+            hash = hash * 31 + thumbprintRequestList[i].hash;
         }
     }
     return hash;

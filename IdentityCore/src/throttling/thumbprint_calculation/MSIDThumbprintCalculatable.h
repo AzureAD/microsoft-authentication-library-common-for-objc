@@ -24,7 +24,7 @@
 
 @protocol MSIDThumbprintCalculatable <NSObject>
 
-- (NSString *)getFullRequestThumbprint;
-- (NSString *)getStrictRequestThumbprint;
+@property (nonatomic, readonly) NSString *fullRequestThumbprint;
+@property (nonatomic, readonly) NSString *strictRequestThumbprint;
 
 @end

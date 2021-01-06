@@ -20,29 +20,38 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import <Foundation/Foundation.h>
+<<<<<<< HEAD:IdentityCore/src/throttling/cache/MSIDThumbprintCalculator.h
+=======
+#import "MSIDThrottlingCacheRecord.h"
+>>>>>>> peter/cacheImplementation:IdentityCore/src/throttling/cache/MSIDThrottlingCacheRecord.m
 
+@implementation MSIDThrottlingCacheRecord
 
-@interface ThrottlingService ()
+<<<<<<< HEAD:IdentityCore/src/throttling/cache/MSIDThumbprintCalculator.h
+@interface MSIDThumbprintCalculator : NSObject
 
-@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
-
-- (void)readConfigurationOfThumbprint:(NSString *)thumbprint;
-
-//- (MSIDThrottlingCacheRecord *)getCacheRecordWithThumbprint:(NSString *)thumbprint;
-//- (BOOL)getCacheDatabaseWithRecord:(MSIDThrottlingCacheRecord *)cacheRecord;
-- (BOOL)updateLastRefreshTimeStamp;
-- (void)updateServerTelemetry;
-
-- (void)updateThrottleCacheWithServerResponse:(NSString *)thumbprint
-                                errorResponse:(NSError *)errorResponse
-                                 throttleType:(NSString *)throttleType
-                             throttleDuration:(nullable NSInteger)throttleDuration
-                                  resultBlock:(nonnull MSIDThrottleUpdateResultBlock)resultBlock;
-
++ (NSString *)calculateThumbprint:(NSDictionary *)requestParameters
+                     filteringSet:(NSSet *)filteringSet
+                  includePolarity:(BOOL)includePolarity;
+=======
 - (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
                          throttleType:(NSString *)throttleType
-                     throttleDuration:(NSInteger)throttleDuration;
-                    
+                     throttleDuration:(NSInteger)throttleDuration
+{
+    self = [super init];
+    if (self)
+    {
+        _creationTime = [NSDate date];
+        _expirationTime = [NSDate dateWithTimeIntervalSinceNow:throttleDuration];
+        _throttleType = throttleType;
+        _throttledCount = 1;
+        _cachedErrorResponse = cachedErrorResponse;
+    }
+    return self;
+}
+>>>>>>> peter/cacheImplementation:IdentityCore/src/throttling/cache/MSIDThrottlingCacheRecord.m
+
 @end

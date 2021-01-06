@@ -46,6 +46,12 @@
 
 #import "MSIDAuthenticationScheme.h"
 
+typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
+{
+    MSIDAppRefreshTokenType = 0,
+    MSIDFamilyRefreshTokenType
+};
+
 @interface MSIDSilentTokenRequest()
 
 @property (nonatomic) MSIDRequestParameters *requestParameters;
@@ -159,37 +165,12 @@
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
-            NSError *rtError = nil;
-            
-            // Trying to find FRT first.
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for family refresh token...");
-            id<MSIDRefreshableToken> refreshableToken = [self familyRefreshTokenWithError:&rtError];
-            
-            if (!refreshableToken)
-            {
-                MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Didn't find family refresh token with error: %@", MSID_PII_LOG_MASKABLE(rtError));
-            }
-            else
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found family refresh token.");
-            }
-            
-            // If no FRT, get refresh token instead.
-            if (!refreshableToken)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for app refresh token...");
-                refreshableToken = [self appRefreshTokenWithError:&rtError];
-                
-                if (!refreshableToken)
-                {
-                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Didn't find app refresh token with error: %@", MSID_PII_LOG_MASKABLE(rtError));
-                }
-                else
-                {
-                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found app refresh token.");
-                }
-            }
 
+            __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
+            [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
+                refreshableToken = token;
+            }];
+            
             NSError *resultError = nil;
             MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
                                                           refreshToken:refreshableToken
@@ -236,129 +217,145 @@
             }
         }
     }
-
-    NSError *frtCacheError = nil;
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for Family Refresh token...");
-    MSIDRefreshToken *familyRefreshToken = [self familyRefreshTokenWithError:&frtCacheError];
-
-    if (frtCacheError)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read family refresh token with error %@", MSID_PII_LOG_MASKABLE(frtCacheError));
-        completionBlock(nil, frtCacheError);
-        return;
-    }
-
-    if (familyRefreshToken)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found Family Refresh token, using it...");
-        [self tryFRT:familyRefreshToken completionBlock:completionBlock];
-    }
-    else
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Family Refresh token wasn't found, looking for Refresh token...");
-        NSError *appRTCacheError = nil;
-        MSIDBaseToken<MSIDRefreshableToken> *appRefreshToken = [self appRefreshTokenWithError:&appRTCacheError];
-
-        if (appRTCacheError)
+    
+    [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
+        if (!refreshToken)
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read app specific refresh token with error %@", MSID_PII_LOG_MASKABLE(appRTCacheError));
-            completionBlock(nil, appRTCacheError);
+            NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
+            completionBlock(nil, interactionError);
             return;
         }
-
-        [self tryAppRefreshToken:appRefreshToken completionBlock:completionBlock];
-    }
-}
-
-- (void)tryFRT:(MSIDRefreshToken *)familyRefreshToken completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.requestParameters, @"Trying to acquire access token using FRT for clientId %@, authority %@, account %@", self.requestParameters.authority, self.requestParameters.clientId, self.requestParameters.accountIdentifier.maskedHomeAccountId);
-
-    [self refreshAccessToken:familyRefreshToken
-             completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-                 if (error)
-                 {
-                     if ([self isErrorRecoverableByUserInteraction:error])
-                     {
-                         //Udpate app metadata  by resetting familyId if server returns client_mismatch
-                         NSError *msidError = nil;
-
-                         [self updateFamilyIdCacheWithServerError:error
-                                                       cacheError:&msidError];
-
-                         if (msidError)
-                         {
-                             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to update familyID cache status with error %@", MSID_PII_LOG_MASKABLE(error));
-                         }
-
-                         MSIDBaseToken<MSIDRefreshableToken> *appRefreshToken = [self appRefreshTokenWithError:&msidError];
-
-                         if (msidError)
-                         {
-                             MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve multi resource refresh token with error %@", MSID_PII_LOG_MASKABLE(error));
-                             completionBlock(nil, msidError);
-                             return;
-                         }
-
-                         if (appRefreshToken && ![[familyRefreshToken refreshToken] isEqualToString:[appRefreshToken refreshToken]])
-                         {
-                             [self tryAppRefreshToken:appRefreshToken completionBlock:completionBlock];
-                             return;
-                         }
-
-                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
-                         completionBlock(nil, interactionError);
-                     }
-                     else
-                     {
-                         completionBlock(nil, error);
-                     }
-                 }
-                 else
-                 {
-                     completionBlock(result, nil);
-                 }
-             }];
-}
-
-- (void)tryAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)multiResourceRefreshToken
-           completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
-{
-    if (!multiResourceRefreshToken)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token wasn't found, user interaction is required.");
         
-        NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-        completionBlock(nil, interactionError);
+        [self tryRefreshToken:refreshToken tokenType:tokenType completionBlock:completionBlock];
+    }];
+    
+}
+
+- (void)fetchCachedRefreshTokenWithCompletionHandler:(void (^)(MSIDBaseToken<MSIDRefreshableToken> *, MSIDRefreshTokenTypes, NSError *))completionHandler
+{
+    if (!completionHandler)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"No completionHandler when fetch local refresh token");
         return;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found Refresh token, using it...");
-    [self refreshAccessToken:multiResourceRefreshToken
-             completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-                 if (error)
-                 {
-                     //Check if server returns invalid_grant or invalid_request
-                     if ([self isErrorRecoverableByUserInteraction:error])
-                     {
-                         NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
+    NSError *rtError = nil;
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for app refresh token...");
+    MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = [self appRefreshTokenWithError:&rtError];
+    
+    if (rtError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read app specific refresh token with error %@", MSID_PII_LOG_MASKABLE(rtError));
+        completionHandler(nil, MSIDAppRefreshTokenType, rtError);
+        return;
+    }
+    
+    if (!refreshableToken)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Didn't find app refresh token");
+    }
+    else
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found app refresh token.");
+        completionHandler(refreshableToken, MSIDAppRefreshTokenType, nil);
+        return;
+    }
+    
+    // If no ART, get family refresh token instead.
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for family refresh token...");
+    refreshableToken = [self familyRefreshTokenWithError:&rtError];
+    
+    if (rtError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read family refresh token with error %@", MSID_PII_LOG_MASKABLE(rtError));
+        completionHandler(nil, MSIDFamilyRefreshTokenType, rtError);
+        return;
+    }
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found family refresh token.");
+    completionHandler(refreshableToken, MSIDFamilyRefreshTokenType, nil);
+    return;
+}
 
-                         completionBlock(nil, interactionError);
-                         return;
-                     }
-                     else
-                     {
-                         completionBlock(nil, error);
-                     }
-                 }
-                 else
-                 {
-                     completionBlock(result, nil);
-                 }
-             }];
+- (void)tryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+              tokenType:(MSIDRefreshTokenTypes)tokenType
+        completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
+{
+    BOOL isTryingWithAppRefreshToken = tokenType == MSIDAppRefreshTokenType;
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, self.requestParameters, @"Trying to acquire access token using %@ for clientId %@, authority %@, account %@", (isTryingWithAppRefreshToken ? @"App Refresh Token" : @"Family Refresh Token"), self.requestParameters.authority, self.requestParameters.clientId, self.requestParameters.accountIdentifier.maskedHomeAccountId);
+    
+    // When using ART or FRT, it will go through the same method below, and handle differently within the completion block
+    [self redeemAccessTokenWith:refreshToken
+                completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        if (!error)
+        {
+            completionBlock(result, nil);
+            return;
+        }
+        
+        if ([self isErrorRecoverableByUserInteraction:error])
+        {
+            if (isTryingWithAppRefreshToken)
+            {
+                // Handle error case when try with App refresh token
+                BOOL canTryWithFamilyRefreshToken = [self handleErrorResponseForAppRefreshToken:refreshToken
+                                                                                completionBlock:completionBlock];
+                if (canTryWithFamilyRefreshToken)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                // Handle error case when try with Family refresh token
+                [self handleErrorResponseForFamilyRefreshToken:error];
+            }
+                            
+            NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
+            completionBlock(nil, interactionError);
+        }
+        else
+        {
+            completionBlock(nil, error);
+        }
+
+    }];
 }
 
 #pragma mark - Helpers
+
+- (BOOL)handleErrorResponseForAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+                                                               completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
+{
+    NSError *error = nil;
+    MSIDRefreshToken *familyRefreshToken = [self familyRefreshTokenWithError:&error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve Family Refresh token with error %@, and user interaction is required", MSID_PII_LOG_MASKABLE(error));
+        return NO;
+    }
+
+    if (familyRefreshToken && ![[familyRefreshToken refreshToken] isEqualToString:[refreshToken refreshToken]])
+    {
+        [self tryRefreshToken:familyRefreshToken
+                    tokenType:MSIDFamilyRefreshTokenType
+              completionBlock:completionBlock];
+        return YES;
+    }
+    
+    return NO;
+}
+
+- (void)handleErrorResponseForFamilyRefreshToken:(NSError *)error
+{
+    NSError *msidError = nil;
+    [self updateFamilyIdCacheWithServerError:error
+                                  cacheError:&msidError];
+    if (msidError)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to update familyID cache status with error %@", MSID_PII_LOG_MASKABLE(error));
+    }
+}
 
 - (BOOL)isErrorRecoverableByUserInteraction:(NSError *)msidError
 {
@@ -379,12 +376,12 @@
     return ![NSString msidIsStringNilOrBlank:msidError.msidOauthError];
 }
 
-- (void)refreshAccessToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-           completionBlock:(MSIDRequestCompletionBlock)completionBlock
+- (void)redeemAccessTokenWith:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
+              completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
     if (!refreshToken)
     {
-        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         completionBlock(nil, error);
         return;
     }

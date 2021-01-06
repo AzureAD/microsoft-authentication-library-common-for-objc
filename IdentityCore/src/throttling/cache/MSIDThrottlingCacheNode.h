@@ -22,27 +22,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+@class MSIDThrottlingCacheRecord;
 
+@interface MSIDThrottlingCacheNode : NSObject
 
-@interface ThrottlingService ()
+@property (nonatomic, readonly) NSString *requestThumbprintKey;
+@property (nonatomic, readonly) NSString *prevRequestThumbprintKey;
+@property (nonatomic, readonly) NSString *nextRequestThumbprintKey;
+@property (nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
 
-@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
-
-- (void)readConfigurationOfThumbprint:(NSString *)thumbprint;
-
-//- (MSIDThrottlingCacheRecord *)getCacheRecordWithThumbprint:(NSString *)thumbprint;
-//- (BOOL)getCacheDatabaseWithRecord:(MSIDThrottlingCacheRecord *)cacheRecord;
-- (BOOL)updateLastRefreshTimeStamp;
-- (void)updateServerTelemetry;
-
-- (void)updateThrottleCacheWithServerResponse:(NSString *)thumbprint
-                                errorResponse:(NSError *)errorResponse
-                                 throttleType:(NSString *)throttleType
-                             throttleDuration:(nullable NSInteger)throttleDuration
-                                  resultBlock:(nonnull MSIDThrottleUpdateResultBlock)resultBlock;
-
-- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
+- (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
+                        errorResponse:(NSError *)errorResponse
                          throttleType:(NSString *)throttleType
-                     throttleDuration:(NSInteger)throttleDuration;
-                    
+                     throttleDuration:(NSInteger)throttleDuration
+             prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
+             nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
+
 @end
