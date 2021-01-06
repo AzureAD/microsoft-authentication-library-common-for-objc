@@ -103,23 +103,32 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testThumbprintCalculator_whenFilteredSetEmpty_outputArrayShouldBeSortedByKeyAndContainAllInputRequestParams
+- (void)testThumbprintCalculator_whenFilteredSetEmpty_outputArrayShouldBeSortedByKey_flattenedIntoArrayOfAlternatingKeyValuePair
 {
     NSArray *sortedThumbprintList = [MSIDThumbprintCalculator sortRequestParametersUsingFilteredSet:self.requestParameters
                                                                                        filteringSet:[NSSet new]
                                                                                   shouldIncludeKeys:NO];
     
     XCTAssertNotNil(sortedThumbprintList);
-    XCTAssertEqual(sortedThumbprintList.count,9);
-    XCTAssertEqualObjects(sortedThumbprintList[0][0],@"client_id");
-    XCTAssertEqualObjects(sortedThumbprintList[1][0],@"endpointUrl");
-    XCTAssertEqualObjects(sortedThumbprintList[2][0],@"environment");
-    XCTAssertEqualObjects(sortedThumbprintList[3][0],@"grant_type");
-    XCTAssertEqualObjects(sortedThumbprintList[4][0],@"homeAccountId");
-    XCTAssertEqualObjects(sortedThumbprintList[5][0],@"realm");
-    XCTAssertEqualObjects(sortedThumbprintList[6][0],@"redirect_uri");
-    XCTAssertEqualObjects(sortedThumbprintList[7][0],@"refresh_token");
-    XCTAssertEqualObjects(sortedThumbprintList[8][0],@"scope");
+    XCTAssertEqual(sortedThumbprintList.count,18);
+    XCTAssertEqualObjects(sortedThumbprintList[0],@"client_id");
+    XCTAssertEqualObjects(sortedThumbprintList[1],self.clientId);
+    XCTAssertEqualObjects(sortedThumbprintList[2],@"endpointUrl");
+    XCTAssertEqualObjects(sortedThumbprintList[3],self.endpointUrl);
+    XCTAssertEqualObjects(sortedThumbprintList[4],@"environment");
+    XCTAssertEqualObjects(sortedThumbprintList[5],self.environment);
+    XCTAssertEqualObjects(sortedThumbprintList[6],@"grant_type");
+    XCTAssertEqualObjects(sortedThumbprintList[7],self.grant_type);
+    XCTAssertEqualObjects(sortedThumbprintList[8],@"homeAccountId");
+    XCTAssertEqualObjects(sortedThumbprintList[9],self.homeAccountId);
+    XCTAssertEqualObjects(sortedThumbprintList[10],@"realm");
+    XCTAssertEqualObjects(sortedThumbprintList[11],self.realm);
+    XCTAssertEqualObjects(sortedThumbprintList[12],@"redirect_uri");
+    XCTAssertEqualObjects(sortedThumbprintList[13],self.redirect_uri);
+    XCTAssertEqualObjects(sortedThumbprintList[14],@"refresh_token");
+    XCTAssertEqualObjects(sortedThumbprintList[15],self.refresh_token);
+    XCTAssertEqualObjects(sortedThumbprintList[16],@"scope");
+    XCTAssertEqualObjects(sortedThumbprintList[17],self.scope);
 
 }
 
@@ -130,11 +139,15 @@
                                                                                   shouldIncludeKeys:YES];
 
     XCTAssertNotNil(sortedThumbprintList);
-    XCTAssertEqual(sortedThumbprintList.count,4);
-    XCTAssertEqualObjects(sortedThumbprintList[0][0],@"environment");
-    XCTAssertEqualObjects(sortedThumbprintList[1][0],@"homeAccountId");
-    XCTAssertEqualObjects(sortedThumbprintList[2][0],@"realm");
-    XCTAssertEqualObjects(sortedThumbprintList[3][0],@"scope");
+    XCTAssertEqual(sortedThumbprintList.count,8);
+    XCTAssertEqualObjects(sortedThumbprintList[0],@"environment");
+    XCTAssertEqualObjects(sortedThumbprintList[1],self.environment);
+    XCTAssertEqualObjects(sortedThumbprintList[2],@"homeAccountId");
+    XCTAssertEqualObjects(sortedThumbprintList[3],self.homeAccountId);
+    XCTAssertEqualObjects(sortedThumbprintList[4],@"realm");
+    XCTAssertEqualObjects(sortedThumbprintList[5],self.realm);
+    XCTAssertEqualObjects(sortedThumbprintList[6],@"scope");
+    XCTAssertEqualObjects(sortedThumbprintList[7],self.scope);
 }
 
 - (void)testThumbprintCalculator_whenFilteredSetContainsParamsToExclude_ShouldExcludeThoseElementsFromTheFinalArray
@@ -144,14 +157,21 @@
                                                                                   shouldIncludeKeys:NO];
 
     XCTAssertNotNil(sortedThumbprintList);
-    XCTAssertEqual(sortedThumbprintList.count,7);
-    XCTAssertEqualObjects(sortedThumbprintList[0][0],@"endpointUrl");
-    XCTAssertEqualObjects(sortedThumbprintList[1][0],@"environment");
-    XCTAssertEqualObjects(sortedThumbprintList[2][0],@"homeAccountId");
-    XCTAssertEqualObjects(sortedThumbprintList[3][0],@"realm");
-    XCTAssertEqualObjects(sortedThumbprintList[4][0],@"redirect_uri");
-    XCTAssertEqualObjects(sortedThumbprintList[5][0],@"refresh_token");
-    XCTAssertEqualObjects(sortedThumbprintList[6][0],@"scope");
+    XCTAssertEqual(sortedThumbprintList.count,14);
+    XCTAssertEqualObjects(sortedThumbprintList[0],@"endpointUrl");
+    XCTAssertEqualObjects(sortedThumbprintList[1],self.endpointUrl);
+    XCTAssertEqualObjects(sortedThumbprintList[2],@"environment");
+    XCTAssertEqualObjects(sortedThumbprintList[3],self.environment);
+    XCTAssertEqualObjects(sortedThumbprintList[4],@"homeAccountId");
+    XCTAssertEqualObjects(sortedThumbprintList[5],self.homeAccountId); 
+    XCTAssertEqualObjects(sortedThumbprintList[6],@"realm");
+    XCTAssertEqualObjects(sortedThumbprintList[7],self.realm);
+    XCTAssertEqualObjects(sortedThumbprintList[8],@"redirect_uri");
+    XCTAssertEqualObjects(sortedThumbprintList[9],self.redirect_uri);
+    XCTAssertEqualObjects(sortedThumbprintList[10],@"refresh_token");
+    XCTAssertEqualObjects(sortedThumbprintList[11],self.refresh_token);
+    XCTAssertEqualObjects(sortedThumbprintList[12],@"scope");
+    XCTAssertEqualObjects(sortedThumbprintList[13],self.scope);
 }
 
 - (void)testThumbprintCalculator_whenInvalidInputProvided_hashFunctionShouldReturnZero

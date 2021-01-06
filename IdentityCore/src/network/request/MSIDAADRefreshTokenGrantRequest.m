@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#import "MSIDRefreshTokenGrantRequest+Internal.h"
 #import "MSIDAADRefreshTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
 #import "MSIDThumbprintCalculator.h"
@@ -30,14 +31,6 @@
 @property (nonatomic) NSMutableDictionary *thumbprintParameters;
 
 @end
-
-@interface MSIDRefreshTokenGrantRequest ()
-
-+ (NSSet *)getExcludeSet;
-+ (NSSet *)getIncludeSet;
-
-@end
-
 
 @implementation MSIDAADRefreshTokenGrantRequest
 
@@ -72,20 +65,18 @@
     return self;
 }
 
-- (NSString *)getFullRequestThumbprint
+- (NSString *)fullRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
                                             filteringSet:[MSIDRefreshTokenGrantRequest getExcludeSet]
                                        shouldIncludeKeys:NO];
 }
 
-- (NSString *)getStrictRequestThumbprint
+- (NSString *)strictRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
                                             filteringSet:[MSIDRefreshTokenGrantRequest getIncludeSet]
                                        shouldIncludeKeys:YES];
-  
 }
-
 
 @end

@@ -22,9 +22,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@protocol MSIDThumbprintCalculatable <NSObject>
 
-@property (nonatomic, readonly) NSString *fullRequestThumbprint;
-@property (nonatomic, readonly) NSString *strictRequestThumbprint;
+#import "MSIDRefreshTokenGrantRequest.h"
+
+@class MSIDAuthenticationScheme;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MSIDRefreshTokenGrantRequest ()
+
++ (NSSet *)getExcludeSet;
+
++ (NSSet *)getIncludeSet;
 
 @end
+NS_ASSUME_NONNULL_END

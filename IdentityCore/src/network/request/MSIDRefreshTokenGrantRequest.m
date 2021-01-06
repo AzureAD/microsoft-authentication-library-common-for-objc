@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRefreshTokenGrantRequest.h"
+#import "MSIDRefreshTokenGrantRequest+Internal.h"
 #import "MSIDThumbprintCalculator.h"
 
 @interface MSIDRefreshTokenGrantRequest ()
@@ -64,19 +64,18 @@
     return self;
 }
 
-- (NSString *)getFullRequestThumbprint
+- (NSString *)fullRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
                                             filteringSet:[MSIDRefreshTokenGrantRequest getExcludeSet]
                                        shouldIncludeKeys:NO];
 }
 
-- (NSString *)getStrictRequestThumbprint
+- (NSString *)strictRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
                                             filteringSet:[MSIDRefreshTokenGrantRequest getIncludeSet]
                                        shouldIncludeKeys:YES];
-  
 }
 
 + (NSSet *)getExcludeSet
@@ -85,7 +84,7 @@
     static NSSet *excludeSet;
     
     dispatch_once(&once_token, ^{
-        excludeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID, MSID_OAUTH2_GRANT_TYPE]];
+        excludeSet = [NSSet setWithArray:@[MSID_OAUTH2_GRANT_TYPE]];
     });
     return excludeSet;
     
@@ -97,8 +96,9 @@
     static NSSet *includeSet;
     
     dispatch_once(&once_token, ^{
-        includeSet = [NSSet setWithArray:@[MSID_OAUTH2_REQUEST_ENDPOINT,
-                                           MSID_OAUTH2_REFRESH_TOKEN,
+        includeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID,
+                                           MSID_OAUTH2_REQUEST_ENDPOINT, //resource + environment
+                                           MSID_OAUTH2_REFRESH_TOKEN, //home account id also embedded within RT, albeit decrypted.
                                            MSID_OAUTH2_SCOPE]];
     });
     return includeSet;
