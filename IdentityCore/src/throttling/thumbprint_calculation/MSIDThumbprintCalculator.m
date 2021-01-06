@@ -86,7 +86,7 @@
     if (!thumbprintRequestList || !thumbprintRequestList.count) return 0;
     
     NSUInteger hash = 0;
-    for (int i = 0; i < thumbprintRequestList.count; i++)
+    for (int i = 0; (unsigned)i < thumbprintRequestList.count; i++)
     {
         if (i % 2)
         {

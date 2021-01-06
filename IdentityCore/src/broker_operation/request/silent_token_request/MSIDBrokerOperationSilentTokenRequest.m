@@ -23,7 +23,7 @@
 
 #if MSID_ENABLE_SSO_EXTENSION
 #import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
-#import "MSIDBrokerOperationSilentTokenRequest.h"
+#import "MSIDBrokerOperationSilentTokenRequest+Internal.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDConstants.h"
 #import "MSIDAccountIdentifier.h"
