@@ -55,7 +55,7 @@
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
-
+@property (nonatomic) MSIDThrottlingService *throttlingService;
 @end
 
 @implementation MSIDSilentTokenRequest
@@ -75,6 +75,7 @@
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
+        _throttlingService = [[MSIDThrottlingService alloc] initWithContext:parameters];
     }
 
     return self;
@@ -421,69 +422,88 @@
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
-
-    //Initialize wrapper request object to store request parameters required
-    [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
-    {
+    
+    // Invoke throttling service before making the call to server. If the request should be throttled, return the cached response (error) immediately
+    [self.throttlingService shouldThrottleRequest:tokenRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable error) {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
         if (error)
         {
-            BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(error));
+        }
 
-            if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
-            {
-                NSTimeInterval expiresIn = [self.extendedLifetimeAccessToken.extendedExpiresOn timeIntervalSinceNow];
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Server unavailable, using long-lived access token, which expires in %f", expiresIn);
-                NSError *cacheError = nil;
-                MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken
-                                                              refreshToken:refreshToken
-                                                                     error:&cacheError];
-                
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
-                tokenResult.extendedLifeTimeToken = YES;
-                NSError *resultError = (tokenResult ? nil : error);
-                
-                completionBlock(tokenResult, resultError);
-                return;
-            }
-            
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Failed to acquire Access token via Refresh token.");
-
-            completionBlock(nil, error);
+        if (shouldBeThrottled && error)
+        {
+            completionBlock(nil,error);
             return;
         }
-        
-#if TARGET_OS_OSX
-        self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
-#endif
-        [self.tokenResponseHandler handleTokenResponse:tokenResponse
-                                     requestParameters:self.requestParameters
-                                         homeAccountId:self.requestParameters.accountIdentifier.homeAccountId
-                                tokenResponseValidator:self.tokenResponseValidator
-                                          oauthFactory:self.oauthFactory
-                                            tokenCache:self.tokenCache
-                                  accountMetadataCache:self.metadataCache
-                                       validateAccount:NO
-                                      saveSSOStateOnly:NO
-                                                 error:nil
-                                       completionBlock:^(MSIDTokenResult *result, NSError *error)
-         {
-            if (!result && [self shouldRemoveRefreshToken:error])
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token invalid, removing it...");
-                NSError *removalError = nil;
-                BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
-                                                                     context:self.requestParameters
-                                                                       error:&removalError];
-                
-                if (!result)
+        else
+        {
+            [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
+             {
+                if (error)
                 {
-                    MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove invalid refresh token with error %@", MSID_PII_LOG_MASKABLE(removalError));
+                    
+                    BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
+                    
+                    if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
+                    {
+                        NSTimeInterval expiresIn = [self.extendedLifetimeAccessToken.extendedExpiresOn timeIntervalSinceNow];
+                        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Server unavailable, using long-lived access token, which expires in %f", expiresIn);
+                        NSError *cacheError = nil;
+                        MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.extendedLifetimeAccessToken
+                                                                      refreshToken:refreshToken
+                                                                             error:&cacheError];
+                        
+                        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
+                        tokenResult.extendedLifeTimeToken = YES;
+                        NSError *resultError = (tokenResult ? nil : error);
+                        
+                        completionBlock(tokenResult, resultError);
+                        return;
+                    }
+                    
+                    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Failed to acquire Access token via Refresh token.");
+                    
+                    completionBlock(nil, error);
+                    return;
                 }
-            }
-            
-            completionBlock(result, error);
-        }];
-    }];
+                
+#if TARGET_OS_OSX
+                self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
+#endif
+                [self.tokenResponseHandler handleTokenResponse:tokenResponse
+                                             requestParameters:self.requestParameters
+                                                 homeAccountId:self.requestParameters.accountIdentifier.homeAccountId
+                                        tokenResponseValidator:self.tokenResponseValidator
+                                                  oauthFactory:self.oauthFactory
+                                                    tokenCache:self.tokenCache
+                                          accountMetadataCache:self.metadataCache
+                                               validateAccount:NO
+                                              saveSSOStateOnly:NO
+                                                         error:nil
+                                               completionBlock:^(MSIDTokenResult *result, NSError *error)
+                 {
+                    if (!result && [self shouldRemoveRefreshToken:error])
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token invalid, removing it...");
+                        NSError *removalError = nil;
+                        BOOL result = [self.tokenCache validateAndRemoveRefreshToken:refreshToken
+                                                                             context:self.requestParameters
+                                                                               error:&removalError];
+                        
+                        if (!result)
+                        {
+                            MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Failed to remove invalid refresh token with error %@", MSID_PII_LOG_MASKABLE(removalError));
+                        }
+                    }
+                    
+                    completionBlock(result, error);
+                }];
+            }];
+        }
+    }
+    ];
+
 }
 
 #pragma mark - Abstract

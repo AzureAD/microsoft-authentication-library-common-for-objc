@@ -677,6 +677,7 @@
 		96F94A39208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */; };
 		96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
 		96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
+		A07EB427259D0C6B00783943 /* MSIDThrottlingService.h in Headers */ = {isa = PBXBuildFile; fileRef = A07EB426259D0BF300783943 /* MSIDThrottlingService.h */; };
 		A08D0A2B24A85C9800C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E024A85A1D00C9193D /* MSIDAuthenticationSchemePopTest.m */; };
 		A08D0A3124A85C9800C9193D /* MSIDDevicePopManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E724A85A1E00C9193D /* MSIDDevicePopManagerTest.m */; };
 		A08D0A3824A85C9900C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E024A85A1D00C9193D /* MSIDAuthenticationSchemePopTest.m */; };
@@ -2278,6 +2279,9 @@
 		96F94A3220817C1A0034676C /* MSIDNTLMHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDNTLMHandler.m; sourceTree = "<group>"; };
 		96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOAuth2EmbeddedWebviewController.h; sourceTree = "<group>"; };
 		96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2EmbeddedWebviewController.m; sourceTree = "<group>"; };
+		A05744C225A643280098E469 /* MSIDThrottlingService+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDThrottlingService+Internal.h"; sourceTree = "<group>"; };
+		A05744C325A6459C0098E469 /* MSIDThrottlingConfiguration.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingConfiguration.h; sourceTree = "<group>"; };
+		A07EB426259D0BF300783943 /* MSIDThrottlingService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = MSIDThrottlingService.h; path = ../../../../../../../../../SecureEnclavePOC/MSIDThrottlingService.h; sourceTree = "<group>"; };
 		A08D09DB24A85A1C00C9193D /* MSIDRefreshTokenGrantRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDRefreshTokenGrantRequestTest.m; sourceTree = "<group>"; };
 		A08D09DC24A85A1C00C9193D /* MSIDAssymetricKeyGeneratorFactoryTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAssymetricKeyGeneratorFactoryTest.m; sourceTree = "<group>"; };
 		A08D09DD24A85A1D00C9193D /* MSIDAADV1RefreshTokenGrantRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDAADV1RefreshTokenGrantRequestTest.m; sourceTree = "<group>"; };
@@ -5011,6 +5015,9 @@
 			isa = PBXGroup;
 			children = (
 				E7B671B8257B15880053773F /* thumbprint_calculation */,
+				A07EB426259D0BF300783943 /* MSIDThrottlingService.h */,
+				A05744C225A643280098E469 /* MSIDThrottlingService+Internal.h */,
+				A05744C325A6459C0098E469 /* MSIDThrottlingConfiguration.h */,
 			);
 			path = throttling;
 			sourceTree = "<group>";
@@ -5196,6 +5203,7 @@
 				B2E2A933239239F800BA2EA3 /* MSIDSSOExtensionOperationRequestDelegate.h in Headers */,
 				B2B1D578204369D600DD81F0 /* MSIDAccountType.h in Headers */,
 				B286B9B62389DD94007833AD /* MSIDRequestContext.h in Headers */,
+				A07EB427259D0C6B00783943 /* MSIDThrottlingService.h in Headers */,
 				9658103120C7E1180025F4A4 /* MSIDWebviewResponse.h in Headers */,
 				1E707FDF2407335700716148 /* MSIDBrokerNativeAppOperationResponse.h in Headers */,
 				B28BDA7F217E964B003E5670 /* MSIDB2CTokenResponse.h in Headers */,
