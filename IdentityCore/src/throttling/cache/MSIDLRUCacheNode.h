@@ -22,20 +22,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@class MSIDThrottlingCacheRecord;
+@interface MSIDLRUCacheNode : NSObject
 
-@interface MSIDThrottlingCacheNode : NSObject
+@property (nonatomic, readonly) NSString *signature;
+@property (nonatomic) NSMutableString *prevSignature;
+@property (nonatomic) NSMutableString *nextSignature;
+@property (nonatomic) id cacheRecord;
 
-@property (nonatomic, readonly) NSString *requestThumbprintKey;
-@property (nonatomic, readonly) NSString *prevRequestThumbprintKey;
-@property (nonatomic, readonly) NSString *nextRequestThumbprintKey;
-@property (nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
-
-- (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
-                        errorResponse:(NSError *)errorResponse
-                         throttleType:(NSString *)throttleType
-                     throttleDuration:(NSInteger)throttleDuration
-             prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
-             nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
+- (instancetype)initWithSignature:(NSString *)signature
+                    prevSignature:(NSString *)prevSignature
+                    nextSignature:(NSString *)nextSignature
+                      cacheRecord:(id)cacheRecord;
 
 @end

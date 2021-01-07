@@ -23,17 +23,26 @@
 // THE SOFTWARE.  
 
 
-@interface MSIDThrottlingCacheRecord : NSObject
+#import <Foundation/Foundation.h>
+#import "MSIDLRUCacheNode.h"
 
-@property (nonatomic, readonly) NSDate *creationTime;
-@property (nonatomic, readonly) NSDate *expirationTime;
-@property (nonatomic, readonly) NSString *throttleType;
-@property (nonatomic, readonly) NSError *cachedErrorResponse;
-@property (nonatomic) NSUInteger throttledCount;
-//number of times this request has been throttled - needs to be mutable 
 
-- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
-                         throttleType:(NSString *)throttleType
-                     throttleDuration:(NSInteger)throttleDuration;
-                    
+@implementation MSIDLRUCacheNode
+
+- (instancetype)initWithSignature:(NSString *)signature
+                    prevSignature:(NSString *)prevSignature
+                    nextSignature:(NSString *)nextSignature
+                      cacheRecord:(id)cacheRecord
+{
+    self = [super init];
+    if (self)
+    {
+        _signature = signature;
+        _prevSignature = [prevSignature mutableCopy];
+        _nextSignature = [nextSignature mutableCopy];
+        _cacheRecord = cacheRecord;
+    }
+    return self;
+}
+
 @end

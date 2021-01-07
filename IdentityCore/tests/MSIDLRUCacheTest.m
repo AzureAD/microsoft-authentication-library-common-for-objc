@@ -24,24 +24,22 @@
 
 
 #import <XCTest/XCTest.h>
-#import "MSIDThrottlingCacheService.h"
 #import "MSIDThrottlingCacheRecord.h"
-#import "MSIDThrottlingCacheNode.h"
+#import "MSIDLRUCacheNode.h"
+#import "MSIDLRUCache.h"
 
 
-@interface MSIDThrottlingCacheService (Test)
+@interface MSIDLRUCache (Test)
 
-- (MSIDThrottlingCacheNode *)getHeadNode; //query first element without disturbing order
+- (MSIDLRUCacheNode *)getHeadNode; //query first element without disturbing order
 
-- (MSIDThrottlingCacheNode *)getTailNode; //query last element without disturbing order
-
-- (void)threadSafetyTest;
+- (MSIDLRUCacheNode *)getTailNode; //query last element without disturbing order
 
 @end
 
-@interface MSIDThrottlingCacheTest : XCTestCase
+@interface MSIDLRUCacheTest : XCTestCase
 
-@property (nonatomic) MSIDThrottlingCacheService *throttlingCacheService;
+@property (nonatomic) MSIDLRUCache *throttlingCacheService;
 
 @end
 
