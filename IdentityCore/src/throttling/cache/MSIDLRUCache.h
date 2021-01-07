@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSUInteger cacheSize; //size of the LRU cache
 @property (nonatomic, readonly) NSUInteger numCacheRecords; //number of valid records currently stored in the LRU cache
+@property (nonatomic, readonly) NSUInteger cacheUpdateCount; //number of times cache entry has been updated
 
 - (instancetype)initWithCacheSize:(NSUInteger)cacheSize;
 
@@ -54,10 +55,6 @@ if node already exists, update and move it to the front of LRU cache
                                             error:(NSError *__nullable*__nullable)error;
 
 - (nullable NSArray<ObjectType> *)enumerateAndReturnAllObjects; //return all cached elements without disturbing order
-
-- (BOOL)removeObjectsUsingCriteria:(id)caller
-                      callerMethod:(SEL)callerMethod
-                             error:(NSError *__nullable*__nullable)error;
 
 @end
 

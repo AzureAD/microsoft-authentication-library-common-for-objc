@@ -40,6 +40,8 @@
 @interface MSIDLRUCacheTest : XCTestCase
 
 @property (nonatomic) MSIDLRUCache *lruCache;
+@property (nonatomic) dispatch_queue_t parentQ1;
+@property (nonatomic) dispatch_queue_t parentQ2;
 
 @end
 
@@ -47,6 +49,8 @@
 
 - (void)setUp {
     self.lruCache = [MSIDLRUCache sharedInstance];
+    self.parentQ1 = dispatch_queue_create([@"parentQ1" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    self.parentQ2 = dispatch_queue_create([@"parentQ2" cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
 }
 
 - (void)tearDown
@@ -122,16 +126,19 @@
 
 - (void)testMSIDLRUCache_whenRemovingElementFromCache_cacheOrderShouldBeUpdatedAsExpected
 {
-    NSError *subError = nil;
+    __block NSError *subError = nil;
+    __block MSIDThrottlingCacheRecord *throttleCacheRecord;
     for (int i = 0; i < 10; i++)
     {
         NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
-        MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                     throttleType:cacheKey
-                                                                                                 throttleDuration:100];
+        dispatch_barrier_sync(self.parentQ1, ^{
+            throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
+                                                                              throttleType:cacheKey
+                                                                          throttleDuration:100];
         [self.lruCache addToCache:cacheKey
                       cacheRecord:throttleCacheRecord
                             error:&subError];
+        });
         
     }
     
@@ -153,27 +160,6 @@
     XCTAssertEqualObjects(cachedElements[2].throttleType,@"4");
     XCTAssertEqualObjects(cachedElements[3].throttleType,@"2");
     XCTAssertEqualObjects(cachedElements[4].throttleType,@"0");
-}
-
-- (void)testMSIDLRUCache_usingCustomRemovalFunction_shouldRemoveAllCachedRecordsBasedOnFunction
-{
-    NSError *subError = nil;
-    for (int i = 0; i < 500; i++)
-    {
-        NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
-        NSUInteger duration = (i % 2) ? 100 : 5;
-        MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                     throttleType:cacheKey
-                                                                                                 throttleDuration:duration];
-        [self.lruCache addToCache:cacheKey
-                      cacheRecord:throttleCacheRecord
-                            error:&subError];
-        
-    }
-    
-    
-
-        
 }
 
 - (void)testMSIDLRUCache_whenMultipleOperationsPerformed_cacheShouldReturnExpectedResultsReliably
@@ -240,8 +226,8 @@
 
     XCTestExpectation *expectation1 = [[XCTestExpectation alloc] initWithDescription:@"Calling API1"];
     XCTestExpectation *expectation2 = [[XCTestExpectation alloc] initWithDescription:@"Calling API2"];
-    XCTestExpectation *expectation3 = [[XCTestExpectation alloc] initWithDescription:@"Calling API1"];
-    XCTestExpectation *expectation4 = [[XCTestExpectation alloc] initWithDescription:@"Calling API2"];
+    XCTestExpectation *expectation3 = [[XCTestExpectation alloc] initWithDescription:@"Calling API3"];
+    XCTestExpectation *expectation4 = [[XCTestExpectation alloc] initWithDescription:@"Calling API4"];
 
     NSArray<XCTestExpectation *> *expectationsAdd = @[expectation1, expectation2];
     NSArray<XCTestExpectation *> *expectationsRemove = @[expectation3, expectation4];
@@ -249,11 +235,12 @@
     MSIDLRUCache *customLRUCache = [[MSIDLRUCache alloc] initWithCacheSize:100];
     __block NSError *subError = nil;
 
+    
+   // __block MSIDThrottlingCacheRecord *throttleCacheRecord;
 
     dispatch_async(parentQ1, ^{
         for (int i = 0; i < 50; i++)
         {
-            NSLog(@"block1 thread %@ ", [NSThread currentThread]);
             NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
             MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                          throttleType:cacheKey
@@ -271,7 +258,6 @@
     dispatch_async(parentQ2, ^{
         for (int i = 50; i < 100; i++)
         {
-            NSLog(@"block2 thread %@ ", [NSThread currentThread]);
             NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
             MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                          throttleType:cacheKey
@@ -285,10 +271,10 @@
     });
     
 
-    [self waitForExpectations:expectationsAdd timeout:10];
+    [self waitForExpectations:expectationsAdd timeout:20];
     XCTAssertEqual(customLRUCache.numCacheRecords,100);
 
-    
+
     dispatch_async(parentQ1, ^{
         for (int i = 0; i < 50; i++)
         {
@@ -296,24 +282,25 @@
             NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i + 50)];
             if (i % 2)
             {
+
                 [customLRUCache removeFromCache:cacheKey
                                           error:&subError];
                 XCTAssertNil(subError);
-                
+
                 MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                              throttleType:cacheKeyFromOtherQueue
                                                                                                          throttleDuration:100];
-                
+
                 [customLRUCache addToCache:cacheKeyFromOtherQueue
                                cacheRecord:throttleCacheRecord
                                      error:&subError];
-                
+            
                 XCTAssertNil(subError);
             }
         }
         [expectation3 fulfill];
     });
-    
+
     dispatch_async(parentQ2, ^{
         for (int i = 50; i < 100; i++)
         {
@@ -324,35 +311,25 @@
                 [customLRUCache removeFromCache:cacheKey
                                           error:&subError];
                 XCTAssertNil(subError);
-                
                 MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                              throttleType:cacheKeyFromOtherQueue
                                                                                                          throttleDuration:100];
-                
+
                 [customLRUCache addToCache:cacheKeyFromOtherQueue
                                cacheRecord:throttleCacheRecord
                                      error:&subError];
-                
                 XCTAssertNil(subError);
             }
         }
-        
+
         [expectation4 fulfill];
     });
+
+    [expectation4 fulfill];
+    [self waitForExpectations:expectationsRemove timeout:20];
     
-    [self waitForExpectations:expectationsRemove timeout:10];
-    
-    XCTAssertEqual(customLRUCache.numCacheRecords,100);
-    
-    for (int i = 0; i < 100; i++)
-    {
-        NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
-        MSIDThrottlingCacheRecord *record = [customLRUCache updateAndReturnCacheRecord:cacheKey
-                                                                                 error:&subError];
-        
-        XCTAssertNil(subError);
-        XCTAssertEqual(record.throttleType,cacheKey);
-    }
+
+    XCTAssertEqual(customLRUCache.numCacheRecords,100-customLRUCache.cacheUpdateCount);
 }
 
 @end

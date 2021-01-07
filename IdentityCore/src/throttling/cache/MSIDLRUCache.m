@@ -31,11 +31,12 @@ static NSString *const HEAD_SIGNATURE = @"HEAD";
 static NSString *const TAIL_SIGNATURE = @"TAIL";
 
 #define DEFAULT_CACHE_SIZE 1000
-#define DEFAULT_SIGNATURE_LENGTH 32
+#define DEFAULT_SIGNATURE_LENGTH 8
 
 @interface MSIDLRUCache ()
 
 @property (nonatomic) NSUInteger cacheSizeInt;
+@property (nonatomic) NSUInteger cacheUpdateCountInt;
 @property (nonatomic) MSIDLRUCacheNode *head;
 @property (nonatomic) MSIDLRUCacheNode *tail;
 @property (nonatomic) NSMutableDictionary *container;
@@ -56,12 +57,18 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
     return self.container.allKeys.count-2;
 }
 
+- (NSUInteger)cacheUpdateCount
+{
+    return self.cacheUpdateCountInt;
+}
+
 - (instancetype)initWithCacheSize:(NSUInteger)cacheSize
 {
     self = [super init];
     if (self)
     {
         _cacheSizeInt = cacheSize+2;
+        _cacheUpdateCountInt = 0;
         //create dummy head and tail
         _head = [[MSIDLRUCacheNode alloc] initWithSignature:HEAD_SIGNATURE
                                               prevSignature:nil
@@ -118,6 +125,7 @@ if node already exists, update and move it to the front of LRU cache */
             {
                 [self updateAndReturnCacheRecordImpl:[self.key_signature_map objectForKey:key]
                                                error:&subError];
+                self.cacheUpdateCountInt++;
             }
             
             else
@@ -165,7 +173,9 @@ if node already exists, update and move it to the front of LRU cache */
         
         else
         {
-            [self removeFromCacheImpl:[self.key_signature_map objectForKey:key]
+            NSString *signature = [self.key_signature_map objectForKey:key];
+            [self.key_signature_map removeObjectForKey:key];
+            [self removeFromCacheImpl:signature
                                 error:&subError];
         }
     });
@@ -360,44 +370,7 @@ if node already exists, update and move it to the front of LRU cache */
     return res;
 }
 
-
-- (BOOL)removeObjectsUsingCriteria:(id)caller
-                      callerMethod:(SEL)callerMethod
-                             error:(NSError *__nullable*__nullable)error
-{
-    __block NSError *subError;
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
-        NSMutableArray<MSIDLRUCacheNode *> *arr = [self enumerateAndReturnAllNodesImpl];
-        BOOL (*meetsCriteria)(id, SEL) = (void *)[caller methodForSelector:callerMethod];
-        
-        if (arr)
-        {
-            for (int i = 0; (unsigned) i < arr.count; i++)
-            {
-                if (meetsCriteria(arr[i].cacheRecord,callerMethod))
-                {
-                    NSString *signature = arr[i].signature;
-                    [self removeFromCacheImpl:signature
-                                        error:&subError];
-                }
-            }
-        }
-        
-        else
-        {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Attempting to remove entries from an empty cache!", nil, nil, nil, nil, nil, YES);
-        }
-    });
-    
-    if (error)
-    {
-        *error = subError;
-    }
-    return (*error) ? NO : YES;
-}
-
-
-- (NSString *)generateRandomSignature //mock pointer
+- (NSString *)generateRandomSignature //mock pointer 62^8 ~ 2^14 randomness
 {
     NSString *validLetters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     NSMutableString *randomString = [NSMutableString stringWithCapacity:DEFAULT_SIGNATURE_LENGTH];
