@@ -1,5 +1,5 @@
 TBD 
-* Added the cache service component for the throttling feature.
+* Added generic MSIDLRUCache (#922)
 * Fix possible deadlock caused by thread explosion
 * Revert FRT and ART lookup orders (#884)
 
