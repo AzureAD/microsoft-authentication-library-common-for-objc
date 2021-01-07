@@ -49,7 +49,6 @@ if node already exists, update and move it to the front of LRU cache
 /**
  retrieve cache record from the corresponding node, and move the node to the front of LRU cache.
  Additionally, pass in selector that can be used as criteria to remove records
-
  */
 - (nullable ObjectType)updateAndReturnCacheRecord:(KeyType)key
                                             error:(NSError *__nullable*__nullable)error;

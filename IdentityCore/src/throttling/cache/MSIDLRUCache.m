@@ -77,6 +77,7 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
         NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlrucache-%@", [NSUUID UUID].UUIDString];
         _synchronizationQueue = dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
         _container = [NSMutableDictionary new];
+        _key_signature_map = [NSMutableDictionary new];
         
         [self.container setObject:_head forKey:HEAD_SIGNATURE];
         [self.container setObject:_tail forKey:TAIL_SIGNATURE];
@@ -103,6 +104,7 @@ if node already exists, update and move it to the front of LRU cache */
              error:(NSError *__nullable*__nullable)error
 {
     __block NSError *subError = nil;
+    BOOL result = YES;
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (self.cacheSizeInt <= 2)
         {
@@ -137,11 +139,16 @@ if node already exists, update and move it to the front of LRU cache */
         }
     });
     
+    if (subError)
+    {
+        result = NO;
+    }
+    
     if (error)
     {
         *error = subError;
     }
-    return (*error) ? NO : YES;
+    return result;
 }
 
 
@@ -149,23 +156,30 @@ if node already exists, update and move it to the front of LRU cache */
                   error:(NSError **)error
 {
     __block NSError *subError = nil;
-    __block BOOL outcome;
+    BOOL result = YES;
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
+        if (![self.key_signature_map objectForKey:key])
+        {
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during removal", nil, nil, nil, nil, nil, YES);
+        }
+        
+        else
+        {
+            [self removeFromCacheImpl:[self.key_signature_map objectForKey:key]
+                                error:&subError];
+        }
+    });
     
-    if (![self.key_signature_map objectForKey:key])
+    if (subError)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during removal", nil, nil, nil, nil, nil, YES);
-        return NO;
+        result = NO;
     }
     
-    dispatch_barrier_sync(self.synchronizationQueue, ^{
-        outcome = [self removeFromCacheImpl:[self.key_signature_map objectForKey:key]
-                                      error:&subError];
-    });
     if (error)
     {
         *error = subError;
     }
-    return outcome;
+    return result;
 }
 
 - (BOOL)removeFromCacheImpl:(NSString *)signature
@@ -201,21 +215,25 @@ if node already exists, update and move it to the front of LRU cache */
     __block id cacheRecord;
     __block NSError *subError = nil;
     
-    if (![self.key_signature_map objectForKey:key])
-    {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during retrieval", nil, nil, nil, nil, nil, YES);
-        return nil;
-    }
-    
     dispatch_sync(self.synchronizationQueue, ^{
+        if (![self.key_signature_map objectForKey:key])
+        {
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during retrieval", nil, nil, nil, nil, nil, YES);
+        }
+        
         cacheRecord = [self updateAndReturnCacheRecordImpl:[self.key_signature_map objectForKey:key]
                                                      error:&subError];
     });
+    if (subError)
+    {
+        cacheRecord = nil;
+    }
     
     if (error)
     {
         *error = subError;
     }
+
     return cacheRecord;
 }
 
