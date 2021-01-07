@@ -25,7 +25,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MSIDLRUCache.h"
-#import "MSIDLRUCacheNode.h"
 
 static NSString *const HEAD_SIGNATURE = @"HEAD";
 static NSString *const TAIL_SIGNATURE = @"TAIL";
@@ -33,6 +32,45 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 #define DEFAULT_CACHE_SIZE 1000
 #define DEFAULT_SIGNATURE_LENGTH 8
 
+//Helper class
+@interface MSIDLRUCacheNode : NSObject
+
+@property (nonatomic, readonly) NSString *signature;
+@property (nonatomic) NSMutableString *prevSignature;
+@property (nonatomic) NSMutableString *nextSignature;
+@property (nonatomic) id cacheRecord;
+
+- (instancetype)initWithSignature:(NSString *)signature
+                    prevSignature:(NSString *)prevSignature
+                    nextSignature:(NSString *)nextSignature
+                      cacheRecord:(id)cacheRecord;
+
+@end
+
+
+@implementation MSIDLRUCacheNode
+
+- (instancetype)initWithSignature:(NSString *)signature
+                    prevSignature:(NSString *)prevSignature
+                    nextSignature:(NSString *)nextSignature
+                      cacheRecord:(id)cacheRecord
+{
+    self = [super init];
+    if (self)
+    {
+        _signature = signature;
+        _prevSignature = [prevSignature mutableCopy];
+        _nextSignature = [nextSignature mutableCopy];
+        _cacheRecord = cacheRecord;
+    }
+    return self;
+}
+
+@end
+
+
+
+//Main class 
 @interface MSIDLRUCache ()
 
 @property (nonatomic) NSUInteger cacheSizeInt;
