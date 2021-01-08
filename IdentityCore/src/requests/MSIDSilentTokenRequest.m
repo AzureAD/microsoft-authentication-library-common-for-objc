@@ -175,7 +175,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                                           refreshToken:refreshableToken
                                                                  error:&resultError];
             
-            
             if (tokenResult)
             {
                 [self.lastRequestTelemetry increaseSilentSuccessfulCount];
@@ -420,7 +419,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
 
-    //Initialize wrapper request object to store request parameters required
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {
         if (error)

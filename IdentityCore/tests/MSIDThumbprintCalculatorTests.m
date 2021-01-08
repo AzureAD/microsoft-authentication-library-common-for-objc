@@ -189,23 +189,36 @@
     XCTAssertEqual(val,0);
 }
 
-- (void)testThumbprintCalculator_whenTheSameRequestParametersProvidedMultipleTimes_hashFunctionShouldReturnSameConsistentHash
+- (void)testThumbprintCalculator_whenEmptyInputProvided_thumbprintCalculatorShouldReturnNilOutput
 {
 
     NSString *thumbprintOne = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                filteringSet:[NSSet new]
                                                           shouldIncludeKeys:NO];
+
+    XCTAssertNil(thumbprintOne);
+
+}
+
+
+
+- (void)testThumbprintCalculator_whenTheSameRequestParametersProvidedMultipleTimes_hashFunctionShouldReturnSameConsistentHash
+{
+
+    NSString *thumbprintOne = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
+                                                               filteringSet:self.blackListSet
+                                                          shouldIncludeKeys:NO];
     NSString *thumbprintTwo = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
-                                                               filteringSet:[NSSet new]
+                                                               filteringSet:self.blackListSet
                                                           shouldIncludeKeys:NO];
     NSString *thumbprintThree = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
-                                                                 filteringSet:[NSSet new]
+                                                                 filteringSet:self.blackListSet
                                                             shouldIncludeKeys:NO];
     NSString *thumbprintFour = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
-                                                                filteringSet:[NSSet new]
+                                                                filteringSet:self.blackListSet
                                                            shouldIncludeKeys:NO];
     NSString *thumbprintFive = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
-                                                                filteringSet:[NSSet new]
+                                                                filteringSet:self.blackListSet
                                                            shouldIncludeKeys:NO];
     XCTAssertNotNil(thumbprintOne);
     XCTAssertEqualObjects(thumbprintOne,thumbprintTwo);

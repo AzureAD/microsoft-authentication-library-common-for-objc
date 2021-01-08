@@ -23,8 +23,6 @@
 
 #import "MSIDAADV1RefreshTokenGrantRequest.h"
 #import "MSIDThumbprintCalculator.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDAccountIdentifier.h"
 
 @interface MSIDAADV1RefreshTokenGrantRequest ()
 

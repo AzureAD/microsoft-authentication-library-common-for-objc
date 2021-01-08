@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThumbprintCalculator : NSObject
 
-+ (NSString *)calculateThumbprint:(NSDictionary *)requestParameters
-                     filteringSet:(NSSet *)filteringSet
-                shouldIncludeKeys:(BOOL)shouldIncludeKeys;
++ (nullable NSString *)calculateThumbprint:(NSDictionary *)requestParameters
+                              filteringSet:(NSSet *)filteringSet
+                         shouldIncludeKeys:(BOOL)shouldIncludeKeys;
 
 @end
 
