@@ -53,6 +53,7 @@
 @property (nonatomic) NSString *homeAccountId;
 @property (nonatomic) NSSet *whiteListSet;
 @property (nonatomic) NSSet *blackListSet;
+@property (nonatomic) NSArray *expectedParamList;
 
 @end
 
@@ -96,6 +97,18 @@
     self.blackListSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID,
                                               MSID_OAUTH2_GRANT_TYPE]];
     
+    self.expectedParamList = [NSArray arrayWithObjects:
+                              @"client_id:27922004-5251-4030-b22d-91ecd9a37ea4",
+                              @"endpointUrl:https://login.microsoftonline.com/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/oauth2/v2.0/token",
+                              @"environment:login.microsoftonline.com",
+                              @"grant_type:refresh_token",
+                              @"homeAccountId:9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+                              @"realm:f645ad92-e38d-4d1a-b510-d1b09a74a8ca",
+                              @"redirect_uri:x-msauth-outlook-prod://com.microsoft.Office.Outlook",
+                              @"refresh_token:0.ARwAkq1F9o3jGk21ENGwmnSoygQgkidRUjBAsi2R7NmjfqQcADo.AgABAAAAAAB2UyzwtQEKR7-rWbgdcBZIAQDs_wIA9P-pC2Jew17JPTq51nYIbMNBqYUqRXoKqMeuNo-JnIaqgCULiag74RahCkNed_oy_TEIxdkb_rrCvkzifvcwVkSdJOdQkW452s9ZC8cdEwtaGviimxLF3CpI9yoTdKUV3Vy7raNooYEli1B1LcSFYkltLQvgiaU-YRZ5hpRAaCyB6s6x3mJc7-LVHDdSVu4RNc_fgp16HumZNF-ZiHxRCHGfYZL3MQNi8c-FVmV6-qh-yb0GQqEYH3qoQbiOjwPWg92npuH7AMzZyudgOBvKf07e5Nzn0393Yp9fK4W9pfGMDscvV_shos8S296w-ckcOFdVepnCJtGUIqIX3UuHXyYBkAlMEifuO_PfcmRMgwuX8suEGnm1N0rFWhOjHjOSw6koy0KV45nL5Ln3ktx2z1Hey0bHxV2wWq42bAnn2L8xgB-8UvNifRQC2045Ws0QKmV2yIw1fkz9WHukHdxVCdLiz1ZYeGbxyh_khiJfCk3iFu7j1cHChd7ajrX3XPzZoLusDTWY6sbsijafV6G7cHAndD64G1XEcUZ2M2ZmrNi7-uOA6-dkKyQ-btbE47fvTKhY1UCQ6f3Qu6IFrAEeG6zeOcWzIVMWRHVdp5PPrnzOCyqiYAxkpW6X65KqI2Wa4Cyb2hFczQxbmDm_MKpLPQBDJm4kqNpa1h1BBkgpLCh_H-jwQGBaJoatGWhdKQNUIS7G17DvMV-6EGBb1YQmlFzUEaxFRbFCrOc2e_XtfNl8fAq5pQYDNuygDy8Yw2B9Gj3F3hlZTGMJ4UXPRliuNH0lAoXNy78wjNytPaR3TAEghimZvT-B08JTjz8WWuwpoXBHzhw_noida5dlL1GL4yHv77zwXh3ntqCjJJajX-prpADK8yyq9xscq8mTtzgdIVgbeDy_5sfvgygNnnAw5x0aPj_-lDNgZ",
+                              @"scope:openid profile offline_access",
+                              nil];
+    
 }
     // Put setup code here. This method is called before the invocation of each test method in the class.
 
@@ -109,26 +122,16 @@
                                                                                        filteringSet:[NSSet new]
                                                                                   shouldIncludeKeys:NO];
     
+    
+
     XCTAssertNotNil(sortedThumbprintList);
-    XCTAssertEqual(sortedThumbprintList.count,18);
-    XCTAssertEqualObjects(sortedThumbprintList[0],@"client_id");
-    XCTAssertEqualObjects(sortedThumbprintList[1],self.clientId);
-    XCTAssertEqualObjects(sortedThumbprintList[2],@"endpointUrl");
-    XCTAssertEqualObjects(sortedThumbprintList[3],self.endpointUrl);
-    XCTAssertEqualObjects(sortedThumbprintList[4],@"environment");
-    XCTAssertEqualObjects(sortedThumbprintList[5],self.environment);
-    XCTAssertEqualObjects(sortedThumbprintList[6],@"grant_type");
-    XCTAssertEqualObjects(sortedThumbprintList[7],self.grant_type);
-    XCTAssertEqualObjects(sortedThumbprintList[8],@"homeAccountId");
-    XCTAssertEqualObjects(sortedThumbprintList[9],self.homeAccountId);
-    XCTAssertEqualObjects(sortedThumbprintList[10],@"realm");
-    XCTAssertEqualObjects(sortedThumbprintList[11],self.realm);
-    XCTAssertEqualObjects(sortedThumbprintList[12],@"redirect_uri");
-    XCTAssertEqualObjects(sortedThumbprintList[13],self.redirect_uri);
-    XCTAssertEqualObjects(sortedThumbprintList[14],@"refresh_token");
-    XCTAssertEqualObjects(sortedThumbprintList[15],self.refresh_token);
-    XCTAssertEqualObjects(sortedThumbprintList[16],@"scope");
-    XCTAssertEqualObjects(sortedThumbprintList[17],self.scope);
+    XCTAssertEqual(sortedThumbprintList.count,9);
+    for (int i = 0; i < sortedThumbprintList.count; i++)
+    {
+        XCTAssertEqualObjects(sortedThumbprintList[i],self.expectedParamList[i]);
+    }
+
+
 
 }
 
@@ -139,15 +142,13 @@
                                                                                   shouldIncludeKeys:YES];
 
     XCTAssertNotNil(sortedThumbprintList);
-    XCTAssertEqual(sortedThumbprintList.count,8);
-    XCTAssertEqualObjects(sortedThumbprintList[0],@"environment");
-    XCTAssertEqualObjects(sortedThumbprintList[1],self.environment);
-    XCTAssertEqualObjects(sortedThumbprintList[2],@"homeAccountId");
-    XCTAssertEqualObjects(sortedThumbprintList[3],self.homeAccountId);
-    XCTAssertEqualObjects(sortedThumbprintList[4],@"realm");
-    XCTAssertEqualObjects(sortedThumbprintList[5],self.realm);
-    XCTAssertEqualObjects(sortedThumbprintList[6],@"scope");
-    XCTAssertEqualObjects(sortedThumbprintList[7],self.scope);
+    XCTAssertEqual(sortedThumbprintList.count,4);
+
+    XCTAssertEqualObjects(sortedThumbprintList[0],self.expectedParamList[2]);
+    XCTAssertEqualObjects(sortedThumbprintList[1],self.expectedParamList[4]);
+    XCTAssertEqualObjects(sortedThumbprintList[2],self.expectedParamList[5]);
+    XCTAssertEqualObjects(sortedThumbprintList[3],self.expectedParamList[8]);
+
 }
 
 - (void)testThumbprintCalculator_whenFilteredSetContainsParamsToExclude_ShouldExcludeThoseElementsFromTheFinalArray
@@ -157,21 +158,14 @@
                                                                                   shouldIncludeKeys:NO];
 
     XCTAssertNotNil(sortedThumbprintList);
-    XCTAssertEqual(sortedThumbprintList.count,14);
-    XCTAssertEqualObjects(sortedThumbprintList[0],@"endpointUrl");
-    XCTAssertEqualObjects(sortedThumbprintList[1],self.endpointUrl);
-    XCTAssertEqualObjects(sortedThumbprintList[2],@"environment");
-    XCTAssertEqualObjects(sortedThumbprintList[3],self.environment);
-    XCTAssertEqualObjects(sortedThumbprintList[4],@"homeAccountId");
-    XCTAssertEqualObjects(sortedThumbprintList[5],self.homeAccountId); 
-    XCTAssertEqualObjects(sortedThumbprintList[6],@"realm");
-    XCTAssertEqualObjects(sortedThumbprintList[7],self.realm);
-    XCTAssertEqualObjects(sortedThumbprintList[8],@"redirect_uri");
-    XCTAssertEqualObjects(sortedThumbprintList[9],self.redirect_uri);
-    XCTAssertEqualObjects(sortedThumbprintList[10],@"refresh_token");
-    XCTAssertEqualObjects(sortedThumbprintList[11],self.refresh_token);
-    XCTAssertEqualObjects(sortedThumbprintList[12],@"scope");
-    XCTAssertEqualObjects(sortedThumbprintList[13],self.scope);
+    XCTAssertEqual(sortedThumbprintList.count,7);
+    XCTAssertEqualObjects(sortedThumbprintList[0],self.expectedParamList[1]);
+    XCTAssertEqualObjects(sortedThumbprintList[1],self.expectedParamList[2]);
+    XCTAssertEqualObjects(sortedThumbprintList[2],self.expectedParamList[4]);
+    XCTAssertEqualObjects(sortedThumbprintList[3],self.expectedParamList[5]);
+    XCTAssertEqualObjects(sortedThumbprintList[4],self.expectedParamList[6]);
+    XCTAssertEqualObjects(sortedThumbprintList[5],self.expectedParamList[7]);
+    XCTAssertEqualObjects(sortedThumbprintList[6],self.expectedParamList[8]);
 }
 
 - (void)testThumbprintCalculator_whenInvalidInputProvided_hashFunctionShouldReturnZero
@@ -233,14 +227,14 @@
     NSMutableDictionary* virtualBucket = [NSMutableDictionary new];
     __block int collisionCnt = 0;
     
-    for (int i = 0; i < 20000; i++)
+    for (int i = 0; i < 10000; i++)
     {
         NSDictionary *randomRequestParams = [self generateRandomRequestParameters:YES
-                                                            setRandomRefreshToken:NO
+                                                            setRandomRefreshToken:YES
                                                              setRandomRedirectUrl:NO
                                                              setRandomEndpointUrl:YES
                                                                    setRandomRealm:NO
-                                                             setRandomEnvironment:NO
+                                                             setRandomEnvironment:YES
                                                            setRandomHomeAccountId:YES];
         NSString *randomThumbprintKey = [MSIDThumbprintCalculator calculateThumbprint:randomRequestParams
                                                                          filteringSet:self.blackListSet

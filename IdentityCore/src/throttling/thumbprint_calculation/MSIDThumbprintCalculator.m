@@ -36,7 +36,7 @@
                      filteringSet:(NSSet *)filteringSet
                 shouldIncludeKeys:(BOOL)shouldIncludeKeys
 {
-    if (!requestParameters || !requestParameters.count || !filteringSet || !filteringSet.count)
+    if (!requestParameters.count || !filteringSet.count)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"MSIDThumbprintCalculator: invalid input(s) found. empty request parameters and/or filtering set provided.");
         return nil;
@@ -73,24 +73,17 @@
         {
             if ([filteringSet containsObject:key] == shouldIncludeKeys)
             {
-                NSArray *thumbprintObject = [NSArray arrayWithObjects:key, obj, nil];
-                [arrayList addObject:thumbprintObject];
+                [arrayList addObject:[NSString stringWithFormat:@"%@:%@", key, obj]];
             }
         }
     }];
     
-    NSArray *sortedArrayList = [arrayList sortedArrayUsingComparator:^NSComparisonResult(NSArray *obj1, NSArray *obj2)
+    NSArray *sortedArray = [arrayList sortedArrayUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2)
     {
-        return [[obj1 objectAtIndex:0] caseInsensitiveCompare:[obj2 objectAtIndex:0]];
+        return [obj1 caseInsensitiveCompare:obj2];
     }];
-    NSMutableArray *resultArray = [NSMutableArray new];
-    for (id object in sortedArrayList)
-    {
-        [resultArray addObject:object[0]];
-        [resultArray addObject:object[1]];
-    }
     
-    return resultArray;
+    return sortedArray;
 }
 
 + (NSUInteger)hash:(NSArray<NSString *> *)thumbprintRequestList
