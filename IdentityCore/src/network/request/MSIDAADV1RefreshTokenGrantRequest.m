@@ -21,7 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDRefreshTokenGrantRequest+Internal.h"
 #import "MSIDAADV1RefreshTokenGrantRequest.h"
 #import "MSIDThumbprintCalculator.h"
 #import "MSIDRequestParameters.h"
@@ -63,14 +62,14 @@
 - (NSString *)fullRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
-                                            filteringSet:[MSIDRefreshTokenGrantRequest getExcludeSet]
+                                            filteringSet:[MSIDRefreshTokenGrantRequest fullRequestThumbprintExcludeParams]
                                        shouldIncludeKeys:NO];
 }
 
 - (NSString *)strictRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
-                                            filteringSet:[MSIDRefreshTokenGrantRequest getIncludeSet]
+                                            filteringSet:[MSIDRefreshTokenGrantRequest strictRequestThumbprintIncludeParams]
                                        shouldIncludeKeys:YES];
 }
 

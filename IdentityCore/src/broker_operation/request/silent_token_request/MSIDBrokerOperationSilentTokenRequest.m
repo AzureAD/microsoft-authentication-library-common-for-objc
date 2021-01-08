@@ -23,7 +23,7 @@
 
 #if MSID_ENABLE_SSO_EXTENSION
 #import <AuthenticationServices/ASAuthorizationOpenIDRequest.h>
-#import "MSIDBrokerOperationSilentTokenRequest+Internal.h"
+#import "MSIDBrokerOperationSilentTokenRequest.h"
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDConstants.h"
 #import "MSIDAccountIdentifier.h"
@@ -106,18 +106,19 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
 - (NSString *)fullRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:[self jsonDictionary]
-                                            filteringSet:[MSIDBrokerOperationSilentTokenRequest getExcludeSet]
+                                            filteringSet:[MSIDBrokerOperationSilentTokenRequest fullRequestThumbprintExcludeParams]
                                        shouldIncludeKeys:NO];
 }
 
 - (NSString *)strictRequestThumbprint
 {
     return [MSIDThumbprintCalculator calculateThumbprint:[self jsonDictionary]
-                                            filteringSet:[MSIDBrokerOperationSilentTokenRequest getIncludeSet]
+                                            filteringSet:[MSIDBrokerOperationSilentTokenRequest strictRequestThumbprintIncludeParams]
                                        shouldIncludeKeys:YES];
 }
 
-+ (NSSet *)getExcludeSet
+
++ (NSSet *)fullRequestThumbprintExcludeParams
 {
     static dispatch_once_t once_token;
     static NSSet *excludeSet;
@@ -134,7 +135,7 @@ static NSString *const MSID_ACCOUNT_DISPLAYABLE_ID_JSON_KEY = @"username";
     
 }
 
-+ (NSSet *)getIncludeSet
++ (NSSet *)strictRequestThumbprintIncludeParams
 {
     static dispatch_once_t once_token;
     static NSSet *includeSet;
