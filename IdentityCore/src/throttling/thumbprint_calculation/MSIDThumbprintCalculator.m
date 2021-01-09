@@ -93,10 +93,7 @@
     NSUInteger hash = 0;
     for (int i = 0; (unsigned)i < thumbprintRequestList.count; i++)
     {
-        if (i % 2)
-        {
-            hash = hash * 31 + thumbprintRequestList[i].hash;
-        }
+        hash = hash * 31 + thumbprintRequestList[i].hash;
     }
     return hash;
 }

@@ -168,20 +168,6 @@
     XCTAssertEqualObjects(sortedThumbprintList[6],self.expectedParamList[8]);
 }
 
-- (void)testThumbprintCalculator_whenInvalidInputProvided_hashFunctionShouldReturnZero
-{
-    NSMutableArray *inputRequestArr = [NSMutableArray new];
-    NSArray *dummyThumbprintObject = [NSArray arrayWithObjects:@"environment", @"login.ucla.edu", @"login.microsoftonline.com",nil];
-    
-    //empty input
-    NSUInteger val = [MSIDThumbprintCalculator hash:inputRequestArr];
-    XCTAssertEqual(val,0);
-    
-    //input contains invalid sub-array; expect all subarrays to be size of 2 and containing NSString type objects in them
-    [inputRequestArr addObject:dummyThumbprintObject];
-    val = [MSIDThumbprintCalculator hash:inputRequestArr];
-    XCTAssertEqual(val,0);
-}
 
 - (void)testThumbprintCalculator_whenEmptyInputProvided_thumbprintCalculatorShouldReturnNilOutput
 {
@@ -230,11 +216,11 @@
     for (int i = 0; i < 10000; i++)
     {
         NSDictionary *randomRequestParams = [self generateRandomRequestParameters:YES
-                                                            setRandomRefreshToken:YES
+                                                            setRandomRefreshToken:NO
                                                              setRandomRedirectUrl:NO
                                                              setRandomEndpointUrl:YES
                                                                    setRandomRealm:NO
-                                                             setRandomEnvironment:YES
+                                                             setRandomEnvironment:NO
                                                            setRandomHomeAccountId:YES];
         NSString *randomThumbprintKey = [MSIDThumbprintCalculator calculateThumbprint:randomRequestParams
                                                                          filteringSet:self.blackListSet
