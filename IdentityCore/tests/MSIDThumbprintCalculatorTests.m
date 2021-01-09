@@ -126,7 +126,7 @@
 
     XCTAssertNotNil(sortedThumbprintList);
     XCTAssertEqual(sortedThumbprintList.count,9);
-    for (int i = 0; i < sortedThumbprintList.count; i++)
+    for (int i = 0; (unsigned) i < sortedThumbprintList.count; i++)
     {
         XCTAssertEqualObjects(sortedThumbprintList[i],self.expectedParamList[i]);
     }
