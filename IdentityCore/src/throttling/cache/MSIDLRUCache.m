@@ -90,7 +90,7 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 
 - (NSUInteger)numCacheRecords
 {
-    return self.container.allKeys.count-2;
+    return self.container.allKeys.count-DEFAULT_CACHE_OFFSET_SIZE;
 }
 
 - (NSUInteger)cacheUpdateCount

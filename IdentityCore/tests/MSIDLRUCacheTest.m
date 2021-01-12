@@ -280,7 +280,7 @@
                                                                                                          throttleDuration:100];
 
                 [customLRUCache setObject:throttleCacheRecord
-                                   forKey:cacheKey
+                                   forKey:cacheKeyFromOtherQueue
                                     error:&subError];
             
                 XCTAssertNil(subError);
@@ -288,7 +288,8 @@
         }
         [expectation3 fulfill];
     });
-
+    //1,2,3,4,5,6,7
+    //
     dispatch_async(parentQ2, ^{
         for (int i = 50; i < 100; i++)
         {
@@ -304,7 +305,7 @@
                                                                                                          throttleDuration:100];
 
                 [customLRUCache setObject:throttleCacheRecord
-                                   forKey:cacheKey
+                                   forKey:cacheKeyFromOtherQueue
                                     error:&subError];
                 XCTAssertNil(subError);
             }
