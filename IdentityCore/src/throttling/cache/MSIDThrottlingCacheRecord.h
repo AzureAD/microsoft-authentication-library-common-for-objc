@@ -22,6 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThrottlingCacheRecord : NSObject
 
@@ -32,8 +33,10 @@
 @property (nonatomic) NSUInteger throttledCount;
 //number of times this request has been throttled - needs to be mutable 
 
-- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
+- (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
                          throttleType:(NSString *)throttleType
                      throttleDuration:(NSInteger)throttleDuration;
                     
 @end
+
+NS_ASSUME_NONNULL_END

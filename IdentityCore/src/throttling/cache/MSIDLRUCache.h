@@ -22,15 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-
-
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDLRUCache <KeyType, ObjectType>: NSObject
 
 @property (nonatomic, readonly) NSUInteger cacheSize; //size of the LRU cache
 @property (nonatomic, readonly) NSUInteger numCacheRecords; //number of valid records currently stored in the LRU cache
-@property (nonatomic, readonly) NSUInteger cacheUpdateCount; //number of times cache entry has been updated
+@property (nonatomic, readonly) NSUInteger cacheUpdateCount; //number of times cache entries have been updated
+@property (nonatomic, readonly) NSUInteger cacheEvictionCount; //number of times cache entries have been evicted
 
 - (instancetype)initWithCacheSize:(NSUInteger)cacheSize;
 
@@ -40,21 +39,29 @@ NS_ASSUME_NONNULL_BEGIN
 add new node to the front of LRU cache.
 if node already exists, update and move it to the front of LRU cache
  */
-- (BOOL)addToCache:(KeyType)key
-       cacheRecord:(nullable ObjectType)cacheRecord
-             error:(NSError *__nullable*__nullable)error;
+- (BOOL)setObject:(ObjectType)cacheRecord
+           forKey:(KeyType)key
+            error:(NSError * _Nullable * _Nullable)error;
 
-- (BOOL)removeFromCache:(KeyType)key
-                  error:(NSError *__nullable*__nullable)error;
+- (BOOL)removeObjectForKey:(KeyType)key
+                     error:(NSError * _Nullable * _Nullable)error;
 
 /**
- retrieve cache record from the corresponding node, and move the node to the front of LRU cache.
- Additionally, pass in selector that can be used as criteria to remove records
+ retrieve cache object corresponding to the input key, and move the object to the front of LRU cache.
  */
-- (nullable ObjectType)updateAndReturnCacheRecord:(KeyType)key
-                                            error:(NSError *__nullable*__nullable)error;
+- (nullable ObjectType)objectForKey:(KeyType)key
+                              error:(NSError * _Nullable * _Nullable)error;
 
-- (nullable NSArray<ObjectType> *)enumerateAndReturnAllObjects; //return all cached elements without disturbing order
+/**
+ return all cached elements sorted from most recently used (first) to least recently used (last)
+*/
+
+- (nullable NSArray<ObjectType> *)enumerateAndReturnAllObjects;
+
+/**
+ clear all objects in cache
+ */
+- (BOOL)removeAllObjects:(NSError * _Nullable * _Nullable)error;
 
 @end
 

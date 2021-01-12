@@ -41,10 +41,7 @@
 
 - (void)tearDown
 {
-    for (int i = 0; i < 1000; i++)
-    {
-        [self.lruCache removeFromCache:[NSString stringWithFormat:@"%i", i] error:nil];
-    }
+    [self.lruCache removeAllObjects:nil];
 }
 
 
@@ -57,8 +54,8 @@
         MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                      throttleType:cacheKey
                                                                                                  throttleDuration:100];
-        [self.lruCache addToCache:cacheKey
-                      cacheRecord:throttleCacheRecord
+        [self.lruCache setObject:throttleCacheRecord
+                          forKey:cacheKey
                             error:&subError];
         
     }
@@ -66,8 +63,8 @@
     for (int i = 9; i >= 5; i--)
     {
         NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
-        [self.lruCache updateAndReturnCacheRecord:cacheKey
-                                            error:&subError];
+        [self.lruCache objectForKey:cacheKey
+                              error:&subError];
         
     }
 
@@ -94,8 +91,8 @@
         MSIDThrottlingCacheRecord  *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                       throttleType:cacheKey
                                                                                                   throttleDuration:100];
-        [self.lruCache addToCache:cacheKey
-                      cacheRecord:throttleCacheRecord
+        [self.lruCache setObject:throttleCacheRecord
+                          forKey:cacheKey
                             error:&subError];
         
         
@@ -106,7 +103,7 @@
         if (i % 2)
         {
             NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
-            [self.lruCache removeFromCache:cacheKey error:&subError];
+            [self.lruCache removeObjectForKey:cacheKey error:&subError];
         }
     }
 
@@ -131,8 +128,8 @@
         MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                      throttleType:cacheKey
                                                                                                      throttleDuration:100];
-        [self.lruCache addToCache:cacheKey
-                      cacheRecord:throttleCacheRecord
+        [self.lruCache setObject:throttleCacheRecord
+                          forKey:cacheKey
                             error:&subError];
         
         
@@ -149,11 +146,7 @@
         XCTAssertEqualObjects(cachedElements[i].throttleType,expectedCacheKey);
     }
     
-    //clean up
-    for (int i = 0; i < 1000; i++)
-    {
-        [self.lruCache removeFromCache:[NSString stringWithFormat:@"%i", 1499-i] error:nil];
-    }
+    XCTAssertEqual(self.lruCache.cacheEvictionCount,500);
     
 }
 
@@ -170,8 +163,8 @@
                                                                                                      throttleType:cacheKey
                                                                                                  throttleDuration:100];
         
-        [self.lruCache addToCache:cacheKey
-                      cacheRecord:throttleCacheRecord
+        [self.lruCache setObject:throttleCacheRecord
+                          forKey:cacheKey
                             error:&subError];
         
         XCTAssertNil(subError);
@@ -179,18 +172,19 @@
 
     for (int i = 0; i < 100; i++)
     {
-        [self.lruCache removeFromCache:[NSString stringWithFormat:@"%i", 499-i]
-                                 error:&subError];
+        [self.lruCache removeObjectForKey:[NSString stringWithFormat:@"%i", 499-i]
+                                    error:&subError];
         
-        [self.lruCache updateAndReturnCacheRecord:[NSString stringWithFormat:@"%i", 200+i]
-                                 error:&subError];
+        [self.lruCache objectForKey:[NSString stringWithFormat:@"%i", 200+i]
+                              error:&subError];
         
-        [self.lruCache removeFromCache:[NSString stringWithFormat:@"%i", i]
-                                 error:&subError];
+        [self.lruCache removeObjectForKey:[NSString stringWithFormat:@"%i", i]
+                                    error:&subError];
         
     }
     
     XCTAssertEqual(self.lruCache.numCacheRecords,300); //100-399
+    XCTAssertEqual(self.lruCache.cacheUpdateCount,100);
     
     NSArray<MSIDThrottlingCacheRecord *> *cachedElements = [self.lruCache enumerateAndReturnAllObjects];
     
@@ -240,9 +234,9 @@
                                                                                                          throttleType:cacheKey
                                                                                                      throttleDuration:100];
             
-            [customLRUCache addToCache:cacheKey
-                           cacheRecord:throttleCacheRecord
-                                 error:&subError];
+            [customLRUCache setObject:throttleCacheRecord
+                               forKey:cacheKey
+                                error:&subError];
         }
         [expectation1 fulfill];
     });
@@ -257,9 +251,9 @@
                                                                                                          throttleType:cacheKey
                                                                                                      throttleDuration:100];
             
-            [customLRUCache addToCache:cacheKey
-                           cacheRecord:throttleCacheRecord
-                                 error:&subError];
+            [customLRUCache setObject:throttleCacheRecord
+                               forKey:cacheKey
+                                error:&subError];
         }
         [expectation2 fulfill];
     });
@@ -277,17 +271,17 @@
             if (i % 2)
             {
 
-                [customLRUCache removeFromCache:cacheKey
-                                          error:&subError];
+                [customLRUCache removeObjectForKey:cacheKey
+                                             error:&subError];
                 XCTAssertNil(subError);
 
                 MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                              throttleType:cacheKeyFromOtherQueue
                                                                                                          throttleDuration:100];
 
-                [customLRUCache addToCache:cacheKeyFromOtherQueue
-                               cacheRecord:throttleCacheRecord
-                                     error:&subError];
+                [customLRUCache setObject:throttleCacheRecord
+                                   forKey:cacheKey
+                                    error:&subError];
             
                 XCTAssertNil(subError);
             }
@@ -302,16 +296,16 @@
             NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i - 50)];
             if (i % 2)
             {
-                [customLRUCache removeFromCache:cacheKey
-                                          error:&subError];
+                [customLRUCache removeObjectForKey:cacheKey
+                                             error:&subError];
                 XCTAssertNil(subError);
                 MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                                                              throttleType:cacheKeyFromOtherQueue
                                                                                                          throttleDuration:100];
 
-                [customLRUCache addToCache:cacheKeyFromOtherQueue
-                               cacheRecord:throttleCacheRecord
-                                     error:&subError];
+                [customLRUCache setObject:throttleCacheRecord
+                                   forKey:cacheKey
+                                    error:&subError];
                 XCTAssertNil(subError);
             }
         }
