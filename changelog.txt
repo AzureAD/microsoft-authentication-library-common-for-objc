@@ -1,3 +1,5 @@
+TBD 
+* Thumbprint calculator components for throttling (#920)
 * Fix possible deadlock caused by thread explosion
 * Revert FRT and ART lookup orders (#884)
 
