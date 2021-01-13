@@ -37,7 +37,6 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 @property (nonatomic, readonly) NSString *signature;
 @property (nonatomic) NSMutableString *prevSignature;
 @property (nonatomic) NSMutableString *nextSignature;
-@property (nonatomic) NSUInteger nodeUpdateCount;
 @property (nonatomic) id cacheRecord;
 
 - (instancetype)initWithSignature:(NSString *)signature
@@ -61,7 +60,6 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
         _signature = signature;
         _prevSignature = [prevSignature mutableCopy];
         _nextSignature = [nextSignature mutableCopy];
-        _nodeUpdateCount = 0;
         _cacheRecord = cacheRecord;
     }
     return self;
@@ -73,6 +71,7 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 @interface MSIDLRUCache ()
 
 @property (nonatomic) NSUInteger cacheSizeInt;
+@property (nonatomic) NSUInteger cacheUpdateCountInt;
 @property (nonatomic) NSUInteger cacheEvictionCountInt;
 @property (nonatomic) MSIDLRUCacheNode *head;
 @property (nonatomic) MSIDLRUCacheNode *tail;
@@ -96,21 +95,7 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 
 - (NSUInteger)cacheUpdateCount
 {
-    __block NSUInteger res = 0;
-    dispatch_sync(self.synchronizationQueue, ^{
-        if (![self.head.nextSignature isEqualToString:TAIL_SIGNATURE])
-        {
-            NSMutableString *signature = [self.head.nextSignature mutableCopy];
-            
-            while (![signature isEqualToString:TAIL_SIGNATURE])
-            {
-                MSIDLRUCacheNode *node = [self.container objectForKey:signature];
-                [signature setString:node.nextSignature];
-                res += node.nodeUpdateCount;
-            }
-        }
-    });
-    return res;
+    return self.cacheUpdateCountInt;
 }
 
 - (NSUInteger)cacheEvictionCount
@@ -124,6 +109,7 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
     if (self)
     {
         _cacheSizeInt = cacheSize + DEFAULT_CACHE_OFFSET_SIZE;
+        _cacheUpdateCountInt = 0;
         _cacheEvictionCountInt = 0;
         //create dummy head and tail
         _head = [[MSIDLRUCacheNode alloc] initWithSignature:HEAD_SIGNATURE
@@ -351,7 +337,7 @@ if node already exists, update and move it to the front of LRU cache */
     
     //retrieve node
     MSIDLRUCacheNode *node = [self.container objectForKey:signature];
-    node.nodeUpdateCount += 1;
+    self.cacheUpdateCountInt += 1;
     
     //remove from current cache slot
     [self removeObjectForKeyImpl:signature
