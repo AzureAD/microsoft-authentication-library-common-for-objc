@@ -85,12 +85,12 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 
 - (NSUInteger)cacheSize
 {
-    return self.cacheSizeInt-DEFAULT_CACHE_OFFSET_SIZE;
+    return self.cacheSizeInt - DEFAULT_CACHE_OFFSET_SIZE;
 }
 
 - (NSUInteger)numCacheRecords
 {
-    return self.container.allKeys.count-DEFAULT_CACHE_OFFSET_SIZE;
+    return self.container.allKeys.count - DEFAULT_CACHE_OFFSET_SIZE;
 }
 
 - (NSUInteger)cacheUpdateCount
@@ -108,7 +108,7 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
     self = [super init];
     if (self)
     {
-        _cacheSizeInt = cacheSize+DEFAULT_CACHE_OFFSET_SIZE;
+        _cacheSizeInt = cacheSize + DEFAULT_CACHE_OFFSET_SIZE;
         _cacheUpdateCountInt = 0;
         _cacheEvictionCountInt = 0;
         //create dummy head and tail
@@ -160,6 +160,11 @@ if node already exists, update and move it to the front of LRU cache */
             subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: cache was initialized with size less than 1. Cannot write due to insufficient size.", nil, nil, nil, nil, nil, YES);
         }
         
+        else if (!cacheRecord || !key)
+        {
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input. record and/or key is nil", nil, nil, nil, nil, nil, YES);
+        }
+        
         else
         {
             //node already exists - simply move it to front
@@ -208,7 +213,12 @@ if node already exists, update and move it to the front of LRU cache */
     __block NSError *subError = nil;
     BOOL result = YES;
     dispatch_barrier_sync(self.synchronizationQueue, ^{
-        if (![self.keySignatureMap objectForKey:key])
+        if (!key)
+        {
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during removal - key is nil", nil, nil, nil, nil, nil, YES);
+        }
+        
+        else if (![self.keySignatureMap objectForKey:key])
         {
             subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during removal", nil, nil, nil, nil, nil, YES);
         }
@@ -237,7 +247,17 @@ if node already exists, update and move it to the front of LRU cache */
 - (BOOL)removeObjectForKeyImpl:(NSString *)signature
                          error:(NSError **)error
 {
-    if (![self.container objectForKey:signature])
+    if (!signature)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during removal - signature is nil", nil, nil, nil, nil, nil, YES);
+        }
+        return NO;
+        
+    }
+    
+    else if (![self.container objectForKey:signature])
     {
         if (error)
         {
@@ -268,7 +288,12 @@ if node already exists, update and move it to the front of LRU cache */
     __block NSError *subError = nil;
     
     dispatch_sync(self.synchronizationQueue, ^{
-        if (![self.keySignatureMap objectForKey:key])
+        if (!key)
+        {
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during retrieval - key is nil.", nil, nil, nil, nil, nil, YES);
+        }
+        
+        else if (![self.keySignatureMap objectForKey:key])
         {
             subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during retrieval", nil, nil, nil, nil, nil, YES);
         }
@@ -292,7 +317,16 @@ if node already exists, update and move it to the front of LRU cache */
 - (id)objectForKeyImpl:(NSString *)signature
                  error:(NSError **)error
 {
-    if (![self.container objectForKey:signature])
+    if (!signature)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during retrieval - signature is nil", nil, nil, nil, nil, nil, YES);
+        }
+        return nil;
+    }
+    
+    else if (![self.container objectForKey:signature])
     {
         if (error)
         {
@@ -366,24 +400,6 @@ if node already exists, update and move it to the front of LRU cache */
             MSIDLRUCacheNode *node = [self.container objectForKey:signature];
             [signature setString:node.nextSignature];
             [res addObject:node.cacheRecord];
-        }
-    }
-    return res;
-}
-
-- (NSMutableArray *)enumerateAndReturnAllNodesImpl
-{
-    NSMutableArray *res;
-    if (![self.head.nextSignature isEqualToString:TAIL_SIGNATURE])
-    {
-        res = [NSMutableArray new];
-        NSMutableString *signature = [self.head.nextSignature mutableCopy];
-        
-        while (![signature isEqualToString:TAIL_SIGNATURE])
-        {
-            MSIDLRUCacheNode *node = [self.container objectForKey:signature];
-            [signature setString:node.nextSignature];
-            [res addObject:node];
         }
     }
     return res;

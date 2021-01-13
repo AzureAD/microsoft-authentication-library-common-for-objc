@@ -24,6 +24,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ Thread-safe LRU cache that supports any object and key type, as long as only one object and key type is used for each instance.
+ */
 @interface MSIDLRUCache <KeyType, ObjectType>: NSObject
 
 @property (nonatomic, readonly) NSUInteger cacheSize; //size of the LRU cache
@@ -31,23 +34,35 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSUInteger cacheUpdateCount; //number of times cache entries have been updated
 @property (nonatomic, readonly) NSUInteger cacheEvictionCount; //number of times cache entries have been evicted
 
+/**
+ initialize LRU cache with custom size
+ */
 - (instancetype)initWithCacheSize:(NSUInteger)cacheSize;
 
+/**
+ create a shared singleton instance with default size, currently set to 1000
+ */
 + (MSIDLRUCache *)sharedInstance;
 
 /**
-add new node to the front of LRU cache.
-if node already exists, update and move it to the front of LRU cache
+add a new object to the front of LRU cache.
+if object already exists, move to the front of LRU cache
+if LRU cache is full, it will invalidate least recently used entry, and then add this new input object mapped by input key.
+if nil object or key is provided, this API will return NO, and an error will be generated.
  */
 - (BOOL)setObject:(ObjectType)cacheRecord
            forKey:(KeyType)key
             error:(NSError * _Nullable * _Nullable)error;
 
+/**
+remove object that corresponds to the given key.
+If nil key is provided, or no object exists that maps to the input key, this API will return NO, and an error will be generated.
+ */
 - (BOOL)removeObjectForKey:(KeyType)key
                      error:(NSError * _Nullable * _Nullable)error;
 
 /**
- retrieve cache object corresponding to the input key, and move the object to the front of LRU cache.
+ retrieve object corresponding to the input key, and move the object to the front of LRU cache.
  */
 - (nullable ObjectType)objectForKey:(KeyType)key
                               error:(NSError * _Nullable * _Nullable)error;

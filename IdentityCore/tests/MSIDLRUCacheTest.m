@@ -150,6 +150,69 @@
     
 }
 
+- (void)testMSIDLRUCache_whenInvalidInputsProvided_cacheShouldReturnError
+{
+    
+    NSError *subError = nil;
+    MSIDThrottlingCacheRecord *throttleCacheRecord = nil;
+    NSString *cacheKey = nil;
+    NSString *validKey = @"1";
+    BOOL resp;
+    
+    //try to add nil object and key
+    resp = [self.lruCache setObject:throttleCacheRecord
+                             forKey:cacheKey
+                              error:&subError];
+    
+    XCTAssertEqual(resp,NO);
+    XCTAssertNotNil(subError);
+    
+    //try to remove using nil key
+    resp = [self.lruCache removeObjectForKey:cacheKey
+                                       error:&subError];
+    
+    XCTAssertEqual(resp,NO);
+    XCTAssertNotNil(subError);
+    
+    //try to retrieve object using nil key
+    MSIDThrottlingCacheRecord *resObj = [self.lruCache objectForKey:cacheKey
+                                                              error:&subError];
+    
+    XCTAssertNil(resObj);
+    XCTAssertNotNil(subError);
+    
+    //try to retrieve object using key that does not exist in cache
+    resObj = [self.lruCache objectForKey:validKey
+                                   error:&subError];
+    XCTAssertNil(resObj);
+    XCTAssertNotNil(subError);
+    
+    throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
+                                                                      throttleType:cacheKey
+                                                                  throttleDuration:100];
+    
+    //insert object
+    resp = [self.lruCache setObject:throttleCacheRecord
+                             forKey:validKey
+                              error:&subError];
+    
+    XCTAssertEqual(resp,YES);
+    XCTAssertNil(subError);
+    
+    //remove object
+    resp = [self.lruCache removeObjectForKey:validKey
+                                       error:&subError];
+    
+    XCTAssertEqual(resp,YES);
+    XCTAssertNil(subError);
+    
+    //try to remove object that has already been removed
+    resp = [self.lruCache removeObjectForKey:validKey
+                                       error:&subError];
+    XCTAssertEqual(resp,NO);
+    XCTAssertNotNil(subError);
+    
+}
 
 - (void)testMSIDLRUCache_whenMultipleOperationsPerformed_cacheShouldReturnExpectedResultsReliably
 {
