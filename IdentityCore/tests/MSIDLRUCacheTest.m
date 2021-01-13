@@ -329,8 +329,8 @@
     dispatch_async(parentQ1, ^{
         for (int i = 0; i < 50; i++)
         {
-            NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
-            NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i + 50)];
+            NSString *cacheKey = [NSString stringWithFormat:@"%i", i]; //0-49
+            NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i + 50)]; //50-99
             if (i % 2)
             {
 
@@ -351,13 +351,12 @@
         }
         [expectation3 fulfill];
     });
-    //1,2,3,4,5,6,7
-    //
+
     dispatch_async(parentQ2, ^{
         for (int i = 50; i < 100; i++)
         {
-            NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
-            NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i - 50)];
+            NSString *cacheKey = [NSString stringWithFormat:@"%i", i]; //50-99
+            NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i - 50)]; //0-49
             if (i % 2)
             {
                 [customLRUCache removeObjectForKey:cacheKey
