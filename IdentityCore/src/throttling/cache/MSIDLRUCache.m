@@ -418,24 +418,6 @@ if node already exists, update and move it to the front of LRU cache */
     return res;
 }
 
-- (NSMutableArray *)enumerateAndReturnAllNodesImpl
-{
-    NSMutableArray *res;
-    if (![self.head.nextSignature isEqualToString:TAIL_SIGNATURE])
-    {
-        res = [NSMutableArray new];
-        NSMutableString *signature = [self.head.nextSignature mutableCopy];
-        
-        while (![signature isEqualToString:TAIL_SIGNATURE])
-        {
-            MSIDLRUCacheNode *node = [self.container objectForKey:signature];
-            [signature setString:node.nextSignature];
-            [res addObject:node];
-        }
-    }
-    return res;
-}
-
 /**
  NOTE: no need to put these internal APIs in GCD block directly,
  as they are always used by calling APIs that will invoke these APIs within GCD block.
