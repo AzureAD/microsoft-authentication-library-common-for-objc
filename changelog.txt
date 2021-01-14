@@ -1,3 +1,5 @@
+TBD 
+* Added thread-safe generic MSIDLRUCache (#922)
 * Fix possible deadlock caused by thread explosion
 * Revert FRT and ART lookup orders (#884)
 
