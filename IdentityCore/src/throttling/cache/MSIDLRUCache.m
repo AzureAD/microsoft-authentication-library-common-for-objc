@@ -444,6 +444,7 @@ if node already exists, update and move it to the front of LRU cache */
             [self.keySignatureMap removeObjectForKey:key];
             [self removeObjectForKeyImpl:signature error:&subError];
         }
+        self.cacheUpdateCountInt = 0;
         self.cacheEvictionCountInt = 0;
         
     });
