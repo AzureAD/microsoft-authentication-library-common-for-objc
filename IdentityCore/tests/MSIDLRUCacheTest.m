@@ -376,10 +376,22 @@
         [expectation4 fulfill];
     });
 
+    //100 + add count - removecount
     [expectation4 fulfill];
     [self waitForExpectations:expectationsRemove timeout:20];
+    //corner-case scenarios:
+    //1) object is updated first by setObject, and then removed (thus subtract cacheUpdateCount from it)
+    //2) two threads on the same loop iteration in the same dispatch queue (T1 and T2), and third thread in another dispatch queue (T3).
+    //  i) T3 is at ith iteration in Q1, removes object N. cache size = 99.
+    //  ii) T1 adds the same object N. in Q2 cache size = 100
+    // iii) T2 tries to add object N also, ends up evicting and adding it again. (eviction count is offset by add count)
+    //3) two threads on the same loop iteration in the same dispatch queue (T1 and T2), and third thread in another dispatch queue (T3)
+    //  i) T1 is at ith iteration in Q1, removes object N. cache size = 99.
+    // ii) T3 adds object N in Q2. cache size = 100
+    // ii) T2 removes object N again. cache size = 99.
     
-    XCTAssertEqual(customLRUCache.numCacheRecords,100-customLRUCache.cacheUpdateCount-customLRUCache.cacheEvictionCount);
+    //Even though LRU cache's operation is atomic and synchronous, the calling API is asynchronous, and multiple threads can be executing the same loop iteration.
+    XCTAssertEqual(customLRUCache.numCacheRecords,customLRUCache.cacheAddCount - customLRUCache.cacheRemoveCount);
 }
 
 @end
