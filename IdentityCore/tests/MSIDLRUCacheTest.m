@@ -379,8 +379,8 @@
     [expectation4 fulfill];
     [self waitForExpectations:expectationsRemove timeout:20];
     
-    XCTAssertEqual(customLRUCache.cacheEvictionCount, 0);
-    XCTAssertEqual(customLRUCache.numCacheRecords,100-customLRUCache.cacheUpdateCount);
+    //XCTAssertEqual(customLRUCache.cacheEvictionCount, 0);
+    XCTAssertEqual(customLRUCache.numCacheRecords,100-customLRUCache.cacheUpdateCount-customLRUCache.cacheEvictionCount);
 }
 
 @end
