@@ -286,9 +286,6 @@
     MSIDLRUCache *customLRUCache = [[MSIDLRUCache alloc] initWithCacheSize:100];
     __block NSError *subError = nil;
 
-    
-   // __block MSIDThrottlingCacheRecord *throttleCacheRecord;
-
     dispatch_async(parentQ1, ^{
         for (int i = 0; i < 50; i++)
         {
@@ -375,12 +372,10 @@
 
         [expectation4 fulfill];
     });
-
-    [expectation4 fulfill];
+;
     [self waitForExpectations:expectationsRemove timeout:20];
-    
 
-    XCTAssertEqual(customLRUCache.numCacheRecords,100-customLRUCache.cacheUpdateCount);
+    XCTAssertEqual(customLRUCache.numCacheRecords,customLRUCache.cacheAddCount - customLRUCache.cacheRemoveCount);
 }
 
 @end
