@@ -391,11 +391,7 @@
     // ii) T2 removes object N again. cache size = 99.
     
     //Even though LRU cache's operation is atomic and synchronous, the calling API is asynchronous, and multiple threads can be executing the same loop iteration.
-    XCTAssertEqual(customLRUCache.numCacheRecords,0); //dummy experiment
-    XCTAssertEqual(customLRUCache.cacheAddCount,0);
-    XCTAssertEqual(customLRUCache.cacheRemoveCount,0);
-    XCTAssertEqual(customLRUCache.cacheUpdateCount,0);
-    XCTAssertEqual(customLRUCache.cacheEvictionCount,0);
+
 
     XCTAssertEqual(customLRUCache.numCacheRecords,customLRUCache.cacheAddCount - customLRUCache.cacheRemoveCount);
 }
