@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly) NSUInteger numCacheRecords; //number of valid records currently stored in the LRU cache
 @property (nonatomic, readonly) NSUInteger cacheUpdateCount; //number of times cache entries have been updated
 @property (nonatomic, readonly) NSUInteger cacheEvictionCount; //number of times cache entries have been evicted
+@property (nonatomic, readonly) NSUInteger cacheAddCount; //number of times cache entry has been added
+@property (nonatomic, readonly) NSUInteger cacheRemoveCount; //number of times cache entry has been removed
 
 /**
  initialize LRU cache with custom size

@@ -73,6 +73,8 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 @property (nonatomic) NSUInteger cacheSizeInt;
 @property (nonatomic) NSUInteger cacheUpdateCountInt;
 @property (nonatomic) NSUInteger cacheEvictionCountInt;
+@property (nonatomic) NSUInteger cacheAddCountInt;
+@property (nonatomic) NSUInteger cacheRemoveCountInt;
 @property (nonatomic) MSIDLRUCacheNode *head;
 @property (nonatomic) MSIDLRUCacheNode *tail;
 @property (nonatomic) NSMutableDictionary *container;
@@ -101,6 +103,16 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 - (NSUInteger)cacheEvictionCount
 {
     return self.cacheEvictionCountInt;
+}
+
+- (NSUInteger)cacheAddCount
+{
+    return self.cacheAddCountInt;
+}
+
+- (NSUInteger)cacheRemoveCount
+{
+    return self.cacheRemoveCountInt;
 }
 
 - (instancetype)initWithCacheSize:(NSUInteger)cacheSize
@@ -190,6 +202,7 @@ if node already exists, update and move it to the front of LRU cache */
                                                                           nextSignature:nil
                                                                             cacheRecord:cacheRecord];
                 [self addToFrontImpl:newNode];
+                self.cacheAddCountInt++;
             }
         }
     });
@@ -229,6 +242,7 @@ if node already exists, update and move it to the front of LRU cache */
             [self.keySignatureMap removeObjectForKey:key];
             [self removeObjectForKeyImpl:signature
                                    error:&subError];
+            self.cacheRemoveCountInt++;
         }
     });
     
@@ -446,6 +460,8 @@ if node already exists, update and move it to the front of LRU cache */
         }
         self.cacheUpdateCountInt = 0;
         self.cacheEvictionCountInt = 0;
+        self.cacheAddCountInt = 0;
+        self.cacheRemoveCountInt = 0;
         
     });
     
