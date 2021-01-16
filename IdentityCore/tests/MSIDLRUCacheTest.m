@@ -349,6 +349,7 @@
                 XCTAssertNil(subError);
             }
         }
+        NSLog(@"calling thread Q1 i: %@",[NSThread currentThread]);
         [expectation3 fulfill];
     });
 
@@ -372,12 +373,10 @@
                 XCTAssertNil(subError);
             }
         }
-
+        NSLog(@"calling thread Q2 i: %@",[NSThread currentThread]);
         [expectation4 fulfill];
     });
-
-    //100 + add count - removecount
-    [expectation4 fulfill];
+    
     [self waitForExpectations:expectationsRemove timeout:20];
     //corner-case scenarios:
     //1) object is updated first by setObject, and then removed (thus subtract cacheUpdateCount from it)
