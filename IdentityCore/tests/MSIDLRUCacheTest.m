@@ -329,6 +329,7 @@
     dispatch_async(parentQ1, ^{
         for (int i = 0; i < 50; i++)
         {
+            NSLog(@"calling thread  Q1 i: %@",[NSThread currentThread]);
             NSString *cacheKey = [NSString stringWithFormat:@"%i", i]; //0-49
             NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i + 50)]; //50-99
             if (i % 2)
@@ -355,6 +356,7 @@
     dispatch_async(parentQ2, ^{
         for (int i = 50; i < 100; i++)
         {
+            NSLog(@"calling thread  Q2 i: %@",[NSThread currentThread]);
             NSString *cacheKey = [NSString stringWithFormat:@"%i", i]; //50-99
             NSString *cacheKeyFromOtherQueue = [NSString stringWithFormat:@"%i", (i - 50)]; //0-49
             if (i % 2)
@@ -391,11 +393,6 @@
     // ii) T2 removes object N again. cache size = 99.
     
     //Even though LRU cache's operation is atomic and synchronous, the calling API is asynchronous, and multiple threads can be executing the same loop iteration.
-    XCTAssertEqual(customLRUCache.numCacheRecords,0); //dummy experiment
-    XCTAssertEqual(customLRUCache.cacheAddCount,0);
-    XCTAssertEqual(customLRUCache.cacheRemoveCount,0);
-    XCTAssertEqual(customLRUCache.cacheUpdateCount,0);
-    XCTAssertEqual(customLRUCache.cacheEvictionCount,0);
 
     XCTAssertEqual(customLRUCache.numCacheRecords,customLRUCache.cacheAddCount - customLRUCache.cacheRemoveCount);
 }

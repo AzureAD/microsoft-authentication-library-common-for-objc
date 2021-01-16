@@ -280,6 +280,15 @@ if node already exists, update and move it to the front of LRU cache */
         return NO;
     }
     
+    /**
+    BEFORE:
+     A->B->C
+     A<-B<-C
+    AFTER:
+     A->C
+     A<-C
+     */
+    
     MSIDLRUCacheNode *node = [self.container objectForKey:signature];
     MSIDLRUCacheNode *prevNode = [self.container objectForKey:node.prevSignature];
     MSIDLRUCacheNode *nextNode = [self.container objectForKey:node.nextSignature];
@@ -376,11 +385,11 @@ if node already exists, update and move it to the front of LRU cache */
     
     /**
     BEFORE:
-     A->B->C
-     A<-B<-C
+     HEAD->B->
+     HEAD<-B<-
     AFTER:
-     A->C
-     A<-C
+     HEAD->A->B
+     HEAD<-A<-B
      */
     currentHeadNode.prevSignature = [node.signature mutableCopy];
     node.prevSignature = [HEAD_SIGNATURE mutableCopy];
