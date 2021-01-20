@@ -2,6 +2,7 @@ TBD
 * Added thread-safe generic MSIDLRUCache (#922)
 * Fix possible deadlock caused by thread explosion
 * Revert FRT and ART lookup orders (#884)
+* Adding MSID contant to identify CBA flows in broker for SSO, to temporarily disable SSO with CBA flows. 
 
 Version 1.6.0
 * Avoid sending RT to wrong cloud (#892)
