@@ -1,9 +1,16 @@
+Version 1.6.1
+* Extend iOS background tasks to silent and interactive requests (#923)
+* Added thread-safe generic MSIDLRUCache (#922)
+* Fix possible deadlock caused by thread explosion (#911)
+* Revert FRT and ART lookup orders (#884)
+
 Version 1.6.0
 * Avoid sending RT to wrong cloud (#892)
 * Added logic to handle links that should open in new window in embedded webView.
 * Fix code in kDF function. Add test cases
 * Enabled various warnings (which we were mostly compliant with) (#814)
 * Added client-side fix for the known ADFS PKeyAuth issue. (#890)
+* Broker CBA flow fix to stop SSOExtension interference. 
 
 Version 1.5.9
 * Fix for filtering access tokens by requested claims.

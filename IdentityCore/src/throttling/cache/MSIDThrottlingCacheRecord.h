@@ -1,4 +1,3 @@
-//------------------------------------------------------------------------------
 //
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
@@ -17,34 +16,27 @@
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//
-//------------------------------------------------------------------------------
-
-#import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSInteger, MSIDBackgroundTaskType)
-{
-    MSIDBackgroundTaskTypeInteractiveRequest = 0,
-    MSIDBackgroundTaskTypeSilentRequest
-};
+// THE SOFTWARE.  
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDBackgroundTaskManager : NSObject
+@interface MSIDThrottlingCacheRecord : NSObject
 
-- (instancetype)init NS_UNAVAILABLE;
-+ (instancetype)new NS_UNAVAILABLE;
+@property (nonatomic, readonly) NSDate *creationTime;
+@property (nonatomic, readonly) NSDate *expirationTime;
+@property (nonatomic, readonly) NSString *throttleType;
+@property (nonatomic, readonly) NSError *cachedErrorResponse;
+@property (nonatomic) NSUInteger throttledCount;
+//number of times this request has been throttled - needs to be mutable 
 
-+ (MSIDBackgroundTaskManager *)sharedInstance;
-
-- (void)startOperationWithType:(MSIDBackgroundTaskType)type;
-- (void)stopOperationWithType:(MSIDBackgroundTaskType)type;
-
+- (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
+                         throttleType:(NSString *)throttleType
+                     throttleDuration:(NSInteger)throttleDuration;
+                    
 @end
 
 NS_ASSUME_NONNULL_END
