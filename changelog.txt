@@ -1,6 +1,7 @@
-TBD 
+Version 1.6.1
+* Extend iOS background tasks to silent and interactive requests (#923)
 * Added thread-safe generic MSIDLRUCache (#922)
-* Fix possible deadlock caused by thread explosion
+* Fix possible deadlock caused by thread explosion (#911)
 * Revert FRT and ART lookup orders (#884)
 * Adding MSID contant to identify CBA flows in broker for SSO, to temporarily disable SSO with CBA flows. 
 
