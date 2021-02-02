@@ -22,6 +22,13 @@
 // THE SOFTWARE.
 
 #import "MSIDAADV1RefreshTokenGrantRequest.h"
+#import "MSIDThumbprintCalculator.h"
+
+@interface MSIDAADV1RefreshTokenGrantRequest ()
+
+@property (nonatomic) NSMutableDictionary *thumbprintParameters;
+
+@end
 
 @implementation MSIDAADV1RefreshTokenGrantRequest
 
@@ -43,8 +50,25 @@
         NSMutableDictionary *parameters = [_parameters mutableCopy];
         parameters[MSID_OAUTH2_RESOURCE] = resource;
         _parameters = parameters;
+        _thumbprintParameters = [_parameters mutableCopy];
+        _thumbprintParameters[MSID_OAUTH2_REQUEST_ENDPOINT] = endpoint;
     }
     
     return self;
 }
+
+- (NSString *)fullRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest fullRequestThumbprintExcludeParams]
+                                       shouldIncludeKeys:NO];
+}
+
+- (NSString *)strictRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest strictRequestThumbprintIncludeParams]
+                                       shouldIncludeKeys:YES];
+}
+
 @end
