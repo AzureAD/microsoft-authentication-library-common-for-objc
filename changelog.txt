@@ -1,3 +1,6 @@
+TBD
+* Mask EUII in logs (#944)
+
 Version 1.6.1
 * Extend iOS background tasks to silent and interactive requests (#923)
 * Added thread-safe generic MSIDLRUCache (#922)
