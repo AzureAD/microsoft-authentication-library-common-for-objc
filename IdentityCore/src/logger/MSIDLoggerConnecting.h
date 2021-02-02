@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (BOOL)nsLoggingEnabled;
 
+- (BOOL)euiiMaskingEnabled;
+
 - (BOOL)sourceLineLoggingEnabled;
 
 - (BOOL)loggingQueueEnabled;

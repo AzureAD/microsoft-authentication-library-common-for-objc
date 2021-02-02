@@ -67,6 +67,8 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
  */
 @property (nonatomic, readwrite) BOOL piiLoggingEnabled;
 
+@property (nonatomic, readwrite) BOOL euiiMaskingEnabled;
+
 @property (nonatomic, readwrite) BOOL nsLoggingEnabled;
 
 /*!

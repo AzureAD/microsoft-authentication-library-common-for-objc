@@ -139,7 +139,7 @@
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", [_idToken msidSecretLoggingHash], _accountIdentifier.displayableId];
+    return [baseDescription stringByAppendingFormat:@"(id token=%@, legacy user ID=%@)", [_idToken msidSecretLoggingHash], MSID_PII_LOG_EMAIL(_accountIdentifier.displayableId)];
 }
 
 @end

@@ -107,6 +107,13 @@ static long s_maxQueueSize = 1000;
     return _nsLoggingEnabled;
 }
 
+- (BOOL)euiiMaskingEnabled
+{
+    if (self.loggerConnector) return self.loggerConnector.euiiMaskingEnabled;
+    
+    return _euiiMaskingEnabled;
+}
+
 - (BOOL)sourceLineLoggingEnabled
 {
     if (self.loggerConnector) return self.loggerConnector.sourceLineLoggingEnabled;

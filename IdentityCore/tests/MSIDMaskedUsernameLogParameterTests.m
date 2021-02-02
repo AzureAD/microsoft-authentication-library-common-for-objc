@@ -52,7 +52,7 @@
     [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"test@email.com"];
     NSString *description = [logParameter description];
-    XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081@email.com");
+    XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081__email.com");
 }
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameterWithoutUsername_shouldReturnMaskedValue
@@ -60,7 +60,7 @@
     [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"@email.com"];
     NSString *description = [logParameter description];
-    XCTAssertEqualObjects(description, @"auth.placeholder-e3b0c442@email.com");
+    XCTAssertEqualObjects(description, @"auth.placeholder-e3b0c442__email.com");
 }
 
 
@@ -70,6 +70,22 @@
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"contoso.email.com"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"2bf9fb0e");
+}
+
+- (void)testDescription_whenPIINotEnabled_andEmailParameterWithNoDomain_shouldReturnMaskedValue
+{
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"test@"];
+    NSString *description = [logParameter description];
+    XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081__");
+}
+
+- (void)testDescription_whenPIINotEnabled_andEmailParameterWithNoDomain_andSpaceChar_shouldReturnMaskedValue
+{
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"test@ "];
+    NSString *description = [logParameter description];
+    XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081__ ");
 }
 
 @end
