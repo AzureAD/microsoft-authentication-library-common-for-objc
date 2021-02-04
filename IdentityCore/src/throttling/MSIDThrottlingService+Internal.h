@@ -62,7 +62,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)validateInput:(id<MSIDThumbprintCalculatable> _Nonnull)request;
 
-+ (NSDate *)getLastRefreshTime;
++ (NSDate *)getLastRefreshTimeWithContext:(id<MSIDRequestContext> _Nullable)context
+                                    error:(NSError *_Nullable *_Nullable)error;
 
 NS_ASSUME_NONNULL_END
 @end
