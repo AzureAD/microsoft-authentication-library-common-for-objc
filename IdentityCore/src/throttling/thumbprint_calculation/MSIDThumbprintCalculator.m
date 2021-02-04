@@ -20,8 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
-
+// THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
 #import "MSIDThumbprintCalculator.h"
@@ -36,6 +35,11 @@
                      filteringSet:(NSSet *)filteringSet
                 shouldIncludeKeys:(BOOL)shouldIncludeKeys
 {
+    if (!requestParameters.count || !filteringSet.count)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"MSIDThumbprintCalculator: invalid input(s) found. empty request parameters and/or filtering set provided.");
+        return nil;
+    }
     NSArray *sortedThumbprintRequestList = [self sortRequestParametersUsingFilteredSet:requestParameters
                                                                           filteringSet:filteringSet
                                                                      shouldIncludeKeys:shouldIncludeKeys];
@@ -44,7 +48,7 @@
         NSUInteger thumbprintKey = [self hash:sortedThumbprintRequestList];
         if (thumbprintKey == 0)
         {
-            //Log Warning
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"MSIDThumbprintCalculator: hash operation unsuccessful. Input should be an array of NSString objects");
             return nil;
         }
         
@@ -53,6 +57,7 @@
             return [NSString stringWithFormat:@"%lu", thumbprintKey];
         }
     }
+    MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"MSIDThumbprintCalculator: sorting operation unsuccessful. Input should be a dictionary with key-values of NSString type");
     return nil;
 }
 
@@ -67,18 +72,17 @@
         {
             if ([filteringSet containsObject:key] == shouldIncludeKeys)
             {
-                NSArray *thumbprintObject = [NSArray arrayWithObjects:key, obj, nil];
-                [arrayList addObject:thumbprintObject];
+                [arrayList addObject:[NSString stringWithFormat:@"%@:%@", key, obj]];
             }
         }
     }];
     
-    NSArray *sortedArrayList = [arrayList sortedArrayUsingComparator:^NSComparisonResult(NSArray *obj1, NSArray *obj2)
-    {
-        return [[obj1 objectAtIndex:0] caseInsensitiveCompare:[obj2 objectAtIndex:0]];
+    NSArray *sortedArray = [arrayList sortedArrayUsingComparator:^NSComparisonResult(NSString *obj1, NSString *obj2)
+                            {
+        return [obj1 caseInsensitiveCompare:obj2];
     }];
     
-    return [sortedArrayList valueForKeyPath: @"@unionOfArrays.self"];
+    return sortedArray;
 }
 
 + (NSUInteger)hash:(NSArray<NSString *> *)thumbprintRequestList
@@ -88,10 +92,7 @@
     NSUInteger hash = 0;
     for (int i = 0; (unsigned)i < thumbprintRequestList.count; i++)
     {
-        if (i % 2)
-        {
-            hash = hash * 31 + thumbprintRequestList[i].hash;
-        }
+        hash = hash * 31 + thumbprintRequestList[i].hash;
     }
     return hash;
 }

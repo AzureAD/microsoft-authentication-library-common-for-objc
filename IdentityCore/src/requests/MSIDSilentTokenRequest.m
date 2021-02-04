@@ -423,6 +423,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     // Invoke throttling service before making the call to server. If the request should be throttled, return the cached response (error) immediately
     [self.throttlingService shouldThrottleRequest:tokenRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable error) {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
+
         if (error)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(error));

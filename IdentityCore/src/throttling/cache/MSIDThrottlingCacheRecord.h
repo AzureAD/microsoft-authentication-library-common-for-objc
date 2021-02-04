@@ -22,17 +22,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThrottlingCacheRecord : NSObject
 
 @property (nonatomic, readonly) NSDate *creationTime;
 @property (nonatomic, readonly) NSDate *expirationTime;
 @property (nonatomic, readonly) NSString *throttleType;
-@property (nonatomic) NSUInteger throttledCount; //number of times this request has been throttled
-@property (nonatomic) NSError *cachedErrorResponse;
+@property (nonatomic, readonly) NSError *cachedErrorResponse;
+@property (nonatomic) NSUInteger throttledCount;
+//number of times this request has been throttled - needs to be mutable 
 
-- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
+- (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
                          throttleType:(NSString *)throttleType
                      throttleDuration:(NSInteger)throttleDuration;
                     
 @end
+
+NS_ASSUME_NONNULL_END

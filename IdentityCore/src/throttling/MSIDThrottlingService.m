@@ -30,6 +30,7 @@
 #import "MSIDKeychainTokenCache.h"
 #import "MSIDKeychainUtil.h"
 #import "MSIDConstants.h"
+#import "MSIDLRUCache.h"
 
 @implementation MSIDThrottlingService
 
@@ -40,12 +41,12 @@ static NSInteger const Default429Throttling = 60;
 static NSInteger const DefaultUIRequired = 120;
 
 #pragma mark - Initializer
+
 -(instancetype)init
 {
     self = [super init];
     if (self)
     {
-        _cacheService = [MSIDThrottlingCacheService sharedInstance:10];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
     return self;
@@ -197,8 +198,7 @@ static NSInteger const DefaultUIRequired = 120;
     NSError *error = nil;
     // Check 429 throttling case
     NSString *strictThumbprint = [request strictRequestThumbprint];
-    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService getResponseFromCache:strictThumbprint
-                                                                               error:&error];
+    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService objectForKey:strictThumbprint                                                  error:&error];
     if (!cacheRecord)
     {
         // we just log error (if any) and keep moving to the next UIRequired check
@@ -225,8 +225,7 @@ static NSInteger const DefaultUIRequired = 120;
 {
     NSError *error = nil;
     NSString *fullRequestThumbprint = [request fullRequestThumbprint];
-    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService getResponseFromCache:fullRequestThumbprint
-                                                                               error:&error];
+    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService objectForKey:fullRequestThumbprint                                                  error:&error];
     if (!cacheRecord)
     {
         if (error)
@@ -243,7 +242,7 @@ static NSInteger const DefaultUIRequired = 120;
         if ([currentTime compare:cacheRecord.expirationTime] != NSOrderedAscending
             || (lastRefreshTime && [lastRefreshTime compare:cacheRecord.expirationTime] != NSOrderedAscending))
         {
-            [self.cacheService removeRequestFromCache:fullRequestThumbprint error:&error];
+            [self.cacheService removeObjectForKey:fullRequestThumbprint error:&error];
             if (error)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_READING_ERROR, error);
@@ -299,13 +298,15 @@ static NSInteger const DefaultUIRequired = 120;
             break;
     }
     
-    [self.cacheService addRequestToCache:thumbprint
-                           errorResponse:errorResponse
-                            throttleType:throttleTypeString
-                        throttleDuration:throttleDuration
-                                   error:error];
+    MSIDThrottlingCacheRecord *record = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:errorResponse
+                                                                                    throttleType:throttleTypeString
+                                                                                throttleDuration:throttleDuration];
+    [self.cacheService setObject:record forKey:thumbprint error:error];        
 }
 
+/**
+// TODO:  Huge TODO Here
+ */
 - (void)updateServerTelemetry:(MSIDThrottlingCacheRecord *)cacheRecord
 {
     
@@ -446,4 +447,13 @@ static NSInteger const DefaultUIRequired = 120;
     return YES;
 }
 
+- (MSIDLRUCache *)cacheService
+{
+    static MSIDLRUCache *cacheService = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        cacheService = [[MSIDLRUCache alloc] initWithCacheSize:1000];
+    });
+    return cacheService;
+}
 @end

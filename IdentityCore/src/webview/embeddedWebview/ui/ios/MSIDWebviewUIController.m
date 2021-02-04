@@ -164,8 +164,6 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (void)dismissWebview:(void (^)(void))completion
 {
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-    
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
     if (_parentController && self.presentInParentController)

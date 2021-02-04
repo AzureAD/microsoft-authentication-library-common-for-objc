@@ -24,13 +24,11 @@
 
 #import "MSIDThrottlingService.h"
 #import "MSIDLastRequestTelemetry.h"
-#import "MSIDThrottlingCacheService.h"
 
 @interface MSIDThrottlingService ()
 NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) MSIDLastRequestTelemetry * _Nonnull lastRequestTelemetry;
-@property MSIDThrottlingCacheService * _Nonnull cacheService;
+@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 @property id<MSIDRequestContext> context;
 
 - (MSIDThrottlingType)getThrottleTypeFrom:(id<MSIDThumbprintCalculatable> _Nonnull)request

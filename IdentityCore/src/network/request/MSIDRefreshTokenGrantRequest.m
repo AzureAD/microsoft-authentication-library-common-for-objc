@@ -23,8 +23,6 @@
 
 #import "MSIDRefreshTokenGrantRequest.h"
 #import "MSIDThumbprintCalculator.h"
-#import "MSIDRequestParameters.h"
-#import "MSIDAccountIdentifier.h"
 
 @interface MSIDRefreshTokenGrantRequest ()
 
@@ -61,27 +59,50 @@
         _parameters = parameters;
         _thumbprintParameters = [_parameters mutableCopy];
         _thumbprintParameters[MSID_OAUTH2_REQUEST_ENDPOINT] = endpoint;
-        _thumbprintParameters[MSID_OAUTH2_HOME_ACCOUNT_ID] = ((MSIDRequestParameters *)context).accountIdentifier.homeAccountId;
     }
     
     return self;
 }
 
-- (NSString *)getFullRequestThumbprint
+- (NSString *)fullRequestThumbprint
 {
-    NSSet *fullThumbprintExcludeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID, MSID_OAUTH2_GRANT_TYPE]];
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
-                                            filteringSet:fullThumbprintExcludeSet
-                                         includePolarity:NO];
+                                            filteringSet:[MSIDRefreshTokenGrantRequest fullRequestThumbprintExcludeParams]
+                                       shouldIncludeKeys:NO];
 }
 
-- (NSString *)getStrictRequestThumbprint
+- (NSString *)strictRequestThumbprint
 {
-    NSSet *strictThumbprintIncludeSet = [NSSet setWithArray:@[@"realm",@"environment",MSID_OAUTH2_HOME_ACCOUNT_ID,MSID_OAUTH2_SCOPE]];
     return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
-                                            filteringSet:strictThumbprintIncludeSet
-                                         includePolarity:YES];
-  
+                                            filteringSet:[MSIDRefreshTokenGrantRequest strictRequestThumbprintIncludeParams]
+                                       shouldIncludeKeys:YES];
+}
+
++ (NSSet *)fullRequestThumbprintExcludeParams
+{
+    static dispatch_once_t once_token;
+    static NSSet *excludeSet;
+    
+    dispatch_once(&once_token, ^{
+        excludeSet = [NSSet setWithArray:@[MSID_OAUTH2_GRANT_TYPE]];
+    });
+    return excludeSet;
+    
+}
+
++ (NSSet *)strictRequestThumbprintIncludeParams
+{
+    static dispatch_once_t once_token;
+    static NSSet *includeSet;
+    
+    dispatch_once(&once_token, ^{
+        includeSet = [NSSet setWithArray:@[MSID_OAUTH2_CLIENT_ID,
+                                           MSID_OAUTH2_REQUEST_ENDPOINT, //resource + environment
+                                           MSID_OAUTH2_REFRESH_TOKEN, //home account id also embedded within RT, albeit decrypted.
+                                           MSID_OAUTH2_SCOPE]];
+    });
+    return includeSet;
+    
 }
 
 @end
