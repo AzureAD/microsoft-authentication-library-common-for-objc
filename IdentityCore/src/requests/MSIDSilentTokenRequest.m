@@ -251,7 +251,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         refreshableToken = [self appRefreshTokenWithError:&rtError];
     }
     
-    if (rtError)
+    if (rtError && shouldComplete)
     {
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read %@ token with error %@", contextMsg, MSID_PII_LOG_MASKABLE(rtError));
         completionHandler(nil, checkForTokenType, rtError);
