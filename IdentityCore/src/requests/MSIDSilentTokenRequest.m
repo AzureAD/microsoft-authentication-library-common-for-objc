@@ -45,7 +45,7 @@
 #endif
 
 #import "MSIDAuthenticationScheme.h"
-
+#import "MSIDThrottlingService.h"
 typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
     MSIDAppRefreshTokenType = 0,
@@ -439,6 +439,15 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
              {
                 if (error)
                 {
+                    NSError *throttlingError = nil;
+                    [self.throttlingService updateThrottlingDatabaseWithRequest:tokenRequest
+                                                                  errorResponse:error
+                                                                isSSOExtRequest:FALSE
+                                                                    returnError:&throttlingError];
+                    if (throttlingError)
+                    {
+                        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Throttling error when updating db %@, %ld", throttlingError.domain, (long)throttlingError.code);
+                    }
                     
                     BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
                     
