@@ -72,10 +72,9 @@ static NSInteger const DefaultUIRequired = 120;
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
                   resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
 {
-    NSError *error = nil;
     if ([MSIDThrottlingService validateInput:request])
     {
-        error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Throttling error: invalid inputs", nil, nil, nil, self.context.correlationId, nil, YES);
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_READING_ERROR, nil);
     }
     
     // If if any check return TRUE, the resultBlock will be executed inside the check, if not we return result block with shouldBeThrottle = NO
@@ -152,18 +151,17 @@ static NSInteger const DefaultUIRequired = 120;
     MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
     // TODO: Let assume the error here is MSIDError, we will deal with conversion later:
     // In both scenarios (server error or SSO-ext internal error) broker creates MSALError and return to calling app
-    if (errorResponse && [errorResponse.domain isEqualToString:MSIDErrorDomain])
+    
+    NSString *httpResponseCode = errorResponse.userInfo[MSIDHTTPResponseCodeKey];
+    NSInteger responseCode = [httpResponseCode intValue];
+    if (responseCode == 429) throttleType = MSIDThrottlingType429;
+    if (responseCode >= 500 && responseCode <= 599) throttleType = MSIDThrottlingType429;
+    NSDate *retryHeaderDate = [self getRetryDateFromErrorResponse:errorResponse];
+    if (retryHeaderDate)
     {
-        NSString *httpResponseCode = errorResponse.userInfo[MSIDHTTPResponseCodeKey];
-        NSInteger responseCode = [httpResponseCode intValue];
-        if (responseCode == 429) throttleType = MSIDThrottlingType429;
-        if (responseCode >= 500 && responseCode <= 599) throttleType = MSIDThrottlingType429;
-        NSDate *retryHeaderDate = [self getRetryDateFromErrorResponse:errorResponse];
-        if (retryHeaderDate)
-        {
-            throttleType = MSIDThrottlingType429;
-        }
+        throttleType = MSIDThrottlingType429;
     }
+    
     
     return throttleType;
 }
@@ -230,7 +228,7 @@ static NSInteger const DefaultUIRequired = 120;
     {
         if (error)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_READING_ERROR, request);
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_READING_ERROR, error);
         }
         return NO;
     }

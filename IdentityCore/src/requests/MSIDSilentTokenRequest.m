@@ -412,6 +412,19 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     }];
 }
 
+- (void)updateThrottlingService:(NSError *)error tokenRequest:(MSIDRefreshTokenGrantRequest *)tokenRequest
+{
+    NSError *throttlingError = nil;
+    [self.throttlingService updateThrottlingDatabaseWithRequest:tokenRequest
+                                                  errorResponse:error
+                                                isSSOExtRequest:FALSE
+                                                    returnError:&throttlingError];
+    if (throttlingError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Throttling error when updating db %@, %ld", throttlingError.domain, (long)throttlingError.code);
+    }
+}
+
 - (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                          completionBlock:(MSIDRequestCompletionBlock)completionBlock
 {
@@ -440,15 +453,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
              {
                 if (error)
                 {
-                    NSError *throttlingError = nil;
-                    [self.throttlingService updateThrottlingDatabaseWithRequest:tokenRequest
-                                                                  errorResponse:error
-                                                                isSSOExtRequest:FALSE
-                                                                    returnError:&throttlingError];
-                    if (throttlingError)
-                    {
-                        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Throttling error when updating db %@, %ld", throttlingError.domain, (long)throttlingError.code);
-                    }
+                    /**
+                     * If server issue 429 Throttling, this step will have error object. If UIRequired, there is no error yet. Later after serialize the tokenResponse we will create the error
+                     */
+                    [self updateThrottlingService:error tokenRequest:tokenRequest];
                     
                     BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
                     
@@ -490,6 +498,14 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                                                          error:nil
                                                completionBlock:^(MSIDTokenResult *result, NSError *error)
                  {
+                    /**
+                     * If we can't serialize the response from server to tokens and there is error, we want to update throttling service
+                     */
+                    if (error)
+                    {
+                        [self updateThrottlingService:error tokenRequest:tokenRequest];
+                    }
+                    
                     if (!result && [self shouldRemoveRefreshToken:error])
                     {
                         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refresh token invalid, removing it...");
