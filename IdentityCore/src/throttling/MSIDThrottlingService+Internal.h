@@ -22,27 +22,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
+#import "MSIDThrottlingService.h"
+#import "MSIDLastRequestTelemetry.h"
+#import "MSIDThrottlingCacheService.h"
 
+@interface MSIDThrottlingService ()
+NS_ASSUME_NONNULL_BEGIN
 
-@interface ThrottlingService ()
+@property (nonatomic) MSIDLastRequestTelemetry * _Nonnull lastRequestTelemetry;
+@property MSIDThrottlingCacheService * _Nonnull cacheService;
+@property id<MSIDRequestContext> context;
 
-@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
+- (MSIDThrottlingType)getThrottleTypeFrom:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                            errorResponse:(NSError *)errorResponse
+                          isSSOExtRequest:(BOOL)isSSOExtRequest
+                                    error:(NSError *_Nullable *_Nullable)error;
 
-- (void)readConfigurationOfThumbprint:(NSString *)thumbprint;
+- (MSIDThrottlingType)isResponse429ThrottleTypeWithErrorResponse:(NSError * _Nullable)errorResponse
+                                                 isSSOExtRequest:(BOOL)isSSOExtRequest
+                                                           error:(NSError *_Nullable *_Nullable)error;
 
-//- (MSIDThrottlingCacheRecord *)getCacheRecordWithThumbprint:(NSString *)thumbprint;
-//- (BOOL)getCacheDatabaseWithRecord:(MSIDThrottlingCacheRecord *)cacheRecord;
-- (BOOL)updateLastRefreshTimeStamp;
-- (void)updateServerTelemetry;
+- (MSIDThrottlingType)isResponseUIRequiredThrottleType:(NSError *)errorResponse;
 
-- (void)updateThrottleCacheWithServerResponse:(NSString *)thumbprint
-                                errorResponse:(NSError *)errorResponse
-                                 throttleType:(NSString *)throttleType
-                             throttleDuration:(nullable NSInteger)throttleDuration
-                                  resultBlock:(nonnull MSIDThrottleUpdateResultBlock)resultBlock;
+- (BOOL)is429ThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
+              resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;
 
-- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
-                         throttleType:(NSString *)throttleType
-                     throttleDuration:(NSInteger)throttleDuration;
-                    
+- (BOOL)isUIRequiredThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                     resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;
+
+- (void)createDBRecordAndUpdateWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                             errorResponse:(NSError * _Nullable)errorResponse
+                           isSSOExtRequest:(BOOL)isSSOExtRequest
+                              throttleType:(MSIDThrottlingType)throttleType
+                               returnError:(NSError *_Nullable *_Nullable)error;
+
+- (void)updateServerTelemetry:(MSIDThrottlingCacheRecord *)cacheRecord;
+
+- (NSDate *)getRetryDateFromErrorResponse:(NSError * _Nullable)errorResponse;
+
++ (BOOL)validateInput:(id<MSIDThumbprintCalculatable> _Nonnull)request;
+
++ (NSDate *)getLastRefreshTime;
+
+NS_ASSUME_NONNULL_END
 @end

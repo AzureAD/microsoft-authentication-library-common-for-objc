@@ -27,11 +27,6 @@
 
 @implementation MSIDThrottlingCacheRecord
 
-@interface MSIDThumbprintCalculator : NSObject
-
-+ (NSString *)calculateThumbprint:(NSDictionary *)requestParameters
-                     filteringSet:(NSSet *)filteringSet
-                  includePolarity:(BOOL)includePolarity;
 - (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
                          throttleType:(NSString *)throttleType
                      throttleDuration:(NSInteger)throttleDuration
