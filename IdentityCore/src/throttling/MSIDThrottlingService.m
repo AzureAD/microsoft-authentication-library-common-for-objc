@@ -206,6 +206,7 @@ static NSInteger const DefaultUIRequired = 120;
                                    errorResponse:(NSError *)errorResponse
                                            error:(NSError *_Nullable *_Nullable)error
 {
+    
     MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
     throttleType = [self get429ThrottleTypeWithErrorResponse:errorResponse
                                                        error:error];
@@ -224,10 +225,11 @@ static NSInteger const DefaultUIRequired = 120;
                                                     error:(NSError *_Nullable *_Nullable)error
 {
     MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
-    // TODO: Let assume the error here is MSIDError, we will deal with conversion later:
-    // In both scenarios (server error or SSO-ext internal error) broker creates MSALError and return to calling app
-    
-    NSString *httpResponseCode = errorResponse.userInfo[MSIDHTTPResponseCodeKey];
+    /**
+     In SSO-Ext flow, it can be both MSAL or MSID Error. If it's MSALErrorDomain, we need to extract information we need (error code and user info)
+     */
+    BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
+    NSString *httpResponseCode = errorResponse.userInfo[isMSIDError ? MSIDHTTPResponseCodeKey : @"MSALHTTPResponseCodeKey"];
     NSInteger responseCode = [httpResponseCode intValue];
     if (responseCode == 429) throttleType = MSIDThrottlingType429;
     if (responseCode >= 500 && responseCode <= 599) throttleType = MSIDThrottlingType429;
@@ -251,12 +253,26 @@ static NSInteger const DefaultUIRequired = 120;
     // error response can be: invalid_request, invalid_client, invalid_scope, invalid_grant, unauthorized_client, interaction_required, access_denied
 
     NSSet *uirequiredErrors = [NSSet setWithArray:@[@"invalid_request", @"invalid_client", @"invalid_scope", @"invalid_grant", @"unauthorized_client", @"interaction_required", @"access_denied"]];
-    NSString *errorString = errorResponse.msidOauthError;
-    NSUInteger errorCode = errorResponse.code;
-    if ([uirequiredErrors containsObject:errorString] || (errorCode == MSIDErrorInteractionRequired))
+    BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
+    
+    if (isMSIDError)
     {
-        throttleType = MSIDThrottlingTypeUIRequired;
+        NSString *errorString = errorResponse.msidOauthError;
+        NSUInteger errorCode = errorResponse.code;
+        if ([uirequiredErrors containsObject:errorString] || (errorCode == MSIDErrorInteractionRequired))
+        {
+            throttleType = MSIDThrottlingTypeUIRequired;
+        }
     }
+    else
+    {
+        // -50002 = MSALErrorInteractionRequired
+        if (errorResponse.code == -50002)
+        {
+            throttleType = MSIDThrottlingTypeUIRequired;
+        }
+    }
+    
     return throttleType;
 }
 
@@ -318,7 +334,7 @@ static NSInteger const DefaultUIRequired = 120;
 {
     NSDate *retryHeaderDate = nil;
     NSString *retryHeaderString = nil;
-    NSDictionary *headerFields = errorResponse.userInfo[MSIDHTTPHeadersKey];
+    NSDictionary *headerFields = [errorResponse.domain hasPrefix:@"MSID"] ? errorResponse.userInfo[MSIDHTTPHeadersKey] : errorResponse.userInfo[@"MSALHTTPHeadersKey"];
     retryHeaderString = headerFields[@"Retry-After"];
     retryHeaderDate = [NSDate msidDateFromRetryHeader:retryHeaderString];
     return retryHeaderDate;
