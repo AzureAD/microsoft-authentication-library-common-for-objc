@@ -95,7 +95,6 @@ static NSInteger const DefaultUIRequired = 120;
     NSError *throttlingError = nil;
     [self updateThrottlingDatabaseWithRequest:tokenRequest
                                 errorResponse:error
-                              isSSOExtRequest:TRUE
                                   returnError:&throttlingError];
     if (throttlingError)
     {
@@ -104,107 +103,13 @@ static NSInteger const DefaultUIRequired = 120;
 }
 
 #pragma mark - Internal API
-- (MSIDThrottlingType)getThrottleTypeFrom:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                            errorResponse:(NSError *)errorResponse
-                          isSSOExtRequest:(BOOL)isSSOExtRequest
-                                    error:(NSError *_Nullable *_Nullable)error
-{
-    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
-    throttleType = [self isResponse429ThrottleTypeWithErrorResponse:errorResponse
-                                                    isSSOExtRequest:isSSOExtRequest
-                                                              error:error];
-                                                   
-    if (throttleType == MSIDThrottlingType429) return throttleType;
-    throttleType = [self isResponseUIRequiredThrottleType:errorResponse];
-    return throttleType;
-}
-
-/**
- 429 throttle conditions:
- - HTTP Response code is 429 or in 5xx range
- - OR Retry-After in response header
- */
-- (MSIDThrottlingType)isResponse429ThrottleTypeWithErrorResponse:(NSError * _Nullable )errorResponse
-                                                 isSSOExtRequest:(BOOL)isSSOExtRequest
-                                                           error:(NSError *_Nullable *_Nullable)error
-{
-    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
-    // TODO: Let assume the error here is MSIDError, we will deal with conversion later:
-    // In both scenarios (server error or SSO-ext internal error) broker creates MSALError and return to calling app
-    
-    NSString *httpResponseCode = errorResponse.userInfo[MSIDHTTPResponseCodeKey];
-    NSInteger responseCode = [httpResponseCode intValue];
-    if (responseCode == 429) throttleType = MSIDThrottlingType429;
-    if (responseCode >= 500 && responseCode <= 599) throttleType = MSIDThrottlingType429;
-    NSDate *retryHeaderDate = [self getRetryDateFromErrorResponse:errorResponse];
-    if (retryHeaderDate)
-    {
-        throttleType = MSIDThrottlingType429;
-    }
-    
-    
-    return throttleType;
-}
-
-- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                              errorResponse:(NSError * _Nullable )errorResponse
-                            isSSOExtRequest:(BOOL)isSSOExtRequest
-                                returnError:(NSError *_Nullable *_Nullable)error
-{
-    NSError *localError = nil;
-    MSIDThrottlingType throttleType = [self getThrottleTypeFrom:request
-                                                  errorResponse:errorResponse
-                                                isSSOExtRequest:isSSOExtRequest
-                                                          error:&localError] ;
-    if (localError)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_UPDATING_ERROR, localError);
-        if (error)
-        {
-            *error = localError;
-        }
-        return;
-    }
-    
-    if (throttleType == MSIDThrottlingTypeNone) return;
-    
-    // create throttling record and update to db
-    [self createDBRecordAndUpdateWithRequest:request
-                               errorResponse:errorResponse
-                             isSSOExtRequest:isSSOExtRequest
-                                throttleType:throttleType
-                                 returnError:error];
-    
-    return;
-}
-
-
-/**
- * If not 429, we check if is appliable for UIRequired:
- * error response can be: invalid_request, invalid_client, invalid_scope, invalid_grant, unauthorized_client, interaction_required, access_denied
- */
-- (MSIDThrottlingType)isResponseUIRequiredThrottleType:(NSError *)errorResponse
-{
-    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
-    // If not 429, we check if is appliable for UIRequired:
-    // error response can be: invalid_request, invalid_client, invalid_scope, invalid_grant, unauthorized_client, interaction_required, access_denied
-
-    NSSet *uirequiredErrors = [NSSet setWithArray:@[@"invalid_request", @"invalid_client", @"invalid_scope", @"invalid_grant", @"unauthorized_client", @"interaction_required", @"access_denied"]];
-    NSString *errorString = errorResponse.msidOauthError;
-    NSUInteger errorCode = errorResponse.code;
-    if ([uirequiredErrors containsObject:errorString] || (errorCode == MSIDErrorInteractionRequired))
-    {
-        throttleType = MSIDThrottlingTypeUIRequired;
-    }
-    return throttleType;
-}
 
 /**
  return cached error if a request is 429 in db.
  If it's a hit, we also update telemetry.
  */
 - (BOOL)is429ThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
-             resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
+              resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
 {
     NSError *error = nil;
     // Check 429 throttling case
@@ -232,7 +137,7 @@ static NSInteger const DefaultUIRequired = 120;
  If it's a hit, we also update telemetry.
  */
 - (BOOL)isUIRequiredThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                    resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
+                     resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
 {
     NSError *error = nil;
     NSString *fullRequestThumbprint = [request fullRequestThumbprint];
@@ -268,12 +173,98 @@ static NSInteger const DefaultUIRequired = 120;
     }
 }
 
+- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                              errorResponse:(NSError * _Nullable )errorResponse
+                                returnError:(NSError *_Nullable *_Nullable)error
+{
+    NSError *localError = nil;
+    MSIDThrottlingType throttleType = [self getThrottleTypeFromRequest:request
+                                                         errorResponse:errorResponse
+                                                                 error:&localError] ;
+    if (localError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_UPDATING_ERROR, localError);
+        if (error)
+        {
+            *error = localError;
+        }
+        return;
+    }
+    
+    if (throttleType == MSIDThrottlingTypeNone) return;
+    
+    // create throttling record and update to db
+    [self createDBRecordAndUpdateWithRequest:request
+                               errorResponse:errorResponse
+                                throttleType:throttleType
+                                 returnError:error];
+    
+    return;
+}
+
+- (MSIDThrottlingType)getThrottleTypeFromRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                                   errorResponse:(NSError *)errorResponse
+                                           error:(NSError *_Nullable *_Nullable)error
+{
+    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
+    throttleType = [self get429ThrottleTypeWithErrorResponse:errorResponse
+                                                       error:error];
+                                                   
+    if (throttleType == MSIDThrottlingType429) return throttleType;
+    throttleType = [self getUIRequiredThrottleTypeWithErrorResponse:errorResponse];
+    return throttleType;
+}
+
+/**
+ 429 throttle conditions:
+ - HTTP Response code is 429 or in 5xx range
+ - OR Retry-After in response header
+ */
+- (MSIDThrottlingType)get429ThrottleTypeWithErrorResponse:(NSError * _Nullable )errorResponse
+                                                    error:(NSError *_Nullable *_Nullable)error
+{
+    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
+    // TODO: Let assume the error here is MSIDError, we will deal with conversion later:
+    // In both scenarios (server error or SSO-ext internal error) broker creates MSALError and return to calling app
+    
+    NSString *httpResponseCode = errorResponse.userInfo[MSIDHTTPResponseCodeKey];
+    NSInteger responseCode = [httpResponseCode intValue];
+    if (responseCode == 429) throttleType = MSIDThrottlingType429;
+    if (responseCode >= 500 && responseCode <= 599) throttleType = MSIDThrottlingType429;
+    NSDate *retryHeaderDate = [self getRetryDateFromErrorResponse:errorResponse];
+    if (retryHeaderDate)
+    {
+        throttleType = MSIDThrottlingType429;
+    }
+    
+    return throttleType;
+}
+
+/**
+ * If not 429, we check if is appliable for UIRequired:
+ * error response can be: invalid_request, invalid_client, invalid_scope, invalid_grant, unauthorized_client, interaction_required, access_denied
+ */
+- (MSIDThrottlingType)getUIRequiredThrottleTypeWithErrorResponse:(NSError *)errorResponse
+{
+    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
+    // If not 429, we check if is appliable for UIRequired:
+    // error response can be: invalid_request, invalid_client, invalid_scope, invalid_grant, unauthorized_client, interaction_required, access_denied
+
+    NSSet *uirequiredErrors = [NSSet setWithArray:@[@"invalid_request", @"invalid_client", @"invalid_scope", @"invalid_grant", @"unauthorized_client", @"interaction_required", @"access_denied"]];
+    NSString *errorString = errorResponse.msidOauthError;
+    NSUInteger errorCode = errorResponse.code;
+    if ([uirequiredErrors containsObject:errorString] || (errorCode == MSIDErrorInteractionRequired))
+    {
+        throttleType = MSIDThrottlingTypeUIRequired;
+    }
+    return throttleType;
+}
+
 /**
  Prepare record and update to throttling cache
  */
 - (void)createDBRecordAndUpdateWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
                              errorResponse:(NSError * _Nullable)errorResponse
-                           isSSOExtRequest:(BOOL)isSSOExtRequest
                               throttleType:(MSIDThrottlingType)throttleType
                                returnError:(NSError *_Nullable *_Nullable)error
 {

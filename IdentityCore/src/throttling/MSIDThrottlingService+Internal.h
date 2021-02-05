@@ -32,21 +32,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property id<MSIDRequestContext> context;
 
 - (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull )request
-//serverResponse:(MSIDTokenResponse * _Nullable)serverResponse
                               errorResponse:(NSError * _Nullable )errorResponse
-                            isSSOExtRequest:(BOOL)isSSOExtRequest
                                 returnError:(NSError *_Nullable *_Nullable)error;
 
-- (MSIDThrottlingType)getThrottleTypeFrom:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                            errorResponse:(NSError *)errorResponse
-                          isSSOExtRequest:(BOOL)isSSOExtRequest
-                                    error:(NSError *_Nullable *_Nullable)error;
+- (MSIDThrottlingType)getThrottleTypeFromRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                                   errorResponse:(NSError *)errorResponse
+                                           error:(NSError *_Nullable *_Nullable)error;
 
-- (MSIDThrottlingType)isResponse429ThrottleTypeWithErrorResponse:(NSError * _Nullable)errorResponse
-                                                 isSSOExtRequest:(BOOL)isSSOExtRequest
-                                                           error:(NSError *_Nullable *_Nullable)error;
+- (MSIDThrottlingType)get429ThrottleTypeWithErrorResponse:(NSError * _Nullable)errorResponse
+                                                    error:(NSError *_Nullable *_Nullable)error;
 
-- (MSIDThrottlingType)isResponseUIRequiredThrottleType:(NSError *)errorResponse;
+- (MSIDThrottlingType)getUIRequiredThrottleTypeWithErrorResponse:(NSError *)errorResponse;
 
 - (BOOL)is429ThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
               resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;
@@ -56,7 +52,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)createDBRecordAndUpdateWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
                              errorResponse:(NSError * _Nullable)errorResponse
-                           isSSOExtRequest:(BOOL)isSSOExtRequest
                               throttleType:(MSIDThrottlingType)throttleType
                                returnError:(NSError *_Nullable *_Nullable)error;
 
