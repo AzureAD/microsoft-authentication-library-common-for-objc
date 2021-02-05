@@ -90,38 +90,18 @@ static NSInteger const DefaultUIRequired = 120;
 /**
  Whenever we receives a response from server, we want to check if any throttling error to update database. This is an public API of throttling service for that task.
  */
-- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                              errorResponse:(NSError * _Nullable )errorResponse
-                            isSSOExtRequest:(BOOL)isSSOExtRequest
-                                returnError:(NSError *_Nullable *_Nullable)error
+- (void)updateThrottlingService:(NSError *)error tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest
 {
-    NSError *localError = nil;
-    MSIDThrottlingType throttleType = [self getThrottleTypeFrom:request
-                                                  errorResponse:errorResponse
-                                                isSSOExtRequest:isSSOExtRequest
-                                                          error:&localError] ;
-    if (localError)
+    NSError *throttlingError = nil;
+    [self updateThrottlingDatabaseWithRequest:tokenRequest
+                                errorResponse:error
+                              isSSOExtRequest:TRUE
+                                  returnError:&throttlingError];
+    if (throttlingError)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_UPDATING_ERROR, localError);
-        if (error)
-        {
-            *error = localError;
-        }
-        return;
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Throttling error when updating db %@, %ld", throttlingError.domain, (long)throttlingError.code);
     }
-    
-    if (throttleType == MSIDThrottlingTypeNone) return;
-    
-    // create throttling record and update to db
-    [self createDBRecordAndUpdateWithRequest:request
-                               errorResponse:errorResponse
-                             isSSOExtRequest:isSSOExtRequest
-                                throttleType:throttleType
-                                 returnError:error];
-    
-    return;
 }
-
 
 #pragma mark - Internal API
 - (MSIDThrottlingType)getThrottleTypeFrom:(id<MSIDThumbprintCalculatable> _Nonnull)request
@@ -165,6 +145,39 @@ static NSInteger const DefaultUIRequired = 120;
     
     return throttleType;
 }
+
+- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                              errorResponse:(NSError * _Nullable )errorResponse
+                            isSSOExtRequest:(BOOL)isSSOExtRequest
+                                returnError:(NSError *_Nullable *_Nullable)error
+{
+    NSError *localError = nil;
+    MSIDThrottlingType throttleType = [self getThrottleTypeFrom:request
+                                                  errorResponse:errorResponse
+                                                isSSOExtRequest:isSSOExtRequest
+                                                          error:&localError] ;
+    if (localError)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_UPDATING_ERROR, localError);
+        if (error)
+        {
+            *error = localError;
+        }
+        return;
+    }
+    
+    if (throttleType == MSIDThrottlingTypeNone) return;
+    
+    // create throttling record and update to db
+    [self createDBRecordAndUpdateWithRequest:request
+                               errorResponse:errorResponse
+                             isSSOExtRequest:isSSOExtRequest
+                                throttleType:throttleType
+                                 returnError:error];
+    
+    return;
+}
+
 
 /**
  * If not 429, we check if is appliable for UIRequired:
@@ -454,4 +467,5 @@ static NSInteger const DefaultUIRequired = 120;
     });
     return cacheService;
 }
+
 @end

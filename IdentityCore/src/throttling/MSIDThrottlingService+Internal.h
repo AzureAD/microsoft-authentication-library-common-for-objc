@@ -31,6 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 @property id<MSIDRequestContext> context;
 
+- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull )request
+//serverResponse:(MSIDTokenResponse * _Nullable)serverResponse
+                              errorResponse:(NSError * _Nullable )errorResponse
+                            isSSOExtRequest:(BOOL)isSSOExtRequest
+                                returnError:(NSError *_Nullable *_Nullable)error;
+
 - (MSIDThrottlingType)getThrottleTypeFrom:(id<MSIDThumbprintCalculatable> _Nonnull)request
                             errorResponse:(NSError *)errorResponse
                           isSSOExtRequest:(BOOL)isSSOExtRequest
