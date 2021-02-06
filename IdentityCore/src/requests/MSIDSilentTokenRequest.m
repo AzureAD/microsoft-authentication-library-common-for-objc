@@ -81,7 +81,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
-        _throttlingService = [[MSIDThrottlingService alloc] initWithContext:parameters];
+        _throttlingService = [[MSIDThrottlingService alloc] initWithAccessGroup:parameters.keychainAccessGroup context:parameters];
     }
 
     return self;
@@ -445,6 +445,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                      * If server issue 429 Throttling, this step will have error object. If UIRequired, there is no error yet. Later after serialize the tokenResponse we will create the error
                      */
                     [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
+                    // TODO Testing only
+                    [MSIDThrottlingService updateLastRefreshTimeAccessGroup:self.requestParameters.keychainAccessGroup context:self.requestParameters error:nil];
                     
                     BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
                     

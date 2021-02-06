@@ -29,10 +29,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
-@property id<MSIDRequestContext> context;
+@property id<MSIDRequestContext> _Nullable context;
+@property NSString * _Nullable accessGroup;
 
-- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull )request
-                              errorResponse:(NSError * _Nullable )errorResponse
+- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                              errorResponse:(NSError * _Nullable)errorResponse
                                 returnError:(NSError *_Nullable *_Nullable)error;
 
 - (MSIDThrottlingType)getThrottleTypeFromRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
@@ -61,8 +62,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)validateInput:(id<MSIDThumbprintCalculatable> _Nonnull)request;
 
-+ (NSDate *)getLastRefreshTimeWithContext:(id<MSIDRequestContext> _Nullable)context
-                                    error:(NSError *_Nullable *_Nullable)error;
++ (NSDate *_Nullable)getLastRefreshTimeAccessGroup:(NSString *_Nullable)accessGroup
+                                           context:(id<MSIDRequestContext>_Nullable)context
+                                             error:(NSError*__nullable*__nullable)error;
 
 NS_ASSUME_NONNULL_END
 @end

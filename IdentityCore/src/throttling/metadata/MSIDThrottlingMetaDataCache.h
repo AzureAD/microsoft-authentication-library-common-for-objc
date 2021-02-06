@@ -20,35 +20,20 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
+#import "MSIDThrottlingMetaData.h"
 #import "MSIDRequestContext.h"
-#import "MSIDThumbprintCalculatable.h"
-#import "MSIDThrottlingCacheRecord.h"
-#import "MSIDTokenResponse.h"
-typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable error);
-typedef void (^MSIDThrottleUpdateResultBlock)(BOOL result, NSError * _Nullable error);
 
-typedef NS_ENUM(NSInteger, MSIDThrottlingType)
-{
-    MSIDThrottlingTypeNone = 0,
-    MSIDThrottlingType429,
-    MSIDThrottlingTypeUIRequired
-};
+@interface MSIDThrottlingMetaDataCache : NSObject
 
-@interface MSIDThrottlingService : NSObject
++ (MSIDThrottlingMetaData *_Nullable)getThrottlingMetadataWithAccessGroup:(NSString *_Nullable)accessGroup
+                                                         Context:(id<MSIDRequestContext>_Nullable)context
+                                                           error:(NSError*__nullable*__nullable)error;
 
-- (instancetype _Nonnull)initWithAccessGroup:(NSString * _Nullable)accessGroup
-                                     context:(id<MSIDRequestContext> _Nonnull)context;
++ (BOOL)updateLastRefreshTimeWithAccessGroup:(NSString *_Nullable)accessGroup
+                                     Context:(id<MSIDRequestContext>_Nullable)context
+                                       error:(NSError*__nullable*__nullable)error;
 
-- (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                  resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;
-
-- (void)updateThrottlingService:(NSError * _Nonnull)error
-                   tokenRequest:(id<MSIDThumbprintCalculatable> _Nonnull)tokenRequest;
-
-+ (BOOL)updateLastRefreshTimeAccessGroup:(NSString * _Nullable)accessGroup
-                                 context:(id<MSIDRequestContext>_Nullable)context
-                                   error:(NSError*__nullable*__nullable)error;
 
 @end

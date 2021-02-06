@@ -111,7 +111,7 @@
         _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
         _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
         _accountMetadataCache = accountMetadataCache;
-        _throttlingService = [[MSIDThrottlingService alloc] initWithContext:parameters];
+        _throttlingService = [[MSIDThrottlingService alloc] initWithAccessGroup:parameters.keychainAccessGroup context:parameters];
     }
     
     return self;

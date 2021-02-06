@@ -125,4 +125,5 @@ extern NSString * _Nonnull const MSID_CLIENT_SDK_TYPE_ADAL;
 extern NSString * _Nonnull const MSID_POP_TOKEN_PRIVATE_KEY;
 extern NSString * _Nonnull const MSID_POP_TOKEN_KEY_LABEL;
 
-extern NSString * _Nonnull const MSID_THROTTLING_LAST_REFRESH_KEY;
+extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN;
+extern NSString * _Nonnull const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION;

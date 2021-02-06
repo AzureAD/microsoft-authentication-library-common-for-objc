@@ -31,6 +31,10 @@
 #import "MSIDKeychainUtil.h"
 #import "MSIDConstants.h"
 #import "MSIDLRUCache.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
+#import "MSIDCacheKey.h"
+#import "MSIDThrottlingMetaData.h"
+#import "MSIDThrottlingMetaDataCache.h"
 
 @implementation MSIDThrottlingService
 
@@ -52,16 +56,17 @@ static NSInteger const DefaultUIRequired = 120;
     return self;
 }
 
-- (instancetype)initWithContext:(id<MSIDRequestContext>)context
+- (instancetype _Nonnull)initWithAccessGroup:(NSString *)accessGroup
+                                     context:(id<MSIDRequestContext> _Nonnull)context
 {
     self = [self init];
     if (self)
     {
         _context = context;
+        _accessGroup = accessGroup;
     }
     return self;
 }
-
 #pragma mark - Public API
 
 /**
@@ -153,7 +158,7 @@ static NSInteger const DefaultUIRequired = 120;
     else
     {
         NSDate *currentTime = [NSDate date];
-        NSDate *lastRefreshTime = [MSIDThrottlingService getLastRefreshTimeWithContext:self.context error:&error];
+        NSDate *lastRefreshTime = [MSIDThrottlingService getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
         // If currentTime is later than the expiration Time or the lastRefreshTime is later then the expiration Time, we clear the cache record
         if ([currentTime compare:cacheRecord.expirationTime] != NSOrderedAscending
             || (lastRefreshTime && [lastRefreshTime compare:cacheRecord.expirationTime] != NSOrderedAscending))
@@ -346,123 +351,25 @@ static NSInteger const DefaultUIRequired = 120;
 }
 
 /**
- Get last refresh time from our NSUserDefaults.
+ Get last refresh time from our key chain.
  */
-+ (NSDate *)getLastRefreshTimeWithContext:(id<MSIDRequestContext>)context
++ (NSDate *)getLastRefreshTimeAccessGroup:(NSString *)accessGroup
+                                  context:(id<MSIDRequestContext>)context
                                     error:(NSError*__nullable*__nullable)error
 {
-    NSDictionary *searchQuery = [self prepareSearchQuery];
-    CFDictionaryRef result = nil;
-    OSStatus status = SecItemCopyMatching((__bridge CFDictionaryRef)searchQuery, (CFTypeRef *)&result);
-    if (status != errSecSuccess)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Throttling: last refresh time not found with error code:%d", (int)status);
-        return nil;
-    }
-    
-    NSString *stringData = [(__bridge NSDictionary *)result objectForKey:(__bridge id)(kSecAttrService)];
-    
-    if (result)
-    {
-        CFRelease(result);
-    }
-    
-    if (!stringData || stringData.msidTrimmedString.length == 0)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Found empty keychain item.", nil, nil, nil, context.correlationId, nil, NO);
-        }
-        return nil;
-    }
-    
-    return [NSDate msidDateFromTimeStamp:stringData];
+    MSIDThrottlingMetaData *metadata = [MSIDThrottlingMetaDataCache getThrottlingMetadataWithAccessGroup:accessGroup Context:context error:error];
+    NSString *stringDate = metadata.lastRefreshTime;
+    return [NSDate msidDateFromTimeStamp:stringDate];
 }
 
-+ (NSDictionary *)prepareSearchQuery
-{
-    static dispatch_once_t once;
-    static NSMutableDictionary *query = nil;
-    
-    dispatch_once(&once, ^{
-        query = [[NSMutableDictionary alloc] init];
-        NSString *keychainGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
-        MSIDKeychainUtil *keyChainUtil = [MSIDKeychainUtil sharedInstance];
-        if (!keyChainUtil.teamId)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read teamID from keychain");
-        }
-        
-        // Add team prefix to keychain group if it is missed.
-        if (![keychainGroup hasPrefix:keyChainUtil.teamId])
-        {
-            keychainGroup = [keyChainUtil accessGroup:keychainGroup];
-        }
-        
-        [query setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
-        [query setObject:MSID_THROTTLING_LAST_REFRESH_KEY forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
-        [query setObject:(id)kCFBooleanTrue forKey:(__bridge id<NSCopying>)(kSecReturnAttributes)];
-        
-#if TARGET_OS_IPHONE
-        [query setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
-    });
-    return query;
-}
 /**
- 
+ Update last refresh time when interactive flow is complete and success.
  */
-+ (BOOL)updateLastRefreshTimeWithContext:(id<MSIDRequestContext>)context
-                                       error:(NSError*__nullable*__nullable)error
++ (BOOL)updateLastRefreshTimeAccessGroup:(NSString * _Nullable)accessGroup
+                                 context:(id<MSIDRequestContext>)context
+                                   error:(NSError*__nullable*__nullable)error
 {
-    static dispatch_once_t once;
-    static NSMutableDictionary *searchQuery = nil;
-    NSMutableDictionary *updateQuery = nil;
-    
-    dispatch_once(&once, ^{
-        searchQuery = [[NSMutableDictionary alloc] init];
-        NSString *keychainGroup = MSIDKeychainTokenCache.defaultKeychainGroup;
-        MSIDKeychainUtil *keyChainUtil = [MSIDKeychainUtil sharedInstance];
-        if (!keyChainUtil.teamId)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to read teamID from keychain");
-        }
-        
-        // Add team prefix to keychain group if it is missed.
-        if (![keychainGroup hasPrefix:keyChainUtil.teamId])
-        {
-            keychainGroup = [keyChainUtil accessGroup:keychainGroup];
-        }
-        
-        [searchQuery setObject:(__bridge id)(kSecClassGenericPassword) forKey:(__bridge id<NSCopying>)(kSecClass)];
-        [searchQuery setObject:MSID_THROTTLING_LAST_REFRESH_KEY forKey:(__bridge id<NSCopying>)(kSecAttrAccount)];
-        
-#if TARGET_OS_IPHONE
-        [searchQuery setObject:keychainGroup forKey:(__bridge id)kSecAttrAccessGroup];
-#endif
-    });
-    
-    NSDate *date = [NSDate new];
-    [updateQuery setObject:[date msidDateToTimestamp] forKey:(id)kSecValueData];
-    
-    OSStatus status = SecItemUpdate((CFDictionaryRef)searchQuery, (CFDictionaryRef)updateQuery);
-    
-    if (status == errSecItemNotFound)
-    {
-        [updateQuery addEntriesFromDictionary:searchQuery];
-        status = SecItemAdd((CFDictionaryRef)updateQuery, NULL);
-    }
-    
-    if (status != errSecSuccess)
-    {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDKeychainErrorDomain, status, @"Throttling: Can't update last refresh time", nil, nil, nil, context.correlationId, nil, NO);
-        }
-        return NO;
-    }
-    
-    return YES;
+    return [MSIDThrottlingMetaDataCache updateLastRefreshTimeWithAccessGroup:accessGroup Context:context error:error];
 }
 
 - (MSIDLRUCache *)cacheService
