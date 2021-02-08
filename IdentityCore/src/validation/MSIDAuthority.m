@@ -239,6 +239,17 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
      }];
 }
 
+- (BOOL)isSameEnvironmentAsAuthority:(MSIDAuthority *)authority
+{
+    NSArray<NSString *> *aliases = [self defaultCacheEnvironmentAliases];
+    for (NSString *environment in aliases)
+    {
+        if ([authority.environment isEqualToString:environment]) return YES;
+    }
+    
+    return NO;
+}
+
 + (BOOL)isAuthorityFormatValid:(NSURL *)url
                        context:(id<MSIDRequestContext>)context
                          error:(NSError **)error
