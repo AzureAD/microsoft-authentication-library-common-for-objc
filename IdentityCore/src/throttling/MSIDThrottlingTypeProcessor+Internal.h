@@ -20,25 +20,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-
+// THE SOFTWARE.  
 #import "MSIDThrottlingTypeProcessor.h"
+#import "MSIDThrottlingService.h"
 
 NS_ASSUME_NONNULL_BEGIN
+@interface MSIDThrottlingTypeProcessor ()
 
-@interface MSIDThrottlingCacheRecord : NSObject
++ (MSIDThrottlingType)ifErrorResponseIs429ThrottleType:(NSError * _Nullable )errorResponse
+                                                 error:(NSError *_Nullable *_Nullable)error;
 
-@property (nonatomic, readonly) NSDate *creationTime;
-@property (nonatomic, readonly) NSDate *expirationTime;
-@property (nonatomic) NSUInteger throttleType;
-@property (nonatomic, readonly) NSError *cachedErrorResponse;
-@property (nonatomic) NSUInteger throttledCount;
-//number of times this request has been throttled - needs to be mutable 
++ (MSIDThrottlingType)ifErrorResponseIsInteractiveRequireThrottleType:(NSError *)errorResponse;
 
-- (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
-                         throttleType:(NSInteger)throttleType
-                     throttleDuration:(NSInteger)throttleDuration;
-                    
 @end
-
 NS_ASSUME_NONNULL_END

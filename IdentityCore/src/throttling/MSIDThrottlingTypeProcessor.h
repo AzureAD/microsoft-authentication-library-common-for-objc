@@ -20,25 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
+#import "MSIDThumbprintCalculatable.h"
+#import "MSIDThrottlingCacheRecord.h"
+#import "MSIDTokenResponse.h"
 #import "MSIDThrottlingTypeProcessor.h"
+
+typedef NS_ENUM(NSInteger, MSIDThrottlingType)
+{
+    MSIDThrottlingTypeNone = 0,
+    MSIDThrottlingType429 = 1,
+    MSIDThrottlingTypeInteractiveRequired = 2
+};
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDThrottlingCacheRecord : NSObject
+@interface MSIDThrottlingTypeProcessor : NSObject
 
-@property (nonatomic, readonly) NSDate *creationTime;
-@property (nonatomic, readonly) NSDate *expirationTime;
-@property (nonatomic) NSUInteger throttleType;
-@property (nonatomic, readonly) NSError *cachedErrorResponse;
-@property (nonatomic) NSUInteger throttledCount;
-//number of times this request has been throttled - needs to be mutable 
++ (MSIDThrottlingType)processErrorResponseToGetThrottleType:(NSError *)errorResponse
+                                                      error:(NSError *_Nullable *_Nullable)error;
 
-- (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
-                         throttleType:(NSInteger)throttleType
-                     throttleDuration:(NSInteger)throttleDuration;
-                    
 @end
-
 NS_ASSUME_NONNULL_END

@@ -1,4 +1,3 @@
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -22,23 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDThrottlingTypeProcessor.h"
+#import <Foundation/Foundation.h>
+#import "NSDate+MSIDExtensions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDThrottlingCacheRecord : NSObject
+@interface NSError (MSIDThrottlingExtension)
 
-@property (nonatomic, readonly) NSDate *creationTime;
-@property (nonatomic, readonly) NSDate *expirationTime;
-@property (nonatomic) NSUInteger throttleType;
-@property (nonatomic, readonly) NSError *cachedErrorResponse;
-@property (nonatomic) NSUInteger throttledCount;
-//number of times this request has been throttled - needs to be mutable 
+- (NSDate *)msidGetRetryDateFromError;
 
-- (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
-                         throttleType:(NSInteger)throttleType
-                     throttleDuration:(NSInteger)throttleDuration;
-                    
 @end
 
 NS_ASSUME_NONNULL_END

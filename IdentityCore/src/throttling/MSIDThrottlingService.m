@@ -35,6 +35,8 @@
 #import "MSIDCacheKey.h"
 #import "MSIDThrottlingMetaData.h"
 #import "MSIDThrottlingMetaDataCache.h"
+#import "MSIDThrottlingTypeProcessor.h"
+#import "NSError+MSIDThrottlingExtension.h"
 
 @implementation MSIDThrottlingService
 
@@ -67,6 +69,7 @@ static NSInteger const DefaultUIRequired = 120;
     }
     return self;
 }
+
 #pragma mark - Public API
 
 /**
@@ -77,18 +80,22 @@ static NSInteger const DefaultUIRequired = 120;
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
                   resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
 {
-    if ([MSIDThrottlingService validateInput:request])
+    if (![MSIDThrottlingService validateInput:request] || !resultBlock)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_READING_ERROR, nil);
     }
     
-    // If if any check return TRUE, the resultBlock will be executed inside the check, if not we return result block with shouldBeThrottle = NO
-    if ([self is429ThrottleType:request resultBlock:resultBlock] || [self isUIRequiredThrottleType:request resultBlock:resultBlock])
+    void (^resultBlockWrapper)(MSIDThrottlingType, NSError *) = ^(MSIDThrottlingType throttlingType, NSError *error)
     {
-        return;
-    }
+        resultBlock(throttlingType != MSIDThrottlingTypeNone, error);
+    };
     
-    resultBlock(NO, nil);
+    BOOL result = [self getThrottleTypeFromDatabase:request resultBlock:resultBlockWrapper];
+    
+    if (result)
+    {
+        resultBlock(NO, nil);
+    }
     return;
 }
 
@@ -110,16 +117,20 @@ static NSInteger const DefaultUIRequired = 120;
 #pragma mark - Internal API
 
 /**
- return cached error if a request is 429 in db.
+ Using request's thumbprint to query db
  If it's a hit, we also update telemetry.
- */
-- (BOOL)is429ThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
-              resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
+*/
+- (BOOL)getThrottleTypeFromDatabase:request
+                        resultBlock:(void (^)(MSIDThrottlingType throttlingType, NSError *error))resultBlock
 {
+    MSIDThrottlingType throttlingType = MSIDThrottlingTypeNone;
     NSError *error = nil;
-    // Check 429 throttling case
     NSString *strictThumbprint = [request strictRequestThumbprint];
-    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService objectForKey:strictThumbprint                                                  error:&error];
+    NSString *fullThumbprint = [request fullRequestThumbprint];
+    
+    MSIDThrottlingCacheRecord *cacheRecord = [self getDBRecordWithStrictThumbprint:strictThumbprint
+                                                                    fullThumbprint:fullThumbprint                                                       error:&error];
+    
     if (!cacheRecord)
     {
         // we just log error (if any) and keep moving to the next UIRequired check
@@ -131,51 +142,47 @@ static NSInteger const DefaultUIRequired = 120;
     }
     else
     {
+        // check if we have Interaction Required but expired
+        if ([self isInteractionThrottleExpired:cacheRecord thumbprint:fullThumbprint])
+        {
+            return NO;
+        }
         [self updateServerTelemetry:cacheRecord];
-        resultBlock(YES, cacheRecord.cachedErrorResponse);
+        resultBlock(throttlingType, cacheRecord.cachedErrorResponse);
         return YES;
     }
 }
 
-/**
- return cached error if a request is UIRequired in db.
- If it's a hit, we also update telemetry.
- */
-- (BOOL)isUIRequiredThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
+- (MSIDThrottlingCacheRecord *)getDBRecordWithStrictThumbprint:(NSString *)strictThumbprint
+                                                fullThumbprint:(NSString *)fullThumbprint
+                                                         error:(NSError **)error
 {
-    NSError *error = nil;
-    NSString *fullRequestThumbprint = [request fullRequestThumbprint];
-    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService objectForKey:fullRequestThumbprint                                                  error:&error];
+    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService objectForKey:strictThumbprint                                                  error:error];
     if (!cacheRecord)
     {
+        cacheRecord = [self.cacheService objectForKey:fullThumbprint error:error];
+    }
+    return cacheRecord;
+}
+
+- (BOOL)isInteractionThrottleExpired:(MSIDThrottlingCacheRecord *)cacheRecord
+                          thumbprint:(NSString *)thumbprint
+{
+    NSError *error;
+    NSDate *currentTime = [NSDate date];
+    NSDate *lastRefreshTime = [MSIDThrottlingService getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
+    // If currentTime is later than the expiration Time or the lastRefreshTime is later then the expiration Time, we clear the cache record
+    if ([currentTime compare:cacheRecord.expirationTime] != NSOrderedAscending
+        || (lastRefreshTime && [lastRefreshTime compare:cacheRecord.expirationTime] != NSOrderedAscending))
+    {
+        [self.cacheService removeObjectForKey:thumbprint error:&error];
         if (error)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_READING_ERROR, error);
         }
-        return NO;
-    }
-    else
-    {
-        NSDate *currentTime = [NSDate date];
-        NSDate *lastRefreshTime = [MSIDThrottlingService getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
-        // If currentTime is later than the expiration Time or the lastRefreshTime is later then the expiration Time, we clear the cache record
-        if ([currentTime compare:cacheRecord.expirationTime] != NSOrderedAscending
-            || (lastRefreshTime && [lastRefreshTime compare:cacheRecord.expirationTime] != NSOrderedAscending))
-        {
-            [self.cacheService removeObjectForKey:fullRequestThumbprint error:&error];
-            if (error)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_READING_ERROR, error);
-            }
-            return NO;
-        }
-        
-        // Expiration time still valid, we have a valid throttle case here so return cache response to calling
-        [self updateServerTelemetry:cacheRecord];
-        resultBlock(YES, cacheRecord.cachedErrorResponse);
         return YES;
     }
+    return NO;
 }
 
 - (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
@@ -183,9 +190,8 @@ static NSInteger const DefaultUIRequired = 120;
                                 returnError:(NSError *_Nullable *_Nullable)error
 {
     NSError *localError = nil;
-    MSIDThrottlingType throttleType = [self getThrottleTypeFromRequest:request
-                                                         errorResponse:errorResponse
-                                                                 error:&localError] ;
+    MSIDThrottlingType throttleType = [MSIDThrottlingTypeProcessor processErrorResponseToGetThrottleType:errorResponse
+                                                                                                   error:&localError];
     if (localError)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, BASE_MSG_UPDATING_ERROR, localError);
@@ -207,80 +213,6 @@ static NSInteger const DefaultUIRequired = 120;
     return;
 }
 
-- (MSIDThrottlingType)getThrottleTypeFromRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                                   errorResponse:(NSError *)errorResponse
-                                           error:(NSError *_Nullable *_Nullable)error
-{
-    
-    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
-    throttleType = [self get429ThrottleTypeWithErrorResponse:errorResponse
-                                                       error:error];
-                                                   
-    if (throttleType == MSIDThrottlingType429) return throttleType;
-    throttleType = [self getUIRequiredThrottleTypeWithErrorResponse:errorResponse];
-    return throttleType;
-}
-
-/**
- 429 throttle conditions:
- - HTTP Response code is 429 or in 5xx range
- - OR Retry-After in response header
- */
-- (MSIDThrottlingType)get429ThrottleTypeWithErrorResponse:(NSError * _Nullable )errorResponse
-                                                    error:(NSError *_Nullable *_Nullable)error
-{
-    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
-    /**
-     In SSO-Ext flow, it can be both MSAL or MSID Error. If it's MSALErrorDomain, we need to extract information we need (error code and user info)
-     */
-    BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
-    NSString *httpResponseCode = errorResponse.userInfo[isMSIDError ? MSIDHTTPResponseCodeKey : @"MSALHTTPResponseCodeKey"];
-    NSInteger responseCode = [httpResponseCode intValue];
-    if (responseCode == 429) throttleType = MSIDThrottlingType429;
-    if (responseCode >= 500 && responseCode <= 599) throttleType = MSIDThrottlingType429;
-    NSDate *retryHeaderDate = [self getRetryDateFromErrorResponse:errorResponse];
-    if (retryHeaderDate)
-    {
-        throttleType = MSIDThrottlingType429;
-    }
-    
-    return throttleType;
-}
-
-/**
- * If not 429, we check if is appliable for UIRequired:
- * error response can be: invalid_request, invalid_client, invalid_scope, invalid_grant, unauthorized_client, interaction_required, access_denied
- */
-- (MSIDThrottlingType)getUIRequiredThrottleTypeWithErrorResponse:(NSError *)errorResponse
-{
-    MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
-    // If not 429, we check if is appliable for UIRequired:
-    // error response can be: invalid_request, invalid_client, invalid_scope, invalid_grant, unauthorized_client, interaction_required, access_denied
-
-    NSSet *uirequiredErrors = [NSSet setWithArray:@[@"invalid_request", @"invalid_client", @"invalid_scope", @"invalid_grant", @"unauthorized_client", @"interaction_required", @"access_denied"]];
-    BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
-    
-    if (isMSIDError)
-    {
-        NSString *errorString = errorResponse.msidOauthError;
-        NSUInteger errorCode = errorResponse.code;
-        if ([uirequiredErrors containsObject:errorString] || (errorCode == MSIDErrorInteractionRequired))
-        {
-            throttleType = MSIDThrottlingTypeUIRequired;
-        }
-    }
-    else
-    {
-        // -50002 = MSALErrorInteractionRequired
-        if (errorResponse.code == -50002)
-        {
-            throttleType = MSIDThrottlingTypeUIRequired;
-        }
-    }
-    
-    return throttleType;
-}
-
 /**
  Prepare record and update to throttling cache
  */
@@ -290,16 +222,14 @@ static NSInteger const DefaultUIRequired = 120;
                                returnError:(NSError *_Nullable *_Nullable)error
 {
     NSString *thumbprint = nil;
-    NSString *throttleTypeString = nil;
     NSInteger throttleDuration = 0;
     
-    NSDate *retryHeaderDate = [self getRetryDateFromErrorResponse:errorResponse];
+    NSDate *retryHeaderDate = [errorResponse msidGetRetryDateFromError];
     
     switch (throttleType)
     {
         case MSIDThrottlingType429:
             thumbprint = request.strictRequestThumbprint;
-            throttleTypeString = @"MSIDThrottlingType429";
             if (!retryHeaderDate)
             {
                 throttleDuration = Default429Throttling;
@@ -312,9 +242,8 @@ static NSInteger const DefaultUIRequired = 120;
                 throttleDuration = (timeDiff > MAX_THROTTLING_TIME) ? MAX_THROTTLING_TIME : timeDiff;
             }
             break;
-        case MSIDThrottlingTypeUIRequired:
+        case MSIDThrottlingTypeInteractiveRequired:
             thumbprint = request.fullRequestThumbprint;
-            throttleTypeString = @"MSIDThrottlingTypeUIRequired";
             throttleDuration = DefaultUIRequired;
             break;
         default:
@@ -322,7 +251,7 @@ static NSInteger const DefaultUIRequired = 120;
     }
     
     MSIDThrottlingCacheRecord *record = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:errorResponse
-                                                                                    throttleType:throttleTypeString
+                                                                                    throttleType:throttleType
                                                                                 throttleDuration:throttleDuration];
     [self.cacheService setObject:record forKey:thumbprint error:error];        
 }
@@ -335,19 +264,9 @@ static NSInteger const DefaultUIRequired = 120;
     
 }
 
-- (NSDate *)getRetryDateFromErrorResponse:(NSError * _Nullable)errorResponse
-{
-    NSDate *retryHeaderDate = nil;
-    NSString *retryHeaderString = nil;
-    NSDictionary *headerFields = [errorResponse.domain hasPrefix:@"MSID"] ? errorResponse.userInfo[MSIDHTTPHeadersKey] : errorResponse.userInfo[@"MSALHTTPHeadersKey"];
-    retryHeaderString = headerFields[@"Retry-After"];
-    retryHeaderDate = [NSDate msidDateFromRetryHeader:retryHeaderString];
-    return retryHeaderDate;
-}
-
 + (BOOL)validateInput:(id<MSIDThumbprintCalculatable> _Nonnull)request
 {
-    return (!request.fullRequestThumbprint && !request.strictRequestThumbprint);
+    return (request.fullRequestThumbprint || request.strictRequestThumbprint);
 }
 
 /**

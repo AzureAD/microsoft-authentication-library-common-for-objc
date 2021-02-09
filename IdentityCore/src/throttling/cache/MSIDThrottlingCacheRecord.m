@@ -27,7 +27,7 @@
 @implementation MSIDThrottlingCacheRecord
 
 - (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
-                         throttleType:(NSString *)throttleType
+                         throttleType:(NSInteger)throttleType
                      throttleDuration:(NSInteger)throttleDuration
 {
     self = [super init];

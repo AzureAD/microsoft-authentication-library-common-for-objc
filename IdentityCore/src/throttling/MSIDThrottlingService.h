@@ -26,15 +26,9 @@
 #import "MSIDThumbprintCalculatable.h"
 #import "MSIDThrottlingCacheRecord.h"
 #import "MSIDTokenResponse.h"
-typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable error);
-typedef void (^MSIDThrottleUpdateResultBlock)(BOOL result, NSError * _Nullable error);
+#import "MSIDThrottlingTypeProcessor.h"
 
-typedef NS_ENUM(NSInteger, MSIDThrottlingType)
-{
-    MSIDThrottlingTypeNone = 0,
-    MSIDThrottlingType429,
-    MSIDThrottlingTypeUIRequired
-};
+typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable error);
 
 @interface MSIDThrottlingService : NSObject
 

@@ -36,29 +36,12 @@ NS_ASSUME_NONNULL_BEGIN
                               errorResponse:(NSError * _Nullable)errorResponse
                                 returnError:(NSError *_Nullable *_Nullable)error;
 
-- (MSIDThrottlingType)getThrottleTypeFromRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                                   errorResponse:(NSError *)errorResponse
-                                           error:(NSError *_Nullable *_Nullable)error;
-
-- (MSIDThrottlingType)get429ThrottleTypeWithErrorResponse:(NSError * _Nullable)errorResponse
-                                                    error:(NSError *_Nullable *_Nullable)error;
-
-- (MSIDThrottlingType)getUIRequiredThrottleTypeWithErrorResponse:(NSError *)errorResponse;
-
-- (BOOL)is429ThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
-              resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;
-
-- (BOOL)isUIRequiredThrottleType:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;
-
 - (void)createDBRecordAndUpdateWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
                              errorResponse:(NSError * _Nullable)errorResponse
                               throttleType:(MSIDThrottlingType)throttleType
                                returnError:(NSError *_Nullable *_Nullable)error;
 
 - (void)updateServerTelemetry:(MSIDThrottlingCacheRecord *)cacheRecord;
-
-- (NSDate *)getRetryDateFromErrorResponse:(NSError * _Nullable)errorResponse;
 
 + (BOOL)validateInput:(id<MSIDThumbprintCalculatable> _Nonnull)request;
 
