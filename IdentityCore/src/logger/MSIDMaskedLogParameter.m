@@ -58,22 +58,27 @@
 
 - (NSString *)description
 {
-    if (![MSIDLogger sharedLogger].piiLoggingEnabled) // piiLoggingEnabled == NO
+    switch ([MSIDLogger sharedLogger].logMaskingLevel)
     {
-        if (self.maskedParameterValue) return self.maskedParameterValue;
-        
-        self.maskedParameterValue = [self maskedDescription];
-        return self.maskedParameterValue;
+        case MSIDLogMaskingSettingsMaskAllPII:
+        {
+            if (self.maskedParameterValue) return self.maskedParameterValue;
+            
+            self.maskedParameterValue = [self maskedDescription];
+            return self.maskedParameterValue;
+        }
+        case MSIDLogMaskingSettingsMaskEUIIOnly:
+        {
+            if (self.euiiMaskedParameterValue) return self.euiiMaskedParameterValue;
+            
+            self.euiiMaskedParameterValue = [self EUIIMaskedDescription];
+            return self.euiiMaskedParameterValue;
+        }
+        default:
+        {
+            return [NSString stringWithFormat:@"%@", self.parameterValue]; // no masking
+        }
     }
-    else if ([MSIDLogger sharedLogger].euiiMaskingEnabled) // piiLoggingEnabled == YES && euiiMaskingEnabled == YES
-    {
-        if (self.euiiMaskedParameterValue) return self.euiiMaskedParameterValue;
-        
-        self.euiiMaskedParameterValue = [self EUIIMaskedDescription];
-        return self.euiiMaskedParameterValue;
-    }
-    
-    return [NSString stringWithFormat:@"%@", self.parameterValue]; // piiLoggingEnabled == YES && euiiMaskingEnabled == NO
 }
  
 #pragma mark - Masking

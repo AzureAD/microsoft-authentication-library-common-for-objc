@@ -51,7 +51,7 @@ static long s_maxQueueSize = 1000;
     // and we'll probably not have enough diagnostic information, however verbose
     // will most likely be too noisy for most usage.
     _level = MSIDLogLevelInfo;
-    _piiLoggingEnabled = NO;
+    _logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     _sourceLineLoggingEnabled = NO;
     
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlogger-%@", [NSUUID UUID].UUIDString];
@@ -93,13 +93,6 @@ static long s_maxQueueSize = 1000;
     return _level;
 }
 
-- (BOOL)piiLoggingEnabled
-{
-    if (self.loggerConnector) return self.loggerConnector.piiLoggingEnabled;
-   
-    return _piiLoggingEnabled;
-}
-
 - (BOOL)nsLoggingEnabled
 {
     if (self.loggerConnector) return self.loggerConnector.nsLoggingEnabled;
@@ -107,11 +100,11 @@ static long s_maxQueueSize = 1000;
     return _nsLoggingEnabled;
 }
 
-- (BOOL)euiiMaskingEnabled
+- (MSIDLogMaskingLevel)logMaskingLevel
 {
-    if (self.loggerConnector) return self.loggerConnector.euiiMaskingEnabled;
+    if (self.loggerConnector) return self.loggerConnector.logMaskingLevel;
     
-    return _euiiMaskingEnabled;
+    return _logMaskingLevel;
 }
 
 - (BOOL)sourceLineLoggingEnabled
@@ -218,7 +211,8 @@ static NSDateFormatter *s_dateFormatter = nil;
         {
             NSString *log = [NSString stringWithFormat:@"%@ %@ %@ %@ [%@%@]%@%@ %@", threadInfo, sdkName, sdkVersion, [MSIDDeviceId deviceOSId], dateStr, correlationIdStr, componentStr, sourceInfo, message];
             
-            BOOL lineContainsPII = self.piiLoggingEnabled ? containsPII : NO;
+            BOOL piiAllowed = self.logMaskingLevel != MSIDLogMaskingSettingsMaskAllPII;
+            BOOL lineContainsPII = piiAllowed ? containsPII : NO;
             
             if (self.loggerConnector)
             {

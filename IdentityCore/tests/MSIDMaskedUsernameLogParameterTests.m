@@ -32,7 +32,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andNilParameter_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     NSString *param = nil;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:param];
     NSString *description = [logParameter description];
@@ -41,7 +41,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andNsNullParameter_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:[NSNull null]];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"Masked(not-null)");
@@ -49,7 +49,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameter_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"test@email.com"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081__email.com");
@@ -57,7 +57,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameterWithoutUsername_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"@email.com"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"auth.placeholder-e3b0c442__email.com");
@@ -66,7 +66,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameterWithoutEmailSign_shouldReturnHashedValue
 {
-    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"contoso.email.com"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"2bf9fb0e");
@@ -74,7 +74,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameterWithNoDomain_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"test@"];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081__");
@@ -82,7 +82,7 @@
 
 - (void)testDescription_whenPIINotEnabled_andEmailParameterWithNoDomain_andSpaceChar_shouldReturnMaskedValue
 {
-    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
+    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
     MSIDMaskedUsernameLogParameter *logParameter = [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:@"test@ "];
     NSString *description = [logParameter description];
     XCTAssertEqualObjects(description, @"auth.placeholder-9f86d081__ ");
