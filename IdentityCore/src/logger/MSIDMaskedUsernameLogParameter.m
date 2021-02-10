@@ -46,7 +46,7 @@
         
         if (emailIndex.location + 1 < stringValue.length)
         {
-            domain = [stringValue substringFromIndex:emailIndex.location+1];
+            domain = [stringValue substringFromIndex:emailIndex.location + 1];
         }
         
         return [NSString stringWithFormat:@"auth.placeholder-%@__%@", [username msidSecretLoggingHash], domain];
