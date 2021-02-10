@@ -173,7 +173,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDAccount environment: %@ storage environment %@ realm: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@", self.environment, self.storageEnvironment,  self.realm, MSID_PII_LOG_EMAIL(self.username), self.accountIdentifier.homeAccountId, [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.localAccountId];
+    return [NSString stringWithFormat:@"MSIDAccount environment: %@ storage environment %@ realm: %@ username: %@ homeAccountId: %@ accountType: %@ localAccountId: %@", self.environment, self.storageEnvironment,  self.realm, MSID_PII_LOG_EMAIL(self.username), MSID_PII_LOG_TRACKABLE(self.accountIdentifier.homeAccountId), [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], MSID_PII_LOG_TRACKABLE(self.localAccountId)];
 }
 
 #pragma mark - MSIDJsonSerializable

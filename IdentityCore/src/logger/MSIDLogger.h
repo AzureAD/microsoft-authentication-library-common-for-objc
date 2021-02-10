@@ -43,8 +43,7 @@ typedef NS_ENUM(NSInteger, MSIDLogMaskingLevel)
     MSIDLogMaskingSettingsMaskAllPII,
     
     /** Common core logs will still include OII (organization identifiable information), and EUPI (end user pseudonymous identifiers), but MSAL will try to exclude and/or mask any EUII (end user identifiable information) like UPN, username, email from its logs. */
-    
-    MSIDLogMaskingSettingsMaskEUIIOnly, //
+    MSIDLogMaskingSettingsMaskEUIIOnly,
     
     /** Common core logs will still include OII (organization identifiable information),  EUPI (end user pseudonymous identifiers), and EUII (end user identifiable information) like UPN, username, email from its logs. MSAL will still hide all secrets like tokens from its logs */
     MSIDLogMaskingSettingsMaskSecretsOnly
