@@ -37,7 +37,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDAccountCacheItem: accountType: %@, homeAccountId: %@, environment: %@, localAccountId: %@, username: %@, name: %@, realm: %@, alternativeAccountId: %@", [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.homeAccountId, self.environment, self.localAccountId, self.username, self.name, self.realm, self.alternativeAccountId];
+    return [NSString stringWithFormat:@"MSIDAccountCacheItem: accountType: %@, homeAccountId: %@, environment: %@, localAccountId: %@, username: %@, name: %@, realm: %@, alternativeAccountId: %@", [MSIDAccountTypeHelpers accountTypeAsString:self.accountType], self.homeAccountId, self.environment, self.localAccountId, MSID_PII_LOG_EMAIL(self.username), MSID_EUII_ONLY_LOG_MASKABLE(self.name), self.realm, self.alternativeAccountId];
 }
 
 #pragma mark - Equal
