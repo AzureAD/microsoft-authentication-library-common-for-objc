@@ -43,16 +43,6 @@
 
 #pragma mark - Initializer
 
--(instancetype)init
-{
-    self = [super init];
-    if (self)
-    {
-        _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
-    }
-    return self;
-}
-
 - (instancetype _Nonnull)initWithAccessGroup:(NSString *)accessGroup
                                      context:(id<MSIDRequestContext> _Nonnull)context
 {
@@ -129,16 +119,6 @@
                                    error:(NSError*__nullable*__nullable)error
 {
     return [MSIDThrottlingMetaDataCache updateLastRefreshTimeWithAccessGroup:accessGroup Context:context error:error];
-}
-
-- (MSIDLRUCache *)cacheService
-{
-    static MSIDLRUCache *cacheService = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        cacheService = [[MSIDLRUCache alloc] initWithCacheSize:1000];
-    });
-    return cacheService;
 }
 
 @end

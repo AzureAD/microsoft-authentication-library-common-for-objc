@@ -28,7 +28,6 @@
 @interface MSIDThrottlingService ()
 NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
 @property id<MSIDRequestContext> _Nullable context;
 @property NSString * _Nullable accessGroup;
 

@@ -72,7 +72,6 @@
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Error adding the record to throttling database %@", error);
     }
-
 }
 
 - (MSIDThrottlingCacheRecord *)prepareCacheRecord
