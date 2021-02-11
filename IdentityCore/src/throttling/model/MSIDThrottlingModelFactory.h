@@ -21,25 +21,22 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
-
 #import "MSIDThumbprintCalculatable.h"
-#import "MSIDThrottlingCacheRecord.h"
-#import "MSIDTokenResponse.h"
-#import "MSIDThrottlingTypeProcessor.h"
-
-typedef NS_ENUM(NSInteger, MSIDThrottlingType)
-{
-    MSIDThrottlingTypeNone = 0,
-    MSIDThrottlingType429 = 1,
-    MSIDThrottlingTypeInteractiveRequired = 2
-};
+#import "MSIDRequestContext.h"
+#import "MSIDThrottlingModelBase.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDThrottlingTypeProcessor : NSObject
+@interface MSIDThrottlingModelFactory : NSObject
 
-+ (MSIDThrottlingType)processErrorResponseToGetThrottleType:(NSError *)errorResponse
-                                                      error:(NSError *_Nullable *_Nullable)error;
++ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                                                 accessGroup:(NSString *)accessGroup
+                                                     context:(id<MSIDRequestContext> _Nonnull)context;
+
++ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                                                     accessGroup:(NSString *)accessGroup
+                                                    errorResponse:(NSError *)errorResponse
+                                                     context:(id<MSIDRequestContext> _Nonnull)context;
 
 @end
 NS_ASSUME_NONNULL_END

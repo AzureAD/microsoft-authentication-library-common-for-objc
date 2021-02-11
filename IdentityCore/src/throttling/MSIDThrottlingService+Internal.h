@@ -32,22 +32,5 @@ NS_ASSUME_NONNULL_BEGIN
 @property id<MSIDRequestContext> _Nullable context;
 @property NSString * _Nullable accessGroup;
 
-- (void)updateThrottlingDatabaseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                              errorResponse:(NSError * _Nullable)errorResponse
-                                returnError:(NSError *_Nullable *_Nullable)error;
-
-- (void)createDBRecordAndUpdateWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                             errorResponse:(NSError * _Nullable)errorResponse
-                              throttleType:(MSIDThrottlingType)throttleType
-                               returnError:(NSError *_Nullable *_Nullable)error;
-
-- (void)updateServerTelemetry:(MSIDThrottlingCacheRecord *)cacheRecord;
-
-+ (BOOL)validateInput:(id<MSIDThumbprintCalculatable> _Nonnull)request;
-
-+ (NSDate *_Nullable)getLastRefreshTimeAccessGroup:(NSString *_Nullable)accessGroup
-                                           context:(id<MSIDRequestContext>_Nullable)context
-                                             error:(NSError*__nullable*__nullable)error;
-
 NS_ASSUME_NONNULL_END
 @end

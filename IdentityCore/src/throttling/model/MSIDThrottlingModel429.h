@@ -21,16 +21,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
-#import "MSIDThrottlingTypeProcessor.h"
-#import "MSIDThrottlingService.h"
 
-NS_ASSUME_NONNULL_BEGIN
-@interface MSIDThrottlingTypeProcessor ()
+#import "MSIDThrottlingModelBase.h"
 
-+ (MSIDThrottlingType)ifErrorResponseIs429ThrottleType:(NSError * _Nullable )errorResponse
-                                                 error:(NSError *_Nullable *_Nullable)error;
-
-+ (MSIDThrottlingType)ifErrorResponseIsInteractiveRequireThrottleType:(NSError *)errorResponse;
+@interface MSIDThrottlingModel429 : MSIDThrottlingModelBase
 
 @end
-NS_ASSUME_NONNULL_END
