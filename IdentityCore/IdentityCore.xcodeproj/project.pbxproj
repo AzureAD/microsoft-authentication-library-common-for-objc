@@ -677,7 +677,6 @@
 		96F94A39208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */; };
 		96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
 		96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
-		A057450125A666EF0098E469 /* MSIDThrottlingService+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = A05744C225A643280098E469 /* MSIDThrottlingService+Internal.h */; };
 		A057452725A666F70098E469 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		A057456225A669B90098E469 /* MSIDThrottlingCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */; };
 		A057458425A789DC0098E469 /* MSIDThrottlingService.m in Sources */ = {isa = PBXBuildFile; fileRef = A057458325A789DC0098E469 /* MSIDThrottlingService.m */; };
@@ -2312,7 +2311,6 @@
 		96F94A3220817C1A0034676C /* MSIDNTLMHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDNTLMHandler.m; sourceTree = "<group>"; };
 		96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOAuth2EmbeddedWebviewController.h; sourceTree = "<group>"; };
 		96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2EmbeddedWebviewController.m; sourceTree = "<group>"; };
-		A05744C225A643280098E469 /* MSIDThrottlingService+Internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDThrottlingService+Internal.h"; sourceTree = "<group>"; };
 		A057458325A789DC0098E469 /* MSIDThrottlingService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingService.m; sourceTree = "<group>"; };
 		A07EB426259D0BF300783943 /* MSIDThrottlingService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingService.h; sourceTree = "<group>"; };
 		A08D09DB24A85A1C00C9193D /* MSIDRefreshTokenGrantRequestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSIDRefreshTokenGrantRequestTest.m; sourceTree = "<group>"; };
@@ -5108,7 +5106,6 @@
 				A0C7DE4225D451F200F5B5B6 /* model */,
 				A0E541D225CDDA5E0016E167 /* metadata */,
 				A07EB426259D0BF300783943 /* MSIDThrottlingService.h */,
-				A05744C225A643280098E469 /* MSIDThrottlingService+Internal.h */,
 				A057458325A789DC0098E469 /* MSIDThrottlingService.m */,
 				E733EDD325C0A44700ACB79A /* thumbprint_calculation */,
 				E7B67214257EA7930053773F /* cache */,
@@ -5358,7 +5355,6 @@
 				B286B9AA2389DD43007833AD /* MSIDCertificateChooser.h in Headers */,
 				238E19E12086FE28004DF483 /* MSIDAuthorizationCodeGrantRequest.h in Headers */,
 				238EF038208FDBA20035ABE6 /* MSIDAADV1RefreshTokenGrantRequest.h in Headers */,
-				A057450125A666EF0098E469 /* MSIDThrottlingService+Internal.h in Headers */,
 				235480C620DDF81000246F72 /* MSIDADFSAuthority.h in Headers */,
 				96CE53E920C73E3A002E24C9 /* MSIDWebviewFactory.h in Headers */,
 				232173EA2182B195009852C6 /* MSIDIntuneUserDefaultsCacheDataSource.h in Headers */,

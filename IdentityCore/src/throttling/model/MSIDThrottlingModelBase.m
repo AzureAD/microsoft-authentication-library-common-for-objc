@@ -31,12 +31,13 @@
 
 - (MSIDLRUCache *)cacheService
 {
-    static MSIDLRUCache *cacheService = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        cacheService = [[MSIDLRUCache alloc] initWithCacheSize:1000];
-    });
-    return cacheService;
+//    static MSIDLRUCache *cacheService = nil;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        cacheService = [[MSIDLRUCache alloc] share:1000];
+//    });
+//    return cacheService;
+    return [MSIDLRUCache sharedInstance];
 }
 
 - (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
@@ -67,7 +68,7 @@
 - (void)insertOrUpdateCacheRecordToDB:(MSIDThrottlingCacheRecord *)cacheRecord
 {
     NSError *error = nil;
-    [self.cacheService setObject:cacheRecord forKey:self.thumbprintValue error:&error];
+    [[MSIDLRUCache sharedInstance] setObject:cacheRecord forKey:self.thumbprintValue error:&error];
     if (!error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Error adding the record to throttling database %@", error);

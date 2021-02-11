@@ -38,7 +38,7 @@ static NSInteger const DefaultUIRequired = 120;
                    errorResponse:(NSError *)errorResponse
                      accessGroup:(NSString *)accessGroup
 {
-    self = [super init];
+    self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
     if (self)
     {
         self.thumbprintType = MSIDThrottlingThumbprintTypeFull;
@@ -115,9 +115,15 @@ static NSInteger const DefaultUIRequired = 120;
 - (MSIDThrottlingCacheRecord *)prepareCacheRecord
 {
     MSIDThrottlingCacheRecord *record = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:self.errorResponse
-                                                                                    throttleType:self.thumbprintType
+                                                                                    throttleType:MSIDThrottlingTypeInteractiveRequired
                                                                                 throttleDuration:self.throttleDuration];
     return record;
+}
+
+- (void) updateServerTelemetry
+{
+    // TODO implement telemetry update here
+    return ;
 }
 
 @end

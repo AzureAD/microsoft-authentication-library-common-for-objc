@@ -24,7 +24,7 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDThrottlingService+Internal.h"
+#import "MSIDThrottlingService.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDKeychainTokenCache.h"
@@ -76,7 +76,6 @@
     
     if ([throttleModel shouldThrottleRequest])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Return should throttle decision");
         [throttleModel updateServerTelemetry];
         resultBlock(YES, throttleModel.cacheRecord.cachedErrorResponse);
     }

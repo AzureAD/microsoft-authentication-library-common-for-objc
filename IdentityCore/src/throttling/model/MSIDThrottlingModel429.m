@@ -36,7 +36,7 @@ static NSInteger const MaxRetryAfter = 3600;
                    errorResponse:(NSError *)errorResponse
                      accessGroup:(NSString *)accessGroup
 {
-    self = [super init];
+    self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
     if (self)
     {
         self.thumbprintType = MSIDThrottlingThumbprintTypeStrict;
@@ -57,8 +57,11 @@ static NSInteger const MaxRetryAfter = 3600;
     /**
      In SSO-Ext flow, it can be both MSAL or MSID Error. If it's MSALErrorDomain, we need to extract information we need (error code and user info)
      */
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Throttling: error response domain: %@", errorResponse.domain);
+
     BOOL res = NO;
     BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
+
     NSString *httpResponseCode = errorResponse.userInfo[isMSIDError ? MSIDHTTPResponseCodeKey : @"MSALHTTPResponseCodeKey"];
     NSInteger responseCode = [httpResponseCode intValue];
     if (responseCode == 429) res = YES;
@@ -66,6 +69,7 @@ static NSInteger const MaxRetryAfter = 3600;
     NSDate *retryHeaderDate = [errorResponse msidGetRetryDateFromError];
     if (retryHeaderDate)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Throttling: retryHeaderDate value %@", retryHeaderDate);
         res = YES;
     }
     return res;
@@ -73,6 +77,8 @@ static NSInteger const MaxRetryAfter = 3600;
 
 - (BOOL)shouldThrottleRequest
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"[Throttle shouldThrottleRequest], cached expiration time: %@", self.cacheRecord.expirationTime);
+
     BOOL res = YES;
     NSDate *currentTime = [NSDate new];
     if ([currentTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending)
@@ -85,6 +91,8 @@ static NSInteger const MaxRetryAfter = 3600;
 - (MSIDThrottlingCacheRecord *)prepareCacheRecord
 {
     NSDate *retryHeaderDate = [self.errorResponse msidGetRetryDateFromError];
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"[Throttle prepareCacheRecord], retryHeaderDate: %@", retryHeaderDate);
+
     NSInteger throttleDuration = 0;
     if (!retryHeaderDate)
     {
@@ -95,11 +103,20 @@ static NSInteger const MaxRetryAfter = 3600;
         NSTimeInterval MAX_THROTTLING_TIME = MaxRetryAfter;
         NSDate *max429ThrottlingDate = [[NSDate date] dateByAddingTimeInterval:MAX_THROTTLING_TIME];
         NSTimeInterval timeDiff = [retryHeaderDate timeIntervalSinceDate:max429ThrottlingDate];
-        throttleDuration = (timeDiff > MAX_THROTTLING_TIME) ? MAX_THROTTLING_TIME : timeDiff;
+        throttleDuration = (timeDiff > MAX_THROTTLING_TIME) ? MAX_THROTTLING_TIME : [retryHeaderDate timeIntervalSinceDate:[NSDate new]];
     }
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"[Throttle prepareCacheRecord], create 429 cache record with throttleDuration %ld", (long)throttleDuration);
+
     MSIDThrottlingCacheRecord *record = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:self.errorResponse
-                                                                                    throttleType:self.thumbprintType
+                                                                                    throttleType:MSIDThrottlingType429
                                                                                 throttleDuration:throttleDuration];
     return record;
 }
+
+- (void) updateServerTelemetry
+{
+    // TODO implement telemetry update here
+    return ;
+}
+
 @end

@@ -31,6 +31,9 @@ typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nulla
 
 @interface MSIDThrottlingService : NSObject
 
+@property id<MSIDRequestContext> _Nullable context;
+@property NSString * _Nullable accessGroup;
+
 - (instancetype _Nonnull)initWithAccessGroup:(NSString * _Nullable)accessGroup
                                      context:(id<MSIDRequestContext> _Nonnull)context;
 

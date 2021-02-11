@@ -40,7 +40,7 @@
     if (![MSIDThrottlingModelFactory validateInput:request]) return nil;
     NSError *error;
     MSIDThrottlingCacheRecord *cacheRecord = [MSIDThrottlingModelFactory getDBRecordWithStrictThumbprint:request.strictRequestThumbprint
-                                                                                          fullThumbprint:request.fullRequestThumbprint                     error:&error];
+                                                                                          fullThumbprint:request.fullRequestThumbprint                          error:&error];
     if(!cacheRecord) return nil;
     return [self generateModelFromErrorResponse:nil
                                         request:request
@@ -112,23 +112,23 @@
                                                 fullThumbprint:(NSString *)fullThumbprint
                                                          error:(NSError **)error
 {
-    MSIDThrottlingCacheRecord *cacheRecord = [self.cacheService objectForKey:strictThumbprint
-                                                                       error:error];
+    MSIDThrottlingCacheRecord *cacheRecord = [[MSIDLRUCache sharedInstance] objectForKey:strictThumbprint
+                                                                                   error:error];
     if (!cacheRecord)
     {
-        cacheRecord = [self.cacheService objectForKey:fullThumbprint error:error];
+        cacheRecord = [[MSIDLRUCache sharedInstance] objectForKey:fullThumbprint error:error];
     }
     return cacheRecord;
 }
 
-+ (MSIDLRUCache *)cacheService
-{
-    static MSIDLRUCache *cacheService = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        cacheService = [[MSIDLRUCache alloc] initWithCacheSize:1000];
-    });
-    return cacheService;
-}
+//+ (MSIDLRUCache *)cacheService
+//{
+//    static MSIDLRUCache *cacheService = nil;
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        cacheService = [[MSIDLRUCache alloc] initWithCacheSize:1000];
+//    });
+//    return cacheService;
+//}
 
 @end
