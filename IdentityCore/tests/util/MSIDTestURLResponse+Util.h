@@ -73,6 +73,7 @@
                                                    responseCode:(NSUInteger)responseCode
                                                       expiresIn:(NSString *)expiresIn
                                                    enrollmentId:(NSString *)enrollmentId
-                                                    redirectUri:(NSString *)redirectUri;
+                                                    redirectUri:(NSString *)redirectUri
+                                                       clientId:(NSString *)clientId;
 
 @end

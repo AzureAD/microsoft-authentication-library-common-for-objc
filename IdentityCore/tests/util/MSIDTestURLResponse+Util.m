@@ -244,6 +244,7 @@
                                                       expiresIn:(NSString *)expiresIn
                                                    enrollmentId:(NSString *)enrollmentId
                                                     redirectUri:(NSString *)redirectUri
+                                                       clientId:(NSString *)clientId
 {
     NSMutableDictionary *reqHeaders = [[self msidDefaultRequestHeaders] mutableCopy];
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
@@ -261,7 +262,7 @@
     NSMutableDictionary *responseDictWithEnrollmentId = [responseDict mutableCopy];
     [responseDictWithEnrollmentId setObject:enrollmentId forKey:@"microsoft_enrollment_id"];
 
-    NSMutableDictionary *requestBody = [@{ @"client_id" : @"my_client_id",
+    NSMutableDictionary *requestBody = [@{ @"client_id" : clientId,
                                           @"scope" : requestScopes,
                                           @"grant_type" : @"refresh_token",
                                           @"refresh_token" : requestRT,

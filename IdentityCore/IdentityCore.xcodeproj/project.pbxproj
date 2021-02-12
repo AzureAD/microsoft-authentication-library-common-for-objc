@@ -2914,7 +2914,7 @@
 		E733EDEE25C0A49500ACB79A /* MSIDThumbprintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThumbprintCalculator.h; sourceTree = "<group>"; };
 		E733EDFC25C0A4B100ACB79A /* MSIDThumbprintCalculator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThumbprintCalculator.m; sourceTree = "<group>"; };
 		E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThumbprintCalculatorTests.m; sourceTree = "<group>"; };
-		E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceIntegrationTests.m; sourceTree = "<group>"; };
+		E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */ = {isa = PBXFileReference; indentWidth = 3; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceIntegrationTests.m; sourceTree = "<group>"; };
 		E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceComponentTests.m; sourceTree = "<group>"; };
 		E75DD07C25D6292D007664A6 /* MSIDThrottlingServiceMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingServiceMock.h; sourceTree = "<group>"; };
 		E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceMock.m; sourceTree = "<group>"; };

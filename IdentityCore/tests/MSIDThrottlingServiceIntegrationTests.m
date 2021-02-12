@@ -44,6 +44,7 @@
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDThrottlingServiceMock.h"
+#import "MSIDThrottlingModelBase.h"
 
 
 @interface MSIDThrottlingService (MSIDThrottlingServiceIntegrationTests)
@@ -163,16 +164,19 @@
     self.oidcScopeString = @"user.read tasks.read openid profile offline_access";
     self.atRequestClaim = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
     self.redirectUri = @"x-msauth-outlook-prod://com.microsoft.Office.Outlook";
-    
+
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
+    [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
 }
 
-- (void)testMSIDThrottlingServiceIntegration_ThrottlingServiceShouldExecuteDesiredBehaviors_WhenUsedWithinMSIDDefaultSilentTokenRequestContext
+
+- (void)testMSIDThrottlingServiceIntegration_NonSSOSilentRequestThatReturns429Response_ShouldBeThrottledByThrottlingService
 {
+            
     MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:self.silentRequestParameters
                                                                                                                    forceRefresh:NO
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
@@ -203,18 +207,126 @@
                                                                                         responseCode:429
                                                                                            expiresIn:nil
                                                                                         enrollmentId:@"adf79e3f-mike-454d-9f0f-2299e76dbfd5"
-                                                                                         redirectUri:self.redirectUri];
+                                                                                         redirectUri:self.redirectUri
+                                                                                            clientId:self.silentRequestParameters.clientId];
 
     
     tokenResponse->_error = [NSError new];
     NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
-                               @"Retry-After": @"100"
-                               
-                                };
+                               MSIDHTTPHeadersKey: @{
+                                    @"Retry-After": @"100"
+                               }
+                            };
 
 
     tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
     
+    
+    //First attempt - there shouldn't be any throttling
+    [MSIDTestURLSession addResponse:tokenResponse];
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request"];
+    [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        //First time around, no throttling
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation1 fulfill];
+    }];
+
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+    
+
+    NSError *subError = nil;
+    NSString *expectedThumbprintKey = @"9671032187006166342";
+    //check and see if cache record exists that is mapped by the thumbprint value
+    MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
+    XCTAssertNotNil(record);
+    XCTAssertNil(subError);
+    
+    XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
+    XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
+    XCTAssertEqual(record.throttledCount,1);
+
+
+    [MSIDTestURLSession addResponse:tokenResponse];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
+    [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        //Second time, throttle, also check updateThrottlingServiceInvokedCount to make sure that logic didn't get hit.
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,1);
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation2 fulfill];
+    }];
+    
+
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+        
+
+}
+
+
+- (void)testMSIDThrottlingServiceIntegration_ThrottledNonSSOSilentRequestThatReturns429Response_ShouldBeClearedAndNotThrottledUponExpiration
+{
+    
+    NSString *refreshTokenForThisTest = @"customRTForThisTest";
+    MSIDRequestParameters *newRequestParam = self.silentRequestParameters;
+    newRequestParam.clientId = @"customClientId";
+    newRequestParam.oidcScope = @"dummyScopeForThisTest";
+    newRequestParam.target = @"dummyTarget";
+
+    
+    MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:newRequestParam
+                                                                                                                   forceRefresh:NO
+                                                                                                                   oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                                         tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                                     tokenCache:self.tokenCache
+                                                                                                           accountMetadataCache:self.accountMetadataCache];
+    
+    
+    //refresh token
+    MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
+    refreshToken.refreshToken = refreshTokenForThisTest;
+    
+    //throttlingServiceMock
+    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+                                                                                                      context:self.silentRequestParameters];
+    
+    defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
+    
+    MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:refreshTokenForThisTest
+                                                                                       requestClaims:self.atRequestClaim
+                                                                                       requestScopes:@"dummyTarget dummyScopeForThisTest"
+                                                                                          responseAT:@"new at"
+                                                                                          responseRT:refreshTokenForThisTest
+                                                                                          responseID:nil
+                                                                                       responseScope:@"dummyTarget dummyScopeForThisTest"
+                                                                                  responseClientInfo:nil
+                                                                                                 url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                        responseCode:429
+                                                                                           expiresIn:nil
+                                                                                        enrollmentId:@"adf79e3f-mike-454d-9f0f-2299e76dbfd5"
+                                                                                         redirectUri:self.redirectUri
+                                                                                            clientId:newRequestParam.clientId];
+
+    
+    tokenResponse->_error = [NSError new];
+    NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
+                               MSIDHTTPHeadersKey: @{
+                                    @"Retry-After": @"3"
+                               }
+                            };
+
+
+    tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
+    
+    
+    //First attempt - there shouldn't be any throttling
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
@@ -230,13 +342,27 @@
     
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
     
+    NSError *subError = nil;
+    NSString *expectedThumbprintKey = @"6959237555979563609";
+    //check and see if cache record exists that is mapped by the thumbprint value
+    MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
+    XCTAssertNotNil(record);
+    XCTAssertNil(subError);
+    
+    XCTAssertEqual(record.throttleType,MSIDThrottlingType429);
+    XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
+    XCTAssertEqual(record.throttledCount,1);
+    
+    sleep(5);
+
+    //Second attempt - throttling should be triggered
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
         
-        //Second time, throttle, also check updateThrottlingServiceInvokedCount to make sure that logic didn't get hit.
-        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,1);
-        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
+        //Request shouldn't get throttled this time, since it has already expired.
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,2);
         XCTAssertNil(result);
         XCTAssertNotNil(error);
         XCTAssertEqual(error.code, MSIDErrorInternal);
