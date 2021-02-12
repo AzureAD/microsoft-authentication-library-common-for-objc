@@ -31,7 +31,6 @@
 @property (nonatomic) MSIDLogLevel levelValue;
 @property (nonatomic) BOOL nsLoggingEnabledValue;
 @property (nonatomic) BOOL piiLoggingEnabledValue;
-@property (nonatomic) MSIDLogMaskingLevel logMaskingLevelValue;
 @property (nonatomic) BOOL shouldLogValue;
 @property (nonatomic) BOOL sourceLineLoggingEnabledValue;
 @property (nonatomic) BOOL loggingQueueEnabledValue;
@@ -76,11 +75,6 @@
     return self.loggingQueueEnabledValue;
 }
 
-- (MSIDLogMaskingLevel)logMaskingLevel
-{
-    return self.logMaskingLevelValue;
-}
-
 @end
 
 @interface MSIDLoggerTests : XCTestCase
@@ -94,7 +88,7 @@
     [super setUp];
     [[MSIDTestLogger sharedLogger] reset];
     [MSIDTestLogger sharedLogger].callbackInvoked = NO;
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
 }
 
 #pragma mark - Basic logging
@@ -115,9 +109,9 @@
 
 #pragma mark - PII flag
 
-- (void)testLog_whenPiiEnabled_maskEUIINo_PiiMessage_shouldReturnMessageInCallback
+- (void)testLog_whenPiiEnabledPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -129,24 +123,9 @@
     XCTAssertTrue(testLogger.containsPII);
 }
 
-- (void)testLog_whenPiiEnabled_maskEUIIYes_PiiMessage_shouldReturnedMaskedMessageInCallback
+- (void)testLog_whenPiiEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskEUIIOnly;
-    MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
-    
-    [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:YES filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"%@", MSID_PII_LOG_EMAIL(@"upn@test.com")];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertNotNil(testLogger.lastMessage);
-    XCTAssertTrue([testLogger.lastMessage containsString:@" auth.placeholder-8c09101e__test.com"]);
-    XCTAssertEqual(testLogger.lastLevel, MSIDLogLevelError);
-    XCTAssertTrue(testLogger.containsPII);
-}
-
-- (void)testLog_whenPiiEnabled_maskEUIINo_NonPiiMessage_shouldReturnSameMessageInCallback
-{
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -154,14 +133,13 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
-    XCTAssertTrue([testLogger.lastMessage containsString:@" non-pii-message"]);
     XCTAssertEqual(testLogger.lastLevel, MSIDLogLevelError);
     XCTAssertFalse(testLogger.containsPII);
 }
 
-- (void)testLog_whenPiiEnabled_maskEUIIYes_NonPiiMessage_shouldReturnSameMessageInCallback
+- (void)testLog_whenPiiNotEnabledNonPiiMessage_shouldReturnMessageInCallback
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskEUIIOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -169,44 +147,13 @@
     [self waitForExpectationsWithTimeout:1 handler:nil];
     
     XCTAssertNotNil(testLogger.lastMessage);
-    XCTAssertTrue([testLogger.lastMessage containsString:@" non-pii-message"]);
     XCTAssertEqual(testLogger.lastLevel, MSIDLogLevelError);
     XCTAssertFalse(testLogger.containsPII);
 }
 
-- (void)testLog_whenPiiNotEnabled_maskEUIINo_NonPiiMessage_shouldReturnSameMessageInCallback
+- (void)testLog_whenPiiNotEnabledPiiMessage_shouldInvokeCallbackWithMaskedMessage
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
-    MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
-    
-    [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"non-pii-message"];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertNotNil(testLogger.lastMessage);
-    XCTAssertTrue([testLogger.lastMessage containsString:@" non-pii-message"]);
-    XCTAssertEqual(testLogger.lastLevel, MSIDLogLevelError);
-    XCTAssertFalse(testLogger.containsPII);
-}
-
-- (void)testLog_whenPiiNotEnabled_maskEUIIYes_NonPiiMessage_shouldReturnSameMessageInCallback
-{
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskEUIIOnly;
-    MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
-    
-    [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:NO filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"non-pii-message"];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertNotNil(testLogger.lastMessage);
-    XCTAssertTrue([testLogger.lastMessage containsString:@" non-pii-message"]);
-    XCTAssertEqual(testLogger.lastLevel, MSIDLogLevelError);
-    XCTAssertFalse(testLogger.containsPII);
-}
-
-- (void)testLog_whenPiiNotEnabled_maskEUIINo_PiiMessage_shouldInvokeCallbackWithMaskedMessage
-{
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -215,19 +162,6 @@
     
     XCTAssertNotNil(testLogger.lastMessage);
     XCTAssertTrue([testLogger.lastMessage containsString:@"pii-message Masked(not-null)"]);
-}
-
-- (void)testLog_whenPiiNotEnabled_maskEUIIYes_PiiMessage_shouldInvokeCallbackWithMaskedMessage
-{
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
-    MSIDTestLogger *testLogger = [MSIDTestLogger sharedLogger];
-    
-    [self keyValueObservingExpectationForObject:testLogger keyPath:@"callbackInvoked" expectedValue:@1];
-    [[MSIDLogger sharedLogger] logWithLevel:MSIDLogLevelError context:nil correlationId:nil containsPII:YES filename:@__FILE__ lineNumber:__LINE__ function:@(__func__) format:@"pii-message %@", MSID_PII_LOG_EMAIL(@"upn@test.com")];
-    [self waitForExpectationsWithTimeout:1 handler:nil];
-    
-    XCTAssertNotNil(testLogger.lastMessage);
-    XCTAssertTrue([testLogger.lastMessage containsString:@"pii-message auth.placeholder-8c09101e__test.com"]);
 }
 
 #pragma mark - Log macros
@@ -290,7 +224,7 @@
 
 - (void)testLogErrorPiiMacro_shouldReturnMessagePIITrueErrorLevel
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -305,7 +239,7 @@
 
 - (void)testLogWarningPiiMacro_shouldReturnMessagePIITrueWarningLevel
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -320,7 +254,7 @@
 
 - (void)testLogInfoPiiMacro_shouldReturnMessagePIITrueInfoLevel
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -335,7 +269,7 @@
 
 - (void)testLogVerbosePiiMacro_shouldReturnMessagePIITrueVerboseLevel
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -350,7 +284,7 @@
 
 - (void)testLogWithContextMacro_whenContainsPii_andPiiDisabled_shouldLogMessageWithMaskedPii
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -365,7 +299,7 @@
 
 - (void)testLogWithContextMacro_whenContainsPii_andPiiEnabled_shouldLogMessageWithRawPii
 {
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskSecretsOnly;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = YES;
     MSIDTestLogger *logger = [MSIDTestLogger sharedLogger];
     
     [self keyValueObservingExpectationForObject:logger keyPath:@"callbackInvoked" expectedValue:@1];
@@ -447,9 +381,10 @@
 {
     MSIDLoggerConnectorMock *connectorMock = [MSIDLoggerConnectorMock new];
     connectorMock.piiLoggingEnabledValue = YES;
-    [MSIDLogger sharedLogger].logMaskingLevel = MSIDLogMaskingSettingsMaskAllPII;
+    [MSIDLogger sharedLogger].piiLoggingEnabled = NO;
     [MSIDLogger sharedLogger].loggerConnector = connectorMock;
-    XCTAssertEqual([MSIDLogger sharedLogger].logMaskingLevel, MSIDLogMaskingSettingsMaskAllPII);
+    
+    XCTAssertTrue([MSIDLogger sharedLogger].piiLoggingEnabled);
 }
 
 - (void)testSourceLineLoggingEnabled_whenConnectorIsSet_shouldReturnValueFromConnector

@@ -32,9 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (MSIDLogLevel)level;
 
-- (BOOL)nsLoggingEnabled;
+- (BOOL)piiLoggingEnabled;
 
-- (MSIDLogMaskingLevel)logMaskingLevel;
+- (BOOL)nsLoggingEnabled;
 
 - (BOOL)sourceLineLoggingEnabled;
 

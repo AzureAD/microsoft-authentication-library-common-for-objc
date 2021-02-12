@@ -20,7 +20,7 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -28,13 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSDate *creationTime;
 @property (nonatomic, readonly) NSDate *expirationTime;
-@property (nonatomic, readonly) NSString *throttleType;
+@property (nonatomic) NSUInteger throttleType;
 @property (nonatomic, readonly) NSError *cachedErrorResponse;
 @property (nonatomic) NSUInteger throttledCount;
 //number of times this request has been throttled - needs to be mutable 
 
 - (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
-                         throttleType:(NSString *)throttleType
+                         throttleType:(NSInteger)throttleType
                      throttleDuration:(NSInteger)throttleDuration;
                     
 @end

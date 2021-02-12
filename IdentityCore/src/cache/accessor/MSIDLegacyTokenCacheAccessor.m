@@ -409,7 +409,7 @@
         return NO;
     }
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Removing refresh token with clientID %@, environment %@, realm %@, userId %@, token %@", token.clientId, token.environment, token.realm, token.accountIdentifier.maskedHomeAccountId, MSID_EUII_ONLY_LOG_MASKABLE(token));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Removing refresh token with clientID %@, environment %@, realm %@, userId %@, token %@", token.clientId, token.environment, token.realm, token.accountIdentifier.maskedHomeAccountId, MSID_PII_LOG_MASKABLE(token));
 
     MSIDCredentialCacheItem *cacheItem = [token tokenCacheItem];
     
@@ -430,7 +430,7 @@
 
     if (tokenInCache && [tokenInCache.refreshToken isEqualToString:token.refreshToken])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_EUII_ONLY_LOG_MASKABLE(token));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_PII_LOG_MASKABLE(token));
         
         return [self removeTokenEnvironment:storageEnvironment
                                       realm:token.realm
@@ -593,7 +593,7 @@
         return NO;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving access token in legacy accessor %@", MSID_EUII_ONLY_LOG_MASKABLE(accessToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving access token in legacy accessor %@", MSID_PII_LOG_MASKABLE(accessToken));
     
     return [self saveToken:accessToken
                    context:context
@@ -611,7 +611,7 @@
         return YES;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", MSID_EUII_ONLY_LOG_MASKABLE(refreshToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving multi resource refresh token in legacy accessor %@", MSID_PII_LOG_MASKABLE(refreshToken));
     
     BOOL result = [self saveToken:refreshToken
                           context:context
@@ -623,7 +623,7 @@
         return result;
     }
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Saving family refresh token in all caches %@", MSID_EUII_ONLY_LOG_MASKABLE(refreshToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Saving family refresh token in all caches %@", MSID_PII_LOG_MASKABLE(refreshToken));
 
     // If it's an FRT, save it separately and update the clientId of the token item
     MSIDLegacyRefreshToken *familyRefreshToken = [refreshToken copy];
@@ -665,7 +665,7 @@
         return NO;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving single resource tokens in legacy accessor %@", MSID_EUII_ONLY_LOG_MASKABLE(legacyToken));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) Saving single resource tokens in legacy accessor %@", MSID_PII_LOG_MASKABLE(legacyToken));
 
     // Save token for legacy single resource token
     return [self saveToken:legacyToken
@@ -681,7 +681,7 @@
     
     MSIDCredentialCacheItem *tokenCacheItem = token.legacyTokenCacheItem;
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Saving token %@ for account %@ with environment %@, realm %@, clientID %@", MSID_EUII_ONLY_LOG_MASKABLE(tokenCacheItem), token.accountIdentifier.maskedDisplayableId, token.storageEnvironment, token.realm, tokenCacheItem.clientId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) Saving token %@ for account %@ with environment %@, realm %@, clientID %@", MSID_PII_LOG_MASKABLE(tokenCacheItem), token.accountIdentifier.maskedDisplayableId, token.storageEnvironment, token.realm, tokenCacheItem.clientId);
     
     MSIDLegacyTokenCacheKey *key = [[MSIDLegacyTokenCacheKey alloc] initWithEnvironment:tokenCacheItem.environment
                                                                                   realm:tokenCacheItem.realm

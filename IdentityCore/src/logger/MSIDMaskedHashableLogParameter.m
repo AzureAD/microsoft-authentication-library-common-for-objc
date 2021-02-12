@@ -38,9 +38,4 @@
     return [self.parameterValue msidSecretLoggingHash];
 }
 
-- (BOOL)isEUII
-{
-    return NO;
-}
-
 @end

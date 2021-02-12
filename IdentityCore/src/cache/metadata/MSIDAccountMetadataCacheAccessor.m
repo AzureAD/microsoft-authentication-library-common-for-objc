@@ -299,7 +299,7 @@
         return NO;
     }
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove account metadata for home account id: %@.", MSID_PII_LOG_TRACKABLE(homeAccountId));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove account metadata for home account id: %@.", MSID_PII_LOG_MASKABLE(homeAccountId));
     
     NSError *localError;
     NSArray<MSIDAccountMetadataCacheItem *> *cacheItems = [self allAccountMetadataCacheItemsWithContext:context error:&localError];

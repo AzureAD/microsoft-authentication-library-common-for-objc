@@ -70,7 +70,7 @@
     _lastLevel = -1;
     _containsPII = NO;
     [[MSIDLogger sharedLogger] setLevel:level];
-    [[MSIDLogger sharedLogger] setLogMaskingLevel:MSIDLogMaskingSettingsMaskSecretsOnly];
+    [[MSIDLogger sharedLogger] setPiiLoggingEnabled:NO];
 }
 
 @end
