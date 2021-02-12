@@ -45,6 +45,14 @@
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDThrottlingServiceMock.h"
 
+
+@interface MSIDThrottlingService (MSIDThrottlingServiceIntegrationTests)
+
+@property (nonatomic) NSUInteger shouldThrottleRequestInvokedCount;
+@property (nonatomic) NSUInteger updateThrottlingServiceInvokedCount;
+
+@end
+
 @interface MSIDSilentTokenRequest (MSIDThrottlingServiceIntegrationTests)
 
 @property (nonatomic) MSIDThrottlingService *throttlingService;
@@ -171,7 +179,6 @@
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
-    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
     
     
     //refresh token
@@ -200,19 +207,44 @@
 
     
     tokenResponse->_error = [NSError new];
+    NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
+                               @"Retry-After": @"100"
+                               
+                                };
+
+
+    tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
     
     [MSIDTestURLSession addResponse:tokenResponse];
-    
-
+    XCTestExpectation *expectation1 = [self expectationWithDescription:@"silent request"];
     [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
         
+        //First time around, no throttling
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNil(result);
         XCTAssertNotNil(error);
-        XCTAssertEqual(error.code, MSIDErrorMissingAccountParameter);
-        [expectation fulfill];
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation1 fulfill];
     }];
     
-    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+    
+    [MSIDTestURLSession addResponse:tokenResponse];
+    XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
+    [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        //Second time, throttle, also check updateThrottlingServiceInvokedCount to make sure that logic didn't get hit.
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,1);
+        XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
+        XCTAssertNil(result);
+        XCTAssertNotNil(error);
+        XCTAssertEqual(error.code, MSIDErrorInternal);
+        [expectation2 fulfill];
+    }];
+    
+    
+    [self waitForExpectationsWithTimeout:5.0 handler:nil];
     
     
 }

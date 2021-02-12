@@ -247,6 +247,7 @@
 {
     NSMutableDictionary *reqHeaders = [[self msidDefaultRequestHeaders] mutableCopy];
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+    //[reqHeaders setObject:enrollmentId forKey:@"microsoft_enrollment_id"];
 
     NSDictionary *responseDict = [self tokenResponseWithAT:responseAT
                                                 responseRT:responseRT
@@ -265,6 +266,7 @@
                                           @"grant_type" : @"refresh_token",
                                           @"refresh_token" : requestRT,
                                           @"redirect_uri" : redirectUri,
+                                          @"microsoft_enrollment_id": enrollmentId,
                                           @"client_info" : @"1"} mutableCopy];
 
     if (requestClaims)

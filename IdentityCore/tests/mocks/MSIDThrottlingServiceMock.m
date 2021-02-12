@@ -43,9 +43,16 @@
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
                   resultBlock:(MSIDThrottleResultBlock)resultBlock
 {
-    self.shouldThrottleRequestInvokedCount++;
-    [super shouldThrottleRequest:request
-                     resultBlock:resultBlock];
+    [super shouldThrottleRequest:request resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable error)
+     {
+        if (shouldBeThrottled)
+        {
+            self.shouldThrottleRequestInvokedCount++;
+        }
+        resultBlock(shouldBeThrottled, error);
+        return;
+    }];
+
     
 }
 
