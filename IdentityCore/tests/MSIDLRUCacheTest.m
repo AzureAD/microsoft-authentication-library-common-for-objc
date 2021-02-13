@@ -113,11 +113,11 @@
     NSArray<MSIDThrottlingCacheRecord *> *cachedElements = [self.lruCache enumerateAndReturnAllObjects];
     
     XCTAssertNil(subError);
-    XCTAssertEqual(cachedElements[0].throttleType,8);
-    XCTAssertEqual(cachedElements[1].throttleType,6);
-    XCTAssertEqual(cachedElements[2].throttleType,4);
-    XCTAssertEqual(cachedElements[3].throttleType,2);
-    XCTAssertEqual(cachedElements[4].throttleType,0);
+    XCTAssertEqual(cachedElements[0].throttleType,(unsigned)8);
+    XCTAssertEqual(cachedElements[1].throttleType,(unsigned)6);
+    XCTAssertEqual(cachedElements[2].throttleType,(unsigned)4);
+    XCTAssertEqual(cachedElements[3].throttleType,(unsigned)2);
+    XCTAssertEqual(cachedElements[4].throttleType,(unsigned)0);
 }
 
 - (void)testMSIDLRUCache_whenCapacityExceeded_leastRecentlyUsedEntriesShouldBePurged
@@ -144,10 +144,10 @@
     
     for (int i = 0; i < 1000; i++)
     {
-        XCTAssertEqual(cachedElements[i].throttleType,1499-i);
+        XCTAssertEqual(cachedElements[i].throttleType,(unsigned)(1499-i));
     }
     
-    XCTAssertEqual(self.lruCache.cacheEvictionCount,500);
+    XCTAssertEqual(self.lruCache.cacheEvictionCount,(unsigned)500);
     
 }
 
@@ -321,7 +321,7 @@
     
 
     [self waitForExpectations:expectationsAdd timeout:20];
-    XCTAssertEqual(customLRUCache.numCacheRecords,100);
+    XCTAssertEqual(customLRUCache.numCacheRecords,(unsigned)100);
 
 
     dispatch_async(parentQ1, ^{
