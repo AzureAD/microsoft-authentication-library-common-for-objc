@@ -103,7 +103,7 @@ static NSInteger const MaxRetryAfter = 3600;
         NSTimeInterval MAX_THROTTLING_TIME = MaxRetryAfter;
         NSDate *max429ThrottlingDate = [[NSDate date] dateByAddingTimeInterval:MAX_THROTTLING_TIME];
         NSTimeInterval timeDiff = [retryHeaderDate timeIntervalSinceDate:max429ThrottlingDate];
-        throttleDuration = (timeDiff > MAX_THROTTLING_TIME) ? MAX_THROTTLING_TIME : [retryHeaderDate timeIntervalSinceDate:[NSDate new]];
+        throttleDuration = (timeDiff > MAX_THROTTLING_TIME) ? (NSInteger) MAX_THROTTLING_TIME : (NSInteger) [retryHeaderDate timeIntervalSinceDate:[NSDate new]];
     }
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"[Throttle prepareCacheRecord], create 429 cache record with throttleDuration %ld", (long)throttleDuration);
 
