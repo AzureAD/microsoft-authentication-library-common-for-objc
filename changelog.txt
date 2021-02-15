@@ -1,4 +1,5 @@
 TBD 
+* Throttling feature (#945)
 * Added Thumbprint calculator and associated protocol for throttling (#943)
 
 Version 1.6.1

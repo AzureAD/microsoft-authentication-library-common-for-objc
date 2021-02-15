@@ -677,10 +677,8 @@
 		96F94A39208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */; };
 		96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
 		96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
-		A057452725A666F70098E469 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		A057456225A669B90098E469 /* MSIDThrottlingCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */; };
 		A057458425A789DC0098E469 /* MSIDThrottlingService.m in Sources */ = {isa = PBXBuildFile; fileRef = A057458325A789DC0098E469 /* MSIDThrottlingService.m */; };
-		A057459125A7A09E0098E469 /* (null) in Headers */ = {isa = PBXBuildFile; };
 		A07EB427259D0C6B00783943 /* MSIDThrottlingService.h in Headers */ = {isa = PBXBuildFile; fileRef = A07EB426259D0BF300783943 /* MSIDThrottlingService.h */; };
 		A08D0A2B24A85C9800C9193D /* MSIDAuthenticationSchemePopTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E024A85A1D00C9193D /* MSIDAuthenticationSchemePopTest.m */; };
 		A08D0A3124A85C9800C9193D /* MSIDDevicePopManagerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A08D09E724A85A1E00C9193D /* MSIDDevicePopManagerTest.m */; };
@@ -702,7 +700,6 @@
 		A0C7DED225D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m */; };
 		A0C7DED325D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m */; };
 		A0E540BD25CB62270016E167 /* MSIDThrottlingService.m in Sources */ = {isa = PBXBuildFile; fileRef = A057458325A789DC0098E469 /* MSIDThrottlingService.m */; };
-		A0E540CA25CB622B0016E167 /* (null) in Sources */ = {isa = PBXBuildFile; };
 		A0E5419625CDC44B0016E167 /* MSIDThrottlingMetaData.h in Headers */ = {isa = PBXBuildFile; fileRef = A0E5419525CDC44B0016E167 /* MSIDThrottlingMetaData.h */; };
 		A0E541B025CDC5F10016E167 /* MSIDThrottlingMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = A0E541AF25CDC5F10016E167 /* MSIDThrottlingMetaData.m */; };
 		A0E541B125CDC5F10016E167 /* MSIDThrottlingMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = A0E541AF25CDC5F10016E167 /* MSIDThrottlingMetaData.m */; };
@@ -5307,7 +5304,6 @@
 				B297E1F020A25F0C00F370EC /* MSIDLegacyTokenCacheItem.h in Headers */,
 				238D5D8B22B353830091A135 /* MSIDAADV2TokenResponseForV1Request.h in Headers */,
 				0570FE80219B8C8C00958ECF /* MSIDCredentialCacheItem+MSIDBaseToken.h in Headers */,
-				A057459125A7A09E0098E469 /* (null) in Headers */,
 				B2DD4B2A20A7DCCE0047A66E /* MSIDCacheAccessor.h in Headers */,
 				B214C3A31FE855290070C4F2 /* MSIDDefaultTokenCacheAccessor.h in Headers */,
 				B286B9952389DC7F007833AD /* MSIDDefaultBrokerResponseHandler.h in Headers */,
@@ -6378,7 +6374,6 @@
 				B2964BE3205103920000BC95 /* MSIDTokenFilteringHelper.m in Sources */,
 				B210F4391FDDEA23005A8F76 /* MSIDAADV1TokenResponse.m in Sources */,
 				A0C7DDA525D1EA0D00F5B5B6 /* NSError+MSIDThrottlingExtension.m in Sources */,
-				A057452725A666F70098E469 /* (null) in Sources */,
 				23B39A8320993302000AA905 /* MSIDAadAuthorityResolver.m in Sources */,
 				23B39ABE209BD47D000AA905 /* MSIDB2CAuthorityResolver.m in Sources */,
 				B227035B22A3678A00030ADC /* MSIDMaskedUsernameLogParameter.m in Sources */,
@@ -7173,7 +7168,6 @@
 				609E74C7228DCEA1005E3FED /* MSIDAccountMetadata.m in Sources */,
 				23D744792097B2DA00210C51 /* MSIDAADV1AuthorizationCodeRequest.m in Sources */,
 				B2AF1D34218BCEEB0080C1A0 /* MSIDSilentTokenRequest.m in Sources */,
-				A0E540CA25CB622B0016E167 /* (null) in Sources */,
 				230847A72082C5830024CE7C /* MSIDHttpRequest.m in Sources */,
 				B20657C91FC926B200412B7D /* MSIDTelemetryHttpEvent.m in Sources */,
 				B2C7089321991CED00D917B8 /* MSIDAADV1BrokerResponse.m in Sources */,
