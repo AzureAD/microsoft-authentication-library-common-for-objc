@@ -35,7 +35,6 @@
 #import "NSDate+MSIDExtensions.h"
 
 @implementation MSIDThrottlingMetaDataCache
-id<MSIDExtendedTokenCacheDataSource> dataSource;
 
 + (MSIDThrottlingMetaData *)getThrottlingMetadataWithAccessGroup:(NSString *)accessGroup
                                                          Context:(id<MSIDRequestContext>)context

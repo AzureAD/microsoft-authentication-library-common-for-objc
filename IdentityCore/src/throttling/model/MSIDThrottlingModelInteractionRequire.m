@@ -59,7 +59,7 @@ static NSInteger const DefaultUIRequired = 120;
 {
     // MSALErrorInteractionRequired = -50002
     NSSet *uirequiredErrors = [[NSSet alloc] initWithArray:@[[NSNumber numberWithInt:(-50002)]]];
-    BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
+    BOOL isMSIDError = [errorResponse msidIsMSIDError];
     
     if (isMSIDError)
     {
@@ -90,7 +90,7 @@ static NSInteger const DefaultUIRequired = 120;
     if ([currentTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending
         || (lastRefreshTime && [lastRefreshTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending))
     {
-        [self.cacheService removeObjectForKey:self.thumbprintValue error:&error];
+        [[MSIDThrottlingModelBase cacheService] removeObjectForKey:self.thumbprintValue error:&error];
         if (error)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Throttling: error when remove record from database %@ ", error);

@@ -32,10 +32,10 @@ typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nulla
 @interface MSIDThrottlingService : NSObject
 
 @property id<MSIDRequestContext> _Nullable context;
-@property NSString * _Nullable accessGroup;
+@property (nonatomic, nullable) NSString *accessGroup;
 
 - (instancetype _Nonnull)initWithAccessGroup:(NSString * _Nullable)accessGroup
-                                     context:(id<MSIDRequestContext> _Nonnull)context;
+                                     context:(id<MSIDRequestContext> __nullable)context;
 
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
                   resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;

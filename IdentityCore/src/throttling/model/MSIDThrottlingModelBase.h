@@ -57,8 +57,9 @@ NS_ASSUME_NONNULL_BEGIN
                      accessGroup:(NSString *)accessGroup;
 
 + (BOOL)isApplicableForTheThrottleModel:(NSError *)errorResponse;
++ (MSIDLRUCache *)cacheService;
+
 - (BOOL)shouldThrottleRequest;
-- (MSIDLRUCache *)cacheService;
 - (void)updateServerTelemetry;
 - (void)cleanCacheRecordFromDB;
 - (void)insertOrUpdateCacheRecordToDB:(MSIDThrottlingCacheRecord *)cacheRecord;
