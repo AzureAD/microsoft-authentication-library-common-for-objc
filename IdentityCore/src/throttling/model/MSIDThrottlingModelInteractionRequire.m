@@ -82,7 +82,6 @@ static NSInteger const DefaultUIRequired = 120;
 
 - (BOOL)shouldThrottleRequest
 {
-    BOOL res = NO;
     NSError *error;
     NSDate *currentTime = [NSDate date];
     NSDate *lastRefreshTime = [MSIDThrottlingModelInteractionRequire getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
@@ -95,7 +94,7 @@ static NSInteger const DefaultUIRequired = 120;
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Throttling: error when remove record from database %@ ", error);
         }
-        res = NO;
+        return NO;
     }
     return YES;
 }

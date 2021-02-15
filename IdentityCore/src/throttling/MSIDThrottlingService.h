@@ -27,7 +27,9 @@
 #import "MSIDThrottlingCacheRecord.h"
 #import "MSIDTokenResponse.h"
 
-typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable error);
+typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable errorResponse);
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThrottlingService : NSObject
 
@@ -48,3 +50,5 @@ typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nulla
                                    error:(NSError*__nullable*__nullable)error;
 
 @end
+
+NS_ASSUME_NONNULL_END
