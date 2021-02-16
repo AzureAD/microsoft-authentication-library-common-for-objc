@@ -31,10 +31,10 @@
 static NSInteger const Default429Throttling = 60;
 static NSInteger const MaxRetryAfter = 3600;
 
-- (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
-                   errorResponse:(NSError *)errorResponse
-                     accessGroup:(NSString *)accessGroup
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+                    cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
+                  errorResponse:(NSError *)errorResponse
+                    accessGroup:(NSString *)accessGroup
 {
     self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
     if (self)

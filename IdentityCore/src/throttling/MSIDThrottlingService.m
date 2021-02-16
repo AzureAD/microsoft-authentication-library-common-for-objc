@@ -43,8 +43,8 @@
 
 #pragma mark - Initializer
 
-- (instancetype _Nonnull)initWithAccessGroup:(NSString *)accessGroup
-                                     context:(id<MSIDRequestContext> __nullable)context
+- (instancetype)initWithAccessGroup:(NSString *)accessGroup
+                            context:(id<MSIDRequestContext> __nullable)context
 {
     self = [self init];
     if (self)

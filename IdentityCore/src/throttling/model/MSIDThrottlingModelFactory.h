@@ -29,14 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThrottlingModelFactory : NSObject
 
-+ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                                                 accessGroup:(NSString *)accessGroup
-                                                     context:(id<MSIDRequestContext> _Nonnull)context;
++ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable>)request
+                                                   accessGroup:(NSString * _Nullable)accessGroup
+                                                       context:(id<MSIDRequestContext> _Nullable)context;
 
-+ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                                                     accessGroup:(NSString *)accessGroup
-                                                    errorResponse:(NSError *)errorResponse
-                                                     context:(id<MSIDRequestContext> _Nonnull)context;
++ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable>)request
+                                                       accessGroup:(NSString * _Nullable)accessGroup
+                                                     errorResponse:(NSError *)errorResponse
+                                                           context:(id<MSIDRequestContext> _Nullable)context;
 
 @end
 NS_ASSUME_NONNULL_END

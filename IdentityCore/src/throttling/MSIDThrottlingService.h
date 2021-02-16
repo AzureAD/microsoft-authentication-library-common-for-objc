@@ -36,8 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property id<MSIDRequestContext> _Nullable context;
 @property (nonatomic, nullable) NSString *accessGroup;
 
-- (instancetype _Nonnull)initWithAccessGroup:(NSString * _Nullable)accessGroup
-                                     context:(id<MSIDRequestContext> __nullable)context;
+- (instancetype)initWithAccessGroup:(NSString * _Nullable)accessGroup
+                            context:(id<MSIDRequestContext> __nullable)context;
 
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
                   resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock;

@@ -34,10 +34,10 @@
     return [MSIDLRUCache sharedInstance];
 }
 
-- (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
-                   errorResponse:(NSError *)errorResponse
-                     accessGroup:(NSString *)accessGroup
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+                    cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
+                  errorResponse:(NSError *)errorResponse
+                    accessGroup:(NSString *)accessGroup
 {
     self = [super init];
     if (self)
@@ -87,7 +87,7 @@
     return NO;
 }
 
-- (void) updateServerTelemetry
+- (void)updateServerTelemetry
 {
     NSAssert(NO, @"Abstract method.");
     return ;

@@ -45,16 +45,16 @@ NS_ASSUME_NONNULL_BEGIN
 @property NSString *thumbprintValue;
 @property MSIDThrottlingThumbprintType thumbprintType;
 @property NSInteger throttleDuration;
-@property id<MSIDThumbprintCalculatable> request;
-@property NSError *errorResponse;
-@property MSIDThrottlingCacheRecord *cacheRecord;
-@property NSString *accessGroup;
-@property id<MSIDRequestContext> context;
+@property (readonly, nonatomic) id<MSIDThumbprintCalculatable> request;
+@property (readonly, nonatomic) NSError *errorResponse;
+@property (readonly, nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
+@property (readonly, nonatomic) NSString *accessGroup;
+@property (readonly, nonatomic) id<MSIDRequestContext> context;
 
-- (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
-                   errorResponse:(NSError *)errorResponse
-                     accessGroup:(NSString *)accessGroup;
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+                    cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
+                  errorResponse:(NSError *)errorResponse
+                    accessGroup:(NSString *)accessGroup;
 
 + (BOOL)isApplicableForTheThrottleModel:(NSError *)errorResponse;
 + (MSIDLRUCache *)cacheService;
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateServerTelemetry;
 - (void)cleanCacheRecordFromDB;
 - (void)insertOrUpdateCacheRecordToDB:(MSIDThrottlingCacheRecord *)cacheRecord;
-- (MSIDThrottlingCacheRecord *)prepareCacheRecord;
+- (MSIDThrottlingCacheRecord * _Nullable)prepareCacheRecord;
 
 @end
 NS_ASSUME_NONNULL_END

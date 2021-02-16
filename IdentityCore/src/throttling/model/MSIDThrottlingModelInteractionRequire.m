@@ -33,10 +33,10 @@ static NSInteger const DefaultUIRequired = 120;
 
 @implementation MSIDThrottlingModelInteractionRequire
 
-- (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
-                   errorResponse:(NSError *)errorResponse
-                     accessGroup:(NSString *)accessGroup
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+                    cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
+                  errorResponse:(NSError *)errorResponse
+                    accessGroup:(NSString *)accessGroup
 {
     self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
     if (self)
@@ -65,7 +65,7 @@ static NSInteger const DefaultUIRequired = 120;
     {
         NSString *errorString = errorResponse.msidOauthError;
         NSUInteger errorCode = errorResponse.code;
-        if ([NSString msidIsStringNilOrBlank:errorString] || (errorCode == MSIDErrorInteractionRequired))
+        if (![NSString msidIsStringNilOrBlank:errorString] || (errorCode == MSIDErrorInteractionRequired))
         {
             return YES;
         }
@@ -104,7 +104,7 @@ static NSInteger const DefaultUIRequired = 120;
  */
 + (NSDate *)getLastRefreshTimeAccessGroup:(NSString *)accessGroup
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError*__nullable*__nullable)error
+                                    error:(NSError **)error
 {
     MSIDThrottlingMetaData *metadata = [MSIDThrottlingMetaDataCache getThrottlingMetadataWithAccessGroup:accessGroup Context:context error:error];
     NSString *stringDate = metadata.lastRefreshTime;
@@ -119,7 +119,7 @@ static NSInteger const DefaultUIRequired = 120;
     return record;
 }
 
-- (void) updateServerTelemetry
+- (void)updateServerTelemetry
 {
     // TODO implement telemetry update here
     return ;
