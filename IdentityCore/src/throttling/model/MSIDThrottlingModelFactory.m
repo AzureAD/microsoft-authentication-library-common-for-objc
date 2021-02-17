@@ -33,14 +33,19 @@
 
 @implementation MSIDThrottlingModelFactory
 
-+ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
++ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable>)request
                                                    accessGroup:(NSString *)accessGroup
-                                                       context:(id<MSIDRequestContext> _Nonnull)context
+                                                       context:(id<MSIDRequestContext>)context
 {
     if (![MSIDThrottlingModelFactory validateInput:request]) return nil;
     NSError *error;
     MSIDThrottlingCacheRecord *cacheRecord = [MSIDThrottlingModelFactory getDBRecordWithStrictThumbprint:request.strictRequestThumbprint
-                                                                                          fullThumbprint:request.fullRequestThumbprint                          error:&error];
+                                                                                          fullThumbprint:request.fullRequestThumbprint                     error:&error];
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Throttling: getting record from cache has returned error %@", error);
+    }
+    
     if(!cacheRecord) return nil;
     return [self generateModelFromErrorResponse:nil
                                         request:request
@@ -49,15 +54,15 @@
                                     accessGroup:accessGroup];
 }
 
-+ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
++ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable>)request
                                                        accessGroup:(NSString *)accessGroup
                                                      errorResponse:(NSError *)errorResponse
                                                            context:(id<MSIDRequestContext>)context
 {
-    NSError *localError = nil;
-    MSIDThrottlingType throttleType = [MSIDThrottlingModelFactory processErrorResponseToGetThrottleType:errorResponse
-                                                                                                  error:&localError];
+    MSIDThrottlingType throttleType = [MSIDThrottlingModelFactory processErrorResponseToGetThrottleType:errorResponse];
+    
     if(throttleType == MSIDThrottlingTypeNone) return nil;
+    
     return [self generateModelFromErrorResponse:errorResponse
                                         request:request
                                    throttleType:throttleType
@@ -65,10 +70,10 @@
                                     accessGroup:accessGroup];
 }
 
-+ (MSIDThrottlingModelBase *)generateModelFromErrorResponse:(NSError * _Nullable)errorResponse
++ (MSIDThrottlingModelBase *)generateModelFromErrorResponse:(NSError *)errorResponse
                                                     request:(id<MSIDThumbprintCalculatable>)request
                                                throttleType:(MSIDThrottlingType)throttleType
-                                                cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
+                                                cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
                                                 accessGroup:(NSString *)accessGroup
 {
     if(throttleType == MSIDThrottlingType429)
@@ -82,7 +87,6 @@
 }
 
 + (MSIDThrottlingType)processErrorResponseToGetThrottleType:(NSError *)errorResponse
-                                                      error:(NSError *_Nullable *_Nullable)error
 {
     
     MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
@@ -102,7 +106,7 @@
 }
 
 
-+ (BOOL)validateInput:(id<MSIDThumbprintCalculatable> _Nonnull)request
++ (BOOL)validateInput:(id<MSIDThumbprintCalculatable>)request
 {
     return (request.fullRequestThumbprint || request.strictRequestThumbprint);
 }
@@ -120,15 +124,5 @@
     }
     return cacheRecord;
 }
-
-//+ (MSIDLRUCache *)cacheService
-//{
-//    static MSIDLRUCache *cacheService = nil;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        cacheService = [[MSIDLRUCache alloc] initWithCacheSize:1000];
-//    });
-//    return cacheService;
-//}
 
 @end

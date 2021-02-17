@@ -35,6 +35,7 @@
 #import "MSIDBrokerInteractiveController.h"
 #endif
 #import "MSIDWebWPJResponse.h"
+#import "MSIDThrottlingService.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -73,6 +74,14 @@
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        if (!error)
+        {
+            /**
+             Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
+             */
+            [MSIDThrottlingService updateLastRefreshTimeAccessGroup:self.interactiveRequestParamaters.keychainAccessGroup context:self.interactiveRequestParamaters error:nil];
+        }
+        
         completionBlock(result, error);
     };
     

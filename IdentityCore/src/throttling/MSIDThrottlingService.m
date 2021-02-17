@@ -43,8 +43,8 @@
 
 #pragma mark - Initializer
 
-- (instancetype _Nonnull)initWithAccessGroup:(NSString *)accessGroup
-                                     context:(id<MSIDRequestContext> _Nonnull)context
+- (instancetype)initWithAccessGroup:(NSString *)accessGroup
+                            context:(id<MSIDRequestContext> __nullable)context
 {
     self = [self init];
     if (self)
@@ -105,7 +105,6 @@
     }
     MSIDThrottlingCacheRecord *cacheRecord = [model prepareCacheRecord];
     [model insertOrUpdateCacheRecordToDB:cacheRecord];
-    return;
 }
 
 #pragma mark - Internal API

@@ -29,21 +29,15 @@
 
 @implementation MSIDThrottlingModelBase
 
-- (MSIDLRUCache *)cacheService
++ (MSIDLRUCache *)cacheService
 {
-//    static MSIDLRUCache *cacheService = nil;
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        cacheService = [[MSIDLRUCache alloc] share:1000];
-//    });
-//    return cacheService;
     return [MSIDLRUCache sharedInstance];
 }
 
-- (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
-                   errorResponse:(NSError *)errorResponse
-                     accessGroup:(NSString *)accessGroup
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+                    cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
+                  errorResponse:(NSError *)errorResponse
+                    accessGroup:(NSString *)accessGroup
 {
     self = [super init];
     if (self)
@@ -58,8 +52,8 @@
 - (void)cleanCacheRecordFromDB
 {
     NSError *error = nil;
-    [self.cacheService removeObjectForKey:self.thumbprintValue error:&error];
-    if (!error)
+    [[MSIDThrottlingModelBase cacheService] removeObjectForKey:self.thumbprintValue error:&error];
+    if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Error remove the record from throttling database %@", error);
     }
@@ -69,7 +63,7 @@
 {
     NSError *error = nil;
     [[MSIDLRUCache sharedInstance] setObject:cacheRecord forKey:self.thumbprintValue error:&error];
-    if (!error)
+    if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Error adding the record to throttling database %@", error);
     }
@@ -93,7 +87,7 @@
     return NO;
 }
 
-- (void) updateServerTelemetry
+- (void)updateServerTelemetry
 {
     NSAssert(NO, @"Abstract method.");
     return ;

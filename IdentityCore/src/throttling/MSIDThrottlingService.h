@@ -27,16 +27,17 @@
 #import "MSIDThrottlingCacheRecord.h"
 #import "MSIDTokenResponse.h"
 
-typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable error);
+typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable errorResponse);
+
 
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDThrottlingService : NSObject
 
 @property id<MSIDRequestContext> _Nullable context;
-@property NSString * _Nullable accessGroup;
+@property (nonatomic, nullable) NSString *accessGroup;
 
 - (instancetype)initWithAccessGroup:(NSString * _Nullable)accessGroup
-                            context:(id<MSIDRequestContext>)context;
+                            context:(id<MSIDRequestContext> __nullable)context;
 
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
                   resultBlock:(MSIDThrottleResultBlock)resultBlock;

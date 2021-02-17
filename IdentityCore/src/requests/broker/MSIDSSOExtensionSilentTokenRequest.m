@@ -157,43 +157,48 @@
         /**
          Throttling: if the request is throttlable, return early
          */
-        [self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable error)
+        [self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
             
-            if (error)
+            if (cachedError)
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(error));
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(cachedError));
             }
             
-            if (shouldBeThrottled && error)
+            if (shouldBeThrottled && cachedError)
             {
-                completionBlock(nil,error);
+                completionBlock(nil,cachedError);
                 return;
             }
             
-            NSDictionary *jsonDictionary = [self.operationRequest jsonDictionary];
-            
-            if (!jsonDictionary)
-            {
-                NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for silent token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-                completionBlock(nil, error);
-                return;
-            }
-            
-            ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
-            ssoRequest.requestedOperation = [self.operationRequest.class operation];
-            __auto_type queryItems = [jsonDictionary msidQueryItems];
-            ssoRequest.authorizationOptions = queryItems;
-            
-            self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
-            self.authorizationController.delegate = self.extensionDelegate;
-            [self.authorizationController performRequests];
-            
-            self.requestCompletionBlock = completionBlock;
+            [self executeRequestImplWithCompletionBlock:completionBlock];
         }];
 
     }];
+}
+
+- (void)executeRequestImplWithCompletionBlock:(MSIDRequestCompletionBlock _Nonnull)completionBlock
+{
+    NSDictionary *jsonDictionary = [self.operationRequest jsonDictionary];
+    
+    if (!jsonDictionary)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for silent token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        completionBlock(nil, error);
+        return;
+    }
+    
+    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
+    ssoRequest.requestedOperation = [self.operationRequest.class operation];
+    __auto_type queryItems = [jsonDictionary msidQueryItems];
+    ssoRequest.authorizationOptions = queryItems;
+    
+    self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+    self.authorizationController.delegate = self.extensionDelegate;
+    [self.authorizationController performRequests];
+    
+    self.requestCompletionBlock = completionBlock;
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

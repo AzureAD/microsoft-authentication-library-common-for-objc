@@ -35,7 +35,6 @@
 #import "NSDate+MSIDExtensions.h"
 
 @implementation MSIDThrottlingMetaDataCache
-id<MSIDExtendedTokenCacheDataSource> dataSource;
 
 + (MSIDThrottlingMetaData *)getThrottlingMetadataWithAccessGroup:(NSString *)accessGroup
                                                          Context:(id<MSIDRequestContext>)context
@@ -59,11 +58,10 @@ id<MSIDExtendedTokenCacheDataSource> dataSource;
                                      Context:(id<MSIDRequestContext>)context
                                        error:(NSError*__nullable*__nullable)error
 {
-    NSMutableDictionary *dict = [NSMutableDictionary new];
-    dict[@"last_refresh_time"] = [[NSDate new] msidDateToTimestamp];
-
-    MSIDJsonObject *metadata = [[MSIDJsonObject alloc] initWithJSONDictionary:dict error:error];
-    if (!metadata)
+    MSIDThrottlingMetaData *metadata = [[MSIDThrottlingMetaData alloc] init];
+    metadata.lastRefreshTime = [[NSDate new] msidDateToTimestamp];
+    MSIDJsonObject *metadataJSONObj = [[MSIDJsonObject alloc] initWithJSONDictionary:metadata.jsonDictionary error:error];
+    if (!metadataJSONObj)
     {
         return NO;
     }
@@ -74,7 +72,7 @@ id<MSIDExtendedTokenCacheDataSource> dataSource;
         return NO;
     }
 
-    return [datasource saveJsonObject:metadata
+    return [datasource saveJsonObject:metadataJSONObj
                            serializer:[MSIDCacheItemJsonSerializer new]
                                   key:[MSIDThrottlingMetaDataCache throttlingMetadataCacheKey]
                               context:context

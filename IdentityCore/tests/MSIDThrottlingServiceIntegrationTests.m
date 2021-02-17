@@ -45,6 +45,7 @@
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDThrottlingServiceMock.h"
 #import "MSIDThrottlingModelBase.h"
+#import "MSIDTestSwizzle.h"
 
 
 @interface MSIDThrottlingService (MSIDThrottlingServiceIntegrationTests)
@@ -60,28 +61,6 @@
 
 - (void)acquireTokenWithRefreshTokenImpl:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
                          completionBlock:(MSIDRequestCompletionBlock)completionBlock;
-
-@end
-
-
-//Need to set category method, since tokenEndpoint is read-only property that relies on yet another readonly property called metadata
-//and this API gets used in refreshTokenRequestWithRequestParamters within the OAuth Factory
-@interface MSIDRequestParameters (MSIDThrottlingServiceIntegrationTests)
-
-@property (nonatomic, readonly) NSURL *tokenEndpoint;
-
-@end
-
-@implementation MSIDRequestParameters (MSIDThrottlingServiceIntegrationTests)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wobjc-protocol-method-implementation"
-
-- (NSURL *)tokenEndpoint
-{
-    return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
-}
-
-#pragma clang diagnostic pop
 
 @end
 
@@ -194,6 +173,15 @@
                                                                                                       context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
+
+    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+                              class:[MSIDRequestParameters class]
+                              block:(id)^(void)
+    {
+       return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
+
+    }];
+   
     
     MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:self.refreshToken
                                                                                        requestClaims:self.atRequestClaim
@@ -325,6 +313,14 @@
 
     tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
     
+    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+                             class:[MSIDRequestParameters class]
+                             block:(id)^(void)
+    {
+       return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
+
+    }];
+   
     
     //First attempt - there shouldn't be any throttling
     [MSIDTestURLSession addResponse:tokenResponse];

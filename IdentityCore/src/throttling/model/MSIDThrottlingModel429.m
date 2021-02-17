@@ -31,10 +31,10 @@
 static NSInteger const Default429Throttling = 60;
 static NSInteger const MaxRetryAfter = 3600;
 
-- (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
-                   errorResponse:(NSError *)errorResponse
-                     accessGroup:(NSString *)accessGroup
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+                    cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
+                  errorResponse:(NSError *)errorResponse
+                    accessGroup:(NSString *)accessGroup
 {
     self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
     if (self)
@@ -60,9 +60,8 @@ static NSInteger const MaxRetryAfter = 3600;
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Throttling: error response domain: %@", errorResponse.domain);
 
     BOOL res = NO;
-    BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
-
-    NSString *httpResponseCode = errorResponse.userInfo[isMSIDError ? MSIDHTTPResponseCodeKey : @"MSALHTTPResponseCodeKey"];
+    
+    NSString *httpResponseCode = [errorResponse msidGetUserInfoValueWithMSIDKey:MSIDHTTPResponseCodeKey orMSALKey:@"MSALHTTPResponseCodeKey"];
     NSInteger responseCode = [httpResponseCode intValue];
     if (responseCode == 429) res = YES;
     if (responseCode >= 500 && responseCode <= 599) res = YES;
@@ -100,10 +99,11 @@ static NSInteger const MaxRetryAfter = 3600;
     }
     else
     {
-        NSTimeInterval MAX_THROTTLING_TIME = MaxRetryAfter;
-        NSDate *max429ThrottlingDate = [[NSDate date] dateByAddingTimeInterval:MAX_THROTTLING_TIME];
+        NSTimeInterval maxThrottlingTime = MaxRetryAfter;
+        NSDate *max429ThrottlingDate = [[NSDate date] dateByAddingTimeInterval:maxThrottlingTime];
         NSTimeInterval timeDiff = [retryHeaderDate timeIntervalSinceDate:max429ThrottlingDate];
-        throttleDuration = (timeDiff > MAX_THROTTLING_TIME) ? (NSInteger) MAX_THROTTLING_TIME : (NSInteger) [retryHeaderDate timeIntervalSinceDate:[NSDate new]];
+        throttleDuration = (timeDiff > maxThrottlingTime) ? (NSInteger) maxThrottlingTime : (NSInteger) [retryHeaderDate timeIntervalSinceDate:[NSDate new]];
+
     }
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"[Throttle prepareCacheRecord], create 429 cache record with throttleDuration %ld", (long)throttleDuration);
 

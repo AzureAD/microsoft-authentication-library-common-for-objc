@@ -33,10 +33,10 @@ static NSInteger const DefaultUIRequired = 120;
 
 @implementation MSIDThrottlingModelInteractionRequire
 
-- (instancetype) initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                     cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
-                   errorResponse:(NSError *)errorResponse
-                     accessGroup:(NSString *)accessGroup
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+                    cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
+                  errorResponse:(NSError *)errorResponse
+                    accessGroup:(NSString *)accessGroup
 {
     self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
     if (self)
@@ -59,13 +59,13 @@ static NSInteger const DefaultUIRequired = 120;
 {
     // MSALErrorInteractionRequired = -50002
     NSSet *uirequiredErrors = [[NSSet alloc] initWithArray:@[[NSNumber numberWithInt:(-50002)]]];
-    BOOL isMSIDError = [errorResponse.domain hasPrefix:@"MSID"];
+    BOOL isMSIDError = [errorResponse msidIsMSIDError];
     
     if (isMSIDError)
     {
         NSString *errorString = errorResponse.msidOauthError;
-        NSInteger errorCode = errorResponse.code;
-        if ([NSString msidIsStringNilOrBlank:errorString] || (errorCode == MSIDErrorInteractionRequired))
+        NSUInteger errorCode = errorResponse.code;
+        if (![NSString msidIsStringNilOrBlank:errorString] || (errorCode == MSIDErrorInteractionRequired))
         {
             return YES;
         }
@@ -82,7 +82,6 @@ static NSInteger const DefaultUIRequired = 120;
 
 - (BOOL)shouldThrottleRequest
 {
-    BOOL res = NO;
     NSError *error;
     NSDate *currentTime = [NSDate date];
     NSDate *lastRefreshTime = [MSIDThrottlingModelInteractionRequire getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
@@ -90,12 +89,12 @@ static NSInteger const DefaultUIRequired = 120;
     if ([currentTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending
         || (lastRefreshTime && [lastRefreshTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending))
     {
-        [self.cacheService removeObjectForKey:self.thumbprintValue error:&error];
+        [[MSIDThrottlingModelBase cacheService] removeObjectForKey:self.thumbprintValue error:&error];
         if (error)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelError, self.context, @"Throttling: error when remove record from database %@ ", error);
         }
-        res = NO;
+        return NO;
     }
     return YES;
 }
@@ -105,7 +104,7 @@ static NSInteger const DefaultUIRequired = 120;
  */
 + (NSDate *)getLastRefreshTimeAccessGroup:(NSString *)accessGroup
                                   context:(id<MSIDRequestContext>)context
-                                    error:(NSError*__nullable*__nullable)error
+                                    error:(NSError **)error
 {
     MSIDThrottlingMetaData *metadata = [MSIDThrottlingMetaDataCache getThrottlingMetadataWithAccessGroup:accessGroup Context:context error:error];
     NSString *stringDate = metadata.lastRefreshTime;
@@ -120,7 +119,7 @@ static NSInteger const DefaultUIRequired = 120;
     return record;
 }
 
-- (void) updateServerTelemetry
+- (void)updateServerTelemetry
 {
     // TODO implement telemetry update here
     return ;

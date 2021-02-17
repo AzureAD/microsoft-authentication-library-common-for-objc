@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSUInteger updateThrottlingServiceInvokedCount;
 
 - (instancetype)initWithAccessGroup:(NSString * _Nullable)accessGroup
-                            context:(id<MSIDRequestContext>)context;
+                            context:(id<MSIDRequestContext> __nullable)context;
 
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
                   resultBlock:(MSIDThrottleResultBlock)resultBlock;

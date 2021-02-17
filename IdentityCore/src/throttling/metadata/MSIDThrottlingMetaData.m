@@ -29,7 +29,7 @@
 
 @implementation MSIDThrottlingMetaData
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
 {
     self = [super init];
     
