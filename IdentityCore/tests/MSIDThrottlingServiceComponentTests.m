@@ -20,34 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-
-#import "MSIDRequestContext.h"
-#import "MSIDThumbprintCalculatable.h"
-#import "MSIDThrottlingCacheRecord.h"
-#import "MSIDTokenResponse.h"
-
-typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable errorResponse);
+// THE SOFTWARE.  
 
 
-NS_ASSUME_NONNULL_BEGIN
-@interface MSIDThrottlingService : NSObject
+#import <XCTest/XCTest.h>
 
-@property id<MSIDRequestContext> _Nullable context;
-@property (nonatomic, nullable) NSString *accessGroup;
-
-- (instancetype)initWithAccessGroup:(NSString * _Nullable)accessGroup
-                            context:(id<MSIDRequestContext> __nullable)context;
-
-- (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
-                  resultBlock:(MSIDThrottleResultBlock)resultBlock;
-
-- (void)updateThrottlingService:(NSError *)error
-                   tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest;
-
-+ (BOOL)updateLastRefreshTimeAccessGroup:(NSString * _Nullable)accessGroup
-                                 context:(id<MSIDRequestContext>_Nullable)context
-                                   error:(NSError * _Nullable * _Nullable)error;
+@interface MSIDThrottlingServiceComponentTests : XCTestCase
 
 @end
-NS_ASSUME_NONNULL_END
+
+@implementation MSIDThrottlingServiceComponentTests
+
+- (void)setUp
+{
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+}
+
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+}
+
+
+
+@end

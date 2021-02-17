@@ -64,7 +64,7 @@ static NSInteger const DefaultUIRequired = 120;
     if (isMSIDError)
     {
         NSString *errorString = errorResponse.msidOauthError;
-        NSUInteger errorCode = errorResponse.code;
+        NSInteger errorCode = errorResponse.code;
         if (![NSString msidIsStringNilOrBlank:errorString] || (errorCode == MSIDErrorInteractionRequired))
         {
             return YES;

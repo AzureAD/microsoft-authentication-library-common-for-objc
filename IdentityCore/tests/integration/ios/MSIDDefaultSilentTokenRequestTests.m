@@ -118,6 +118,7 @@
 {
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];

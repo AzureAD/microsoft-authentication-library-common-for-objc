@@ -1628,6 +1628,13 @@
 		E733EDFE25C0A4B100ACB79A /* MSIDThumbprintCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = E733EDFC25C0A4B100ACB79A /* MSIDThumbprintCalculator.m */; };
 		E733EE0C25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */; };
 		E733EE0D25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */; };
+		E75DD02525D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */; };
+		E75DD02625D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */; };
+		E75DD03425D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */; };
+		E75DD03525D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */; };
+		E75DD07D25D6292D007664A6 /* MSIDThrottlingServiceMock.h in Headers */ = {isa = PBXBuildFile; fileRef = E75DD07C25D6292D007664A6 /* MSIDThrottlingServiceMock.h */; };
+		E75DD08B25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */; };
+		E75DD08C25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */; };
 		E7B67294257ED6E30053773F /* MSIDLRUCache.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67293257ED6E30053773F /* MSIDLRUCache.h */; };
 /* End PBXBuildFile section */
 
@@ -2904,6 +2911,10 @@
 		E733EDEE25C0A49500ACB79A /* MSIDThumbprintCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThumbprintCalculator.h; sourceTree = "<group>"; };
 		E733EDFC25C0A4B100ACB79A /* MSIDThumbprintCalculator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThumbprintCalculator.m; sourceTree = "<group>"; };
 		E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThumbprintCalculatorTests.m; sourceTree = "<group>"; };
+		E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */ = {isa = PBXFileReference; indentWidth = 3; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceIntegrationTests.m; sourceTree = "<group>"; };
+		E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceComponentTests.m; sourceTree = "<group>"; };
+		E75DD07C25D6292D007664A6 /* MSIDThrottlingServiceMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingServiceMock.h; sourceTree = "<group>"; };
+		E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceMock.m; sourceTree = "<group>"; };
 		E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheRecord.h; sourceTree = "<group>"; };
 		E7B67293257ED6E30053773F /* MSIDLRUCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDLRUCache.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3269,6 +3280,8 @@
 				5898421025253F050075DFED /* MSIDAccountMetadataCacheMockUpdatePrincipalAccountIdParams.m */,
 				5898421F25253FE00075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.h */,
 				5898422025253FE00075DFED /* MSIDAccountMetadataCacheMockRemoveAccountMetadataForHomeAccountIdParams.m */,
+				E75DD07C25D6292D007664A6 /* MSIDThrottlingServiceMock.h */,
+				E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */,
 			);
 			path = mocks;
 			sourceTree = "<group>";
@@ -5083,6 +5096,8 @@
 				1EE8FF6324F4C0E600CA1445 /* IdentityCoreTests Mac-Bridging-Header.h */,
 				E70C4A74258D7E7B00A7A07E /* MSIDLRUCacheTest.m */,
 				E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */,
+				E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */,
+				E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -5579,6 +5594,7 @@
 				D626FFF61FBD200A00EE4487 /* MSIDTestURLResponse.h in Headers */,
 				B2BE925D21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.h in Headers */,
 				B2BE923E21A0FD2B00F5AB8C /* MSIDTestSwizzle.h in Headers */,
+				E75DD07D25D6292D007664A6 /* MSIDThrottlingServiceMock.h in Headers */,
 				B217862E23A58A0E00839CE8 /* ASAuthorizationSingleSignOnCredentialMock.h in Headers */,
 				B2E4A06C24DDE54F007CE642 /* MSIDRegistrationInformationMock.h in Headers */,
 				B2BE925821A24CB000F5AB8C /* MSIDTestSilentTokenRequest.h in Headers */,
@@ -6245,6 +6261,7 @@
 				B2DD4B3120A8DA0B0047A66E /* MSIDLegacyCacheQueryTests.m in Sources */,
 				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				B29A36BB20AFAB0200427B63 /* MSIDDefaultAccessorSSOIntegrationTests.m in Sources */,
+				E75DD03425D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */,
 				B2DD4B3820A922170047A66E /* MSIDDefaultAccountCacheQueryTests.m in Sources */,
 				B2936F4A20AA8E1F0050C585 /* MSIDCacheItemJsonSerializerTests.m in Sources */,
 				B281B338226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */,
@@ -6252,6 +6269,7 @@
 				B2808001204CB29900944D89 /* MSIDAADTokenResponseTests.m in Sources */,
 				60BE05F5239E580300CDA662 /* MSIDAccountMetadataCacheItemTests.m in Sources */,
 				B28BBD3F221267B200F51723 /* MSIDLegacyTokenResponseValidatorTests.m in Sources */,
+				E75DD02525D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */,
 				239DF9C120E04BC9002D428B /* MSIDB2CAuthorityTests.m in Sources */,
 				B2DD4B4020A934170047A66E /* MSIDCredentialTypeTests.m in Sources */,
 				B2C708DF219BC67F00D917B8 /* MSIDDefaultSilentTokenRequestTests.m in Sources */,
@@ -6690,6 +6708,7 @@
 				96CD652A20C885E2004813EE /* MSIDWebviewFactoryTests.m in Sources */,
 				239DF9C220E04BC9002D428B /* MSIDB2CAuthorityTests.m in Sources */,
 				B281B339226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */,
+				E75DD03525D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */,
 				B2808005204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				23419F64239896E500EA78C5 /* MSIDBrokerOperationResponseTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
@@ -6710,6 +6729,7 @@
 				B2BE926221A25A8600F5AB8C /* MSIDInteractiveControllerIntegrationTests.m in Sources */,
 				B2BE923521A0F80100F5AB8C /* MSIDLegacyTokenRequestProviderTests.m in Sources */,
 				23FB5C21225516FB002BF1EB /* MSIDClaimsRequestTests.m in Sources */,
+				E75DD02625D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */,
 				B286BA07238A110A007833AD /* MSIDOIDCSignoutRequestTests.m in Sources */,
 				B280800E204CD82100944D89 /* MSIDDefaultCredentialCacheKeyTests.m in Sources */,
 				23CC94482046507D00AA0551 /* MSIDMacTokenCacheIntegrationTests.m in Sources */,
@@ -6815,6 +6835,7 @@
 				D626FFF41FBD200A00EE4487 /* MSIDTestURLSession.m in Sources */,
 				D6D9A44D1FBD3EEA00EFA430 /* NSDictionary+MSIDTestUtil.m in Sources */,
 				B28AC66A21A0C07A00A1FC4A /* MSIDTestBrokerKeyProviderHelper.m in Sources */,
+				E75DD08B25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */,
 				B2BE925921A24CB000F5AB8C /* MSIDTestSilentTokenRequest.m in Sources */,
 				B2BE925E21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.m in Sources */,
 			);
@@ -6830,6 +6851,7 @@
 				961ACDFE22A1F60800B9266C /* NSData+MSIDTestUtil.m in Sources */,
 				583BFCB724D908980035B901 /* MSIDTestBundle.m in Sources */,
 				B2BE925F21A2529E00F5AB8C /* MSIDTestInteractiveTokenRequest.m in Sources */,
+				E75DD08C25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */,
 				B2BE925A21A24CB000F5AB8C /* MSIDTestSilentTokenRequest.m in Sources */,
 				B217863023A58A0E00839CE8 /* ASAuthorizationSingleSignOnCredentialMock.m in Sources */,
 				6078EB51226DA97200235498 /* MSIDTestCacheUtil.m in Sources */,
