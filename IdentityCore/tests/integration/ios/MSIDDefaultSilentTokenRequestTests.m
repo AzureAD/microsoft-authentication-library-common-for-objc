@@ -51,6 +51,7 @@
 #import "MSIDB2COauth2Factory.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDIdToken.h"
+#import "MSIDLRUCache.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -119,6 +120,7 @@
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
+    [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     [super tearDown];
 }
 
