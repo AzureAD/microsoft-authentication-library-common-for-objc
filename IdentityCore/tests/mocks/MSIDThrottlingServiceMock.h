@@ -20,21 +20,22 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDRequestContext.h"
-#import "MSIDThumbprintCalculatable.h"
-#import "MSIDThrottlingCacheRecord.h"
-#import "MSIDTokenResponse.h"
 
-typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable errorResponse);
+#include "MSIDThrottlingService.h"
 
+@protocol MSIDRequestContext;
+@protocol MSIDThumbprintCalculatable;
+
+typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable error);
 
 NS_ASSUME_NONNULL_BEGIN
-@interface MSIDThrottlingService : NSObject
 
-@property id<MSIDRequestContext> _Nullable context;
-@property (nonatomic, nullable) NSString *accessGroup;
+@interface MSIDThrottlingServiceMock : MSIDThrottlingService
+
+@property (nonatomic) NSUInteger shouldThrottleRequestInvokedCount;
+@property (nonatomic) NSUInteger updateThrottlingServiceInvokedCount;
 
 - (instancetype)initWithAccessGroup:(NSString * _Nullable)accessGroup
                             context:(id<MSIDRequestContext> __nullable)context;
@@ -48,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)updateLastRefreshTimeAccessGroup:(NSString * _Nullable)accessGroup
                                  context:(id<MSIDRequestContext>_Nullable)context
                                    error:(NSError * _Nullable * _Nullable)error;
+
 
 @end
 NS_ASSUME_NONNULL_END
