@@ -75,10 +75,10 @@ typedef void (^MSIDLogCallback)(MSIDLogLevel level, NSString *message, BOOL cont
 @property (nonatomic, readwrite) MSIDLogLevel level;
 
 /*!
- Set to YES to allow messages possibly containing Personally Identifiable Information (PII) to be
- sent to the logging callback.
+    Provides a mechanism for a more granular log masking.
+    All PII will be masked by default.
  */
-@property (nonatomic, readwrite) BOOL piiLoggingEnabled;
+@property (nonatomic, readwrite) MSIDLogMaskingLevel logMaskingLevel;
 
 @property (nonatomic, readwrite) BOOL nsLoggingEnabled;
 

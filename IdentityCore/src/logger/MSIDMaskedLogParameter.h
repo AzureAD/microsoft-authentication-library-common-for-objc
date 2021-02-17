@@ -28,10 +28,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDMaskedLogParameter : NSObject
 
 @property (nonatomic, readonly) id parameterValue;
+@property (nonatomic, readonly) BOOL isEUII;
 
 - (instancetype)initWithParameterValue:(id)parameter;
+- (instancetype)initWithParameterValue:(id)parameter isEUII:(BOOL)isEUII;
 
-- (NSString *)maskedDescription;
+- (NSString *)maskedDescription; // Masks any potential PII, including EUII, EUPI, OII
+- (NSString *)EUIIMaskedDescription; // Only masks EUII
 
 @end
 
