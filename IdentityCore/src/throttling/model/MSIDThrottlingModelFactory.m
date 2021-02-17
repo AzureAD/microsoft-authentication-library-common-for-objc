@@ -116,6 +116,8 @@
                                                 fullThumbprint:(NSString *)fullThumbprint
                                                          error:(NSError **)error
 {
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Query throttling database with thumbprint strict value: %@, full value: %@", strictThumbprint, fullThumbprint);
+
     MSIDThrottlingCacheRecord *cacheRecord = [[MSIDLRUCache sharedInstance] objectForKey:strictThumbprint
                                                                                    error:error];
     if (!cacheRecord)

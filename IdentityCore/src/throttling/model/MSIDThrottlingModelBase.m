@@ -62,6 +62,8 @@
 - (void)insertOrUpdateCacheRecordToDB:(MSIDThrottlingCacheRecord *)cacheRecord
 {
     NSError *error = nil;
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Adding the record to throttling database with thumbprint value: %@, type: %ld", self.thumbprintValue, (long)self.thumbprintType);
+
     [[MSIDLRUCache sharedInstance] setObject:cacheRecord forKey:self.thumbprintValue error:&error];
     if (error)
     {
