@@ -71,7 +71,7 @@
     }
 }
 
-- (MSIDThrottlingCacheRecord *)prepareCacheRecord
+- (MSIDThrottlingCacheRecord *)createDBCacheRecord
 {
     NSAssert(NO, @"Abstract method.");
     return nil;

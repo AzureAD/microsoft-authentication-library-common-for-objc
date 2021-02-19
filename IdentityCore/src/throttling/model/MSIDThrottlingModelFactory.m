@@ -37,7 +37,12 @@
                                                    accessGroup:(NSString *)accessGroup
                                                        context:(id<MSIDRequestContext>)context
 {
-    if (![MSIDThrottlingModelFactory validateInput:request]) return nil;
+    if (![MSIDThrottlingModelFactory validateInput:request])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Throttling: both strict and fullthumbprint of the request are null");
+        return nil;
+    }
+        
     NSError *error;
     MSIDThrottlingCacheRecord *cacheRecord = [MSIDThrottlingModelFactory getDBRecordWithStrictThumbprint:request.strictRequestThumbprint
                                                                                           fullThumbprint:request.fullRequestThumbprint
@@ -94,13 +99,10 @@
     if ([MSIDThrottlingModel429 isApplicableForTheThrottleModel:errorResponse])
     {
         throttleType = MSIDThrottlingType429;
-        return throttleType;
     }
-    
-    if ([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:errorResponse])
+    else if ([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:errorResponse])
     {
         throttleType = MSIDThrottlingTypeInteractiveRequired;
-        return throttleType;
     }
     
     return throttleType;

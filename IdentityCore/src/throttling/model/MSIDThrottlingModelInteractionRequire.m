@@ -84,7 +84,7 @@ static NSInteger const DefaultUIRequired = 120;
 {
     NSError *error;
     NSDate *currentTime = [NSDate date];
-    NSDate *lastRefreshTime = [MSIDThrottlingModelInteractionRequire getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
+    NSDate *lastRefreshTime = [MSIDThrottlingMetaDataCache getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
     // If currentTime is later than the expiration Time or the lastRefreshTime is later then the expiration Time, we don't throttle the request
     if ([currentTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending
         || (lastRefreshTime && [lastRefreshTime compare:self.cacheRecord.creationTime] != NSOrderedAscending))
@@ -99,19 +99,7 @@ static NSInteger const DefaultUIRequired = 120;
     return YES;
 }
 
-/**
- Get last refresh time from our key chain.
- */
-+ (NSDate *)getLastRefreshTimeAccessGroup:(NSString *)accessGroup
-                                  context:(id<MSIDRequestContext>)context
-                                    error:(NSError **)error
-{
-    MSIDThrottlingMetaData *metadata = [MSIDThrottlingMetaDataCache getThrottlingMetadataWithAccessGroup:accessGroup Context:context error:error];
-    NSString *stringDate = metadata.lastRefreshTime;
-    return [NSDate msidDateFromTimeStamp:stringDate];
-}
-
-- (MSIDThrottlingCacheRecord *)prepareCacheRecord
+- (MSIDThrottlingCacheRecord *)createDBCacheRecord
 {
     MSIDThrottlingCacheRecord *record = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:self.errorResponse
                                                                                     throttleType:MSIDThrottlingTypeInteractiveRequired

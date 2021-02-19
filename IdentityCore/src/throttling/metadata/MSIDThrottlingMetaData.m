@@ -31,7 +31,7 @@
 
 - (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(__unused NSError **)error
 {
-    self = [super init];
+    self = [super initWithJSONDictionary:json error:error];
     
     if (self)
     {

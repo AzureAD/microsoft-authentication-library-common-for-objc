@@ -28,8 +28,4 @@
 
 @interface MSIDThrottlingModelInteractionRequire : MSIDThrottlingModelBase
 
-+ (NSDate *_Nullable)getLastRefreshTimeAccessGroup:(NSString *_Nullable)accessGroup
-                                           context:(id<MSIDRequestContext>_Nullable)context
-                                             error:(NSError*__nullable*__nullable)error;
-
 @end

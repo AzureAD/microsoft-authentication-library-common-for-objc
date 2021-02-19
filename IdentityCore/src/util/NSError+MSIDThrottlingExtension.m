@@ -30,7 +30,6 @@
 
 - (NSDate *)msidGetRetryDateFromError
 {
-    if (!self) return nil;
     NSDate *retryHeaderDate = nil;
     retryHeaderDate = [NSDate msidDateFromRetryHeader:[self msidGetHTTPHeaderValue:@"Retry-After"]];
     return retryHeaderDate;
@@ -38,13 +37,11 @@
 
 - (BOOL)msidIsMSIDError
 {
-    if (!self) return NO;
     return [self.domain hasPrefix:@"MSID"];
 }
 
 - (NSString *)msidGetHTTPHeaderValue:(NSString *)headerKey
 {
-    if (!self) return nil;
     NSDictionary *headerFields = [self.domain hasPrefix:@"MSID"] ? self.userInfo[MSIDHTTPHeadersKey] : self.userInfo[@"MSALHTTPHeadersKey"];
     return headerFields[headerKey];
 }
@@ -52,7 +49,6 @@
 - (NSString *)msidGetUserInfoValueWithMSIDKey:(NSString *)msidKey
                                     orMSALKey:(NSString *)msalKey
 {
-    if (!self) return nil;
     return self.userInfo[[self msidIsMSIDError] ? msidKey : msalKey];
 }
 
