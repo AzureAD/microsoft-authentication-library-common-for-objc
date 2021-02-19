@@ -87,7 +87,7 @@ static NSInteger const DefaultUIRequired = 120;
     NSDate *lastRefreshTime = [MSIDThrottlingModelInteractionRequire getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
     // If currentTime is later than the expiration Time or the lastRefreshTime is later then the expiration Time, we don't throttle the request
     if ([currentTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending
-        || (lastRefreshTime && [lastRefreshTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending))
+        || (lastRefreshTime && [lastRefreshTime compare:self.cacheRecord.creationTime] != NSOrderedAscending))
     {
         [[MSIDThrottlingModelBase cacheService] removeObjectForKey:self.thumbprintValue error:&error];
         if (error)
