@@ -23,7 +23,7 @@
 // THE SOFTWARE.  
 #import "MSIDJsonObject.h"
 
-@interface MSIDThrottlingMetaData : NSObject <MSIDJsonSerializable>
+@interface MSIDThrottlingMetaData : MSIDJsonObject
 
 @property (nonatomic) NSString *lastRefreshTime;
 

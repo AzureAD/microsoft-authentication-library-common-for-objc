@@ -33,10 +33,10 @@ typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nulla
 NS_ASSUME_NONNULL_BEGIN
 @interface MSIDThrottlingService : NSObject
 
-@property id<MSIDRequestContext> _Nullable context;
-@property (nonatomic, nullable) NSString *accessGroup;
+@property (nonatomic, nullable, readonly) id<MSIDRequestContext> context;
+@property (nonatomic, nullable, readonly) NSString *accessGroup;
 
-- (instancetype)initWithAccessGroup:(NSString * _Nullable)accessGroup
+- (instancetype)initWithAccessGroup:(NSString *__nullable)accessGroup
                             context:(id<MSIDRequestContext> __nullable)context;
 
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
@@ -45,9 +45,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateThrottlingService:(NSError *)error
                    tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest;
 
-+ (BOOL)updateLastRefreshTimeAccessGroup:(NSString * _Nullable)accessGroup
-                                 context:(id<MSIDRequestContext>_Nullable)context
-                                   error:(NSError * _Nullable * _Nullable)error;
++ (BOOL)updateLastRefreshTimeAccessGroup:(NSString *__nullable)accessGroup
+                                 context:(id<MSIDRequestContext>__nullable)context
+                                   error:(NSError *__nullable *__nullable)error;
 
 @end
 NS_ASSUME_NONNULL_END

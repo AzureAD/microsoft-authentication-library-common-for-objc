@@ -37,7 +37,7 @@
 @implementation MSIDThrottlingMetaDataCache
 
 + (MSIDThrottlingMetaData *)getThrottlingMetadataWithAccessGroup:(NSString *)accessGroup
-                                                         Context:(id<MSIDRequestContext>)context
+                                                         context:(id<MSIDRequestContext>)context
                                                            error:(NSError*__nullable*__nullable)error
 {
     MSIDThrottlingMetaData *result = nil;
@@ -55,16 +55,11 @@
 }
 
 + (BOOL)updateLastRefreshTimeWithAccessGroup:(NSString *)accessGroup
-                                     Context:(id<MSIDRequestContext>)context
+                                     context:(id<MSIDRequestContext>)context
                                        error:(NSError*__nullable*__nullable)error
 {
     MSIDThrottlingMetaData *metadata = [[MSIDThrottlingMetaData alloc] init];
     metadata.lastRefreshTime = [[NSDate new] msidDateToTimestamp];
-    MSIDJsonObject *metadataJSONObj = [[MSIDJsonObject alloc] initWithJSONDictionary:metadata.jsonDictionary error:error];
-    if (!metadataJSONObj)
-    {
-        return NO;
-    }
     
     id<MSIDExtendedTokenCacheDataSource> datasource = [MSIDThrottlingMetaDataCache dataSource:accessGroup error:error];
     if (!datasource)
@@ -72,11 +67,23 @@
         return NO;
     }
 
-    return [datasource saveJsonObject:metadataJSONObj
+    return [datasource saveJsonObject:metadata
                            serializer:[MSIDCacheItemJsonSerializer new]
                                   key:[MSIDThrottlingMetaDataCache throttlingMetadataCacheKey]
                               context:context
                                 error:error];
+}
+
+/**
+ Get last refresh time from our key chain.
+ */
++ (NSDate *)getLastRefreshTimeAccessGroup:(NSString *)accessGroup
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+    MSIDThrottlingMetaData *metadata = [MSIDThrottlingMetaDataCache getThrottlingMetadataWithAccessGroup:accessGroup context:context error:error];
+    NSString *stringDate = metadata.lastRefreshTime;
+    return [NSDate msidDateFromTimeStamp:stringDate];
 }
 
 + (id<MSIDExtendedTokenCacheDataSource>)dataSource:(NSString *)accessGroup error:(NSError * _Nullable __autoreleasing * _Nullable)error

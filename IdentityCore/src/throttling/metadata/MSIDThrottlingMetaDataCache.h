@@ -27,13 +27,19 @@
 
 @interface MSIDThrottlingMetaDataCache : NSObject
 
-+ (MSIDThrottlingMetaData *_Nullable)getThrottlingMetadataWithAccessGroup:(NSString *_Nullable)accessGroup
-                                                         Context:(id<MSIDRequestContext>_Nullable)context
-                                                           error:(NSError*__nullable*__nullable)error;
++ (MSIDThrottlingMetaData *_Nullable)getThrottlingMetadataWithAccessGroup:(NSString *__nullable)accessGroup
+                                                                  context:(id<MSIDRequestContext> __nullable)context
+                                                                    error:(NSError *__nullable *__nullable)error;
 
-+ (BOOL)updateLastRefreshTimeWithAccessGroup:(NSString *_Nullable)accessGroup
-                                     Context:(id<MSIDRequestContext>_Nullable)context
-                                       error:(NSError*__nullable*__nullable)error;
++ (BOOL)updateLastRefreshTimeWithAccessGroup:(NSString *__nullable)accessGroup
+                                     context:(id<MSIDRequestContext> __nullable)context
+                                       error:(NSError *__nullable *__nullable)error;
+/**
+ Get last refresh time from our key chain.
+ */
++ (NSDate *_Nullable)getLastRefreshTimeAccessGroup:(NSString *__nullable)accessGroup
+                                           context:(id<MSIDRequestContext> __nullable)context
+                                             error:(NSError *__nullable*__nullable)error;
 
 
 @end

@@ -62,7 +62,7 @@
  - NOT throttle case: return result
  - Shoud throttle case: return cached result + update server telemetry + update cache record
  */
-- (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
+- (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
                   resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
 {
     MSIDThrottlingModelBase *throttleModel = [MSIDThrottlingModelFactory throttlingModelForIncomingRequest:request accessGroup:self.accessGroup context:self.context];
@@ -85,8 +85,6 @@
         [throttleModel cleanCacheRecordFromDB];
         resultBlock(NO, nil);
     }
-    
-    return;
 }
 
 /**
@@ -103,7 +101,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"Complete update flow with no update to throttling database");
         return;
     }
-    MSIDThrottlingCacheRecord *cacheRecord = [model prepareCacheRecord];
+    MSIDThrottlingCacheRecord *cacheRecord = [model createDBCacheRecord];
     [model insertOrUpdateCacheRecordToDB:cacheRecord];
 }
 
@@ -112,11 +110,11 @@
 /**
  Update last refresh time when interactive flow is complete and success.
  */
-+ (BOOL)updateLastRefreshTimeAccessGroup:(NSString * _Nullable)accessGroup
++ (BOOL)updateLastRefreshTimeAccessGroup:(NSString *)accessGroup
                                  context:(id<MSIDRequestContext>)context
-                                   error:(NSError*__nullable*__nullable)error
+                                   error:(NSError **)error
 {
-    return [MSIDThrottlingMetaDataCache updateLastRefreshTimeWithAccessGroup:accessGroup Context:context error:error];
+    return [MSIDThrottlingMetaDataCache updateLastRefreshTimeWithAccessGroup:accessGroup context:context error:error];
 }
 
 @end

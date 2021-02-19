@@ -87,7 +87,7 @@ static NSInteger const MaxRetryAfter = 3600;
     return res;
 }
 
-- (MSIDThrottlingCacheRecord *)prepareCacheRecord
+- (MSIDThrottlingCacheRecord *)createDBCacheRecord
 {
     NSDate *retryHeaderDate = [self.errorResponse msidGetRetryDateFromError];
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.context, @"[Throttle prepareCacheRecord], retryHeaderDate: %@", retryHeaderDate);

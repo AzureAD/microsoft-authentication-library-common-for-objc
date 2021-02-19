@@ -51,8 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) NSString *accessGroup;
 @property (readonly, nonatomic) id<MSIDRequestContext> context;
 
-- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable> _Nonnull)request
-                    cacheRecord:(MSIDThrottlingCacheRecord * _Nullable)cacheRecord
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+                    cacheRecord:(MSIDThrottlingCacheRecord *__nullable)cacheRecord
                   errorResponse:(NSError *)errorResponse
                     accessGroup:(NSString *)accessGroup;
 
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateServerTelemetry;
 - (void)cleanCacheRecordFromDB;
 - (void)insertOrUpdateCacheRecordToDB:(MSIDThrottlingCacheRecord *)cacheRecord;
-- (MSIDThrottlingCacheRecord * _Nullable)prepareCacheRecord;
+- (MSIDThrottlingCacheRecord *__nullable)createDBCacheRecord;
 
 @end
 NS_ASSUME_NONNULL_END
