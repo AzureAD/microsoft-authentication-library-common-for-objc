@@ -42,6 +42,7 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneInMemoryCacheDataSource.h"
+#import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDTestURLResponse+Util.h"
 #import "MSIDThrottlingServiceMock.h"
 #import "MSIDThrottlingModelBase.h"
@@ -57,6 +58,13 @@
 #import "MSIDInteractiveTokenRequest.h"
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDLocalInteractiveController.h"
+#import "MSIDAuthority.h"
+#if MSID_ENABLE_SSO_EXTENSION
+#import "MSIDSSOExtensionSilentTokenRequestController.h"
+#import "MSIDSilentController+Internal.h"
+#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "MSIDSSOExtensionSilentTokenRequest.h"
+#endif
 
 #pragma mark - category methods for unit test
 
@@ -147,12 +155,23 @@
                                                                                      @"user_id" : @"dave@contoso.com",
                                                                                      @"enrollment_id" : @"64d0557f-dave-4193-b630-8491ffd3b180"
                                                                                      }
-                                                                                 ]}};
+                                                                                 ]},
+                                         MSID_INTUNE_RESOURCE_ID_KEY: @{@"resource_ids": @[@{
+                                                                                                @"resource1" : @"dummyResourceForSSO1",
+                                                                                                @"resource2" : @"dummyResourceForSSO2",
+                                                                                                @"resource3" : @"dummyResourceForSSO3",
+                                                                                                }
+                                                                                            ]}
+                                         
+    };
     
     MSIDCache *msidCache = [[MSIDCache alloc] initWithDictionary:enrollmentJsonDict];
     MSIDIntuneInMemoryCacheDataSource *memoryCache = [[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:msidCache];
     MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache = [[MSIDIntuneEnrollmentIdsCache alloc] initWithDataSource:memoryCache];
     [MSIDIntuneEnrollmentIdsCache setSharedCache:enrollmentIdsCache];
+    //intune mem resources cache
+    MSIDIntuneMAMResourcesCache *mamResourceCache = [[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:memoryCache];
+    [MSIDIntuneMAMResourcesCache setSharedCache:mamResourceCache];
     
     return parameters;
 
@@ -679,8 +698,7 @@
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
-//Test MSIDLocalInteractiveController
-- (void)testMSIDThrottlingServiceIntegration_ThrottledNonSSOSilentRequestWithUIRequredError_ShouldBeClearedBySuccessfulIntearctiveRequestWithSameThumbprint
+- (void)testMSIDThrottlingServiceIntegration_ThrottledNonSSOSilentRequestWithUIRequredError_ShouldBeClearedBySuccessfulIntearctiveRequest
 {
     //modulating strict request thumbprint parameters.
     NSString *refreshTokenForThisTest = @"expiredRT2";
@@ -888,9 +906,82 @@
    [self waitForExpectationsWithTimeout:5.0 handler:nil];
    
 }
+#if MSID_ENABLE_SSO_EXTENSION
+
+- (void)testMSIDThrottlingServiceIntegration_SSOSilentRequestWith429Error_ShouldBeThrottledSuccessfully
+{
+   if (@available(iOS 13.0, macOS 10.15, *))
+   {
+      
+      //NSError *error = nil;
+      //NSString *refreshTokenForThisTest = @"SSORT";
+      MSIDRequestParameters *newSSORequestParam = self.silentRequestParameters;
+      newSSORequestParam.clientId = @"contosoClientForSSO";
+      newSSORequestParam.oidcScope = @"contosoEmployeeScopeForSSO";
+      newSSORequestParam.target = @"contosoEmployeeTargetForSSO";
+      newSSORequestParam.appRequestMetadata = @{
+         @"requestmetadata1": @"metadata",
+         @"requestmetadata2": @"metahuman"
+      };
+      newSSORequestParam.msidConfiguration = [[MSIDConfiguration alloc] initWithAuthority:[DEFAULT_TEST_AUTHORITY_GUID aadAuthority]
+                                                                              redirectUri:self.redirectUri
+                                                                                 clientId:@"contosoClientForSSO"
+                                                                                   target:@"contosoEmployeeTargetForSSO"];
+      newSSORequestParam.extraURLQueryParameters = @{
+         @"urlQueryParam1" : @"extra1",
+         @"urlQueryParam2" : @"extra2",
+         @"urlQueryParam3" : @"extra3"
+      };
+      newSSORequestParam.instanceAware = YES;
+      newSSORequestParam.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"Satya" homeAccountId:@"Nadella"];
+      
+      
+      
+      MSIDSSOExtensionSilentTokenRequest *newSSORequest = [[MSIDSSOExtensionSilentTokenRequest alloc] initWithRequestParameters:newSSORequestParam
+                                                                                                                   forceRefresh:NO
+                                                                                                                   oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                                         tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                                     tokenCache:self.tokenCache
+                                                                                                           accountMetadataCache:self.accountMetadataCache];
+      
+      
+      
+      //swizzle resolve and validate
+      [MSIDTestSwizzle instanceMethod:@selector(resolveAndValidate:
+                                                 userPrincipalName:
+                                                           context:
+                                                   completionBlock:)
+                                class:[MSIDAuthority class]
+                                block:(id)^(
+                                            __unused id obj,
+                                            __unused BOOL validate,
+                                            __unused NSString *upn,
+                                            __unused id<MSIDRequestContext> context,
+                          MSIDRequestCompletionBlock completionBlock)
+       {
+            completionBlock(nil,nil,nil);
+            return;
+      }];
+      
+      XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttled request - should be cleraed now"];
+      [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+          
+          XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
+          XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,2);
+          XCTAssertNil(result);
+          XCTAssertNotNil(error);
+          XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
+          XCTAssertEqual(validateAndRemoveRefreshTokenInvokeCount,2);
+          [expectation1 fulfill];
+      }];
+      
+      [self waitForExpectationsWithTimeout:5.0 handler:nil];
+     
+      
+   }
+}
 
 
-
-
+#endif
 
 @end
