@@ -45,6 +45,7 @@
         _request = request;
         _cacheRecord = cacheRecord;
         _errorResponse = errorResponse;
+        _accessGroup = accessGroup;
     }
     return self;
 }

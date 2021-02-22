@@ -73,6 +73,13 @@
 #define MSID_INTUNE_RESOURCE_ID_VERSION @"1"
 #define MSID_INTUNE_RESOURCE_ID_KEY (MSID_INTUNE_RESOURCE_ID MSID_INTUNE_RESOURCE_ID_VERSION)
 
+//@interface NSDate (MSIDThrottlingServiceIntegrationTests)
+//
+//+ (instancetype)dateWithTimeIntervalSinceNow:(NSTimeInterval)secs;
+//
+//@end
+//
+
 
 @interface MSIDThrottlingService (MSIDThrottlingServiceIntegrationTests)
 
@@ -111,6 +118,7 @@
 @property (nonatomic) NSString *oidcScopeString;
 @property (nonatomic) NSString *atRequestClaim;
 @property (nonatomic) NSString *redirectUri;
+@property (nonatomic) MSIDKeychainTokenCache *keychainTokenCache;
 
 @end
 
@@ -191,7 +199,7 @@
     self.oidcScopeString = @"user.read tasks.read openid profile offline_access";
     self.atRequestClaim = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
     self.redirectUri = @"x-msauth-outlook-prod://com.microsoft.Office.Outlook";
-
+    self.keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
@@ -200,6 +208,7 @@
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     [MSIDIntuneEnrollmentIdsCache.sharedCache clear];
     [MSIDIntuneMAMResourcesCache.sharedCache clear];
+    [self.keychainTokenCache clearWithContext:nil error:nil];
 }
 
 
@@ -356,7 +365,7 @@
     tokenResponse->_error = [NSError new];
     NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                                MSIDHTTPHeadersKey: @{
-                                    @"Retry-After": @"3"
+                                    @"Retry-After": @"-5"
                                }
                             };
 
@@ -370,6 +379,15 @@
        return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
 
     }];
+
+   [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
+                          class:[NSDate class]
+                          block:(id)^(void)
+   {
+      return [[NSDate new] dateByAddingTimeInterval:-10];
+
+   }];
+   
    
     
     //First attempt - there shouldn't be any throttling
@@ -399,8 +417,7 @@
     XCTAssertEqualObjects(record.cachedErrorResponse,tokenResponse->_error);
     XCTAssertEqual(record.throttledCount,1);
     
-    sleep(5);
-
+ 
     //Second attempt - throttling should be triggered
     [MSIDTestURLSession addResponse:tokenResponse];
     XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttled request"];
@@ -859,6 +876,7 @@
    interactiveRequestParameters.promptType = MSIDPromptTypeConsent;
    interactiveRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
    interactiveRequestParameters.enablePkce = YES;
+   interactiveRequestParameters.keychainAccessGroup = @"com.microsoft.adalcache";
    
    
    //intialize interactive controller
@@ -869,6 +887,15 @@
 
    NSError *error = nil;
    MSIDLocalInteractiveController *interactiveController = [[MSIDLocalInteractiveController alloc] initWithInteractiveRequestParameters:interactiveRequestParameters tokenRequestProvider:provider error:&error];
+   
+   //swizzle class method
+   [MSIDTestSwizzle instanceMethod:@selector(creationTime)
+                             class:[MSIDThrottlingCacheRecord class]
+                             block:(id)^(void)
+   {
+      return [[NSDate new] dateByAddingTimeInterval:-10];
+
+   }];
    
    //swizzle interactive token request
    [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
@@ -881,9 +908,7 @@
          completionBlock(tokenResult,nil,nil);
       
    }];
-   
-   sleep(2);
-   
+
    //acquire token interactively - which should trigger keychain update
    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Acquire token Interactively - should trigger lastUpdateRefresh"];
    [interactiveController acquireToken:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
@@ -911,6 +936,8 @@
    }];
   
    [self waitForExpectationsWithTimeout:5.0 handler:nil];
+   
+   [self.keychainTokenCache clearWithContext:nil error:nil];
    
 }
 #if MSID_ENABLE_SSO_EXTENSION
@@ -1005,7 +1032,7 @@
        {
             NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
                                              MSIDHTTPHeadersKey: @{
-                                                   @"Retry-After": @"3"
+                                                   @"Retry-After": @"-5"
                                                                   }
                                        };
 
@@ -1016,6 +1043,16 @@
             completionBlock(nil,ssoError);
             return;
       }];
+      
+      [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
+                             class:[NSDate class]
+                             block:(id)^(void)
+      {
+         return [[NSDate new] dateByAddingTimeInterval:-10];
+
+      }];
+      
+      
       
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
@@ -1041,26 +1078,13 @@
       XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
       XCTAssertEqual(record.throttledCount,1);
       
-      XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be throttled now"];
-      [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
-           XCTAssertNil(result);
-           XCTAssertNotNil(error);
-           XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
-           XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
-           [expectation2 fulfill];
-      }];
-      
-      [self waitForExpectationsWithTimeout:5.0 handler:nil];
-     
-      sleep(3);
      
       XCTestExpectation *expectation3 = [self expectationWithDescription:@"throttling SSO extension request - throttling has expired - should be cleared now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
            
            XCTAssertNil(result);
            XCTAssertNotNil(error);
-           XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
+           XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation3 fulfill];
       }];
@@ -1161,7 +1185,7 @@
        {
             NSDictionary *userInfo = @{@"MSALHTTPResponseCodeKey": @"515",
                                        @"MSALHTTPHeadersKey": @{
-                                                      @"Retry-After": @"3"
+                                                      @"Retry-After": @"-5"
                                                                      }
                                        };
 
@@ -1173,6 +1197,15 @@
 
             completionBlock(nil,msalError);
             return;
+      }];
+      
+      //Swizzle NSDate
+      [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
+                             class:[NSDate class]
+                             block:(id)^(void)
+      {
+         return [[NSDate new] dateByAddingTimeInterval:-10];
+
       }];
       
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
@@ -1199,31 +1232,18 @@
       XCTAssertEqualObjects(record.cachedErrorResponse,ssoErrorInternal);
       XCTAssertEqual(record.throttledCount,1);
       
-      XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be throttled now"];
+      XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be cleared"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
            XCTAssertNil(result);
            XCTAssertNotNil(error);
-           XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
-           XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
+           XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
+           XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation2 fulfill];
       }];
       
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
      
-      sleep(4);
-
-      XCTestExpectation *expectation3 = [self expectationWithDescription:@"throttling SSO extension request - throttling has expired - should be cleared now"];
-      [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-
-           XCTAssertNil(result);
-           XCTAssertNotNil(error);
-           XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
-           XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
-           [expectation3 fulfill];
-      }];
-
-      [self waitForExpectationsWithTimeout:5.0 handler:nil];
 
    }
 }
@@ -1322,6 +1342,16 @@
             return;
       }];
       
+      //swizzle time related methods
+      //swizzle class method
+      [MSIDTestSwizzle instanceMethod:@selector(creationTime)
+                                class:[MSIDThrottlingCacheRecord class]
+                                block:(id)^(void)
+      {
+         return [[NSDate new] dateByAddingTimeInterval:-10];
+
+      }];
+      
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
@@ -1361,7 +1391,6 @@
       
       
       //Now let's create an interactive request
-      sleep(1);
       MSIDInteractiveTokenRequestParameters *interactiveRequestParameters = [MSIDInteractiveTokenRequestParameters new];
       interactiveRequestParameters.target = @"fakescope1 fakescope2";
       interactiveRequestParameters.authority = [@"https://login.microsoftonline.com/common" aadAuthority];
@@ -1376,6 +1405,7 @@
       interactiveRequestParameters.promptType = MSIDPromptTypeConsent;
       interactiveRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
       interactiveRequestParameters.enablePkce = YES;
+      interactiveRequestParameters.keychainAccessGroup = @"com.microsoft.adalcache";
       
       
       //intialize interactive controller
@@ -1424,7 +1454,7 @@
       
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
      
-
+      [self.keychainTokenCache clearWithContext:nil error:nil];
    }
 }
 
