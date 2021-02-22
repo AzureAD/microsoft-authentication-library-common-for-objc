@@ -59,6 +59,7 @@
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDAuthority.h"
+#import "MSIDBrokerOperationSilentTokenRequest.h"
 #if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDSilentController+Internal.h"
@@ -73,12 +74,20 @@
 #define MSID_INTUNE_RESOURCE_ID_VERSION @"1"
 #define MSID_INTUNE_RESOURCE_ID_KEY (MSID_INTUNE_RESOURCE_ID MSID_INTUNE_RESOURCE_ID_VERSION)
 
-//@interface NSDate (MSIDThrottlingServiceIntegrationTests)
-//
-//+ (instancetype)dateWithTimeIntervalSinceNow:(NSTimeInterval)secs;
-//
-//@end
-//
+#if TARGET_OS_IPHONE
+    NSString *const MSIDThrottlingKeychainGroup = @"com.microsoft.adalcache";
+#else
+    NSString *const MSIDThrottlingKeychainGroup = @"com.microsoft.identity.universalstorage";
+#endif
+
+
+@interface MSIDSSOExtensionSilentTokenRequest (MSIDThrottlingServiceIntegrationTests)
+
+@property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
+
+@end
+
+
 
 
 @interface MSIDThrottlingService (MSIDThrottlingServiceIntegrationTests)
@@ -128,14 +137,14 @@
 
 - (MSIDDefaultTokenCacheAccessor *)tokenCache
 {
-    id<MSIDExtendedTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
+    id<MSIDExtendedTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDThrottlingKeychainGroup error:nil];
     MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     return tokenCache;
 }
 
 - (MSIDAccountMetadataCacheAccessor *)accountMetadataCache
 {
-    id<MSIDMetadataCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
+    id<MSIDMetadataCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDThrottlingKeychainGroup error:nil];
     MSIDAccountMetadataCacheAccessor *accountMetadataCache = [[MSIDAccountMetadataCacheAccessor alloc] initWithDataSource:dataSource];
     return accountMetadataCache;
 }
@@ -150,7 +159,9 @@
     parameters.redirectUri = self.redirectUri;
     parameters.correlationId = [NSUUID new];
     parameters.extendedLifetimeEnabled = YES;
-    parameters.keychainAccessGroup = @"com.microsoft.adalcache";
+    parameters.keychainAccessGroup = MSIDThrottlingKeychainGroup;
+
+   
     //claims request and capabilities - used by AADV2Authority refreshTokenRequestWithRequestParameters
     parameters.claimsRequest = [[MSIDClaimsRequest alloc] initWithJSONDictionary:@{@"id_token":@{@"polids":@{@"essential":@YES,@"values":@[@"d77e91f0-fc60-45e4-97b8-14a1337faa28"]}}} error:nil];
     parameters.clientCapabilities = @[@"cp1", @"llt"];
@@ -199,7 +210,8 @@
     self.oidcScopeString = @"user.read tasks.read openid profile offline_access";
     self.atRequestClaim = @"{\"access_token\":{\"xms_cc\":{\"values\":[\"cp1\",\"llt\"]}},\"id_token\":{\"polids\":{\"values\":[\"d77e91f0-fc60-45e4-97b8-14a1337faa28\"],\"essential\":true}}}";
     self.redirectUri = @"x-msauth-outlook-prod://com.microsoft.Office.Outlook";
-    self.keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:@"com.microsoft.adalcache" error:nil];
+    self.keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDThrottlingKeychainGroup error:nil];
+
     // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
@@ -228,7 +240,7 @@
     refreshToken.refreshToken = self.refreshToken;
     
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                       context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
@@ -341,7 +353,7 @@
     refreshToken.refreshToken = refreshTokenForThisTest;
     
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                       context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
@@ -478,7 +490,7 @@
    
     
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                       context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
@@ -596,7 +608,7 @@
    
 
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                       context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
@@ -750,7 +762,7 @@
    
 
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                       context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
@@ -876,7 +888,7 @@
    interactiveRequestParameters.promptType = MSIDPromptTypeConsent;
    interactiveRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
    interactiveRequestParameters.enablePkce = YES;
-   interactiveRequestParameters.keychainAccessGroup = @"com.microsoft.adalcache";
+   interactiveRequestParameters.keychainAccessGroup = MSIDThrottlingKeychainGroup;
    
    
    //intialize interactive controller
@@ -980,8 +992,9 @@
                                                                                                                      tokenCache:self.tokenCache
                                                                                                            accountMetadataCache:self.accountMetadataCache];
       
+      
       //throttlingServiceMock
-      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                         context:self.silentRequestParameters];
       
       newSSORequest.throttlingService = throttlingServiceMock;
@@ -1134,7 +1147,7 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
       
       //throttlingServiceMock
-      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                         context:self.silentRequestParameters];
       
       newSSORequest.throttlingService = throttlingServiceMock;
@@ -1284,7 +1297,7 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
       
       //throttlingServiceMock
-      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:@"com.microsoft.adalcache"
+      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
                                                                                                         context:self.silentRequestParameters];
       
       newSSORequest.throttlingService = throttlingServiceMock;
@@ -1405,7 +1418,7 @@
       interactiveRequestParameters.promptType = MSIDPromptTypeConsent;
       interactiveRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
       interactiveRequestParameters.enablePkce = YES;
-      interactiveRequestParameters.keychainAccessGroup = @"com.microsoft.adalcache";
+      interactiveRequestParameters.keychainAccessGroup = MSIDThrottlingKeychainGroup;
       
       
       //intialize interactive controller
