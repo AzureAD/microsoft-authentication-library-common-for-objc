@@ -198,6 +198,8 @@
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
+    [MSIDIntuneEnrollmentIdsCache.sharedCache clear];
+    [MSIDIntuneMAMResourcesCache.sharedCache clear];
 }
 
 
@@ -972,7 +974,7 @@
                                             __unused id<MSIDRequestContext> context,
                                             MSIDAuthorityInfoBlock completionBlock)
        {
-            completionBlock(nil,nil,nil);
+            completionBlock(nil,YES,nil);
             return;
       }];
       
@@ -1122,7 +1124,7 @@
                                             __unused id<MSIDRequestContext> context,
                                             MSIDAuthorityInfoBlock completionBlock)
        {
-            completionBlock(nil,nil,nil);
+            completionBlock(nil,YES,nil);
             return;
       }];
       
@@ -1270,7 +1272,7 @@
                                             __unused id<MSIDRequestContext> context,
                                             MSIDAuthorityInfoBlock completionBlock)
        {
-            completionBlock(nil,nil,nil);
+            completionBlock(nil,YES,nil);
             return;
       }];
       
@@ -1319,8 +1321,8 @@
       [self waitForExpectationsWithTimeout:5.0 handler:nil];
       
       //Let's verify that request has been throttled and saved in the cache
-      NSString *expectedThumbprintKey = @"10578639138026846608";
-      
+      NSString *expectedThumbprintKey = @"1051707737519838129";
+
       NSError *subError = nil;
       MSIDThrottlingCacheRecord *record = [[MSIDLRUCache sharedInstance] objectForKey:expectedThumbprintKey error:&subError];
       XCTAssertNotNil(record);
