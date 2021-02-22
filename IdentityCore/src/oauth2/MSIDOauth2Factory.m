@@ -97,11 +97,11 @@
         return NO;
     }
     
-    if (![self verifyAccessToken:response.accessToken])
+    if (![self verifyToken:response.accessToken] && ![self verifyToken:response.idToken])
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Authentication response received without expected accessToken", nil, nil, nil, context.correlationId, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Authentication response received without expected accessToken and idToken", nil, nil, nil, context.correlationId, nil, YES);
         }
         return NO;
     }
@@ -109,9 +109,9 @@
     return YES;
 }
 
-- (BOOL)verifyAccessToken:(NSString *)accessToken
+- (BOOL)verifyToken:(NSString *)token
 {
-    return ![NSString msidIsStringNilOrBlank:accessToken];
+    return ![NSString msidIsStringNilOrBlank:token];
 }
 
 #pragma mark - Tokens
