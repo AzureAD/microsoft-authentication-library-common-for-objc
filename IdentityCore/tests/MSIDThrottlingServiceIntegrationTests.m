@@ -737,7 +737,7 @@
 }
 
 
-#if TARGET_OS_IPHONE
+//#if TARGET_OS_IPHONE
 - (void)testMSIDThrottlingServiceIntegration_ThrottledNonSSOSilentRequestWithUIRequredError_ShouldBeClearedBySuccessfulIntearctiveRequest
 {
     //modulating strict request thumbprint parameters.
@@ -1478,6 +1478,6 @@
 
 #endif
 
-#endif 
+//#endif
 
 @end
