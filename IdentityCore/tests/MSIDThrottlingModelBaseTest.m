@@ -21,23 +21,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
-#import "MSIDThumbprintCalculatable.h"
-#import "MSIDRequestContext.h"
-#import "MSIDThrottlingModelBase.h"
-#import "MSIDExtendedTokenCacheDataSource.h"
 
-NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDThrottlingModelFactory : NSObject
+#import <XCTest/XCTest.h>
 
-+ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable>)request
-                                                    datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
-                                                       context:(id<MSIDRequestContext> _Nullable)context;
-
-+ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable>)request
-                                                        datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
-                                                     errorResponse:(NSError *)errorResponse
-                                                           context:(id<MSIDRequestContext> _Nullable)context;
+@interface MSIDThrottlingModelBaseTest : XCTestCase
 
 @end
-NS_ASSUME_NONNULL_END
+
+@implementation MSIDThrottlingModelBaseTest
+
+- (void)setUp {
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+}
+
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+}
+
+- (void)testExample {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+}
+
+- (void)testPerformanceExample {
+    // This is an example of a performance test case.
+    [self measureBlock:^{
+        // Put the code you want to measure the time of here.
+    }];
+}
+
+@end

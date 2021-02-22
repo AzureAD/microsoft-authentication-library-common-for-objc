@@ -45,7 +45,6 @@
 #endif
 
 #import "MSIDAuthenticationScheme.h"
-#import "MSIDThrottlingService.h"
 
 typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 {
@@ -62,7 +61,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
-@property (nonatomic) MSIDThrottlingService *throttlingService;
 
 @end
 
@@ -83,7 +81,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
-        _throttlingService = [[MSIDThrottlingService alloc] initWithAccessGroup:parameters.keychainAccessGroup context:parameters];
     }
 
     return self;
@@ -422,28 +419,35 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
     
-    // Invoke throttling service before making the call to server. If the request should be throttled, return the cached response (error) immediately
-    [self.throttlingService shouldThrottleRequest:tokenRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
+    // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
+    if (!self.throttlingService)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
-
-        if (cachedError)
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(cachedError));
-        }
-
-        if (shouldBeThrottled && cachedError)
-        {
-            completionBlock(nil, cachedError);
-            return;
-        }
-        else
-        {
-            [self sendTokenRequestImpl:completionBlock refreshToken:refreshToken tokenRequest:tokenRequest];
-        }
+        [self sendTokenRequestImpl:completionBlock refreshToken:refreshToken tokenRequest:tokenRequest];
     }
-    ];
-
+    else
+    {
+        // Invoke throttling service before making the call to server. If the request should be throttled, return the cached response (error) immediately
+        [self.throttlingService shouldThrottleRequest:tokenRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
+         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
+            
+            if (cachedError)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(cachedError));
+            }
+            
+            if (shouldBeThrottled && cachedError)
+            {
+                completionBlock(nil, cachedError);
+                return;
+            }
+            else
+            {
+                [self sendTokenRequestImpl:completionBlock refreshToken:refreshToken tokenRequest:tokenRequest];
+            }
+        }
+        ];
+    }
 }
 
 - (void)sendTokenRequestImpl:(MSIDRequestCompletionBlock)completionBlock

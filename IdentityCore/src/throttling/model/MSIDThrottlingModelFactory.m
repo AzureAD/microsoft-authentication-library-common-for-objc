@@ -34,7 +34,7 @@
 @implementation MSIDThrottlingModelFactory
 
 + (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable>)request
-                                                   accessGroup:(NSString *)accessGroup
+                                                   datasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                                        context:(id<MSIDRequestContext>)context
 {
     if (![MSIDThrottlingModelFactory validateInput:request])
@@ -56,11 +56,11 @@
                                         request:request
                                    throttleType:cacheRecord.throttleType
                                     cacheRecord:cacheRecord
-                                    accessGroup:accessGroup];
+                                    datasource:datasource];
 }
 
 + (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable>)request
-                                                       accessGroup:(NSString *)accessGroup
+                                                       datasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                                      errorResponse:(NSError *)errorResponse
                                                            context:(id<MSIDRequestContext>)context
 {
@@ -72,22 +72,22 @@
                                         request:request
                                    throttleType:throttleType
                                     cacheRecord:nil
-                                    accessGroup:accessGroup];
+                                    datasource:datasource];
 }
 
 + (MSIDThrottlingModelBase *)generateModelFromErrorResponse:(NSError *)errorResponse
                                                     request:(id<MSIDThumbprintCalculatable>)request
                                                throttleType:(MSIDThrottlingType)throttleType
                                                 cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
-                                                accessGroup:(NSString *)accessGroup
+                                                 datasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
 {
     if(throttleType == MSIDThrottlingType429)
     {
-        return [[MSIDThrottlingModel429 alloc] initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
+        return [[MSIDThrottlingModel429 alloc] initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse datasource:datasource];
     }
     else
     {
-        return [[MSIDThrottlingModelInteractionRequire alloc] initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
+        return [[MSIDThrottlingModelInteractionRequire alloc] initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse datasource:datasource];
     }
 }
 

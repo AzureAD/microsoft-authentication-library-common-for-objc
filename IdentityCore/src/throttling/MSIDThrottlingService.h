@@ -26,6 +26,7 @@
 #import "MSIDThumbprintCalculatable.h"
 #import "MSIDThrottlingCacheRecord.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
 typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable errorResponse);
 
@@ -35,8 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, nullable, readonly) id<MSIDRequestContext> context;
 @property (nonatomic, nullable, readonly) NSString *accessGroup;
+@property (nonatomic, nullable, readonly) id<MSIDExtendedTokenCacheDataSource> datasource;
 
-- (instancetype)initWithAccessGroup:(NSString *__nullable)accessGroup
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                             context:(id<MSIDRequestContext> __nullable)context;
 
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
@@ -45,9 +47,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)updateThrottlingService:(NSError *)error
                    tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest;
 
-+ (BOOL)updateLastRefreshTimeAccessGroup:(NSString *__nullable)accessGroup
-                                 context:(id<MSIDRequestContext>__nullable)context
-                                   error:(NSError *__nullable *__nullable)error;
++ (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
+                                context:(id<MSIDRequestContext>__nullable)context
+                                  error:(NSError *__nullable *__nullable)error;
 
 @end
 NS_ASSUME_NONNULL_END

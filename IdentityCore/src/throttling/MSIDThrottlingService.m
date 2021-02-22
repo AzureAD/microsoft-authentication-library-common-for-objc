@@ -43,14 +43,14 @@
 
 #pragma mark - Initializer
 
-- (instancetype)initWithAccessGroup:(NSString *)accessGroup
-                            context:(id<MSIDRequestContext> __nullable)context
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                           context:(id<MSIDRequestContext>)context
 {
     self = [self init];
     if (self)
     {
         _context = context;
-        _accessGroup = accessGroup;
+        _datasource = datasource;
     }
     return self;
 }
@@ -65,7 +65,7 @@
 - (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
                   resultBlock:(nonnull MSIDThrottleResultBlock)resultBlock
 {
-    MSIDThrottlingModelBase *throttleModel = [MSIDThrottlingModelFactory throttlingModelForIncomingRequest:request accessGroup:self.accessGroup context:self.context];
+    MSIDThrottlingModelBase *throttleModel = [MSIDThrottlingModelFactory throttlingModelForIncomingRequest:request datasource:self.datasource context:self.context];
     
     if (!throttleModel)
     {
@@ -93,7 +93,7 @@
 - (void)updateThrottlingService:(NSError *)error tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest
 {
     MSIDThrottlingModelBase *model = [MSIDThrottlingModelFactory throttlingModelForResponseWithRequest:tokenRequest
-                                                                                           accessGroup:self.accessGroup
+                                                                                           datasource:self.datasource
                                                                                          errorResponse:error
                                                                                                context:self.context];
     if (!model)
@@ -105,16 +105,14 @@
     [model insertOrUpdateCacheRecordToDB:cacheRecord];
 }
 
-#pragma mark - Internal API
-
 /**
  Update last refresh time when interactive flow is complete and success.
  */
-+ (BOOL)updateLastRefreshTimeAccessGroup:(NSString *)accessGroup
++ (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    return [MSIDThrottlingMetaDataCache updateLastRefreshTimeWithAccessGroup:accessGroup context:context error:error];
+    return [MSIDThrottlingMetaDataCache updateLastRefreshTimeWithDatasource:datasource context:context error:error];
 }
 
 @end

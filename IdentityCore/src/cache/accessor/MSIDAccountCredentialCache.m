@@ -39,7 +39,6 @@
 
 @interface MSIDAccountCredentialCache()
 {
-    id<MSIDExtendedTokenCacheDataSource> _dataSource;
     MSIDCacheItemJsonSerializer *_serializer;
 }
 
