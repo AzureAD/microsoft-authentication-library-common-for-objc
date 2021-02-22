@@ -43,7 +43,7 @@
      we'd like to throw an error and specify which scopes were granted and which ones not
      */
     
-    if (!tokenRequest.accessToken)
+    if (tokenResult.accessToken == nil)
     {
         return YES;
     }
