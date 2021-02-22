@@ -1020,6 +1020,8 @@
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation1 fulfill];
@@ -1042,6 +1044,8 @@
       XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be throttled now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation2 fulfill];
@@ -1053,7 +1057,9 @@
      
       XCTestExpectation *expectation3 = [self expectationWithDescription:@"throttling SSO extension request - throttling has expired - should be cleared now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
-          
+           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation3 fulfill];
@@ -1172,6 +1178,8 @@
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation1 fulfill];
@@ -1194,6 +1202,8 @@
       XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be throttled now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation2 fulfill];
@@ -1206,6 +1216,8 @@
       XCTestExpectation *expectation3 = [self expectationWithDescription:@"throttling SSO extension request - throttling has expired - should be cleared now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
 
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation3 fulfill];
@@ -1313,6 +1325,8 @@
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,0);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation1 fulfill];
@@ -1336,6 +1350,8 @@
       XCTestExpectation *expectation2 = [self expectationWithDescription:@"throttling SSO extension request - should be throttled now"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,1);
            [expectation2 fulfill];
@@ -1399,6 +1415,8 @@
       XCTestExpectation *expectation4 = [self expectationWithDescription:@"throttling SSO extension request - should be unthrottled by lastUpdateRefresh"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
+           XCTAssertNil(result);
+           XCTAssertNotNil(error);
            XCTAssertEqual(newSSORequest.throttlingService.shouldThrottleRequestInvokedCount,1);
            XCTAssertEqual(newSSORequest.throttlingService.updateThrottlingServiceInvokedCount,2);
            [expectation4 fulfill];
