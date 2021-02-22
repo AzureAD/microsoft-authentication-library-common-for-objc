@@ -37,7 +37,7 @@
 - (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
                     cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
                   errorResponse:(NSError *)errorResponse
-                    accessGroup:(NSString *)accessGroup
+                     datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
 {
     self = [super init];
     if (self)
@@ -45,7 +45,8 @@
         _request = request;
         _cacheRecord = cacheRecord;
         _errorResponse = errorResponse;
-        _accessGroup = accessGroup;
+        _datasource = datasource;
+
     }
     return self;
 }

@@ -224,6 +224,7 @@
 }
 
 
+
 #pragma mark - nonSSO Silent Request Tests
 - (void)testMSIDThrottlingServiceIntegration_NonSSOSilentRequestThatReturns429Response_ShouldBeThrottledByThrottlingService
 {
@@ -240,8 +241,9 @@
     refreshToken.refreshToken = self.refreshToken;
     
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                      context:self.silentRequestParameters];
+    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                     context:self.silentRequestParameters];
+
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
 
@@ -353,8 +355,8 @@
     refreshToken.refreshToken = refreshTokenForThisTest;
     
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                      context:self.silentRequestParameters];
+   MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                    context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
     
@@ -490,8 +492,8 @@
    
     
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                      context:self.silentRequestParameters];
+   MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                    context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
     
@@ -580,6 +582,7 @@
     
 }
 
+
 - (void)testMSIDThrottlingServiceIntegration_NonSSOSilentRequestWithUIRequredError_ShouldBeThrottledAccordingly
 {
     //modulating strict request thumbprint parameters.
@@ -608,9 +611,8 @@
    
 
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                      context:self.silentRequestParameters];
-    
+   MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                    context:self.silentRequestParameters];
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
     
    //first token response
@@ -734,6 +736,8 @@
     [self waitForExpectationsWithTimeout:5.0 handler:nil];
 }
 
+
+#if TARGET_OS_IPHONE
 - (void)testMSIDThrottlingServiceIntegration_ThrottledNonSSOSilentRequestWithUIRequredError_ShouldBeClearedBySuccessfulIntearctiveRequest
 {
     //modulating strict request thumbprint parameters.
@@ -762,8 +766,8 @@
    
 
     //throttlingServiceMock
-    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                      context:self.silentRequestParameters];
+   MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                    context:self.silentRequestParameters];
     
     defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
     
@@ -994,8 +998,8 @@
       
       
       //throttlingServiceMock
-      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                        context:self.silentRequestParameters];
+      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                       context:self.silentRequestParameters];
       
       newSSORequest.throttlingService = throttlingServiceMock;
       
@@ -1147,8 +1151,8 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
       
       //throttlingServiceMock
-      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                        context:self.silentRequestParameters];
+      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                       context:self.silentRequestParameters];
       
       newSSORequest.throttlingService = throttlingServiceMock;
       
@@ -1297,8 +1301,8 @@
                                                                                                            accountMetadataCache:self.accountMetadataCache];
       
       //throttlingServiceMock
-      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithAccessGroup:MSIDThrottlingKeychainGroup
-                                                                                                        context:self.silentRequestParameters];
+      MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                       context:self.silentRequestParameters];
       
       newSSORequest.throttlingService = throttlingServiceMock;
       
@@ -1473,5 +1477,7 @@
 
 
 #endif
+
+#endif 
 
 @end

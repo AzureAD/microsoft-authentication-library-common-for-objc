@@ -27,6 +27,9 @@
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDThrottlingService.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
@@ -61,7 +64,11 @@
             /**
              Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
              */
-            [MSIDThrottlingService updateLastRefreshTimeAccessGroup:weakSelf.interactiveRequestParamaters.keychainAccessGroup context:weakSelf.interactiveRequestParamaters error:nil];
+            if ([weakSelf.tokenRequestProvider isKindOfClass:MSIDDefaultTokenRequestProvider.class])
+            {
+                [MSIDThrottlingService updateLastRefreshTimeDatasource:((MSIDDefaultTokenRequestProvider *)weakSelf.tokenRequestProvider).tokenCache.accountCredentialCache.dataSource context:weakSelf.interactiveRequestParamaters error:nil];
+            }
+           
         }
         else if ([weakSelf shouldFallback:error])
         {

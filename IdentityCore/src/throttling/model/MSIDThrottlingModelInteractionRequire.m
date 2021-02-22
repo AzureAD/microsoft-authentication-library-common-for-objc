@@ -36,9 +36,9 @@ static NSInteger const DefaultUIRequired = 120;
 - (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
                     cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
                   errorResponse:(NSError *)errorResponse
-                    accessGroup:(NSString *)accessGroup
+                    datasource:(id<MSIDExtendedTokenCacheDataSource> _Nonnull)datasource
 {
-    self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
+    self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse datasource:datasource];
     if (self)
     {
         self.thumbprintType = MSIDThrottlingThumbprintTypeFull;
@@ -84,7 +84,7 @@ static NSInteger const DefaultUIRequired = 120;
 {
     NSError *error;
     NSDate *currentTime = [NSDate date];
-    NSDate *lastRefreshTime = [MSIDThrottlingMetaDataCache getLastRefreshTimeAccessGroup:self.accessGroup context:self.context error:&error];
+    NSDate *lastRefreshTime = [MSIDThrottlingMetaDataCache getLastRefreshTimeWithDatasource:self.datasource context:self.context error:&error];
     // If currentTime is later than the expiration Time or the lastRefreshTime is later then the expiration Time, we don't throttle the request
     if ([currentTime compare:self.cacheRecord.expirationTime] != NSOrderedAscending
         || (lastRefreshTime && [lastRefreshTime compare:self.cacheRecord.creationTime] != NSOrderedAscending))

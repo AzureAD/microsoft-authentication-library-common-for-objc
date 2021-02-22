@@ -40,6 +40,7 @@
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -53,7 +54,6 @@
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
 @property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
-@property (nonatomic) MSIDThrottlingService *throttlingService;
 @property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
 @end
 
@@ -111,7 +111,11 @@
         _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
         _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
         _accountMetadataCache = accountMetadataCache;
-        _throttlingService = [[MSIDThrottlingService alloc] initWithAccessGroup:parameters.keychainAccessGroup context:parameters];
+        
+        if([tokenCache isKindOfClass:MSIDDefaultTokenCacheAccessor.class])
+        {
+            self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:((MSIDDefaultTokenCacheAccessor *)tokenCache).accountCredentialCache.dataSource context:parameters];
+        }
     }
     
     return self;

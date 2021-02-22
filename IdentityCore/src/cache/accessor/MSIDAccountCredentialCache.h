@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDCredentialType.h"
 #import "MSIDAccountType.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
 @class MSIDAccountCacheItem;
 @class MSIDAppMetadataCacheItem;
@@ -37,6 +38,8 @@
 @protocol MSIDExtendedTokenCacheDataSource;
 
 @interface MSIDAccountCredentialCache : NSObject
+
+@property (nonatomic, readonly) id<MSIDExtendedTokenCacheDataSource> _Nonnull dataSource;
 
 - (nonnull instancetype)initWithDataSource:(nonnull id<MSIDExtendedTokenCacheDataSource>)dataSource;
 

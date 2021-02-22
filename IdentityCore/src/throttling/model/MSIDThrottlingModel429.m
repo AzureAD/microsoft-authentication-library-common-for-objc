@@ -34,9 +34,9 @@ static NSInteger const MaxRetryAfter = 3600;
 - (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
                     cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
                   errorResponse:(NSError *)errorResponse
-                    accessGroup:(NSString *)accessGroup
+                    datasource:(id<MSIDExtendedTokenCacheDataSource> _Nonnull)datasource
 {
-    self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse accessGroup:accessGroup];
+    self = [super initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse datasource:datasource];
     if (self)
     {
         self.thumbprintType = MSIDThrottlingThumbprintTypeStrict;

@@ -36,6 +36,9 @@
 #endif
 #import "MSIDWebWPJResponse.h"
 #import "MSIDThrottlingService.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -79,7 +82,12 @@
             /**
              Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
              */
-            [MSIDThrottlingService updateLastRefreshTimeAccessGroup:self.interactiveRequestParamaters.keychainAccessGroup context:self.interactiveRequestParamaters error:nil];
+            if ([self.tokenRequestProvider isKindOfClass:MSIDDefaultTokenRequestProvider.class])
+            {
+                [MSIDThrottlingService updateLastRefreshTimeDatasource:((MSIDDefaultTokenRequestProvider *)self.tokenRequestProvider).tokenCache.accountCredentialCache.dataSource
+                                                               context:self.interactiveRequestParamaters
+                                                                 error:nil];
+            }
         }
         
         completionBlock(result, error);

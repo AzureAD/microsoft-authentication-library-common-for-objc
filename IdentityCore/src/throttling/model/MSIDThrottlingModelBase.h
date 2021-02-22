@@ -26,6 +26,8 @@
 #import "NSError+MSIDThrottlingExtension.h"
 #import "MSIDRequestContext.h"
 #import "MSIDLRUCache.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
+
 typedef NS_ENUM(NSInteger, MSIDThrottlingType)
 {
     MSIDThrottlingTypeNone = 0,
@@ -48,13 +50,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) id<MSIDThumbprintCalculatable> request;
 @property (readonly, nonatomic) NSError *errorResponse;
 @property (readonly, nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
-@property (readonly, nonatomic) NSString *accessGroup;
+@property (readonly, nonatomic) id<MSIDExtendedTokenCacheDataSource> datasource;
 @property (readonly, nonatomic) id<MSIDRequestContext> context;
 
 - (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
                     cacheRecord:(MSIDThrottlingCacheRecord *__nullable)cacheRecord
                   errorResponse:(NSError *)errorResponse
-                    accessGroup:(NSString *)accessGroup;
+                    datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource;
 
 + (BOOL)isApplicableForTheThrottleModel:(NSError *)errorResponse;
 + (MSIDLRUCache *)cacheService;
