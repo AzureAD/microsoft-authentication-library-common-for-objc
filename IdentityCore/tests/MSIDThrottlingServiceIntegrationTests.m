@@ -1061,6 +1061,8 @@
             return;
       }];
       
+      //Swizzle
+      
       [MSIDTestSwizzle classMethod:@selector(dateWithTimeIntervalSinceNow:)
                              class:[NSDate class]
                              block:(id)^(void)
@@ -1069,6 +1071,16 @@
 
       }];
       
+      
+      //Swizzle shouldThrottleRequest to update brokerKey
+      [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
+                                class:[MSIDBrokerOperationRequest class]
+                                block:(id)^(void)
+       {
+            return @"danielLaRuSSO";
+      }];
+      
+      //self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
       
       
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
@@ -1225,6 +1237,15 @@
 
       }];
       
+      //Swizzle shouldThrottleRequest to update brokerKey
+      [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
+                                class:[MSIDBrokerOperationRequest class]
+                                block:(id)^(void)
+       {
+            return @"danielLaRuSSO";
+      }];
+      
+      
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
           
@@ -1368,6 +1389,14 @@
          return [[NSDate new] dateByAddingTimeInterval:-10];
 
       }];
+      
+      [MSIDTestSwizzle instanceMethod:@selector(brokerKey)
+                                class:[MSIDBrokerOperationRequest class]
+                                block:(id)^(void)
+       {
+            return @"danielLaRuSSO";
+      }];
+      
       
       XCTestExpectation *expectation1 = [self expectationWithDescription:@"throttling SSO extension request - should go through first time around"];
       [newSSORequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
