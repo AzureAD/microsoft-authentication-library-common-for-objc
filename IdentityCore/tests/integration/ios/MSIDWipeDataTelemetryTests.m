@@ -78,6 +78,11 @@
     [super setUp];
 }
 
+- (void)tearDown {
+   [MSIDKeychainTokenCache reset];
+}
+
+
 - (void)testWipeDataTelemetry_whenGetTokenWithTypeButNoneForLegacyCache_shouldLogWipeDataInTelemetry
 {
     // setup telemetry callback

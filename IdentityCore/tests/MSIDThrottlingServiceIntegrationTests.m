@@ -90,6 +90,35 @@
 @end
 
 
+//swizzing and categorization actually interferes with other unit tests that use validateAndRemoveRefreshableToken
+//it is best to create a dedicated class for this test
+@interface MSIDDefaultTokenCacheAccessorForThrottlingTest : MSIDDefaultTokenCacheAccessor
+
+- (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
+                           credentialType:(MSIDCredentialType)credentialType
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error;
+@end
+
+@implementation MSIDDefaultTokenCacheAccessorForThrottlingTest
+
+- (BOOL)validateAndRemoveRefreshableToken:(MSIDRefreshToken *)token
+                           credentialType:(MSIDCredentialType)credentialType
+                                  context:(id<MSIDRequestContext>)context
+                                    error:(NSError **)error
+{
+     return YES;
+}
+
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)dataSource
+               otherCacheAccessors:(NSArray<id<MSIDCacheAccessor>> *)otherAccessors
+{
+     return [super initWithDataSource:dataSource otherCacheAccessors:otherAccessors];
+}
+
+
+@end
+
 
 
 @interface MSIDThrottlingService (MSIDThrottlingServiceIntegrationTests)
@@ -140,7 +169,8 @@
 - (MSIDDefaultTokenCacheAccessor *)tokenCache
 {
     id<MSIDExtendedTokenCacheDataSource> dataSource = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDThrottlingKeychainGroup error:nil];
-    MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+    //MSIDDefaultTokenCacheAccessor *tokenCache = [[MSIDDefaultTokenCacheAccessor alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
+    MSIDDefaultTokenCacheAccessorForThrottlingTest *tokenCache = [[MSIDDefaultTokenCacheAccessorForThrottlingTest alloc] initWithDataSource:dataSource otherCacheAccessors:nil];
     return tokenCache;
 }
 
@@ -682,16 +712,6 @@
          return;
    }];
    
-   //Swizzle token cache accessor
-   __block NSUInteger validateAndRemoveRefreshTokenInvokeCount = 0;
-   [MSIDTestSwizzle instanceMethod:@selector(validateAndRemoveRefreshToken:context:error:)
-                             class:[MSIDDefaultTokenCacheAccessor class]
-                             block:(id)^(void)
-    {
-         validateAndRemoveRefreshTokenInvokeCount++;
-         return YES;
-   }];
-   
    //Token grant request
    MSIDAADRefreshTokenGrantRequest *expectedRequest = (MSIDAADRefreshTokenGrantRequest *) [defaultSilentTokenRequest.oauthFactory refreshTokenRequestWithRequestParameters:defaultSilentTokenRequest.requestParameters
                                                                                                                                                               refreshToken:refreshTokenForThisTest];
@@ -708,7 +728,6 @@
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNil(result);
         XCTAssertNotNil(error);
-        XCTAssertEqual(validateAndRemoveRefreshTokenInvokeCount,1);
         [expectation1 fulfill];
    }];
     
@@ -742,7 +761,6 @@
 }
 
 
-//#if TARGET_OS_IPHONE
 - (void)testMSIDThrottlingServiceIntegration_ThrottledNonSSOSilentRequestWithUIRequredError_ShouldBeClearedBySuccessfulIntearctiveRequest
 {
     //modulating strict request thumbprint parameters.
@@ -838,15 +856,6 @@
          return;
    }];
    
-   //Swizzle token cache accessor
-   __block NSUInteger validateAndRemoveRefreshTokenInvokeCount = 0;
-   [MSIDTestSwizzle instanceMethod:@selector(validateAndRemoveRefreshToken:context:error:)
-                             class:[MSIDDefaultTokenCacheAccessor class]
-                             block:(id)^(void)
-    {
-         validateAndRemoveRefreshTokenInvokeCount++;
-         return YES;
-   }];
    
    //Token grant request
    MSIDAADRefreshTokenGrantRequest *expectedRequest = (MSIDAADRefreshTokenGrantRequest *) [defaultSilentTokenRequest.oauthFactory refreshTokenRequestWithRequestParameters:defaultSilentTokenRequest.requestParameters
@@ -864,7 +873,6 @@
         XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,1);
         XCTAssertNil(result);
         XCTAssertNotNil(error);
-        XCTAssertEqual(validateAndRemoveRefreshTokenInvokeCount,1);
         [expectation1 fulfill];
    }];
     
@@ -976,7 +984,6 @@
        XCTAssertNil(result);
        XCTAssertNotNil(error);
        XCTAssertEqual(error.code, MSIDErrorInteractionRequired);
-       XCTAssertEqual(validateAndRemoveRefreshTokenInvokeCount,2);
        [expectation3 fulfill];
    }];
   
@@ -985,6 +992,8 @@
    [self.keychainTokenCache clearWithContext:nil error:nil];
    
 }
+
+
 #if MSID_ENABLE_SSO_EXTENSION
 
 - (void)testMSIDThrottlingServiceIntegration_SSOSilentRequestWith429MSIDError_ShouldBeThrottledSuccessfully_AndThenUnThrottledUponExpiration
