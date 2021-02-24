@@ -60,6 +60,7 @@
 #import "MSIDLocalInteractiveController.h"
 #import "MSIDAuthority.h"
 #import "MSIDBrokerOperationSilentTokenRequest.h"
+#import "MSIDThrottlingMetaDataCache.h"
 #if MSID_ENABLE_SSO_EXTENSION
 #import "MSIDSSOExtensionSilentTokenRequestController.h"
 #import "MSIDSilentController+Internal.h"
@@ -924,6 +925,30 @@
          completionBlock(tokenResult,nil,nil);
       
    }];
+   
+#if !TARGET_OS_IOS
+      //swizzle interactive method - MacOS test app doesn't have entitlements that support keychain access group.
+      //adding a host app that has valid entitlements would also require enabling code-signing, which could break CI/CD check
+      //So at the moment, the best approach is to swizzle keychain access APIs
+      [MSIDTestSwizzle classMethod:@selector(updateLastRefreshTimeDatasource:
+                                                                     context:
+                                                                       error:)
+                                class:[MSIDThrottlingService class]
+                                block:(id)^(void)
+       {
+            return TRUE;
+      }];
+      
+      [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:
+                                                                      context:
+                                                                        error:)
+                                class:[MSIDThrottlingMetaDataCache class]
+                                block:(id)^(void)
+       {
+            return [NSDate date];
+      }];
+#endif
+   
 
    //acquire token interactively - which should trigger keychain update
    XCTestExpectation *expectation2 = [self expectationWithDescription:@"Acquire token Interactively - should trigger lastUpdateRefresh"];
@@ -1452,6 +1477,30 @@
       interactiveRequestParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user@contoso.com" homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
       interactiveRequestParameters.enablePkce = YES;
       interactiveRequestParameters.keychainAccessGroup = MSIDThrottlingKeychainGroup;
+      
+      
+#if !TARGET_OS_IOS
+      //swizzle interactive method - MacOS test app doesn't have entitlements that support keychain access group.
+      //adding a host app that has valid entitlements would also require enabling code-signing, which could break CI/CD check
+      //So at the moment, the best approach is to swizzle keychain access APIs
+      [MSIDTestSwizzle classMethod:@selector(updateLastRefreshTimeDatasource:
+                                                                     context:
+                                                                       error:)
+                                class:[MSIDThrottlingService class]
+                                block:(id)^(void)
+       {
+            return TRUE;
+      }];
+      
+      [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:
+                                                                      context:
+                                                                        error:)
+                                class:[MSIDThrottlingMetaDataCache class]
+                                block:(id)^(void)
+       {
+            return [NSDate date];
+      }];
+#endif
       
       
       //intialize interactive controller
