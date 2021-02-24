@@ -24,9 +24,9 @@
 
 #import "MSIDLRUCache.h"
 
-static NSString *const HEAD_SIGNATURE = @"HEAD";
-static NSString *const TAIL_SIGNATURE = @"TAIL";
-
+#define HEAD_SIGNATURE -101
+#define TAIL_SIGNATURE -010
+#define NIL_SIG -1
 #define DEFAULT_CACHE_SIZE 1000
 #define DEFAULT_SIGNATURE_LENGTH 8
 #define DEFAULT_CACHE_OFFSET_SIZE 2
@@ -34,14 +34,14 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 //Helper class
 @interface MSIDLRUCacheNode : NSObject
 
-@property (nonatomic, readonly) NSString *signature;
-@property (nonatomic) NSMutableString *prevSignature;
-@property (nonatomic) NSMutableString *nextSignature;
+@property (nonatomic, readonly) NSInteger signature;
+@property (nonatomic) NSInteger prevSignature;
+@property (nonatomic) NSInteger nextSignature;
 @property (nonatomic) id cacheRecord;
 
-- (instancetype)initWithSignature:(NSString *)signature
-                    prevSignature:(NSString *)prevSignature
-                    nextSignature:(NSString *)nextSignature
+- (instancetype)initWithSignature:(NSInteger)signature
+                    prevSignature:(NSInteger)prevSignature
+                    nextSignature:(NSInteger)nextSignature
                       cacheRecord:(id)cacheRecord;
 
 @end
@@ -49,17 +49,17 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 
 @implementation MSIDLRUCacheNode
 
-- (instancetype)initWithSignature:(NSString *)signature
-                    prevSignature:(NSString *)prevSignature
-                    nextSignature:(NSString *)nextSignature
+- (instancetype)initWithSignature:(NSInteger)signature
+                    prevSignature:(NSInteger)prevSignature
+                    nextSignature:(NSInteger)nextSignature
                       cacheRecord:(id)cacheRecord
 {
     self = [super init];
     if (self)
     {
         _signature = signature;
-        _prevSignature = [prevSignature mutableCopy];
-        _nextSignature = [nextSignature mutableCopy];
+        _prevSignature = prevSignature;
+        _nextSignature = nextSignature;
         _cacheRecord = cacheRecord;
     }
     return self;
@@ -125,13 +125,13 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
         _cacheEvictionCountInt = 0;
         //create dummy head and tail
         _head = [[MSIDLRUCacheNode alloc] initWithSignature:HEAD_SIGNATURE
-                                              prevSignature:nil
+                                              prevSignature:NIL_SIG
                                               nextSignature:TAIL_SIGNATURE
                                                     cacheRecord:nil];
         
         _tail = [[MSIDLRUCacheNode alloc] initWithSignature:TAIL_SIGNATURE
                                               prevSignature:HEAD_SIGNATURE
-                                              nextSignature:nil
+                                              nextSignature:NIL_SIG
                                                 cacheRecord:nil];
         
         //create concurrent queue and container dictionary
@@ -140,8 +140,8 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
         _container = [NSMutableDictionary new];
         _keySignatureMap = [NSMutableDictionary new];
         
-        [self.container setObject:_head forKey:HEAD_SIGNATURE];
-        [self.container setObject:_tail forKey:TAIL_SIGNATURE];
+        [self.container setObject:_head forKey:[NSNumber numberWithLong:HEAD_SIGNATURE]];
+        [self.container setObject:_tail forKey:[NSNumber numberWithLong:TAIL_SIGNATURE]];
     }
     return self;
 }
@@ -191,15 +191,15 @@ if node already exists, update and move it to the front of LRU cache */
                 //if cache is full, invalidate least recently used entry
                 if (self.container.allKeys.count >= self.cacheSizeInt)
                 {
-                    NSString *leastRecentlyUsed = self.tail.prevSignature;
-                    [self removeObjectForKeyImpl:leastRecentlyUsed
+                    NSInteger leastRecentlyUsed = self.tail.prevSignature;
+                    [self removeObjectForKeyImpl:[NSNumber numberWithLong:leastRecentlyUsed]
                                            error:&subError];
                     self.cacheEvictionCountInt++;
                 }
-                NSString *signature = [self mapKeyToSignature:key];
+                NSInteger signature = [self mapKeyToSignature:key];
                 MSIDLRUCacheNode *newNode = [[MSIDLRUCacheNode alloc] initWithSignature:signature
-                                                                          prevSignature:nil
-                                                                          nextSignature:nil
+                                                                          prevSignature:NIL_SIG
+                                                                          nextSignature:NIL_SIG
                                                                             cacheRecord:cacheRecord];
                 [self addToFrontImpl:newNode];
                 self.cacheAddCountInt++;
@@ -238,10 +238,10 @@ if node already exists, update and move it to the front of LRU cache */
         
         else
         {
-            NSString *signature = [self.keySignatureMap objectForKey:key];
-            [self.keySignatureMap removeObjectForKey:key];
+            NSNumber *signature = [self.keySignatureMap objectForKey:key];
             [self removeObjectForKeyImpl:signature
                                    error:&subError];
+            [self.keySignatureMap removeObjectForKey:key];
             self.cacheRemoveCountInt++;
         }
     });
@@ -258,7 +258,7 @@ if node already exists, update and move it to the front of LRU cache */
     return result;
 }
 
-- (BOOL)removeObjectForKeyImpl:(NSString *)signature
+- (BOOL)removeObjectForKeyImpl:(NSNumber *)signature
                          error:(NSError **)error
 {
     if (!signature)
@@ -280,15 +280,19 @@ if node already exists, update and move it to the front of LRU cache */
         return NO;
     }
     
+    
+    //head->a->b->tail
+    //head<-a<-b<-tail
+    
     MSIDLRUCacheNode *node = [self.container objectForKey:signature];
-    MSIDLRUCacheNode *prevNode = [self.container objectForKey:node.prevSignature];
-    MSIDLRUCacheNode *nextNode = [self.container objectForKey:node.nextSignature];
+    MSIDLRUCacheNode *prevNode = [self.container objectForKey:[NSNumber numberWithLong:node.prevSignature]];
+    MSIDLRUCacheNode *nextNode = [self.container objectForKey:[NSNumber numberWithLong:node.nextSignature]];
 
     prevNode.nextSignature = node.nextSignature;
     nextNode.prevSignature = node.prevSignature;
 
-    [self.container setObject:prevNode forKey:node.prevSignature];
-    [self.container setObject:nextNode forKey:node.nextSignature];
+    [self.container setObject:prevNode forKey:[NSNumber numberWithLong:node.prevSignature]];
+    [self.container setObject:nextNode forKey:[NSNumber numberWithLong:node.nextSignature]];
     
     [self.container removeObjectForKey:signature];
     return YES;
@@ -328,7 +332,7 @@ if node already exists, update and move it to the front of LRU cache */
     return cacheRecord;
 }
 
-- (id)objectForKeyImpl:(NSString *)signature
+- (id)objectForKeyImpl:(NSNumber *)signature
                  error:(NSError **)error
 {
     if (!signature)
@@ -371,8 +375,8 @@ if node already exists, update and move it to the front of LRU cache */
 
 - (void)addToFrontImpl:(MSIDLRUCacheNode *)node
 {
-    NSString *currentHeadSignature = self.head.nextSignature; //node currently pointed by the head
-    MSIDLRUCacheNode *currentHeadNode = [self.container objectForKey:currentHeadSignature];
+    NSInteger currentHeadSignature = self.head.nextSignature; //node currently pointed by the head
+    MSIDLRUCacheNode *currentHeadNode = [self.container objectForKey:[NSNumber numberWithLong:currentHeadSignature]];
     
     /**
     BEFORE:
@@ -382,13 +386,13 @@ if node already exists, update and move it to the front of LRU cache */
      A->C
      A<-C
      */
-    currentHeadNode.prevSignature = [node.signature mutableCopy];
-    node.prevSignature = [HEAD_SIGNATURE mutableCopy];
-    node.nextSignature = [currentHeadSignature mutableCopy];
-    self.head.nextSignature = [node.signature mutableCopy];
+    currentHeadNode.prevSignature = node.signature;
+    node.prevSignature = HEAD_SIGNATURE;
+    node.nextSignature = currentHeadSignature;
+    self.head.nextSignature = node.signature;
     
-    [self.container setObject:currentHeadNode forKey:currentHeadSignature];
-    [self.container setObject:node forKey:node.signature];
+    [self.container setObject:currentHeadNode forKey:[NSNumber numberWithLong:currentHeadSignature]];
+    [self.container setObject:node forKey:[NSNumber numberWithLong:node.signature]];
 }
 
 - (NSArray *)enumerateAndReturnAllObjects
@@ -403,15 +407,15 @@ if node already exists, update and move it to the front of LRU cache */
 - (NSMutableArray *)enumerateAndReturnAllObjectsImpl
 {
     NSMutableArray *res;
-    if (![self.head.nextSignature isEqualToString:TAIL_SIGNATURE])
+    if (self.head.nextSignature != TAIL_SIGNATURE)
     {
         res = [NSMutableArray new];
-        NSMutableString *signature = [self.head.nextSignature mutableCopy];
+        NSInteger signature = self.head.nextSignature;
         
-        while (![signature isEqualToString:TAIL_SIGNATURE])
+        while (signature != TAIL_SIGNATURE)
         {
-            MSIDLRUCacheNode *node = [self.container objectForKey:signature];
-            [signature setString:node.nextSignature];
+            MSIDLRUCacheNode *node = [self.container objectForKey:[NSNumber numberWithLong:signature]];
+            signature = node.nextSignature;
             [res addObject:node.cacheRecord];
         }
     }
@@ -422,7 +426,7 @@ if node already exists, update and move it to the front of LRU cache */
  NOTE: no need to put these internal APIs in GCD block directly,
  as they are always used by calling APIs that will invoke these APIs within GCD block.
  */
-- (NSString *)generateRandomSignature //mock pointer 62^8 ~ 2*10^14 randomness
+- (NSInteger)generateRandomSignature //mock pointer 62^8 ~ 2*10^14 randomness
 {
     NSString *validLetters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     NSMutableString *randomString = [NSMutableString stringWithCapacity:DEFAULT_SIGNATURE_LENGTH];
@@ -431,13 +435,13 @@ if node already exists, update and move it to the front of LRU cache */
     {
         [randomString appendFormat:@"%C", [validLetters characterAtIndex:arc4random_uniform((int)[validLetters length])]];
     }
-    return randomString;
+    return randomString.hash;
 }
 
-- (NSString *)mapKeyToSignature:(id)key
+- (NSInteger)mapKeyToSignature:(id)key
 {
-    NSString *signature = [self generateRandomSignature];
-    [self.keySignatureMap setObject:signature forKey:key];
+    NSInteger signature = [self generateRandomSignature];
+    [self.keySignatureMap setObject:[NSNumber numberWithLong:signature] forKey:key];
     return signature;
 }
 
@@ -454,7 +458,7 @@ if node already exists, update and move it to the front of LRU cache */
         }
         for (id key in objects)
         {
-            NSString *signature = [self.keySignatureMap objectForKey:key];
+            NSNumber *signature = [self.keySignatureMap objectForKey:key];
             [self.keySignatureMap removeObjectForKey:key];
             [self removeObjectForKeyImpl:signature error:&subError];
         }
