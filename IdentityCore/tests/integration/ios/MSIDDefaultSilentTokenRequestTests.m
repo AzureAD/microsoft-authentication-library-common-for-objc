@@ -1022,7 +1022,7 @@
                                                                                 requestScopes:@"user.read tasks.read openid profile offline_access"
                                                                                    responseAT:@""
                                                                                    responseRT:@"new rt"
-                                                                                   responseID:nil
+                                                                                   responseID:@""
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:differentClientInfo
                                                                                           url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
