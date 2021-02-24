@@ -1,3 +1,4 @@
+Version 1.6.2
 * Mask EUII in logs (#944)
 * Added Thumbprint calculator and associated protocol for throttling (#943)
 
