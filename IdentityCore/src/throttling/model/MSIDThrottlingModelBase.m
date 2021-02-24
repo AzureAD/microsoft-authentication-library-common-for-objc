@@ -46,7 +46,6 @@
         _cacheRecord = cacheRecord;
         _errorResponse = errorResponse;
         _datasource = datasource;
-
     }
     return self;
 }

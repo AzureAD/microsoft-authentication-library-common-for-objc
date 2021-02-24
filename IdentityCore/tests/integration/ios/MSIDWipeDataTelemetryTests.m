@@ -78,11 +78,6 @@
     [super setUp];
 }
 
-- (void)tearDown {
-   [MSIDKeychainTokenCache reset];
-}
-
-
 - (void)testWipeDataTelemetry_whenGetTokenWithTypeButNoneForLegacyCache_shouldLogWipeDataInTelemetry
 {
     // setup telemetry callback
@@ -145,7 +140,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:5 handler:nil];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetAllAccountsButNoneForLegacyCache_shouldLogWipeDataInTelemetry
@@ -207,7 +202,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:5 handler:nil];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetTokenWithTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
@@ -274,7 +269,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:5 handler:nil];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetAllTokensOfTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
@@ -334,7 +329,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:5 handler:nil];
+    [self waitForExpectationsWithTimeout:1 handler:nil];
 }
 
 @end
