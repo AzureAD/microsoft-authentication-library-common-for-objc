@@ -140,7 +140,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetAllAccountsButNoneForLegacyCache_shouldLogWipeDataInTelemetry
@@ -202,7 +202,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetTokenWithTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
@@ -269,7 +269,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 - (void)testWipeDataTelemetry_whenGetAllTokensOfTypeButNoneForDefaultCache_shouldLogWipeDataInTelemetry
@@ -329,7 +329,7 @@
         }
     }
     
-    [self waitForExpectationsWithTimeout:1 handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
 }
 
 @end
