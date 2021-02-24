@@ -45,7 +45,8 @@
         
     NSError *error;
     MSIDThrottlingCacheRecord *cacheRecord = [MSIDThrottlingModelFactory getDBRecordWithStrictThumbprint:request.strictRequestThumbprint
-                                                                                          fullThumbprint:request.fullRequestThumbprint                     error:&error];
+                                                                                          fullThumbprint:request.fullRequestThumbprint
+                                                                                                   error:&error];
     if (error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Throttling: getting record from cache has returned error %@", error);

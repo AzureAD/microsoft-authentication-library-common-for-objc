@@ -1630,8 +1630,6 @@
 		E733EE0D25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */; };
 		E75DD02525D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */; };
 		E75DD02625D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */; };
-		E75DD03425D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */; };
-		E75DD03525D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */; };
 		E75DD07D25D6292D007664A6 /* MSIDThrottlingServiceMock.h in Headers */ = {isa = PBXBuildFile; fileRef = E75DD07C25D6292D007664A6 /* MSIDThrottlingServiceMock.h */; };
 		E75DD08B25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */; };
 		E75DD08C25D629A5007664A6 /* MSIDThrottlingServiceMock.m in Sources */ = {isa = PBXBuildFile; fileRef = E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */; };
@@ -2912,7 +2910,6 @@
 		E733EDFC25C0A4B100ACB79A /* MSIDThumbprintCalculator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThumbprintCalculator.m; sourceTree = "<group>"; };
 		E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThumbprintCalculatorTests.m; sourceTree = "<group>"; };
 		E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */ = {isa = PBXFileReference; indentWidth = 3; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceIntegrationTests.m; sourceTree = "<group>"; };
-		E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceComponentTests.m; sourceTree = "<group>"; };
 		E75DD07C25D6292D007664A6 /* MSIDThrottlingServiceMock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingServiceMock.h; sourceTree = "<group>"; };
 		E75DD08A25D629A5007664A6 /* MSIDThrottlingServiceMock.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingServiceMock.m; sourceTree = "<group>"; };
 		E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingCacheRecord.h; sourceTree = "<group>"; };
@@ -5097,7 +5094,6 @@
 				E70C4A74258D7E7B00A7A07E /* MSIDLRUCacheTest.m */,
 				E733EE0B25C0A50A00ACB79A /* MSIDThumbprintCalculatorTests.m */,
 				E75DD02425D5E474007664A6 /* MSIDThrottlingServiceIntegrationTests.m */,
-				E75DD03325D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m */,
 			);
 			path = tests;
 			sourceTree = "<group>";
@@ -6261,7 +6257,6 @@
 				B2DD4B3120A8DA0B0047A66E /* MSIDLegacyCacheQueryTests.m in Sources */,
 				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
 				B29A36BB20AFAB0200427B63 /* MSIDDefaultAccessorSSOIntegrationTests.m in Sources */,
-				E75DD03425D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */,
 				B2DD4B3820A922170047A66E /* MSIDDefaultAccountCacheQueryTests.m in Sources */,
 				B2936F4A20AA8E1F0050C585 /* MSIDCacheItemJsonSerializerTests.m in Sources */,
 				B281B338226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */,
@@ -6708,7 +6703,6 @@
 				96CD652A20C885E2004813EE /* MSIDWebviewFactoryTests.m in Sources */,
 				239DF9C220E04BC9002D428B /* MSIDB2CAuthorityTests.m in Sources */,
 				B281B339226BBB1C009619AB /* MSIDOAuthRequestConfiguratorTests.m in Sources */,
-				E75DD03525D5E519007664A6 /* MSIDThrottlingServiceComponentTests.m in Sources */,
 				B2808005204CB2A700944D89 /* MSIDAADV1TokenResponseTests.m in Sources */,
 				23419F64239896E500EA78C5 /* MSIDBrokerOperationResponseTests.m in Sources */,
 				D6D9A4BD1FBE712900EFA430 /* MSIDURLExtensionsTests.m in Sources */,
