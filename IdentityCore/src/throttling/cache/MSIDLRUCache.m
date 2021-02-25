@@ -283,14 +283,7 @@ if node already exists, update and move it to the front of LRU cache */
     MSIDLRUCacheNode *node = [self.container objectForKey:signature];
     MSIDLRUCacheNode *prevNode = [self.container objectForKey:node.prevSignature];
     MSIDLRUCacheNode *nextNode = [self.container objectForKey:node.nextSignature];
-    if (!prevNode)
-    {
-        NSLog(@"hello Seattle");
-    }
-    if (!nextNode)
-    {
-        NSLog(@"Owl City");
-    }
+
     MSIDLRUCacheNode *newPrevNode = [[MSIDLRUCacheNode alloc] initWithSignature:prevNode.signature
                                                                   prevSignature:prevNode.prevSignature
                                                                   nextSignature:node.nextSignature
@@ -391,17 +384,10 @@ if node already exists, update and move it to the front of LRU cache */
 - (void)addToFrontImpl:(MSIDLRUCacheNode *)node
 {
     MSIDLRUCacheNode *dummyHeadNode = [self.container objectForKey:HEAD_SIGNATURE];
-    if (!dummyHeadNode)
-    {
-        NSLog(@"Unji!!");
-    }
+
     NSString *currentHeadSignature = dummyHeadNode.nextSignature; //node currently pointed by the head
     MSIDLRUCacheNode *currentHeadNode = [self.container objectForKey:currentHeadSignature];
     
-    if (!currentHeadNode)
-    {
-        NSLog(@"Demiurge");
-    }
     
     MSIDLRUCacheNode *updatedDummyHeadNode = [[MSIDLRUCacheNode alloc] initWithSignature:dummyHeadNode.signature
                                                                            prevSignature:dummyHeadNode.prevSignature
