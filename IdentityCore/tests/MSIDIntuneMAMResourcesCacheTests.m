@@ -26,6 +26,7 @@
 #import "MSIDIntuneInMemoryCacheDataSource.h"
 #import "MSIDAuthorityMock.h"
 #import "MSIDAuthority+Internal.h"
+#import "MSIDIntuneApplicationStateManager.h"
 
 @interface MSIDIntuneMAMResourcesCacheTests : XCTestCase
 
@@ -218,6 +219,26 @@
     
     XCTAssertNil(resource);
     XCTAssertNotNil(error);
+}
+
+- (void)testResourceInCache_intuneApplicationIdentifier_isAppCapableForMAMCA
+{
+    XCTAssertFalse([MSIDIntuneApplicationStateManager isAppCapableForMAMCA]);
+    XCTAssertNil([MSIDIntuneApplicationStateManager
+                  intuneApplicationIdentifierForAuthority:self.authority
+                  appIdentifier:@"com.contoso.identifier"]);
+    [MSIDIntuneMAMResourcesCache setSharedCache:self.cache];
+#if TARGET_OS_IPHONE
+    XCTAssertTrue([MSIDIntuneApplicationStateManager isAppCapableForMAMCA]);
+    XCTAssertEqualObjects([MSIDIntuneApplicationStateManager
+                           intuneApplicationIdentifierForAuthority:self.authority
+                           appIdentifier:@"com.contoso.identifier"], @"com.contoso.identifier");
+#else
+    XCTAssertFalse([MSIDIntuneApplicationStateManager isAppCapableForMAMCA]);
+    XCTAssertNil([MSIDIntuneApplicationStateManager
+                  intuneApplicationIdentifierForAuthority:self.authority
+                  appIdentifier:@"com.contoso.identifier"]);
+#endif
 }
 
 @end
