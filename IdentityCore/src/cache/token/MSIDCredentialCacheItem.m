@@ -273,6 +273,7 @@
     if (homeAccountId && 
         ![self.homeAccountId.msidNormalizedString isEqualToString:homeAccountId.msidNormalizedString])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item did not have a valid home account Id. Actual: %@, expected: %@",self.homeAccountId.msidNormalizedString,homeAccountId.msidNormalizedString);
         return NO;
     }
 
@@ -285,12 +286,14 @@
     if (environment && 
         ![self.environment.msidNormalizedString isEqualToString:environment.msidNormalizedString])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item did not have a valid environment. Actual: %@, expected: %@",self.environment.msidNormalizedString, environment.msidNormalizedString);
         return NO;
     }
 
     if ([environmentAliases count] && 
         ![self.environment.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item did not have a valid environment that matches with any other environment aliases.");
         return NO;
     }
 
@@ -307,20 +310,25 @@
 {
     if (realm && ![self.realm.msidNormalizedString isEqualToString:realm.msidNormalizedString])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item did not have a valid realm. Actual: %@, expected: %@",self.realm.msidNormalizedString, realm.msidNormalizedString);
         return NO;
     }
 
     if (![self matchesTarget:target comparisonOptions:matchingOptions])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item did not have a valid target value. %@", target);
         return NO;
     }
 
     if (!clientId && !familyId)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item had neither clientID nor family Id.");
         return YES;
     }
-    if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
+    
+    if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] || [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item did not have a valid requestedClaims.");
         return NO;
     }
 
@@ -329,20 +337,24 @@
         if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
             || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item supserset match; actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", self.clientId.msidNormalizedString, clientId.msidNormalizedString, self.familyId.msidNormalizedString, familyId.msidNormalizedString);
             return YES;       
         }
-
+        
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item superset mismatch; cached item had both invalid clientID and familyID. actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", self.clientId.msidNormalizedString, clientId.msidNormalizedString, self.familyId.msidNormalizedString, familyId.msidNormalizedString);
         return NO;
     }
     else
     {
         if (clientId && ![self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item clientID mismatch; actual client ID: %@, expected client ID: %@", self.clientId.msidNormalizedString, clientId.msidNormalizedString);
             return NO;
         }
 
         if (familyId && ![self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString])
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(MSIDCredentialCacheItem) cached item familyID mismatch; actual family ID: %@, expected family ID: %@", self.familyId.msidNormalizedString, familyId.msidNormalizedString);
             return NO;
         }
     }

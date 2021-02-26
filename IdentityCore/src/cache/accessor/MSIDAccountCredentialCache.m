@@ -94,11 +94,13 @@
 
         for (MSIDCredentialCacheItem *cacheItem in results)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) filtering check on cached item with the following properties: client ID: %@, secret: %@, target: %@, realm: %@, environment: %@, familyID: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, appKey: %@, applicationIdentifier: %@, tokenType: %@, kid: %@",cacheItem.clientId, cacheItem.secret, cacheItem.target, cacheItem.realm, cacheItem.environment, cacheItem.familyId, cacheItem.homeAccountId, cacheItem.enrollmentId, cacheItem.speInfo, cacheItem.appKey, cacheItem.applicationIdentifier, cacheItem.tokenType, cacheItem.kid);
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) cached item did not have a valid home account Id");
                 continue;
             }
 
@@ -110,6 +112,7 @@
                               targetMatching:cacheQuery.targetMatchingOptions
                             clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) cached item did not have a valid realm");
                 continue;
             }
 
