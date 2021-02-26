@@ -28,10 +28,10 @@
 
 @implementation MSIDThrottlingServiceMock
 
-- (instancetype)initWithAccessGroup:(NSString *)accessGroup
-                            context:(id<MSIDRequestContext>)context
+- (instancetype)initWithinitWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                                   context:(id<MSIDRequestContext>)context
 {
-    self = [super initWithAccessGroup:accessGroup context:context];
+    self = [super initWithDataSource:datasource context:context];
     if (self)
     {
         _shouldThrottleRequestInvokedCount = 0;
@@ -64,13 +64,13 @@
                       tokenRequest:tokenRequest];
 }
 
-+ (BOOL)updateLastRefreshTimeAccessGroup:(NSString *)accessGroup
-                                 context:(id<MSIDRequestContext>)context
-                                   error:(NSError **)error
++ (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                                context:(id<MSIDRequestContext>)context
+                                  error:(NSError **)error
 {
-    return [super updateLastRefreshTimeAccessGroup:accessGroup
-                                           context:context
-                                         error:error];
+    return [super updateLastRefreshTimeDatasource:datasource
+                                          context:context
+                                            error:error];
 }
 
 @end
