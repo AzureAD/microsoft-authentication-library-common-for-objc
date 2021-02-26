@@ -28,8 +28,8 @@
 #import "NSError+MSIDThrottlingExtension.h"
 
 @implementation MSIDThrottlingModel429
-static NSInteger const Default429Throttling = 60;
-static NSInteger const MaxRetryAfter = 3600;
+NSInteger const Default429Throttling = 60;
+NSInteger const MaxRetryAfter = 3600;
 
 - (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
                     cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord

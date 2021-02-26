@@ -69,7 +69,8 @@
     if (!datasource) return nil;
     NSArray *jsonObjects = [datasource jsonObjectsWithKey:[MSIDThrottlingMetaDataCache throttlingMetadataCacheKey]
                                                serializer:[MSIDCacheItemJsonSerializer new]
-                                                  context:context error:error];
+                                                  context:context
+                                                    error:error];
     if (![jsonObjects count])
     {
         return nil;

@@ -22,10 +22,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-#import "MSIDThrottlingModelBase.h"
 
-@interface MSIDThrottlingModel429 : MSIDThrottlingModelBase
-extern NSInteger const Default429Throttling;
-extern NSInteger const MaxRetryAfter;
+#ifndef MSIDThreadSafeMutableDictionary_h
+#define MSIDThreadSafeMutableDictionary_h
 
-@end
+
+#endif /* MSIDThreadSafeMutableDictionary_h */
