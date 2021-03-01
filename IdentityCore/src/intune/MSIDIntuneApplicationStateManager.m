@@ -27,15 +27,9 @@
 
 @implementation MSIDIntuneApplicationStateManager
 
-+ (BOOL)isAppCapableForMAMCA:(__unused MSIDAuthority *)authority
++ (BOOL)isAppCapableForMAMCA
 {
 #if TARGET_OS_IPHONE
-    
-    if (!authority.supportsMAMScenarios)
-    {
-        return NO;
-    }
-    
     NSError *error = nil;
     NSDictionary *resourceCache = [[MSIDIntuneMAMResourcesCache sharedCache] resourcesJsonDictionaryWithContext:nil error:&error];
     
@@ -54,7 +48,12 @@
 + (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
                                                  appIdentifier:(NSString *)appIdentifier
 {
-    return [self isAppCapableForMAMCA:authority] ? appIdentifier : nil;
+    if (authority.supportsMAMScenarios && [self isAppCapableForMAMCA])
+    {
+        return appIdentifier;
+    }
+    
+    return nil;
 }
 
 @end
