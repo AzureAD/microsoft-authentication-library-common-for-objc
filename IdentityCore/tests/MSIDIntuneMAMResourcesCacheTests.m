@@ -233,12 +233,24 @@
     XCTAssertEqualObjects([MSIDIntuneApplicationStateManager
                            intuneApplicationIdentifierForAuthority:self.authority
                            appIdentifier:@"com.contoso.identifier"], @"com.contoso.identifier");
+    [self resetResourceCache];
+    XCTAssertFalse([MSIDIntuneApplicationStateManager isAppCapableForMAMCA]);
+    XCTAssertNil([MSIDIntuneApplicationStateManager
+                  intuneApplicationIdentifierForAuthority:self.authority
+                  appIdentifier:@"com.contoso.identifier"]);
 #else
     XCTAssertFalse([MSIDIntuneApplicationStateManager isAppCapableForMAMCA]);
     XCTAssertNil([MSIDIntuneApplicationStateManager
                   intuneApplicationIdentifierForAuthority:self.authority
                   appIdentifier:@"com.contoso.identifier"]);
 #endif
+}
+
+#pragma mark - helpers
+
+- (void)resetResourceCache
+{
+    [MSIDIntuneMAMResourcesCache setSharedCache:[[MSIDIntuneMAMResourcesCache alloc] initWithDataSource:[[MSIDIntuneInMemoryCacheDataSource alloc] initWithCache:[MSIDCache new]]]];
 }
 
 @end
