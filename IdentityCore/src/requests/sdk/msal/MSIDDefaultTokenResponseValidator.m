@@ -43,6 +43,11 @@
      we'd like to throw an error and specify which scopes were granted and which ones not
      */
     
+    if (tokenResult.accessToken == nil)
+    {
+        return YES;
+    }
+
     NSOrderedSet *grantedScopes = tokenResult.accessToken.scopes;
     NSOrderedSet *normalizedGrantedScopes = grantedScopes.normalizedScopeSet;
 

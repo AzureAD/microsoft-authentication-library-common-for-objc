@@ -783,8 +783,7 @@
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     if (!accessToken)
     {
-        MSIDFillAndLogError(error, MSIDErrorInternal, @"Response does not contain an access token", context.correlationId);
-        return NO;
+        return YES;
     }
 
     if (![self checkAccountIdentifier:accessToken.accountIdentifier.homeAccountId context:context error:error])
