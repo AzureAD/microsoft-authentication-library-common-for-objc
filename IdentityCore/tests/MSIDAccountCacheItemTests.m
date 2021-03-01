@@ -55,7 +55,7 @@
                                          @"alternative_account_id": @"alt",
                                          @"name": @"test user",
                                          @"client_info": clientInfo.rawClientInfo,
-										 @"last_modification_app": @"",
+                                         @"last_modification_app": @"",
                                          @"last_modification_time": @"0.000"
                                          };
     MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:expectedDictionary error:&error];
