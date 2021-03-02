@@ -25,6 +25,11 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "MSIDThrottlingService.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
@@ -54,8 +59,18 @@
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
-        
-        if (error && [weakSelf shouldFallback:error])
+        if (!error)
+        {
+            /**
+             Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
+             */
+            if ([weakSelf.tokenRequestProvider isKindOfClass:MSIDDefaultTokenRequestProvider.class])
+            {
+                [MSIDThrottlingService updateLastRefreshTimeDatasource:((MSIDDefaultTokenRequestProvider *)weakSelf.tokenRequestProvider).tokenCache.accountCredentialCache.dataSource context:weakSelf.interactiveRequestParamaters error:nil];
+            }
+           
+        }
+        else if ([weakSelf shouldFallback:error])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Falling back to local controller.");
             

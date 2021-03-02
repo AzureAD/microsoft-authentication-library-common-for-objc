@@ -59,4 +59,39 @@
     return [NSDate dateWithTimeIntervalSince1970:[timeStamp doubleValue]];
 }
 
+/**
+ https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
+ There are 2 formats of Retry-Header in the HTTP header ESTS may return:
+ Retry-After: Wed, 21 Oct 2015 07:28:00 GMT
+ Retry-After: 120
+ Either the value, we will return the date object.
+ */
++ (NSDate *)msidDateFromRetryHeader:(NSString *)retryHeaderString
+{
+    if(!retryHeaderString)
+    {
+        return nil;
+    }
+    
+    if ([retryHeaderString intValue] > 0)
+    {
+        NSDate *date = [[NSDate new] dateByAddingTimeInterval:[retryHeaderString intValue]];
+        return date;
+    }
+    else
+    {
+        static NSDateFormatter* s_dateFormatter = nil;
+        static dispatch_once_t s_dateOnce;
+        
+        dispatch_once(&s_dateOnce, ^{
+            s_dateFormatter = [[NSDateFormatter alloc] init];
+            s_dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+            [s_dateFormatter setTimeZone:[NSTimeZone timeZoneWithName:@"GMT"]];
+            [s_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSSS"];
+        });
+        
+        return [s_dateFormatter dateFromString:retryHeaderString];
+    }
+}
+
 @end

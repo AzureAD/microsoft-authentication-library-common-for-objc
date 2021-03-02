@@ -1,4 +1,3 @@
-//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -20,67 +19,21 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
-
+// THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import "MSIDUIRequiredCache.h"
-#import "MSIDThrottlingCacheRecord.h"
-#import "MSIDThrottlingCacheNode.h"
-#import "MSIDCache.h"
+#import "NSDate+MSIDExtensions.h"
 
-@interface MSIDUIRequiredCache ()
+NS_ASSUME_NONNULL_BEGIN
 
-@property (nonatomic) NSUInteger cacheSizeInt;
+@interface NSError (MSIDThrottlingExtension)
 
-@end
-
-@implementation MSIDUIRequiredCache
-
-- (instancetype)initWithCacheSize:(NSUInteger)cacheSize
-{
-    self = [super init];
-    if (self)
-    {
-        _cacheSizeInt = cacheSize;
-    }
-    return self;
-}
-
-- (NSUInteger)cacheSize
-{
-    return self.cacheSizeInt;
-}
-
-- (void)addToFront:(NSString *)thumbprintKey
-     errorResponse:(NSError *)errorResponse
-{
-    //TODO: Implement this
-    return;
-}
-
-- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey
-{
-    //TODO: Implement this
-    return nil;
-}
-
-- (void)removeNode:(NSString *)thumbprintKey
-{
-    //TODO: implement this
-    return;
-}
-
-- (MSIDCache *)internalCache
-{
-    static MSIDCache *m_cache;
-    static dispatch_once_t once_token;
-    dispatch_once(&once_token, ^{
-        m_cache = [MSIDCache new];
-    });
-    
-    return m_cache;
-}
-
+- (NSDate *)msidGetRetryDateFromError;
+- (BOOL)msidIsMSIDError;
+- (NSString *)msidGetHTTPHeaderValue:(NSString *)headerKey;
+- (NSString *)msidGetUserInfoValueWithMSIDKey:(NSString *)msidKey
+                                    orMSALKey:(NSString *)msalKey;
 
 @end
+
+NS_ASSUME_NONNULL_END

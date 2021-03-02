@@ -21,14 +21,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
+#import "MSIDJsonObject.h"
 
-#import "MSIDThrottlingLRUCache.h"
+@interface MSIDThrottlingMetaData : MSIDJsonObject
 
-@class MSIDThrottlingCacheRecord;
-@class MSIDThumbprintCalculatable;
-
-//static MSIDCache instance that will act as a pseudo-doubly-linkedList will be in the implementation file.
-@interface MSIDUIRequiredCache : NSObject <MSIDThrottlingLRUCache>
-
+@property (nonatomic) NSString *lastRefreshTime;
 
 @end

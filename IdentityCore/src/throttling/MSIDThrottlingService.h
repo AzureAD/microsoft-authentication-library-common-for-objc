@@ -22,19 +22,34 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
+#import "MSIDRequestContext.h"
 #import "MSIDThumbprintCalculatable.h"
+#import "MSIDThrottlingCacheRecord.h"
+#import "MSIDTokenResponse.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
+
+typedef void (^MSIDThrottleResultBlock)(BOOL shouldBeThrottled, NSError * _Nullable errorResponse);
+
 
 NS_ASSUME_NONNULL_BEGIN
+@interface MSIDThrottlingService : NSObject
 
-@interface MSIDSilentRequestThumbprintCalculator : NSObject <MSIDThumbprintCalculatable>
+@property (nonatomic, nullable, readonly) id<MSIDRequestContext> context;
+@property (nonatomic, nullable, readonly) NSString *accessGroup;
+@property (nonatomic, nullable, readonly) id<MSIDExtendedTokenCacheDataSource> datasource;
 
-- (instancetype)initWithParamaters:(NSDictionary *)parameters
-                       endpointUrl:(NSString *)endpointUrl
-                             realm:(NSString *)realm
-                       environment:(NSString *)environment
-                     homeAccountId:(NSString *)homeAccountId;
+- (instancetype)initWithDataSource:(id<MSIDExtendedTokenCacheDataSource>)datasource
+                            context:(id<MSIDRequestContext> __nullable)context;
+
+- (void)shouldThrottleRequest:(id<MSIDThumbprintCalculatable>)request
+                  resultBlock:(MSIDThrottleResultBlock)resultBlock;
+
+- (void)updateThrottlingService:(NSError *)error
+                   tokenRequest:(id<MSIDThumbprintCalculatable>)tokenRequest;
+
++ (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
+                                context:(id<MSIDRequestContext>__nullable)context
+                                  error:(NSError *__nullable *__nullable)error;
 
 @end
-
 NS_ASSUME_NONNULL_END

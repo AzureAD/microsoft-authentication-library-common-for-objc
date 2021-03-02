@@ -22,18 +22,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-@class MSIDThrottlingCacheRecord;
 
-@interface MSIDThrottlingCacheNode : NSObject
+#import <XCTest/XCTest.h>
 
-@property (nonatomic, readonly) NSString *requestThumbprintKey;
-@property (nonatomic) NSString *prevRequestThumbprintKey; //prev and next node keys should be mutable
-@property (nonatomic) NSString *nextRequestThumbprintKey;
-@property (nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
+@interface MSIDThrottlingModelBaseTest : XCTestCase
 
-- (instancetype)initWithThumbprintKey:(NSString *)thumbprintKey
-                        errorResponse:(NSError *)errorResponse
-                         throttleType:(NSString *)throttleType
-             prevRequestThumbprintKey:(NSString *)prevRequestThumbprintKey
-             nextRequestThumbprintKey:(NSString *)nextRequestThumbprintKey;
+@end
+
+@implementation MSIDThrottlingModelBaseTest
+
+- (void)setUp {
+    // Put setup code here. This method is called before the invocation of each test method in the class.
+}
+
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+}
+
+- (void)testExample {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
+}
+
+- (void)testPerformanceExample {
+    // This is an example of a performance test case.
+    [self measureBlock:^{
+        // Put the code you want to measure the time of here.
+    }];
+}
+
 @end

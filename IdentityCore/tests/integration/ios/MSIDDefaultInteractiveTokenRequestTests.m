@@ -243,7 +243,7 @@
     [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
 
     NSString *url = @"https://contoso.onmicrosoft.cn/common/oauth2/v2.0/token";
-
+    
     MSIDTestURLResponse *response =
     [MSIDTestURLResponse requestURLString:url
                            requestHeaders:reqHeaders
@@ -383,7 +383,8 @@
 
     MSIDTestURLResponse *oidcResponse = [MSIDTestURLResponse oidcResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:oidcResponse];
-
+    
+    
     XCTestExpectation *expectation = [self expectationWithDescription:@"Run request."];
 
     [request executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse) {

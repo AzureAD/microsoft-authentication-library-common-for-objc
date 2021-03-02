@@ -113,7 +113,7 @@
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unable to create broker request URL", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
         }
 
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Unable to create broker request URL with contents %@", MSID_PII_LOG_MASKABLE(contents));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Unable to create broker request URL with contents %@", MSID_EUII_ONLY_LOG_MASKABLE(contents));
         return NO;
     }
 

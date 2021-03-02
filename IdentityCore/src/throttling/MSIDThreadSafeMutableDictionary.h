@@ -23,12 +23,8 @@
 // THE SOFTWARE.  
 
 
-#import "MSIDThrottlingLRUCache.h"
+#ifndef MSIDThreadSafeMutableDictionary_h
+#define MSIDThreadSafeMutableDictionary_h
 
-@class MSIDThrottlingCacheRecord;
-@class MSIDThumbprintCalculatable;
 
-//static MSIDCache instance that will act as a pseudo-doubly-linkedList will be in the implementation file.
-@interface MSIDServerDelayCache : NSObject <MSIDThrottlingLRUCache>
-
-@end
+#endif /* MSIDThreadSafeMutableDictionary_h */

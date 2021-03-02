@@ -20,23 +20,24 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+#import "MSIDThumbprintCalculatable.h"
+#import "MSIDRequestContext.h"
+#import "MSIDThrottlingModelBase.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
-@class MSIDThrottlingCacheRecord;
+NS_ASSUME_NONNULL_BEGIN
 
-@protocol MSIDThrottlingLRUCache <NSObject>
+@interface MSIDThrottlingModelFactory : NSObject
 
-@property (nonatomic, readonly) NSUInteger cacheSize;
++ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable>)request
+                                                    datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
+                                                       context:(id<MSIDRequestContext> _Nullable)context;
 
-- (instancetype)initWithCacheSize:(NSUInteger)cacheSize;
-
-//NOTE: We don't need to pass in throttle type here, because we already know it will be 429/5xx if it goes into serverDelayCache
-//and UI_Required if it goes into UIRequiredCache, so we pass in those info into CacheNode objects within each subclass' virtual methods.
-- (void)addToFront:(NSString *)thumbprintKey
-     errorResponse:(NSError *)errorResponse;
-
-- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey;
-
-- (void)removeNode:(NSString *)thumbprintKey; //remove node using the thumbprintKey identifier.
++ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable>)request
+                                                        datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
+                                                     errorResponse:(NSError *)errorResponse
+                                                           context:(id<MSIDRequestContext> _Nullable)context;
 
 @end
+NS_ASSUME_NONNULL_END

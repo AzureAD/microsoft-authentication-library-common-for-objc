@@ -23,65 +23,32 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDServerDelayCache.h"
-#import "MSIDThrottlingCacheRecord.h"
-#import "MSIDThrottlingCacheNode.h"
-#import "MSIDCache.h"
+#import <XCTest/XCTest.h>
 
-@interface MSIDServerDelayCache ()
-
-@property (nonatomic) NSUInteger cacheSizeInt;
+@interface MSIDThrottlingModelFactory : XCTestCase
 
 @end
 
-@implementation MSIDServerDelayCache
+@implementation MSIDThrottlingModelFactory
 
-- (instancetype)initWithCacheSize:(NSUInteger)cacheSize
-{
-    self = [super init];
-    if (self)
-    {
-        _cacheSizeInt = cacheSize;
-    }
-    return self;
+- (void)setUp {
+    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (NSUInteger)cacheSize
-{
-    return self.cacheSizeInt;
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)addToFront:(NSString *)thumbprintKey
-     errorResponse:(NSError *)errorResponse
-{
-    //TODO: Implement this
-    return;
+- (void)testExample {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
 }
 
-- (MSIDThrottlingCacheRecord *)getCachedResponse:(NSString *)thumbprintKey
-{
-    //TODO: Implement this
-    return nil;
+- (void)testPerformanceExample {
+    // This is an example of a performance test case.
+    [self measureBlock:^{
+        // Put the code you want to measure the time of here.
+    }];
 }
-
-- (void)removeNode:(NSString *)thumbprintKey
-{
-    //TODO: implement this
-    return;
-}
-
-- (MSIDCache *)internalCache
-{
-    static MSIDCache *m_cache;
-    static dispatch_once_t once_token;
-    dispatch_once(&once_token, ^{
-        m_cache = [MSIDCache new];
-    });
-    
-    return m_cache;
-}
-
-
 
 @end

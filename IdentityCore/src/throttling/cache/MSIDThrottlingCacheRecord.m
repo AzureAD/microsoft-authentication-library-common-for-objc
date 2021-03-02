@@ -20,18 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+#import "MSIDThrottlingCacheRecord.h"
 
-#import <Foundation/Foundation.h>
-#import "MSIDSilentRequestThumbprintCalculator.h"
+@implementation MSIDThrottlingCacheRecord
 
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDSSOSilentRequestThumbprintCalculator : MSIDSilentRequestThumbprintCalculator
-
-- (instancetype)initWithParamaters:(NSDictionary *)parameters;
+- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
+                         throttleType:(NSInteger)throttleType
+                     throttleDuration:(NSInteger)throttleDuration
+{
+    self = [super init];
+    if (self)
+    {
+        _creationTime = [NSDate date];
+        _expirationTime = [NSDate dateWithTimeIntervalSinceNow:throttleDuration];
+        _throttleType = throttleType;
+        _throttledCount = 1;
+        _cachedErrorResponse = cachedErrorResponse;
+    }
+    return self;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

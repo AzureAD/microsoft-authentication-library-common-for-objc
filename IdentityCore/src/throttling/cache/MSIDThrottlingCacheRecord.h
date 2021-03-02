@@ -20,20 +20,23 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
 
+NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThrottlingCacheRecord : NSObject
 
 @property (nonatomic, readonly) NSDate *creationTime;
 @property (nonatomic, readonly) NSDate *expirationTime;
-@property (nonatomic, readonly) NSString *throttleType;
-@property (nonatomic) NSUInteger throttledCount; //number of times this request has been throttled
-@property (nonatomic) NSError *cachedErrorResponse;
+@property (nonatomic) NSUInteger throttleType;
+@property (nonatomic, readonly) NSError *cachedErrorResponse;
+@property (nonatomic) NSUInteger throttledCount;
+//number of times this request has been throttled - needs to be mutable 
 
-- (instancetype)initWithErrorResponse:(NSError *)cachedErrorResponse
-                         throttleType:(NSString *)throttleType;
+- (instancetype)initWithErrorResponse:(nullable NSError *)cachedErrorResponse
+                         throttleType:(NSInteger)throttleType
+                     throttleDuration:(NSInteger)throttleDuration;
                     
-
-
 @end
+
+NS_ASSUME_NONNULL_END
