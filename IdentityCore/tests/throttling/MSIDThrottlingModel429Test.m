@@ -34,12 +34,26 @@
 
 @implementation MSIDThrottlingModel429Test
 
+- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
+{
+    static dispatch_once_t once;
+    static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
+    
+    dispatch_once(&once, ^{
+        swizzleStacks = [NSMutableDictionary new];
+    });
+    
+    return swizzleStacks;
+}
+
 - (void)setUp
 {
+    [self.swizzleStacks setValue:[NSMutableArray new] forKey:self.name];
 }
 
 - (void)tearDown
 {
+    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
 }
 
 - (NSError *)createErrorWithResCode:(NSString *)rescode
@@ -79,7 +93,7 @@
 - (void)test_IfTheCacheIsNotExpired_ThenshouldThrottleRequestShouldBeYes
 {
     MSIDThrottlingModel429 *model = [MSIDThrottlingModel429 new];
-    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                                                          class:[MSIDThrottlingModel429 class]
                                                          block:(id)^(void)
     {
@@ -89,13 +103,14 @@
                                                                                     throttleDuration:3];
         return record;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
     XCTAssertTrue([model shouldThrottleRequest]);
 }
 
 - (void)test_IfTheCacheIsExpired_ThenshouldThrottleRequestShouldBeNo
 {
     MSIDThrottlingModel429 *model = [MSIDThrottlingModel429 new];
-    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModel429 class]
                               block:(id)^(void)
      {
@@ -105,19 +120,21 @@
                                                                                     throttleDuration:-1];
         return record;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
     XCTAssertFalse([model shouldThrottleRequest]);
 }
 
 - (void)test_IfNoRetryHeader_ThenCreateDBCacheRecordWithDefaultThrottlingTime
 {
     MSIDThrottlingModel429 *model = [MSIDThrottlingModel429 new];
-    [MSIDTestSwizzle instanceMethod:@selector(errorResponse)
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(errorResponse)
                               class:[MSIDThrottlingModel429 class]
                               block:(id)^(void)
      {
         NSError *error = [self createErrorWithResCode:@"429" retryHeaderValue:@""];
         return error;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
     NSDate *now = [NSDate new];
     MSIDThrottlingCacheRecord *cacheRecord = [model createDBCacheRecord];
     // The is a small delta in expiration time, so the acceptable range will be < 1 second
@@ -127,13 +144,15 @@
 - (void)test_IfRetryHeaderInErrorResponse_AndValueIsGreaterThanThrottlingLimit_ThenCreateDBCacheRecordWithThrottlingLimit
 {
     MSIDThrottlingModel429 *model = [MSIDThrottlingModel429 new];
-    [MSIDTestSwizzle instanceMethod:@selector(errorResponse)
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(errorResponse)
                               class:[MSIDThrottlingModel429 class]
                               block:(id)^(void)
      {
         NSError *error = [self createErrorWithResCode:@"429" retryHeaderValue:@"10000"];
         return error;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+    
     NSDate *now = [NSDate new];
     MSIDThrottlingCacheRecord *cacheRecord = [model createDBCacheRecord];
     XCTAssertTrue(ABS([cacheRecord.expirationTime timeIntervalSinceDate:now] - MaxRetryAfter) < 1);
@@ -143,13 +162,15 @@
 - (void)test_IfRetryHeaderInErrorResponse_AndValueIsSmallerThanThrottlingLimit_ThenCreateDBCacheRecordWithRetryHeaderValue
 {
     MSIDThrottlingModel429 *model = [MSIDThrottlingModel429 new];
-    [MSIDTestSwizzle instanceMethod:@selector(errorResponse)
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(errorResponse)
                               class:[MSIDThrottlingModel429 class]
                               block:(id)^(void)
      {
         NSError *error = [self createErrorWithResCode:@"429" retryHeaderValue:@"50"];
         return error;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+
     NSDate *now = [NSDate new];
     MSIDThrottlingCacheRecord *cacheRecord = [model createDBCacheRecord];
     XCTAssertTrue(ABS([cacheRecord.expirationTime timeIntervalSinceDate:now] - 50) < 1);

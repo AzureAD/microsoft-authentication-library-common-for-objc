@@ -36,12 +36,26 @@
 
 @implementation MSIDThrottlingModelInteractionRequireTest
 
-- (void)setUp {
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
+{
+    static dispatch_once_t once;
+    static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
+    
+    dispatch_once(&once, ^{
+        swizzleStacks = [NSMutableDictionary new];
+    });
+    
+    return swizzleStacks;
 }
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+- (void)setUp
+{
+    [self.swizzleStacks setValue:[NSMutableArray new] forKey:self.name];
+}
+
+- (void)tearDown
+{
+    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
 }
 
 - (NSError *)createErrorWithDomain:(BOOL)isMSIDError
@@ -84,7 +98,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndNoLastRefreshTime_ThenshouldThrottleRequestShouldBeYes
 {
     MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
-    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelInteractionRequire class]
                               block:(id)^(void)
      {
@@ -94,7 +108,8 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    
+    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+
     [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                            class:[MSIDThrottlingMetaDataCache class]
                            block:(id)^(void)
@@ -108,7 +123,7 @@
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsTooOld_ThenshouldThrottleRequestShouldBeYes
 {
     MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
-    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelInteractionRequire class]
                               block:(id)^(void)
      {
@@ -118,8 +133,9 @@
                                                                                     throttleDuration:3];
         return record;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
     
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                            class:[MSIDThrottlingMetaDataCache class]
                            block:(id)^(void)
      {
@@ -127,6 +143,7 @@
         NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:-3];
         return lastRefreshTime;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
@@ -134,7 +151,7 @@
 - (void)test_IfTheCacheIsExpired_ThenShouldThrottleRequestShouldBeNo
 {
     MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
-    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelInteractionRequire class]
                               block:(id)^(void)
      {
@@ -144,8 +161,9 @@
                                                                                     throttleDuration:-3];
         return record;
     }];
-    
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
+
+    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                            class:[MSIDThrottlingMetaDataCache class]
                            block:(id)^(void)
      {
@@ -153,14 +171,15 @@
         NSDate *lastRefreshTime = nil;
         return lastRefreshTime;
     }];
-    
+    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
+
     XCTAssertFalse([model shouldThrottleRequest]);
 }
 
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsNew_ThenshouldThrottleRequestShouldBeNo
 {
     MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
-    [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
+    MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
                               class:[MSIDThrottlingModelInteractionRequire class]
                               block:(id)^(void)
      {
@@ -170,8 +189,9 @@
                                                                                     throttleDuration:3];
         return record;
     }];
-    
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+    [[self.swizzleStacks objectForKey:self.name] addObject:cacheSwizzle];
+
+    MSIDTestSwizzle *lastrefreshSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
                            class:[MSIDThrottlingMetaDataCache class]
                            block:(id)^(void)
      {
@@ -179,7 +199,8 @@
         NSDate *lastRefreshTime = [NSDate dateWithTimeIntervalSinceNow:3];
         return lastRefreshTime;
     }];
-    
+    [[self.swizzleStacks objectForKey:self.name] addObject:lastrefreshSwizzle];
+
     XCTAssertFalse([model shouldThrottleRequest]);
 }
 
