@@ -135,7 +135,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         
         // If token is scoped down to a particular enrollmentId and app is capable for True MAM CA, verify that enrollmentIds match
         // EnrollmentID matching is done on the request layer to ensure that expired access tokens get removed even if valid enrollmentId is not presented
-        if ([MSIDIntuneApplicationStateManager isAppCapableForMAMCA:self.requestParameters.msidConfiguration.authority]
+        if (self.requestParameters.msidConfiguration.authority.supportsMAMScenarios
+            && [MSIDIntuneApplicationStateManager isAppCapableForMAMCA]
             && ![NSString msidIsStringNilOrBlank:accessToken.enrollmentId])
         {
             NSError *error = nil;

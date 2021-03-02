@@ -231,7 +231,11 @@
 
 - (BOOL)supportsMAMScenarios
 {
+#if TARGET_OS_IPHONE
     return YES;
+#else
+    return NO;
+#endif
 }
 
 - (BOOL)checkTokenEndpointForRTRefresh:(NSURL *)tokenEndpoint
