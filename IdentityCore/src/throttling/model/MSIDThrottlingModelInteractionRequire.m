@@ -58,7 +58,7 @@ static NSInteger const DefaultUIRequired = 120;
 + (BOOL)isApplicableForTheThrottleModel:(NSError *)errorResponse
 {
     // MSALErrorInteractionRequired = -50002
-    NSSet *uirequiredErrors = [[NSSet alloc] initWithArray:@[[NSNumber numberWithInt:(-50002)]]];
+    NSSet *uirequiredErrors = [[NSSet alloc] initWithArray:@[@(-50002)]];
     BOOL isMSIDError = [errorResponse msidIsMSIDError];
     
     if (isMSIDError)

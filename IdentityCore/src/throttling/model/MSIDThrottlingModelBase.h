@@ -51,11 +51,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (readonly, nonatomic) NSError *errorResponse;
 @property (readonly, nonatomic) MSIDThrottlingCacheRecord *cacheRecord;
 @property (readonly, nonatomic) id<MSIDExtendedTokenCacheDataSource> datasource;
-@property (readonly, nonatomic) id<MSIDRequestContext> context;
+@property (readonly, nonatomic, nullable) id<MSIDRequestContext> context;
 
-- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
+- (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable> __nullable)request
                     cacheRecord:(MSIDThrottlingCacheRecord *__nullable)cacheRecord
-                  errorResponse:(NSError *)errorResponse
+                  errorResponse:(NSError *__nullable)errorResponse
                     datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource;
 
 + (BOOL)isApplicableForTheThrottleModel:(NSError *)errorResponse;

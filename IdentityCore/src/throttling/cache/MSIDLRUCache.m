@@ -75,8 +75,6 @@ static NSString *const TAIL_SIGNATURE = @"TAIL";
 @property (nonatomic) NSUInteger cacheEvictionCountInt;
 @property (nonatomic) NSUInteger cacheAddCountInt;
 @property (nonatomic) NSUInteger cacheRemoveCountInt;
-//@property (nonatomic) MSIDLRUCacheNode *head;
-//@property (nonatomic) MSIDLRUCacheNode *tail;
 @property (nonatomic) NSMutableDictionary *container;
 @property (nonatomic) NSMutableDictionary *keySignatureMap;
 @property (nonatomic) dispatch_queue_t synchronizationQueue;
