@@ -110,12 +110,13 @@
     }];
     [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
-    [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
-                           class:[MSIDThrottlingMetaDataCache class]
-                           block:(id)^(void)
+    MSIDTestSwizzle *metadataSwizzle = [MSIDTestSwizzle classMethod:@selector(getLastRefreshTimeWithDatasource:context:error:)
+                                                              class:[MSIDThrottlingMetaDataCache class]
+                                                              block:(id)^(void)
      {
         return nil;
     }];
+    [[self.swizzleStacks objectForKey:self.name] addObject:metadataSwizzle];
 
     XCTAssertTrue([model shouldThrottleRequest]);
 }
