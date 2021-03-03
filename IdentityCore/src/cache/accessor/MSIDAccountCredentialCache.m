@@ -94,13 +94,13 @@
 
         for (MSIDCredentialCacheItem *cacheItem in results)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) filtering check on cached item with the following properties: client ID: %@, secret: %@, target: %@, realm: %@, environment: %@, familyID: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, appKey: %@, applicationIdentifier: %@, tokenType: %@, kid: %@",cacheItem.clientId, cacheItem.secret, cacheItem.target, cacheItem.realm, cacheItem.environment, cacheItem.familyId, cacheItem.homeAccountId, cacheItem.enrollmentId, cacheItem.speInfo, cacheItem.appKey, cacheItem.applicationIdentifier, cacheItem.tokenType, cacheItem.kid);
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) filtering check on cached item with the following properties: client ID: %@, target: %@, realm: %@, environment: %@, familyID: %@, homeAccountId: %@, enrollmentId: %@, appKey: %@, applicationIdentifier: %@, tokenType: %@",cacheItem.clientId, cacheItem.target, cacheItem.realm, cacheItem.environment, cacheItem.familyId, MSID_PII_LOG_TRACKABLE(cacheItem.homeAccountId), MSID_PII_LOG_MASKABLE(cacheItem.enrollmentId), MSID_PII_LOG_MASKABLE(cacheItem.appKey), MSID_EUII_ONLY_LOG_MASKABLE(cacheItem.applicationIdentifier), cacheItem.tokenType);
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) cached item did not have a valid home account Id");
+                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) cached item failed the filtering check - matchesWithHomeAccountId:environment:environmentAliases");
                 continue;
             }
 
@@ -112,7 +112,7 @@
                               targetMatching:cacheQuery.targetMatchingOptions
                             clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) cached item did not have a valid realm");
+                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(MSIDCredentialCache) cached item failed the filtering check - matchesWithRealm:clientId:familyId:target:requestedClaims:targetMatching:clientIdMatching");
                 continue;
             }
 
