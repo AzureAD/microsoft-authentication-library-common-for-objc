@@ -259,14 +259,21 @@ typedef unsigned char byte;
     {
         return NO;
     }
-
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Check if credential environment %@ is included in the list of valid environment aliases.",self);
+    for (NSString *alias in aliases)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"environment alias found: %@",alias);
+    }
+    
     for (NSString *alias in aliases)
     {
         if ([self caseInsensitiveCompare:alias] == NSOrderedSame)
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"credential environment found in the list of valid environment aliases.");
             return YES;
         }
     }
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"credential environment not found in the list of valid environment aliases.");
     return NO;
 }
 
