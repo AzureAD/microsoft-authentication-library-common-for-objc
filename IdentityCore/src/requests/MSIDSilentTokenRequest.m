@@ -72,7 +72,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
 {
     self = [super init];
-
+    
     if (self)
     {
         _requestParameters = parameters;
@@ -82,7 +82,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
     }
-
+    
     return self;
 }
 
@@ -91,28 +91,28 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     if (!self.requestParameters.accountIdentifier)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Account parameter cannot be nil");
-
+        
         NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorMissingAccountParameter, @"Account parameter cannot be nil", nil, nil, nil, self.requestParameters.correlationId, nil, NO);
         completionBlock(nil, error);
         return;
     }
-
+    
     NSString *upn = self.requestParameters.accountIdentifier.displayableId;
-
+    
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority
                                        userPrincipalName:upn
                                                  context:self.requestParameters
                                          completionBlock:^(__unused NSURL *openIdConfigurationEndpoint,
-                                         __unused BOOL validated, NSError *error)
+                                                           __unused BOOL validated, NSError *error)
      {
-         if (error)
-         {
-             completionBlock(nil, error);
-             return;
-         }
-
-         [self executeRequestImpl:completionBlock];
-     }];
+        if (error)
+        {
+            completionBlock(nil, error);
+            return;
+        }
+        
+        [self executeRequestImpl:completionBlock];
+    }];
 }
 
 - (void)executeRequestImpl:(MSIDRequestCompletionBlock)completionBlock
@@ -123,13 +123,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for access token...");
         MSIDAccessToken *accessToken = [self accessTokenWithError:&accessTokenError];
-
+        
         if (accessTokenError)
         {
             completionBlock(nil, accessTokenError);
             return;
         }
-
+        
         BOOL enrollmentIdMatch = YES;
         BOOL accessTokenKeyThumbprintMatch = YES;
         
@@ -153,7 +153,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             
             enrollmentIdMatch = currentEnrollmentId && [currentEnrollmentId isEqualToString:accessToken.enrollmentId];
             
-
+            
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Enrollment id match result = %@, access token's enrollment id : %@, cached enrollment id: %@, ", enrollmentIdMatch ? @"True" : @"False", MSID_PII_LOG_MASKABLE(accessToken.enrollmentId), MSID_PII_LOG_MASKABLE(currentEnrollmentId));
         }
         
@@ -165,9 +165,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
-
+            
             __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
-            [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
+            [self fetchCachedTokenAndCheckForFRTFirst:YES shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
                 refreshableToken = token;
             }];
             
@@ -185,7 +185,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             
             MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
         }
-
+        
         if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
@@ -217,8 +217,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             }
         }
     }
-    
-    [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
+    [self fetchCachedTokenAndCheckForFRTFirst:NO shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *refreshToken, MSIDRefreshTokenTypes tokenType, NSError *error) {
         if (!refreshToken)
         {
             NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"No token matching arguments found in the cache, user interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
@@ -228,10 +227,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         
         [self tryRefreshToken:refreshToken tokenType:tokenType completionBlock:completionBlock];
     }];
-    
 }
 
-- (void)fetchCachedRefreshTokenWithCompletionHandler:(void (^)(MSIDBaseToken<MSIDRefreshableToken> *, MSIDRefreshTokenTypes, NSError *))completionHandler
+- (void)fetchCachedTokenAndCheckForFRTFirst:(BOOL)checkForFRT shouldComplete:(BOOL)shouldComplete completionHandler:(void (^)(MSIDBaseToken<MSIDRefreshableToken> *, MSIDRefreshTokenTypes, NSError *))completionHandler
 {
     if (!completionHandler)
     {
@@ -240,41 +238,46 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     }
     
     NSError *rtError = nil;
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for app refresh token...");
-    MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = [self appRefreshTokenWithError:&rtError];
+    MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
+    NSString *contextMsg = checkForFRT ? @"family refresh token" : @"app refresh token";
+    MSIDRefreshTokenTypes checkForTokenType = checkForFRT ? MSIDFamilyRefreshTokenType : MSIDAppRefreshTokenType;
     
-    if (rtError)
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for %@...", contextMsg);
+    if (checkForFRT)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read app specific refresh token with error %@", MSID_PII_LOG_MASKABLE(rtError));
-        completionHandler(nil, MSIDAppRefreshTokenType, rtError);
+        refreshableToken = [self familyRefreshTokenWithError:&rtError];
+    }
+    else
+    {
+        refreshableToken = [self appRefreshTokenWithError:&rtError];
+    }
+    
+    if (rtError && shouldComplete)
+    {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read %@ token with error %@", contextMsg, MSID_PII_LOG_MASKABLE(rtError));
+        completionHandler(nil, checkForTokenType, rtError);
         return;
     }
     
     if (!refreshableToken)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Didn't find app refresh token");
+        // Handle to continue or complete
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, self.requestParameters, @"Didn't find %@", contextMsg);
+        if (!shouldComplete)
+        {
+            [self fetchCachedTokenAndCheckForFRTFirst:!checkForFRT shouldComplete:!shouldComplete completionHandler:completionHandler];
+        }
+        else
+        {
+            // If no refreshableToken was found, simply return nil as token and token type that the last one it tries to find
+            completionHandler(nil, checkForTokenType, nil);
+        }
     }
     else
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found app refresh token.");
-        completionHandler(refreshableToken, MSIDAppRefreshTokenType, nil);
-        return;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found %@.", contextMsg);
+        completionHandler(refreshableToken, checkForTokenType, nil);
     }
-    
-    // If no ART, get family refresh token instead.
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Looking for family refresh token...");
-    refreshableToken = [self familyRefreshTokenWithError:&rtError];
-    
-    if (rtError)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to read family refresh token with error %@", MSID_PII_LOG_MASKABLE(rtError));
-        completionHandler(nil, MSIDFamilyRefreshTokenType, rtError);
-        return;
-    }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found family refresh token.");
-    completionHandler(refreshableToken, MSIDFamilyRefreshTokenType, nil);
-    return;
 }
 
 - (void)tryRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
@@ -310,7 +313,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 // Handle error case when try with Family refresh token
                 [self handleErrorResponseForFamilyRefreshToken:error];
             }
-                            
+            
             NSError *interactionError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"User interaction is required", error.msidOauthError, error.msidSubError, error, self.requestParameters.correlationId, nil, YES);
             completionBlock(nil, interactionError);
         }
@@ -318,14 +321,14 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         {
             completionBlock(nil, error);
         }
-
+        
     }];
 }
 
 #pragma mark - Helpers
 
 - (BOOL)handleErrorResponseForAppRefreshToken:(MSIDBaseToken<MSIDRefreshableToken> *)refreshToken
-                                                               completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
+                              completionBlock:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
     NSError *error = nil;
     MSIDRefreshToken *familyRefreshToken = [self familyRefreshTokenWithError:&error];
@@ -334,7 +337,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.requestParameters, @"Failed to retrieve Family Refresh token with error %@, and user interaction is required", MSID_PII_LOG_MASKABLE(error));
         return NO;
     }
-
+    
     if (familyRefreshToken && ![[familyRefreshToken refreshToken] isEqualToString:[refreshToken refreshToken]])
     {
         [self tryRefreshToken:familyRefreshToken
@@ -360,18 +363,18 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 - (BOOL)isErrorRecoverableByUserInteraction:(NSError *)msidError
 {
     MSIDErrorCode oauthError = MSIDErrorCodeForOAuthError(msidError.msidOauthError, MSIDErrorServerInvalidGrant);
-
+    
     if (oauthError == MSIDErrorServerInvalidScope
         || oauthError == MSIDErrorServerInvalidClient)
     {
         return NO;
     }
-
+    
     /*
-        The default behavior of SDK should be to always show UI
-        as long as server returns us valid response with an existing Oauth2 error.
-        If it's an unrecoverable error, server will show error message to user in the web UI.
-        If client wants to not show UI in particular cases, they can examine error contents and do custom handling based on Oauth2 error code and/or sub error.
+     The default behavior of SDK should be to always show UI
+     as long as server returns us valid response with an existing Oauth2 error.
+     If it's an unrecoverable error, server will show error message to user in the web UI.
+     If client wants to not show UI in particular cases, they can examine error contents and do custom handling based on Oauth2 error code and/or sub error.
      */
     return ![NSString msidIsStringNilOrBlank:msidError.msidOauthError];
 }
@@ -385,9 +388,9 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         completionBlock(nil, error);
         return;
     }
-
+    
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Refreshing access token");
-
+    
     [self.requestParameters.authority loadOpenIdMetadataWithContext:self.requestParameters
                                                     completionBlock:^(__unused MSIDOpenIdProviderMetadata * _Nullable metadata, NSError * _Nullable error) {
         
@@ -419,7 +422,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
-    
     // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
     if (!self.throttlingService)
     {
@@ -446,8 +448,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 [self sendTokenRequestImpl:completionBlock refreshToken:refreshToken tokenRequest:tokenRequest];
             }
-        }
-        ];
+        }];
     }
 }
 
@@ -530,7 +531,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         }];
     }];
 }
-
 #pragma mark - Abstract
 
 - (nullable MSIDAccessToken *)accessTokenWithError:(__unused NSError **)error
