@@ -57,7 +57,8 @@
                                                                             oauthFactory:self.oauthFactory
                                                                   tokenResponseValidator:self.tokenResponseValidator
                                                                               tokenCache:self.tokenCache
-                                                                    accountMetadataCache:self.accountMetadataCache];
+                                                                    accountMetadataCache:self.accountMetadataCache
+                                                                      extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
 #if TARGET_OS_OSX
     request.externalCacheSeeder = self.externalCacheSeeder;
 #endif
@@ -106,7 +107,8 @@
                                                                                             oauthFactory:self.oauthFactory
                                                                                   tokenResponseValidator:self.tokenResponseValidator
                                                                                               tokenCache:self.tokenCache
-                                                                                    accountMetadataCache:self.accountMetadataCache];
+                                                                                    accountMetadataCache:self.accountMetadataCache
+                                                                                      extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
         return request;
     }
     

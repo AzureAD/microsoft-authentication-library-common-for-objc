@@ -53,7 +53,10 @@
 {
     MSIDThrottlingMetaData *metadata = [[MSIDThrottlingMetaData alloc] init];
     metadata.lastRefreshTime = [[NSDate new] msidDateToTimestamp];
-
+//    if (!datasource)
+//    {
+//        return NO;
+//    }
     return [datasource saveJsonObject:metadata
                            serializer:[MSIDCacheItemJsonSerializer new]
                                   key:[MSIDThrottlingMetaDataCache throttlingMetadataCacheKey]
