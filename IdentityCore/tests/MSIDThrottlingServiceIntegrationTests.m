@@ -1032,7 +1032,8 @@
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
-                                                                                                           accountMetadataCache:self.accountMetadataCache];
+                                                                                                           accountMetadataCache:self.accountMetadataCache
+                                                                                                             extendedTokenCache:nil];
       
       
       //throttlingServiceMock
@@ -1198,7 +1199,8 @@
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
-                                                                                                           accountMetadataCache:self.accountMetadataCache];
+                                                                                                           accountMetadataCache:self.accountMetadataCache
+                                                                                                             extendedTokenCache:nil];
       
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
@@ -1357,7 +1359,8 @@
                                                                                                                    oauthFactory:[MSIDAADV2Oauth2Factory new]
                                                                                                          tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
                                                                                                                      tokenCache:self.tokenCache
-                                                                                                           accountMetadataCache:self.accountMetadataCache];
+                                                                                                           accountMetadataCache:self.accountMetadataCache
+                                                                                                             extendedTokenCache:nil];
       
       //throttlingServiceMock
       MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache

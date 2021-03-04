@@ -125,7 +125,8 @@
                                                                                        oauthFactory:self.oauthFactory
                                                                              tokenResponseValidator:self.tokenResponseValidator
                                                                                          tokenCache:self.tokenCache
-                                                                               accountMetadataCache:self.accountMetadataCache];
+                                                                               accountMetadataCache:self.accountMetadataCache
+                                                                                 extendedTokenCache:self.tokenCache.accountCredentialCache.dataSource];
         return request;
     }
     

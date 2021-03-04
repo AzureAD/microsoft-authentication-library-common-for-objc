@@ -65,6 +65,7 @@
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
                      accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                       extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -114,7 +115,7 @@
         
         if([tokenCache isKindOfClass:MSIDDefaultTokenCacheAccessor.class])
         {
-            self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:((MSIDDefaultTokenCacheAccessor *)tokenCache).accountCredentialCache.dataSource context:parameters];
+            self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:extendedTokenCache context:parameters];
         }
     }
     
