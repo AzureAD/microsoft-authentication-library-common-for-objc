@@ -113,10 +113,7 @@
         _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
         _accountMetadataCache = accountMetadataCache;
         
-        if([tokenCache isKindOfClass:MSIDDefaultTokenCacheAccessor.class])
-        {
-            self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:extendedTokenCache context:parameters];
-        }
+        self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:extendedTokenCache context:parameters];
     }
     
     return self;
