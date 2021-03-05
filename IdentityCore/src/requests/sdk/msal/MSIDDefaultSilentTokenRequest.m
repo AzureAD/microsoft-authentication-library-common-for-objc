@@ -36,6 +36,7 @@
 #import "MSIDConfiguration.h"
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponse.h"
+#import "MSIDThrottlingService.h"
 
 @interface MSIDDefaultSilentTokenRequest()
 
@@ -65,6 +66,7 @@
     {
         _defaultAccessor = tokenCache;
         _accountMetadataAccessor = accountMetadataCache;
+        self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:_defaultAccessor.accountCredentialCache.dataSource context:parameters];
     }
 
     return self;

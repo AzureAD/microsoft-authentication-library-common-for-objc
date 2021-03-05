@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDInteractiveAuthorizationCodeRequest.h"
 #import "MSIDInteractiveRequestControlling.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
 @protocol MSIDCacheAccessor;
 @class MSIDTokenResponseValidator;
@@ -48,7 +49,8 @@ NS_ASSUME_NONNULL_BEGIN
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache;
+                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache;
 
 @end
 
