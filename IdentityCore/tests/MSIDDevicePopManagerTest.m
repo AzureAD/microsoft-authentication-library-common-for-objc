@@ -142,7 +142,7 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
     XCTAssertNil(signedAT);
 }
 
-- (void)test_createSignedAccess_InvalidHTTPMethod_ShouldReturnNilAndError
+- (void)test_createSignedAccess_InvalidHTTPMethod_ShouldReturnSignedAT
 {
     
     MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
@@ -157,11 +157,11 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
                                                requestUrl:requestUrl
                                                     nonce:nonce
                                                     error:&error];
-    XCTAssertNotNil(error);
-    XCTAssertNil(signedAT);
+    XCTAssertNotNil(signedAT);
+    XCTAssertNil(error);
 }
 
-- (void)test_createSignedAccess_InvalidRequestURL_ShouldReturnNilAndError
+- (void)test_createSignedAccess_InvalidRequestURL_ShouldReturnSignedAT
 {
     
     MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
@@ -176,11 +176,11 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
                                                requestUrl:requestUrl
                                                     nonce:nonce
                                                     error:&error];
-    XCTAssertNotNil(error);
-    XCTAssertNil(signedAT);
+    XCTAssertNotNil(signedAT);
+    XCTAssertNil(error);
 }
 
-- (void)test_createSignedAccess_InvalidNonce_ShouldReturnNilAndError
+- (void)test_createSignedAccess_InvalidNonce_ShouldReturnSignedAT
 {
     
     MSIDDevicePopManager *manager = [self test_initWithValidCacheConfig];
@@ -195,8 +195,8 @@ NSString *const mockDefaultKeychainGroup = @"com.apple.dt.xctest.tool";
                                                requestUrl:requestUrl
                                                     nonce:nonce
                                                     error:&error];
-    XCTAssertNotNil(error);
-    XCTAssertNil(signedAT);
+    XCTAssertNotNil(signedAT);
+    XCTAssertNil(error);
 }
 
 - (void)deleteKeyWithTag:(NSString *)tag

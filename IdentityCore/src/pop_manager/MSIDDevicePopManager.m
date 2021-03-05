@@ -69,6 +69,41 @@
     return _keyPair;
 }
 
+- (NSDictionary *)buildPayloadDict:(NSString *)accessToken
+                              host:(NSString *)host
+                        httpMethod:(NSString *)httpMethod
+                             nonce:(NSString *)nonce
+                              path:(NSString *)path
+                     publicKeyDict:(NSDictionary *)publicKeyDict
+{
+    NSMutableDictionary *payload = [NSMutableDictionary new];
+    
+    [payload setObject:accessToken forKey:@"at"];
+    NSDictionary *cnf = @{@"cnf": @{
+                                  @"jwk":publicKeyDict
+    }};
+    [payload addEntriesFromDictionary:cnf];
+    
+    [payload setObject:[NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]] forKey:@"ts"];
+    [payload setObject:host forKey:@"u"];
+    if (![NSString msidIsStringNilOrBlank:httpMethod])
+    {
+        [payload setObject:httpMethod forKey:@"m"];
+    }
+    
+    if (![NSString msidIsStringNilOrBlank:path])
+    {
+        [payload setObject:path forKey:@"p"];
+    }
+    
+    if (![NSString msidIsStringNilOrBlank:nonce])
+    {
+        [payload setObject:nonce forKey:@"nonce"];
+    }
+    
+    return payload;
+}
+
 - (NSString *)createSignedAccessToken:(NSString *)accessToken
                            httpMethod:(NSString *)httpMethod
                            requestUrl:(NSString *)requestUrl
@@ -76,6 +111,7 @@
                                 error:(NSError *__autoreleasing * _Nullable)error
 {
     NSString *kid = self.keyPair.kid;
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"%@", [NSString stringWithFormat:@"MSIDDevicePopManager: createSignedAccessToken with httpMethod: %@ requestUrl: %@ nonce: %@", httpMethod, requestUrl, nonce]);
     
     if ([NSString msidIsStringNilOrBlank:kid])
     {
@@ -100,8 +136,7 @@
     NSString *path = url.path;
     if ([NSString msidIsStringNilOrBlank:path])
     {
-        [self logAndFillError:[NSString stringWithFormat:@"Failed to create signed access token, invalid request url : %@.",requestUrl] error:error];
-        return nil;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"MSIDDevicePopManager: createSignedAccessToken path is empty");
     }
     
     if ([NSString msidIsStringNilOrBlank:self.keyPair.stkJwk])
@@ -126,33 +161,21 @@
     
     if ([NSString msidIsStringNilOrBlank:httpMethod])
     {
-        [self logAndFillError:@"Failed to create signed access token, httpMethod is invalid." error:error];
-        return nil;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"MSIDDevicePopManager: createSignedAccessToken httpMethod is empty");
     }
-
+    
     if ([NSString msidIsStringNilOrBlank:nonce])
     {
-        [self logAndFillError:@"Failed to create signed access token, nonce is invalid." error:error];
-        return nil;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"MSIDDevicePopManager: createSignedAccessToken nonce is empty");
     }
     
     NSDictionary *header = @{
-                             @"alg" : @"RS256",
-                             @"typ" : @"JWT",
-                             @"kid" : kid
-                             };
+        @"alg" : @"RS256",
+        @"typ" : @"JWT",
+        @"kid" : kid
+    };
     
-    NSDictionary *payload = @{
-                              @"at" : accessToken,
-                              @"cnf": @{
-                                      @"jwk":publicKeyDict
-                              },
-                              @"ts" : [NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]],
-                              @"m" : httpMethod,
-                              @"u" : host,
-                              @"p" : path,
-                              @"nonce" : nonce,
-                              };
+    NSDictionary *payload = [self buildPayloadDict:accessToken host:host httpMethod:httpMethod nonce:nonce path:path publicKeyDict:publicKeyDict];
     
     SecKeyRef privateKeyRef = self.keyPair.privateKeyRef;
     NSString *signedJwtHeader = [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:privateKeyRef];
