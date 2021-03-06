@@ -52,7 +52,7 @@
     {
         NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
         MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                     throttleType:cacheKey
+                                                                                                     throttleType:i
                                                                                                  throttleDuration:100];
         [self.lruCache setObject:throttleCacheRecord
                           forKey:cacheKey
@@ -73,11 +73,13 @@
     NSArray<MSIDThrottlingCacheRecord *> *cachedElements = [self.lruCache enumerateAndReturnAllObjects];
     
     XCTAssertNil(subError);
-    XCTAssertEqualObjects(cachedElements[0].throttleType,@"5");
-    XCTAssertEqualObjects(cachedElements[1].throttleType,@"6");
-    XCTAssertEqualObjects(cachedElements[2].throttleType,@"7");
-    XCTAssertEqualObjects(cachedElements[3].throttleType,@"8");
-    XCTAssertEqualObjects(cachedElements[4].throttleType,@"9");
+    for (int i = 0; i < 5; i++)
+    {
+        NSUInteger valExp = i + 5;
+        NSUInteger valAct = cachedElements[i].throttleType;
+        XCTAssertEqual(valAct,valExp);
+    }
+
 
 }
 
@@ -89,7 +91,7 @@
         NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
  
         MSIDThrottlingCacheRecord  *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                      throttleType:cacheKey
+                                                                                                      throttleType:i
                                                                                                   throttleDuration:100];
         [self.lruCache setObject:throttleCacheRecord
                           forKey:cacheKey
@@ -111,11 +113,11 @@
     NSArray<MSIDThrottlingCacheRecord *> *cachedElements = [self.lruCache enumerateAndReturnAllObjects];
     
     XCTAssertNil(subError);
-    XCTAssertEqualObjects(cachedElements[0].throttleType,@"8");
-    XCTAssertEqualObjects(cachedElements[1].throttleType,@"6");
-    XCTAssertEqualObjects(cachedElements[2].throttleType,@"4");
-    XCTAssertEqualObjects(cachedElements[3].throttleType,@"2");
-    XCTAssertEqualObjects(cachedElements[4].throttleType,@"0");
+    XCTAssertEqual(cachedElements[0].throttleType,(unsigned)8);
+    XCTAssertEqual(cachedElements[1].throttleType,(unsigned)6);
+    XCTAssertEqual(cachedElements[2].throttleType,(unsigned)4);
+    XCTAssertEqual(cachedElements[3].throttleType,(unsigned)2);
+    XCTAssertEqual(cachedElements[4].throttleType,(unsigned)0);
 }
 
 - (void)testMSIDLRUCache_whenCapacityExceeded_leastRecentlyUsedEntriesShouldBePurged
@@ -126,7 +128,7 @@
         NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
 
         MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                     throttleType:cacheKey
+                                                                                                     throttleType:i
                                                                                                      throttleDuration:100];
         [self.lruCache setObject:throttleCacheRecord
                           forKey:cacheKey
@@ -142,11 +144,10 @@
     
     for (int i = 0; i < 1000; i++)
     {
-        NSString *expectedCacheKey = [NSString stringWithFormat:@"%i", 1499-i];
-        XCTAssertEqualObjects(cachedElements[i].throttleType,expectedCacheKey);
+        XCTAssertEqual(cachedElements[i].throttleType,(unsigned)(1499-i));
     }
     
-    XCTAssertEqual(self.lruCache.cacheEvictionCount,500);
+    XCTAssertEqual(self.lruCache.cacheEvictionCount,(unsigned)500);
     
 }
 
@@ -188,7 +189,7 @@
     XCTAssertNotNil(subError);
     
     throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                      throttleType:cacheKey
+                                                                      throttleType:1
                                                                   throttleDuration:100];
     
     //insert object
@@ -223,7 +224,7 @@
     {
         NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
         MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                     throttleType:cacheKey
+                                                                                                     throttleType:i
                                                                                                  throttleDuration:100];
         
         [self.lruCache setObject:throttleCacheRecord
@@ -253,17 +254,17 @@
     
     for (int i = 0; i < 100; i++)
     {
-        NSString *currentKey;
+        NSUInteger currentKey;
         if (i < 100)
         {
-            currentKey = [NSString stringWithFormat:@"%i", (299-i)];
+            currentKey = 299 - i;
         }
         
         else
         {
-            currentKey = [NSString stringWithFormat:@"%i", (499-i)];
+            currentKey = 499 - i;
         }
-        XCTAssertEqualObjects(cachedElements[i].throttleType, currentKey);
+        XCTAssertEqual(cachedElements[i].throttleType, currentKey);
     }
     
 }
@@ -291,7 +292,7 @@
         {
             NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
             MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                         throttleType:cacheKey
+                                                                                                         throttleType:i
                                                                                                      throttleDuration:100];
             
             [customLRUCache setObject:throttleCacheRecord
@@ -308,7 +309,7 @@
         {
             NSString *cacheKey = [NSString stringWithFormat:@"%i", i];
             MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                         throttleType:cacheKey
+                                                                                                         throttleType:i
                                                                                                      throttleDuration:100];
             
             [customLRUCache setObject:throttleCacheRecord
@@ -320,7 +321,7 @@
     
 
     [self waitForExpectations:expectationsAdd timeout:20];
-    XCTAssertEqual(customLRUCache.numCacheRecords,100);
+    XCTAssertEqual(customLRUCache.numCacheRecords,(unsigned)100);
 
 
     dispatch_async(parentQ1, ^{
@@ -336,7 +337,7 @@
                 XCTAssertNil(subError);
 
                 MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                             throttleType:cacheKeyFromOtherQueue
+                                                                                                             throttleType:(i + 50)
                                                                                                          throttleDuration:100];
 
                 [customLRUCache setObject:throttleCacheRecord
@@ -360,7 +361,7 @@
                                              error:&subError];
                 XCTAssertNil(subError);
                 MSIDThrottlingCacheRecord *throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
-                                                                                                             throttleType:cacheKeyFromOtherQueue
+                                                                                                             throttleType:(i - 50)
                                                                                                          throttleDuration:100];
 
                 [customLRUCache setObject:throttleCacheRecord

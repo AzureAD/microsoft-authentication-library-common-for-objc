@@ -55,3 +55,5 @@ NSString *const MSID_CLIENT_SDK_TYPE_ADAL         = @"sdk_adal";
 
 NSString *const MSID_POP_TOKEN_PRIVATE_KEY = @"com.microsoft.token.private.key";
 NSString *const MSID_POP_TOKEN_KEY_LABEL = @"com.microsoft.token.key";
+NSString *const MSID_THROTTLING_METADATA_KEYCHAIN = @"com.microsoft.identity.throttling.metadata";
+NSString *const MSID_THROTTLING_METADATA_KEYCHAIN_VERSION = @"Ver1";

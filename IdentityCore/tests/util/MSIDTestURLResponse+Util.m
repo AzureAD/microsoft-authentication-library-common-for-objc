@@ -230,4 +230,64 @@
     return responseDictionary;
 }
 
+
++ (MSIDTestURLResponse *)refreshTokenGrantResponseForThrottling:(NSString *)requestRT
+                                                  requestClaims:(NSString *)requestClaims
+                                                  requestScopes:(NSString *)requestScopes
+                                                     responseAT:(NSString *)responseAT
+                                                     responseRT:(NSString *)responseRT
+                                                     responseID:(NSString *)responseID
+                                                  responseScope:(NSString *)responseScope
+                                             responseClientInfo:(NSString *)responseClientInfo
+                                                            url:(NSString *)url
+                                                   responseCode:(NSUInteger)responseCode
+                                                      expiresIn:(NSString *)expiresIn
+                                                   enrollmentId:(NSString *)enrollmentId
+                                                    redirectUri:(NSString *)redirectUri
+                                                       clientId:(NSString *)clientId
+{
+    NSMutableDictionary *reqHeaders = [[self msidDefaultRequestHeaders] mutableCopy];
+    [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+    //[reqHeaders setObject:enrollmentId forKey:@"microsoft_enrollment_id"];
+
+    NSDictionary *responseDict = [self tokenResponseWithAT:responseAT
+                                                responseRT:responseRT
+                                                responseID:responseID
+                                             responseScope:responseScope
+                                        responseClientInfo:responseClientInfo
+                                                 expiresIn:expiresIn
+                                                      foci:nil
+                                              extExpiresIn:nil];
+    
+    NSMutableDictionary *responseDictWithEnrollmentId = [responseDict mutableCopy];
+    [responseDictWithEnrollmentId setObject:enrollmentId forKey:@"microsoft_enrollment_id"];
+
+    NSMutableDictionary *requestBody = [@{ @"client_id" : clientId,
+                                          @"scope" : requestScopes,
+                                          @"grant_type" : @"refresh_token",
+                                          @"refresh_token" : requestRT,
+                                          @"redirect_uri" : redirectUri,
+                                          @"microsoft_enrollment_id": enrollmentId,
+                                          @"client_info" : @"1"} mutableCopy];
+
+    if (requestClaims)
+    {
+        requestBody[@"claims"] = requestClaims;
+    }
+
+    MSIDTestURLResponse *response =
+    [MSIDTestURLResponse requestURLString:url
+                           requestHeaders:reqHeaders
+                        requestParamsBody:requestBody
+                        responseURLString:url
+                             responseCode:responseCode ? responseCode : 200
+                         httpHeaderFields:nil
+                         dictionaryAsJSON:responseDictWithEnrollmentId];
+
+    [response->_requestHeaders removeObjectForKey:@"Content-Length"];
+    return response;
+}
+
+
+
 @end
