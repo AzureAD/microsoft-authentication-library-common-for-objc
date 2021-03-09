@@ -1,5 +1,6 @@
 TBD:
-* Enhanced logging in MSIDAccountCredentialCache. (#955)
+* Enhanced logging in MSIDAccountCredentialCache. (#955) 
+* fix AT Pop sign request logic
 * Throttling feature (#945)
 
 Version 1.6.2
