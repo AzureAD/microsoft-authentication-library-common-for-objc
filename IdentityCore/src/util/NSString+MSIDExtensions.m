@@ -255,26 +255,25 @@ typedef unsigned char byte;
 
 - (BOOL)msidIsEquivalentWithAnyAlias:(NSArray<NSString *> *)aliases
 {
+    BOOL result = NO;
     if (!aliases)
     {
-        return NO;
+        return result;
     }
+    
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"Check if credential environment %@ is included in the list of valid environment aliases.",self);
-    for (NSString *alias in aliases)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"environment alias found: %@",alias);
-    }
     
     for (NSString *alias in aliases)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"environment alias found: %@",alias);
         if ([self caseInsensitiveCompare:alias] == NSOrderedSame)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"credential environment found in the list of valid environment aliases.");
-            return YES;
+            result = YES;
         }
     }
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"credential environment not found in the list of valid environment aliases.");
-    return NO;
+    return result;
 }
 
 
