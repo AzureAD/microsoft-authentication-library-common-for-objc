@@ -72,7 +72,7 @@ willPerformHTTPRedirection:(NSHTTPURLResponse *)response
         newRequest:(NSURLRequest *)request
  completionHandler:(void (^)(NSURLRequest *))completionHandler
 {
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Redirecting to %@", MSID_PII_LOG_MASKABLE(request.URL.absoluteString));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Redirecting to %@", request.URL.host);
     
     if (self.taskWillPerformHTTPRedirectionBlock)
     {
