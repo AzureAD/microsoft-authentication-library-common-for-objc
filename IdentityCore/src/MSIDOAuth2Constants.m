@@ -71,6 +71,7 @@ NSString *const MSID_OAUTH2_REQUEST_ENDPOINT = @"endpointUrl";
 
 NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
 NSString *const MSID_OAUTH2_EXT_EXPIRES_IN      = @"ext_expires_in";
+NSString *const MSID_OAUTH2_REFRESH_IN          = @"refresh_in";
 NSString *const MSID_FAMILY_ID                  = @"foci";
 NSString *const MSID_ENROLLMENT_ID              = @"microsoft_enrollment_id";
 
@@ -109,6 +110,7 @@ NSString *const MSID_CLIENT_INFO_CACHE_KEY               = @"client_info";
 NSString *const MSID_ID_TOKEN_CACHE_KEY                  = @"id_token";
 NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY           = @"additional_info";
 NSString *const MSID_EXPIRES_ON_CACHE_KEY                = @"expires_on";
+NSString *const MSID_REFRESH_ON_CACHE_KEY                = @"refresh_on";
 NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY          = @"access_token_type";
 NSString *const MSID_CACHED_AT_CACHE_KEY                 = @"cached_at";
 NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY       = @"extended_expires_on";

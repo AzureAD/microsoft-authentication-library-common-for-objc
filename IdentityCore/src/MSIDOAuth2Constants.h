@@ -68,6 +68,7 @@ extern NSString *const MSID_OAUTH2_REQUEST_ENDPOINT;
 
 extern NSString *const MSID_OAUTH2_EXPIRES_ON;
 extern NSString *const MSID_OAUTH2_EXT_EXPIRES_IN;
+extern NSString *const MSID_OAUTH2_REFRESH_IN;
 extern NSString *const MSID_FAMILY_ID;
 extern NSString *const MSID_AUTH_CLOUD_INSTANCE_HOST_NAME;
 extern NSString *const MSID_ENROLLMENT_ID;
@@ -107,6 +108,7 @@ extern NSString *const MSID_CLIENT_INFO_CACHE_KEY;
 extern NSString *const MSID_ID_TOKEN_CACHE_KEY;
 extern NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY;
 extern NSString *const MSID_EXPIRES_ON_CACHE_KEY;
+extern NSString *const MSID_REFRESH_ON_CACHE_KEY;
 extern NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY;
 extern NSString *const MSID_CACHED_AT_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY;
