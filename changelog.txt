@@ -1,4 +1,5 @@
 TBD:
+* Add refresh_on field to access tokens (#964)
 * Enhanced logging in MSIDAccountCredentialCache. (#955) 
 * fix AT Pop sign request logic
 * Throttling feature (#945)
