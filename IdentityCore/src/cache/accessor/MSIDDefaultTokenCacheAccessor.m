@@ -783,6 +783,7 @@
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     if (!accessToken)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Didn't get access token from server. Skipping access token saving");
         return YES;
     }
 
