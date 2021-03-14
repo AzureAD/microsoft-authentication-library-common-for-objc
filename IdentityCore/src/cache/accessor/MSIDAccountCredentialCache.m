@@ -39,7 +39,6 @@
 
 @interface MSIDAccountCredentialCache()
 {
-    id<MSIDExtendedTokenCacheDataSource> _dataSource;
     MSIDCacheItemJsonSerializer *_serializer;
 }
 
@@ -69,13 +68,16 @@
                                                                  context:(nullable id<MSIDRequestContext>)context
                                                                    error:(NSError * _Nullable * _Nullable)error
 {
+    NSString *className = NSStringFromClass(self.class);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) retrieving cached credentials using credential query", className);
     NSError *cacheError = nil;
-
+    
     NSArray<MSIDCredentialCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
                                                                   serializer:_serializer
                                                                      context:context
                                                                        error:&cacheError];
 
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) retrieved %ld cached credentials", className, (long)results.count);
     if (cacheError)
     {
         if (error)
@@ -91,14 +93,16 @@
         BOOL shouldMatchAccount = !cacheQuery.homeAccountId || !cacheQuery.environment;
 
         NSMutableArray *filteredResults = [NSMutableArray array];
-
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) credential query requires exact match with the cached credential items. Performing additional filtering checks.", className);
         for (MSIDCredentialCacheItem *cacheItem in results)
         {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(%@) performing filtering check on cached credential item with the following properties - client ID: %@, target: %@, realm: %@, environment: %@, familyID: %@, homeAccountId: %@, enrollmentId: %@, appKey: %@, applicationIdentifier: %@, tokenType: %@", className, cacheItem.clientId, cacheItem.target, cacheItem.realm, cacheItem.environment, cacheItem.familyId, MSID_PII_LOG_TRACKABLE(cacheItem.homeAccountId), MSID_PII_LOG_MASKABLE(cacheItem.enrollmentId), MSID_PII_LOG_MASKABLE(cacheItem.appKey), MSID_EUII_ONLY_LOG_MASKABLE(cacheItem.applicationIdentifier), cacheItem.tokenType);
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) cached item had mismatching homeAccountID or environment/aliases with the credential query. excluding from the results.", className);
                 continue;
             }
 
@@ -110,15 +114,16 @@
                               targetMatching:cacheQuery.targetMatchingOptions
                             clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) cached item had mismatching realm/clientId/familyId/target/requestedClaims with the credential query. excluding from the results.", className);
                 continue;
             }
-
+            
             [filteredResults addObject:cacheItem];
         }
-
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) returning %ld filtered credentials", className, (long)filteredResults.count);
         return filteredResults;
     }
-
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) returning %ld credentials", className, (long)results.count);
     return results;
 }
 

@@ -72,13 +72,13 @@
                                 @"refresh_token": self.refresh_token,
                                 @"redirect_uri": self.redirect_uri,
                                 @"grant_type": self.grant_type
-                                };
+    };
     
     self.endpointUrl = @"https://login.microsoftonline.com/f645ad92-e38d-4d1a-b510-d1b09a74a8ca/oauth2/v2.0/token";
     self.realm = @"f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
     self.environment = @"login.microsoftonline.com";
     self.homeAccountId = @"9f4880d8-80ba-4c40-97bc-f7a23c703084.f645ad92-e38d-4d1a-b510-d1b09a74a8ca";
-
+    
     self.requestParameters = @{ @"client_id" : self.clientId,
                                 @"scope" : self.scope,
                                 @"refresh_token": self.refresh_token,
@@ -88,7 +88,7 @@
                                 @"realm": self.realm,
                                 @"environment": self.environment,
                                 @"homeAccountId": self.homeAccountId
-                                };
+    };
     self.whiteListSet = [NSSet setWithArray:@[@"realm",
                                               @"environment",
                                               @"homeAccountId",
@@ -110,7 +110,7 @@
                               nil];
     
 }
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+// Put setup code here. This method is called before the invocation of each test method in the class.
 
 - (void)tearDown {
     // Put teardown code here. This method is called after the invocation of each test method in the class.
@@ -123,16 +123,16 @@
                                                                                   shouldIncludeKeys:NO];
     
     
-
+    
     XCTAssertNotNil(sortedThumbprintList);
     XCTAssertEqual(sortedThumbprintList.count,9);
     for (int i = 0; (unsigned) i < sortedThumbprintList.count; i++)
     {
         XCTAssertEqualObjects(sortedThumbprintList[i],self.expectedParamList[i]);
     }
-
-
-
+    
+    
+    
 }
 
 - (void)testThumbprintCalculator_whenFilteredSetContainsParamsToInclude_ShouldOnlyIncludeThoseElementsInTheFinalArray
@@ -140,15 +140,15 @@
     NSArray *sortedThumbprintList = [MSIDThumbprintCalculator sortRequestParametersUsingFilteredSet:self.requestParameters
                                                                                        filteringSet:self.whiteListSet
                                                                                   shouldIncludeKeys:YES];
-
+    
     XCTAssertNotNil(sortedThumbprintList);
     XCTAssertEqual(sortedThumbprintList.count,4);
-
+    
     XCTAssertEqualObjects(sortedThumbprintList[0],self.expectedParamList[2]);
     XCTAssertEqualObjects(sortedThumbprintList[1],self.expectedParamList[4]);
     XCTAssertEqualObjects(sortedThumbprintList[2],self.expectedParamList[5]);
     XCTAssertEqualObjects(sortedThumbprintList[3],self.expectedParamList[8]);
-
+    
 }
 
 - (void)testThumbprintCalculator_whenFilteredSetContainsParamsToExclude_ShouldExcludeThoseElementsFromTheFinalArray
@@ -156,7 +156,7 @@
     NSArray *sortedThumbprintList = [MSIDThumbprintCalculator sortRequestParametersUsingFilteredSet:self.requestParameters
                                                                                        filteringSet:self.blackListSet
                                                                                   shouldIncludeKeys:NO];
-
+    
     XCTAssertNotNil(sortedThumbprintList);
     XCTAssertEqual(sortedThumbprintList.count,7);
     XCTAssertEqualObjects(sortedThumbprintList[0],self.expectedParamList[1]);
@@ -171,20 +171,20 @@
 
 - (void)testThumbprintCalculator_whenEmptyInputProvided_thumbprintCalculatorShouldReturnNilOutput
 {
-
+    
     NSString *thumbprintOne = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                filteringSet:[NSSet new]
                                                           shouldIncludeKeys:NO];
-
+    
     XCTAssertNil(thumbprintOne);
-
+    
 }
 
 
 
 - (void)testThumbprintCalculator_whenTheSameRequestParametersProvidedMultipleTimes_hashFunctionShouldReturnSameConsistentHash
 {
-
+    
     NSString *thumbprintOne = [MSIDThumbprintCalculator calculateThumbprint:self.requestParameters
                                                                filteringSet:self.blackListSet
                                                           shouldIncludeKeys:NO];
@@ -271,7 +271,7 @@
                                      @"realm": randomRealm,
                                      @"environment": randomEnvironment,
                                      @"homeAccountId": randomHomeAccountId
-                                    };
+    };
     
     return requestParams;
 }
@@ -280,12 +280,12 @@
 {
     NSString *validLetters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-/:. ";
     NSMutableString *randomString = [NSMutableString stringWithCapacity:len];
-
+    
     for (int i=0; i< len; i++)
     {
         [randomString appendFormat:@"%C", [validLetters characterAtIndex:arc4random_uniform((int)[validLetters length])]];
     }
-
+    
     return randomString;
 }
 

@@ -1,6 +1,14 @@
+TBD:
+* Add refresh_on field to access tokens (#964)
+* Improve logging for SSO extension and broker scenarios (#963)
+* Enhanced logging in MSIDAccountCredentialCache. (#955) 
+* fix AT Pop sign request logic
+* Throttling feature (#945)
+
 Version 1.6.2
 * Mask EUII in logs (#944)
 * Added Thumbprint calculator and associated protocol for throttling (#943)
+* Added unit test coverage for throttling service (#946)
 
 Version 1.6.1
 * Extend iOS background tasks to silent and interactive requests (#923)

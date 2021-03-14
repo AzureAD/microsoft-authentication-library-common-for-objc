@@ -49,7 +49,6 @@
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
-    MSIDAccountCredentialCache *_accountCredentialCache;
     NSArray<id<MSIDCacheAccessor>> *_otherAccessors;
 }
 

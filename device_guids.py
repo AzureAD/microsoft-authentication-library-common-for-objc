@@ -36,7 +36,7 @@ def get_guid_i(device) :
 	
 	for line in p.stdout :
 		lineStr = line.decode('utf-8')
-		sys.stdout.write(lineStr)
+		sys.stdout.write(lineStr.encode('UTF-8'))
 		if (dev_name_regex.match(lineStr) == None) :
 			continue
 		

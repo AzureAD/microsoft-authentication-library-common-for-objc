@@ -37,20 +37,28 @@
 
 - (void)testJSONDictionary_whenAccount_andAllFieldsSet_shouldReturnJSONDictionary
 {
+    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    NSError *error = nil;
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:&error];
+	
     NSDictionary *expectedDictionary = @{@"authority_type": @"AAD",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,
                                          @"realm": @"contoso.com",
                                          @"local_account_id": @"0000004-0000004-000004",
                                          @"given_name": @"First name",
                                          @"family_name": @"Last name",
+                                         @"middle_name": @"Middle name",
                                          @"test": @"test2",
                                          @"test3": @"test4",
-                                         @"home_account_id": @"uid.utid",
+                                         @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
                                          @"username": @"username",
                                          @"alternative_account_id": @"alt",
-                                         @"name": @"test user"
+                                         @"name": @"test user",
+                                         @"client_info": clientInfo.rawClientInfo,
+                                         @"last_modification_app": @"",
+                                         @"last_modification_time": @"0.000"
                                          };
-    MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:expectedDictionary error:nil];
+    MSIDAccountCacheItem *cacheItem = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:expectedDictionary error:&error];
     XCTAssertEqualObjects(cacheItem.jsonDictionary, expectedDictionary);
 }
 
@@ -66,7 +74,7 @@
                                      @"family_name": @"Last name",
                                      @"test": @"test2",
                                      @"test3": @"test4",
-                                     @"home_account_id": @"uid.utid",
+                                     @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
                                      @"username": @"username",
                                      @"alternative_account_id": @"alt",
                                      @"name": @"test user"
@@ -84,7 +92,7 @@
     XCTAssertEqualObjects(cacheItem.familyName, @"Last name");
     XCTAssertEqualObjects(cacheItem.name, @"test user");
     XCTAssertEqualObjects(cacheItem.alternativeAccountId, @"alt");
-    XCTAssertEqualObjects(cacheItem.homeAccountId, @"uid.utid");
+    XCTAssertEqualObjects(cacheItem.homeAccountId, DEFAULT_TEST_HOME_ACCOUNT_ID);
     XCTAssertEqualObjects(cacheItem.username, @"username");
 }
 
@@ -92,17 +100,24 @@
 
 - (void)testAddAdditionalFields_whenSerializing_shouldCombineFields
 {
+    NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     NSError *error = nil;
+    MSIDClientInfo *clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:&error];
+	
     NSDictionary *accountDictionary = @{@"authority_type": @"AAD",
                                         @"environment": DEFAULT_TEST_ENVIRONMENT,
                                         @"realm": @"contoso.com",
                                         @"local_account_id": @"0000004-0000004-000004",
                                         @"given_name": @"First name",
                                         @"family_name": @"Last name",
-                                        @"home_account_id": @"uid.utid",
+                                        @"middle_name": @"Middle name",
+                                        @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
                                         @"username": @"username",
                                         @"alternative_account_id": @"alt",
-                                        @"name": @"test user"
+                                        @"name": @"test user",
+                                        @"client_info": clientInfo.rawClientInfo,
+                                        @"last_modification_app": @"",
+                                        @"last_modification_time": @"0.000"
                                         };
     NSMutableDictionary *firstDictionary = [accountDictionary mutableCopy];
     [firstDictionary addEntriesFromDictionary:@{@"field1": @"value1",
@@ -139,7 +154,7 @@
                                       @"local_account_id": @"0000004-0000004-000004",
                                       @"given_name": @"First name",
                                       @"family_name": @"Last name",
-                                      @"home_account_id": @"uid.utid",
+                                      @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
                                       @"username": @"username",
                                       @"alternative_account_id": @"alternative_clientID",
                                       @"name": @"test user",
@@ -153,7 +168,10 @@
     NSDictionary* secondDictionary = @{@"authority_type": @"AAD",
                                        @"environment": DEFAULT_TEST_ENVIRONMENT,
                                        @"realm": @"contoso.com",
-                                       @"home_account_id": @"uid.utid"
+                                       @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
+                                       @"local_account_id": @"0000004-0000004-000004",
+                                       @"realm": @"contoso.com",
+                                       @"username": @"username"
                                        };
     MSIDAccountCacheItem *secondAccount = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:secondDictionary error:&error];
     XCTAssertNil(error);
