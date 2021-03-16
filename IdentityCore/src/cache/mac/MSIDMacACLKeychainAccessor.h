@@ -27,6 +27,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDMacACLKeychainAccessor : NSObject
 
+/*!
+ The queue which keychain will use to perform API actions
+
+ It can be set for only once, if getter was used ealier than setter, it will be set with default queue automatically
+ */
+@property (class, nullable) dispatch_queue_t s_synchronizationQueue;
+
 @property (readonly, nonnull) id accessControlForSharedItems;
 @property (readonly, nonnull) id accessControlForNonSharedItems;
 
