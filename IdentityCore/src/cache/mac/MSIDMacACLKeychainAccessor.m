@@ -234,7 +234,7 @@ static dispatch_queue_t s_synchronizationQueue;
     updateQuery[(id)kSecValueData] = data;
     
     __block OSStatus status;
-    dispatch_barrier_sync(MSIDMacACLKeychainAccessor.synchronizationQueue, ^{
+    dispatch_barrier_sync(self.class.synchronizationQueue, ^{
         status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)updateQuery);
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d.", (int)status);
         
