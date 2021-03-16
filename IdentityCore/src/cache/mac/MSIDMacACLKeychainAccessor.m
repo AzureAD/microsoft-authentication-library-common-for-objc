@@ -26,7 +26,7 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDKeychainUtil.h"
 
-static dispatch_queue_t s_defaultSynchronizationQueue;
+static dispatch_queue_t s_synchronizationQueue;
 
 @interface MSIDMacACLKeychainAccessor ()
 
@@ -77,15 +77,15 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     return self;
 }
 
-+ (void)setSynchronizationQueue:(dispatch_queue_t)s_synchronizationQueue
++ (void)setSynchronizationQueue:(dispatch_queue_t)synchronizationQueue
 {
-    if (s_defaultSynchronizationQueue)
+    if (s_synchronizationQueue)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to set dispatch queue, The queue has been provided by default");
         return;
     }
     
-    s_defaultSynchronizationQueue = s_synchronizationQueue;
+    s_synchronizationQueue = synchronizationQueue;
 }
 
 + (dispatch_queue_t)synchronizationQueue
@@ -100,12 +100,12 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     // To protect the underlying keychain API, a single queue is used even if multiple instances of this class are allocated.
     static dispatch_once_t s_once;
     dispatch_once(&s_once, ^{
-        if (!s_defaultSynchronizationQueue)
+        if (!s_synchronizationQueue)
         {
-            s_defaultSynchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
+            s_synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
         }
     });
-    return s_defaultSynchronizationQueue;
+    return s_synchronizationQueue;
 }
 
 #pragma mark - Access Control Lists
