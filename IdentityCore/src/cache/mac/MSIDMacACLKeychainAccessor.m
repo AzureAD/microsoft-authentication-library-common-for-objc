@@ -77,17 +77,18 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     return self;
 }
 
-+ (void)setS_synchronizationQueue:(dispatch_queue_t)s_synchronizationQueue
++ (void)setSynchronizationQueue:(dispatch_queue_t)s_synchronizationQueue
 {
     if (s_defaultSynchronizationQueue)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to set dispatch queue, The queue has been provided by default");
+        return;
     }
     
     s_defaultSynchronizationQueue = s_synchronizationQueue;
 }
 
-+ (dispatch_queue_t)s_synchronizationQueue
++ (dispatch_queue_t)synchronizationQueue
 {
     // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
     // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
@@ -101,7 +102,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     dispatch_once(&s_once, ^{
         if (!s_defaultSynchronizationQueue)
         {
-            s_defaultSynchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache",DISPATCH_QUEUE_CONCURRENT);
+            s_defaultSynchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
         }
     });
     return s_defaultSynchronizationQueue;
@@ -233,7 +234,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     updateQuery[(id)kSecValueData] = data;
     
     __block OSStatus status;
-    dispatch_barrier_sync(MSIDMacACLKeychainAccessor.s_synchronizationQueue, ^{
+    dispatch_barrier_sync(MSIDMacACLKeychainAccessor.synchronizationQueue, ^{
         status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)updateQuery);
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d.", (int)status);
         
@@ -266,7 +267,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
     __block OSStatus status;
-    dispatch_barrier_sync(MSIDMacACLKeychainAccessor.s_synchronizationQueue, ^{
+    dispatch_barrier_sync(self.class.synchronizationQueue, ^{
         status = SecItemDelete((CFDictionaryRef)query);
     });
     
@@ -298,7 +299,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     __block CFDictionaryRef result = nil;
     __block OSStatus status;
     
-    dispatch_sync(MSIDMacACLKeychainAccessor.s_synchronizationQueue, ^{
+    dispatch_sync(self.class.synchronizationQueue, ^{
         status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&result);
     });
     
@@ -341,7 +342,7 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to delete keychain items...");
     __block OSStatus status;
-    dispatch_barrier_sync(MSIDMacACLKeychainAccessor.s_synchronizationQueue, ^{
+    dispatch_barrier_sync(self.class.synchronizationQueue, ^{
         status = SecItemDelete((CFDictionaryRef)query);
     });
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain delete status: %d.", (int)status);

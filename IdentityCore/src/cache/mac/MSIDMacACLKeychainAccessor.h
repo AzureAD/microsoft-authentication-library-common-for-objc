@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  It can be set for only once, if getter was used ealier than setter, it will be set with default queue automatically
  */
-@property (class, nullable) dispatch_queue_t s_synchronizationQueue;
+@property (class, nullable) dispatch_queue_t synchronizationQueue;
 
 @property (readonly, nonnull) id accessControlForSharedItems;
 @property (readonly, nonnull) id accessControlForNonSharedItems;
