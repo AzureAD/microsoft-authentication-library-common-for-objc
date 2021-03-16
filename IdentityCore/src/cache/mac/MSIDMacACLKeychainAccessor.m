@@ -26,7 +26,8 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDKeychainUtil.h"
 
-static dispatch_queue_t s_synchronizationQueue;
+static dispatch_queue_t s_customizedSynchronizationQueue;
+static dispatch_queue_t s_defaultSynchronizationQueue;
 
 @interface MSIDMacACLKeychainAccessor ()
 
@@ -79,17 +80,21 @@ static dispatch_queue_t s_synchronizationQueue;
 
 + (void)setSynchronizationQueue:(dispatch_queue_t)synchronizationQueue
 {
-    if (s_synchronizationQueue)
-    {
-        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Failed to set dispatch queue, The queue has been provided by default");
-        return;
-    }
+    static dispatch_once_t s_once;
     
-    s_synchronizationQueue = synchronizationQueue;
+    dispatch_once(&s_once, ^{
+        s_customizedSynchronizationQueue = synchronizationQueue;
+    });
 }
 
 + (dispatch_queue_t)synchronizationQueue
 {
+    
+    if (s_customizedSynchronizationQueue)
+    {
+        return s_customizedSynchronizationQueue;
+    }
+    
     // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
     // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
     // However, it's not entirely clear if this applies to all keychain APIs.
@@ -99,13 +104,12 @@ static dispatch_queue_t s_synchronizationQueue;
     //
     // To protect the underlying keychain API, a single queue is used even if multiple instances of this class are allocated.
     static dispatch_once_t s_once;
+    
     dispatch_once(&s_once, ^{
-        if (!s_synchronizationQueue)
-        {
-            s_synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
-        }
+        s_defaultSynchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
     });
-    return s_synchronizationQueue;
+    
+    return s_defaultSynchronizationQueue;
 }
 
 #pragma mark - Access Control Lists
