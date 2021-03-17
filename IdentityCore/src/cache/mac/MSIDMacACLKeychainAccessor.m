@@ -26,7 +26,8 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDKeychainUtil.h"
 
-static dispatch_queue_t s_synchronizationQueue;
+static dispatch_queue_t s_customizedSynchronizationQueue;
+static dispatch_queue_t s_defaultSynchronizationQueue;
 
 @interface MSIDMacACLKeychainAccessor ()
 
@@ -70,24 +71,45 @@ static dispatch_queue_t s_synchronizationQueue;
         {
             return nil;
         }
-
-        // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
-        // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
-        // However, it's not entirely clear if this applies to all keychain APIs.
-        // Since our applications often perform a large number of cache reads on mulitple threads, it would be preferable to
-        // allow concurrent readers, even if writes are serialized. For this reason this is a concurrent queue, and the
-        // dispatch queue calls are used. We intend to clarify this behavior with Apple.
-        //
-        // To protect the underlying keychain API, a single queue is used even if multiple instances of this class are allocated.
-        static dispatch_once_t s_once;
-        dispatch_once(&s_once, ^{
-            s_synchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
-        });
-
+        
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Init MSIDMacACLPersistentTokenCache");
     }
 
     return self;
+}
+
++ (void)setSynchronizationQueue:(dispatch_queue_t)synchronizationQueue
+{
+    static dispatch_once_t s_once;
+    
+    dispatch_once(&s_once, ^{
+        s_customizedSynchronizationQueue = synchronizationQueue;
+    });
+}
+
++ (dispatch_queue_t)synchronizationQueue
+{
+    
+    if (s_customizedSynchronizationQueue)
+    {
+        return s_customizedSynchronizationQueue;
+    }
+    
+    // Note: Apple seems to recommend serializing keychain API calls on macOS in this document:
+    // https://developer.apple.com/documentation/security/certificate_key_and_trust_services/working_with_concurrency?language=objc
+    // However, it's not entirely clear if this applies to all keychain APIs.
+    // Since our applications often perform a large number of cache reads on mulitple threads, it would be preferable to
+    // allow concurrent readers, even if writes are serialized. For this reason this is a concurrent queue, and the
+    // dispatch queue calls are used. We intend to clarify this behavior with Apple.
+    //
+    // To protect the underlying keychain API, a single queue is used even if multiple instances of this class are allocated.
+    static dispatch_once_t s_once;
+    
+    dispatch_once(&s_once, ^{
+        s_defaultSynchronizationQueue = dispatch_queue_create("com.microsoft.msidmackeychaintokencache", DISPATCH_QUEUE_CONCURRENT);
+    });
+    
+    return s_defaultSynchronizationQueue;
 }
 
 #pragma mark - Access Control Lists
@@ -216,7 +238,7 @@ static dispatch_queue_t s_synchronizationQueue;
     updateQuery[(id)kSecValueData] = data;
     
     __block OSStatus status;
-    dispatch_barrier_sync(s_synchronizationQueue, ^{
+    dispatch_barrier_sync(self.class.synchronizationQueue, ^{
         status = SecItemUpdate((CFDictionaryRef)query, (CFDictionaryRef)updateQuery);
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Keychain update status: %d.", (int)status);
         
@@ -249,7 +271,7 @@ static dispatch_queue_t s_synchronizationQueue;
     
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Trying to delete keychain items...");
     __block OSStatus status;
-    dispatch_barrier_sync(s_synchronizationQueue, ^{
+    dispatch_barrier_sync(self.class.synchronizationQueue, ^{
         status = SecItemDelete((CFDictionaryRef)query);
     });
     
@@ -281,7 +303,7 @@ static dispatch_queue_t s_synchronizationQueue;
     __block CFDictionaryRef result = nil;
     __block OSStatus status;
     
-    dispatch_sync(s_synchronizationQueue, ^{
+    dispatch_sync(self.class.synchronizationQueue, ^{
         status = SecItemCopyMatching((CFDictionaryRef)query, (CFTypeRef *)&result);
     });
     
@@ -324,7 +346,7 @@ static dispatch_queue_t s_synchronizationQueue;
     query[(id)kSecMatchLimit] = (id)kSecMatchLimitAll;
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Trying to delete keychain items...");
     __block OSStatus status;
-    dispatch_barrier_sync(s_synchronizationQueue, ^{
+    dispatch_barrier_sync(self.class.synchronizationQueue, ^{
         status = SecItemDelete((CFDictionaryRef)query);
     });
     MSID_LOG_WITH_CTX(MSIDLogLevelVerbose,context, @"Keychain delete status: %d.", (int)status);
