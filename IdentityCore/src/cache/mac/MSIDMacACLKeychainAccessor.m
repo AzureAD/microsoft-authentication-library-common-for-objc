@@ -80,11 +80,19 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 
 + (void)setSynchronizationQueue:(dispatch_queue_t)synchronizationQueue
 {
-    static dispatch_once_t s_once;
-    
-    dispatch_once(&s_once, ^{
-        s_customizedSynchronizationQueue = synchronizationQueue;
-    });
+    @synchronized(self)
+    {
+        if (s_customizedSynchronizationQueue)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set customized synchronization queue, customized synchronization queue has already been set already.");
+            return;
+        }
+        
+        static dispatch_once_t s_once;
+        dispatch_once(&s_once, ^{
+            s_customizedSynchronizationQueue = synchronizationQueue;
+        });
+    }
 }
 
 + (dispatch_queue_t)synchronizationQueue
