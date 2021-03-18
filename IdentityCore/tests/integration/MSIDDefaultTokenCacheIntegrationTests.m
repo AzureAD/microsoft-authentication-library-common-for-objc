@@ -150,7 +150,7 @@
     [self setUpEnrollmentIdsCache:YES];
 }
 
-- (void)testSaveTokensWithRequestParams_withNilAccessToken_shouldNotSaveToken_returnError
+- (void)testSaveTokensWithRequestParams_withNilAccessToken_shouldSaveToken
 {
     MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:nil
                                                                                  RT:@"rt"
@@ -167,9 +167,62 @@
                                                       context:nil
                                                         error:&error];
 
-    XCTAssertNotNil(error);
-    XCTAssertFalse(result);
-    XCTAssertEqual(error.code, MSIDErrorInternal);
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    NSArray *idTokens = [MSIDTestCacheAccessorHelper getAllIdTokens:_cacheAccessor];
+    XCTAssertNil(error);
+
+    XCTAssertEqual([idTokens count], 1);
+    XCTAssertEqualObjects([idTokens[0] rawIdToken], tokenResponse.idToken);
+}
+
+- (void)testSaveTokensWithRequestParams_withNilIdToken_shouldSaveToken
+{
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:@"access_token"
+                                                                                 RT:@"rt"
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:nil
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:@"family_id"];
+
+    NSError *error = nil;
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                     response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
+                                                      context:nil
+                                                        error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    NSArray *accessTokens = [MSIDTestCacheAccessorHelper getAllDefaultAccessTokens:_cacheAccessor];
+    XCTAssertNil(error);
+
+    XCTAssertEqual([accessTokens count], 1);
+    XCTAssertEqualObjects([accessTokens[0] accessToken], tokenResponse.accessToken);
+}
+
+- (void)testSaveTokensWithRequestParams_withNilAccessTokenAndNilIdToken_shouldNotSaveToken
+{
+    MSIDTokenResponse *tokenResponse = [MSIDTestTokenResponse v2TokenResponseWithAT:nil
+                                                                                 RT:nil
+                                                                             scopes:[NSOrderedSet orderedSetWithObjects:DEFAULT_TEST_SCOPE, nil]
+                                                                            idToken:nil
+                                                                                uid:@"uid"
+                                                                               utid:@"utid"
+                                                                           familyId:@"family_id"];
+
+    NSError *error = nil;
+    BOOL result = [_cacheAccessor saveTokensWithConfiguration:[MSIDTestConfiguration v2DefaultConfiguration]
+                                                     response:tokenResponse
+                                                      factory:[MSIDAADV2Oauth2Factory new]
+                                                      context:nil
+                                                        error:&error];
+
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
 
     NSError *readError = nil;
     NSArray *allTokens = [_cacheAccessor allTokensWithContext:nil error:&readError];
