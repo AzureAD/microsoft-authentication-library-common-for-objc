@@ -562,7 +562,14 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    NSDictionary *wipeInfo = @{ @"bundleId" : [[NSBundle mainBundle] bundleIdentifier],
+    NSString *appIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    
+    if (!appIdentifier)
+    {
+        appIdentifier = [NSProcessInfo processInfo].processName;
+    }
+    
+    NSDictionary *wipeInfo = @{ @"bundleId" : appIdentifier ?: @"",
                                 @"wipeTime" : [NSDate date]
                                 };
 

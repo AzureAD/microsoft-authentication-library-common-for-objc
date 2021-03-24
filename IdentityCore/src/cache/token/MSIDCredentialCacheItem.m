@@ -51,9 +51,9 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@",
+    return [NSString stringWithFormat:@"MSIDCredentialCacheItem: clientId: %@, credentialType: %@, target: %@, realm: %@, environment: %@, expiresOn: %@, extendedExpiresOn: %@, refreshOn: %@, cachedAt: %@, familyId: %@, homeAccountId: %@, enrollmentId: %@, speInfo: %@, secret: %@",
             self.clientId, [MSIDCredentialTypeHelpers credentialTypeAsString:self.credentialType], self.target, self.realm, self.environment, self.expiresOn,
-            self.extendedExpiresOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash]];
+            self.extendedExpiresOn, self.refreshOn, self.cachedAt, self.familyId, self.homeAccountId, self.enrollmentId, self.speInfo, [self.secret msidSecretLoggingHash]];
 }
 
 #pragma mark - MSIDCacheItem
@@ -84,6 +84,7 @@
     result &= (!self.environment && !item.environment) || [self.environment isEqualToString:item.environment];
     result &= (!self.expiresOn && !item.expiresOn) || [self.expiresOn isEqual:item.expiresOn];
     result &= (!self.extendedExpiresOn && !item.extendedExpiresOn) || [self.extendedExpiresOn isEqual:item.extendedExpiresOn];
+    result &= (!self.refreshOn && !item.refreshOn) || [self.refreshOn isEqual:item.refreshOn];
     result &= (!self.cachedAt && !item.cachedAt) || [self.cachedAt isEqual:item.cachedAt];
     result &= (!self.familyId && !item.familyId) || [self.familyId isEqualToString:item.familyId];
     result &= (!self.homeAccountId && !item.homeAccountId) || [self.homeAccountId isEqualToString:item.homeAccountId];
@@ -110,6 +111,7 @@
     hash = hash * 31 + self.environment.hash;
     hash = hash * 31 + self.expiresOn.hash;
     hash = hash * 31 + self.extendedExpiresOn.hash;
+    hash = hash * 31 + self.refreshOn.hash;
     hash = hash * 31 + self.cachedAt.hash;
     hash = hash * 31 + self.familyId.hash;
     hash = hash * 31 + self.homeAccountId.hash;
@@ -134,6 +136,7 @@
     item.environment = [self.environment copyWithZone:zone];
     item.expiresOn = [self.expiresOn copyWithZone:zone];
     item.extendedExpiresOn = [self.extendedExpiresOn copyWithZone:zone];
+    item.refreshOn = [self.refreshOn copyWithZone:zone];
     item.cachedAt = [self.cachedAt copyWithZone:zone];
     item.expiryInterval = [self.expiryInterval copyWithZone:zone];
     item.familyId = [self.familyId copyWithZone:zone];
@@ -182,6 +185,7 @@
     _environment = [json msidStringObjectForKey:MSID_ENVIRONMENT_CACHE_KEY];
     _expiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXPIRES_ON_CACHE_KEY]];
     _extendedExpiresOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY]];
+    _refreshOn = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_REFRESH_ON_CACHE_KEY]];
     _cachedAt = [NSDate msidDateFromTimeStamp:[json msidStringObjectForKey:MSID_CACHED_AT_CACHE_KEY]];
     _familyId = [json msidStringObjectForKey:MSID_FAMILY_ID_CACHE_KEY];
     _homeAccountId = [json msidStringObjectForKey:MSID_HOME_ACCOUNT_ID_CACHE_KEY];
@@ -219,6 +223,7 @@
     dictionary[MSID_ENVIRONMENT_CACHE_KEY] = _environment;
     dictionary[MSID_EXPIRES_ON_CACHE_KEY] = _expiresOn.msidDateToTimestamp;
     dictionary[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = _extendedExpiresOn.msidDateToTimestamp;
+    dictionary[MSID_REFRESH_ON_CACHE_KEY] = _refreshOn.msidDateToTimestamp;
     dictionary[MSID_CACHED_AT_CACHE_KEY] = _cachedAt.msidDateToTimestamp;
     dictionary[MSID_FAMILY_ID_CACHE_KEY] = _familyId;
     dictionary[MSID_HOME_ACCOUNT_ID_CACHE_KEY] = _homeAccountId;
@@ -273,6 +278,7 @@
     if (homeAccountId && 
         ![self.homeAccountId.msidNormalizedString isEqualToString:homeAccountId.msidNormalizedString])
     {
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have a valid home account Id. Actual: %@, expected: %@", NSStringFromClass(self.class), MSID_PII_LOG_TRACKABLE(self.homeAccountId), MSID_PII_LOG_TRACKABLE(homeAccountId));
         return NO;
     }
 
@@ -285,12 +291,14 @@
     if (environment && 
         ![self.environment.msidNormalizedString isEqualToString:environment.msidNormalizedString])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have a valid environment. Actual: %@, expected: %@", NSStringFromClass(self.class), self.environment, environment);
         return NO;
     }
 
     if ([environmentAliases count] && 
         ![self.environment.msidNormalizedString msidIsEquivalentWithAnyAlias:environmentAliases])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have a valid environment that matches with any of the environment aliases.", NSStringFromClass(self.class));
         return NO;
     }
 
@@ -307,20 +315,25 @@
 {
     if (realm && ![self.realm.msidNormalizedString isEqualToString:realm.msidNormalizedString])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have a valid realm. Actual: %@, expected: %@", NSStringFromClass(self.class), self.realm, realm);
         return NO;
     }
 
     if (![self matchesTarget:target comparisonOptions:matchingOptions])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have a valid target value. %@", NSStringFromClass(self.class), target);
         return NO;
     }
 
     if (!clientId && !familyId)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item had neither clientID nor family Id.", NSStringFromClass(self.class));
         return YES;
     }
-    if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
+    
+    if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] || [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have valid requestedClaims.", NSStringFromClass(self.class));
         return NO;
     }
 
@@ -329,20 +342,24 @@
         if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
             || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item supserset match; actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.clientId, clientId, self.familyId, familyId);
             return YES;       
         }
-
+        
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item superset mismatch; cached item had both invalid clientID and familyID. actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.clientId, clientId, self.familyId, familyId);
         return NO;
     }
     else
     {
         if (clientId && ![self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item clientID mismatch; actual client ID: %@, expected client ID: %@", NSStringFromClass(self.class), self.clientId, clientId);
             return NO;
         }
 
         if (familyId && ![self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString])
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item familyID mismatch; actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.familyId, familyId);
             return NO;
         }
     }

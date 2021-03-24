@@ -32,6 +32,7 @@
 
 @property (readwrite) NSDate *expiresOn;
 @property (readwrite) NSDate *extendedExpiresOn;
+@property (readwrite) NSDate *refreshOn;
 @property (readwrite) NSDate *cachedAt;
 @property (readwrite) NSString *accessToken;
 

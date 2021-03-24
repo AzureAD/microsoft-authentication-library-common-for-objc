@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveTokenRequest.h"
+#import "MSIDExtendedTokenCacheDataSource.h"
 
 @class MSIDTokenResponse;
 @class MSIDAuthorizeWebRequestConfiguration;
@@ -33,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) id<MSIDCacheAccessor> tokenCache;
 @property (nonatomic) MSIDAccountMetadataCacheAccessor *accountMetadataCache;
+@property (nonatomic, readonly, nullable) id<MSIDExtendedTokenCacheDataSource> extendedTokenCache;
 
 @end
 

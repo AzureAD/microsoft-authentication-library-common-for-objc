@@ -56,6 +56,7 @@
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                               accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
 {
     self = [super initWithRequestParameters:parameters oauthFactory:oauthFactory];
 
@@ -65,6 +66,7 @@
         _tokenCache = tokenCache;
         _accountMetadataCache = accountMetadataCache;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
+        _extendedTokenCache = extendedTokenCache;
     }
 
     return self;

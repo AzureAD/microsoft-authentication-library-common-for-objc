@@ -39,6 +39,8 @@
 #import "MSIDIntuneEnrollmentIdsCache.h"
 #import "MSIDIntuneMAMResourcesCache.h"
 #import "MSIDSSOTokenResponseHandler.h"
+#import "MSIDThrottlingService.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
 
 @interface MSIDSSOExtensionSilentTokenRequest () <ASAuthorizationControllerDelegate>
 
@@ -52,7 +54,7 @@
 @property (nonatomic, readonly) MSIDIntuneEnrollmentIdsCache *enrollmentIdsCache;
 @property (nonatomic, readonly) MSIDIntuneMAMResourcesCache *mamResourcesCache;
 @property (nonatomic, readonly) MSIDSSOTokenResponseHandler *ssoTokenResponseHandler;
-
+@property (nonatomic) MSIDBrokerOperationSilentTokenRequest *operationRequest;
 @end
 
 @implementation MSIDSSOExtensionSilentTokenRequest
@@ -63,6 +65,7 @@
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
                      accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                       extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
 {
     self = [super initWithRequestParameters:parameters
                                forceRefresh:forceRefresh
@@ -93,6 +96,13 @@
              {
                 MSIDRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
                 weakSelf.requestCompletionBlock = nil;
+                if (error)
+                {
+                    /**
+                     * If SSO-EXT responses error, we should update throttling db
+                     */
+                    [weakSelf.throttlingService updateThrottlingService:error tokenRequest:weakSelf.operationRequest];
+                }
                 if (completionBlock) completionBlock(result, error);
             }];
         };
@@ -102,6 +112,8 @@
         _enrollmentIdsCache = [MSIDIntuneEnrollmentIdsCache sharedCache];
         _mamResourcesCache = [MSIDIntuneMAMResourcesCache sharedCache];
         _accountMetadataCache = accountMetadataCache;
+        
+        self.throttlingService = [[MSIDThrottlingService alloc] initWithDataSource:extendedTokenCache context:parameters];
     }
     
     return self;
@@ -140,31 +152,55 @@
         NSDictionary *mamResources = [self.mamResourcesCache resourcesJsonDictionaryWithContext:self.requestParameters
                                                                                           error:nil];
         
-        __auto_type operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
+        self.operationRequest = [MSIDBrokerOperationSilentTokenRequest tokenRequestWithParameters:self.requestParameters
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
                                                                                             mamResources:mamResources];
-        
-        NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
-        
-        if (!jsonDictionary)
+        /**
+         Throttling: if the request is throttlable, return early
+         */
+        [self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
         {
-            NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for silent token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
-            completionBlock(nil, error);
-            return;
-        }
-        
-        ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
-        ssoRequest.requestedOperation = [operationRequest.class operation];
-        __auto_type queryItems = [jsonDictionary msidQueryItems];
-        ssoRequest.authorizationOptions = queryItems;
-        
-        self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
-        self.authorizationController.delegate = self.extensionDelegate;
-        [self.authorizationController performRequests];
-        
-        self.requestCompletionBlock = completionBlock;
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
+            
+            if (cachedError)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(cachedError));
+            }
+            
+            if (shouldBeThrottled && cachedError)
+            {
+                completionBlock(nil,cachedError);
+                return;
+            }
+            
+            [self executeRequestImplWithCompletionBlock:completionBlock];
+        }];
+
     }];
+}
+
+- (void)executeRequestImplWithCompletionBlock:(MSIDRequestCompletionBlock _Nonnull)completionBlock
+{
+    NSDictionary *jsonDictionary = [self.operationRequest jsonDictionary];
+    
+    if (!jsonDictionary)
+    {
+        NSError *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for silent token request", nil, nil, nil, self.requestParameters.correlationId, nil, YES);
+        completionBlock(nil, error);
+        return;
+    }
+    
+    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
+    ssoRequest.requestedOperation = [self.operationRequest.class operation];
+    __auto_type queryItems = [jsonDictionary msidQueryItems];
+    ssoRequest.authorizationOptions = queryItems;
+    
+    self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
+    self.authorizationController.delegate = self.extensionDelegate;
+    [self.authorizationController performRequests];
+    
+    self.requestCompletionBlock = completionBlock;
 }
 
 - (id<MSIDCacheAccessor>)tokenCache

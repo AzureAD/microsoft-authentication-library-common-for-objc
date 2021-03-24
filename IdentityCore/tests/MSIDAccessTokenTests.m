@@ -97,6 +97,26 @@
     XCTAssertEqualObjects(lhs, rhs);
 }
 
+- (void)testAccessTokenIsEqual_whenRefreshOnIsNotEqual_shouldReturnFalse
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"refreshOn"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:2000000000] forKey:@"refreshOn"];
+    
+    XCTAssertNotEqualObjects(lhs, rhs);
+}
+
+- (void)testAccessTokenIsEqual_whenRefreshOnIsEqual_shouldReturnTrue
+{
+    MSIDAccessToken *lhs = [MSIDAccessToken new];
+    [lhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"refreshOn"];
+    MSIDAccessToken *rhs = [MSIDAccessToken new];
+    [rhs setValue:[NSDate dateWithTimeIntervalSince1970:1500000000] forKey:@"refreshOn"];
+    
+    XCTAssertEqualObjects(lhs, rhs);
+}
+
 - (void)testAccessTokenIsEqual_whenCachedAtIsNotEqual_shouldReturnFalse
 {
     MSIDAccessToken *lhs = [MSIDAccessToken new];
@@ -395,6 +415,7 @@
     token.clientId = @"clientId";
     token.additionalServerInfo = @{@"spe_info" : @"value2"};
     token.expiresOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
+    token.refreshOn = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.cachedAt = [NSDate dateWithTimeIntervalSince1970:1500000000];
     token.accessToken = @"token";
     token.resource = @"target";

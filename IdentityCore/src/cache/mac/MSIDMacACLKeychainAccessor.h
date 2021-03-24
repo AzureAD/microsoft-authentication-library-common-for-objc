@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDMacACLKeychainAccessor : NSObject
 
+@property (class, nullable) dispatch_queue_t synchronizationQueue;
 @property (readonly, nonnull) id accessControlForSharedItems;
 @property (readonly, nonnull) id accessControlForNonSharedItems;
 

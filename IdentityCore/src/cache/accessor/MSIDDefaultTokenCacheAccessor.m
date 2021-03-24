@@ -49,7 +49,6 @@
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
-    MSIDAccountCredentialCache *_accountCredentialCache;
     NSArray<id<MSIDCacheAccessor>> *_otherAccessors;
 }
 
@@ -783,8 +782,8 @@
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     if (!accessToken)
     {
-        MSIDFillAndLogError(error, MSIDErrorInternal, @"Response does not contain an access token", context.correlationId);
-        return NO;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Didn't get access token from server. Skipping access token saving");
+        return YES;
     }
 
     if (![self checkAccountIdentifier:accessToken.accountIdentifier.homeAccountId context:context error:error])

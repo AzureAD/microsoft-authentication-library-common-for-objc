@@ -46,17 +46,20 @@
     cacheItem.enrollmentId = @"enrollmentId";
 
     NSDate *expiresOn = [NSDate date];
+    NSDate *refreshOn = [NSDate date];
     NSDate *cachedAt = [NSDate date];
     NSDate *extExpiresOn = [NSDate date];
 
     cacheItem.cachedAt = cachedAt;
     cacheItem.expiresOn = expiresOn;
+    cacheItem.refreshOn = refreshOn;
     cacheItem.extendedExpiresOn = extExpiresOn;
     cacheItem.target = DEFAULT_TEST_RESOURCE;
     cacheItem.speInfo = @"2";
 
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
+    NSString *refreshOnString = [NSString stringWithFormat:@"%ld", (long)[refreshOn timeIntervalSince1970]];
     NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
 
     NSDictionary *expectedDictionary = @{@"credential_type": @"AccessToken",
@@ -64,6 +67,7 @@
                                          @"target": DEFAULT_TEST_RESOURCE,
                                          @"cached_at": cachedAtString,
                                          @"expires_on": expiresOnString,
+                                         @"refresh_on": refreshOnString,
                                          @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                          @"realm": @"contoso.com",
                                          @"environment": DEFAULT_TEST_ENVIRONMENT,

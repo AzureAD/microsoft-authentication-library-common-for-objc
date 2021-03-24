@@ -51,6 +51,7 @@
 #import "MSIDB2COauth2Factory.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDIdToken.h"
+#import "MSIDLRUCache.h"
 
 @interface MSIDDefaultSilentTokenRequestTests : XCTestCase
 
@@ -117,8 +118,10 @@
 {
     [[MSIDAadAuthorityCache sharedInstance] removeAllObjects];
     [[MSIDAuthority openIdConfigurationCache] removeAllObjects];
+    [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     XCTAssertTrue([MSIDTestURLSession noResponsesLeft]);
     [MSIDAADNetworkConfiguration.defaultConfiguration setValue:nil forKey:@"aadApiVersion"];
+    [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     [super tearDown];
 }
 
@@ -1022,7 +1025,7 @@
                                                                                 requestScopes:@"user.read tasks.read openid profile offline_access"
                                                                                    responseAT:@""
                                                                                    responseRT:@"new rt"
-                                                                                   responseID:nil
+                                                                                   responseID:@""
                                                                                 responseScope:@"user.read tasks.read"
                                                                            responseClientInfo:differentClientInfo
                                                                                           url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
