@@ -157,7 +157,7 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get accounts with environment %@, aliases %d, unique user id %@", cacheQuery.environment, cacheQuery.environmentAliases.count, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId));
 
     NSArray<MSIDAccountCacheItem *> *cacheItems = [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];
 
@@ -226,7 +226,7 @@
 {
     assert(credential);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_TRACKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, environmentAliases %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_TRACKABLE(credential.homeAccountId), credential.environment, cacheQuery.environmentAliases.count, credential.realm, credential.clientId);
     
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
                                                                                           environment:credential.environment
@@ -297,7 +297,7 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId), cacheQuery.target);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credentials with type %@, environment %@, environmentAliases %d, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.environmentAliases.count, cacheQuery.realm, cacheQuery.clientId, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId), cacheQuery.target);
 
     if (cacheQuery.exactMatch)
     {
@@ -319,7 +319,7 @@
 {
     assert(credential);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_TRACKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, environmentAliases %d, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_TRACKABLE(credential.homeAccountId), credential.environment, credential.environmentAliases.count, credential.realm, credential.clientId);
 
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
                                                                                           environment:credential.environment
@@ -352,7 +352,7 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing accounts with environment %@, environmentAliases %d, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.environmentAliases.count, cacheQuery.realm, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId));
 
     if (cacheQuery.exactMatch)
     {
@@ -370,7 +370,7 @@
 {
     assert(account);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, MSID_PII_LOG_TRACKABLE(account.homeAccountId), MSID_PII_LOG_EMAIL(account.username));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing account with environment %@, environmentAliases %d, user ID %@, username %@", account.environment, cacheQuery.environmentAliases.count, MSID_PII_LOG_TRACKABLE(account.homeAccountId), MSID_PII_LOG_EMAIL(account.username));
 
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                     environment:account.environment
@@ -463,7 +463,7 @@
 {
     assert(appMetadata);
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Removing app metadata with clientId %@, environment %@", appMetadata.clientId, appMetadata.environment);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Removing app metadata with clientId %@, environment %@, environmentAliases %d", appMetadata.clientId, appMetadata.environment, cacheQuery.environmentAliases.count);
     
     MSIDAppMetadataCacheKey *key = [[MSIDAppMetadataCacheKey alloc] initWithClientId:appMetadata.clientId
                                                                          environment:appMetadata.environment
@@ -479,7 +479,7 @@
 {
     assert(cacheQuery);
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Get app metadata entries with clientId %@, environment %@", cacheQuery.clientId, cacheQuery.environment);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default cache) Get app metadata entries with clientId %@, environment %@, environmentAliases %d", cacheQuery.clientId, cacheQuery.environment, cacheQuery.environmentAliases.count);
     
     NSArray<MSIDAppMetadataCacheItem *> *cacheItems = [_dataSource appMetadataEntriesWithKey:cacheQuery serializer:_serializer context:context error:error];
     
