@@ -1,3 +1,6 @@
+Version 1.6.4
+* Added new limits to sizes of client telemetry strings sent to server
+
 Version 1.6.3
 * Add refresh_on field to access tokens (#964)
 * Improve logging for SSO extension and broker scenarios (#963)
