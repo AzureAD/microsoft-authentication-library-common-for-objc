@@ -64,7 +64,7 @@ static int telemetryStringSizeLimit = 100;
 {
     NSString *telemetryString = [NSString stringWithFormat:@"%@|%@|%@", self.schemaVersion, [self serializeFields: self.defaultFields], [self serializeFields: self.platformFields]];
     
-    if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > telemetryStringSizeLimit)
+    if ((int)[telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
     {
         return nil;
     }
