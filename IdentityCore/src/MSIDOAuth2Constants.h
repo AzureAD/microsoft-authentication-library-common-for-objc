@@ -112,7 +112,6 @@ extern NSString *const MSID_REFRESH_ON_CACHE_KEY;
 extern NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY;
 extern NSString *const MSID_CACHED_AT_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY;
-extern NSString *const MSID_REFRESH_ON_CACHE_KEY;
 extern NSString *const MSID_EXPIRES_IN_CACHE_KEY;
 extern NSString *const MSID_SPE_INFO_CACHE_KEY;
 extern NSString *const MSID_RESOURCE_RT_CACHE_KEY;
