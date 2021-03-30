@@ -34,32 +34,37 @@
                          bypassRedirectValidation:(BOOL)bypassRedirectValidation
                                             error:(NSError * __autoreleasing *)error
 {
-#if AD_BROKER
-    // Allow the broker app to use any non-empty redirect URI when acquiring tokens
-    if (![NSString msidIsStringNilOrBlank:customRedirectUri])
-    {
-        return [[MSIDRedirectUri alloc] initWithRedirectUri:[NSURL URLWithString:customRedirectUri]
-                                              brokerCapable:YES];
 
-    }
-#endif
-
-    // If developer provides their own redirect uri, verify it
     if (![NSString msidIsStringNilOrBlank:customRedirectUri])
     {
         NSURL *redirectURI = [NSURL URLWithString:customRedirectUri];
+        
+        if (redirectURI.fragment)
+        {
+            // See https://tools.ietf.org/html/rfc6749#section-3.1.2
+            MSIDFillAndLogError(error, MSIDErrorInternal, @"RedirectUri MUST NOT include a fragment component.", nil);
+            
+            return nil;
+        }
+        
+#if AD_BROKER
+    // Allow the broker app to use any non-empty redirect URI when acquiring tokens
+        return [[MSIDRedirectUri alloc] initWithRedirectUri:redirectURI
+                                              brokerCapable:YES];
+#else
         
         if (!bypassRedirectValidation && ![self verifySchemeIsRegistered:redirectURI error:error])
         {
             return nil;
         }
-
+        
         BOOL brokerCapable = !bypassRedirectValidation && [MSIDRedirectUri redirectUriIsBrokerCapable:redirectURI];
-
+        
         MSIDRedirectUri *redirectUri = [[MSIDRedirectUri alloc] initWithRedirectUri:redirectURI
                                                                       brokerCapable:brokerCapable];
-
+        
         return redirectUri;
+#endif
     }
 
     // First try to check for broker capable redirect URI
