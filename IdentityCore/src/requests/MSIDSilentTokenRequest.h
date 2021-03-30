@@ -24,6 +24,7 @@
 #import <Foundation/Foundation.h>
 #import "MSIDCacheAccessor.h"
 #import "MSIDConstants.h"
+#import "MSIDThrottlingService.h"
 
 @class MSIDRequestParameters;
 @class MSIDOauth2Factory;
@@ -38,6 +39,7 @@
 @property (nonatomic, readonly, nonnull) MSIDRequestParameters *requestParameters;
 @property (nonatomic, readonly, nonnull) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic, readonly, nonnull) MSIDTokenResponseValidator *tokenResponseValidator;
+@property (nonatomic, nonnull) MSIDThrottlingService *throttlingService;
 
 #if TARGET_OS_OSX
 @property (nonatomic, nullable) MSIDExternalAADCacheSeeder *externalCacheSeeder;

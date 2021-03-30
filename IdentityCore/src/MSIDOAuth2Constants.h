@@ -65,6 +65,7 @@ extern NSString *const MSID_OAUTH2_PROMPT;
 extern NSString *const MSID_OAUTH2_PROMPT_NONE;
 extern NSString *const MSID_OAUTH2_SIGNOUT_REDIRECT_URI;
 extern NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION;
+extern NSString *const MSID_OAUTH2_REQUEST_ENDPOINT;
 
 extern NSString *const MSID_OAUTH2_EXPIRES_ON;
 extern NSString *const MSID_OAUTH2_EXT_EXPIRES_IN;
@@ -107,6 +108,7 @@ extern NSString *const MSID_CLIENT_INFO_CACHE_KEY;
 extern NSString *const MSID_ID_TOKEN_CACHE_KEY;
 extern NSString *const MSID_ADDITIONAL_INFO_CACHE_KEY;
 extern NSString *const MSID_EXPIRES_ON_CACHE_KEY;
+extern NSString *const MSID_REFRESH_ON_CACHE_KEY;
 extern NSString *const MSID_OAUTH_TOKEN_TYPE_CACHE_KEY;
 extern NSString *const MSID_CACHED_AT_CACHE_KEY;
 extern NSString *const MSID_EXTENDED_EXPIRES_ON_CACHE_KEY;

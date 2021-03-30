@@ -79,21 +79,21 @@
 
 - (void)setObject:(id)obj forKey:(id)key
 {
-    dispatch_barrier_async(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         self.container[key] = obj;
     });
 }
 
 - (void)removeObjectForKey:(id)key
 {
-    dispatch_barrier_async(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         [self.container removeObjectForKey:key];
     });
 }
 
 - (void)removeAllObjects
 {
-    dispatch_barrier_async(self.synchronizationQueue, ^{
+    dispatch_barrier_sync(self.synchronizationQueue, ^{
         [self.container removeAllObjects];
     });
 }

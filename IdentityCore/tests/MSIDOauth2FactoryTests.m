@@ -115,7 +115,7 @@
     XCTAssertEqualObjects(error.userInfo[MSIDOAuthErrorKey], @"invalid_grant");
 }
 
-- (void)testVerifyResponse_whenNoAccessToken_shouldReturnError
+- (void)testVerifyResponse_whenNoAccessTokenAndNoIdToken_shouldReturnError
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
     
@@ -129,10 +129,10 @@
     
     XCTAssertFalse(result);
     XCTAssertEqual(error.domain, MSIDErrorDomain);
-    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Authentication response received without expected accessToken");
+    XCTAssertEqualObjects(error.userInfo[MSIDErrorDescriptionKey], @"Authentication response received without expected accessToken and idToken");
 }
 
-- (void)testVerifyResponse_whenValidResponseWithTokens_shouldReturnNoError
+- (void)testVerifyResponse_whenValidResponseWithAccessTokens_shouldReturnNoError
 {
     MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
     
@@ -145,6 +145,23 @@
     NSError *error = nil;
     BOOL result = [factory verifyResponse:response context:nil error:&error];
     
+    XCTAssertTrue(result);
+    XCTAssertNil(error);
+}
+
+- (void)testVerifyResponse_whenValidResponseWithIdTokens_shouldReturnNoError
+{
+    MSIDOauth2Factory *factory = [MSIDOauth2Factory new];
+
+    NSString *rawClientInfo = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
+    MSIDTokenResponse *response = [[MSIDTokenResponse alloc] initWithJSONDictionary:@{@"id_token":@"fake_id_token",
+                                                                                      @"refresh_token":@"fake_refresh_token",
+                                                                                      @"client_info":rawClientInfo
+                                                                                      }
+                                                                              error:nil];
+    NSError *error = nil;
+    BOOL result = [factory verifyResponse:response context:nil error:&error];
+
     XCTAssertTrue(result);
     XCTAssertNil(error);
 }

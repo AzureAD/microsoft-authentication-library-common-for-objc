@@ -63,12 +63,14 @@
                    tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                tokenCache:(id<MSIDCacheAccessor>)tokenCache
                      accountMetadataCache:(MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                       extendedTokenCache:(id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
 {
     self = [super initWithRequestParameters:parameters
                                oauthFactory:oauthFactory
                      tokenResponseValidator:tokenResponseValidator
                                  tokenCache:tokenCache
-                       accountMetadataCache:accountMetadataCache];
+                       accountMetadataCache:accountMetadataCache
+                         extendedTokenCache:extendedTokenCache];
 
     if (self)
     {

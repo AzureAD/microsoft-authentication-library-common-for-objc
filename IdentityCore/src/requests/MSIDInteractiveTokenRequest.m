@@ -36,6 +36,7 @@
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
+#import "MSIDBackgroundTaskManager.h"
 #endif
 
 #if TARGET_OS_OSX
@@ -55,6 +56,7 @@
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                               accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
 {
     self = [super initWithRequestParameters:parameters oauthFactory:oauthFactory];
 
@@ -64,6 +66,7 @@
         _tokenCache = tokenCache;
         _accountMetadataCache = accountMetadataCache;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
+        _extendedTokenCache = extendedTokenCache;
     }
 
     return self;
@@ -71,6 +74,10 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
+#if TARGET_OS_IPHONE
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#endif
+    
     [super getAuthCodeWithCompletion:^(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse)
     {
         if (!result)
@@ -95,8 +102,10 @@
 
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {
-#if TARGET_OS_OSX
-        self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
+#if TARGET_OS_IPHONE
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+#elif TARGET_OS_OSX
+    self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
 #endif
         [self.tokenResponseHandler handleTokenResponse:tokenResponse
                                      requestParameters:self.requestParameters

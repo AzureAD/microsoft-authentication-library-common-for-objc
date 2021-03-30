@@ -43,7 +43,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                       oauthFactory:(MSIDOauth2Factory *)oauthFactory
                             tokenResponseValidator:(MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(id<MSIDCacheAccessor>)tokenCache
-                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache NS_DESIGNATED_INITIALIZER;
+                              accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache NS_DESIGNATED_INITIALIZER;
 
 @end
 

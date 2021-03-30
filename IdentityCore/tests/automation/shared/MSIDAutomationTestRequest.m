@@ -89,6 +89,7 @@
         _ssoExtensionHooksEnabled = [json[@"ssoExtensionHooksEnabled"] boolValue];
         _ssoExtensionSharedDeviceMode = [json[@"ssoExtensionSharedDeviceMode"] integerValue];
         _ssoExtensionInteractiveMode = [json[@"ssoExtensionInteractiveMode"] integerValue];
+        _tokenType = json[@"token_type"];
     }
 
     return self;
@@ -152,7 +153,7 @@
     json[@"ssoExtensionHooksEnabled"] = @(_ssoExtensionHooksEnabled);
     json[@"ssoExtensionSharedDeviceMode"] = @(_ssoExtensionSharedDeviceMode);
     json[@"ssoExtensionInteractiveMode"] = @(_ssoExtensionInteractiveMode);
-
+    json[@"token_type"] = _tokenType;
     return json;
 }
 

@@ -350,7 +350,7 @@ static int maxErrorCountToArchive = 75;
 - (dispatch_queue_t)initializeDispatchQueue
 {
     NSString *queueName = [NSString stringWithFormat:@"com.microsoft.msidlastrequesttelemetry-%@", [NSUUID UUID].UUIDString];
-    return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_CONCURRENT);
+    return dispatch_queue_create([queueName cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
 }
 
 #pragma mark - MSIDLastRequestTelemetry+Internal

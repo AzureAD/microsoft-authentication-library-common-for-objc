@@ -724,6 +724,7 @@
     // check behavior if item had been written by a different process:
     account.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
                                    (NSProcessInfo.processInfo.processIdentifier + 1)];
+    account.lastModificationTime = [NSDate date];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:account.lastModificationTime
                                                   app:account.lastModificationApp];
@@ -772,6 +773,7 @@
     // check behavior if item had been written by a different process:
     token.lastModificationApp = [NSString stringWithFormat:@"%@;%d", NSBundle.mainBundle.bundleIdentifier,
                                  (NSProcessInfo.processInfo.processIdentifier + 1)];
+    token.lastModificationTime = [NSDate date];
     result = [_dataSource checkIfRecentlyModifiedItem:nil
                                                  time:token.lastModificationTime
                                                   app:token.lastModificationApp];
