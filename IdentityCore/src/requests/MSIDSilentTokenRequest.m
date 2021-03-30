@@ -481,7 +481,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 //return unexpired token found in cache
                 __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
-                [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
+                [self fetchCachedTokenAndCheckForFRTFirst:YES shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
                     refreshableToken = token;
                 }];
 
