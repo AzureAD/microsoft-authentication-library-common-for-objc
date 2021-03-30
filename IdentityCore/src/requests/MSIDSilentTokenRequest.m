@@ -486,7 +486,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
                 }];
 
                 NSError *resultError = nil;
-                MSIDTokenResult *tokenResult = [self resultWithAccessToken:unexpiredRefreshNeededAccessToken
+                MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.unexpiredRefreshNeededAccessToken
                                                               refreshToken:refreshableToken
                                                                      error:&resultError];
 
