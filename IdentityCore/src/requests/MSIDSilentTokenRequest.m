@@ -168,7 +168,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
             // unexpired token exists , check if refresh needed, if no refresh needed, return the unexpired token
-            if (!accessToken refreshNeeded)
+            if (!accessToken.refreshNeeded)
             {
                 __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
                 [self fetchCachedTokenAndCheckForFRTFirst:YES shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
@@ -481,23 +481,23 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 //return unexpired token found in cache
                 __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
-                    [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
-                        refreshableToken = token;
-                    }];
+                [self fetchCachedRefreshTokenWithCompletionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
+                    refreshableToken = token;
+                }];
 
-                    NSError *resultError = nil;
-                    MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
-                                                                  refreshToken:refreshableToken
-                                                                         error:&resultError];
+                NSError *resultError = nil;
+                MSIDTokenResult *tokenResult = [self resultWithAccessToken:unexpiredRefreshNeededAccessToken
+                                                              refreshToken:refreshableToken
+                                                                     error:&resultError];
 
-                    if (tokenResult)
-                    {
-                        [self.lastRequestTelemetry increaseSilentSuccessfulCount];
-                        completionBlock(tokenResult, nil);
-                        return;
-                    }
+                if (tokenResult)
+                {
+                    [self.lastRequestTelemetry increaseSilentSuccessfulCount];
+                    completionBlock(tokenResult, nil);
+                    return;
+                }
 
-                    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
             }
             
             if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
