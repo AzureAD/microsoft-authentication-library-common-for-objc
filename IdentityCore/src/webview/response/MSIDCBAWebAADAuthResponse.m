@@ -58,6 +58,7 @@
     {
         NSURLComponents *resultUrlComponents = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
         resultUrlComponents.query = nil;
+        resultUrlComponents.fragment = nil;
         
         _redirectUri = resultUrlComponents.URL.absoluteString;
     }
