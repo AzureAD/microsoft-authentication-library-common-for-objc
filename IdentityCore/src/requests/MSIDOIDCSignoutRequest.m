@@ -119,7 +119,7 @@
             return;
         }
         
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, @"Completed logout request successfully with response %@", MSID_PII_LOG_MASKABLE(response));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, self.requestParameters, @"Completed logout request successfully with response %@", MSID_EUII_ONLY_LOG_MASKABLE(response));
         if (completionBlock) completionBlock(YES, nil);
     }];
 }

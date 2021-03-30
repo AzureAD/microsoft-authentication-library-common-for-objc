@@ -61,4 +61,19 @@
                                                           url:(NSString *)url
                                                  responseCode:(NSUInteger)responseCode;
 
++ (MSIDTestURLResponse *)refreshTokenGrantResponseForThrottling:(NSString *)requestRT
+                                                  requestClaims:(NSString *)requestClaims
+                                                  requestScopes:(NSString *)requestScopes
+                                                     responseAT:(NSString *)responseAT
+                                                     responseRT:(NSString *)responseRT
+                                                     responseID:(NSString *)responseID
+                                                  responseScope:(NSString *)responseScope
+                                             responseClientInfo:(NSString *)responseClientInfo
+                                                            url:(NSString *)url
+                                                   responseCode:(NSUInteger)responseCode
+                                                      expiresIn:(NSString *)expiresIn
+                                                   enrollmentId:(NSString *)enrollmentId
+                                                    redirectUri:(NSString *)redirectUri
+                                                       clientId:(NSString *)clientId;
+
 @end

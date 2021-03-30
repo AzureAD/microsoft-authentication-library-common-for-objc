@@ -29,6 +29,9 @@
 #import "MSIDTelemetryEventStrings.h"
 #import "MSIDTokenResult.h"
 #import "MSIDAccount.h"
+#if TARGET_OS_IPHONE
+#import "MSIDBackgroundTaskManager.h"
+#endif
 
 @interface MSIDSilentController()
 
@@ -76,10 +79,17 @@
 
 - (void)acquireToken:(nonnull MSIDRequestCompletionBlock)completionBlock
 {
+#if TARGET_OS_IPHONE
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+#endif
+    
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning silent flow.");
     
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
+#if TARGET_OS_IPHONE
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeSilentRequest];
+#endif
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Silent flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         completionBlock(result, error);
     };
@@ -102,7 +112,6 @@
     }
 
     [[MSIDTelemetry sharedInstance] startEvent:self.requestParameters.telemetryRequestId eventName:MSID_TELEMETRY_EVENT_API_EVENT];
-
     self.currentRequest = request;
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error)
     {

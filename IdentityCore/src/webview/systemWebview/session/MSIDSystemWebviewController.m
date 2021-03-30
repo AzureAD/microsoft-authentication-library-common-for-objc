@@ -243,9 +243,6 @@
 - (void)notifyEndWebAuthWithURL:(NSURL *)url
                           error:(NSError *)error
 {
-#if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-#endif
     
     if (error)
     {
@@ -255,15 +252,6 @@
     {
         [MSIDNotifications notifyWebAuthDidCompleteWithURL:url];
     }
-}
-
-#pragma mark - Dealloc
-
-- (void)dealloc
-{
-#if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
-#endif
 }
 
 @end

@@ -22,9 +22,11 @@
 // THE SOFTWARE.
 
 #import "MSIDTokenRequest.h"
+#import "MSIDThumbprintCalculatable.h"
+
 @class MSIDAuthenticationScheme;
 
-@interface MSIDRefreshTokenGrantRequest : MSIDTokenRequest
+@interface MSIDRefreshTokenGrantRequest : MSIDTokenRequest <MSIDThumbprintCalculatable>
 
 - (instancetype _Nullable)initWithEndpoint:(nonnull NSURL *)endpoint
                                 authScheme:(nonnull MSIDAuthenticationScheme *)authScheme

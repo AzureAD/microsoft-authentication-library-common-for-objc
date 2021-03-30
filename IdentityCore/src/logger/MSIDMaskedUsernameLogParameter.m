@@ -42,11 +42,22 @@
     if (emailIndex.location != NSNotFound)
     {
         NSString *username = [stringValue substringToIndex:emailIndex.location];
-        NSString *domain = [stringValue substringFromIndex:emailIndex.location];
-        return [NSString stringWithFormat:@"auth.placeholder-%@%@", [username msidSecretLoggingHash], domain];
+        NSString *domain = @"";
+        
+        if (emailIndex.location + 1 < stringValue.length)
+        {
+            domain = [stringValue substringFromIndex:emailIndex.location + 1];
+        }
+        
+        return [NSString stringWithFormat:@"auth.placeholder-%@__%@", [username msidSecretLoggingHash], domain];
     }
     
     return [self.parameterValue msidSecretLoggingHash];
+}
+
+- (BOOL)isEUII
+{
+    return YES;
 }
  
 @end

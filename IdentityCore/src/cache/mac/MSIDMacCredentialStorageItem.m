@@ -50,7 +50,7 @@ static NSString *keyDelimiter = @"-";
 
 - (void)storeItem:(id<MSIDJsonSerializable>)item forKey:(MSIDCacheKey *)key
 {
-    dispatch_barrier_async(self.queue, ^{
+    dispatch_barrier_sync(self.queue, ^{
         NSString *type = [self getItemTypeFromCacheKey:key];
         
         if (type)
@@ -70,7 +70,7 @@ static NSString *keyDelimiter = @"-";
 
 - (void)mergeStorageItem:(MSIDMacCredentialStorageItem *)storageItem
 {
-    dispatch_barrier_async(self.queue, ^{
+    dispatch_barrier_sync(self.queue, ^{
         
         for (NSString *typeKey in storageItem.cacheObjects)
         {
@@ -98,7 +98,7 @@ static NSString *keyDelimiter = @"-";
 
 - (void)removeStoredItemForKey:(MSIDCacheKey *)key
 {
-    dispatch_barrier_async(self.queue, ^{
+    dispatch_barrier_sync(self.queue, ^{
         NSString *type = [self getItemTypeFromCacheKey:key];
         
         if (type)
