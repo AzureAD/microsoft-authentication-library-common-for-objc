@@ -296,7 +296,7 @@
     
     NSDictionary *json = [tokenResponse jsonDictionary];
     
-    XCTAssertEqual(11, json.allKeys.count);
+    XCTAssertEqual(12, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"client_app_version"], @"1.0");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");

@@ -134,7 +134,7 @@
     
     NSDictionary *json = [tokenResponse jsonDictionary];
     
-    XCTAssertEqual(18, json.allKeys.count);
+    XCTAssertEqual(19, json.allKeys.count);
     XCTAssertEqualObjects(json[@"access_token"], @"access_token");
     XCTAssertEqualObjects(json[@"refresh_token"], @"refresh_token");
     XCTAssertEqualObjects(json[@"adi"], @"user@contoso.com");
