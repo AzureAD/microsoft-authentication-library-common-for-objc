@@ -170,6 +170,21 @@ static NSUInteger s_expirationBuffer = 300;
     return MSIDAccessTokenType;
 }
 
+#pragma mark - RefreshNeeded
+
+-(BOOL)refreshNeeded
+{
+    if(self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
+    {
+        return YES;
+    }
+    if(self.refreshOn)
+    {
+        return [self.refreshOn compare:[NSDate date]] == NSOrderedAscending;
+    }
+    return NO;
+}
+
 #pragma mark - Expiry
 
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer
