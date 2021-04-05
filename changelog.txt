@@ -1,5 +1,5 @@
 Version 1.6.4
-* Revert back the logic of checking requestedClaims
+* Revert back the logic of checking requestedClaims. (#974)
 
 Version 1.6.3
 * Add refresh_on field to access tokens (#964)
