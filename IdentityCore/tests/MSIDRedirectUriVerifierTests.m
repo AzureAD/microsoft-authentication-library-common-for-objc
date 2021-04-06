@@ -87,6 +87,26 @@
     XCTAssertNil(error);
 }
 
+- (void)testMsidRedirectUriWithCustomUri_whenUriContainsFragment_shoulReturnError
+{
+    NSArray *urlTypes = @[@{@"CFBundleURLSchemes": @[@"msauth.test.bundle.identifier"]}];
+    [MSIDTestBundle overrideObject:urlTypes forKey:@"CFBundleURLTypes"];
+    [MSIDTestBundle overrideBundleId:@"test.bundle.identifier"];
+
+    NSString *redirectUri = @"msauth.test.bundle.identifier://auth#";
+    NSString *clientId = @"msidclient";
+
+    NSError *error = nil;
+    MSIDRedirectUri *result = [MSIDRedirectUriVerifier msidRedirectUriWithCustomUri:redirectUri
+                                                                           clientId:clientId
+                                                           bypassRedirectValidation:NO
+                                                                              error:&error];
+
+    XCTAssertNil(result);
+    XCTAssertNotNil(error);
+    XCTAssertEqual(error.code, MSIDErrorInternal);
+}
+
 - (void)testMSIDRedirectUri_whenCustomRedirectUri_andLegacyBrokerCapable_shouldReturnUriBrokerCapableYes
 {
     NSArray *urlTypes = @[@{@"CFBundleURLSchemes": @[@"myscheme"]}];

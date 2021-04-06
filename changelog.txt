@@ -1,3 +1,6 @@
+TBD
+* Fix redirect uri parsing in cba flow (#972)
+
 Version 1.6.3
 * Add refresh_on field to access tokens (#964)
 * Improve logging for SSO extension and broker scenarios (#963)
