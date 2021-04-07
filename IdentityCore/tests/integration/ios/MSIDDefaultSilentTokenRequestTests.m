@@ -1419,7 +1419,7 @@
         [expectation fulfill];
     }];
     
-    [self waitForExpectationsWithTimeout:60.0 handler:nil];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
 #pragma mark - FOCI
@@ -1930,12 +1930,12 @@
 }
 #pragma mark - RefreshIn
 
-- (void)testAcquireTokenSilent_ZZZwhenAT_RefreshInExpires_shouldRefreshToken
+- (void)testAcquireTokenSilent_whenAT_RefreshInExpires_shouldRefreshToken
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
-    MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
-    silentParameters.accountIdentifier = accountIdentifier;
+    //silentParameters.tokenExpirationBuffer = 100;
+    
     [self saveTokensInCache:tokenCache
               configuration:silentParameters.msidConfiguration
                       scope:nil
@@ -1948,7 +1948,11 @@
                   refreshIn:@"1"
                extExpiresIn:nil];
     
-        
+    // Adding sleep time to allow refresh On expiry
+    [NSThread sleepForTimeInterval:2.0f];
+    
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
     NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
     MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
     [MSIDTestURLSession addResponse:discoveryResponse];
@@ -1994,13 +1998,10 @@
         [expectation fulfill];
     }];
     
-    [self waitForExpectationsWithTimeout:60.0 handler:nil];
-    
-    MSIDAccessToken *accessToken = [tokenCache getAccessTokenForAccount:accountIdentifier configuration:silentParameters.msidConfiguration context:nil error:nil];
-    XCTAssertNotNil(accessToken);
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testAcquireTokenSilent_zzwhenRefreshExpired_andServerIsUnavailable_shouldReturnRefreshExpiredAccessToken
+- (void)testAcquireTokenSilent_whenRefreshExpired_andServerIsUnavailable_shouldReturnRefreshExpiredAccessToken
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
@@ -2016,6 +2017,9 @@
                   expiresIn:@"5000"
                   refreshIn:@"1"
                extExpiresIn:nil];
+    
+    // Adding sleep time to allow refresh On expiry
+    [NSThread sleepForTimeInterval:2.0f];
     
     silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
     
@@ -2066,9 +2070,10 @@
         [expectation fulfill];
     }];
     
-    [self waitForExpectationsWithTimeout:60.0 handler:nil];
-    //[MSIDTestURLSession clearResponses];
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+    
 }
+
 
 #pragma mark - Cache
 

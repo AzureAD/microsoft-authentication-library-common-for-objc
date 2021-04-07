@@ -167,6 +167,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         if (accessToken && ![accessToken isExpiredWithExpiryBuffer:self.requestParameters.tokenExpirationBuffer] && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
+            
             // unexpired token exists , check if refresh needed, if no refresh needed, return the unexpired token
             if (!accessToken.refreshNeeded){
                 __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
