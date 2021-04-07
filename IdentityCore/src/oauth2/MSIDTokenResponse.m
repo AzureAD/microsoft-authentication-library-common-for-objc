@@ -182,7 +182,6 @@
         json[MSID_OAUTH2_REFRESH_TOKEN] = self.refreshToken;
         json[MSID_OAUTH2_EXPIRES_IN] = [@(self.expiresIn) stringValue];
         json[MSID_OAUTH2_EXPIRES_ON] = [@(self.expiresOn) stringValue];
-        json[MSID_OAUTH2_REFRESH_IN] = [@(self.refreshIn) stringValue];
         json[MSID_OAUTH2_TOKEN_TYPE] = self.tokenType;
         json[MSID_OAUTH2_SCOPE] = self.scope;
         json[MSID_OAUTH2_ID_TOKEN] = self.idToken;

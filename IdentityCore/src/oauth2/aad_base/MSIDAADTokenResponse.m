@@ -41,6 +41,8 @@
                              MSID_FAMILY_ID,
                              MSID_TELEMETRY_KEY_SPE_INFO,
                              MSID_OAUTH2_EXT_EXPIRES_IN,
+                             MSID_OAUTH2_REFRESH_IN,
+                             @"refresh_on",
                              @"url",
                              @"ext_expires_on",
                              MSID_OAUTH2_SUB_ERROR];
@@ -56,6 +58,14 @@
 {
     if (self.extendedExpiresOn) return [NSDate dateWithTimeIntervalSince1970:self.extendedExpiresOn];
     if (self.extendedExpiresIn) return [NSDate dateWithTimeIntervalSinceNow:self.extendedExpiresIn];
+
+    return nil;
+}
+
+- (NSDate *)refreshOnDate
+{
+    if (self.refreshIn) return [NSDate dateWithTimeIntervalSinceNow:self.refreshIn];
+    if (self.refreshOn) return [NSDate dateWithTimeIntervalSince1970:self.refreshOn];
 
     return nil;
 }
@@ -77,7 +87,10 @@
         if (rawClientInfo) _clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:rawClientInfo error:nil];
         
         _extendedExpiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXT_EXPIRES_IN];
+        _refreshIn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_IN];
+        _refreshOn = [json msidIntegerObjectForKey:@"refresh_on"];
         _extendedExpiresOn = [json msidIntegerObjectForKey:@"ext_expires_on"];
+        
     }
     
     return self;
@@ -94,8 +107,10 @@
     json[MSID_OAUTH2_CLIENT_INFO] = self.clientInfo.rawClientInfo;
     if (!self.error)
     {
+        json[MSID_OAUTH2_REFRESH_IN] = [@(self.refreshIn) stringValue];
         json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
         json[@"ext_expires_on"] = [@(self.extendedExpiresOn) stringValue];
+        json[@"refresh_on"] = [@(self.refreshOn) stringValue];
     }
     
     return json;

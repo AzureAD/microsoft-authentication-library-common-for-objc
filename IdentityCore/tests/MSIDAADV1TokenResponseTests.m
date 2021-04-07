@@ -113,6 +113,7 @@
 {
     __auto_type tokenResponse = [MSIDAADV1TokenResponse new];
     tokenResponse.expiresIn = 300;
+    tokenResponse.refreshIn = 150;
     tokenResponse.expiresOn = 1575635662;
     tokenResponse.accessToken = @"access_token";
     tokenResponse.refreshToken = @"refresh_token";
@@ -142,6 +143,7 @@
     XCTAssertEqualObjects(json[@"client_info"], @"eyJ1aWQiOiIxIiwidXRpZCI6IjEyMzQtNTY3OC05MGFiY2RlZmcifQ");
     XCTAssertEqualObjects(json[@"correlation_id"], @"00000000-0000-0000-0000-000000000001");
     XCTAssertEqualObjects(json[@"expires_in"], @"300");
+    XCTAssertEqualObjects(json[@"refresh_in"], @"150");
     XCTAssertEqualObjects(json[@"expires_on"], @"1575635662");
     XCTAssertEqualObjects(json[@"ext_expires_in"], @"500");
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"1585635662");

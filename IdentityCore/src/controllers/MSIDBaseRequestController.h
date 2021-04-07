@@ -46,8 +46,7 @@ typedef void(^MSIDAuthorityCompletion)(BOOL resolved, NSError * _Nullable error)
 
 - (nullable MSIDTelemetryAPIEvent *)telemetryAPIEvent;
 - (void)stopTelemetryEvent:(nonnull MSIDTelemetryAPIEvent *)event error:(nullable NSError *)error;
-
-- (nullable instancetype)init NS_UNAVAILABLE;
+/*- (nullable instancetype)init NS_UNAVAILABLE;*/
 - (nullable instancetype)new NS_UNAVAILABLE;
 
 @end

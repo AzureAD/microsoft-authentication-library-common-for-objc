@@ -30,8 +30,11 @@
 @property (nonatomic, nullable) NSString *correlationId;
 
 // Default properties for an AAD successful response
+//Optional field for refresh
+@property (nonatomic) NSInteger refreshIn;
 @property (nonatomic) NSInteger extendedExpiresIn;
 @property (nonatomic) NSInteger extendedExpiresOn;
+@property (nonatomic) NSInteger refreshOn;
 @property (nonatomic, nullable) MSIDClientInfo *clientInfo;
 @property (nonatomic, nullable) NSString *familyId;
 @property (nonatomic, nullable) NSString *suberror;
@@ -42,5 +45,6 @@
 
 // Derived properties
 @property (nonatomic, readonly, nullable) NSDate *extendedExpiresOnDate;
+@property (nonatomic, readonly, nullable) NSDate *refreshOnDate;
 
 @end

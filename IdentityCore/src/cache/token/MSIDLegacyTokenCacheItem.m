@@ -146,6 +146,7 @@
     NSSet *classes = [NSSet setWithObjects:[NSDictionary class], [NSDate class], [NSString class], [NSURL class], [NSNumber class], nil];
     NSMutableDictionary *additionalServer = [[coder decodeObjectOfClasses:classes forKey:@"additionalServer"] mutableCopy];
     self.extendedExpiresOn = additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
+    self.refreshOn = additionalServer[MSID_REFRESH_ON_CACHE_KEY];
     [additionalServer removeObjectForKey:MSID_EXTENDED_EXPIRES_ON_CACHE_KEY];
     self.speInfo = additionalServer[MSID_SPE_INFO_CACHE_KEY];
     [additionalServer removeObjectForKey:MSID_SPE_INFO_CACHE_KEY];
@@ -185,6 +186,11 @@
     {
         additionalServer[MSID_EXTENDED_EXPIRES_ON_CACHE_KEY] = self.extendedExpiresOn;
     }
+    if (self.refreshOn)
+    {
+        additionalServer[MSID_REFRESH_ON_CACHE_KEY] = self.refreshOn;
+    }
+    
     if (self.speInfo)
     {
         additionalServer[MSID_SPE_INFO_CACHE_KEY] = self.speInfo;
