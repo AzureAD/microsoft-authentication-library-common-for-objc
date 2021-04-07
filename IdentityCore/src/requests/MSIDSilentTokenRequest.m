@@ -487,16 +487,19 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Server unavailable, using refresh expired access Token");
-                NSError *cacheError = nil;
                 
+                NSError *cacheError = nil;
                 MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.unexpiredRefreshNeededAccessToken
                                                               refreshToken:refreshToken
                                                                      error:&cacheError];
-                NSError *resultError = (tokenResult ? nil : error);
-                completionBlock(tokenResult, resultError);
-                return;
+                if (tokenResult)
+                {
+                    completionBlock(tokenResult, nil);
+                    return;
+                }
                 
-                MSID_LOG_WITH_CTX(MSIDLogLevelError, self.requestParameters, @"Found error retrieving cache for result %@, %ld", cacheError.domain, (long)cacheError.code);
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(cacheError));
+                
             }
             
             if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)

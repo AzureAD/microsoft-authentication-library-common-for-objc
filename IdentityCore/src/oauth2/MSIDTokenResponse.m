@@ -64,7 +64,7 @@
                              MSID_OAUTH2_STATE,
                              MSID_OAUTH2_ID_TOKEN,
                              MSID_OAUTH2_EXPIRES_IN,
-                             MSID_OAUTH2_EXPIRES_ON];                             
+                             MSID_OAUTH2_EXPIRES_ON];
     
     NSDictionary *additionalInfo = [additionalServerInfo msidDictionaryByRemovingFields:knownFields];
     _additionalServerInfo = additionalInfo.count > 0 ? additionalInfo : nil;

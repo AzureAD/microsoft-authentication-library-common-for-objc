@@ -1934,8 +1934,7 @@
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
-    //silentParameters.tokenExpirationBuffer = 100;
-
+    
     [self saveTokensInCache:tokenCache
               configuration:silentParameters.msidConfiguration
                       scope:nil
@@ -2001,7 +2000,7 @@
     [self waitForExpectationsWithTimeout:1.0 handler:nil];
 }
 
-- (void)testAcquireTokenSilent_whenRefreshExpired_andServerIsUnavailable_shouldReturnRefreshExpiredAccessToken
+- (void)testAcquireTokenSilent_whenRefreshExpired_and_ServerIsUnavailable_shouldReturnRefreshExpiredAccessToken
 {
     MSIDRequestParameters *silentParameters = [self silentRequestParameters];
     MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
@@ -2118,7 +2117,7 @@
                clientInfo:(NSString *)clientInfo
                 expiresIn:(NSString *)expiresIn
              extExpiresIn:(NSString *)extExpiresIn
-             refreshIn:(NSString *)refreshIn
+                refreshIn:(NSString *)refreshIn
 
 {
     

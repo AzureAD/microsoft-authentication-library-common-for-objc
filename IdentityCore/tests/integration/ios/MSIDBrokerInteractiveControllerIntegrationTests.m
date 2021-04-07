@@ -94,8 +94,7 @@
                                                        responseClientInfo:nil
                                                                 expiresIn:nil
                                                                      foci:nil
-                                                             extExpiresIn:nil
-                                                                refreshIn:nil];
+                                                             extExpiresIn:nil];
 
     MSIDAADV2Oauth2Factory *factory = [MSIDAADV2Oauth2Factory new];
     MSIDTokenResponse *response = [factory tokenResponseFromJSON:testResponse context:nil error:nil];

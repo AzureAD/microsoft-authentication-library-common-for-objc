@@ -37,6 +37,16 @@
                    responseClientInfo:(NSString *)responseClientInfo
                             expiresIn:(NSString *)expiresIn
                                  foci:(NSString *)foci
+                         extExpiresIn:(NSString *)extExpiresIn;
+
+//Overloaded method to avoid impact on other tests without refreshIn
++ (NSDictionary *)tokenResponseWithAT:(NSString *)responseAT
+                           responseRT:(NSString *)responseRT
+                           responseID:(NSString *)responseID
+                        responseScope:(NSString *)responseScope
+                   responseClientInfo:(NSString *)responseClientInfo
+                            expiresIn:(NSString *)expiresIn
+                                 foci:(NSString *)foci
                          extExpiresIn:(NSString *)extExpiresIn
                             refreshIn:(NSString *)refreshIn;
 
