@@ -174,7 +174,8 @@
                                         responseClientInfo:responseClientInfo
                                                  expiresIn:expiresIn
                                                       foci:nil
-                                              extExpiresIn:nil];
+                                              extExpiresIn:nil
+                                                 refreshIn:nil];
 
     NSMutableDictionary *requestBody = [@{ @"client_id" : @"my_client_id",
                                           @"scope" : requestScopes,
@@ -209,6 +210,7 @@
                             expiresIn:(NSString *)expiresIn
                                  foci:(NSString *)foci
                          extExpiresIn:(NSString *)extExpiresIn
+                            refreshIn:(NSString *)refreshIn
 {
     NSDictionary *clientInfoClaims = @{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID};
 
@@ -225,6 +227,11 @@
     if (extExpiresIn)
     {
         responseDictionary[@"ext_expires_in"] = extExpiresIn;
+    }
+    
+    if (refreshIn)
+    {
+        responseDictionary[@"refresh_in"] = refreshIn;
     }
 
     return responseDictionary;
@@ -257,7 +264,8 @@
                                         responseClientInfo:responseClientInfo
                                                  expiresIn:expiresIn
                                                       foci:nil
-                                              extExpiresIn:nil];
+                                              extExpiresIn:nil
+                                                 refreshIn:nil];
     
     NSMutableDictionary *responseDictWithEnrollmentId = [responseDict mutableCopy];
     [responseDictWithEnrollmentId setObject:enrollmentId forKey:@"microsoft_enrollment_id"];

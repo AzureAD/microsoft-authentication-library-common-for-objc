@@ -37,7 +37,8 @@
                    responseClientInfo:(NSString *)responseClientInfo
                             expiresIn:(NSString *)expiresIn
                                  foci:(NSString *)foci
-                         extExpiresIn:(NSString *)extExpiresIn;
+                         extExpiresIn:(NSString *)extExpiresIn
+                            refreshIn:(NSString *)refreshIn;
 
 
 + (MSIDTestURLResponse *)refreshTokenGrantResponseWithRT:(NSString *)requestRT

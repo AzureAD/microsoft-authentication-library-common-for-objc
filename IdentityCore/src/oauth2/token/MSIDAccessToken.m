@@ -243,8 +243,8 @@ static NSUInteger s_expirationBuffer = 300;
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@, target=%@, enrollmentId=%@, applicationIdentfier=%@)",
-            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _target, [_enrollmentId msidSecretLoggingHash], _applicationIdentifier];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@,refreshOn=%@, target=%@, enrollmentId=%@, applicationIdentfier=%@)",
+            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _refreshOn, _target, [_enrollmentId msidSecretLoggingHash], _applicationIdentifier];
 }
 
 @end

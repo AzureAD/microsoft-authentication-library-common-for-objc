@@ -50,6 +50,7 @@
     tokenResponse.correlationId = @"00000000-0000-0000-0000-000000000001";
     tokenResponse.extendedExpiresIn = 500;
     tokenResponse.extendedExpiresOn = 1585635662;
+    tokenResponse.refreshIn = 150;
     NSString *base64String = [@{ @"uid" : @"1", @"utid" : @"1234-5678-90abcdefg"} msidBase64UrlJson];
     tokenResponse.clientInfo = [[MSIDClientInfo alloc] initWithRawClientInfo:base64String error:nil];
     tokenResponse.familyId = @"family 1";
@@ -69,6 +70,7 @@
     XCTAssertEqualObjects(json[@"expires_on"], @"1575635662");
     XCTAssertEqualObjects(json[@"ext_expires_in"], @"500");
     XCTAssertEqualObjects(json[@"ext_expires_on"], @"1585635662");
+    XCTAssertEqualObjects(json[@"refresh_in"], @"150");
     XCTAssertEqualObjects(json[@"foci"], @"family 1");
     XCTAssertEqualObjects(json[@"id_token"], @"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ.eyJpc3MiOiJpc3N1ZXIiLCJuYW1lIjoiVGVzdCBuYW1lIiwicHJlZmVycmVkX3VzZXJuYW1lIjoidXNlckBjb250b3NvLmNvbSIsInN1YiI6InN1YiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Il9raWRfdmFsdWUifQ");
     XCTAssertEqualObjects(json[@"provider_type"], @"provider_aad_v2");
