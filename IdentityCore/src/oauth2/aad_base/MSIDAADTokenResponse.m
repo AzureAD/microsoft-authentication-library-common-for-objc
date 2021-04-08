@@ -42,6 +42,7 @@
                              MSID_TELEMETRY_KEY_SPE_INFO,
                              MSID_OAUTH2_EXT_EXPIRES_IN,
                              MSID_OAUTH2_REFRESH_IN,
+                             MSID_OAUTH2_REFRESH_ON,
                              @"url",
                              @"ext_expires_on",
                              MSID_OAUTH2_SUB_ERROR];
@@ -63,7 +64,9 @@
 
 - (NSDate *)refreshOnDate
 {
+    if (self.refreshOn) return [NSDate dateWithTimeIntervalSince1970:self.refreshOn];
     if (self.refreshIn) return [NSDate dateWithTimeIntervalSinceNow:self.refreshIn];
+    
     return nil;
 }
 #pragma mark - MSIDJsonSerializable
@@ -85,6 +88,7 @@
         _extendedExpiresIn = [json msidIntegerObjectForKey:MSID_OAUTH2_EXT_EXPIRES_IN];
         _extendedExpiresOn = [json msidIntegerObjectForKey:@"ext_expires_on"];
         _refreshIn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_IN];
+        _refreshOn = [json msidIntegerObjectForKey:MSID_OAUTH2_REFRESH_ON];
     }
     
     return self;
@@ -104,6 +108,7 @@
         json[MSID_OAUTH2_EXT_EXPIRES_IN] = [@(self.extendedExpiresIn) stringValue];
         json[@"ext_expires_on"] = [@(self.extendedExpiresOn) stringValue];
         json[MSID_OAUTH2_REFRESH_IN] = [@(self.refreshIn) stringValue];
+        json[MSID_OAUTH2_REFRESH_ON] = [@(self.refreshOn) stringValue];
     }
     
     return json;
