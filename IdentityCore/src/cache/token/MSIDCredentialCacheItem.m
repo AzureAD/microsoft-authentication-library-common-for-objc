@@ -331,7 +331,7 @@
         return YES;
     }
     
-    if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] || [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
+    if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have valid requestedClaims.", NSStringFromClass(self.class));
         return NO;
