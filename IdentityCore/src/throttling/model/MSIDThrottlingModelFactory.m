@@ -67,7 +67,7 @@
 {
     MSIDThrottlingType throttleType = [MSIDThrottlingModelFactory processErrorResponseToGetThrottleType:errorResponse];
     
-    if(throttleType == MSIDThrottlingTypeNone) return nil;
+    if (throttleType == MSIDThrottlingTypeNone) return nil;
     
     return [self generateModelFromErrorResponse:errorResponse
                                         request:request

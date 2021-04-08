@@ -47,7 +47,9 @@
         self.apiId = (NSInteger)[decoder decodeFloatForKey:kApiId];
         
         NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
-        self.correlationId = ![NSString msidIsStringNilOrBlank:uuIdString] ? [[NSUUID UUID] initWithUUIDString:uuIdString] : nil;
+        if ([NSString msidIsStringNilOrBlank:uuIdString]) return nil;
+        
+        self.correlationId = [[NSUUID UUID] initWithUUIDString:uuIdString];
         
         self.error = [decoder decodeObjectForKey:kError];
     }
