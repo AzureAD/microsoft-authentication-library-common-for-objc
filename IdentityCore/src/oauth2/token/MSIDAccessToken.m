@@ -174,11 +174,12 @@ static NSUInteger s_expirationBuffer = 300;
 
 -(BOOL)refreshNeeded
 {
-    if(self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
+    if (self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
     {
         return YES;
     }
-    if(self.refreshOn)
+    
+    if (self.refreshOn)
     {
         return [self.refreshOn compare:[NSDate date]] == NSOrderedAscending;
     }

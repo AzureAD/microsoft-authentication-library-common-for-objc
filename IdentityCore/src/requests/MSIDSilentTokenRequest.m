@@ -82,7 +82,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
-        _unexpiredRefreshNeededAccessToken = NULL;
+        _unexpiredRefreshNeededAccessToken = nil;
     }
     
     return self;
@@ -214,10 +214,6 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else if (!accessTokenKeyThumbprintMatch)
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Cached key thumbprint is different from access token's key thumbprint, removing it..");
-            }
-            else if(self.unexpiredRefreshNeededAccessToken)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token refresh In expired, removing it...");
             }
             else
             {
