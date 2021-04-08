@@ -27,7 +27,7 @@
 @interface MSIDRequestTelemetryErrorInfo : NSObject <NSSecureCoding>
 
 @property (nonatomic) NSInteger apiId;
-@property (nonatomic, nonnull) NSUUID *correlationId;
+@property (nonatomic, nullable) NSUUID *correlationId;
 @property (nonatomic, nonnull) NSString *error;
 
 @end

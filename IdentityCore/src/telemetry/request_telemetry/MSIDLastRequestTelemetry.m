@@ -49,7 +49,7 @@
         NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
         if ([NSString msidIsStringNilOrBlank:uuIdString]) return nil;
         
-        self.correlationId = [[NSUUID UUID] initWithUUIDString:uuIdString];
+        self.correlationId = ![NSString msidIsStringNilOrBlank:uuIdString] ? [[NSUUID UUID] initWithUUIDString:uuIdString] : nil;
         
         self.error = [decoder decodeObjectForKey:kError];
     }
