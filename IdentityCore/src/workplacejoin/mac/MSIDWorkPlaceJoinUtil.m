@@ -237,7 +237,7 @@
     SecCertificateRef certRef;
     status = SecItemCopyMatching((__bridge CFDictionaryRef)certQuery, (CFTypeRef*)&certRef); // +1 certRef
     
-    if (status != errSecSuccess)
+    if (status != errSecSuccess || !certRef)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to find certificate for public key hash with status %ld", (long)status);
         return nil;
@@ -248,29 +248,32 @@
     SecKeyRef publicKeyRef = NULL;
     NSString *issuer = nil;
     
-    if (certRef)
+    status = SecCertificateCopyPublicKey(certRef, &publicKeyRef); // +1 publicKeyRef
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ public key reference retrieved with result %ld", (long)status);
+    
+    if (!publicKeyRef)
     {
-        status = SecCertificateCopyPublicKey(certRef, &publicKeyRef); // +1 publicKeyRef
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"WPJ public key reference retrieved with result %ld", (long)status);
-        
-        NSData *issuerData = nil;
-        
-        if (@available(macOS 10.12.4, *))
-        {
-            issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
-        }
-        else
-        {
-            issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerContent(certRef, NULL));
-        }
-        
-        if (issuerData)
-        {
-            issuer = [[NSString alloc] initWithData:issuerData encoding:NSASCIIStringEncoding];
-        }
-        
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Retrieved WPJ issuer %@", MSID_PII_LOG_MASKABLE(issuer));
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"No public key ref found. Aborting lookup.");
+        return nil;
     }
+    
+    NSData *issuerData = nil;
+    
+    if (@available(macOS 10.12.4, *))
+    {
+        issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerSequence(certRef));
+    }
+    else
+    {
+        issuerData = CFBridgingRelease(SecCertificateCopyNormalizedIssuerContent(certRef, NULL));
+    }
+    
+    if (issuerData)
+    {
+        issuer = [[NSString alloc] initWithData:issuerData encoding:NSASCIIStringEncoding];
+    }
+    
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Retrieved WPJ issuer %@", MSID_PII_LOG_MASKABLE(issuer));
     
     MSIDAssymetricKeyPairWithCert *keyPair = [[MSIDAssymetricKeyPairWithCert alloc] initWithPrivateKey:privateKeyRef
                                                                                              publicKey:publicKeyRef
