@@ -138,7 +138,10 @@
 
 - (void)testMSIDCreateError_withNilDomain_shouldReturnNil
 {
-    NSError *result = MSIDCreateError(nil, 0, nil, nil, nil, nil, nil, nil, NO);
+    NSString *domain = nil;
+    
+    NSError *result = MSIDCreateError(domain, 0, nil, nil, nil, nil, nil, nil, NO);
+    
     XCTAssertNil(result);
 }
 

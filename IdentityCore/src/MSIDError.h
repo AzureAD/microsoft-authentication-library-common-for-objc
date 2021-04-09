@@ -21,15 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-extern NSString *MSIDErrorDescriptionKey;
-extern NSString *MSIDOAuthErrorKey;
-extern NSString *MSIDOAuthSubErrorKey;
-extern NSString *MSIDCorrelationIdKey;
-extern NSString *MSIDHTTPHeadersKey;
-extern NSString *MSIDHTTPResponseCodeKey;
-extern NSString *MSIDUserDisplayableIdkey;
-extern NSString *MSIDHomeAccountIdkey;
-extern NSString *MSIDBrokerVersionKey;
+extern NSString * _Nonnull MSIDErrorDescriptionKey;
+extern NSString * _Nonnull MSIDOAuthErrorKey;
+extern NSString * _Nonnull MSIDOAuthSubErrorKey;
+extern NSString * _Nonnull MSIDCorrelationIdKey;
+extern NSString * _Nonnull MSIDHTTPHeadersKey;
+extern NSString * _Nonnull MSIDHTTPResponseCodeKey;
+extern NSString * _Nonnull MSIDUserDisplayableIdkey;
+extern NSString * _Nonnull MSIDHomeAccountIdkey;
+extern NSString * _Nonnull MSIDBrokerVersionKey;
 
 /*!
  ADAL and MSID use different error domains and error codes.
@@ -38,10 +38,10 @@ extern NSString *MSIDBrokerVersionKey;
  domain mapping and error code mapping should be added to ADAuthenticationErrorConverter
  and MSIDErrorConveter in corresponding project.
  */
-extern NSString *MSIDErrorDomain;
-extern NSString *MSIDOAuthErrorDomain;
-extern NSString *MSIDKeychainErrorDomain;
-extern NSString *MSIDHttpErrorCodeDomain;
+extern NSString * _Nonnull MSIDErrorDomain;
+extern NSString * _Nonnull MSIDOAuthErrorDomain;
+extern NSString * _Nonnull MSIDKeychainErrorDomain;
+extern NSString * _Nonnull MSIDHttpErrorCodeDomain;
 
 /*!
  List of scopes that were requested from MSAL, but not granted in the response.
@@ -53,22 +53,22 @@ extern NSString *MSIDHttpErrorCodeDomain;
  * Requested scope is not supported for a particular account (Organizational scopes when it is a consumer account)
 
  */
-extern NSString *MSIDDeclinedScopesKey;
+extern NSString * _Nonnull MSIDDeclinedScopesKey;
 
 /*!
  List of granted scopes in case some scopes weren't granted (see MSALDeclinedScopesKey for more info)
  */
-extern NSString *MSIDGrantedScopesKey;
+extern NSString * _Nonnull MSIDGrantedScopesKey;
 
 /*!
  This flag will be set if server is unavailable
  */
-extern NSString *MSIDServerUnavailableStatusKey;
+extern NSString * _Nonnull MSIDServerUnavailableStatusKey;
 
 /*!
  This flag will be set if we received a valid token response, but returned data mismatched.
  */
-extern NSString *MSIDInvalidTokenResultKey;
+extern NSString * _Nonnull MSIDInvalidTokenResultKey;
 
 /*!
  SSO extension failed with underlying error.
@@ -244,10 +244,10 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     MSIDErrorBrokerNotAvailable                    =   -51814
 };
 
-extern NSError *MSIDCreateError(NSString *domain, NSInteger code, NSString *errorDescription, NSString *oauthError, NSString *subError, NSError *underlyingError, NSUUID *correlationId, NSDictionary *additionalUserInfo, BOOL logErrorDescription);
+extern NSError * _Nonnull MSIDCreateError(NSString * _Nonnull domain, NSInteger code, NSString * _Nullable errorDescription, NSString * _Nullable oauthError, NSString * _Nullable subError, NSError * _Nullable underlyingError, NSUUID * _Nullable correlationId, NSDictionary * _Nullable additionalUserInfo, BOOL logErrorDescription);
 
-extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString *oauthError, MSIDErrorCode defaultCode);
+extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString * _Nullable oauthError, MSIDErrorCode defaultCode);
 
-extern NSDictionary<NSString *, NSArray *> *MSIDErrorDomainsAndCodes(void);
+extern NSDictionary<NSString *, NSArray *> * _Nonnull MSIDErrorDomainsAndCodes(void);
 
-extern void MSIDFillAndLogError(NSError **error, MSIDErrorCode errorCode, NSString *errorDescription, NSUUID *correlationID);
+extern void MSIDFillAndLogError(NSError * _Nullable __autoreleasing * _Nullable error, MSIDErrorCode errorCode, NSString * _Nullable errorDescription, NSUUID * _Nullable correlationID);
