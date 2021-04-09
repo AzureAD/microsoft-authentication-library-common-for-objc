@@ -2073,6 +2073,57 @@
 
 }
 
+- (void)testAcquireTokenSilent_whenAccessATNotRefreshExpired_shouldReturnATAndRT
+{
+    MSIDRequestParameters *silentParameters = [self silentRequestParameters];
+    MSIDDefaultTokenCacheAccessor *tokenCache = self.tokenCache;
+    
+    [self saveTokensInCache:tokenCache
+              configuration:silentParameters.msidConfiguration
+                      scope:nil
+                       foci:nil
+                accessToken:nil
+               refreshToken:nil
+                    idToken:nil
+                 clientInfo:nil
+                  expiresIn:@"500"
+               extExpiresIn:nil
+                  refreshIn:@"70"];
+    
+    silentParameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:DEFAULT_TEST_ID_TOKEN_USERNAME homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    
+    NSString *authority = DEFAULT_TEST_AUTHORITY_GUID;
+    MSIDTestURLResponse *discoveryResponse = [MSIDTestURLResponse discoveryResponseForAuthority:authority];
+    [MSIDTestURLSession addResponse:discoveryResponse];
+    
+    MSIDDefaultSilentTokenRequest *silentRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:silentParameters
+                                                                                                       forceRefresh:NO
+                                                                                                       oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                             tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                         tokenCache:tokenCache
+                                                                                                       accountMetadataCache:self.accountMetadataCache];
+    
+    XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+    
+    [silentRequest executeRequestWithCompletion:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+        
+        XCTAssertNil(error);
+        XCTAssertNotNil(result);
+        XCTAssertEqualObjects(result.accessToken.accessToken, DEFAULT_TEST_ACCESS_TOKEN);
+        XCTAssertEqualObjects(result.accessToken.scopes, [NSOrderedSet msidOrderedSetFromString:@"user.read user.write tasks.read"]);
+        XCTAssertEqualObjects(result.account.accountIdentifier.homeAccountId, silentParameters.accountIdentifier.homeAccountId);
+        XCTAssertEqualObjects(result.rawIdToken, [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID]);
+        XCTAssertFalse(result.extendedLifeTimeToken);
+        XCTAssertEqualObjects(result.authority, silentParameters.authority);
+        XCTAssertEqualObjects(result.refreshToken.refreshToken, DEFAULT_TEST_REFRESH_TOKEN);
+        XCTAssertNil(result.refreshToken.familyId);
+        [expectation fulfill];
+    }];
+    
+    [self waitForExpectationsWithTimeout:1.0 handler:nil];
+}
+
+
 #pragma mark - Cache
 
 - (void)saveExpiredTokensInCache:(MSIDDefaultTokenCacheAccessor *)tokenCache
