@@ -50,6 +50,16 @@
     NSString *result = [telemetryObject telemetryString];
     XCTAssertEqualObjects(result, @"2|30,0|");
 }
+-(void)testSerialization_whenRefreshReason_RefreshExpired_shouldCreateString
+{
+    MSIDCurrentRequestTelemetry *telemetryObject = [MSIDCurrentRequestTelemetry new];
+    telemetryObject.schemaVersion = 2;
+    telemetryObject.tokenCacheRefresh = RefreshExpiredAT;
+    telemetryObject.apiId = 30;
+    
+    NSString *result = [telemetryObject telemetryString];
+    XCTAssertEqualObjects(result, @"2|30,4|");
+}
 
 -(void)testSerialization_whenRefreshReason_RefreshExpired_shouldCreateString
 {

@@ -132,6 +132,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         if (accessTokenError)
         {
             completionBlock(nil, accessTokenError);
+            self.currentRequestTelemetry.tokenCacheRefresh = NoCachedAT;
             return;
         }
         
