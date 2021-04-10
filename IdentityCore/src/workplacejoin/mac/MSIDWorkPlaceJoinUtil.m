@@ -41,7 +41,6 @@
     NSString *certificateSubject = nil;
     NSData *certificateData = nil;
     NSString *certificateIssuer  = nil;
-    OSStatus status = noErr;
     
     MSID_LOG_VERBOSE(context, @"Attempting to get WPJ registration information.");
     identity = [self copyWPJIdentity:context issuer:&certificateIssuer certificateAuthorities:challenge.protectionSpace.distinguishedNames];
@@ -57,11 +56,11 @@
     
     // Get the wpj certificate
     MSID_LOG_VERBOSE(context, @"Retrieving WPJ certificate reference.");
-    status = SecIdentityCopyCertificate(identity, &certificate);
+    SecIdentityCopyCertificate(identity, &certificate);
     
     // Get the private key
     MSID_LOG_VERBOSE(context, @"Retrieving WPJ private key reference.");
-    status = SecIdentityCopyPrivateKey(identity, &privateKey);
+    SecIdentityCopyPrivateKey(identity, &privateKey);
     
     certificateSubject = (__bridge_transfer NSString*)(SecCertificateCopySubjectSummary(certificate));
     certificateData = (__bridge_transfer NSData*)(SecCertificateCopyData(certificate));

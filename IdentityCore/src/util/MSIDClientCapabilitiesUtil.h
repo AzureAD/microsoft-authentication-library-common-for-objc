@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
  Takes a list of capabilities and returns the JSON claims.
  The result JSON is not URL encoded and caller needs to encode it if necessary
  */
-+ (NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
++ (nullable NSString *)msidClaimsParameterFromCapabilities:(NSArray<NSString *> *)capabilities;
 
 /*
  Takes a list of capabilities and returns the JSON claims, combining them with any claims passed by developer.

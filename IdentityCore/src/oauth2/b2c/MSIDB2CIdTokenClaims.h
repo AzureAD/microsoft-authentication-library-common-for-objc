@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MSIDB2CIdTokenClaims : MSIDAADV2IdTokenClaims
 
 // This is the name of the policy that was used to acquire the ID token.
-@property (readonly) NSString *tfp;
+@property (readonly, nullable) NSString *tfp;
 
 @end
 
