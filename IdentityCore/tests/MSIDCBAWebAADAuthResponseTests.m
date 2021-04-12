@@ -47,7 +47,6 @@
     XCTAssertFalse([MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:url]);
 }
 
-
 - (void)testIsCBAWebAADAuthResponse_whenHostIncorrect_shouldReturnNO
 {
     NSURL *url = [NSURL URLWithString:@"msauth://somehost?querystring"];
@@ -60,11 +59,20 @@
     XCTAssertTrue([MSIDCBAWebAADAuthResponse isCBAWebAADAuthResponse:url]);
 }
 
-
-
 - (void)testInitWithURL_whenAllValid_shouldReturnResponseWithRedirect
 {
     NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode"];
+    NSError *error;
+    MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:nil error:&error];
+    
+    XCTAssertNil(error);
+    XCTAssertEqualObjects(response.authorizationCode, @"somecode");
+    XCTAssertEqualObjects(response.redirectUri, @"msauth://code/redirect");
+}
+
+- (void)testInitWithURL_whenValidUrlWithPound_shouldParseRedirectUriWithoutPound
+{
+    NSURL *url = [NSURL URLWithString:@"msauth://code/redirect?code=somecode#"];
     NSError *error;
     MSIDCBAWebAADAuthResponse *response = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:nil error:&error];
     
