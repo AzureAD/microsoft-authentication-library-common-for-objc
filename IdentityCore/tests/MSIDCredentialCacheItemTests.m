@@ -130,10 +130,12 @@
     NSDate *expiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     NSDate *cachedAt = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
     NSDate *extExpiresOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
+    NSDate *refreshOn = [NSDate dateWithTimeIntervalSince1970:(long)[NSDate date]];
 
     NSString *cachedAtString = [NSString stringWithFormat:@"%ld", (long)[cachedAt timeIntervalSince1970]];
     NSString *expiresOnString = [NSString stringWithFormat:@"%ld", (long)[expiresOn timeIntervalSince1970]];
     NSString *extExpiresOnString = [NSString stringWithFormat:@"%ld", (long)[extExpiresOn timeIntervalSince1970]];
+    NSString *refreshOnString = [NSString stringWithFormat:@"%ld", (long)[refreshOn timeIntervalSince1970]];
 
     NSDictionary *jsonDictionary = @{@"credential_type": @"AccessToken",
                                      @"client_id": DEFAULT_TEST_CLIENT_ID,
@@ -141,6 +143,7 @@
                                      @"cached_at": cachedAtString,
                                      @"expires_on": expiresOnString,
                                      @"extended_expires_on": extExpiresOnString,
+                                     @"refresh_on": refreshOnString,
                                      @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                      @"realm": @"contoso.com",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
