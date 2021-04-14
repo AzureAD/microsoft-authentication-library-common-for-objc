@@ -132,8 +132,13 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         if (accessTokenError)
         {
             completionBlock(nil, accessTokenError);
-            self.currentRequestTelemetry.tokenCacheRefresh = NoCachedAT;
             return;
+        }
+        
+        if (!accessToken)
+        {
+            self.currentRequestTelemetry.tokenCacheRefresh = TokenCacheRefreshTypeNoCachedAT;
+            
         }
         
         BOOL enrollmentIdMatch = YES;
@@ -198,7 +203,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 // unexpired token exists, but needs refresh. Store token to return if refresh attempt fails due to AAD being down
                 self.unexpiredRefreshNeededAccessToken = accessToken;
-                self.currentRequestTelemetry.tokenCacheRefresh = RefreshExpiredAT;
+                self.currentRequestTelemetry.tokenCacheRefresh = TokenCacheRefreshTypeProactiveTokenRefresh;
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Unexpired access token exists, but needs refresh, since refresh expired.");
             }
             
@@ -209,6 +214,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
             self.extendedLifetimeAccessToken = accessToken;
+            self.currentRequestTelemetry.tokenCacheRefresh = TokenCacheRefreshTypeExpiredAT;
         }
         else if (accessToken)
         {
@@ -223,7 +229,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
-                self.currentRequestTelemetry.tokenCacheRefresh = ExpiredAT;
+                self.currentRequestTelemetry.tokenCacheRefresh = TokenCacheRefreshTypeExpiredAT;
             }
             
             NSError *removalError = nil;
