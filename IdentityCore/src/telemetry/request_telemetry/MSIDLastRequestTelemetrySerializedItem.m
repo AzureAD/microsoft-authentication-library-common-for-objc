@@ -33,6 +33,19 @@
 
 @implementation MSIDLastRequestTelemetrySerializedItem
 
+// // Represents 350 byte limit for size of last request telemetry string sent to server
+static int telemetryStringSizeLimit = 350;
+
++ (int)telemetryStringSizeLimit
+{
+    return telemetryStringSizeLimit;
+}
+
++ (void)setTelemetryStringSizeLimit:(int)newLimit
+{
+    telemetryStringSizeLimit = newLimit;
+}
+
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray *)defaultFields errorInfo:(NSArray *)errorsInfo platformFields:(NSArray *)platformFields
 {
     self = [super initWithSchemaVersion:schemaVersion defaultFields:defaultFields platformFields:platformFields];
@@ -73,9 +86,9 @@
         NSString *currentFailedRequest = [NSString stringWithFormat:@"%ld,%@", (long)self.errorsInfo[lastIndex].apiId, self.errorsInfo[lastIndex].correlationId ?: @""];
         NSString *currentErrorMessage = [NSString stringWithFormat:@"%@", self.errorsInfo[lastIndex].error ?: @""];
         
-        // Only add error info into string if the resulting string smaller than 4KB
+        // Only add error info into string if the resulting string smaller than size limit
         if ((int)([currentFailedRequest lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength) < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
+                [currentErrorMessage lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength) < [MSIDLastRequestTelemetrySerializedItem telemetryStringSizeLimit])
         {
             failedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
             errorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
@@ -96,10 +109,10 @@
             NSString *newFailedRequestsString = [currentFailedRequest stringByAppendingString:failedRequestsString];
             NSString *newErrorMessagesString = [currentErrorMessage stringByAppendingString:errorMessagesString];
             
-            // Only add next error into string if the resulting string smaller than 4KB, otherwise stop building
+            // Only add next error into string if the resulting string smaller than size limit, otherwise stop building
             // the string
             if ((int)([newFailedRequestsString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] +
-                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength) < [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
+                    [newErrorMessagesString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] + startLength) < [MSIDLastRequestTelemetrySerializedItem telemetryStringSizeLimit])
             {
                 failedRequestsString = newFailedRequestsString;
                 errorMessagesString = newErrorMessagesString;

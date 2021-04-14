@@ -33,8 +33,8 @@
 
 @implementation MSIDCurrentRequestTelemetrySerializedItem
 
-// Represents 4kB limit for size of telemetry string sent to server
-static int telemetryStringSizeLimit = 4000;
+// Represents 100 byte limit for size of current request telemetry string sent to server
+static int telemetryStringSizeLimit = 100;
 
 + (int)telemetryStringSizeLimit
 {
@@ -64,7 +64,7 @@ static int telemetryStringSizeLimit = 4000;
 {
     NSString *telemetryString = [NSString stringWithFormat:@"%@|%@|%@", self.schemaVersion, [self serializeFields: self.defaultFields], [self serializeFields: self.platformFields]];
     
-    if ([telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > 4000)
+    if ((int)[telemetryString lengthOfBytesUsingEncoding:NSUTF8StringEncoding] > [MSIDCurrentRequestTelemetrySerializedItem telemetryStringSizeLimit])
     {
         return nil;
     }

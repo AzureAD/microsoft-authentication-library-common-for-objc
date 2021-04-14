@@ -37,6 +37,8 @@ extern NSString *const MSID_OAUTH2_ERROR;
 extern NSString *const MSID_OAUTH2_ERROR_DESCRIPTION;
 extern NSString *const MSID_OAUTH2_ERROR_SUBCODE;
 extern NSString *const MSID_OAUTH2_EXPIRES_IN;
+extern NSString *const MSID_OAUTH2_REFRESH_IN;
+extern NSString *const MSID_OAUTH2_REFRESH_ON;
 extern NSString *const MSID_OAUTH2_GRANT_TYPE;
 extern NSString *const MSID_OAUTH2_REDIRECT_URI;
 extern NSString *const MSID_OAUTH2_REFRESH_TOKEN;

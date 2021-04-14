@@ -290,7 +290,7 @@
 
 #pragma mark - Utils
 
-- (void)logAndFillError:(NSString *)errorTitle status:(OSStatus)status error:(NSError **)error
+- (BOOL)logAndFillError:(NSString *)errorTitle status:(OSStatus)status error:(NSError **)error
 {
     NSString *description = [NSString stringWithFormat:@"Operation failed with title \"%@\", status %ld", errorTitle, (long)status];
     MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"%@", description);
@@ -299,6 +299,8 @@
     {
         *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, description, nil, nil, nil, nil, nil, NO);
     }
+    
+    return YES;
 }
 
 @end

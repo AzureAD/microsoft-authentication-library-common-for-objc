@@ -170,6 +170,22 @@ static NSUInteger s_expirationBuffer = 300;
     return MSIDAccessTokenType;
 }
 
+#pragma mark - RefreshNeeded
+
+-(BOOL)refreshNeeded
+{
+    if (self.cachedAt && [[NSDate date] compare:self.cachedAt] == NSOrderedAscending)
+    {
+        return YES;
+    }
+    
+    if (self.refreshOn)
+    {
+        return [self.refreshOn compare:[NSDate date]] == NSOrderedAscending;
+    }
+    return NO;
+}
+
 #pragma mark - Expiry
 
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer
@@ -228,8 +244,8 @@ static NSUInteger s_expirationBuffer = 300;
 - (NSString *)description
 {
     NSString *baseDescription = [super description];
-    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@, target=%@, enrollmentId=%@, applicationIdentfier=%@)",
-            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _target, [_enrollmentId msidSecretLoggingHash], _applicationIdentifier];
+    return [baseDescription stringByAppendingFormat:@"(access token=%@, expiresOn=%@, extendedExpiresOn=%@,refreshOn=%@, target=%@, enrollmentId=%@, applicationIdentfier=%@)",
+            [_accessToken msidSecretLoggingHash], _expiresOn, _extendedExpiresOn, _refreshOn, _target, [_enrollmentId msidSecretLoggingHash], _applicationIdentifier];
 }
 
 @end

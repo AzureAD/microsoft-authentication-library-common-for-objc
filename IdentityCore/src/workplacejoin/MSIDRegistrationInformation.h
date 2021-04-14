@@ -37,13 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
                       privateKey:(SecKeyRef)privateKey
                        publicKey:(SecKeyRef)publicKey
                      certificate:(SecCertificateRef)certificate
-               certificateIssuer:(NSString *)issuer
+               certificateIssuer:(nullable NSString *)issuer
                   privateKeyDict:(NSDictionary *)keyDict;
 
 - (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
                                   publicKey:(SecKeyRef)publicKey
                                 certificate:(SecCertificateRef)certificate
-                          certificateIssuer:(NSString *)issuer
+                          certificateIssuer:(nullable NSString *)issuer
                              privateKeyDict:(NSDictionary *)keyDict NS_UNAVAILABLE;
 
 - (BOOL)isWorkPlaceJoined;
