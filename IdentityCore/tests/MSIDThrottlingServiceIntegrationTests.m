@@ -233,6 +233,17 @@
     return parameters;
 
 }
+- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
+{
+   static dispatch_once_t once;
+   static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
+   
+   dispatch_once(&once, ^{
+      swizzleStacks = [NSMutableDictionary new];
+   });
+   
+   return swizzleStacks;
+}
 
 - (void)setUp
 {
@@ -247,7 +258,7 @@
     self.redirectUri = @"x-msauth-outlook-prod://com.microsoft.Office.Outlook";
     self.keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDThrottlingKeychainGroup error:nil];
 
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+   [self.swizzleStacks setValue:[NSMutableArray new] forKey:self.name];
 }
 
 - (void)tearDown
@@ -257,6 +268,7 @@
     [MSIDIntuneEnrollmentIdsCache.sharedCache clear];
     [MSIDIntuneMAMResourcesCache.sharedCache clear];
     [self.keychainTokenCache clearWithContext:nil error:nil];
+    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
 }
 
 
@@ -1570,7 +1582,6 @@
    }
 }
 
-#define AD_THROTTLING_DISABLED 1
 - (void)testIfThrottlingDisabledFlagSet_shouldDisableThrottle
 {
    MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:self.silentRequestParameters
@@ -1589,7 +1600,27 @@
    MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
                                                                                                     context:self.silentRequestParameters];
    
+   //swizzle interactive token request
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle classMethod:@selector(isThrottlingDisable)
+                                                     class:[MSIDThrottlingService class]
+                                                     block:(id)^(void)
+                              {
+                                 return YES;
+                              }];
    
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
+
+   //swizzle interactive token request
+   [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
+                             class:[MSIDInteractiveTokenRequest class]
+                             block:(id)^(
+                                         __unused id obj,
+                                         MSIDInteractiveRequestCompletionBlock completionBlock)
+    {
+      MSIDTokenResult *tokenResult = [MSIDTokenResult new];
+      completionBlock(tokenResult,nil,nil);
+      
+   }];
    defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
    
    [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
