@@ -43,23 +43,23 @@
 -(void)testSerialization_whenValidProperties_shouldCreateString
 {
     MSIDCurrentRequestTelemetry *telemetryObject = [MSIDCurrentRequestTelemetry new];
-    telemetryObject.schemaVersion = 2;
+    telemetryObject.schemaVersion = 4;
     telemetryObject.tokenCacheRefreshType = TokenCacheRefreshTypeNoCacheLookupInvolved;
     telemetryObject.apiId = 30;
     
     NSString *result = [telemetryObject telemetryString];
-    XCTAssertEqualObjects(result, @"2|30,0|");
+    XCTAssertEqualObjects(result, @"4|30,0|");
 }
 
 -(void)testSerialization_whenRefreshReason_RefreshExpired_shouldCreateString
 {
     MSIDCurrentRequestTelemetry *telemetryObject = [MSIDCurrentRequestTelemetry new];
-    telemetryObject.schemaVersion = 2;
+    telemetryObject.schemaVersion = 4;
     telemetryObject.tokenCacheRefreshType = TokenCacheRefreshTypeProactiveTokenRefresh;
     telemetryObject.apiId = 30;
     
     NSString *result = [telemetryObject telemetryString];
-    XCTAssertEqualObjects(result, @"2|30,4|");
+    XCTAssertEqualObjects(result, @"4|30,4|");
 }
 
 
