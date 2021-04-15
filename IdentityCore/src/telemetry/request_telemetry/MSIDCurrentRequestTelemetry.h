@@ -50,8 +50,7 @@ typedef NS_ENUM(NSInteger, TokenCacheRefreshType)
 
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger apiId;
-//@property (nonatomic) BOOL forceRefresh;
-@property (nonatomic) TokenCacheRefresh tokenCacheRefresh;
+@property (nonatomic) TokenCacheRefreshType tokenCacheRefreshType;
 
 
 @end
