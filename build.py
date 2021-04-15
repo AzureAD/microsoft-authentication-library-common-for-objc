@@ -40,7 +40,7 @@ ios_sim_dest = "-destination 'platform=iOS Simulator,name=" + ios_sim_device + "
 ios_sim_flags = "-sdk iphonesimulator CODE_SIGN_IDENTITY=\"\" CODE_SIGNING_REQUIRED=NO"
 
 default_workspace = "IdentityCore.xcworkspace"
-default_config = "Testing"
+default_config = "Debug"
 
 use_xcpretty = True
 show_build_settings = False
