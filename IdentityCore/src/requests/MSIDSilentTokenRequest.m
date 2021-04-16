@@ -39,6 +39,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDLastRequestTelemetry.h"
+#import "MSIDCurrentRequestTelemetry.h"
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
@@ -62,6 +63,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 @property (nonatomic) MSIDAccessToken *unexpiredRefreshNeededAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
+@property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 
 @end
 
@@ -82,6 +84,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
+        _currentRequestTelemetry = parameters.currentRequestTelemetry;
         _unexpiredRefreshNeededAccessToken = nil;
     }
     
@@ -130,6 +133,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         {
             completionBlock(nil, accessTokenError);
             return;
+        }
+        
+        if (!accessToken)
+        {
+            self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeNoCachedAT;
+            
         }
         
         BOOL enrollmentIdMatch = YES;
@@ -194,6 +203,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             {
                 // unexpired token exists, but needs refresh. Store token to return if refresh attempt fails due to AAD being down
                 self.unexpiredRefreshNeededAccessToken = accessToken;
+                self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeProactiveTokenRefresh;
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Unexpired access token exists, but needs refresh, since refresh expired.");
             }
             
@@ -204,6 +214,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
             self.extendedLifetimeAccessToken = accessToken;
+            self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
         }
         else if (accessToken)
         {
@@ -218,6 +229,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
+                self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
             }
             
             NSError *removalError = nil;

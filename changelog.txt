@@ -1,4 +1,5 @@
 TBD
+* Added refresh_in telemetry changes and updated schema version to 4 (#983)
 * Added refresh_in changes for SilentTokenReuest flow (#975)
 * Fix redirect uri parsing in cba flow (#972)
 * Add preprocessor macro to turn on/off throttling. 
