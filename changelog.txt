@@ -1,4 +1,5 @@
 TBD
+* Added refresh_in changes for SilentTokenReuest flow (#975)
 * Fix redirect uri parsing in cba flow (#972)
 
 Version 1.6.4
