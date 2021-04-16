@@ -101,7 +101,7 @@
                     /**
                      * If SSO-EXT responses error, we should update throttling db
                      */
-                    if (![MSIDThrottlingService isThrottlingDisable])
+                    if ([MSIDThrottlingService isThrottlingEnabled])
                     {
                         [weakSelf.throttlingService updateThrottlingService:error tokenRequest:weakSelf.operationRequest];
                     }
@@ -159,7 +159,7 @@
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
                                                                                             mamResources:mamResources];
-        if ([MSIDThrottlingService isThrottlingDisable])
+        if (![MSIDThrottlingService isThrottlingEnabled])
         {
             [self executeRequestImplWithCompletionBlock:completionBlock];
         }

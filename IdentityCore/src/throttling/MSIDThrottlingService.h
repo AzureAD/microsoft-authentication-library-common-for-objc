@@ -53,6 +53,6 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Throttling disable decision based on the AD_THROTTLING_DISABLED macro define in application.
  */
-+ (BOOL)isThrottlingDisable;
++ (BOOL)isThrottlingEnabled;
 @end
 NS_ASSUME_NONNULL_END

@@ -1601,11 +1601,11 @@
                                                                                                     context:self.silentRequestParameters];
    
    //swizzle interactive token request
-   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle classMethod:@selector(isThrottlingDisable)
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle classMethod:@selector(isThrottlingEnabled)
                                                      class:[MSIDThrottlingService class]
                                                      block:(id)^(void)
                               {
-                                 return YES;
+                                 return NO;
                               }];
    
    [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];

@@ -436,7 +436,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
     // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
-    if (!self.throttlingService || [MSIDThrottlingService isThrottlingDisable])
+    if (!self.throttlingService || ![MSIDThrottlingService isThrottlingEnabled])
     {
         [self sendTokenRequestImpl:completionBlock refreshToken:refreshToken tokenRequest:tokenRequest];
     }
@@ -476,7 +476,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             /**
              * If server issue 429 Throttling, this step will have error object. If UIRequired, there is no error yet. Later after serialize the tokenResponse we will create the error
              */
-            if (![MSIDThrottlingService isThrottlingDisable])
+            if ([MSIDThrottlingService isThrottlingEnabled])
             {
                 [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
             }
@@ -542,7 +542,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             /**
              * If we can't serialize the response from server to tokens and there is error, we want to update throttling service
              */
-            if (error && ![MSIDThrottlingService isThrottlingDisable])
+            if (error && [MSIDThrottlingService isThrottlingEnabled])
             {
                 [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
             }
