@@ -23,6 +23,7 @@
 
 #import <XCTest/XCTest.h>
 #import "MSIDCurrentRequestTelemetry.h"
+#import "MSIDRequestTelemetryConstants.h"
 
 @interface MSIDCurrentRequestTelemetryTests : XCTestCase
 
@@ -43,7 +44,7 @@
 -(void)testSerialization_whenValidProperties_shouldCreateString
 {
     MSIDCurrentRequestTelemetry *telemetryObject = [MSIDCurrentRequestTelemetry new];
-    telemetryObject.schemaVersion = 4;
+    telemetryObject.schemaVersion = HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
     telemetryObject.tokenCacheRefreshType = TokenCacheRefreshTypeNoCacheLookupInvolved;
     telemetryObject.apiId = 30;
     
@@ -54,7 +55,7 @@
 -(void)testSerialization_whenRefreshReason_RefreshExpired_shouldCreateString
 {
     MSIDCurrentRequestTelemetry *telemetryObject = [MSIDCurrentRequestTelemetry new];
-    telemetryObject.schemaVersion = 4;
+    telemetryObject.schemaVersion = HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
     telemetryObject.tokenCacheRefreshType = TokenCacheRefreshTypeProactiveTokenRefresh;
     telemetryObject.apiId = 30;
     
