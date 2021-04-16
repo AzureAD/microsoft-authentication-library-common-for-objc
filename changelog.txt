@@ -1,6 +1,7 @@
 TBD
 * Added refresh_in changes for SilentTokenReuest flow (#975)
 * Fix redirect uri parsing in cba flow (#972)
+* Add preprocessor macro to turn on/off throttling. 
 
 Version 1.6.4
 * Revert back the logic of checking requestedClaims. (#974)
