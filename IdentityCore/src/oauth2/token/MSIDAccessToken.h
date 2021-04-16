@@ -58,5 +58,6 @@
 - (BOOL)isExpired;
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;
 - (BOOL)isExtendedLifetimeValid;
+- (BOOL)refreshNeeded;
 
 @end

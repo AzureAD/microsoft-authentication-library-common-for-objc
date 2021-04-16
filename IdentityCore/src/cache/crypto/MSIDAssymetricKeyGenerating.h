@@ -30,13 +30,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol MSIDAssymetricKeyGenerating <NSObject>
 
-- (MSIDAssymetricKeyPair *)generateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
-                                                  error:(NSError **)error;
+- (nullable MSIDAssymetricKeyPair *)generateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
+                                                           error:(NSError **)error;
 
 - (MSIDAssymetricKeyPair *)readOrGenerateKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                                         error:(NSError **)error;
 
-- (MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
+- (nullable MSIDAssymetricKeyPair *)readKeyPairForAttributes:(MSIDAssymetricKeyLookupAttributes *)attributes
                                               error:(NSError **)error;
 
 - (MSIDAssymetricKeyPair *)generateEphemeralKeyPair:(NSError **)error;
