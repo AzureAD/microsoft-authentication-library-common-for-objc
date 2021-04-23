@@ -70,6 +70,8 @@ NSString *const MSID_OAUTH2_REQUEST_CONFIRMATION = @"req_cnf";
 NSString *const MSID_OAUTH2_REQUEST_ENDPOINT = @"endpointUrl";
 
 NSString *const MSID_OAUTH2_EXPIRES_ON          = @"expires_on";
+NSString *const MSID_OAUTH2_REFRESH_IN          = @"refresh_in";
+NSString *const MSID_OAUTH2_REFRESH_ON          = @"refresh_on";
 NSString *const MSID_OAUTH2_EXT_EXPIRES_IN      = @"ext_expires_in";
 NSString *const MSID_FAMILY_ID                  = @"foci";
 NSString *const MSID_ENROLLMENT_ID              = @"microsoft_enrollment_id";

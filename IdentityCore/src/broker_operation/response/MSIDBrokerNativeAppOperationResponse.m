@@ -67,9 +67,14 @@ NSString *const MSID_BROKER_APP_VERSION_JSON_KEY = @"client_app_version";
 
 - (NSNumber *)httpStatusCode
 {
-    if (!_httpStatusCode) _httpStatusCode = @200;
+    if (_httpStatusCode == nil) _httpStatusCode = self.class.defaultHttpStatusCode;
     
     return _httpStatusCode;
+}
+
++ (NSNumber *)defaultHttpStatusCode
+{
+    return @200;
 }
 
 - (NSString *)httpVersion

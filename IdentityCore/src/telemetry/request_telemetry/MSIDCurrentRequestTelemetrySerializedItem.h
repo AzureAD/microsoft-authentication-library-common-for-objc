@@ -31,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic) int telemetryStringSizeLimit;
 
 - (instancetype)initWithSchemaVersion:(NSNumber *)schemaVersion defaultFields:(NSArray * _Nullable)defaultFields platformFields:(NSArray * _Nullable)platformFields;
-- (NSString *)serialize;
+- (nullable NSString *)serialize;
 
 @end
 

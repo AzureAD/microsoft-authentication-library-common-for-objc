@@ -1,5 +1,10 @@
 Version 1.6.4
+* Added refresh_in telemetry changes and updated schema version to 4 (#983)
+* Added refresh_in changes for SilentTokenReuest flow (#975)
+* Fix redirect uri parsing in cba flow (#972)
+* Add preprocessor macro to turn on/off throttling. 
 * Revert back the logic of checking requestedClaims. (#974)
+* Added new limits to sizes of client telemetry strings sent to server (#971)
 
 Version 1.6.3
 * Add refresh_on field to access tokens (#964)
@@ -7,6 +12,7 @@ Version 1.6.3
 * Enhanced logging in MSIDAccountCredentialCache. (#955) 
 * fix AT Pop sign request logic
 * Throttling feature (#945)
+* allow about:srcdoc in webview controller
 
 Version 1.6.2
 * Mask EUII in logs (#944)

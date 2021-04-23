@@ -101,7 +101,10 @@
                     /**
                      * If SSO-EXT responses error, we should update throttling db
                      */
-                    [weakSelf.throttlingService updateThrottlingService:error tokenRequest:weakSelf.operationRequest];
+                    if ([MSIDThrottlingService isThrottlingEnabled])
+                    {
+                        [weakSelf.throttlingService updateThrottlingService:error tokenRequest:weakSelf.operationRequest];
+                    }
                 }
                 if (completionBlock) completionBlock(result, error);
             }];
@@ -156,27 +159,31 @@
                                                                                             providerType:self.providerType
                                                                                            enrollmentIds:enrollmentIds
                                                                                             mamResources:mamResources];
-        /**
-         Throttling: if the request is throttlable, return early
-         */
-        [self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
+        if (![MSIDThrottlingService isThrottlingEnabled])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
-            
-            if (cachedError)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(cachedError));
-            }
-            
-            if (shouldBeThrottled && cachedError)
-            {
-                completionBlock(nil,cachedError);
-                return;
-            }
-            
             [self executeRequestImplWithCompletionBlock:completionBlock];
-        }];
-
+        }
+        else
+        {
+            [self.throttlingService shouldThrottleRequest:self.operationRequest resultBlock:^(BOOL shouldBeThrottled, NSError * _Nullable cachedError)
+             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Throttle decision: %@" , (shouldBeThrottled ? @"YES" : @"NO"));
+                
+                if (cachedError)
+                {
+                    MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Throttling return error: %@ ", MSID_PII_LOG_MASKABLE(cachedError));
+                }
+                
+                if (shouldBeThrottled && cachedError)
+                {
+                    completionBlock(nil,cachedError);
+                    return;
+                }
+                
+                [self executeRequestImplWithCompletionBlock:completionBlock];
+            }];
+        }
+    
     }];
 }
 

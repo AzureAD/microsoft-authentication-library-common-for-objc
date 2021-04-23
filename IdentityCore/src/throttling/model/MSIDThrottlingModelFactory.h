@@ -20,7 +20,8 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.  
+// THE SOFTWARE.
+
 #import "MSIDThumbprintCalculatable.h"
 #import "MSIDRequestContext.h"
 #import "MSIDThrottlingModelBase.h"
@@ -30,12 +31,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDThrottlingModelFactory : NSObject
 
-+ (MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable>)request
-                                                    datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
++ (nullable MSIDThrottlingModelBase *)throttlingModelForIncomingRequest:(id<MSIDThumbprintCalculatable>)request
+                                                    datasource:(id<MSIDExtendedTokenCacheDataSource> _Nonnull)datasource
                                                        context:(id<MSIDRequestContext> _Nullable)context;
 
-+ (MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable>)request
-                                                        datasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
++ (nullable MSIDThrottlingModelBase *)throttlingModelForResponseWithRequest:(id<MSIDThumbprintCalculatable>)request
+                                                        datasource:(id<MSIDExtendedTokenCacheDataSource> _Nonnull)datasource
                                                      errorResponse:(NSError *)errorResponse
                                                            context:(id<MSIDRequestContext> _Nullable)context;
 

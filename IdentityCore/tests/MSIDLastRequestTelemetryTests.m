@@ -96,7 +96,7 @@
     [telemetryObject updateWithApiId:30 errorString:@"error" context:self.context];
     NSString *result = [telemetryObject telemetryString];
     
-    XCTAssertEqualObjects(result, @"2|0|30,00000000-0000-0000-0000-000000000001|error|");
+    XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001|error|");
 }
 
 - (void)testSerialization_whenValidProperties_shouldCreateString
@@ -110,7 +110,7 @@
     
     NSString *result = [telemetryObject telemetryString];
     
-    XCTAssertEqualObjects(result, @"2|0|30,00000000-0000-0000-0000-000000000001,40,00000000-0000-0000-0000-000000000001,50,00000000-0000-0000-0000-000000000001,60,00000000-0000-0000-0000-000000000001,70,00000000-0000-0000-0000-000000000001|error,error2,error3,error4,error5|");
+    XCTAssertEqualObjects(result, @"4|0|30,00000000-0000-0000-0000-000000000001,40,00000000-0000-0000-0000-000000000001,50,00000000-0000-0000-0000-000000000001,60,00000000-0000-0000-0000-000000000001,70,00000000-0000-0000-0000-000000000001|error,error2,error3,error4,error5|");
 }
 
 - (void)testSerialization_whenEmptyError_shouldCreateString
@@ -119,7 +119,7 @@
     [telemetryObject updateWithApiId:30 errorString:@"" context:nil];
     NSString *result = [telemetryObject telemetryString];
     
-    XCTAssertEqualObjects(result, @"2|0|30,||");
+    XCTAssertEqualObjects(result, @"4|0|30,||");
 }
 
 - (void)testSerialization_whenEmptyErrors_shouldCreateString
@@ -130,7 +130,7 @@
     [telemetryObject updateWithApiId:50 errorString:@"" context:nil];
     NSString *result = [telemetryObject telemetryString];
     
-    XCTAssertEqualObjects(result, @"2|0|30,,40,,50,|,,|");
+    XCTAssertEqualObjects(result, @"4|0|30,,40,,50,|,,|");
 }
 
 - (void)testSerialization_whenNilError_shouldCreateString
@@ -139,7 +139,7 @@
     [telemetryObject updateWithApiId:30 errorString:nil context:nil];
     NSString *result = [telemetryObject telemetryString];
     
-    XCTAssertEqualObjects(result, @"2|0|||");
+    XCTAssertEqualObjects(result, @"4|0|||");
 }
 
 - (void)testSerialization_whenNilErrors_shouldCreateString
@@ -153,7 +153,7 @@
     
     NSString *result = [telemetryObject telemetryString];
     
-    XCTAssertEqualObjects(result, @"2|0|||");
+    XCTAssertEqualObjects(result, @"4|0|||");
 }
 
 - (void)testSerialization_whenValidandNilProperties_shouldCreateString
@@ -174,7 +174,7 @@
     
     NSString *result = [telemetryObject telemetryString];
     
-    XCTAssertEqualObjects(result, @"2|0|70,00000000-0000-0000-0000-000000000001|error5|");
+    XCTAssertEqualObjects(result, @"4|0|70,00000000-0000-0000-0000-000000000001|error5|");
 }
  
 - (void)testSaveToDisk_whenSingleErrorSaved_shouldSaveAndRestoreToSameObject

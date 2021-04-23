@@ -233,6 +233,17 @@
     return parameters;
 
 }
+- (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
+{
+   static dispatch_once_t once;
+   static NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *swizzleStacks = nil;
+   
+   dispatch_once(&once, ^{
+      swizzleStacks = [NSMutableDictionary new];
+   });
+   
+   return swizzleStacks;
+}
 
 - (void)setUp
 {
@@ -247,15 +258,17 @@
     self.redirectUri = @"x-msauth-outlook-prod://com.microsoft.Office.Outlook";
     self.keychainTokenCache = [[MSIDKeychainTokenCache alloc] initWithGroup:MSIDThrottlingKeychainGroup error:nil];
 
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+   [self.swizzleStacks setValue:[NSMutableArray new] forKey:self.name];
 }
 
-- (void)tearDown {
+- (void)tearDown
+{
     // Put teardown code here. This method is called after the invocation of each test method in the class.
     [[MSIDLRUCache sharedInstance] removeAllObjects:nil];
     [MSIDIntuneEnrollmentIdsCache.sharedCache clear];
     [MSIDIntuneMAMResourcesCache.sharedCache clear];
     [self.keychainTokenCache clearWithContext:nil error:nil];
+    [MSIDTestSwizzle resetWithSwizzleArray:[self.swizzleStacks objectForKey:self.name]];
 }
 
 
@@ -1569,9 +1582,98 @@
    }
 }
 
+- (void)testIfThrottlingDisabledFlagSet_shouldDisableThrottle
+{
+   MSIDDefaultSilentTokenRequest *defaultSilentTokenRequest = [[MSIDDefaultSilentTokenRequest alloc] initWithRequestParameters:self.silentRequestParameters
+                                                                                                                  forceRefresh:NO
+                                                                                                                  oauthFactory:[MSIDAADV2Oauth2Factory new]
+                                                                                                        tokenResponseValidator:[MSIDDefaultTokenResponseValidator new]
+                                                                                                                    tokenCache:self.tokenCache
+                                                                                                          accountMetadataCache:self.accountMetadataCache];
+   
+   
+   //refresh token
+   MSIDRefreshToken *refreshToken = [[MSIDRefreshToken alloc] init];
+   refreshToken.refreshToken = self.refreshToken;
+   
+   //throttlingServiceMock
+   MSIDThrottlingServiceMock *throttlingServiceMock = [[MSIDThrottlingServiceMock alloc] initWithDataSource:self.keychainTokenCache
+                                                                                                    context:self.silentRequestParameters];
+   
+   //swizzle interactive token request
+   MSIDTestSwizzle *swizzle = [MSIDTestSwizzle classMethod:@selector(isThrottlingEnabled)
+                                                     class:[MSIDThrottlingService class]
+                                                     block:(id)^(void)
+                              {
+                                 return NO;
+                              }];
+   
+   [[self.swizzleStacks objectForKey:self.name] addObject:swizzle];
 
+   //swizzle interactive token request
+   [MSIDTestSwizzle instanceMethod:@selector(executeRequestWithCompletion:)
+                             class:[MSIDInteractiveTokenRequest class]
+                             block:(id)^(
+                                         __unused id obj,
+                                         MSIDInteractiveRequestCompletionBlock completionBlock)
+    {
+      MSIDTokenResult *tokenResult = [MSIDTokenResult new];
+      completionBlock(tokenResult,nil,nil);
+      
+   }];
+   defaultSilentTokenRequest.throttlingService = throttlingServiceMock;
+   
+   [MSIDTestSwizzle instanceMethod:@selector(tokenEndpoint)
+                             class:[MSIDRequestParameters class]
+                             block:(id)^(void)
+    {
+      return [[NSURL alloc] initWithString:DEFAULT_TEST_TOKEN_ENDPOINT_GUID];
+      
+   }];
+   
+   
+   MSIDTestURLResponse *tokenResponse = [MSIDTestURLResponse refreshTokenGrantResponseForThrottling:self.refreshToken
+                                                                                      requestClaims:self.atRequestClaim
+                                                                                      requestScopes:self.oidcScopeString
+                                                                                         responseAT:@"new at"
+                                                                                         responseRT:self.refreshToken
+                                                                                         responseID:nil
+                                                                                      responseScope:@"user.read tasks.read"
+                                                                                 responseClientInfo:nil
+                                                                                                url:DEFAULT_TEST_TOKEN_ENDPOINT_GUID
+                                                                                       responseCode:429
+                                                                                          expiresIn:nil
+                                                                                       enrollmentId:@"adf79e3f-mike-454d-9f0f-2299e76dbfd5"
+                                                                                        redirectUri:self.redirectUri
+                                                                                           clientId:self.silentRequestParameters.clientId];
+   
+   
+   tokenResponse->_error = [NSError new];
+   NSDictionary *userInfo = @{MSIDHTTPResponseCodeKey : @"429",
+                              MSIDHTTPHeadersKey: @{
+                                    @"Retry-After": @"100"
+                              }
+   };
+   
+   
+   tokenResponse->_error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"429 error test", @"oAuthError", @"subError", nil, nil, userInfo, NO);
+   
+   
+   //First attempt - there shouldn't be any throttling
+   [MSIDTestURLSession addResponse:tokenResponse];
+   XCTestExpectation *expectation = [self expectationWithDescription:@"silent request"];
+   [defaultSilentTokenRequest acquireTokenWithRefreshTokenImpl:refreshToken completionBlock:^(MSIDTokenResult * _Nullable result, NSError * _Nullable error) {
+      // Throttling is disabled, so both invoked count should be 0
+      XCTAssertEqual(defaultSilentTokenRequest.throttlingService.shouldThrottleRequestInvokedCount,0);
+      XCTAssertEqual(defaultSilentTokenRequest.throttlingService.updateThrottlingServiceInvokedCount,0);
+      XCTAssertNil(result);
+      XCTAssertNotNil(error);
+      XCTAssertEqual(error.code, MSIDErrorInternal);
+      [expectation fulfill];
+   }];
+   
+   [self waitForExpectationsWithTimeout:5.0 handler:nil];
+}
 #endif
-
-//#endif
 
 @end

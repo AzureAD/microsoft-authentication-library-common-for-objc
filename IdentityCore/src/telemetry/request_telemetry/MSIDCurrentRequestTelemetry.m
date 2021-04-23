@@ -44,7 +44,7 @@
 
 - (MSIDCurrentRequestTelemetrySerializedItem *)createSerializedItem
 {
-    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithBool:self.forceRefresh]];
+    NSArray *defaultFields = @[[NSNumber numberWithInteger:self.apiId], [NSNumber numberWithInteger:self.tokenCacheRefreshType]];
     return [[MSIDCurrentRequestTelemetrySerializedItem alloc] initWithSchemaVersion:[NSNumber numberWithInteger:self.schemaVersion] defaultFields:defaultFields platformFields:nil];
 }
 

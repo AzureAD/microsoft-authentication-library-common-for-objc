@@ -21,33 +21,4 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import "MSIDAssymetricKeyPair.h"
-
-NS_ASSUME_NONNULL_BEGIN
-
-@interface MSIDAssymetricKeyPairWithCert : MSIDAssymetricKeyPair
-{
-    SecCertificateRef _certificateRef;
-    NSData *_certificateData;
-    NSString *_certificateSubject;
-    NSString *_certificateIssuer;
-}
-
-@property (nonatomic, readonly) SecCertificateRef certificateRef;
-@property (nonatomic, readonly) NSData *certificateData;
-@property (nonatomic, readonly) NSString *certificateSubject;
-@property (nonatomic, readonly) NSString *certificateIssuer;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey
-                                certificate:(SecCertificateRef)certificate
-                          certificateIssuer:(nullable NSString *)issuer
-                             privateKeyDict:(NSDictionary *)keyDict;
-
-- (nullable instancetype)initWithPrivateKey:(SecKeyRef)privateKey
-                                  publicKey:(SecKeyRef)publicKey
-                             privateKeyDict:(NSDictionary *)keyDict NS_UNAVAILABLE;
-
-@end
-
-NS_ASSUME_NONNULL_END
+extern NSInteger const HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;

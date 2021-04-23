@@ -50,6 +50,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)updateLastRefreshTimeDatasource:(id<MSIDExtendedTokenCacheDataSource>_Nonnull)datasource
                                 context:(id<MSIDRequestContext>__nullable)context
                                   error:(NSError *__nullable *__nullable)error;
-
+/**
+ Throttling disable decision based on the AD_THROTTLING_DISABLED macro define in application.
+ */
++ (BOOL)isThrottlingEnabled;
 @end
 NS_ASSUME_NONNULL_END
