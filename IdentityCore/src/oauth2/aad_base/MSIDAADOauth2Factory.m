@@ -175,6 +175,7 @@
     accessToken.applicationIdentifier = configuration.applicationIdentifier;
 
     accessToken.extendedExpiresOn = response.extendedExpiresOnDate;
+    accessToken.refreshOn = response.refreshOnDate;
 
     return YES;
 }

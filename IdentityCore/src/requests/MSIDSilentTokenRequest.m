@@ -39,6 +39,7 @@
 #import "MSIDAccountMetadataCacheAccessor.h"
 #import "MSIDTokenResponseHandler.h"
 #import "MSIDLastRequestTelemetry.h"
+#import "MSIDCurrentRequestTelemetry.h"
 
 #if TARGET_OS_OSX
 #import "MSIDExternalAADCacheSeeder.h"
@@ -59,8 +60,10 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
 @property (nonatomic) MSIDOauth2Factory *oauthFactory;
 @property (nonatomic) MSIDTokenResponseValidator *tokenResponseValidator;
 @property (nonatomic) MSIDAccessToken *extendedLifetimeAccessToken;
+@property (nonatomic) MSIDAccessToken *unexpiredRefreshNeededAccessToken;
 @property (nonatomic) MSIDTokenResponseHandler *tokenResponseHandler;
 @property (nonatomic) MSIDLastRequestTelemetry *lastRequestTelemetry;
+@property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
 
 @end
 
@@ -81,6 +84,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         _tokenResponseValidator = tokenResponseValidator;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
         _lastRequestTelemetry = [MSIDLastRequestTelemetry sharedInstance];
+        _currentRequestTelemetry = parameters.currentRequestTelemetry;
+        _unexpiredRefreshNeededAccessToken = nil;
     }
     
     return self;
@@ -130,6 +135,12 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             return;
         }
         
+        if (!accessToken)
+        {
+            self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeNoCachedAT;
+            
+        }
+        
         BOOL enrollmentIdMatch = YES;
         BOOL accessTokenKeyThumbprintMatch = YES;
         
@@ -166,24 +177,36 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Found valid access token.");
             
-            __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
-            [self fetchCachedTokenAndCheckForFRTFirst:YES shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
-                refreshableToken = token;
-            }];
-            
-            NSError *resultError = nil;
-            MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
-                                                          refreshToken:refreshableToken
-                                                                 error:&resultError];
-            
-            if (tokenResult)
+            // unexpired token exists , check if refresh needed, if no refresh needed, return the unexpired token
+            if (!accessToken.refreshNeeded)
             {
-                [self.lastRequestTelemetry increaseSilentSuccessfulCount];
-                completionBlock(tokenResult, nil);
-                return;
+                __block MSIDBaseToken<MSIDRefreshableToken> *refreshableToken = nil;
+                [self fetchCachedTokenAndCheckForFRTFirst:YES shouldComplete:NO completionHandler:^(MSIDBaseToken<MSIDRefreshableToken> *token, __unused MSIDRefreshTokenTypes tokenType, __unused NSError *error) {
+                    refreshableToken = token;
+                }];
+                
+                NSError *resultError = nil;
+                MSIDTokenResult *tokenResult = [self resultWithAccessToken:accessToken
+                                                              refreshToken:refreshableToken
+                                                                     error:&resultError];
+                
+                if (tokenResult)
+                {
+                    [self.lastRequestTelemetry increaseSilentSuccessfulCount];
+                    completionBlock(tokenResult, nil);
+                    return;
+                }
+                
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
+            }
+            else
+            {
+                // unexpired token exists, but needs refresh. Store token to return if refresh attempt fails due to AAD being down
+                self.unexpiredRefreshNeededAccessToken = accessToken;
+                self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeProactiveTokenRefresh;
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Unexpired access token exists, but needs refresh, since refresh expired.");
             }
             
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(resultError));
         }
         
         if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
@@ -191,6 +214,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
             self.extendedLifetimeAccessToken = accessToken;
+            self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
         }
         else if (accessToken)
         {
@@ -205,6 +229,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             else
             {
                 MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, removing it...");
+                self.currentRequestTelemetry.tokenCacheRefreshType = TokenCacheRefreshTypeExpiredAT;
             }
             
             NSError *removalError = nil;
@@ -423,7 +448,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
     MSIDRefreshTokenGrantRequest *tokenRequest = [self.oauthFactory refreshTokenRequestWithRequestParameters:self.requestParameters
                                                                                                 refreshToken:refreshToken.refreshToken];
     // Currently SilentTokenRequest has 3 child classes: Legacy, Default (local) and SSO. We will init the throttling service in Default and SSO and exclude Legacy. So the nil check of throttling service is needed
-    if (!self.throttlingService)
+    if (!self.throttlingService || ![MSIDThrottlingService isThrottlingEnabled])
     {
         [self sendTokenRequestImpl:completionBlock refreshToken:refreshToken tokenRequest:tokenRequest];
     }
@@ -463,9 +488,30 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             /**
              * If server issue 429 Throttling, this step will have error object. If UIRequired, there is no error yet. Later after serialize the tokenResponse we will create the error
              */
-            [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
+            if ([MSIDThrottlingService isThrottlingEnabled])
+            {
+                [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
+            }
             
             BOOL serverUnavailable = error.userInfo[MSIDServerUnavailableStatusKey] != nil;
+            if (serverUnavailable && self.unexpiredRefreshNeededAccessToken)
+            {
+                
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Server unavailable, using refresh expired access Token");
+                
+                NSError *cacheError = nil;
+                MSIDTokenResult *tokenResult = [self resultWithAccessToken:self.unexpiredRefreshNeededAccessToken
+                                                              refreshToken:refreshToken
+                                                                     error:&cacheError];
+                if (tokenResult)
+                {
+                    completionBlock(tokenResult, nil);
+                    return;
+                }
+                
+                MSID_LOG_WITH_CTX(MSIDLogLevelWarning, self.requestParameters, @"Couldn't create result for cached access token, error %@. Try to recover...", MSID_PII_LOG_MASKABLE(cacheError));
+                
+            }
             
             if (serverUnavailable && self.requestParameters.extendedLifetimeEnabled && self.extendedLifetimeAccessToken)
             {
@@ -508,7 +554,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             /**
              * If we can't serialize the response from server to tokens and there is error, we want to update throttling service
              */
-            if (error)
+            if (error && [MSIDThrottlingService isThrottlingEnabled])
             {
                 [self.throttlingService updateThrottlingService:error tokenRequest:tokenRequest];
             }

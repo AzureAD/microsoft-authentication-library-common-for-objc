@@ -25,6 +25,7 @@
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
+#import "MSIDRequestTelemetryConstants.h"
 
 @implementation MSIDRequestTelemetryErrorInfo
 
@@ -77,7 +78,6 @@
 @implementation MSIDLastRequestTelemetry
 
 static bool shouldReadFromDisk = YES;
-static const NSInteger currentSchemaVersion = 2;
 static int maxErrorCountToArchive = 75;
 
 + (int)telemetryStringSizeLimit
@@ -102,7 +102,7 @@ static int maxErrorCountToArchive = 75;
     self = [super init];
     if (self)
     {
-        _schemaVersion = currentSchemaVersion;
+        _schemaVersion = HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
         _synchronizationQueue = [self initializeDispatchQueue];
         _platformFields = [NSMutableArray<NSString *> new];
     }
@@ -307,7 +307,7 @@ static int maxErrorCountToArchive = 75;
     self = [super init];
     if (self)
     {
-        if (schemaVersion == currentSchemaVersion)
+        if (schemaVersion == HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION)
         {
             _schemaVersion = schemaVersion;
             _silentSuccessfulCount = silentSuccessfulCount;

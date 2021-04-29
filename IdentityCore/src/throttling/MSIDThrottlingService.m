@@ -112,7 +112,23 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
+    if(![MSIDThrottlingService isThrottlingEnabled])
+    {
+        return YES;
+    }
     return [MSIDThrottlingMetaDataCache updateLastRefreshTimeWithDatasource:datasource context:context error:error];
+}
+
++ (BOOL)isThrottlingEnabled
+{
+#ifdef AD_THROTTLING_DISABLED
+    #if AD_THROTTLING_DISABLED
+        return NO;
+    #else
+        return YES;
+    #endif
+#endif
+    return YES;
 }
 
 @end

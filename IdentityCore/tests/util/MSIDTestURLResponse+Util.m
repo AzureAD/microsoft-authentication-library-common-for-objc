@@ -209,6 +209,7 @@
                             expiresIn:(NSString *)expiresIn
                                  foci:(NSString *)foci
                          extExpiresIn:(NSString *)extExpiresIn
+                            
 {
     NSDictionary *clientInfoClaims = @{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID};
 
@@ -225,6 +226,43 @@
     if (extExpiresIn)
     {
         responseDictionary[@"ext_expires_in"] = extExpiresIn;
+    }
+
+
+    return responseDictionary;
+}
+
+//Overloaded method to avoid impact on other tests without refreshIn
++ (NSDictionary *)tokenResponseWithAT:(NSString *)responseAT
+                           responseRT:(NSString *)responseRT
+                           responseID:(NSString *)responseID
+                        responseScope:(NSString *)responseScope
+                   responseClientInfo:(NSString *)responseClientInfo
+                            expiresIn:(NSString *)expiresIn
+                                 foci:(NSString *)foci
+                         extExpiresIn:(NSString *)extExpiresIn
+                            refreshIn:(NSString *)refreshIn
+{
+    NSDictionary *clientInfoClaims = @{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID};
+
+    NSString *defaultIDToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID];
+
+    NSMutableDictionary *responseDictionary = [@{ @"access_token" : responseAT ?: DEFAULT_TEST_ACCESS_TOKEN,
+                                                  @"expires_in" : expiresIn ?: @"3600",
+                                                  @"foci": foci ?: @"",
+                                                  @"refresh_token" : responseRT ?: DEFAULT_TEST_REFRESH_TOKEN,
+                                                  @"id_token": responseID ?: defaultIDToken,
+                                                  @"client_info" : responseClientInfo ?: [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:clientInfoClaims options:0 error:nil]],
+                                                  @"scope": responseScope ?: @"user.read user.write tasks.read"} mutableCopy];
+
+    if (extExpiresIn)
+    {
+        responseDictionary[@"ext_expires_in"] = extExpiresIn;
+    }
+    
+    if (refreshIn)
+    {
+        responseDictionary[@"refresh_in"] = refreshIn;
     }
 
     return responseDictionary;

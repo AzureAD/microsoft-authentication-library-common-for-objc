@@ -26,11 +26,32 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/*
+ •    TokenCacheRefreshTypeNoCacheLookupInvolved = 0, request goes to ESTS for interactive call for which there is no cache look-up involved (N/A for S2S).
+ •    TokenCacheRefreshTypeForceRefresh = 1, request goes to ESTS because caller requested to forcefully refresh the cache.
+ •    TokenCacheRefreshTypeNoCachedAT = 2, request goes to ESTS because cache entry for the requested token does NOT exist.
+ •    TokenCacheRefreshTypeExpiredAT = 3, request goes to ESTS because cache entry for the requested token does exist but token has expired.
+ •    TokenCacheRefreshTypeProactiveTokenRefresh = 4, request goes to ESTS because refresh_in was used and existing non-expired token needs to be refreshed proactively.
+ •    TokenCacheRefreshTypeCachingMechanismNotImplemented = 5, request goes to ESTS because client (for Non-MSAL client specifically for now) has not implemented any caching mechanism.
+ •    BLANK, if client is not aware of the LLT policy and its telemetry update and doesn’t update their code to send us this telemetry signal yet.
+ */
+
+typedef NS_ENUM(NSInteger, TokenCacheRefreshType)
+{
+    TokenCacheRefreshTypeNoCacheLookupInvolved,
+    TokenCacheRefreshTypeForceRefresh,
+    TokenCacheRefreshTypeNoCachedAT,
+    TokenCacheRefreshTypeExpiredAT,
+    TokenCacheRefreshTypeProactiveTokenRefresh,
+    TokenCacheRefreshTypeCachingMechanismNotImplemented,
+};
+
 @interface MSIDCurrentRequestTelemetry : NSObject <MSIDTelemetryStringSerializable>
 
 @property (nonatomic) NSInteger schemaVersion;
 @property (nonatomic) NSInteger apiId;
-@property (nonatomic) BOOL forceRefresh;
+@property (nonatomic) TokenCacheRefreshType tokenCacheRefreshType;
+
 
 @end
 
