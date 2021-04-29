@@ -102,6 +102,8 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
         return;
     }
     
+    [self.requestParameters updateAppRequestMetadata:nil];
+    
     NSString *upn = self.requestParameters.accountIdentifier.displayableId;
     
     [self.requestParameters.authority resolveAndValidate:self.requestParameters.validateAuthority

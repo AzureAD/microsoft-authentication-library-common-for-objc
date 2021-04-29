@@ -101,6 +101,7 @@ extern NSString * _Nonnull const MSID_OS_VER_KEY;//iOS/OSX version
 extern NSString * _Nonnull const MSID_DEVICE_MODEL_KEY;//E.g. iPhone 5S
 extern NSString * _Nonnull const MSID_APP_NAME_KEY;
 extern NSString * _Nonnull const MSID_APP_VER_KEY;
+extern NSString * _Nonnull const MSID_CCS_HINT_KEY;
 
 extern NSString * _Nonnull const MSID_DEFAULT_FAMILY_ID;
 extern NSString * _Nonnull const MSID_ADAL_SDK_NAME;

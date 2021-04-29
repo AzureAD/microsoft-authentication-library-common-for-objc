@@ -110,4 +110,19 @@
     return result;
 }
 
+- (void)updateAppRequestMetadata:(NSString *)homeAccountId
+{
+    [super updateAppRequestMetadata:homeAccountId];
+    
+    NSString *loginHint = self.loginHint;
+    
+    if (![NSString msidIsStringNilOrBlank:loginHint] && self.appRequestMetadata[MSID_CCS_HINT_KEY] == nil)
+    {
+        NSMutableDictionary *appRequestMetadata = [self.appRequestMetadata mutableCopy];
+        NSString *upnHeader = [NSString stringWithFormat:@"UPN:%@", loginHint];
+        appRequestMetadata[MSID_CCS_HINT_KEY] = upnHeader;
+        self.appRequestMetadata = appRequestMetadata;
+    }
+}
+
 @end

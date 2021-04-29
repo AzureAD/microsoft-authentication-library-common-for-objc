@@ -239,6 +239,30 @@
     return _msidConfiguration;
 }
 
+- (void)updateAppRequestMetadata:(NSString *)homeAccountId
+{
+    MSIDAccountIdentifier *accountIdentifier = self.accountIdentifier;
+    
+    if (![NSString msidIsStringNilOrBlank:homeAccountId])
+    {
+        accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:homeAccountId];
+    }
+    
+    NSMutableDictionary *appRequestMetadata = [self.appRequestMetadata mutableCopy];
+    [appRequestMetadata removeObjectForKey:MSID_CCS_HINT_KEY];
+    
+    NSString *uid = accountIdentifier.uid;
+    NSString *utid = accountIdentifier.utid;
+    
+    if (![NSString msidIsStringNilOrBlank:uid] && ![NSString msidIsStringNilOrBlank:utid])
+    {
+        NSString *oidHeader = [NSString stringWithFormat:@"Oid:%@@%@", uid, utid];
+        appRequestMetadata[MSID_CCS_HINT_KEY] = oidHeader;
+    }
+    
+    self.appRequestMetadata = appRequestMetadata;
+}
+
 #pragma mark - Validate
 
 - (BOOL)validateParametersWithError:(NSError **)error
