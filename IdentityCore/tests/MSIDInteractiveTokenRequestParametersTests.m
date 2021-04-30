@@ -26,12 +26,14 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAccountIdentifier.h"
+#import "MSIDTestIdentifiers.h"
 
-@interface MSIDInteractiveRequestParametersTests : XCTestCase
+@interface MSIDInteractiveTokenRequestParametersTests : XCTestCase
 
 @end
 
-@implementation MSIDInteractiveRequestParametersTests
+@implementation MSIDInteractiveTokenRequestParametersTests
 
 - (void)testInitWithAllSupportedParameters_shouldInitialize_returnNilError_Popflow
 {
@@ -237,6 +239,63 @@
     NSDictionary *eqp = [parameters allAuthorizeRequestExtraParameters];
     XCTAssertNotNil(eqp);
     XCTAssertEqualObjects(eqp, combinedParameters);
+}
+
+- (void)testUpdateAppRequestMetadata_whenLoginHintIsNotNilAndNoCSSHint_shouldSetCSSHint
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSError *error = nil;
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
+                                                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                                                   redirectUri:@"redirect"
+                                                                                                      clientId:@"clientid"
+                                                                                                        scopes:[@"scope scope2" msidScopeSet]
+                                                                                                    oidcScopes:[@"openid openid2" msidScopeSet]
+                                                                                          extraScopesToConsent:[@"extra1 extra5" msidScopeSet]
+                                                                                                 correlationId:nil
+                                                                                                telemetryApiId:@"100"
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new]
+                                                                                                   requestType:MSIDRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                                                         error:nil];
+    parameters.loginHint = @"user2@contoso.com";
+    parameters.appRequestMetadata = @{};
+    
+    [parameters updateAppRequestMetadata:nil];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(1, parameters.appRequestMetadata.count);
+    XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"UPN:user2@contoso.com");
+}
+
+- (void)testUpdateAppRequestMetadata_whenLoginHintIsNotNilAndAccountIdIsAvailable_shouldSetAccountIdAsCSSHint
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSError *error = nil;
+    MSIDInteractiveTokenRequestParameters *parameters = [[MSIDInteractiveTokenRequestParameters alloc] initWithAuthority:authority
+                                                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                                                   redirectUri:@"redirect"
+                                                                                                      clientId:@"clientid"
+                                                                                                        scopes:[@"scope scope2" msidScopeSet]
+                                                                                                    oidcScopes:[@"openid openid2" msidScopeSet]
+                                                                                          extraScopesToConsent:[@"extra1 extra5" msidScopeSet]
+                                                                                                 correlationId:nil
+                                                                                                telemetryApiId:@"100"
+                                                                                                 brokerOptions:[MSIDBrokerInvocationOptions new]
+                                                                                                   requestType:MSIDRequestBrokeredType
+                                                                                           intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                                                         error:nil];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    parameters.loginHint = @"user2@contoso.com";
+    parameters.appRequestMetadata = @{};
+    
+    [parameters updateAppRequestMetadata:nil];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(1, parameters.appRequestMetadata.count);
+    XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"Oid:fedcba98-7654-3210-0000-000000000000@00000000-0000-1234-5678-90abcdefffff");
 }
 
 @end

@@ -259,6 +259,11 @@
         NSString *oidHeader = [NSString stringWithFormat:@"Oid:%@@%@", uid, utid];
         appRequestMetadata[MSID_CCS_HINT_KEY] = oidHeader;
     }
+    else if (![NSString msidIsStringNilOrBlank:accountIdentifier.displayableId])
+    {
+        NSString *upnHeader = [NSString stringWithFormat:@"UPN:%@", accountIdentifier.displayableId];
+        appRequestMetadata[MSID_CCS_HINT_KEY] = upnHeader;
+    }
     
     self.appRequestMetadata = appRequestMetadata;
 }
