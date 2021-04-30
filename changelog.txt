@@ -1,4 +1,4 @@
-TBD:
+TBD: 
 * Minimum Xcode version bumped to 12.2 (#981)
 * Improve telemetry storage security (#981)
 
