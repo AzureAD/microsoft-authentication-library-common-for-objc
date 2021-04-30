@@ -60,6 +60,8 @@
 @property (nonatomic) NSString *intuneApplicationIdentifier;
 @property (nonatomic) MSIDRequestType requestType;
 @property (nonatomic) MSIDCurrentRequestTelemetry *currentRequestTelemetry;
+// indicates if current process is SSO extension
+@property (nonatomic,readonly) BOOL isFromSSOExtension;
 
 #pragma mark MSIDRequestContext properties
 @property (nonatomic) NSUUID *correlationId;

@@ -123,6 +123,7 @@
                             MSID_APP_VER_KEY: appVer ? appVer : @""};
     
     _authScheme = [MSIDAuthenticationScheme new];
+    _isFromSSOExtension = metadata[@"IsSSOExtension"];
 }
 
 #pragma mark - Helpers
