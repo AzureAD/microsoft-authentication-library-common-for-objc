@@ -1,6 +1,7 @@
 TBD: 
 * Minimum Xcode version bumped to 12.2 (#981)
 * Improve telemetry storage security (#981)
+* Added property in request parameter to indicate if it was initialized from SSO extension. (#989)
 
 Version 1.6.4
 * Added refresh_in telemetry changes and updated schema version to 4 (#983)
