@@ -1,3 +1,6 @@
+TBD:
+* Add CCS hint header (#988)
+
 Version 1.6.4
 * Added refresh_in telemetry changes and updated schema version to 4 (#983)
 * Added refresh_in changes for SilentTokenReuest flow (#975)
