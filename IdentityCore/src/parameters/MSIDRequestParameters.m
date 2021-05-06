@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestParameters.h"
+#import "MSIDRequestParameters+Internal.h"
 #import "MSIDVersion.h"
 #import "MSIDConstants.h"
 #import "MSIDAuthority.h"
@@ -259,10 +260,9 @@
         NSString *oidHeader = [NSString stringWithFormat:@"Oid:%@@%@", uid, utid];
         appRequestMetadata[MSID_CCS_HINT_KEY] = oidHeader;
     }
-    else if (![NSString msidIsStringNilOrBlank:accountIdentifier.displayableId])
+    else
     {
-        NSString *upnHeader = [NSString stringWithFormat:@"UPN:%@", accountIdentifier.displayableId];
-        appRequestMetadata[MSID_CCS_HINT_KEY] = upnHeader;
+        appRequestMetadata[MSID_CCS_HINT_KEY] = [self ccsHintHeaderWithUpn:accountIdentifier.displayableId];
     }
     
     self.appRequestMetadata = appRequestMetadata;
@@ -331,6 +331,18 @@
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
 
     return parameters;
+}
+
+#pragma mark - Private
+
+- (NSString *)ccsHintHeaderWithUpn:(NSString *)upn
+{
+    if (![NSString msidIsStringNilOrBlank:upn])
+    {
+        return [NSString stringWithFormat:@"UPN:%@", upn];
+    }
+    
+    return nil;
 }
 
 @end

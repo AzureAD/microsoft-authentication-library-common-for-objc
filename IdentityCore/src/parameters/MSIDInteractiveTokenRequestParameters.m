@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDRequestParameters+Internal.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
 
@@ -116,11 +117,10 @@
     
     NSString *loginHint = self.loginHint;
     
-    if (![NSString msidIsStringNilOrBlank:loginHint] && self.appRequestMetadata[MSID_CCS_HINT_KEY] == nil)
+    if (self.appRequestMetadata[MSID_CCS_HINT_KEY] == nil)
     {
         NSMutableDictionary *appRequestMetadata = [self.appRequestMetadata mutableCopy];
-        NSString *upnHeader = [NSString stringWithFormat:@"UPN:%@", loginHint];
-        appRequestMetadata[MSID_CCS_HINT_KEY] = upnHeader;
+        appRequestMetadata[MSID_CCS_HINT_KEY] = [self ccsHintHeaderWithUpn:loginHint];
         self.appRequestMetadata = appRequestMetadata;
     }
 }
