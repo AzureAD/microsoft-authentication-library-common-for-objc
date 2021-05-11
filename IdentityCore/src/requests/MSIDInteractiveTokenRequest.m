@@ -79,8 +79,6 @@
     [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 #endif
     
-    [self.requestParameters updateAppRequestMetadata:nil];
-    
     [super getAuthCodeWithCompletion:^(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse)
     {
         if (!result)

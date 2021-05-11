@@ -126,6 +126,15 @@
     _authScheme = [MSIDAuthenticationScheme new];
 }
 
+- (void)setAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+{
+    if ([_accountIdentifier isEqual:accountIdentifier]) return;
+    
+    _accountIdentifier = accountIdentifier;
+    
+    [self updateAppRequestMetadata:nil];
+}
+
 #pragma mark - Helpers
 
 - (NSURL *)tokenEndpoint

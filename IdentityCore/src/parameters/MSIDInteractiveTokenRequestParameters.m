@@ -64,6 +64,15 @@
     return self;
 }
 
+- (void)setLoginHint:(NSString *)loginHint
+{
+    if ([_loginHint isEqualToString:loginHint]) return;
+    
+    _loginHint = loginHint;
+    
+    [self updateAppRequestMetadata:nil];
+}
+
 - (NSOrderedSet *)allAuthorizeRequestScopes
 {
     NSMutableOrderedSet *requestScopes = [[self.allTokenRequestScopes msidScopeSet] mutableCopy];
