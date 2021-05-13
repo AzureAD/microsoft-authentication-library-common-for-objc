@@ -82,6 +82,7 @@
                                           @"x-app-name" : [MSIDTestRequireValueSentinel new],
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
                                           }];
     
     XCTAssertTrue([expectedQPs compareAndPrintDiff:params]);
@@ -208,6 +209,7 @@
                                     @"x-app-name" : [MSIDTestRequireValueSentinel new],
                                     @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                     @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                    @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
     };
 
     NSURL *actualURL = conf.startURL;

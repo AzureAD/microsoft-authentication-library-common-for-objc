@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDRequestParameters.h"
+#import "MSIDRequestParameters+Internal.h"
 #import "MSIDVersion.h"
 #import "MSIDConstants.h"
 #import "MSIDAuthority.h"
@@ -123,6 +124,15 @@
                             MSID_APP_VER_KEY: appVer ? appVer : @""};
     
     _authScheme = [MSIDAuthenticationScheme new];
+}
+
+- (void)setAccountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+{
+    if ([_accountIdentifier isEqual:accountIdentifier]) return;
+    
+    _accountIdentifier = accountIdentifier;
+    
+    [self updateAppRequestMetadata:nil];
 }
 
 #pragma mark - Helpers
@@ -239,6 +249,34 @@
     return _msidConfiguration;
 }
 
+- (void)updateAppRequestMetadata:(NSString *)homeAccountId
+{
+    MSIDAccountIdentifier *accountIdentifier = self.accountIdentifier;
+    
+    if (![NSString msidIsStringNilOrBlank:homeAccountId])
+    {
+        accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:homeAccountId];
+    }
+    
+    NSMutableDictionary *appRequestMetadata = [self.appRequestMetadata mutableCopy];
+    [appRequestMetadata removeObjectForKey:MSID_CCS_HINT_KEY];
+    
+    NSString *uid = accountIdentifier.uid;
+    NSString *utid = accountIdentifier.utid;
+    
+    if (![NSString msidIsStringNilOrBlank:uid] && ![NSString msidIsStringNilOrBlank:utid])
+    {
+        NSString *oidHeader = [NSString stringWithFormat:@"Oid:%@@%@", uid, utid];
+        appRequestMetadata[MSID_CCS_HINT_KEY] = oidHeader;
+    }
+    else
+    {
+        appRequestMetadata[MSID_CCS_HINT_KEY] = [self ccsHintHeaderWithUpn:accountIdentifier.displayableId];
+    }
+    
+    self.appRequestMetadata = appRequestMetadata;
+}
+
 #pragma mark - Validate
 
 - (BOOL)validateParametersWithError:(NSError **)error
@@ -302,6 +340,18 @@
     parameters->_keychainAccessGroup = [_keychainAccessGroup copyWithZone:zone];
 
     return parameters;
+}
+
+#pragma mark - Private
+
+- (NSString *)ccsHintHeaderWithUpn:(NSString *)upn
+{
+    if (![NSString msidIsStringNilOrBlank:upn])
+    {
+        return [NSString stringWithFormat:@"UPN:%@", upn];
+    }
+    
+    return nil;
 }
 
 @end

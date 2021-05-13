@@ -33,6 +33,7 @@
 #import "MSIDAuthorizationCodeResult.h"
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDAccountIdentifier.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -85,6 +86,8 @@
             completionBlock(nil, error, installBrokerResponse);
             return;
         }
+        
+        [self.requestParameters updateAppRequestMetadata:result.accountIdentifier];
         
         [self acquireTokenWithCodeResult:result completion:completionBlock];
     }];
