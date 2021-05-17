@@ -1,4 +1,4 @@
-TBD:  
+Version 1.6.5
 * Minimum Xcode version bumped to 12.2 (#981)
 * Improve telemetry storage security (#981)
 * Add CCS hint header (#988)
