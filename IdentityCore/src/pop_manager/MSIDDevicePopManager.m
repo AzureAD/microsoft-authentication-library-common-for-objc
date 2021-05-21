@@ -84,7 +84,7 @@
     }};
     [payload addEntriesFromDictionary:cnf];
     
-    [payload setObject:[NSString stringWithFormat:@"%lu", (long)[[NSDate date] timeIntervalSince1970]] forKey:@"ts"];
+    [payload setObject:[NSNumber numberWithLong:(long)[[NSDate date] timeIntervalSince1970]] forKey:@"ts"];
     [payload setObject:host forKey:@"u"];
     if (![NSString msidIsStringNilOrBlank:httpMethod])
     {
