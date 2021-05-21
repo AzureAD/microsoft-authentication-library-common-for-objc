@@ -147,7 +147,6 @@
                                      @"secret": DEFAULT_TEST_ACCESS_TOKEN,
                                      @"realm": @"contoso.com",
                                      @"environment": DEFAULT_TEST_ENVIRONMENT,
-                                     @"extended_expires_on": extExpiresOnString,
                                      @"spe_info": @"2",
                                      @"test": @"test2",
                                      @"home_account_id": @"uid.utid",
