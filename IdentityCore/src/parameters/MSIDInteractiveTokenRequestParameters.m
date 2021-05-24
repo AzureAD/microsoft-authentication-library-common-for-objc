@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDRequestParameters+Internal.h"
 #import "NSOrderedSet+MSIDExtensions.h"
 #import "MSIDClaimsRequest.h"
 
@@ -61,6 +62,15 @@
     }
 
     return self;
+}
+
+- (void)setLoginHint:(NSString *)loginHint
+{
+    if ([_loginHint isEqualToString:loginHint]) return;
+    
+    _loginHint = loginHint;
+    
+    [self updateAppRequestMetadata:nil];
 }
 
 - (NSOrderedSet *)allAuthorizeRequestScopes
@@ -108,6 +118,20 @@
     }
 
     return result;
+}
+
+- (void)updateAppRequestMetadata:(NSString *)homeAccountId
+{
+    [super updateAppRequestMetadata:homeAccountId];
+    
+    NSString *loginHint = self.loginHint;
+    
+    if (self.appRequestMetadata[MSID_CCS_HINT_KEY] == nil)
+    {
+        NSMutableDictionary *appRequestMetadata = [self.appRequestMetadata mutableCopy];
+        appRequestMetadata[MSID_CCS_HINT_KEY] = [self ccsHintHeaderWithUpn:loginHint];
+        self.appRequestMetadata = appRequestMetadata;
+    }
 }
 
 @end

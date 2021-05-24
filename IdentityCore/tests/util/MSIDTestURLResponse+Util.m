@@ -43,6 +43,7 @@
         headers[@"x-app-name"] = [MSIDTestRequireValueSentinel new];
         headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel new];
         headers[@"x-ms-PkeyAuth"] = [MSIDTestRequireValueSentinel new];
+        headers[@"X-AnchorMailbox"] = [MSIDTestIgnoreSentinel new];
 
         s_msidHeaders = [headers copy];
     });

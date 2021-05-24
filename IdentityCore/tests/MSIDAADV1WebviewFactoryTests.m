@@ -72,7 +72,8 @@
                                           @"haschrome" : @"1",
                                           @"x-app-name" : [MSIDTestRequireValueSentinel new],
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
-                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new]
+                                          @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
+                                          @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
                                           }];
     
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];

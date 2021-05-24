@@ -92,7 +92,8 @@
                                           @"x-app-ver" : [MSIDTestRequireValueSentinel new],
                                           @"x-client-Ver" : [MSIDTestRequireValueSentinel new],
                                           @"code_challenge_method" : @"S256",
-                                          @"code_challenge" : pkce.codeChallenge
+                                          @"code_challenge" : pkce.codeChallenge,
+                                          @"X-AnchorMailbox" : [MSIDTestRequireValueSentinel new],
                                           }];
     [expectedQPs addEntriesFromDictionary:[MSIDDeviceId deviceId]];
     

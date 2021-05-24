@@ -170,7 +170,6 @@
                                        @"realm": @"contoso.com",
                                        @"home_account_id": DEFAULT_TEST_HOME_ACCOUNT_ID,
                                        @"local_account_id": @"0000004-0000004-000004",
-                                       @"realm": @"contoso.com",
                                        @"username": @"username"
                                        };
     MSIDAccountCacheItem *secondAccount = [[MSIDAccountCacheItem alloc] initWithJSONDictionary:secondDictionary error:&error];
