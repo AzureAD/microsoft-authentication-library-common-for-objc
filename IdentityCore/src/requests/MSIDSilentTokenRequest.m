@@ -209,7 +209,7 @@ typedef NS_ENUM(NSInteger, MSIDRefreshTokenTypes)
             
         }
         
-        if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
+        else if (accessToken && accessToken.isExtendedLifetimeValid && enrollmentIdMatch && accessTokenKeyThumbprintMatch)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Access token has expired, but it is long-lived token.");
             
