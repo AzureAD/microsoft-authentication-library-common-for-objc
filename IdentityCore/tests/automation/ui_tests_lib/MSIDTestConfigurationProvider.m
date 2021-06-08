@@ -160,13 +160,15 @@
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
                                   targetTenantId:(NSString *)targetTenantId
+                                 scopesSupported:(BOOL)scopesSupported
 {
-    return [self defaultAppRequest:environment targetTenantId:targetTenantId brokerEnabled:NO];
+    return [self defaultAppRequest:environment targetTenantId:targetTenantId brokerEnabled:NO scopesSupported:scopesSupported];
 }
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
                                   targetTenantId:(NSString *)targetTenantId
                                    brokerEnabled:(BOOL)brokerEnabled
+                                 scopesSupported:(BOOL)scopesSupported
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
     request.validateAuthority = YES;
@@ -176,9 +178,21 @@
     
     request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
     request.requestResource = [self resourceForEnvironment:testEnvironment type:@"ms_graph"];
-    request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
+    
+    if (scopesSupported)
+    {
+        request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
+        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+    }
+    else
+    {
+        NSString *resourceGuid = [self resourceForEnvironment:testEnvironment type:@"ms_graph_guid"];
+        request.expectedResultScopes = [NSString stringWithFormat:@"%@/.default", resourceGuid];
+        
+        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
+    }
     request.configurationAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
-    request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+    
     request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
     request.brokerEnabled = brokerEnabled;
     
