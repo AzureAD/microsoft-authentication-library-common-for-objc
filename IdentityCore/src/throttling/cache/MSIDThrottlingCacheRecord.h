@@ -28,7 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly) NSDate *creationTime;
 @property (nonatomic, readonly) NSDate *expirationTime;
-@property (nonatomic) NSUInteger throttleType;
+@property (nonatomic) NSInteger throttleType;
 @property (nonatomic, readonly) NSError *cachedErrorResponse;
 @property (nonatomic) NSUInteger throttledCount;
 //number of times this request has been throttled - needs to be mutable 
