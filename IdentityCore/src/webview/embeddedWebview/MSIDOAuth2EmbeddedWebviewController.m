@@ -367,7 +367,7 @@
         return;
     }
     
-    if ([requestURLString isEqualToString:@"about:blank"])
+    if ([requestURLString isEqualToString:@"about:blank"] || [requestURLString isEqualToString:@"about:srcdoc"])
     {
         decisionHandler(WKNavigationActionPolicyAllow);
         return;

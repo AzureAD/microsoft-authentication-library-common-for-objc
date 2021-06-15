@@ -25,6 +25,12 @@
 #import "MSIDSSOExtensionInteractiveTokenRequestController.h"
 #import "MSIDLocalInteractiveController+Internal.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
+#import "MSIDThrottlingService.h"
+#import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDDefaultTokenRequestProvider.h"
+#import "MSIDDefaultTokenRequestProvider+Internal.h"
+#import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDInteractiveTokenRequest+Internal.h"
 
 @implementation MSIDSSOExtensionInteractiveTokenRequestController
 
@@ -51,11 +57,20 @@
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Beginning interactive broker extension flow.");
     
     __typeof__(self) __weak weakSelf = self;
+    MSIDInteractiveTokenRequest *request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParamaters];
+
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
-        
-        if (error && [weakSelf shouldFallback:error])
+        if (!error)
+        {
+            /**
+             Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
+             */
+            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache context:weakSelf.interactiveRequestParamaters error:nil];
+           
+        }
+        else if ([weakSelf shouldFallback:error])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Falling back to local controller.");
             
@@ -66,7 +81,6 @@
         completionBlock(result, error);
     };
     
-    __auto_type request = [self.tokenRequestProvider interactiveSSOExtensionTokenRequestWithParameters:self.interactiveRequestParamaters];
 
     [self acquireTokenWithRequest:request completionBlock:completionBlockWrapper];
 }

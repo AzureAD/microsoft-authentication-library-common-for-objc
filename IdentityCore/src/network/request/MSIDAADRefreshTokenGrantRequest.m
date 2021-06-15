@@ -21,8 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+
 #import "MSIDAADRefreshTokenGrantRequest.h"
 #import "MSIDAADRequestConfigurator.h"
+#import "MSIDThumbprintCalculator.h"
+
+@interface MSIDAADRefreshTokenGrantRequest ()
+
+@property (nonatomic) NSMutableDictionary *thumbprintParameters;
+
+@end
 
 @implementation MSIDAADRefreshTokenGrantRequest
 
@@ -49,9 +57,26 @@
         parameters[MSID_ENROLLMENT_ID] = enrollmentId;
         
         _parameters = parameters;
+        
+        _thumbprintParameters = [_parameters mutableCopy];
+        _thumbprintParameters[MSID_OAUTH2_REQUEST_ENDPOINT] = endpoint;
     }
     
     return self;
+}
+
+- (NSString *)fullRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest fullRequestThumbprintExcludeParams]
+                                       shouldIncludeKeys:NO];
+}
+
+- (NSString *)strictRequestThumbprint
+{
+    return [MSIDThumbprintCalculator calculateThumbprint:self.thumbprintParameters
+                                            filteringSet:[MSIDRefreshTokenGrantRequest strictRequestThumbprintIncludeParams]
+                                       shouldIncludeKeys:YES];
 }
 
 @end

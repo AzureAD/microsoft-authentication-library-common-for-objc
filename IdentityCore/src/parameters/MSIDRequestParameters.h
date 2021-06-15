@@ -89,6 +89,8 @@
 
 - (BOOL)validateParametersWithError:(NSError **)error;
 
+- (void)updateAppRequestMetadata:(NSString *)homeAccountId;
+
 #pragma mark - Init
 - (instancetype)initWithAuthority:(MSIDAuthority *)authority
                        authScheme:(MSIDAuthenticationScheme *)authScheme

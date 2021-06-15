@@ -50,6 +50,7 @@
 #define MSID_LOG_WITH_CORR_PII(_LVL, _CORRELATION_ID, _FMT, ...) MSID_LOG_COMMON(_LVL, nil, _CORRELATION_ID, YES, _FMT, ##__VA_ARGS__)
 
 #define MSID_PII_LOG_MASKABLE(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER]
+#define MSID_EUII_ONLY_LOG_MASKABLE(_PARAMETER) [[MSIDMaskedLogParameter alloc] initWithParameterValue:_PARAMETER isEUII:YES]
 #define MSID_PII_LOG_TRACKABLE(_PARAMETER) [[MSIDMaskedHashableLogParameter alloc] initWithParameterValue:_PARAMETER]
 #define MSID_PII_LOG_EMAIL(_PARAMETER) [[MSIDMaskedUsernameLogParameter alloc] initWithParameterValue:_PARAMETER]
 

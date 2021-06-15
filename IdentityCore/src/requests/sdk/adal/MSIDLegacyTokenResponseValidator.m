@@ -82,7 +82,7 @@
           correlationID:(NSUUID *)correlationID
                   error:(NSError **)error
 {
-    MSID_LOG_WITH_CORR_PII(MSIDLogLevelVerbose, correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", accountIdentifier.maskedDisplayableId, tokenResult.account.accountIdentifier.maskedDisplayableId, MSID_PII_LOG_MASKABLE(tokenResult.account.localAccountId));
+    MSID_LOG_WITH_CORR_PII(MSIDLogLevelVerbose, correlationID, @"Checking returned account, Input account id %@, returned account ID %@, local account ID %@", MSID_PII_LOG_MASKABLE(accountIdentifier.maskedDisplayableId), MSID_PII_LOG_MASKABLE(tokenResult.account.accountIdentifier.maskedDisplayableId), MSID_PII_LOG_TRACKABLE(tokenResult.account.localAccountId));
     
     switch (accountIdentifier.legacyAccountIdentifierType)
     {

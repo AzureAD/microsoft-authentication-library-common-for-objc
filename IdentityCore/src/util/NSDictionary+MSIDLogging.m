@@ -40,6 +40,33 @@
 {
     NSMutableDictionary *mutableRequestDict = [self mutableCopy];
     [mutableRequestDict removeObjectsForKeys:[[self class] msidSecretRequestKeys]];
+    
+    // Check for maskable request parameters
+    
+    // 1. Username
+    NSString *username = mutableRequestDict[@"username"];
+    
+    if (username)
+    {
+        mutableRequestDict[@"username"] = MSID_PII_LOG_EMAIL(mutableRequestDict[@"username"]);
+    }
+    
+    // 2. Login_hint
+    NSString *loginHint = mutableRequestDict[@"login_hint"];
+    
+    if (loginHint)
+    {
+        mutableRequestDict[@"login_hint"] = MSID_PII_LOG_EMAIL(mutableRequestDict[@"login_hint"]);
+    }
+    
+    // 3. Enrollment IDs
+    NSString *enrollmentIdString = mutableRequestDict[@"intune_enrollment_ids"];
+    
+    if (enrollmentIdString)
+    {
+        mutableRequestDict[@"intune_enrollment_ids"] = MSID_PII_LOG_MASKABLE(enrollmentIdString);
+    }
+
     return mutableRequestDict;
 }
 

@@ -504,7 +504,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSData *generic = key.generic;
     NSNumber *type = key.type;
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Remove keychain items, key info (account: %@ service: %@, keychainGroup: %@)", MSID_EUII_ONLY_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
     
     if (!key)
     {
@@ -562,7 +562,14 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
 - (BOOL)saveWipeInfoWithContext:(id<MSIDRequestContext>)context
                           error:(NSError **)error
 {
-    NSDictionary *wipeInfo = @{ @"bundleId" : [[NSBundle mainBundle] bundleIdentifier],
+    NSString *appIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    
+    if (!appIdentifier)
+    {
+        appIdentifier = [NSProcessInfo processInfo].processName;
+    }
+    
+    NSDictionary *wipeInfo = @{ @"bundleId" : appIdentifier ?: @"",
                                 @"wipeTime" : [NSDate date]
                                 };
 
@@ -763,7 +770,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSData *generic = key.generic;
     NSNumber *type = key.type;
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, generic, type, [self keychainGroupLoggingName]);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Get keychain items, key info (account: %@ service: %@ generic: %@ type: %@, keychainGroup: %@)", MSID_EUII_ONLY_LOG_MASKABLE(account), service, generic, type, [self keychainGroupLoggingName]);
     
     NSMutableDictionary *query = [self.defaultKeychainQuery mutableCopy];
     if (service)
@@ -826,7 +833,7 @@ static NSString *s_defaultKeychainGroup = MSIDAdalKeychainGroup;
     NSData *generic = key.generic;
     NSNumber *type = key.type;
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", MSID_PII_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Set keychain item, key info (account: %@ service: %@, keychainGroup: %@)", MSID_EUII_ONLY_LOG_MASKABLE(account), service, [self keychainGroupLoggingName]);
     
     if (!service)
     {

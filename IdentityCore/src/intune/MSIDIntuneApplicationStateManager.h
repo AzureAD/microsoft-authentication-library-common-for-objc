@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDIntuneApplicationStateManager : NSObject
 
-+ (BOOL)isAppCapableForMAMCA:(MSIDAuthority *)authority;
++ (BOOL)isAppCapableForMAMCA;
 + (nullable NSString *)intuneApplicationIdentifierForAuthority:(MSIDAuthority *)authority
                                                  appIdentifier:(NSString *)appIdentifier;
 

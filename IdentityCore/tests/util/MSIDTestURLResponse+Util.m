@@ -43,6 +43,7 @@
         headers[@"x-app-name"] = [MSIDTestRequireValueSentinel new];
         headers[@"x-app-ver"] = [MSIDTestRequireValueSentinel new];
         headers[@"x-ms-PkeyAuth"] = [MSIDTestRequireValueSentinel new];
+        headers[@"X-AnchorMailbox"] = [MSIDTestIgnoreSentinel new];
 
         s_msidHeaders = [headers copy];
     });
@@ -209,6 +210,7 @@
                             expiresIn:(NSString *)expiresIn
                                  foci:(NSString *)foci
                          extExpiresIn:(NSString *)extExpiresIn
+                            
 {
     NSDictionary *clientInfoClaims = @{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID};
 
@@ -227,7 +229,104 @@
         responseDictionary[@"ext_expires_in"] = extExpiresIn;
     }
 
+
     return responseDictionary;
 }
+
+//Overloaded method to avoid impact on other tests without refreshIn
++ (NSDictionary *)tokenResponseWithAT:(NSString *)responseAT
+                           responseRT:(NSString *)responseRT
+                           responseID:(NSString *)responseID
+                        responseScope:(NSString *)responseScope
+                   responseClientInfo:(NSString *)responseClientInfo
+                            expiresIn:(NSString *)expiresIn
+                                 foci:(NSString *)foci
+                         extExpiresIn:(NSString *)extExpiresIn
+                            refreshIn:(NSString *)refreshIn
+{
+    NSDictionary *clientInfoClaims = @{ @"uid" : DEFAULT_TEST_UID, @"utid" : DEFAULT_TEST_UTID};
+
+    NSString *defaultIDToken = [MSIDTestIdTokenUtil idTokenWithPreferredUsername:DEFAULT_TEST_ID_TOKEN_USERNAME subject:@"sub" givenName:@"Test" familyName:@"User" name:@"Test Name" version:@"2.0" tid:DEFAULT_TEST_UTID];
+
+    NSMutableDictionary *responseDictionary = [@{ @"access_token" : responseAT ?: DEFAULT_TEST_ACCESS_TOKEN,
+                                                  @"expires_in" : expiresIn ?: @"3600",
+                                                  @"foci": foci ?: @"",
+                                                  @"refresh_token" : responseRT ?: DEFAULT_TEST_REFRESH_TOKEN,
+                                                  @"id_token": responseID ?: defaultIDToken,
+                                                  @"client_info" : responseClientInfo ?: [NSString msidBase64UrlEncodedStringFromData:[NSJSONSerialization dataWithJSONObject:clientInfoClaims options:0 error:nil]],
+                                                  @"scope": responseScope ?: @"user.read user.write tasks.read"} mutableCopy];
+
+    if (extExpiresIn)
+    {
+        responseDictionary[@"ext_expires_in"] = extExpiresIn;
+    }
+    
+    if (refreshIn)
+    {
+        responseDictionary[@"refresh_in"] = refreshIn;
+    }
+
+    return responseDictionary;
+}
+
+
++ (MSIDTestURLResponse *)refreshTokenGrantResponseForThrottling:(NSString *)requestRT
+                                                  requestClaims:(NSString *)requestClaims
+                                                  requestScopes:(NSString *)requestScopes
+                                                     responseAT:(NSString *)responseAT
+                                                     responseRT:(NSString *)responseRT
+                                                     responseID:(NSString *)responseID
+                                                  responseScope:(NSString *)responseScope
+                                             responseClientInfo:(NSString *)responseClientInfo
+                                                            url:(NSString *)url
+                                                   responseCode:(NSUInteger)responseCode
+                                                      expiresIn:(NSString *)expiresIn
+                                                   enrollmentId:(NSString *)enrollmentId
+                                                    redirectUri:(NSString *)redirectUri
+                                                       clientId:(NSString *)clientId
+{
+    NSMutableDictionary *reqHeaders = [[self msidDefaultRequestHeaders] mutableCopy];
+    [reqHeaders setObject:@"application/x-www-form-urlencoded" forKey:@"Content-Type"];
+    //[reqHeaders setObject:enrollmentId forKey:@"microsoft_enrollment_id"];
+
+    NSDictionary *responseDict = [self tokenResponseWithAT:responseAT
+                                                responseRT:responseRT
+                                                responseID:responseID
+                                             responseScope:responseScope
+                                        responseClientInfo:responseClientInfo
+                                                 expiresIn:expiresIn
+                                                      foci:nil
+                                              extExpiresIn:nil];
+    
+    NSMutableDictionary *responseDictWithEnrollmentId = [responseDict mutableCopy];
+    [responseDictWithEnrollmentId setObject:enrollmentId forKey:@"microsoft_enrollment_id"];
+
+    NSMutableDictionary *requestBody = [@{ @"client_id" : clientId,
+                                          @"scope" : requestScopes,
+                                          @"grant_type" : @"refresh_token",
+                                          @"refresh_token" : requestRT,
+                                          @"redirect_uri" : redirectUri,
+                                          @"microsoft_enrollment_id": enrollmentId,
+                                          @"client_info" : @"1"} mutableCopy];
+
+    if (requestClaims)
+    {
+        requestBody[@"claims"] = requestClaims;
+    }
+
+    MSIDTestURLResponse *response =
+    [MSIDTestURLResponse requestURLString:url
+                           requestHeaders:reqHeaders
+                        requestParamsBody:requestBody
+                        responseURLString:url
+                             responseCode:responseCode ? responseCode : 200
+                         httpHeaderFields:nil
+                         dictionaryAsJSON:responseDictWithEnrollmentId];
+
+    [response->_requestHeaders removeObjectForKey:@"Content-Length"];
+    return response;
+}
+
+
 
 @end

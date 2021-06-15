@@ -39,7 +39,6 @@
 
 @interface MSIDAccountCredentialCache()
 {
-    id<MSIDExtendedTokenCacheDataSource> _dataSource;
     MSIDCacheItemJsonSerializer *_serializer;
 }
 
@@ -69,13 +68,16 @@
                                                                  context:(nullable id<MSIDRequestContext>)context
                                                                    error:(NSError * _Nullable * _Nullable)error
 {
+    NSString *className = NSStringFromClass(self.class);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) retrieving cached credentials using credential query", className);
     NSError *cacheError = nil;
-
+    
     NSArray<MSIDCredentialCacheItem *> *results = [_dataSource tokensWithKey:cacheQuery
                                                                   serializer:_serializer
                                                                      context:context
                                                                        error:&cacheError];
 
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) retrieved %ld cached credentials", className, (long)results.count);
     if (cacheError)
     {
         if (error)
@@ -91,14 +93,16 @@
         BOOL shouldMatchAccount = !cacheQuery.homeAccountId || !cacheQuery.environment;
 
         NSMutableArray *filteredResults = [NSMutableArray array];
-
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) credential query requires exact match with the cached credential items. Performing additional filtering checks.", className);
         for (MSIDCredentialCacheItem *cacheItem in results)
         {
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(%@) performing filtering check on cached credential item with the following properties - client ID: %@, target: %@, realm: %@, environment: %@, familyID: %@, homeAccountId: %@, enrollmentId: %@, appKey: %@, applicationIdentifier: %@, tokenType: %@", className, cacheItem.clientId, cacheItem.target, cacheItem.realm, cacheItem.environment, cacheItem.familyId, MSID_PII_LOG_TRACKABLE(cacheItem.homeAccountId), MSID_PII_LOG_MASKABLE(cacheItem.enrollmentId), MSID_PII_LOG_MASKABLE(cacheItem.appKey), MSID_EUII_ONLY_LOG_MASKABLE(cacheItem.applicationIdentifier), cacheItem.tokenType);
             if (shouldMatchAccount
                 && ![cacheItem matchesWithHomeAccountId:cacheQuery.homeAccountId
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) cached item had mismatching homeAccountID or environment/aliases with the credential query. excluding from the results.", className);
                 continue;
             }
 
@@ -110,15 +114,16 @@
                               targetMatching:cacheQuery.targetMatchingOptions
                             clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {
+                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) cached item had mismatching realm/clientId/familyId/target/requestedClaims with the credential query. excluding from the results.", className);
                 continue;
             }
-
+            
             [filteredResults addObject:cacheItem];
         }
-
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) returning %ld filtered credentials", className, (long)filteredResults.count);
         return filteredResults;
     }
-
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) returning %ld credentials", className, (long)results.count);
     return results;
 }
 
@@ -128,7 +133,7 @@
 {
     assert(key);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get credential for key %@, account %@", key.logDescription, MSID_PII_LOG_MASKABLE(key.account));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get credential for key %@, account %@", key.logDescription, MSID_EUII_ONLY_LOG_MASKABLE(key.account));
 
     return [_dataSource tokenWithKey:key serializer:_serializer context:context error:error];
 }
@@ -152,7 +157,7 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, MSID_PII_LOG_MASKABLE(cacheQuery.homeAccountId));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get accounts with environment %@, unique user id %@", cacheQuery.environment, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId));
 
     NSArray<MSIDAccountCacheItem *> *cacheItems = [_dataSource accountsWithKey:cacheQuery serializer:_serializer context:context error:error];
 
@@ -187,7 +192,7 @@
 {
     assert(key);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get account for key %@, account %@", key.logDescription, MSID_PII_LOG_MASKABLE(key.account));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Get account for key %@, account %@", key.logDescription, MSID_EUII_ONLY_LOG_MASKABLE(key.account));
 
     return [_dataSource accountWithKey:key serializer:_serializer context:context error:error];
 }
@@ -221,7 +226,7 @@
 {
     assert(credential);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving token %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_TRACKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
     
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
                                                                                           environment:credential.environment
@@ -250,7 +255,7 @@
 {
     assert(account);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving account %@", MSID_PII_LOG_MASKABLE(account));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Saving account %@", MSID_EUII_ONLY_LOG_MASKABLE(account));
 
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                     environment:account.environment
@@ -292,7 +297,7 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, MSID_PII_LOG_MASKABLE(cacheQuery.homeAccountId), cacheQuery.target);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credentials with type %@, environment %@, realm %@, clientID %@, unique user ID %@, target %@", [MSIDCredentialTypeHelpers credentialTypeAsString:cacheQuery.credentialType], cacheQuery.environment, cacheQuery.realm, cacheQuery.clientId, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId), cacheQuery.target);
 
     if (cacheQuery.exactMatch)
     {
@@ -314,7 +319,7 @@
 {
     assert(credential);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_MASKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default cache) Removing credential %@ for userID %@ with environment %@, realm %@, clientID %@,", MSID_PII_LOG_MASKABLE(credential), MSID_PII_LOG_TRACKABLE(credential.homeAccountId), credential.environment, credential.realm, credential.clientId);
 
     MSIDDefaultCredentialCacheKey *key = [[MSIDDefaultCredentialCacheKey alloc] initWithHomeAccountId:credential.homeAccountId
                                                                                           environment:credential.environment
@@ -347,7 +352,7 @@
 {
     assert(cacheQuery);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, MSID_PII_LOG_MASKABLE(cacheQuery.homeAccountId));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing accounts with environment %@, realm %@, unique user id %@", cacheQuery.environment, cacheQuery.realm, MSID_PII_LOG_TRACKABLE(cacheQuery.homeAccountId));
 
     if (cacheQuery.exactMatch)
     {
@@ -365,7 +370,7 @@
 {
     assert(account);
 
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, MSID_PII_LOG_MASKABLE(account.homeAccountId), MSID_PII_LOG_EMAIL(account.username));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default cache) Removing account with environment %@, user ID %@, username %@", account.environment, MSID_PII_LOG_TRACKABLE(account.homeAccountId), MSID_PII_LOG_EMAIL(account.username));
 
     MSIDDefaultAccountCacheKey *key = [[MSIDDefaultAccountCacheKey alloc] initWithHomeAccountId:account.homeAccountId
                                                                                     environment:account.environment

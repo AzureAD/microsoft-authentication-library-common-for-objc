@@ -25,6 +25,7 @@
 #import "MSIDLastRequestTelemetrySerializedItem.h"
 #import "NSKeyedArchiver+MSIDExtensions.h"
 #import "NSKeyedUnarchiver+MSIDExtensions.h"
+#import "MSIDRequestTelemetryConstants.h"
 
 @implementation MSIDRequestTelemetryErrorInfo
 
@@ -47,6 +48,8 @@
         self.apiId = (NSInteger)[decoder decodeFloatForKey:kApiId];
         
         NSString *uuIdString = [decoder decodeObjectForKey:kCorrelationID];
+        if ([NSString msidIsStringNilOrBlank:uuIdString]) return nil;
+        
         self.correlationId = ![NSString msidIsStringNilOrBlank:uuIdString] ? [[NSUUID UUID] initWithUUIDString:uuIdString] : nil;
         
         self.error = [decoder decodeObjectForKey:kError];
@@ -75,7 +78,6 @@
 @implementation MSIDLastRequestTelemetry
 
 static bool shouldReadFromDisk = YES;
-static const NSInteger currentSchemaVersion = 2;
 static int maxErrorCountToArchive = 75;
 
 + (int)telemetryStringSizeLimit
@@ -100,7 +102,7 @@ static int maxErrorCountToArchive = 75;
     self = [super init];
     if (self)
     {
-        _schemaVersion = currentSchemaVersion;
+        _schemaVersion = HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION;
         _synchronizationQueue = [self initializeDispatchQueue];
         _platformFields = [NSMutableArray<NSString *> new];
     }
@@ -292,7 +294,11 @@ static int maxErrorCountToArchive = 75;
         
         NSData *dataToArchive = [NSKeyedArchiver msidArchivedDataWithRootObject:self requiringSecureCoding:YES error:nil];
         
-        [dataToArchive writeToFile:saveLocation atomically:YES];
+        if (@available(macOS 11.0, *)) {
+            [dataToArchive writeToFile:saveLocation options:(NSDataWritingAtomic | NSDataWritingFileProtectionCompleteUntilFirstUserAuthentication) error:nil];
+        } else {
+            [dataToArchive writeToFile:saveLocation atomically:YES];
+        }
     }
 }
 
@@ -301,7 +307,7 @@ static int maxErrorCountToArchive = 75;
     self = [super init];
     if (self)
     {
-        if (schemaVersion == currentSchemaVersion)
+        if (schemaVersion == HTTP_REQUEST_TELEMETRY_SCHEMA_VERSION)
         {
             _schemaVersion = schemaVersion;
             _silentSuccessfulCount = silentSuccessfulCount;

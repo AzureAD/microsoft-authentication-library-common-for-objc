@@ -49,7 +49,6 @@
 
 @interface MSIDDefaultTokenCacheAccessor()
 {
-    MSIDAccountCredentialCache *_accountCredentialCache;
     NSArray<id<MSIDCacheAccessor>> *_otherAccessors;
 }
 
@@ -349,7 +348,7 @@
     
     if (idToken)
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Found id token %@ for account %@:%@.", MSID_PII_LOG_MASKABLE(idToken), accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Found id token %@ for account %@:%@.", MSID_EUII_ONLY_LOG_MASKABLE(idToken), accountIdentifier.maskedHomeAccountId, MSID_PII_LOG_MASKABLE(accountIdentifier.maskedDisplayableId));
     }
     else
     {
@@ -719,7 +718,7 @@
     
     NSString *environment = token.storageEnvironment ? token.storageEnvironment : token.environment;
     
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Removing refresh token with clientID %@, environment %@, realm %@, userId %@, token %@", token.clientId, environment, token.realm, token.accountIdentifier.maskedHomeAccountId, MSID_PII_LOG_MASKABLE(token));
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"Removing refresh token with clientID %@, environment %@, realm %@, userId %@, token %@", token.clientId, environment, token.realm, token.accountIdentifier.maskedHomeAccountId, MSID_EUII_ONLY_LOG_MASKABLE(token));
 
     MSIDDefaultCredentialCacheQuery *query = [MSIDDefaultCredentialCacheQuery new];
     query.homeAccountId = token.accountIdentifier.homeAccountId;
@@ -735,7 +734,7 @@
 
     if (tokenInCache && [tokenInCache.refreshToken isEqualToString:token.refreshToken])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_PII_LOG_MASKABLE(tokenInCache));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"Found refresh token in cache and it's the latest version, removing token %@", MSID_EUII_ONLY_LOG_MASKABLE(tokenInCache));
         return [self removeToken:tokenInCache context:context error:error];
     }
     
@@ -783,8 +782,8 @@
     MSIDAccessToken *accessToken = [factory accessTokenFromResponse:response configuration:configuration];
     if (!accessToken)
     {
-        MSIDFillAndLogError(error, MSIDErrorInternal, @"Response does not contain an access token", context.correlationId);
-        return NO;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Didn't get access token from server. Skipping access token saving");
+        return YES;
     }
 
     if (![self checkAccountIdentifier:accessToken.accountIdentifier.homeAccountId context:context error:error])
@@ -850,7 +849,7 @@
 
     if (![NSString msidIsStringNilOrBlank:refreshToken.familyId])
     {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Saving family refresh token %@", MSID_PII_LOG_MASKABLE(refreshToken));
+        MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Saving family refresh token %@", MSID_EUII_ONLY_LOG_MASKABLE(refreshToken));
 
         if (![self saveToken:refreshToken
                      context:context

@@ -33,6 +33,7 @@
 #import "MSIDAuthorizationCodeResult.h"
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDOauth2Factory.h"
+#import "MSIDAccountIdentifier.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -56,6 +57,7 @@
                             tokenResponseValidator:(nonnull MSIDTokenResponseValidator *)tokenResponseValidator
                                         tokenCache:(nonnull id<MSIDCacheAccessor>)tokenCache
                               accountMetadataCache:(nullable MSIDAccountMetadataCacheAccessor *)accountMetadataCache
+                                extendedTokenCache:(nullable id<MSIDExtendedTokenCacheDataSource>)extendedTokenCache
 {
     self = [super initWithRequestParameters:parameters oauthFactory:oauthFactory];
 
@@ -65,6 +67,7 @@
         _tokenCache = tokenCache;
         _accountMetadataCache = accountMetadataCache;
         _tokenResponseHandler = [MSIDTokenResponseHandler new];
+        _extendedTokenCache = extendedTokenCache;
     }
 
     return self;
@@ -83,6 +86,8 @@
             completionBlock(nil, error, installBrokerResponse);
             return;
         }
+        
+        [self.requestParameters updateAppRequestMetadata:result.accountIdentifier];
         
         [self acquireTokenWithCodeResult:result completion:completionBlock];
     }];

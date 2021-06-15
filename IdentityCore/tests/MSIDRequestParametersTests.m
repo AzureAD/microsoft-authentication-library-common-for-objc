@@ -22,11 +22,13 @@
 // THE SOFTWARE.
 
 #import <XCTest/XCTest.h>
+#import "MSIDTestIdentifiers.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDVersion.h"
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDAuthenticationScheme.h"
 #import "MSIDAuthenticationSchemePop.h"
+#import "MSIDAccountIdentifier.h"
 
 @interface MSIDRequestParametersTests : XCTestCase
 
@@ -159,6 +161,196 @@
     XCTAssertNotNil(parameters.telemetryRequestId);
     XCTAssertEqualObjects(parameters.logComponent, [MSIDVersion sdkName]);
     XCTAssertNotNil(parameters.appRequestMetadata);
+}
+
+- (void)testUpdateAppRequestMetadata_whenAccountIdIsNil_shouldNotChangeMetadata
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    parameters.appRequestMetadata = @{};
+    
+    [parameters updateAppRequestMetadata:nil];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(0, parameters.appRequestMetadata.count);
+}
+
+- (void)testUpdateAppRequestMetadata_whenAccountIdIsNotNil_shouldSetCSSHintWithId
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    parameters.appRequestMetadata = @{};
+    
+    [parameters updateAppRequestMetadata:nil];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(1, parameters.appRequestMetadata.count);
+    XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"Oid:fedcba98-7654-3210-0000-000000000000@00000000-0000-1234-5678-90abcdefffff");
+}
+
+- (void)testUpdateAppRequestMetadata_whenAccountIdIsNilAndNewIdProvided_shouldSetCSSHintWithNewId
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    parameters.appRequestMetadata = @{};
+    
+    [parameters updateAppRequestMetadata:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(1, parameters.appRequestMetadata.count);
+    XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"Oid:fedcba98-7654-3210-0000-000000000000@00000000-0000-1234-5678-90abcdefffff");
+}
+
+- (void)testUpdateAppRequestMetadata_whenCSSHintIsNotNilAndNewCSSHintAvailable_shouldUpdateCSSHint
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    parameters.appRequestMetadata = @{MSID_CCS_HINT_KEY: @"UPN:user2@contoso.com"};
+    
+    [parameters updateAppRequestMetadata:DEFAULT_TEST_HOME_ACCOUNT_ID];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(1, parameters.appRequestMetadata.count);
+    XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"Oid:fedcba98-7654-3210-0000-000000000000@00000000-0000-1234-5678-90abcdefffff");
+}
+
+- (void)testUpdateAppRequestMetadata_whenCSSHintIsNotNilAndNewCSSHintIsNotAvailable_shouldDeleteCSSHint
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    parameters.appRequestMetadata = @{MSID_CCS_HINT_KEY: @"UPN:user2@contoso.com"};
+    
+    [parameters updateAppRequestMetadata:nil];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(0, parameters.appRequestMetadata.count);
+}
+
+- (void)testUpdateAppRequestMetadata_whenAccountIdIsNotNilAndNewIdProvided_shouldSetCSSHintWithNewId
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:nil homeAccountId:DEFAULT_TEST_HOME_ACCOUNT_ID];
+    parameters.appRequestMetadata = @{};
+    
+    [parameters updateAppRequestMetadata:@"uid1.utid1"];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(1, parameters.appRequestMetadata.count);
+    XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"Oid:uid1@utid1");
+}
+
+- (void)testUpdateAppRequestMetadata_whenAccountIdContainsUpnOnly_shouldSetCSSHint
+{
+    MSIDAuthority *authority = [@"https://login.microsoftonline.com/common" aadAuthority];
+    NSOrderedSet *scopes = [NSOrderedSet orderedSetWithObjects:@"myscope1", @"myscope2", nil];
+    NSOrderedSet *oidcScopes = [NSOrderedSet orderedSetWithObjects:@"openid", @"offline_access", @"profile", nil];
+    NSError *error = nil;
+    MSIDRequestParameters *parameters = [[MSIDRequestParameters alloc] initWithAuthority:authority
+                                                                              authScheme:[MSIDAuthenticationScheme new]
+                                                                             redirectUri:@"myredirect"
+                                                                                clientId:@"myclient_id"
+                                                                                  scopes:scopes
+                                                                              oidcScopes:oidcScopes
+                                                                           correlationId:nil
+                                                                          telemetryApiId:nil
+                                                                     intuneAppIdentifier:@"com.microsoft.mytest"
+                                                                             requestType:MSIDRequestLocalType
+                                                                                   error:&error];
+    parameters.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"user2@contoso.com" homeAccountId:nil];
+    parameters.appRequestMetadata = @{};
+    
+    [parameters updateAppRequestMetadata:nil];
+
+    XCTAssertNil(error);
+    XCTAssertNotNil(parameters);
+    XCTAssertEqual(1, parameters.appRequestMetadata.count);
+    XCTAssertEqualObjects(parameters.appRequestMetadata[MSID_CCS_HINT_KEY], @"UPN:user2@contoso.com");
 }
 
 @end

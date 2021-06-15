@@ -27,6 +27,8 @@
 
 @property (nonatomic, readwrite) id parameterValue;
 @property (nonatomic, readwrite) NSString *maskedParameterValue;
+@property (nonatomic, readwrite) NSString *euiiMaskedParameterValue;
+@property (nonatomic, readwrite) BOOL isEUII;
 
 @end
 
@@ -36,11 +38,17 @@
 
 - (instancetype)initWithParameterValue:(id)parameter
 {
+    return [self initWithParameterValue:parameter isEUII:NO];
+}
+
+- (instancetype)initWithParameterValue:(id)parameter isEUII:(BOOL)isEUII
+{
     self = [super init];
     
     if (self)
     {
         _parameterValue = parameter;
+        _isEUII = isEUII;
     }
     
     return self;
@@ -50,17 +58,29 @@
 
 - (NSString *)description
 {
-    if (![MSIDLogger sharedLogger].piiLoggingEnabled)
+    switch ([MSIDLogger sharedLogger].logMaskingLevel)
     {
-        if (self.maskedParameterValue) return self.maskedParameterValue;
-        
-        self.maskedParameterValue = [self maskedDescription];
-        return self.maskedParameterValue;
+        case MSIDLogMaskingSettingsMaskAllPII:
+        {
+            if (self.maskedParameterValue) return self.maskedParameterValue;
+            
+            self.maskedParameterValue = [self maskedDescription];
+            return self.maskedParameterValue;
+        }
+        case MSIDLogMaskingSettingsMaskEUIIOnly:
+        {
+            if (self.euiiMaskedParameterValue) return self.euiiMaskedParameterValue;
+            
+            self.euiiMaskedParameterValue = [self EUIIMaskedDescription];
+            return self.euiiMaskedParameterValue;
+        }
+        default:
+        {
+            return [NSString stringWithFormat:@"%@", self.parameterValue]; // no masking
+        }
     }
-    
-    return [NSString stringWithFormat:@"%@", self.parameterValue];
 }
-
+ 
 #pragma mark - Masking
 
 - (NSString *)maskedDescription
@@ -78,6 +98,16 @@
     }
     
     return [NSString stringWithFormat:@"Masked%@", _PII_NULLIFY(self.parameterValue)];
+}
+
+- (NSString *)EUIIMaskedDescription
+{
+    if (self.isEUII)
+    {
+        return [self maskedDescription];
+    }
+    
+    return [NSString stringWithFormat:@"%@", self.parameterValue]; // For a generic case, don't mask it
 }
 
 @end
