@@ -1,3 +1,7 @@
+Version 1.6.6
+* Fix telemetry enum value for refresh_in getting overwritten (#996)
+* Update automation for Xcode 12 UI
+
 Version 1.6.5
 * Minimum Xcode version bumped to 12.2 (#981)
 * Improve telemetry storage security (#981)
