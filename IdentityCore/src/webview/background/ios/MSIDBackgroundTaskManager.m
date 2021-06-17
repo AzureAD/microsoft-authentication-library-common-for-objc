@@ -108,7 +108,7 @@
 
 - (UIBackgroundTaskIdentifier)backgroundTaskWithType:(MSIDBackgroundTaskType)type
 {
-    return [[self.taskCache objectForKey:@(type)] integerValue];
+    return [[self.taskCache objectForKey:@(type)] unsignedIntValue];
 }
 
 - (void)setBackgroundTask:(UIBackgroundTaskIdentifier)backgroundTask forType:(MSIDBackgroundTaskType)type
