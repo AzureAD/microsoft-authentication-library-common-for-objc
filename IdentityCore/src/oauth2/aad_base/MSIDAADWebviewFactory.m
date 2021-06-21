@@ -37,6 +37,7 @@
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
+#import "MSIDSSONonceRedirectWebViewResponse.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -123,6 +124,9 @@
 #if AD_BROKER
     MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
     if (cbaResponse) return cbaResponse;
+    
+    MSIDSSONonceRedirectWebViewResponse *ssoNonceRedirect = [[MSIDSSONonceRedirectWebViewResponse alloc] initWithURL:url context:context error:nil];
+    if (ssoNonceRedirect) return ssoNonceRedirect;
 #endif
     
     // Try to create a WPJ response

@@ -25,4 +25,15 @@
 
 @implementation MSIDAuthorizationCodeResult
 
+-(instancetype)initWithSSONonce:(NSString *)nonce
+{
+    self = [super init];
+    if (self)
+    {
+        _authCode = nil;
+        _ssoNonce = nonce;
+    }
+    return self;
+}
+
 @end

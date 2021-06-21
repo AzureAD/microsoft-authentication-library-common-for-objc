@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,20 +20,25 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-
+// THE SOFTWARE.  
 #import <Foundation/Foundation.h>
-
+#import "MSIDTokenResult.h"
 NS_ASSUME_NONNULL_BEGIN
+@interface MSIDSSONonceRedirectResponse : MSIDTokenResult
 
-@interface MSIDAuthorizationCodeResult : NSObject
+@property (nonatomic, nonnull, readonly) NSString *ssoNonce;
 
-@property (nonatomic) NSString *authCode;
-@property (nonatomic) NSString *pkceVerifier;
-@property (nonatomic) NSString *accountIdentifier;
-@property (nonatomic, readonly) NSString *ssoNonce;
+- (instancetype)init NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
+- (instancetype)initWithNonce:(NSString *)nonce;
+- (nullable instancetype)initWithAccessToken:(nonnull MSIDAccessToken *)accessToken
+                                refreshToken:(nullable id<MSIDRefreshableToken>)refreshToken
+                                     idToken:(nonnull NSString *)rawIdToken
+                                     account:(nonnull MSIDAccount *)account
+                                   authority:(nonnull MSIDAuthority *)authority
+                               correlationId:(nonnull NSUUID *)correlationId
+                               tokenResponse:(nullable MSIDTokenResponse *)tokenResponse NS_UNAVAILABLE;
 
--(instancetype)initWithSSONonce:(NSString *)nonce;
 @end
 
 NS_ASSUME_NONNULL_END

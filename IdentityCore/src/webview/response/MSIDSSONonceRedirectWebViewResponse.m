@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,20 +20,37 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
+#import "MSIDSSONonceRedirectWebViewResponse.h"
+@implementation MSIDSSONonceRedirectWebViewResponse
 
-NS_ASSUME_NONNULL_BEGIN
+-(instancetype) initWithURL:(NSURL *)url context:(id<MSIDRequestContext>)context error:(NSError *__autoreleasing *)error
+{
+    if (!url)
+    {
+        return nil;
+    }
+    
+    if (![url.absoluteString containsString:@"sso_nonce="])
+    {
+        return nil;
+    }
+    
+    NSDictionary *qp = [url msidQueryParameters];
+    NSString *nonce = [qp valueForKey:@"sso_nonce"];
+    
+    if ([NSString msidIsStringNilOrBlank:nonce])
+    {
+        return nil;
+    }
+    
+    self = [super initWithURL:url context:context error:error];
+    if (self)
+    {
+        _ssoNonce = nonce;
+    }
+    return self;
+}
 
-@interface MSIDAuthorizationCodeResult : NSObject
-
-@property (nonatomic) NSString *authCode;
-@property (nonatomic) NSString *pkceVerifier;
-@property (nonatomic) NSString *accountIdentifier;
-@property (nonatomic, readonly) NSString *ssoNonce;
-
--(instancetype)initWithSSONonce:(NSString *)nonce;
 @end
-
-NS_ASSUME_NONNULL_END

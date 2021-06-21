@@ -39,6 +39,7 @@
 #import "MSIDDefaultTokenRequestProvider.h"
 #import "MSIDDefaultTokenRequestProvider+Internal.h"
 #import "MSIDDefaultTokenCacheAccessor.h"
+#import "MSIDSSONonceRedirectResponse.h"
 
 @interface MSIDLocalInteractiveController()
 
@@ -78,6 +79,16 @@
 
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult * _Nullable result, NSError * _Nullable error)
     {
+        
+        if (result && [result isKindOfClass:MSIDSSONonceRedirectResponse.class])
+        {
+            MSIDSSONonceRedirectResponse *redirectResponse = (MSIDSSONonceRedirectResponse *)result;
+            if (![NSString msidIsStringNilOrBlank:redirectResponse.ssoNonce])
+            {
+                completionBlock(result, error);
+                return;
+            }
+        }
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, self.requestParameters, @"Interactive flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         if (!error)
         {
@@ -191,6 +202,12 @@
     
     [request executeRequestWithCompletion:^(MSIDTokenResult *result, NSError *error, MSIDWebWPJResponse *msauthResponse)
     {
+        if (result && [result isKindOfClass:MSIDSSONonceRedirectResponse.class])
+        {
+            MSIDSSONonceRedirectResponse *redirectResponse = (MSIDSSONonceRedirectResponse *)result;
+            completionBlock(redirectResponse, nil);
+            return;
+        }
         if (msauthResponse)
         {
             self.currentRequest = nil;
