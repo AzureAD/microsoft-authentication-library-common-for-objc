@@ -217,7 +217,7 @@
 
 - (void)testMSIDLRUCache_whenMultipleOperationsPerformed_cacheShouldReturnExpectedResultsReliably
 {
-    
+    XCTAssertTrue(NO);
     __block NSError *subError = nil;
 
     for (int i = 0; i < 500; i++)
