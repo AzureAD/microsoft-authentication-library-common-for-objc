@@ -42,6 +42,7 @@
 #import "MSIDBrokerInvocationOptions.h"
 #import "MSIDBrokerKeyProvider.h"
 #import "MSIDMainThreadUtil.h"
+#import "NSString+MSIDExtensions.h"
 
 static MSIDBrokerInteractiveController *s_currentExecutingController;
 
@@ -287,8 +288,8 @@ static MSIDBrokerInteractiveController *s_currentExecutingController;
            sourceApplication:(nullable NSString *)sourceApplication
        brokerResponseHandler:(nonnull MSIDBrokerResponseHandler *)responseHandler
 {
-    // sourceApplication could be nil, we want to return early if we know for sure response is not from broker
-    if (sourceApplication && ![self isResponseFromBroker:sourceApplication])
+    // sourceApplication could be nil or empty, we want to return early if we know for sure response is not from broker
+    if (![NSString msidIsStringNilOrBlank:sourceApplication] && ![self isResponseFromBroker:sourceApplication])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelWarning,nil, @"Asked to handle non broker response. Skipping request.");
         return NO;
