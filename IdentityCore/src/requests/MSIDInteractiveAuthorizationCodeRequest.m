@@ -40,7 +40,6 @@
 #import "MSIDPkce.h"
 #import "MSIDWebResponseOperationFactory.h"
 #import "MSIDWebResponseBaseOperation.h"
-#import "MSIDSSONonceRedirectWebViewResponse.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -191,13 +190,6 @@
                                     nil,
                                     YES);
             returnErrorBlock(error);
-            return;
-        }
-        else if([response isKindOfClass:MSIDSSONonceRedirectWebViewResponse.class])
-        {
-            MSIDSSONonceRedirectWebViewResponse *redirectResponse = (MSIDSSONonceRedirectWebViewResponse *)response;
-            MSIDAuthorizationCodeResult *ssoNonceResponse = [[MSIDAuthorizationCodeResult alloc] initWithSSONonce:redirectResponse.ssoNonce];
-            completionBlock(ssoNonceResponse, nil, nil);
             return;
         }
     };

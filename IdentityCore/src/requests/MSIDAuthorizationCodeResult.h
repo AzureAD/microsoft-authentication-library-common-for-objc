@@ -30,9 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) NSString *authCode;
 @property (nonatomic) NSString *pkceVerifier;
 @property (nonatomic) NSString *accountIdentifier;
-@property (nonatomic, readonly) NSString *ssoNonce;
 
--(instancetype)initWithSSONonce:(NSString *)nonce;
 @end
 
 NS_ASSUME_NONNULL_END

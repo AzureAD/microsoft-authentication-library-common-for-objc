@@ -37,7 +37,6 @@
 #import "MSIDSignoutWebRequestConfiguration.h"
 #import "NSURL+MSIDAADUtils.h"
 #import "MSIDInteractiveTokenRequestParameters.h"
-#import "MSIDSSONonceRedirectWebViewResponse.h"
 
 @implementation MSIDAADWebviewFactory
 
@@ -125,8 +124,16 @@
     MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
     if (cbaResponse) return cbaResponse;
     
-    MSIDSSONonceRedirectWebViewResponse *ssoNonceRedirect = [[MSIDSSONonceRedirectWebViewResponse alloc] initWithURL:url context:context error:nil];
-    if (ssoNonceRedirect) return ssoNonceRedirect;
+    if ([url.absoluteString containsString:@"sso_nonce="])
+    {
+        NSString *ssoNonce = [[url msidQueryParameters] valueForKey:@"sso_nonce"];
+        if (![NSString msidIsStringNilOrBlank:ssoNonce])
+        {
+            NSDictionary *userInfo = @{@"sso_nonce" : ssoNonce};
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorizationFailed, @"Nonce in JWT headers is likely expired, received SSO nonce redirect response.", nil, nil, nil, context.correlationId, userInfo, NO);
+            return nil;
+        }
+    }
 #endif
     
     // Try to create a WPJ response

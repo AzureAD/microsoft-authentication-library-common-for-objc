@@ -34,7 +34,6 @@
 #import "MSIDAuthorizationCodeGrantRequest.h"
 #import "MSIDOauth2Factory.h"
 #import "MSIDAccountIdentifier.h"
-#import "MSIDSSONonceRedirectResponse.h"
 
 #if TARGET_OS_IPHONE
 #import "MSIDAppExtensionUtil.h"
@@ -87,12 +86,7 @@
             completionBlock(nil, error, installBrokerResponse);
             return;
         }
-        if (![NSString msidIsStringNilOrBlank:result.ssoNonce])
-        {
-            MSIDSSONonceRedirectResponse *redirectResult = [[MSIDSSONonceRedirectResponse alloc] initWithNonce:result.ssoNonce];
-            completionBlock(redirectResult, nil, nil);
-            return;
-        }
+        
         [self.requestParameters updateAppRequestMetadata:result.accountIdentifier];
         
         [self acquireTokenWithCodeResult:result completion:completionBlock];
