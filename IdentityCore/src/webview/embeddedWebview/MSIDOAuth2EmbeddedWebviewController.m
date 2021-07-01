@@ -405,7 +405,7 @@
 - (void)webView:(WKWebView *)webView didReceiveServerRedirectForProvisionalNavigation:(WKNavigation *)navigation
 {
     NSURL *url = webView.URL;
-    if (url && [url.absoluteString containsString:@"sso_nonce="])
+    if (url && [url.absoluteString containsString:[NSString stringWithFormat:@"%@=", MSID_SSO_NONCE_QUERY_PARAM_KEY]])
     {
         [self completeWebAuthWithURL:url];
     }

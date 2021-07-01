@@ -124,12 +124,12 @@
     MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
     if (cbaResponse) return cbaResponse;
     
-    if ([url.absoluteString containsString:@"sso_nonce="])
+    if ([url.absoluteString containsString:[NSString stringWithFormat:@"%@=", MSID_SSO_NONCE_QUERY_PARAM_KEY]])
     {
-        NSString *ssoNonce = [[url msidQueryParameters] valueForKey:@"sso_nonce"];
-        if (![NSString msidIsStringNilOrBlank:ssoNonce])
+        NSString *ssoNonce = [[url msidQueryParameters] valueForKey:MSID_SSO_NONCE_QUERY_PARAM_KEY];
+        if (![NSString msidIsStringNilOrBlank:ssoNonce] && error)
         {
-            NSDictionary *userInfo = @{@"sso_nonce" : ssoNonce};
+            NSDictionary *userInfo = @{MSID_SSO_NONCE_QUERY_PARAM_KEY : ssoNonce};
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorizationFailed, @"Nonce in JWT headers is likely expired, received SSO nonce redirect response.", nil, nil, nil, context.correlationId, userInfo, NO);
             return nil;
         }
