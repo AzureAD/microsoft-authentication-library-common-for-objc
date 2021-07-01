@@ -74,10 +74,10 @@ target_specifiers = [
 
 def print_operation_start(name, operation) :
 	print (ColorValues.HDR + "Beginning " + name + " [" + operation + "]" + ColorValues.END)
-	print ("travis_fold:start:" + (name + "_" + operation).replace(" ", "_"))
+	print ("##[group]" + (name + "_" + operation).replace(" ", "_"))
 
 def print_operation_end(name, operation, exit_code, start_time) :
-	print ("travis_fold:end:" + (name + "_" + operation).replace(" ", "_"))
+	print ("##[endgroup]" + (name + "_" + operation).replace(" ", "_"))
 	
 	end_time = timer()
 
@@ -143,6 +143,8 @@ class BuildTarget:
 		
 		if (xcpretty) :
 			command += " | xcpretty"
+		if (xcpretty and operation == "test") :
+			command += " --report junit --output ./build/reports/'" + target.name + ".xml'"
 		
 		return command
 	
@@ -156,7 +158,7 @@ class BuildTarget:
 		
 		print ("Retrieving Build Settings for " + self.name)
 		if (show_build_settings) :
-			print ("travis_fold:start:" + (self.name + "_settings").replace(" ", "_"))
+			print ("##[group]" + (self.name + "_settings").replace(" ", "_"))
 				
 		command = self.xcodebuild_command(None, False)
 		command += " -showBuildSettings"
@@ -167,7 +169,7 @@ class BuildTarget:
 		settings_blob = subprocess.check_output(command, shell=True)
 		if (show_build_settings) :
 			print (settings_blob)
-			print ("travis_fold:end:" + (self.name + "_settings").replace(" ", "_"))
+			print ("##[endgroup]" + (self.name + "_settings").replace(" ", "_"))
 		
 		settings_blob = settings_blob.decode("utf-8")
 		settings_blob = settings_blob.split("\n")
@@ -411,6 +413,12 @@ if code_coverage :
 script_end_time = timer()
 
 print ("Total running time: " + "{0:.2f}".format(script_end_time - script_start_time) + " seconds")
-
+# xcodebuild seems to log in stderr instead of stdout. Catching final_status in text file to capture exit code and determine if build failed
+# Similar issue : (see https://developer.apple.com/forums/thread/663959)
+if (not os.path.exists("./build")) :
+    os.makedirs("./build")
+os.chdir(r'./build')
+status_file = open("status.txt", "w")
+status_file.write(str(final_status))
 sys.exit(final_status)
 
