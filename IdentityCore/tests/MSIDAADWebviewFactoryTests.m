@@ -273,6 +273,8 @@
     XCTAssertNil(response);
     XCTAssertNotNil(error);
     XCTAssertNotNil(error.userInfo);
+    XCTAssertNotNil(MSID_SSO_NONCE_QUERY_PARAM_KEY);
+    XCTAssertNotNil(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY]);
     XCTAssertEqualObjects(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY], @"SERVER_SSO_NONCE");
 }
 
