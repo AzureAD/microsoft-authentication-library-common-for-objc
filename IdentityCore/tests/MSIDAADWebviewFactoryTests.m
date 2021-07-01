@@ -258,7 +258,7 @@
     XCTAssertTrue([response isKindOfClass:MSIDWebOpenBrowserResponse.class]);
     XCTAssertNil(error);
 }
-
+#if AD_BROKER
 - (void)testResponseWithURL_whenReceivedSSONonceRedirect_shouldReturnError
 {
     MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
@@ -277,5 +277,5 @@
     XCTAssertNotNil(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY]);
     XCTAssertEqualObjects(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY], @"SERVER_SSO_NONCE");
 }
-
+#endif
 @end
