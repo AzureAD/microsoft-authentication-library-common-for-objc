@@ -65,8 +65,8 @@
 }
 
 + (void)setRequiresUI:(BOOL)requiresUI forRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
-{
-#if __IPHONEOS_VERSION_MAX_ALLOWED >= 150000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
+{    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_15_0 || __MAC_OS_X_VERSION_MAX_ALLOWED >= __MAC_12_0
     if (@available(iOS 15.0, macOS 12.0, *))
     {
         ssoRequest.userInterfaceEnabled = requiresUI;
