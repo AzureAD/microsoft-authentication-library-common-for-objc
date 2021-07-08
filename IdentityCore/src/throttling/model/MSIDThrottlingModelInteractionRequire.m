@@ -29,7 +29,7 @@
 #import "MSIDThrottlingMetaDataCache.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSError+MSIDExtensions.h"
-static NSInteger const DefaultUIRequired = 120;
+static NSInteger const MSID_THROTTLING_DEFAULT_UI_REQUIRED = 120;
 
 @implementation MSIDThrottlingModelInteractionRequire
 
@@ -43,7 +43,7 @@ static NSInteger const DefaultUIRequired = 120;
     {
         self.thumbprintType = MSIDThrottlingThumbprintTypeFull;
         self.thumbprintValue = [request fullRequestThumbprint];
-        self.throttleDuration = DefaultUIRequired;
+        self.throttleDuration = MSID_THROTTLING_DEFAULT_UI_REQUIRED;
     }
     return self;
 }
