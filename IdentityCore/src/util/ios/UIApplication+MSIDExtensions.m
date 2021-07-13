@@ -25,7 +25,7 @@
 #import "MSIDAppExtensionUtil.h"
 #import "UIApplication+MSIDExtensions.h"
 
-@implementation UIApplication ( internal )
+@implementation UIApplication (MSIDExtensions)
 
 + (UIViewController *)msidCurrentViewController:(UIViewController *)parentController
 {
