@@ -24,6 +24,8 @@
 #import <XCTest/XCTest.h>
 #import "NSDictionary+MSIDTestUtil.h"
 #import "MSIDPrimaryRefreshToken.h"
+#import "MSIDPRTCacheItem.h"
+#import "MSIDPrimaryRefreshToken.h"
 
 @interface MSIDPrimaryRefreshTokenTests : XCTestCase
 
@@ -99,6 +101,38 @@
     token.expiresOn = [[NSDate date] dateByAddingTimeInterval:10200];
     token.cachedAt = [[NSDate date] dateByAddingTimeInterval:-7200];
     XCTAssertTrue([token shouldRefreshWithInterval:3600]);
+}
+
+- (void)testPRTProtocolUpgrade_whenOlderThanMinRequired_shouldUpgradeToMinRequired
+{
+    NSDictionary *json = @{@"client_id": @"broker_client",
+                           @"credential_type": @"PrimaryRefreshToken",
+                           @"environment": @"login.microsoftonline.com",
+                           @"home_account_id": @"uid.utid",
+                           @"secret": @"my_primary_refresh_token",
+                           @"session_key": @"2dMbNp4jXgjAy7Prjfa0Wm8nfFAGPHH2wJ1VaIVlNlU",
+                           @"prt_protocol_version": @"2.3"
+                           };
+    MSIDPRTCacheItem *prtCacheItem = [[MSIDPRTCacheItem alloc] initWithJSONDictionary:json error:nil];
+    MSIDPrimaryRefreshToken *prt = [[MSIDPrimaryRefreshToken alloc] initWithTokenCacheItem:prtCacheItem];
+    
+    XCTAssertEqualObjects(prt.prtProtocolVersion, @"3.0");
+}
+
+- (void)testPRTProtocolUpgrade_whenNewerThanMinRequired_shouldKeepCurrentVersion
+{
+    NSDictionary *json = @{@"client_id": @"broker_client",
+                           @"credential_type": @"PrimaryRefreshToken",
+                           @"environment": @"login.microsoftonline.com",
+                           @"home_account_id": @"uid.utid",
+                           @"secret": @"my_primary_refresh_token",
+                           @"session_key": @"2dMbNp4jXgjAy7Prjfa0Wm8nfFAGPHH2wJ1VaIVlNlU",
+                           @"prt_protocol_version": @"3.8"
+                           };
+    MSIDPRTCacheItem *prtCacheItem = [[MSIDPRTCacheItem alloc] initWithJSONDictionary:json error:nil];
+    MSIDPrimaryRefreshToken *prt = [[MSIDPrimaryRefreshToken alloc] initWithTokenCacheItem:prtCacheItem];
+    
+    XCTAssertEqualObjects(prt.prtProtocolVersion, @"3.8");
 }
 
 #pragma mark - Private
