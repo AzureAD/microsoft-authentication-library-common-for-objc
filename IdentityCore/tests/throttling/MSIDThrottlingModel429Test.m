@@ -138,7 +138,7 @@
     NSDate *now = [NSDate new];
     MSIDThrottlingCacheRecord *cacheRecord = [model createDBCacheRecord];
     // The is a small delta in expiration time, so the acceptable range will be < 1 second
-    XCTAssertTrue(ABS([cacheRecord.expirationTime timeIntervalSinceDate:now] - Default429Throttling) < 1);
+    XCTAssertTrue(ABS([cacheRecord.expirationTime timeIntervalSinceDate:now] - MSID_THROTTLING_DEFAULT_429) < 1);
 }
 
 - (void)test_IfRetryHeaderInErrorResponse_AndValueIsGreaterThanThrottlingLimit_ThenCreateDBCacheRecordWithThrottlingLimit
@@ -155,7 +155,7 @@
     
     NSDate *now = [NSDate new];
     MSIDThrottlingCacheRecord *cacheRecord = [model createDBCacheRecord];
-    XCTAssertTrue(ABS([cacheRecord.expirationTime timeIntervalSinceDate:now] - MaxRetryAfter) < 1);
+    XCTAssertTrue(ABS([cacheRecord.expirationTime timeIntervalSinceDate:now] - MSID_THROTTLING_MAX_RETRY_AFTER) < 1);
 
 }
 
