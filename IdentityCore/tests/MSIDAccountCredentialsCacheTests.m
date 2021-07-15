@@ -1599,6 +1599,24 @@
     XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
 }
 
+- (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveFamilyRefreshToken_shouldRemoveFamilyRefreshToken
+{
+    [self saveItem:[self createTestIDTokenCacheItem]];
+    [self saveItem:[self createTestRefreshTokenCacheItem:@"familyId"]];
+    [self saveItem:[self createTestAccessTokenCacheItem]];
+
+    NSError *error = nil;
+    BOOL result = [self.cache removeCredential:[self createTestRefreshTokenCacheItem:@"familyId"] context:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertTrue(result);
+
+    NSArray *allCredentials = [self.cache getAllItemsWithContext:nil error:&error];
+    XCTAssertNil(error);
+    XCTAssertNotNil(allCredentials);
+    XCTAssertTrue([allCredentials count] == 1);
+    XCTAssertTrue([allCredentials containsObject:[self createTestAccessTokenCacheItem]]);
+}
+
 - (void)testRemoveCredential_whenMultipleCredentialsInCache_andRemoveAccessToken_shouldRemoveAccessToken
 {
     [self saveItem:[self createTestIDTokenCacheItem]];
