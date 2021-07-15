@@ -189,6 +189,7 @@
 
     _queryAll = [MSIDDefaultAccountCacheQuery new];
     _queryAll.realm = _accountA.realm;
+    _queryAll.accountType = MSIDAccountTypeMSSTS;
     // Ensure accounts don't already match the queryAll search key:
     NSArray<MSIDAccountCacheItem *> *accountList = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
     XCTAssertNil(error);
@@ -450,7 +451,7 @@
     NSError *error;
     NSArray<MSIDAccountCacheItem *> *foundAccounts = [_cache getAccountsWithQuery:_queryAll context:nil error:&error];
     XCTAssertNil(error);
-    NSArray<MSIDAccountCacheItem *> *expectedAccounts = [[NSArray alloc] initWithObjects:_accountA, _accountB, _accountC, nil];
+    NSArray<MSIDAccountCacheItem *> *expectedAccounts = [[NSArray alloc] initWithObjects:_accountA, _accountB, nil];
     BOOL isAccountListSame = [self arraysContainSameObjects:foundAccounts andOtherArray:expectedAccounts];
     XCTAssertTrue(isAccountListSame);
     [self multiAccountTestCleanup];
@@ -484,6 +485,7 @@
     MSIDAccountCacheItem *expectedAccount = _accountB;
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.homeAccountId = _accountB.homeAccountId;
+    query.accountType = MSIDAccountTypeMSSTS;
     accountList = [_cache getAccountsWithQuery:query context:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue(accountList.count == 1);
