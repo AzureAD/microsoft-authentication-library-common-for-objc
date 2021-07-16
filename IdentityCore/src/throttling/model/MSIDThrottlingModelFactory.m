@@ -28,7 +28,7 @@
 #import "MSIDThrottlingCacheRecord.h"
 #import "MSIDLRUCache.h"
 #import "MSIDThrottlingModelBase.h"
-#import "MSIDThrottlingModelInteractionRequire.h"
+#import "MSIDThrottlingModelNonRecoverableServerError.h"
 #import "MSIDThrottlingModel429.h"
 
 @implementation MSIDThrottlingModelFactory
@@ -88,7 +88,7 @@
     }
     else
     {
-        return [[MSIDThrottlingModelInteractionRequire alloc] initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse datasource:datasource];
+        return [[MSIDThrottlingModelNonRecoverableServerError alloc] initWithRequest:request cacheRecord:cacheRecord errorResponse:errorResponse datasource:datasource];
     }
 }
 
@@ -100,7 +100,7 @@
     {
         throttleType = MSIDThrottlingType429;
     }
-    else if ([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:errorResponse])
+    else if ([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:errorResponse])
     {
         throttleType = MSIDThrottlingTypeInteractiveRequired;
     }

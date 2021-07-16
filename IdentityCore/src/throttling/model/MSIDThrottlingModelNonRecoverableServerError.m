@@ -24,14 +24,14 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDThrottlingModelInteractionRequire.h"
+#import "MSIDThrottlingModelNonRecoverableServerError.h"
 #import "MSIDThrottlingMetaData.h"
 #import "MSIDThrottlingMetaDataCache.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSError+MSIDExtensions.h"
 static NSInteger const MSID_THROTTLING_DEFAULT_UI_REQUIRED = 120;
 
-@implementation MSIDThrottlingModelInteractionRequire
+@implementation MSIDThrottlingModelNonRecoverableServerError
 
 - (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
                     cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
@@ -57,21 +57,28 @@ static NSInteger const MSID_THROTTLING_DEFAULT_UI_REQUIRED = 120;
  */
 + (BOOL)isApplicableForTheThrottleModel:(NSError *)errorResponse
 {
-    // MSALErrorInteractionRequired = -50002
-    NSSet *uirequiredErrors = [[NSSet alloc] initWithArray:@[@(-50002)]];
     BOOL isMSIDError = [errorResponse msidIsMSIDError];
     
     if (isMSIDError)
     {
         NSString *errorString = errorResponse.msidOauthError;
         NSInteger errorCode = errorResponse.code;
-        if (![NSString msidIsStringNilOrBlank:errorString] || (errorCode == MSIDErrorInteractionRequired))
+        if (![NSString msidIsStringNilOrBlank:errorString]
+            || errorCode == MSIDErrorInteractionRequired
+            || errorCode == MSIDErrorServerDeclinedScopes
+            || errorCode == MSIDErrorServerProtectionPoliciesRequired)
         {
             return YES;
         }
     }
     else
     {
+        // MSALErrorInteractionRequired                 = -50002
+        // MSALErrorServerDeclinedScopes                = -50003
+        // MSALErrorServerProtectionPoliciesRequired    = -50004
+        
+        NSSet *uirequiredErrors = [[NSSet alloc] initWithArray:@[@(-50002),@(-50003),@(-50004)]];
+        
         if ([uirequiredErrors containsObject:[NSNumber numberWithLong:errorResponse.code]])
         {
             return YES;
