@@ -25,6 +25,16 @@
 
 @implementation MSIDDefaultAccountCacheQuery
 
+- (id)init
+{
+    self = [super init];
+    if (self != nil)
+    {
+        self.accountType = MSIDAccountTypeMSSTS;
+    }
+    return self;
+}
+
 - (NSString *)account
 {
     if (self.homeAccountId && self.environment)
