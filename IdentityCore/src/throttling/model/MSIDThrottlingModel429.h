@@ -25,7 +25,7 @@
 #import "MSIDThrottlingModelBase.h"
 
 @interface MSIDThrottlingModel429 : MSIDThrottlingModelBase
-extern NSInteger const Default429Throttling;
-extern NSInteger const MaxRetryAfter;
+extern NSInteger const MSID_THROTTLING_DEFAULT_429;
+extern NSInteger const MSID_THROTTLING_MAX_RETRY_AFTER;
 
 @end

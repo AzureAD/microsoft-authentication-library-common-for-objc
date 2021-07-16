@@ -254,7 +254,7 @@
     
     for (int i = 0; i < 100; i++)
     {
-        NSUInteger currentKey;
+        NSInteger currentKey;
         if (i < 100)
         {
             currentKey = 299 - i;
