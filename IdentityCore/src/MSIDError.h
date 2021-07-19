@@ -241,7 +241,12 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     MSIDErrorBrokerApplicationTokenReadFailed      =   -51813,
     
-    MSIDErrorBrokerNotAvailable                    =   -51814
+    MSIDErrorBrokerNotAvailable                    =   -51814,
+    
+    // Throttling errors
+    MSIDErrorThrottleCacheNoRecord = -51900,
+    MSIDErrorThrottleCacheInvalidSignature = -51901,
+
 };
 
 extern NSError * _Nonnull MSIDCreateError(NSString * _Nonnull domain, NSInteger code, NSString * _Nullable errorDescription, NSString * _Nullable oauthError, NSString * _Nullable subError, NSError * _Nullable underlyingError, NSUUID * _Nullable correlationId, NSDictionary * _Nullable additionalUserInfo, BOOL logErrorDescription);

@@ -26,6 +26,6 @@
 
 #import "MSIDThrottlingModelBase.h"
 
-@interface MSIDThrottlingModelInteractionRequire : MSIDThrottlingModelBase
+@interface MSIDThrottlingModelNonRecoverableServerError : MSIDThrottlingModelBase
 
 @end

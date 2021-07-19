@@ -29,6 +29,7 @@
 #import "MSIDAuthority.h"
 
 static NSUInteger kDefaultPRTRefreshInterval = 10800;
+static NSString *kMinSupportedPRTVersion = @"3.0";
 
 @implementation MSIDPrimaryRefreshToken
 
@@ -51,6 +52,13 @@ static NSUInteger kDefaultPRTRefreshInterval = 10800;
         }
         
         _prtProtocolVersion = [jsonDictionary msidObjectForKey:MSID_PRT_PROTOCOL_VERSION_CACHE_KEY ofClass:[NSString class]];
+        
+        if ([_prtProtocolVersion floatValue] < [kMinSupportedPRTVersion floatValue])
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Upgrading PRT from version %@ to min required version %@", _prtProtocolVersion, kMinSupportedPRTVersion);
+            _prtProtocolVersion = kMinSupportedPRTVersion;
+        }
+        
         _expiresOn = tokenCacheItem.expiresOn;
         _cachedAt = tokenCacheItem.cachedAt;
         _expiryInterval = [tokenCacheItem.expiryInterval integerValue];
