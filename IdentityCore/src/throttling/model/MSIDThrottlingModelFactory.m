@@ -30,6 +30,7 @@
 #import "MSIDThrottlingModelBase.h"
 #import "MSIDThrottlingModelNonRecoverableServerError.h"
 #import "MSIDThrottlingModel429.h"
+#import "NSString+MSIDExtensions.h"
 
 @implementation MSIDThrottlingModelFactory
 
@@ -49,7 +50,14 @@
                                                                                                    error:&error];
     if (error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Throttling: getting record from cache has returned error %@", error);
+        if (error.code != MSIDErrorThrottleCacheNoRecord && error.code != MSIDErrorThrottleCacheInvalidSignature)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Throttling: No record in throttle cache");
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Throttling: getting record from cache has returned error %@", error);
+        }
     }
     
     if(!cacheRecord) return nil;
@@ -120,10 +128,14 @@
                                                          error:(NSError **)error
 {
     MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Query throttling database with thumbprint strict value: %@, full value: %@", strictThumbprint, fullThumbprint);
-
-    MSIDThrottlingCacheRecord *cacheRecord = [[MSIDLRUCache sharedInstance] objectForKey:strictThumbprint
-                                                                                   error:error];
-    if (!cacheRecord)
+    MSIDThrottlingCacheRecord *cacheRecord;
+    if (![NSString msidIsStringNilOrBlank:strictThumbprint])
+    {
+        cacheRecord = [[MSIDLRUCache sharedInstance] objectForKey:strictThumbprint
+                                                            error:error];
+    }
+     
+    if (!cacheRecord && ![NSString msidIsStringNilOrBlank:fullThumbprint])
     {
         cacheRecord = [[MSIDLRUCache sharedInstance] objectForKey:fullThumbprint error:error];
     }
