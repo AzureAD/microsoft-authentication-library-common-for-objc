@@ -404,7 +404,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     return appEntitled;
 }
 
--(BOOL)shouldUseLoginKeychain
+- (BOOL)shouldUseLoginKeychain
 {
     if (@available(macOS 10.15, *))
     {
@@ -412,14 +412,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
         if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
         {
 #if MS_INTERNAL_BUILD
-            if ([self isAppEntitled])
-            {
-                return NO;
-            }
-            else
-            {
-                return YES;
-            }
+            return ![self isAppEntitled];
 #else
             return NO;
 #endif
