@@ -306,6 +306,7 @@
                                                                                             clientId:credential.clientId
                                                                                       credentialType:credential.credentialType];
 
+    key.familyId = credential.familyId;
     key.realm = credential.realm;
     key.target = credential.target;
 
