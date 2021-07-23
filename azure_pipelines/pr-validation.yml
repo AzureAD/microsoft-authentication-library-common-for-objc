@@ -43,13 +43,6 @@ jobs:
       script: |
         find . -name "*.gcda" -print0 | xargs -0 rm
   - task: Bash@3
-    displayName: Run CPP script
-    inputs:
-      targetType: 'inline'
-      script: |
-        python ./scripts/update_xcode_config_cpp_checks.py
-      failOnStderr: true
-  - task: Bash@3
     displayName: Run Build script & check for Errors
     inputs:
       targetType: 'inline'
