@@ -106,6 +106,7 @@
     NSMutableDictionary *query =
     [@{
        (id)kSecClass : (id)kSecClassIdentity,
+       (id)kSecReturnRef: @YES,
        (id)kSecMatchLimit : (id)kSecMatchLimitAll,
        } mutableCopy];
     

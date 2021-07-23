@@ -48,29 +48,52 @@
     NSAssert(NO, @"Abstract method. Should be implemented in a subclass");
 }
 
-- (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
-{
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"Received error from SSO extension: %@", MSID_PII_LOG_MASKABLE(error));
-    
-    assert(self.completionBlock);
-    if (!self.completionBlock) return;
-    
-    NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
-    
-    if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == MSIDSSOExtensionUnderlyingError && underlyingError)
-    {
-        self.completionBlock(nil, underlyingError);
-    }
-    else if ([error.domain isEqualToString:ASAuthorizationErrorDomain] && error.code == ASAuthorizationErrorCanceled)
-    {
-        NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"SSO extension authorization was canceled", nil, nil, nil, nil, nil, YES);
-        self.completionBlock(nil, cancelledError);
-    }
-    else
-    {
-        self.completionBlock(nil, error);
-    }
-}
+ - (void)authorizationController:(__unused ASAuthorizationController *)controller didCompleteWithError:(NSError *)error
+ {
+     MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, self.context, @"Received error from SSO extension: %@", MSID_PII_LOG_MASKABLE(error));
+     
+     assert(self.completionBlock);
+     if (!self.completionBlock) return;
+     
+     NSError *underlyingError = error.userInfo[NSUnderlyingErrorKey];
+     
+     BOOL isSSOExtensionError = [error.domain isEqualToString:ASAuthorizationErrorDomain];
+     BOOL isSSOExtensionInteractionRequiredError = NO;
+     
+ #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 150000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
+     if (@available(iOS 15.0, macOS 12.0, *))
+     {
+         isSSOExtensionInteractionRequiredError = isSSOExtensionError && error.code == ASAuthorizationErrorNotInteractive;
+     }
+ #endif
+     
+     if (isSSOExtensionError && error.code == MSIDSSOExtensionUnderlyingError)
+     {
+         if (underlyingError)
+         {
+             self.completionBlock(nil, underlyingError);
+         }
+         else
+         {
+             NSError *unexpectedError = MSIDCreateError(MSIDErrorDomain, MSIDErrorBrokerCorruptedResponse, @"SSO extension returned corrupted error. Please upload Microsoft Authenticator logs to investigate.", nil, nil, nil, nil, nil, YES);
+             self.completionBlock(nil, unexpectedError);
+         }
+     }
+     else if (isSSOExtensionError && error.code == ASAuthorizationErrorCanceled)
+     {
+         NSError *cancelledError = MSIDCreateError(MSIDErrorDomain, MSIDErrorUserCancel, @"SSO extension authorization was canceled", nil, nil, nil, nil, nil, YES);
+         self.completionBlock(nil, cancelledError);
+     }
+     else if (isSSOExtensionInteractionRequiredError)
+     {
+         NSError *interactionRequiredError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInteractionRequired, @"SSO extension authorization requires interaction", nil, nil, nil, nil, nil, YES);
+         self.completionBlock(nil, interactionRequiredError);
+     }
+     else
+     {
+         self.completionBlock(nil, error);
+     }
+ }
 
 #pragma mark - Protected
 
