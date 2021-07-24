@@ -2127,8 +2127,9 @@
     NSArray *allItems = [self.cache getAllItemsWithContext:nil error:&error];
     XCTAssertNil(error);
     XCTAssertTrue([allItems count] == 4);
-
-    NSArray *allAccounts = [self.cache getAccountsWithQuery:[MSIDDefaultAccountCacheQuery new] context:nil error:&error];
+    MSIDDefaultAccountCacheQuery *accountCacheQuery = [MSIDDefaultAccountCacheQuery new];
+    accountCacheQuery.accountType = MSIDAccountTypeMSSTS;
+    NSArray *allAccounts = [self.cache getAccountsWithQuery:accountCacheQuery context:nil error:&error];
     XCTAssertTrue([allAccounts count] == 1);
 
     BOOL result = [self.cache clearWithContext:nil error:&error];
@@ -2421,7 +2422,7 @@
 
     MSIDAccountCacheItem *account2 = [self createTestAccountCacheItem];
     account2.homeAccountId = @"uid.utid2";
-
+    
     [self saveAccount:account2];
 
     NSError *error = nil;
@@ -2430,6 +2431,7 @@
     query.homeAccountId = @"uid.utid2";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
+    query.accountType = MSIDAccountTypeMSSTS;
     XCTAssertTrue(query.exactMatch);
 
     NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
@@ -2452,6 +2454,7 @@
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.homeAccountId = @"uid.uTID2";
+    query.accountType = MSIDAccountTypeMSSTS;
     XCTAssertFalse(query.exactMatch);
 
     NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
@@ -2474,6 +2477,8 @@
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.environment = @"login.windows.net";
+    query.accountType = MSIDAccountTypeMSSTS;
+
     XCTAssertFalse(query.exactMatch);
 
     NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
@@ -2496,6 +2501,8 @@
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.environmentAliases = @[@"login.microsoftonline.us", @"login.windows.net"];
+    query.accountType = MSIDAccountTypeMSSTS;
+
     XCTAssertFalse(query.exactMatch);
 
     NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
@@ -2518,6 +2525,8 @@
 
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.realm = @"contoso2.com";
+    query.accountType = MSIDAccountTypeMSSTS;
+
     XCTAssertFalse(query.exactMatch);
 
     NSArray *results = [self.cache getAccountsWithQuery:query context:nil error:&error];
@@ -2544,6 +2553,8 @@
     query.homeAccountId = @"uid.utid2";
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
+    query.accountType = MSIDAccountTypeMSSTS;
+
     XCTAssertTrue(query.exactMatch);
 
     BOOL result = [self.cache removeAccountsWithQuery:query context:nil error:&error];
@@ -2551,7 +2562,7 @@
     XCTAssertNil(error);
 
     MSIDDefaultAccountCacheQuery *allItemsQuery = [MSIDDefaultAccountCacheQuery new];
-
+    allItemsQuery.accountType = MSIDAccountTypeMSSTS;
     NSArray *results = [self.cache getAccountsWithQuery:allItemsQuery context:nil error:&error];
     XCTAssertNotNil(results);
     XCTAssertNil(error);
@@ -2574,6 +2585,8 @@
     MSIDDefaultAccountCacheQuery *query = [MSIDDefaultAccountCacheQuery new];
     query.environment = @"login.microsoftonline.com";
     query.realm = @"contoso.com";
+    query.accountType = MSIDAccountTypeMSSTS;
+
     XCTAssertFalse(query.exactMatch);
 
     BOOL result = [self.cache removeAccountsWithQuery:query context:nil error:&error];

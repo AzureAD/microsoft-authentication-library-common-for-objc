@@ -24,17 +24,17 @@
 
 
 #import <XCTest/XCTest.h>
-#import "MSIDThrottlingModelInteractionRequire.h"
+#import "MSIDThrottlingModelNonRecoverableServerError.h"
 #import "NSDate+MSIDExtensions.h"
 #import "NSError+MSIDExtensions.h"
 #import "MSIDTestSwizzle.h"
 #import "MSIDThrottlingMetaDataCache.h"
 
-@interface MSIDThrottlingModelInteractionRequireTest : XCTestCase
+@interface MSIDThrottlingModelNonRecoverableServerErrorTest : XCTestCase
 
 @end
 
-@implementation MSIDThrottlingModelInteractionRequireTest
+@implementation MSIDThrottlingModelNonRecoverableServerErrorTest
 
 - (NSMutableDictionary<NSString *, NSMutableArray<MSIDTestSwizzle *> *> *)swizzleStacks
 {
@@ -70,36 +70,60 @@
     //MSID error type
     //error is OAuth2 error
     NSError *error = [self createErrorWithDomain:YES errorCode:MSIDErrorInternal OAuthErrorString:@"oauth2_error"];
-    XCTAssertTrue([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:error]);
+    XCTAssertTrue([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
     
     // error code is MSIDErrorInteractionRequired
     error = [self createErrorWithDomain:YES errorCode:MSIDErrorInteractionRequired OAuthErrorString:nil];
-    XCTAssertTrue([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:error]);
+    XCTAssertTrue([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
     
     //MSAL error type
     // error code is -50002
     error = [self createErrorWithDomain:NO errorCode:-50002 OAuthErrorString:nil];
-    XCTAssertTrue([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:error]);
+    XCTAssertTrue([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
 }
 
 - (void)test_IfTheErrorIsNotUIRequired_ThenIsApplicableForThrottleShouldBeNo
 {
     NSError *error = [self createErrorWithDomain:YES errorCode:MSIDErrorInternal OAuthErrorString:nil];
-    XCTAssertFalse([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:error]);
+    XCTAssertFalse([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
     
     error = [self createErrorWithDomain:NO errorCode:MSIDErrorInternal OAuthErrorString:nil];
-    XCTAssertFalse([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:error]);
+    XCTAssertFalse([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
     
     error = [self createErrorWithDomain:NO errorCode:MSIDErrorInternal OAuthErrorString:@"oauth2_error"];
-    XCTAssertFalse([MSIDThrottlingModelInteractionRequire isApplicableForTheThrottleModel:error]);
+    XCTAssertFalse([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
 
+}
+
+- (void)test_IfTheErrorIsIntuneAppProtectionPoliciesRequires_ThenIsApplicableForThrottleShouldBeYes
+{
+    // error code is MSIDErrorServerProtectionPoliciesRequired
+    NSError *error = [self createErrorWithDomain:YES errorCode:MSIDErrorServerProtectionPoliciesRequired OAuthErrorString:nil];
+    XCTAssertTrue([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
+    
+    //MSAL error type
+    // error code is -50004 (MSALErrorServerProtectionPoliciesRequired)
+    error = [self createErrorWithDomain:NO errorCode:-50004 OAuthErrorString:nil];
+    XCTAssertTrue([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
+}
+
+- (void)test_IfTheErrorIsServerDeclinedScopes_ThenIsApplicableForThrottleShouldBeYes
+{
+    // error code is MSIDErrorServerDeclinedScopes
+    NSError *error = [self createErrorWithDomain:YES errorCode:MSIDErrorServerDeclinedScopes OAuthErrorString:nil];
+    XCTAssertTrue([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
+    
+    //MSAL error type
+    // error code is -50003 (MSALErrorServerDeclinedScopes)
+    error = [self createErrorWithDomain:NO errorCode:-50003 OAuthErrorString:nil];
+    XCTAssertTrue([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:error]);
 }
 
 - (void)test_IfTheCacheIsNotExpired_AndNoLastRefreshTime_ThenshouldThrottleRequestShouldBeYes
 {
-    MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
+    MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
     MSIDTestSwizzle *swizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
-                              class:[MSIDThrottlingModelInteractionRequire class]
+                              class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
         
@@ -123,9 +147,9 @@
 
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsTooOld_ThenshouldThrottleRequestShouldBeYes
 {
-    MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
+    MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
     MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
-                              class:[MSIDThrottlingModelInteractionRequire class]
+                              class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
         
@@ -151,9 +175,9 @@
 
 - (void)test_IfTheCacheIsExpired_ThenShouldThrottleRequestShouldBeNo
 {
-    MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
+    MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
     MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
-                              class:[MSIDThrottlingModelInteractionRequire class]
+                              class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
         
@@ -179,9 +203,9 @@
 
 - (void)test_IfTheCacheIsNotExpired_AndLastRefreshTimeIsNew_ThenshouldThrottleRequestShouldBeNo
 {
-    MSIDThrottlingModelInteractionRequire *model = [MSIDThrottlingModelInteractionRequire new];
+    MSIDThrottlingModelNonRecoverableServerError *model = [MSIDThrottlingModelNonRecoverableServerError new];
     MSIDTestSwizzle *cacheSwizzle = [MSIDTestSwizzle instanceMethod:@selector(cacheRecord)
-                              class:[MSIDThrottlingModelInteractionRequire class]
+                              class:[MSIDThrottlingModelNonRecoverableServerError class]
                               block:(id)^(void)
      {
         
