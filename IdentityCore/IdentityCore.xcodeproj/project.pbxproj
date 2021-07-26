@@ -468,6 +468,9 @@
 		58B81F8724AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 58B81F8524AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.h */; };
 		58B81F8824AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B81F8624AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.m */; };
 		58B81F8924AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 58B81F8624AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.m */; };
+		58CB98A226AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 58CB98A026AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.h */; };
+		58CB98A326AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 58CB98A126AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m */; };
+		58CB98A426AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 58CB98A126AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m */; };
 		58D1514224A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.h in Headers */ = {isa = PBXBuildFile; fileRef = 58D1514024A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.h */; };
 		58D1514324A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m in Sources */ = {isa = PBXBuildFile; fileRef = 58D1514124A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m */; };
 		58D1514424A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m in Sources */ = {isa = PBXBuildFile; fileRef = 58D1514124A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m */; };
@@ -2123,6 +2126,8 @@
 		58B81F8124AD0F8B00E8799E /* MSIDWebResponseBaseOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebResponseBaseOperation.m; sourceTree = "<group>"; };
 		58B81F8524AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebResponseBrokerInstallOperation.h; sourceTree = "<group>"; };
 		58B81F8624AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDWebResponseBrokerInstallOperation.m; sourceTree = "<group>"; };
+		58CB98A026AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDSSOExtensionPrtCookiesRequest.h; sourceTree = "<group>"; };
+		58CB98A126AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOExtensionPrtCookiesRequest.m; sourceTree = "<group>"; };
 		58D1514024A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MSIDHttpRequest+OverrideCacheSave.h"; sourceTree = "<group>"; };
 		58D1514124A6888D001DD18A /* MSIDHttpRequest+OverrideCacheSave.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MSIDHttpRequest+OverrideCacheSave.m"; sourceTree = "<group>"; };
 		58E2A1F524E47D560027A28A /* MSIDWebOpenBrowserResponseOperation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDWebOpenBrowserResponseOperation.h; sourceTree = "<group>"; };
@@ -4546,6 +4551,8 @@
 				B217869F23A710A000839CE8 /* MSIDSSOExtensionGetAccountsRequest.m */,
 				B253152323DD61FA00432133 /* MSIDSSOExtensionGetDeviceInfoRequest.h */,
 				B253152423DD61FA00432133 /* MSIDSSOExtensionGetDeviceInfoRequest.m */,
+				58CB98A026AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.h */,
+				58CB98A126AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m */,
 			);
 			path = broker;
 			sourceTree = "<group>";
@@ -5465,6 +5472,7 @@
 				B2E2A923239221A000BA2EA3 /* MSIDBrokerOperationSignoutFromDeviceRequest.h in Headers */,
 				B2C708B3219A620B00D917B8 /* MSIDBrokerKeyProvider.h in Headers */,
 				23B39ABC209BD47D000AA905 /* MSIDB2CAuthorityResolver.h in Headers */,
+				58CB98A226AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.h in Headers */,
 				B286B99D2389DCA6007833AD /* MSIDSSOExtensionTokenRequestDelegate.h in Headers */,
 				B210F4551FDDFA7B005A8F76 /* MSIDBrokerResponse.h in Headers */,
 				968647FD20C76C6700EF7E73 /* MSIDAADV2WebviewFactory.h in Headers */,
@@ -6594,6 +6602,7 @@
 				238E19C52086FC38004DF483 /* MSIDHttpResponseSerializer.m in Sources */,
 				B286B96423861852007833AD /* MSIDSignoutWebRequestConfiguration.m in Sources */,
 				B25D495F21B3649500502BE5 /* MSIDPromptType.m in Sources */,
+				58CB98A426AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m in Sources */,
 				B28BDA86217E9676003E5670 /* MSIDB2CIdTokenClaims.m in Sources */,
 				B2B1D57A204369D600DD81F0 /* MSIDAccountType.m in Sources */,
 				B210F4571FDDFA7B005A8F76 /* MSIDBrokerResponse.m in Sources */,
@@ -6977,6 +6986,7 @@
 				58B81F8824AD107300E8799E /* MSIDWebResponseBrokerInstallOperation.m in Sources */,
 				1E3C0ED5217FE2A70022D61D /* MSIDAppMetadataCacheQuery.m in Sources */,
 				B8DBEF642395CA4800A16651 /* MSIDKeychainTokenCache.m in Sources */,
+				58CB98A326AF31B400CD4885 /* MSIDSSOExtensionPrtCookiesRequest.m in Sources */,
 				23B39A8C209A53B7000AA905 /* MSIDDRSDiscoveryRequest.m in Sources */,
 				239D72D523625EF40008C76A /* MSIDJsonSerializableFactory.m in Sources */,
 				B251CC402041058D005E0179 /* MSIDRefreshToken.m in Sources */,

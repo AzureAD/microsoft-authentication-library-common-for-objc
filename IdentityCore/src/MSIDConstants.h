@@ -84,6 +84,8 @@ typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, N
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
 typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
+typedef void (^MSIDSSOExtensionPrtCookiesRequestCompletionBlock)(NSDictionary * _Nullable prtCookies, NSError * _Nullable error);
+
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>

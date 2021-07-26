@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,32 +20,26 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
-#import "MSIDBrokerOperationRequest.h"
-#import "MSIDBrowserRequestValidating.h"
+#import "MSIDConstants.h"
+
+@class MSIDRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class MSIDAADAuthority;
+API_AVAILABLE(ios(13.0), macos(10.15))
+@interface MSIDSSOExtensionPrtCookiesRequest : NSObject
 
-@interface MSIDBrokerOperationBrowserTokenRequest : MSIDBrokerOperationRequest
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                    shouldDelegate:(BOOL)shouldDelgate
+                                             error:(NSError * _Nullable * _Nullable)error;
 
-@property (nonatomic, readonly) NSURL *requestURL;
-@property (nonatomic, readonly) NSString *bundleIdentifier;
-@property (nonatomic, readonly) MSIDAADAuthority *authority;
-@property (nonatomic, readonly) NSDictionary *headers;
-@property (nonatomic, readonly) NSData *httpBody;
-@property (nonatomic, readonly) BOOL useSSOCookieFallback;
+- (void)executeRequestWithCompletion:(nonnull MSIDSSOExtensionPrtCookiesRequestCompletionBlock)completionBlock;
 
-- (instancetype)initWithRequest:(NSURL *)requestURL
-                        headers:(NSDictionary *)headers
-                           body:(nullable NSData *)httpBody
-               bundleIdentifier:(NSString *)bundleIdentifier
-               requestValidator:(id<MSIDBrowserRequestValidating>)requestValidator
-           useSSOCookieFallback:(BOOL)useSSOCookieFallback
-                          error:(NSError **)error;
++ (BOOL)canPerformRequest;
 
 @end
 
