@@ -24,24 +24,11 @@
 
 
 #import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
-
-@class MSIDRequestParameters;
+#import "MSIDBrowserRequestValidating.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionPrtCookiesRequest : NSObject
-
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                        requestUrl:(NSURL *)requestUrl
-                                          bundleId:(NSString *)bundleId
-                                    shouldDelegate:(BOOL)shouldDelgate
-                                             error:(NSError * _Nullable * _Nullable)error;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDSSOExtensionPrtCookiesRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
+@interface MSIDBrowserRequestValidator : NSObject <MSIDBrowserRequestValidating>
 
 @end
 

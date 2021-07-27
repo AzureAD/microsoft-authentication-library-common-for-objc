@@ -29,11 +29,13 @@
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDBrokerOperationBrowserTokenRequest.h"
-
+#import "MSIDBrowserRequestValidator.h"
 @interface MSIDSSOExtensionPrtCookiesRequest()
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic) MSIDRequestParameters *requestParameters;
+@property (nonatomic) NSURL *requestUrl;
+@property (nonatomic) NSString *bundleId;
 @property (nonatomic) BOOL shouldDelegate;
 @property (nonatomic, copy) MSIDSSOExtensionPrtCookiesRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
@@ -43,6 +45,8 @@
 @implementation MSIDSSOExtensionPrtCookiesRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                        requestUrl:(NSURL *)requestUrl
+                                          bundleId:(NSString *)bundleId
                                     shouldDelegate:(BOOL)shouldDelgate
                                              error:(NSError * _Nullable * _Nullable)error
 {
@@ -55,6 +59,8 @@
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Unexpected error. Nil request parameter provided", nil, nil, nil, nil, nil, YES);
         }
         _requestParameters = requestParameters;
+        _requestUrl = requestUrl;
+        _bundleId = bundleId;
         _shouldDelegate = shouldDelgate;
         _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
         _extensionDelegate.context = requestParameters;
@@ -77,7 +83,10 @@
 
 - (void)executeRequestWithCompletion:(nonnull MSIDSSOExtensionPrtCookiesRequestCompletionBlock)completionBlock
 {
-    MSIDBrokerOperationBrowserTokenRequest *getPrtCookiesRequest = [MSIDBrokerOperationBrowserTokenRequest new];
+    MSIDBrokerOperationBrowserTokenRequest *getPrtCookiesRequest = [[MSIDBrokerOperationBrowserTokenRequest alloc] initWithRequest:self.requestUrl headers:@{}
+                                                                                                                              body:nil
+                                                                                                                  bundleIdentifier:self.bundleId requestValidator:[MSIDBrowserRequestValidator new]
+                                                                                                              useSSOCookieFallback:YES error:nil];
     NSError *error;
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getPrtCookiesRequest
                                                                                           requestParameters:self.requestParameters

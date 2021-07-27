@@ -94,7 +94,7 @@
 
 + (NSString *)operation
 {
-    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT;
+    return MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT_COOKIES;
 }
 
 - (NSString *)logInfo

@@ -23,26 +23,34 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDBrowserRequestValidator.h"
+#import "NSURL+MSIDAADUtils.h"
 
-@class MSIDRequestParameters;
+@implementation MSIDBrowserRequestValidator
 
-NS_ASSUME_NONNULL_BEGIN
++ (NSArray *)whitelistedPathComponents
+{
+    static dispatch_once_t onceToken;
+    static NSArray *whitelistedComponents = nil;
+    dispatch_once(&onceToken, ^{
+        whitelistedComponents = @[@"oauth2", @"login", @"reprocess", @"SAS", @"appverify", @"saml2", @"kmsi", @"cmsi", @"resume", @"popbind", @"sso", @"forgetuser", @"SSPR", @"PIA", @"bind", @"consent", @"changepassword", @"fido", @"redeem", @"pmsi", @"kerberos", @"fidoauthorize", @"msalogout"]; // TODO: should we continue whitelisting or just handle all? What about SAML and WS-Fed?
+    });
+    
+    return whitelistedComponents;
+}
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionPrtCookiesRequest : NSObject
-
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                        requestUrl:(NSURL *)requestUrl
-                                          bundleId:(NSString *)bundleId
-                                    shouldDelegate:(BOOL)shouldDelgate
-                                             error:(NSError * _Nullable * _Nullable)error;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDSSOExtensionPrtCookiesRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
+- (BOOL)shouldHandleURL:(nonnull NSURL *)url {
+    if (url.pathComponents.count < 2)
+    {
+        return NO;
+    }
+    
+    if ([url msidContainsPathComponents:[self.class whitelistedPathComponents]])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
 
 @end
-
-NS_ASSUME_NONNULL_END
