@@ -89,12 +89,38 @@
 
 + (NSString *)operation
 {
-    if (@available(iOS 13.0, macOS 10.15, *))
+    return @"get_prt_header";
+}
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    if (self)
     {
-        return ASAuthorizationOperationLogin;
+        // We have flat json dictionary, that is why we are passing the whole json to the MSIDAccountIdentifier.
+        self.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:nil];
+        
+        self.requestUrl = [NSURL URLWithString:json[@"requestUrl"]];
+        self.authority = [[MSIDAADAuthority alloc] initWithJSONDictionary:json error:nil];
     }
     
-    return @"login";
+    return self;
+}
+
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if (!json) return nil;
+    
+    NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
+    if (accountIdentifierJson) [json addEntriesFromDictionary:accountIdentifierJson];
+    
+    json[@"requestUrl"] = self.requestUrl.absoluteString;
+    [json addEntriesFromDictionary:[self.authority jsonDictionary]];
+    return json;
 }
 
 @end

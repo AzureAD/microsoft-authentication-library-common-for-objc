@@ -27,6 +27,7 @@
 #import "MSIDConstants.h"
 
 @class MSIDRequestParameters;
+@class MSIDAccountIdentifier;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -35,7 +36,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                                         requestUrl:(NSURL *)requestUrl
-                                 accountIdentifier:(NSString *)accountIdentifier
+                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                      correlationId:(NSUUID *)correlationId
                                            needsUi:(BOOL)needsUi
                                              error:(NSError * _Nullable * _Nullable)error;

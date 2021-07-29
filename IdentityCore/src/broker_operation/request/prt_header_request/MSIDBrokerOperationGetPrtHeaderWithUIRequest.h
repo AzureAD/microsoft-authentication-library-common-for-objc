@@ -27,6 +27,7 @@
 #import "MSIDRequestParameters.h"
 
 @class MSIDInteractiveTokenRequestParameters;
+@class MSIDAccountIdentifier;
 
 NS_ASSUME_NONNULL_BEGIN
 
