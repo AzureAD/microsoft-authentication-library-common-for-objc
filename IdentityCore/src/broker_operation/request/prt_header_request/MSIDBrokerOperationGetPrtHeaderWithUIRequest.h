@@ -23,25 +23,20 @@
 // THE SOFTWARE.  
 
 
-#import <Foundation/Foundation.h>
-#import "MSIDConstants.h"
+#import "MSIDBrokerOperationRequest.h"
+#import "MSIDRequestParameters.h"
 
-@class MSIDRequestParameters;
+@class MSIDInteractiveTokenRequestParameters;
 
 NS_ASSUME_NONNULL_BEGIN
 
-API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionPrtCookiesRequest : NSObject
+@interface MSIDBrokerOperationGetPrtHeaderWithUIRequest : MSIDBrokerOperationRequest
 
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                        requestUrl:(NSURL *)requestUrl
-                                          bundleId:(NSString *)bundleId
-                                    shouldDelegate:(BOOL)shouldDelgate
-                                             error:(NSError * _Nullable * _Nullable)error;
-
-- (void)executeRequestWithCompletion:(nonnull MSIDSSOExtensionPrtCookiesRequestCompletionBlock)completionBlock;
-
-+ (BOOL)canPerformRequest;
++ (instancetype)prtHeaderRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)parameters
+                                    requestUrl:(NSURL *)requestUrl
+                             accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                 correlationId:(NSUUID *)correlationId
+                                         error:(NSError **)error;
 
 @end
 

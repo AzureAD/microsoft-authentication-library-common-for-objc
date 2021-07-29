@@ -23,31 +23,33 @@
 // THE SOFTWARE.  
 
 #import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDSSOExtensionPrtCookiesRequest.h"
+#import "MSIDSSOExtensionPrtHeaderRequest.h"
 #import "MSIDRequestParameters.h"
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
-#import "MSIDBrokerOperationBrowserTokenRequest.h"
+#import "MSIDBrokerOperationGetPrtHeaderWithUIRequest.h"
 #import "MSIDBrowserRequestValidator.h"
-@interface MSIDSSOExtensionPrtCookiesRequest()
+@interface MSIDSSOExtensionPrtHeaderRequest()
 
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic) MSIDRequestParameters *requestParameters;
 @property (nonatomic) NSURL *requestUrl;
-@property (nonatomic) NSString *bundleId;
-@property (nonatomic) BOOL shouldDelegate;
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSUUID *correlationId;
+@property (nonatomic) BOOL needsUi;
 @property (nonatomic, copy) MSIDSSOExtensionPrtCookiesRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
 @property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
 @end
 
-@implementation MSIDSSOExtensionPrtCookiesRequest
+@implementation MSIDSSOExtensionPrtHeaderRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                                         requestUrl:(NSURL *)requestUrl
-                                          bundleId:(NSString *)bundleId
-                                    shouldDelegate:(BOOL)shouldDelgate
+                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                     correlationId:(NSUUID *)correlationId
+                                           needsUi:(BOOL)needsUi
                                              error:(NSError * _Nullable * _Nullable)error
 {
     self = [super init];
@@ -58,47 +60,54 @@
         {
             *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Unexpected error. Nil request parameter provided", nil, nil, nil, nil, nil, YES);
         }
-        _requestParameters = requestParameters;
-        _requestUrl = requestUrl;
-        _bundleId = bundleId;
-        _shouldDelegate = shouldDelgate;
-        _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
-        _extensionDelegate.context = requestParameters;
-        __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(__unused MSIDBrokerNativeAppOperationResponse *operationResponse, __unused NSError *error)
-        {
-            // TODO response handler
-            MSIDSSOExtensionPrtCookiesRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
-            
-            if (completionBlock) completionBlock(@{}, error);
-        };
-        
-        _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
         return nil;
     }
     
+    _requestParameters = requestParameters;
+    _requestUrl = requestUrl;
+    _accountIdentifier = accountIdentifier;
+    _correlationId = correlationId;
+    _needsUi = needsUi;
+    _extensionDelegate = [MSIDSSOExtensionOperationRequestDelegate new];
+    _extensionDelegate.context = requestParameters;
+    __typeof__(self) __weak weakSelf = self;
+    _extensionDelegate.completionBlock = ^(__unused MSIDBrokerNativeAppOperationResponse *operationResponse, __unused NSError *error)
+    {
+        // TODO response handler
+        MSIDSSOExtensionPrtCookiesRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+        weakSelf.requestCompletionBlock = nil;
+        
+        if (completionBlock) completionBlock(@{}, error);
+    };
+    
+    _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
     return self;
 }
 
 - (void)executeRequestWithCompletion:(nonnull MSIDSSOExtensionPrtCookiesRequestCompletionBlock)completionBlock
 {
-    MSIDBrokerOperationBrowserTokenRequest *getPrtCookiesRequest = [[MSIDBrokerOperationBrowserTokenRequest alloc] initWithRequest:self.requestUrl headers:@{}
-                                                                                                                              body:nil
-                                                                                                                  bundleIdentifier:self.bundleId requestValidator:[MSIDBrowserRequestValidator new]
-                                                                                                              useSSOCookieFallback:YES error:nil];
-    NSError *error;
-    ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getPrtCookiesRequest
-                                                                                          requestParameters:self.requestParameters
-                                                                                                 requiresUI:NO
-                                                                                                      error:&error];
-    if (!ssoRequest)
+    NSError *error = nil;
+    if (self.needsUi)
     {
-        completionBlock(nil, error);
-        return;
+        MSIDBrokerOperationGetPrtHeaderWithUIRequest *getPrtheaderRequest = [MSIDBrokerOperationGetPrtHeaderWithUIRequest prtHeaderRequestWithParameters:(MSIDInteractiveTokenRequestParameters *)self.requestParameters
+                                                                                                                                              requestUrl:self.requestUrl
+                                                                                                                                       accountIdentifier:self.accountIdentifier
+                                                                                                                                           correlationId:self.correlationId
+                                                                                                                                                   error:&error];
+        
+        ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getPrtheaderRequest
+                                                                                              requestParameters:self.requestParameters
+                                                                                                     requiresUI:NO
+                                                                                                          error:&error];
+        if (!ssoRequest)
+        {
+            completionBlock(nil, error);
+            return;
+        }
+        
+        self.authorizationController = [self controllerWithRequest:ssoRequest];
     }
     
-    self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     [self.authorizationController performRequests];
     
