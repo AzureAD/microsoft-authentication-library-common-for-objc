@@ -192,6 +192,7 @@
     [@{
        (id)kSecClass : (id)kSecClassIdentity,
        (id)kSecMatchLimit : (id)kSecMatchLimitAll,
+       (id)kSecReturnRef: @YES,
        } mutableCopy];
     
     if (issuers.count > 0)
