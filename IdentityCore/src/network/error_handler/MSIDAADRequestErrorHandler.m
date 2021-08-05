@@ -29,6 +29,8 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
+#import "MSIDHttpRequest.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADRequestErrorHandler
 
@@ -64,13 +66,29 @@
         return;
     }
     
-    // pkeyauth challenge
+    // pkeyauth challenge for non-interactive flows
     if (httpResponse.statusCode == 400 || httpResponse.statusCode == 401)
     {
         NSString *wwwAuthValue = [httpResponse.allHeaderFields valueForKey:kMSIDWwwAuthenticateHeader];
         
         if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kMSIDPKeyAuthName])
         {
+            if ([httpRequest isKindOfClass:MSIDHttpRequest.class])
+            {
+                MSIDHttpRequest *pkeyAuthRequest = (MSIDHttpRequest *)httpRequest;
+                // Send telemetry to next ESTS request for PkeyAuth challenge recieved from an ADFS server on current request
+                if ([pkeyAuthRequest.urlRequest.URL.absoluteString containsString:@"/adfs/oauth2"])
+                {
+                    NSError *adfsPKeyAuthInfo =  [[NSError alloc] initWithDomain:@"ADFS_PKEYAUTH_CHLG"
+                                                                            code:httpResponse.statusCode
+                                                                        userInfo:nil];
+                    if (adfsPKeyAuthInfo)
+                    {
+                        MSIDAADTokenRequestServerTelemetry *serverTelemetry = [[MSIDAADTokenRequestServerTelemetry alloc] init];
+                        [serverTelemetry handleError:adfsPKeyAuthInfo context:pkeyAuthRequest.context];
+                    }
+                }
+            }
             [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:wwwAuthValue
                                                   requestUrl:httpRequest.urlRequest.URL
                                                      context:context

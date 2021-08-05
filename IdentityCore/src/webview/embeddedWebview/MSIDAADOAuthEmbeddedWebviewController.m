@@ -29,6 +29,7 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDWorkPlaceJoinUtil.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
@@ -79,6 +80,12 @@
     
     if ([requestURLString hasPrefix:[kMSIDPKeyAuthUrn lowercaseString]])
     {
+        // If ADFS server handles pkeyauth challenges, it will redirect from below urls to urn:http-auth:pkeyauth
+        if ([self.startURL.absoluteString containsString:@"/adfs/ls"] || [self.startURL.absoluteString containsString:@"/adfs/oauth2/"])
+        {
+            MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+            [serverTelemetry handleError:[[NSError alloc] initWithDomain:@"ADFS_PKEYAUTH_CHLG" code:302 userInfo:nil] context:self.context];
+        }
         decisionHandler(WKNavigationActionPolicyCancel);
         [MSIDPKeyAuthHandler handleChallenge:requestURL.absoluteString
                                      context:self.context
