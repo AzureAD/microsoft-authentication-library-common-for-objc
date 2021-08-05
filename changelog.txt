@@ -1,3 +1,7 @@
+Version 1.0.21
+-------------
+* Fix showing smart card's cert on macOS (ADAL hotfix). #1022
+
 Version 1.0.20 (12/01/2020)
 -------------
 * Updated Embedded webview to allow opening links that open in a new window to open with system browser. Used in MFA setup.
