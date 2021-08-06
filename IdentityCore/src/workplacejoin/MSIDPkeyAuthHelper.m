@@ -155,7 +155,7 @@
                                            context:(id<MSIDRequestContext>)context
 {
     NSString *submitUrlString = submitUrl.absoluteString;
-    if ([submitUrlString containsString:@"/adfs/ls"] || [submitUrlString containsString:@"/adfs/oauth2/"])
+    if ([submitUrlString containsString:@"/adfs/ls/"] || [submitUrlString containsString:@"/adfs/oauth2/"])
     {
         MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
         NSString *telemetryMessage = [NSString stringWithFormat:@"%@_%@",@"ADFS_PKEYAUTH_CHLG",submitUrl.host];
