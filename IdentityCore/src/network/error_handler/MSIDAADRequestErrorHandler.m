@@ -29,8 +29,6 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDMainThreadUtil.h"
-#import "MSIDHttpRequest.h"
-#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDAADRequestErrorHandler
 
@@ -66,7 +64,7 @@
         return;
     }
     
-    // pkeyauth challenge for non-interactive flows
+    // pkeyauth challenge
     if (httpResponse.statusCode == 400 || httpResponse.statusCode == 401)
     {
         NSString *wwwAuthValue = [httpResponse.allHeaderFields valueForKey:kMSIDWwwAuthenticateHeader];

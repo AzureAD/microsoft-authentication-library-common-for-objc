@@ -29,7 +29,6 @@
 #import "MSIDWorkPlaceJoinConstants.h"
 #import "MSIDPKeyAuthHandler.h"
 #import "MSIDWorkPlaceJoinUtil.h"
-#import "MSIDAADTokenRequestServerTelemetry.h"
 
 #if !MSID_EXCLUDE_WEBKIT
 
