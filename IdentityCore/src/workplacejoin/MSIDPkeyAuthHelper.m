@@ -30,6 +30,7 @@
 #import "MSIDJWTHelper.h"
 #import "NSData+MSIDExtensions.h"
 #import "MSIDWorkplaceJoinChallenge.h"
+#import "MSIDAADTokenRequestServerTelemetry.h"
 
 @implementation MSIDPkeyAuthHelper
 
@@ -76,6 +77,9 @@
         {
             authToken = [NSString stringWithFormat:@"AuthToken=\"%@\",", [MSIDPkeyAuthHelper createDeviceAuthResponse:authorizationServerComponents.string nonce:[challengeData valueForKey:@"nonce"] identity:info]];
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Found WPJ Info and responded to PKeyAuth Request.");
+            // Save telemetry for successful PkeyAuth ADFS challenge responses
+            NSUInteger httpStatusCode = [challengeData valueForKey:@"SubmitUrl"] ? 302 : 401;
+            [self saveTelemetryForAdfsPkeyAuthChallengeForUrl:authorizationServer code:httpStatusCode context:context];
         }
     }
     
@@ -146,4 +150,16 @@
     return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKeyRef]];
 }
 
++(void)saveTelemetryForAdfsPkeyAuthChallengeForUrl:(NSURL *)submitUrl
+                                              code:(NSUInteger)code
+                                           context:(id<MSIDRequestContext>)context
+{
+    NSString *submitUrlString = submitUrl.absoluteString;
+    if ([submitUrlString containsString:@"/adfs/ls"] || [submitUrlString containsString:@"/adfs/oauth2/"])
+    {
+        MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
+        NSString *telemetryMessage = [NSString stringWithFormat:@"%@_%@",@"ADFS_PKEYAUTH_CHLG",submitUrl.host];
+        [serverTelemetry handleError:[[NSError alloc] initWithDomain:telemetryMessage code:code userInfo:nil] context:context];
+    }
+}
 @end

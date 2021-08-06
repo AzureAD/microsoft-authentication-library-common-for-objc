@@ -73,22 +73,6 @@
         
         if (![NSString msidIsStringNilOrBlank:wwwAuthValue] && [wwwAuthValue containsString:kMSIDPKeyAuthName])
         {
-            if ([httpRequest isKindOfClass:MSIDHttpRequest.class])
-            {
-                MSIDHttpRequest *pkeyAuthRequest = (MSIDHttpRequest *)httpRequest;
-                // Send telemetry to next ESTS request for PkeyAuth challenge recieved from an ADFS server on current request
-                if ([pkeyAuthRequest.urlRequest.URL.absoluteString containsString:@"/adfs/oauth2"])
-                {
-                    NSError *adfsPKeyAuthInfo =  [[NSError alloc] initWithDomain:@"ADFS_PKEYAUTH_CHLG"
-                                                                            code:httpResponse.statusCode
-                                                                        userInfo:nil];
-                    if (adfsPKeyAuthInfo)
-                    {
-                        MSIDAADTokenRequestServerTelemetry *serverTelemetry = [[MSIDAADTokenRequestServerTelemetry alloc] init];
-                        [serverTelemetry handleError:adfsPKeyAuthInfo context:pkeyAuthRequest.context];
-                    }
-                }
-            }
             [MSIDPKeyAuthHandler handleWwwAuthenticateHeader:wwwAuthValue
                                                   requestUrl:httpRequest.urlRequest.URL
                                                      context:context
