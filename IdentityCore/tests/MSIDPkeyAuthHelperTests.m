@@ -29,6 +29,7 @@
 #import "NSData+MSIDTestUtil.h"
 #import "MSIDRegistrationInformationMock.h"
 #import "NSDate+MSIDTestUtil.h"
+#import "MSIDLastRequestTelemetry.h"
 
 static MSIDRegistrationInformation *s_registrationInformationToReturn;
 
@@ -173,6 +174,48 @@ static MSIDRegistrationInformation *s_registrationInformationToReturn;
     }
 }
 
+- (void)testAdfsPkeyAuthRequest_whenSuccessfulResponse_shouldSaveTelemetry
+{
+    __auto_type challengeData = @{@"Context": @"some context",
+                                  @"Version": @"1.0",
+                                  @"nonce": @"XNme6ZlnnZgIS4bMHPzY4RihkHFqCH6s1hnRgjv8Y0Q",
+                                  @"CertAuthorities": @"OU%3d82dbaca4-3e81-46ca-9c73-0950c1eaca97%2cCN%3dMS-Organization-Access+%2cDC%3dwindows+%2cDC%3dnet+"};
+    __auto_type regInfo = [MSIDRegistrationInformationMock new];
+    regInfo.isWorkPlaceJoinedFlag = YES;
+    [regInfo setPrivateKey:[self privateKey]];
+    [regInfo setCertificateIssuer:@"82dbaca4-3e81-46ca-9c73-0950c1eaca97"];
+    s_registrationInformationToReturn = regInfo;
+    __auto_type url = [[NSURL alloc] initWithString:@"https://some.host.com/adfs/ls/someqp=qp"];
+    MSIDLastRequestTelemetry *telemetryObject = [MSIDLastRequestTelemetry sharedInstance];
+    
+    __auto_type response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+        
+    __auto_type expectedResponse = @"PKeyAuth AuthToken=\"ewogICJhbGciIDogIlJTMjU2IiwKICAidHlwIiA6ICJKV1QiLAogICJ4NWMiIDogWwogICAgIlptRnJaU0JrWVhSaCIKICBdCn0.ewogICJhdWQiIDogImh0dHBzOlwvXC9zb21lLmhvc3QuY29tXC9hZGZzXC9sc1wvc29tZXFwPXFwIiwKICAibm9uY2UiIDogIlhObWU2WmxublpnSVM0Yk1IUHpZNFJpaGtIRnFDSDZzMWhuUmdqdjhZMFEiLAogICJpYXQiIDogIjUiCn0.rtB6Pk7Q-y7Hs2l1-74ho3qZTtj1XFzTh6R9aleY-a3IAL81V7Hklq-JIgt8Q8VwLTMtbOQ--J2U4MxKAy8YMLx7Oq4whnLmryqnE2czBG-aAppj4_cqgaw4XJTrFFMMtxZ2_8TVCg5FdyS78r14DMuB9kISkbaic4D0IEucNuPvI4e23-QWj4oygsC5qhDlfvO_xVYf73cXUnINIS_hMFShYljsH_R40HBZtmQGTA4i0wZlvYbOv3j3j-VutNB4v7W2dXVPPVsgbYvN0umNxU_Dcftg1IYtfAVWkemf4UK9Bd_wbP-wufS6iCwwkK9i8-1wvJjEY-7fkxrNpzyr4Q\", Context=\"some context\", Version=\"1.0\"";
+    
+    // Save telemetry when device certificate is present
+    NSString *serverTelemetry = [telemetryObject telemetryString];
+    XCTAssertEqualObjects(expectedResponse, response);
+    XCTAssertNotNil(serverTelemetry);
+    XCTAssertTrue([serverTelemetry containsString:@"ADFS_PKEYAUTH_CHLG"]);
+    XCTAssertTrue([serverTelemetry containsString:@"some.host.com"]);
+    
+    // Do not save telemetry for pkeyAuth requests to non-adfs requests
+    [telemetryObject updateWithApiId:4 errorString:nil context:nil];
+    url = [[NSURL alloc] initWithString:@"https://some.host.com/DeviceAuth?someqp=qp"];
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    serverTelemetry = [telemetryObject telemetryString];
+    XCTAssertFalse([serverTelemetry containsString:@"ADFS_PKEYAUTH_CHLG"]);
+    
+    // Do not save telemetry when device certificate is not present
+    [telemetryObject updateWithApiId:4 errorString:nil context:nil];
+    url = [[NSURL alloc] initWithString:@"https://some.host.com/adfs/ls/someqp=qp"];
+    regInfo = nil;
+    s_registrationInformationToReturn = regInfo;
+    response = [MSIDPkeyAuthHelper createDeviceAuthResponse:url challengeData:challengeData context:nil];
+    serverTelemetry = [telemetryObject telemetryString];
+    XCTAssertNotEqualObjects(expectedResponse, response);
+    XCTAssertFalse([serverTelemetry containsString:@"ADFS_PKEYAUTH_CHLG"]);
+}
 
 #pragma mark - Private
 
