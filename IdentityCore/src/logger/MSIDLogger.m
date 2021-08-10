@@ -77,7 +77,7 @@ static long s_maxQueueSize = 1000;
 {
     if (_callback != nil)
     {
-        @throw @"MSID logging callback can only be set once per process and should never changed once set.";
+        @throw MSIDException(MSIDGenericException, @"MSID logging callback can only be set once per process and should never changed once set.", nil);
     }
  
     static dispatch_once_t once;
