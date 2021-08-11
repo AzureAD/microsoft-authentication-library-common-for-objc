@@ -226,7 +226,7 @@ static NSURL *urlForPreferredHost(NSURL *url, NSString *preferredHost)
             // setPercentEncodedHost and setPort both throw if there's an error. The validation code runs
             // this function in a try block first to make sure the data is valid, so it's okay for
             // us to throw here as well to propogate the error
-            @throw [NSException exceptionWithName:@"InvalidNumberFormatException" reason:@"Port is not a valid integer or port" userInfo:nil];
+            @throw MSIDException(MSIDGenericException, @"Port is not a valid integer or port.", nil);
         }
         components.port = [NSNumber numberWithInt:port];
     }

@@ -150,6 +150,7 @@
     
         ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
         ssoRequest.requestedOperation = [operationRequest.class operation];
+        [ASAuthorizationSingleSignOnProvider setRequiresUI:YES forRequest:ssoRequest];
         
         NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
         
