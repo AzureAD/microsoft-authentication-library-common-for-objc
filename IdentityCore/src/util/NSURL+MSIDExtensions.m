@@ -141,7 +141,7 @@
             {
                 // setPercentEncodedHost and setPort both throw if there's an error, so it's okay for
                 // us to throw here as well to propogate the error
-                @throw [NSException exceptionWithName:@"InvalidNumberFormatException" reason:@"Port is not a valid integer or port" userInfo:nil];
+                @throw MSIDException(MSIDGenericException, @"Port is not a valid integer or port.", nil);
                 MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Port is not a valid integer or port.");
             }
             components.port = [NSNumber numberWithInt:port];
