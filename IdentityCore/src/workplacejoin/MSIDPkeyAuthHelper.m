@@ -31,6 +31,7 @@
 #import "NSData+MSIDExtensions.h"
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
+#import "MSIDADFSAuthority.h"
 
 @implementation MSIDPkeyAuthHelper
 
@@ -150,15 +151,14 @@
     return [MSIDJWTHelper createSignedJWTforHeader:header payload:payload signingKey:[identity privateKeyRef]];
 }
 
-+(void)saveTelemetryForAdfsPkeyAuthChallengeForUrl:(NSURL *)submitUrl
-                                              code:(NSUInteger)code
-                                           context:(id<MSIDRequestContext>)context
++ (void)saveTelemetryForAdfsPkeyAuthChallengeForUrl:(NSURL *)adfsUrl
+                                               code:(NSUInteger)code
+                                            context:(id<MSIDRequestContext>)context
 {
-    NSString *submitUrlString = submitUrl.absoluteString;
-    if ([submitUrlString containsString:@"/adfs/ls/"] || [submitUrlString containsString:@"/adfs/oauth2/"])
+    if ([MSIDADFSAuthority isAuthorityFormatValid:adfsUrl context:context error:nil])
     {
         MSIDAADTokenRequestServerTelemetry *serverTelemetry = [MSIDAADTokenRequestServerTelemetry new];
-        NSString *telemetryMessage = [NSString stringWithFormat:@"%@_%@",@"ADFS_PKEYAUTH_CHLG",submitUrl.host];
+        NSString *telemetryMessage = [NSString stringWithFormat:@"%@_%@",@"ADFS_PKEYAUTH_CHLG",adfsUrl.host];
         [serverTelemetry handleError:[[NSError alloc] initWithDomain:telemetryMessage code:code userInfo:nil] context:context];
     }
 }

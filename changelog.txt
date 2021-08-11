@@ -1,3 +1,6 @@
+Version TBD
+* Adding telemetry for ADFS PkeyAuth challenges (#1023)
+
 Version 1.6.7
 * Handle SSO Nonce response for interactive requests to authorize endpoint (#1005)
 * Update default account type to MSSTS in account cache query to avoid noise in cache query (#1010)
