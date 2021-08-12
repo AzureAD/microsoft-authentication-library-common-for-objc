@@ -1,5 +1,9 @@
-Version TBD
+TBD
+* Fix issue with showing smart card's cert on macOS (#1015)
 * Adding telemetry for ADFS PkeyAuth challenges (#1023)
+
+Version 1.6.8
+* Support for Universal cache in Login Keychain on macOS 10.15+ in Developers (#1016)
 
 Version 1.6.7
 * Handle SSO Nonce response for interactive requests to authorize endpoint (#1005)
@@ -10,7 +14,6 @@ Version 1.6.6
 * Fix telemetry enum value for refresh_in getting overwritten (#996)
 * Update automation for Xcode 12 UI
 * Support for Universal cache in Login Keychain on macOS 10.15+ in Developers (#1016)
-* Fix issue with showing smart card's cert on macOS (#1015)
  
 Version 1.6.5
 * Minimum Xcode version bumped to 12.2 (#981)
