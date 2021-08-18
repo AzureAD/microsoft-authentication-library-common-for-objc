@@ -62,6 +62,9 @@
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        
+        NSString *msg = [error.userInfo valueForKey:@"MSALErrorDescriptionKey"];
+        
         if (!error)
         {
             /**
@@ -70,10 +73,15 @@
             [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache context:weakSelf.interactiveRequestParamaters error:nil];
            
         }
+        
+        else if ([msg isEqual: @"RD Test successful"]) {
+            @throw NSInternalInconsistencyException;
+        }
+        
         else if ([weakSelf shouldFallback:error])
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Falling back to local controller.");
-            
+
             [weakSelf.fallbackController acquireToken:completionBlock];
             return;
         }

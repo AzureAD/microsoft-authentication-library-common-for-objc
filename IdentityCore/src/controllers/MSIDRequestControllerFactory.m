@@ -35,6 +35,7 @@
 #import "MSIDRequestParameters+Broker.h"
 #import "MSIDAuthority.h"
 #import "MSIDSignoutController.h"
+//#import "./ADAuthenticationBroker/AuthenticationViewController-Swift.h"
 
 @implementation MSIDRequestControllerFactory
 
@@ -82,7 +83,7 @@
 
     if (parameters.uiBehaviorType != MSIDUIBehaviorAutoType)
     {
-        return interactiveController;
+       return interactiveController;
     }
 
     return [[MSIDSilentController alloc] initWithRequestParameters:parameters
@@ -117,7 +118,14 @@
             return brokerController;
         }
     }
-
+    
+//    NSException* myException = [NSException
+//            exceptionWithName:@"FileNotFoundException"
+//            reason:@"File Not Found on System"
+//            userInfo:nil];
+//    @throw myException;
+//
+//    return 0;
     return localController;
 }
 
