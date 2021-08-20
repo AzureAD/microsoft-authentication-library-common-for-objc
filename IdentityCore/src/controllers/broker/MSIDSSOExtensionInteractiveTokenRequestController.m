@@ -74,7 +74,7 @@
            
         }
         
-        else if ([msg isEqual: @"RD Test successful"]) {
+        else if ([msg isEqual: @"RD Test successful."]) {
             @throw NSInternalInconsistencyException;
         }
         
