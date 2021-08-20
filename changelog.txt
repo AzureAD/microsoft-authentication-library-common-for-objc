@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Version 1.6.9
 * Fix issue with showing smart card's cert on macOS (#1015)
 * Add telemetry for ADFS PkeyAuth challenges (#1023)
@@ -5,6 +6,8 @@ Version 1.6.9
 * Added MSIDException/GenericException (#1024)
 
 
+=======
+>>>>>>> master
 Version 1.6.8
 * Support for Universal cache in Login Keychain on macOS 10.15+ in Developers (#1016)
 
