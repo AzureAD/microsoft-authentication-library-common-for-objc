@@ -1,6 +1,9 @@
-TBD
+Version 1.6.9
 * Fix issue with showing smart card's cert on macOS (#1015)
-* Adding telemetry for ADFS PkeyAuth challenges (#1023)
+* Add telemetry for ADFS PkeyAuth challenges (#1023)
+* Additional logic to toggle login keychain on/off for developers on MacOS 10.15+ based on the presence of valid keychain access group within entitlements (#1021)
+* Added MSIDException/GenericException (#1024)
+
 
 Version 1.6.8
 * Support for Universal cache in Login Keychain on macOS 10.15+ in Developers (#1016)
