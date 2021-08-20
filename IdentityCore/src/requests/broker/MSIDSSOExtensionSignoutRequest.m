@@ -126,6 +126,7 @@
     
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createRequest];
     ssoRequest.requestedOperation = [signoutRequest.class operation];
+    [ASAuthorizationSingleSignOnProvider setRequiresUI:NO forRequest:ssoRequest];
     
     NSDictionary *jsonDictionary = [signoutRequest jsonDictionary];
     

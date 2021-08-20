@@ -38,6 +38,7 @@
 
 - (ASAuthorizationSingleSignOnRequest *)createSSORequestWithOperationRequest:(MSIDBrokerOperationRequest *)operationRequest
                                                            requestParameters:(MSIDRequestParameters *)requestParameters
+                                                                  requiresUI:(BOOL)requiresUI
                                                                        error:(NSError **)error
 {
     [MSIDBrokerOperationRequest fillRequest:operationRequest
@@ -47,6 +48,7 @@
     
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self createRequest];
     ssoRequest.requestedOperation = [operationRequest.class operation];
+    [self.class setRequiresUI:requiresUI forRequest:ssoRequest];
     
     NSDictionary *jsonDictionary = [operationRequest jsonDictionary];
     
@@ -60,6 +62,16 @@
     NSArray<NSURLQueryItem *> *queryItems = [jsonDictionary msidQueryItems];
     ssoRequest.authorizationOptions = queryItems;
     return ssoRequest;
+}
+
++ (void)setRequiresUI:(BOOL)requiresUI forRequest:(ASAuthorizationSingleSignOnRequest *)ssoRequest
+{    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 150000 || __MAC_OS_X_VERSION_MAX_ALLOWED >= 120000
+    if (@available(iOS 15.0, macOS 12.0, *))
+    {
+        ssoRequest.userInterfaceEnabled = requiresUI;
+    }
+#endif
 }
 
 @end

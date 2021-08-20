@@ -202,6 +202,7 @@
     ssoRequest.requestedOperation = [self.operationRequest.class operation];
     __auto_type queryItems = [jsonDictionary msidQueryItems];
     ssoRequest.authorizationOptions = queryItems;
+    [ASAuthorizationSingleSignOnProvider setRequiresUI:NO forRequest:ssoRequest];
     
     self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
     self.authorizationController.delegate = self.extensionDelegate;

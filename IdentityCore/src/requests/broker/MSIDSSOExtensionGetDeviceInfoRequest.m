@@ -100,6 +100,7 @@
     NSError *error;
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:getDeviceInfoRequest
                                                                                           requestParameters:self.requestParameters
+                                                                                                 requiresUI:NO
                                                                                                       error:&error];
     
     if (!ssoRequest)
@@ -107,7 +108,7 @@
         completionBlock(nil, error);
         return;
     }
-    
+        
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     [self.authorizationController performRequests];
