@@ -44,6 +44,7 @@
 #import "MSIDClaimsRequest.h"
 #import "MSIDPkce.h"
 #import "MSIDWebAADAuthCodeResponse.h"
+#import "MSIDBrokerConstants.h"
 
 @interface MSIDAADWebviewFactoryTests : XCTestCase
 
@@ -257,6 +258,24 @@
     XCTAssertTrue([response isKindOfClass:MSIDWebOpenBrowserResponse.class]);
     XCTAssertNil(error);
 }
-
-
+#if AD_BROKER
+- (void)testResponseWithURL_whenReceivedSSONonceRedirect_shouldReturnError
+{
+    MSIDAADWebviewFactory *factory = [MSIDAADWebviewFactory new];
+    
+    NSError *error = nil;
+    __auto_type response = [factory oAuthResponseWithURL:[NSURL URLWithString:@"https://login.microsoftonline.com/common/oauth2/v2.0/authorize?response_type=code&redirect_uri=msauth.com.microsoft.SomeApp%3A%2F%2Fauth&sso_nonce=SERVER_SSO_NONCE"]
+                                            requestState:nil
+                                      ignoreInvalidState:NO
+                                                 context:nil
+                                                   error:&error];
+    
+    XCTAssertNil(response);
+    XCTAssertNotNil(error);
+    XCTAssertNotNil(error.userInfo);
+    XCTAssertNotNil(MSID_SSO_NONCE_QUERY_PARAM_KEY);
+    XCTAssertNotNil(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY]);
+    XCTAssertEqualObjects(error.userInfo[MSID_SSO_NONCE_QUERY_PARAM_KEY], @"SERVER_SSO_NONCE");
+}
+#endif
 @end

@@ -28,8 +28,8 @@
 #import "NSError+MSIDThrottlingExtension.h"
 
 @implementation MSIDThrottlingModel429
-NSInteger const Default429Throttling = 60;
-NSInteger const MaxRetryAfter = 3600;
+NSInteger const MSID_THROTTLING_DEFAULT_429 = 60;
+NSInteger const MSID_THROTTLING_MAX_RETRY_AFTER = 3600;
 
 - (instancetype)initWithRequest:(id<MSIDThumbprintCalculatable>)request
                     cacheRecord:(MSIDThrottlingCacheRecord *)cacheRecord
@@ -41,7 +41,7 @@ NSInteger const MaxRetryAfter = 3600;
     {
         self.thumbprintType = MSIDThrottlingThumbprintTypeStrict;
         self.thumbprintValue = [request strictRequestThumbprint];
-        self.throttleDuration = Default429Throttling;
+        self.throttleDuration = MSID_THROTTLING_DEFAULT_429;
     }
     return self;
 }
@@ -95,11 +95,11 @@ NSInteger const MaxRetryAfter = 3600;
     NSInteger throttleDuration = 0;
     if (!retryHeaderDate)
     {
-        throttleDuration = Default429Throttling;
+        throttleDuration = MSID_THROTTLING_DEFAULT_429;
     }
     else
     {
-        NSTimeInterval maxThrottlingTime = MaxRetryAfter;
+        NSTimeInterval maxThrottlingTime = MSID_THROTTLING_MAX_RETRY_AFTER;
         NSDate *max429ThrottlingDate = [[NSDate date] dateByAddingTimeInterval:maxThrottlingTime];
         NSTimeInterval timeDiff = [retryHeaderDate timeIntervalSinceDate:max429ThrottlingDate];
         throttleDuration = (timeDiff > maxThrottlingTime) ? (NSInteger) maxThrottlingTime : (NSInteger) [retryHeaderDate timeIntervalSinceDate:[NSDate new]];

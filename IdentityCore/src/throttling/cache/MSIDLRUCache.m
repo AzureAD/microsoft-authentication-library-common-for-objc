@@ -310,14 +310,14 @@ if node already exists, update and move it to the front of LRU cache */
     dispatch_barrier_sync(self.synchronizationQueue, ^{
         if (!key)
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during retrieval - key is nil.", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheInvalidSignature, @"MSIDLRUCache Error: invalid input during retrieval - key is nil.", nil, nil, nil, nil, nil, YES);
         }
         
         else if (![self.keySignatureMap objectForKey:key])
         {
-            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid signature for the input key during retrieval", nil, nil, nil, nil, nil, YES);
+            subError = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheNoRecord, @"MSIDLRUCache Error: Unable to find valid signature for the input key during retrieval", nil, nil, nil, nil, nil, YES);
         }
-        
+        if (subError) return;
         cacheRecord = [self objectForKeyImpl:[self.keySignatureMap objectForKey:key]
                                        error:&subError];
     });
@@ -341,7 +341,7 @@ if node already exists, update and move it to the front of LRU cache */
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: invalid input during retrieval - signature is nil", nil, nil, nil, nil, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheInvalidSignature, @"MSIDLRUCache Error: invalid input during retrieval - signature is nil", nil, nil, nil, nil, nil, YES);
         }
         return nil;
     }
@@ -350,7 +350,7 @@ if node already exists, update and move it to the front of LRU cache */
     {
         if (error)
         {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"MSIDLRUCache Error: Unable to find valid node for the input signature during retrieval", nil, nil, nil, nil, nil, YES);
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorThrottleCacheNoRecord, @"MSIDLRUCache Error: Unable to find valid node for the input signature during retrieval", nil, nil, nil, nil, nil, YES);
         }
         return nil;
     }

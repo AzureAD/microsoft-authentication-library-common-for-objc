@@ -176,18 +176,22 @@
     XCTAssertNotNil(subError);
     
     //try to retrieve object using nil key
+    subError = nil;
     MSIDThrottlingCacheRecord *resObj = [self.lruCache objectForKey:cacheKey
                                                               error:&subError];
     
     XCTAssertNil(resObj);
     XCTAssertNotNil(subError);
+    XCTAssertEqual(subError.code, MSIDErrorThrottleCacheInvalidSignature);
     
     //try to retrieve object using key that does not exist in cache
+    subError = nil;
     resObj = [self.lruCache objectForKey:validKey
                                    error:&subError];
     XCTAssertNil(resObj);
     XCTAssertNotNil(subError);
-    
+    XCTAssertEqual(subError.code, MSIDErrorThrottleCacheNoRecord);
+
     throttleCacheRecord = [[MSIDThrottlingCacheRecord alloc] initWithErrorResponse:nil
                                                                       throttleType:1
                                                                   throttleDuration:100];
@@ -254,7 +258,7 @@
     
     for (int i = 0; i < 100; i++)
     {
-        NSUInteger currentKey;
+        NSInteger currentKey;
         if (i < 100)
         {
             currentKey = 299 - i;

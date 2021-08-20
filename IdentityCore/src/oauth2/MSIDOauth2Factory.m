@@ -52,7 +52,7 @@
 
 + (MSIDProviderType)providerType
 {
-    @throw @"Abstract method was invoked.";
+    @throw MSIDException(MSIDGenericException, @"Abstract method was invoked.", nil);
 }
 
 #pragma mark - Response

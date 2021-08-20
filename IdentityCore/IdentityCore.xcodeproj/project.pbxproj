@@ -683,8 +683,8 @@
 		96F94A3B208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */; };
 		A0410E0825E81C5D004D80FD /* MSIDThrottlingModel429Test.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */; };
 		A0410E0925E81C5D004D80FD /* MSIDThrottlingModel429Test.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */; };
-		A0410E1A25E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E1925E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m */; };
-		A0410E1B25E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E1925E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m */; };
+		A0410E1A25E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E1925E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m */; };
+		A0410E1B25E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E1925E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m */; };
 		A0410E5025E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E4F25E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m */; };
 		A0410E5125E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A0410E4F25E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m */; };
 		A057456225A669B90098E469 /* MSIDThrottlingCacheRecord.h in Headers */ = {isa = PBXBuildFile; fileRef = E7B67215257EA84B0053773F /* MSIDThrottlingCacheRecord.h */; };
@@ -707,8 +707,8 @@
 		A0C7DE8525D46D7000F5B5B6 /* MSIDThrottlingModelFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DE8325D46D7000F5B5B6 /* MSIDThrottlingModelFactory.m */; };
 		A0C7DEC325D4C8B600F5B5B6 /* MSIDThrottlingModel429.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DEC225D4C8B600F5B5B6 /* MSIDThrottlingModel429.m */; };
 		A0C7DEC425D4C8B600F5B5B6 /* MSIDThrottlingModel429.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DEC225D4C8B600F5B5B6 /* MSIDThrottlingModel429.m */; };
-		A0C7DED225D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m */; };
-		A0C7DED325D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m */; };
+		A0C7DED225D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m */; };
+		A0C7DED325D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m */; };
 		A0E540BD25CB62270016E167 /* MSIDThrottlingService.m in Sources */ = {isa = PBXBuildFile; fileRef = A057458325A789DC0098E469 /* MSIDThrottlingService.m */; };
 		A0E5419625CDC44B0016E167 /* MSIDThrottlingMetaData.h in Headers */ = {isa = PBXBuildFile; fileRef = A0E5419525CDC44B0016E167 /* MSIDThrottlingMetaData.h */; };
 		A0E541B025CDC5F10016E167 /* MSIDThrottlingMetaData.m in Sources */ = {isa = PBXBuildFile; fileRef = A0E541AF25CDC5F10016E167 /* MSIDThrottlingMetaData.m */; };
@@ -1187,6 +1187,8 @@
 		B286BA03238A091B007833AD /* MSIDDefaultInteractiveTokenRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B2BE923621A0F99C00F5AB8C /* MSIDDefaultInteractiveTokenRequestTests.m */; };
 		B286BA06238A110A007833AD /* MSIDOIDCSignoutRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B286BA05238A110A007833AD /* MSIDOIDCSignoutRequestTests.m */; };
 		B286BA07238A110A007833AD /* MSIDOIDCSignoutRequestTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B286BA05238A110A007833AD /* MSIDOIDCSignoutRequestTests.m */; };
+		B287C4CE26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B287C4CD26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m */; };
+		B287C4CF26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B287C4CD26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m */; };
 		B2893CB11FCF6A8C00E348E9 /* NSMutableDictionary+MSIDExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 23BDA66D1FC78B7E00FE14BE /* NSMutableDictionary+MSIDExtensions.m */; };
 		B28AC66421A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = B28AC66221A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h */; };
 		B28AC66521A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */; };
@@ -2327,7 +2329,7 @@
 		96F94A37208184790034676C /* MSIDOAuth2EmbeddedWebviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDOAuth2EmbeddedWebviewController.h; sourceTree = "<group>"; };
 		96F94A38208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOAuth2EmbeddedWebviewController.m; sourceTree = "<group>"; };
 		A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MSIDThrottlingModel429Test.m; path = throttling/MSIDThrottlingModel429Test.m; sourceTree = "<group>"; };
-		A0410E1925E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MSIDThrottlingModelInteractionRequireTest.m; path = throttling/MSIDThrottlingModelInteractionRequireTest.m; sourceTree = "<group>"; };
+		A0410E1925E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MSIDThrottlingModelNonRecoverableServerError.m; path = throttling/MSIDThrottlingModelNonRecoverableServerError.m; sourceTree = "<group>"; };
 		A0410E4F25E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = MSIDThrottlingMetaDataTest.m; path = throttling/MSIDThrottlingMetaDataTest.m; sourceTree = "<group>"; };
 		A057458325A789DC0098E469 /* MSIDThrottlingService.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingService.m; sourceTree = "<group>"; };
 		A07EB426259D0BF300783943 /* MSIDThrottlingService.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingService.h; sourceTree = "<group>"; };
@@ -2349,11 +2351,11 @@
 		A0C7DE3425D451DF00F5B5B6 /* MSIDThrottlingModelBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingModelBase.h; sourceTree = "<group>"; };
 		A0C7DE4325D4522300F5B5B6 /* MSIDThrottlingModelFactory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingModelFactory.h; sourceTree = "<group>"; };
 		A0C7DE5D25D4523800F5B5B6 /* MSIDThrottlingModel429.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingModel429.h; sourceTree = "<group>"; };
-		A0C7DE5E25D4524D00F5B5B6 /* MSIDThrottlingModelInteractionRequire.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingModelInteractionRequire.h; sourceTree = "<group>"; };
+		A0C7DE5E25D4524D00F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingModelNonRecoverableServerError.h; sourceTree = "<group>"; };
 		A0C7DE7425D465CD00F5B5B6 /* MSIDThrottlingModelBase.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModelBase.m; sourceTree = "<group>"; };
 		A0C7DE8325D46D7000F5B5B6 /* MSIDThrottlingModelFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModelFactory.m; sourceTree = "<group>"; };
 		A0C7DEC225D4C8B600F5B5B6 /* MSIDThrottlingModel429.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModel429.m; sourceTree = "<group>"; };
-		A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModelInteractionRequire.m; sourceTree = "<group>"; };
+		A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingModelNonRecoverableServerError.m; sourceTree = "<group>"; };
 		A0E5419525CDC44B0016E167 /* MSIDThrottlingMetaData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingMetaData.h; sourceTree = "<group>"; };
 		A0E541AF25CDC5F10016E167 /* MSIDThrottlingMetaData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDThrottlingMetaData.m; sourceTree = "<group>"; };
 		A0E541D325CDDAB30016E167 /* MSIDThrottlingMetaDataCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDThrottlingMetaDataCache.h; sourceTree = "<group>"; };
@@ -2621,6 +2623,7 @@
 		B286B9F3238A002E007833AD /* MSIDTestParametersProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestParametersProvider.h; sourceTree = "<group>"; };
 		B286B9F4238A002E007833AD /* MSIDTestParametersProvider.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestParametersProvider.m; sourceTree = "<group>"; };
 		B286BA05238A110A007833AD /* MSIDOIDCSignoutRequestTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDOIDCSignoutRequestTests.m; sourceTree = "<group>"; };
+		B287C4CD26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDSSOExtensionRequestDelegateTests.m; sourceTree = "<group>"; };
 		B2893CAE1FCF68B200E348E9 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
 		B28AC66221A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MSIDTestBrokerResponseHelper.h; sourceTree = "<group>"; };
 		B28AC66321A0BB9D00A1FC4A /* MSIDTestBrokerResponseHelper.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MSIDTestBrokerResponseHelper.m; sourceTree = "<group>"; };
@@ -3202,6 +3205,7 @@
 				B217861023A57E0700839CE8 /* MSIDSSOExtensionSignoutRequestIntegrationTests.m */,
 				B216825B23AB069900F4897A /* MSIDSSOExtensionGetAccountsRequestIntegrationTests.m */,
 				B253153C23DD759400432133 /* MSIDSSOExtensionDeviceInfoRequestIntegrationTests.m */,
+				B287C4CD26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m */,
 			);
 			path = integration;
 			sourceTree = "<group>";
@@ -3873,8 +3877,8 @@
 				A0C7DE8325D46D7000F5B5B6 /* MSIDThrottlingModelFactory.m */,
 				A0C7DE5D25D4523800F5B5B6 /* MSIDThrottlingModel429.h */,
 				A0C7DEC225D4C8B600F5B5B6 /* MSIDThrottlingModel429.m */,
-				A0C7DE5E25D4524D00F5B5B6 /* MSIDThrottlingModelInteractionRequire.h */,
-				A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m */,
+				A0C7DE5E25D4524D00F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.h */,
+				A0C7DED125D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m */,
 			);
 			path = model;
 			sourceTree = "<group>";
@@ -4965,7 +4969,7 @@
 			isa = PBXGroup;
 			children = (
 				A0410E4F25E88B5E004D80FD /* MSIDThrottlingMetaDataTest.m */,
-				A0410E1925E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m */,
+				A0410E1925E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m */,
 				A0410E0725E81C5D004D80FD /* MSIDThrottlingModel429Test.m */,
 				A08D0A4724A8841400C9193D /* MSIDAuthenticationSchemeTest.m */,
 				A08D09DF24A85A1D00C9193D /* MSIDAADRefreshTokenGrantRequestTest.m */,
@@ -6281,6 +6285,7 @@
 				B27CCDD5229EF2C000CAD565 /* MSIDDictionaryExtensionsTests.m in Sources */,
 				B2DD4B3120A8DA0B0047A66E /* MSIDLegacyCacheQueryTests.m in Sources */,
 				B20E3CB21FC4FA550029C097 /* MSIDVersion.m in Sources */,
+				B287C4CE26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m in Sources */,
 				B29A36BB20AFAB0200427B63 /* MSIDDefaultAccessorSSOIntegrationTests.m in Sources */,
 				B2DD4B3820A922170047A66E /* MSIDDefaultAccountCacheQueryTests.m in Sources */,
 				B2936F4A20AA8E1F0050C585 /* MSIDCacheItemJsonSerializerTests.m in Sources */,
@@ -6300,7 +6305,7 @@
 				B27893732470BA5B00627C28 /* MSIDAssymetricKeychainGeneratorTests.m in Sources */,
 				23B3A4552187BA79009070B2 /* MSIDIntuneEnrollmentIdsCacheTests.m in Sources */,
 				B2936F7420ABEFC10050C585 /* MSIDAccessTokenTests.m in Sources */,
-				A0410E1A25E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m in Sources */,
+				A0410E1A25E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */,
 				B20657CF1FC92B8F00412B7D /* MSIDTelemetryUIEventTests.m in Sources */,
 				232C657621376755002A41FE /* MSIDDRSDiscoveryResponseSerializerTests.m in Sources */,
 				23419F5D23973AAD00EA78C5 /* MSIDBrokerOperationRequestTests.m in Sources */,
@@ -6629,7 +6634,7 @@
 				96C998F120B638F60053A2D9 /* MSIDWebviewSession.m in Sources */,
 				96891A982190F15E00D7F437 /* MSIDWPJChallengeHandler.m in Sources */,
 				B26CEADB23652795009E6E54 /* MSIDMacACLKeychainAccessor.m in Sources */,
-				A0C7DED325D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m in Sources */,
+				A0C7DED325D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */,
 				96090D9A20E59B2000E42B37 /* MSIDNotifications.m in Sources */,
 				23D2049521D1C274009B5975 /* MSIDTokenResponseSerializer.m in Sources */,
 				96F94A2920816B870034676C /* MSIDWebOAuth2AuthCodeResponse.m in Sources */,
@@ -6719,6 +6724,7 @@
 				A08D0A3E24A85C9900C9193D /* MSIDDevicePopManagerTest.m in Sources */,
 				B2807FFC204CB16B00944D89 /* MSIDHelperTests.m in Sources */,
 				B26A0B9A2072BABE006BD95A /* MSIDAADV2Oauth2FactoryTests.m in Sources */,
+				B287C4CF26A132FA004303F1 /* MSIDSSOExtensionRequestDelegateTests.m in Sources */,
 				60BF06052051F9A200DE7C1C /* MSIDTelemetryTestDispatcher.m in Sources */,
 				233E970622656EB0007FCE2A /* MSIDTelemetryAggregatedTests.m in Sources */,
 				B2DD4B3E20A9270B0047A66E /* MSIDDefaultCredentialCacheQueryTests.m in Sources */,
@@ -6728,7 +6734,7 @@
 				A0410E0925E81C5D004D80FD /* MSIDThrottlingModel429Test.m in Sources */,
 				B2DD4B2F20A8D7DE0047A66E /* MSIDCacheKeyTests.m in Sources */,
 				B2DD5B7B20461F5E0084313F /* MSIDAccountCacheItemTests.m in Sources */,
-				A0410E1B25E87E1A004D80FD /* MSIDThrottlingModelInteractionRequireTest.m in Sources */,
+				A0410E1B25E87E1A004D80FD /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */,
 				606B108C20D084B600B34224 /* MSIDAADV1WebviewFactoryTests.m in Sources */,
 				96CD652A20C885E2004813EE /* MSIDWebviewFactoryTests.m in Sources */,
 				239DF9C220E04BC9002D428B /* MSIDB2CAuthorityTests.m in Sources */,
@@ -7144,7 +7150,7 @@
 				B20657BE1FC9254800412B7D /* MSIDTelemetryCacheEvent.m in Sources */,
 				58B81F7D24AD0E7A00E8799E /* MSIDWebResponseOperationFactory.m in Sources */,
 				E70C49F1258D662F00A7A07E /* MSIDLRUCache.m in Sources */,
-				A0C7DED225D4CB2800F5B5B6 /* MSIDThrottlingModelInteractionRequire.m in Sources */,
+				A0C7DED225D4CB2800F5B5B6 /* MSIDThrottlingModelNonRecoverableServerError.m in Sources */,
 				A0E541EE25CDDAFD0016E167 /* MSIDThrottlingMetaDataCache.m in Sources */,
 				96F94A3A208184790034676C /* MSIDOAuth2EmbeddedWebviewController.m in Sources */,
 				B2E2A93E2392F91100BA2EA3 /* MSIDInteractiveTokenRequestParameters.m in Sources */,

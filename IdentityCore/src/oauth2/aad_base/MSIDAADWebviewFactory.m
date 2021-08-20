@@ -123,6 +123,17 @@
 #if AD_BROKER
     MSIDCBAWebAADAuthResponse *cbaResponse = [[MSIDCBAWebAADAuthResponse alloc] initWithURL:url context:context error:nil];
     if (cbaResponse) return cbaResponse;
+    
+    if ([url.absoluteString containsString:[NSString stringWithFormat:@"%@=", MSID_SSO_NONCE_QUERY_PARAM_KEY]])
+    {
+        NSString *ssoNonce = [[url msidQueryParameters] valueForKey:MSID_SSO_NONCE_QUERY_PARAM_KEY];
+        if (![NSString msidIsStringNilOrBlank:ssoNonce] && error)
+        {
+            NSDictionary *userInfo = @{MSID_SSO_NONCE_QUERY_PARAM_KEY : ssoNonce};
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorAuthorizationFailed, @"Nonce in JWT headers is likely expired, received SSO nonce redirect response.", nil, nil, nil, context.correlationId, userInfo, NO);
+            return nil;
+        }
+    }
 #endif
     
     // Try to create a WPJ response

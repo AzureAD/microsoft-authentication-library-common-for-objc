@@ -43,6 +43,8 @@ extern NSString * _Nonnull MSIDOAuthErrorDomain;
 extern NSString * _Nonnull MSIDKeychainErrorDomain;
 extern NSString * _Nonnull MSIDHttpErrorCodeDomain;
 
+extern NSExceptionName const _Nonnull MSIDGenericException;
+
 /*!
  List of scopes that were requested from MSAL, but not granted in the response.
 
@@ -241,7 +243,12 @@ typedef NS_ENUM(NSInteger, MSIDErrorCode)
     
     MSIDErrorBrokerApplicationTokenReadFailed      =   -51813,
     
-    MSIDErrorBrokerNotAvailable                    =   -51814
+    MSIDErrorBrokerNotAvailable                    =   -51814,
+    
+    // Throttling errors
+    MSIDErrorThrottleCacheNoRecord = -51900,
+    MSIDErrorThrottleCacheInvalidSignature = -51901,
+
 };
 
 extern NSError * _Nonnull MSIDCreateError(NSString * _Nonnull domain, NSInteger code, NSString * _Nullable errorDescription, NSString * _Nullable oauthError, NSString * _Nullable subError, NSError * _Nullable underlyingError, NSUUID * _Nullable correlationId, NSDictionary * _Nullable additionalUserInfo, BOOL logErrorDescription);
@@ -251,3 +258,5 @@ extern MSIDErrorCode MSIDErrorCodeForOAuthError(NSString * _Nullable oauthError,
 extern NSDictionary<NSString *, NSArray *> * _Nonnull MSIDErrorDomainsAndCodes(void);
 
 extern void MSIDFillAndLogError(NSError * _Nullable __autoreleasing * _Nullable error, MSIDErrorCode errorCode, NSString * _Nullable errorDescription, NSUUID * _Nullable correlationID);
+
+#define MSIDException(name, message, info) [NSException exceptionWithName:name reason:[NSString stringWithFormat:@"%@ (function:%s line:%i)", message, __PRETTY_FUNCTION__, __LINE__]  userInfo:info]

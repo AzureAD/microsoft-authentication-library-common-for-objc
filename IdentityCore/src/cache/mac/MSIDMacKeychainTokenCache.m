@@ -333,7 +333,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to set default keychain group, default keychain cache has already been instantiated.");
 
-        @throw @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.";
+        @throw MSIDException(MSIDGenericException, @"Attempting to change the keychain group once AuthenticationContexts have been created or the default keychain cache has been retrieved is invalid. The default keychain group should only be set once for the lifetime of an application.", nil);
     }
 
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, nil, @"Setting default keychain group to %@", MSID_PII_LOG_MASKABLE(defaultKeychainGroup));
@@ -364,6 +364,71 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 #pragma mark - init
 
+- (BOOL)isAppEntitled
+{
+    static dispatch_once_t once;
+    static BOOL appEntitled = NO;
+    
+    dispatch_once(&once, ^{
+        SecCodeRef selfCode = NULL;
+        SecCodeCopySelf(kSecCSDefaultFlags, &selfCode);
+        
+        if (selfCode)
+        {
+            CFDictionaryRef cfDic = NULL;
+            SecCodeCopySigningInformation(selfCode, kSecCSSigningInformation, &cfDic);
+            
+            if (!cfDic)
+            {
+                MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Failed to retrieve code signing information");
+            }
+            else
+            {
+                NSDictionary *signingDic = CFBridgingRelease(cfDic);
+                NSDictionary *entitlementsDictionary = [signingDic msidObjectForKey:(__bridge NSString*)kSecCodeInfoEntitlementsDict ofClass:[NSDictionary class]];
+                NSArray *keychainGroups = [entitlementsDictionary msidObjectForKey:@"keychain-access-groups" ofClass:[NSArray class]];
+                
+                for (id element in keychainGroups) {
+                    if ([element hasSuffix:@"com.microsoft.identity.universalstorage"])
+                    {
+                        appEntitled = YES;
+                        break;
+                    }
+                }
+            }
+            
+            CFRelease(selfCode);
+        }
+    });
+    
+    return appEntitled;
+}
+
+- (BOOL)shouldUseLoginKeychain
+{
+    if (@available(macOS 10.15, *))
+    {
+        
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
+        {
+#if MS_INTERNAL_BUILD
+            return ![self isAppEntitled];
+#else
+            return NO;
+#endif
+        }
+        else
+        {
+            // if kLoginKeychainEmptyKey is not set
+            return YES;
+        }
+    }
+    else
+    {
+        return YES;
+    }
+}
+
 // Initialize with defaultKeychainGroup
 - (nonnull instancetype)init
 {
@@ -386,10 +451,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     if (self)
     {
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-        if (@available(macOS 10.15, *)) {
-            
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
-            {
+        if (![self shouldUseLoginKeychain]) {
                 if (error)
                 {
                     *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it", nil, nil, nil, nil, nil, NO);
@@ -398,7 +460,7 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
                 MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Not creating login keychain for performance optimization on macOS 10.15, because no items where previously found in it");
                 return nil;
             }
-        }
+        
 #endif
         
         self.appStorageItem = [MSIDMacCredentialStorageItem new];
@@ -804,12 +866,10 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
     MSID_TRACE;
     
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 101500
-    if (@available(macOS 10.15, *)) {
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:kLoginKeychainEmptyKey])
-        {
-            MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Skipping login keychain read because it has been previously marked as empty on 10.15");
-            return nil;
-        }
+    if (![self shouldUseLoginKeychain])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, context, @"Skipping login keychain read because it has been previously marked as empty on 10.15");
+        return nil;
     }
 #endif
     
