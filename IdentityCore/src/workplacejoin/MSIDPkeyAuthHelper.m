@@ -135,9 +135,11 @@
         
         return nil;
     }
-    NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
+    //NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
+    
+    NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[@"MIIDJzCCAg+gAwIBAgIQSe6LTtI7OKZM/bRE1mqxKDANBgkqhkiG9w0BAQsFADB4MXYwEQYKCZImiZPyLGQBGRYDbmV0MBUGCgmSJomT8ixkARkWB3dpbmRvd3MwHQYDVQQDExZNUy1Pcmdhbml6YXRpb24tQWNjZXNzMCsGA1UECxMkODJkYmFjYTQtM2U4MS00NmNhLTljNzMtMDk1MGMxZWFjYTk3MB4XDTIxMDgyNjE0MTg0N1oXDTMxMDgyNjE0NDg0N1owLzEtMCsGA1UEAxMkZDBmZDhiNzUtOTg1OC00MGM3LWEzOWYtNWNlNmQ2MDRmYmNiMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEXFwoiZNfMjGv6IDEfUq4z1qYkmdqaI6MrtICULJ3FJ4VDY7PCmKpq//qER3sKgF8+/9FuBZDPZ55AxhlvuxK7KOBwDCBvTAMBgNVHRMBAf8EAjAAMBYGA1UdJQEB/wQMMAoGCCsGAQUFBwMCMCIGCyqGSIb3FAEFghwCBBMEgRB1i/3QWJjHQKOfXObWBPvLMCIGCyqGSIb3FAEFghwDBBMEgRBzjPmJuZIVRrTiWG7JGQ4wMCIGCyqGSIb3FAEFghwFBBMEgRC/iPly8YavQZGrLXzQEdtHMBQGCyqGSIb3FAEFghwIBAUEgQJXVzATBgsqhkiG9xQBBYIcBwQEBIEBMDANBgkqhkiG9w0BAQsFAAOCAQEAMZdoVnj49dkpN8JYX0E5cLmUH2ZPG7dIjTf35Op7rG2Zwo7h8dbhyqbZ7muIwhzCAne+p5lqx3oVMpm4ri3pDIkcThKXYa6W8kgEbK8NZBq2Vm3fbknaxQoZWYvPH2Zw44x+i9XbgMtLYTyqmIMkBDoTrv6iGAArqUMD9ExDIFhdVsnUWtJkObjWwCX+xQjkYTQwqk2dMUhCXKHpDDkJN54O31rhVvc+/7pPD2DSAbqnkwjELAqRQsGkA6ruN9Rr0Ww7BkzCWEsFPjad1FVcv2/7okRl74AFcKxyowCWIAEiQ/cRWvKAdG+FBPJQ+sTXWH0eyZcqLo7NG7YAHq6O0w==" dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0]]];
     NSDictionary *header = @{
-                             @"alg" : @"RS256",
+                             @"alg" : @"ES256",
                              @"typ" : @"JWT",
                              @"x5c" : arrayOfStrings
                              };
@@ -162,4 +164,5 @@
         [serverTelemetry handleError:[[NSError alloc] initWithDomain:telemetryMessage code:code userInfo:nil] context:context];
     }
 }
+
 @end

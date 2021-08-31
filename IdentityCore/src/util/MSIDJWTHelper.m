@@ -32,6 +32,9 @@
 
 @implementation MSIDJWTHelper
 
+static NSString *kEccSharedAccessGroup = @"SGGM6D27TK.com.microsoft.ecctest";
+static NSString *kEccPrivateKeyTag = @"com.microsoft.eccprivatekey";
+
 + (NSString *)createSignedJWTforHeader:(NSDictionary *)header
                               payload:(NSDictionary *)payload
                            signingKey:(SecKeyRef)signingKey
@@ -39,8 +42,11 @@
     NSString *headerJSON = [self JSONFromDictionary:header];
     NSString *payloadJSON = [self JSONFromDictionary:payload];
     NSString *signingInput = [NSString stringWithFormat:@"%@.%@", [headerJSON msidBase64UrlEncode], [payloadJSON msidBase64UrlEncode]];
-    NSData *signedData = [self sign:signingKey
-                               data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
+//    NSData *signedData = [self sign:signingKey
+//                               data:[signingInput dataUsingEncoding:NSUTF8StringEncoding]];
+    NSError *error;
+    NSData *dataHashToBeSigned = [signingInput dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *signedData = [self eccSignData:[dataHashToBeSigned msidSHA256] signingError:&error];
     NSString *signedEncodedDataString = [NSString msidBase64UrlEncodedStringFromData:signedData];
 
     return [NSString stringWithFormat:@"%@.%@", signingInput, signedEncodedDataString];
@@ -99,6 +105,62 @@
 
     NSString *json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     return json;
+}
+
++(NSData *) eccSignData:(NSData *)signingInputHash signingError:(NSError **)error
+{
+    NSData *tag = [kEccPrivateKeyTag dataUsingEncoding:NSUTF8StringEncoding];
+    NSMutableDictionary * queryPrivateKey = [[NSMutableDictionary alloc] init];
+    CFErrorRef signingError = NULL;
+    
+    // Set the private key query dictionary.
+    [queryPrivateKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
+    [queryPrivateKey setObject:tag forKey:(__bridge id)kSecAttrApplicationTag];
+    [queryPrivateKey setObject:(__bridge id)kSecAttrKeyTypeEC forKey:(__bridge id)kSecAttrKeyType];
+    [queryPrivateKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnRef];
+    [queryPrivateKey setObject:kEccSharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
+#if !TARGET_OS_IPHONE
+    if (@available(macOS 10.15, *)) {
+        [queryPrivateKey setObject:@YES forKey:(id)kSecUseDataProtectionKeychain];
+    } else {
+        // Fallback on earlier versions
+    };
+#endif
+    OSStatus status= noErr;
+    SecKeyRef privateKeyReference = NULL;
+    status = SecItemCopyMatching((__bridge CFDictionaryRef)queryPrivateKey, (CFTypeRef *)&privateKeyReference);
+    
+    if (status != errSecSuccess)
+    {
+        privateKeyReference = nil;
+        if (error)
+        *error = [[NSError alloc] initWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+    }
+    
+    if (privateKeyReference == NULL)
+        return nil;
+    
+    NSData *ecSignature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKeyReference,
+                                                                    kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
+                                                                    (__bridge CFDataRef)signingInputHash,
+                                                                    &signingError));
+    if (!ecSignature)
+    {
+        *error = CFBridgingRelease(signingError);
+    }
+    SecKeyRef publicKey = SecKeyCopyPublicKey(privateKeyReference);
+    NSData *publicKeyBits = CFBridgingRelease(SecKeyCopyExternalRepresentation(publicKey, &signingError));
+    NSString *publicKeyBase64Url = [NSString msidBase64UrlEncodedStringFromData:publicKeyBits];
+    NSString *baseEncoded = [NSString msidBase64UrlEncodedStringFromData:publicKeyBits];
+    BOOL isVerified = SecKeyVerifySignature(publicKey,kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
+                                                                    (__bridge CFDataRef) signingInputHash,
+                                                                    (__bridge CFDataRef) ecSignature,
+                                                                    &signingError);
+    if (isVerified && publicKeyBits && baseEncoded && publicKeyBase64Url)
+    {
+    
+    }
+    return ecSignature;
 }
 
 @end
