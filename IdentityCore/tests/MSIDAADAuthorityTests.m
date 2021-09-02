@@ -656,14 +656,16 @@
 {
     [self setupAADAuthorityCache];
     
-    __auto_type authority1 = [@"https://login.microsoftonline.com/1.com" aadAuthority];
-    __auto_type authority2 = [@"https://login.microsoftonline.com/2.com" aadAuthority];
-    __auto_type authority3 = [@"https://login.microsoft.com/3.com" aadAuthority];
-    __auto_type authority4 = [@"https://login.contoso.com/4.com" aadAuthority];
+    MSIDAuthority *authority1 = [@"https://login.microsoftonline.com/1.com" aadAuthority];
+    MSIDAuthority *authority2 = [@"https://login.microsoftonline.com/2.com" aadAuthority];
+    MSIDAuthority *authority3 = [@"https://login.microsoft.com/3.com" aadAuthority];
+    MSIDAuthority *authority4 = [@"https://login.contoso.com/4.com" aadAuthority];
+    MSIDAuthority *authority5 = nil;
     
     XCTAssertTrue([authority1 isSameEnvironmentAsAuthority:authority2]);
     XCTAssertTrue([authority1 isSameEnvironmentAsAuthority:authority3]);
     XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority4]);
+    XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority5]);
 }
 
 #pragma mark - NSCopying
