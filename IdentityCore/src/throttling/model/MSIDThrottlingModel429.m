@@ -42,6 +42,10 @@ NSInteger const MSID_THROTTLING_MAX_RETRY_AFTER = 3600;
         self.thumbprintType = MSIDThrottlingThumbprintTypeStrict;
         self.thumbprintValue = [request strictRequestThumbprint];
         self.throttleDuration = MSID_THROTTLING_DEFAULT_429;
+        
+        NSString *logMessage = [NSString stringWithFormat:@"Throttling: [MSIDThrottlingModel429] strict request thumbprint generated from request with value: %@",self.thumbprintValue];
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"%@", logMessage);
+        
     }
     return self;
 }

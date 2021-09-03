@@ -44,6 +44,9 @@ static NSInteger const MSID_THROTTLING_DEFAULT_UI_REQUIRED = 120;
         self.thumbprintType = MSIDThrottlingThumbprintTypeFull;
         self.thumbprintValue = [request fullRequestThumbprint];
         self.throttleDuration = MSID_THROTTLING_DEFAULT_UI_REQUIRED;
+        
+        NSString *logMessage = [NSString stringWithFormat:@"Throttling: [MSIDThrottlingModel429] strict request thumbprint generated from request with value: %@",self.thumbprintValue];
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"%@", logMessage);
     }
     return self;
 }
