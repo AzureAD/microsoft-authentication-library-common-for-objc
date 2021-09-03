@@ -21,7 +21,7 @@ jobs:
         target: "mac_library"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macOS-11.5'
+    vmImage: 'macOS-10.15'
     timeOutInMinutes: 30
 
   steps:
