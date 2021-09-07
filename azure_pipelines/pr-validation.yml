@@ -6,7 +6,7 @@ pr:
     - '*'
   drafts: true
 
-# Not triggering for CI since it is triggered for PRs
+# Not triggering for CI since it is triggered for PRs 
 trigger: none
 
 # Define parallel jobs that run build script for specified targets
