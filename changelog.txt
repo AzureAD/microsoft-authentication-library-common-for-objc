@@ -1,5 +1,5 @@
 TBD
-* Added more logging in the throttling logic & fixed throttling logic's handling of LRU cache error. (#1032)
+* Added more logging in the throttling logic & fixed throttling logic's handling of LRU cache errors. (#1032)
 
 Version 1.6.9
 * Fix issue with showing smart card's cert on macOS (#1015)
