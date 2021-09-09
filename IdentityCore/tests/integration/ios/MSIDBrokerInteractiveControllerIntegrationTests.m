@@ -43,6 +43,7 @@
 #import "NSString+MSIDTestUtil.h"
 #import "MSIDTestLocalInteractiveController.h"
 #import "MSIDTestIdentifiers.h"
+#import "MSIDTestParametersProvider.h"
 
 @interface MSIDBrokerInteractiveControllerIntegrationTests : XCTestCase
 
@@ -265,7 +266,10 @@
     MSIDTestTokenRequestProvider *provider = [[MSIDTestTokenRequestProvider alloc] initWithTestResponse:nil testError:nil testWebMSAuthResponse:nil brokerRequestURL:brokerRequestURL resumeDictionary:nil];
     
     NSError *error = nil;
-    MSIDTestLocalInteractiveController *fallbackController = [MSIDTestLocalInteractiveController new];
+    MSIDTestLocalInteractiveController *fallbackController = [[MSIDTestLocalInteractiveController alloc] initWithRequestParameters:[MSIDTestParametersProvider testInteractiveParameters]
+                                                                                                              tokenRequestProvider:provider
+                                                                                                                fallbackController:nil
+                                                                                                                             error:nil];
     fallbackController.acquireTokenResult = [self resultWithParameters:[self requestParameters]];
     MSIDBrokerInteractiveController *brokerController = [[MSIDBrokerInteractiveController alloc] initWithInteractiveRequestParameters:[self requestParameters]
                                                                                                                  tokenRequestProvider:provider
