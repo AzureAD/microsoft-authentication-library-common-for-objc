@@ -1,6 +1,11 @@
 TBD
+* Added more logging in the throttling logic & fixed throttling logic's handling of LRU cache errors. (#1032)
+
+Version 1.6.9
 * Fix issue with showing smart card's cert on macOS (#1015)
-* Adding telemetry for ADFS PkeyAuth challenges (#1023)
+* Add telemetry for ADFS PkeyAuth challenges (#1023)
+* Additional logic to toggle login keychain on/off for developers on MacOS 10.15+ based on the presence of valid keychain access group within entitlements (#1021)
+* Added MSIDException/GenericException (#1024)
 
 Version 1.6.8
 * Support for Universal cache in Login Keychain on macOS 10.15+ in Developers (#1016)
@@ -13,8 +18,7 @@ Version 1.6.7
 Version 1.6.6
 * Fix telemetry enum value for refresh_in getting overwritten (#996)
 * Update automation for Xcode 12 UI
-* Support for Universal cache in Login Keychain on macOS 10.15+ in Developers (#1016)
- 
+
 Version 1.6.5
 * Minimum Xcode version bumped to 12.2 (#981)
 * Improve telemetry storage security (#981)
