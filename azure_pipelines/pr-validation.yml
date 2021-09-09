@@ -1,4 +1,4 @@
-# Pipeline will be triggered for PR & any updates on the PR on all branches
+# Pipeline will be triggered for PR & any updates on the PR on all branches 
 pr:
   autoCancel: true
   branches:
