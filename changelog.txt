@@ -1,4 +1,4 @@
-TBD
+Version 1.7.0
 * Added more logging in the throttling logic & fixed throttling logic's handling of LRU cache errors. (#1032)
 
 Version 1.6.9
