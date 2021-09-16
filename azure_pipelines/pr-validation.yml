@@ -1,4 +1,4 @@
-# Pipeline will be triggered for PR & any updates on the PR on all branches
+# Pipeline will be triggered for PR & any updates on the PR on all branches 
 pr:
   autoCancel: true
   branches:
@@ -6,7 +6,7 @@ pr:
     - '*'
   drafts: true
 
-# Not triggering for CI since it is triggered for PRs
+# Not triggering for CI since it is triggered for PRs 
 trigger: none
 
 # Define parallel jobs that run build script for specified targets
@@ -21,7 +21,7 @@ jobs:
         target: "mac_library"
   displayName: Validate Pull Request
   pool:
-    vmImage: 'macOS-latest'
+    vmImage: 'macos-11'
     timeOutInMinutes: 30
 
   steps:

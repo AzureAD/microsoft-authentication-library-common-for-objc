@@ -118,8 +118,14 @@
 
 - (void)testHandleURLResponse_whenRedirectHostAndSchemeMatch_shouldReturnYes
 {
+    __auto_type embeddedWebviewController = [[MSIDOAuth2EmbeddedWebviewController alloc] initWithStartURL:[NSURL new]
+                                                                                                   endURL:[NSURL new]
+                                                                                                  webview:nil
+                                                                                            customHeaders:nil
+                                                                                           platfromParams:nil
+                                                                                                  context:nil];
     MSIDSystemWebviewController *webVC = [MSIDSystemWebviewController new];
-    [webVC setValue:[MSIDOAuth2EmbeddedWebviewController new] forKey:@"session"];
+    [webVC setValue:embeddedWebviewController forKey:@"session"];
     [webVC setValue:[NSURL URLWithString:@"scheme://host"] forKey:@"redirectURL"];
     
     XCTAssertTrue([webVC handleURLResponse:[NSURL URLWithString:@"scheme://host"]]);
