@@ -31,6 +31,10 @@
 #import "MSIDConstants.h"
 #import "NSDictionary+MSIDExtensions.h"
 
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+static MSIDGetRemotePkeyAuthResponse s_GetRemotePkeyAuthResponse = nil;
+#endif
+
 @implementation MSIDPKeyAuthHandler
 
 + (BOOL)handleChallenge:(NSString *)challengeUrl
@@ -57,9 +61,20 @@
     NSArray *authorityParts = [submitUrl componentsSeparatedByString:@"?"];
     NSString *authority = [authorityParts objectAtIndex:0];
     
-    NSString *authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
-                                                          challengeData:queryParamsMap
-                                                                context:context];
+    NSString *authHeader = nil;
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+    if (s_GetRemotePkeyAuthResponse != nil)
+    {
+        authHeader = s_GetRemotePkeyAuthResponse(challengeUrl);
+    }
+#endif
+    
+    if (authHeader == nil)
+    {
+        authHeader = [MSIDPkeyAuthHelper createDeviceAuthResponse:authority
+                                                              challengeData:queryParamsMap
+                                                                    context:context];
+    }
     
     // Attach client version to response url
     NSURLComponents *responseUrlComp = [[NSURLComponents alloc] initWithURL:[NSURL URLWithString:submitUrl] resolvingAgainstBaseURL:NO];
@@ -78,5 +93,17 @@
     completionHandler(responseReq, nil);
     return YES;
 }
+
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
++ (void)setRemotePkeyAuthCallback:(MSIDGetRemotePkeyAuthResponse)callback
+{
+    if (s_GetRemotePkeyAuthResponse != nil)
+    {
+        @throw @"MSID Remote PkeyAuth Response callback can only be set once per process and should never changed once set.";
+    }
+    
+    s_GetRemotePkeyAuthResponse = callback;
+}
+#endif
 
 @end
