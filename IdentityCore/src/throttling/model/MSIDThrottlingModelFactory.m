@@ -50,9 +50,10 @@
                                                                                                    error:&error];
     if (error)
     {
-        if (error.code != MSIDErrorThrottleCacheNoRecord && error.code != MSIDErrorThrottleCacheInvalidSignature)
+        if (error.code == MSIDErrorThrottleCacheNoRecord || error.code == MSIDErrorThrottleCacheInvalidSignature)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Throttling: No record in throttle cache");
+            error = nil;
         }
         else
         {
@@ -75,8 +76,11 @@
 {
     MSIDThrottlingType throttleType = [MSIDThrottlingModelFactory processErrorResponseToGetThrottleType:errorResponse];
     
-    if (throttleType == MSIDThrottlingTypeNone) return nil;
-    
+    if (throttleType == MSIDThrottlingTypeNone)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelWarning, nil, @"Throttling: [throttlingModelForResponseWithRequest] throttle type is neither 429 nor interaction required.");
+        return nil;
+    }
     return [self generateModelFromErrorResponse:errorResponse
                                         request:request
                                    throttleType:throttleType
@@ -106,10 +110,12 @@
     MSIDThrottlingType throttleType = MSIDThrottlingTypeNone;
     if ([MSIDThrottlingModel429 isApplicableForTheThrottleModel:errorResponse])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Throttling: [processErrorResponseToGetThrottleType] error response is of type 429.");
         throttleType = MSIDThrottlingType429;
     }
     else if ([MSIDThrottlingModelNonRecoverableServerError isApplicableForTheThrottleModel:errorResponse])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Throttling: [processErrorResponseToGetThrottleType] error response is of type interaction required.");
         throttleType = MSIDThrottlingTypeInteractiveRequired;
     }
     
