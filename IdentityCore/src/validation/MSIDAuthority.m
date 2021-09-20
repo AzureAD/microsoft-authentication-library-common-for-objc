@@ -241,6 +241,8 @@ NSString *const MSID_AUTHORITY_TYPE_JSON_KEY = @"authority_type";
 
 - (BOOL)isSameEnvironmentAsAuthority:(MSIDAuthority *)authority
 {
+    if (!authority || ![authority isKindOfClass:MSIDAuthority.class]) return NO;
+    
     NSArray<NSString *> *aliases = [self defaultCacheEnvironmentAliases];
     for (NSString *environment in aliases)
     {

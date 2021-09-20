@@ -661,11 +661,13 @@
     MSIDAuthority *authority3 = [@"https://login.microsoft.com/3.com" aadAuthority];
     MSIDAuthority *authority4 = [@"https://login.contoso.com/4.com" aadAuthority];
     MSIDAuthority *authority5 = nil;
+    MSIDAuthority *authority6 = (MSIDAuthority *)[NSNull null];
     
     XCTAssertTrue([authority1 isSameEnvironmentAsAuthority:authority2]);
     XCTAssertTrue([authority1 isSameEnvironmentAsAuthority:authority3]);
     XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority4]);
     XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority5]);
+    XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority6]);
 }
 
 #pragma mark - NSCopying
