@@ -102,6 +102,8 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 - (void)loadOpenIdMetadataWithContext:(nullable id<MSIDRequestContext>)context
                       completionBlock:(nonnull MSIDOpenIdConfigurationInfoBlock)completionBlock;
 
+- (BOOL)isSameEnvironmentAsAuthority:(nonnull MSIDAuthority *)authority;
+
 + (BOOL)isAuthorityFormatValid:(nonnull NSURL *)url
                        context:(nullable id<MSIDRequestContext>)context
                          error:(NSError * _Nullable __autoreleasing * _Nullable)error;

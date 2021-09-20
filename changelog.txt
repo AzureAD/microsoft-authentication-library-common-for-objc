@@ -1,3 +1,6 @@
+TBD
+* Add helper function used by cross cloud B2B support (#957)
+
 Version 1.7.0
 * Added more logging in the throttling logic & fixed throttling logic's handling of LRU cache errors. (#1032)
 
