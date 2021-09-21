@@ -30,6 +30,8 @@ NSString * MSIDPromptParamFromType(MSIDPromptType type)
             return @"login";
         case MSIDPromptTypeConsent:
             return @"consent";
+        case MSIDPromptTypeCreate:
+            return @"create";
         case MSIDPromptTypeSelectAccount:
             return @"select_account";
         case MSIDPromptTypeRefreshSession:
@@ -51,6 +53,10 @@ MSIDPromptType MSIDPromptTypeFromString(NSString *promptTypeString)
     else if ([promptTypeString isEqualToString:@"consent"])
     {
         return MSIDPromptTypeConsent;
+    }
+    else if ([promptTypeString isEqualToString:@"create"])
+    {
+        return MSIDPromptTypeCreate;
     }
     else if ([promptTypeString isEqualToString:@"select_account"])
     {
