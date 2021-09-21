@@ -76,7 +76,7 @@
 - (void)executeRequestWithCompletion:(nonnull MSIDInteractiveRequestCompletionBlock)completionBlock
 {
 #if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest caller:self];
 #endif
     
     [super getAuthCodeWithCompletion:^(MSIDAuthorizationCodeResult * _Nullable result, NSError * _Nullable error, MSIDWebWPJResponse * _Nullable installBrokerResponse)
@@ -106,7 +106,7 @@
     [tokenRequest sendWithBlock:^(MSIDTokenResponse *tokenResponse, NSError *error)
     {
 #if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest caller:self];
 #elif TARGET_OS_OSX
     self.tokenResponseHandler.externalCacheSeeder = self.externalCacheSeeder;
 #endif

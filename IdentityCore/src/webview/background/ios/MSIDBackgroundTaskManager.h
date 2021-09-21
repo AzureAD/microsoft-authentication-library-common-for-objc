@@ -30,7 +30,8 @@
 typedef NS_ENUM(NSInteger, MSIDBackgroundTaskType)
 {
     MSIDBackgroundTaskTypeInteractiveRequest = 0,
-    MSIDBackgroundTaskTypeSilentRequest
+    MSIDBackgroundTaskTypeSilentRequest,
+    MSIDBackgroundTaskTypeBrokerRequest
 };
 
 NS_ASSUME_NONNULL_BEGIN
@@ -42,8 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (MSIDBackgroundTaskManager *)sharedInstance;
 
-- (void)startOperationWithType:(MSIDBackgroundTaskType)type;
-- (void)stopOperationWithType:(MSIDBackgroundTaskType)type;
+- (void)startOperationWithType:(MSIDBackgroundTaskType)type caller:(id)caller;
+- (void)stopOperationWithType:(MSIDBackgroundTaskType)type caller:(id)caller;
 
 @end
 

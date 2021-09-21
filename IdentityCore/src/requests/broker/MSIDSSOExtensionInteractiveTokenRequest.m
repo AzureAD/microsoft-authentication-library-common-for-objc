@@ -81,7 +81,7 @@
         _extensionDelegate.completionBlock = ^(MSIDBrokerOperationTokenResponse *operationResponse, NSError *error)
         {
 #if TARGET_OS_IPHONE
-            [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+            [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest caller:weakSelf];
 #endif
             
 #if TARGET_OS_OSX
@@ -165,7 +165,7 @@
         ssoRequest.authorizationOptions = queryItems;
         
 #if TARGET_OS_IPHONE
-        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+        [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest caller:self];
 #endif
         
         self.authorizationController = [[ASAuthorizationController alloc] initWithAuthorizationRequests:@[ssoRequest]];
@@ -204,7 +204,7 @@
 - (void)dealloc
 {
 #if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
+    [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest caller:self];
 #endif
 }
 
