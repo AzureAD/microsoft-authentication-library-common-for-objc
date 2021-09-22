@@ -119,7 +119,7 @@
     }
     
 #if TARGET_OS_IPHONE
-    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest caller:self];
+    [[MSIDBackgroundTaskManager sharedInstance] startOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 #endif
     
     self.telemetryRequestId = [self.context telemetryRequestId];
