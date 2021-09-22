@@ -66,7 +66,7 @@
 
 /*
  Background task execution:
- https://forums.developer.apple.com/message/253232#253232
+ https://developer.apple.com/forums/thread/85066
  */
 
 - (void)startOperationWithType:(MSIDBackgroundTaskType)type
@@ -100,7 +100,7 @@
         return;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Stop background task with type %ld", (long)type);
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Stop background task with type %ld & taskId : %lu", (long)type, backgroundTaskData.backgroundTaskId);
     [[MSIDAppExtensionUtil sharedApplication] endBackgroundTask:backgroundTaskData.backgroundTaskId];
     [self.taskCache removeObjectForKey:@(type)];
 }
