@@ -65,9 +65,10 @@ typedef NS_ENUM(NSInteger, MSIDUIBehaviorType)
 
 typedef NS_ENUM(NSInteger, MSIDPromptType)
 {
-    MSIDPromptTypePromptIfNecessary = 0, // No prompt specified, will use cookies is present, prompt otherwise
+    MSIDPromptTypePromptIfNecessary = 0, // No prompt specified, will use cookies if present, prompt otherwise
     MSIDPromptTypeLogin, // prompt == "login", will force user to enter credentials
     MSIDPromptTypeConsent, // prompt == "consent", will force user to grant permissions
+    MSIDPromptTypeCreate,  // prompt == "create", will show create account UI. https://openid.net/specs/openid-connect-prompt-create-1_0.html
     MSIDPromptTypeSelectAccount, // prompt == "select_account", will show an account picker UI
     MSIDPromptTypeRefreshSession, // prompt=refresh_session
     MSIDPromptTypeNever, // prompt=none, ensures user is never prompted
