@@ -52,10 +52,6 @@ static WKWebViewConfiguration *s_webConfig;
 {
     WKWebViewConfiguration *webConfig = [WKWebViewConfiguration new];
 
-    if (@available(macOS 10.15, *))
-    {
-        webConfig.defaultWebpagePreferences.preferredContentMode = WKContentModeDesktop;
-    }
     return webConfig;
 }
 
