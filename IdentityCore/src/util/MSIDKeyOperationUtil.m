@@ -78,10 +78,10 @@
     }
     
     NSData *digest = [rawData msidSHA256];
-    if ([self.class isKeyFromSecureEnclave:privateKey])
+    // Since Secure enclave only supports ECC NIST P-256 curve key we can assume key is used for ECDSA
+    if ([self.class isKeyFromSecureEnclave:privateKey] && [self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context])
     {
         CFErrorRef *subError;
-        // Since Secure enclave only supports ECC NIST P-256 curve key we can assume key is used for ECDSA
         NSData *ecSignature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
                                                                         kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
                                                                         (__bridge CFDataRef)digest,
