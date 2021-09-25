@@ -29,6 +29,7 @@
 #import "MSIDLogger+Internal.h"
 #import "NSData+JWT.h"
 #import "NSData+MSIDExtensions.h"
+#import "MSIDKeyOperationUtil.h"
 
 @implementation MSIDJWTHelper
 
@@ -79,9 +80,7 @@
 + (NSData *)sign:(SecKeyRef)privateKey
             data:(NSData *)plainData
 {
-
-    NSData *hashData = [plainData msidSHA256];
-    return [hashData msidSignHashWithPrivateKey:privateKey];
+    return [MSIDKeyOperationUtil getSignedDigestWithKey:plainData privateKey:privateKey context:nil error:nil];
 }
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary

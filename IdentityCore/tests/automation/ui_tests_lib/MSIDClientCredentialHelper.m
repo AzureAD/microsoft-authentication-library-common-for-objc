@@ -30,6 +30,8 @@
 #import "MSIDAADV1Oauth2Factory.h"
 #import "NSDictionary+MSIDExtensions.h"
 #import "MSIDAADAuthority.h"
+#import "MSIDJwtAlgorithm.h"
+#import "MSIDKeyOperationUtil.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation MSIDClientCredentialHelper
@@ -266,7 +268,13 @@
     CFRelease(data);
     CFRelease(certificate);
     
-    NSDictionary *header = @{@"alg" : @"RS256",
+    MSIDJwtAlgorithm alg = [MSIDKeyOperationUtil getJwtAlgorithmForKey:privateKey context:nil];
+    if ([NSString msidIsStringNilOrBlank:alg])
+    {
+        NSLog(@"Signing algorithm not supported by key");
+        return nil;
+    }
+    NSDictionary *header = @{@"alg" : alg,
                              @"typ" : @"JWT",
                              @"x5t" : thumbprint};
     

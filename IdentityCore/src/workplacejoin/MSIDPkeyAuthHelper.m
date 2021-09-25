@@ -32,6 +32,7 @@
 #import "MSIDWorkplaceJoinChallenge.h"
 #import "MSIDAADTokenRequestServerTelemetry.h"
 #import "MSIDADFSAuthority.h"
+#import "MSIDKeyOperationUtil.h"
 
 @implementation MSIDPkeyAuthHelper
 
@@ -136,8 +137,14 @@
         return nil;
     }
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
+    MSIDJwtAlgorithm alg = [MSIDKeyOperationUtil getJwtAlgorithmForKey:identity.privateKeyRef context:nil];
+    if ([NSString msidIsStringNilOrBlank:alg])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Key signing algorithm not supported");
+        return nil;
+    }
     NSDictionary *header = @{
-                             @"alg" : @"RS256",
+                             @"alg" : alg,
                              @"typ" : @"JWT",
                              @"x5c" : arrayOfStrings
                              };

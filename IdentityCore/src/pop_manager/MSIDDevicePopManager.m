@@ -28,6 +28,8 @@
 #import "MSIDAssymetricKeyGeneratorFactory.h"
 #import "MSIDAssymetricKeyLookupAttributes.h"
 #import "MSIDAssymetricKeyPair.h"
+#import "MSIDJwtAlgorithm.h"
+#import "MSIDKeyOperationUtil.h"
 
 @interface MSIDDevicePopManager()
 
@@ -169,8 +171,15 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"MSIDDevicePopManager: createSignedAccessToken nonce is empty");
     }
     
+    MSIDJwtAlgorithm alg = [MSIDKeyOperationUtil getJwtAlgorithmForKey:self.keyPair.privateKeyRef context:nil];
+    if ([NSString msidIsStringNilOrBlank:alg])
+    {
+        [self logAndFillError:@"Key signing algorithm not supported." error:error];
+        return nil;
+    }
+    
     NSDictionary *header = @{
-        @"alg" : @"RS256",
+        @"alg" : alg,
         @"typ" : @"JWT",
         @"kid" : kid
     };
