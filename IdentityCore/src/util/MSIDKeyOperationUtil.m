@@ -19,7 +19,7 @@
     {
         NSDictionary *attributes = (NSDictionary *)CFBridgingRelease(SecKeyCopyAttributes(key));
         NSString *attrTokenId = (NSString *)[attributes valueForKey:(NSString *)CFBridgingRelease(kSecAttrTokenID)];
-        NSString *secureEnclaveId = (NSString *)(CFBridgingRelease(kSecAttrTokenIDSecureEnclave));
+        NSString *secureEnclaveId = (NSString *)(CFBridgingRelease(kSecAttrTokenIDSecureEnclave));  // id = com.apple.settoken for key in secure enclave
         return [secureEnclaveId isEqualToString:attrTokenId];
     }
     return NO;
@@ -81,7 +81,7 @@
     // Since Secure enclave only supports ECC NIST P-256 curve key we can assume key is used for ECDSA
     if ([self.class isKeyFromSecureEnclave:privateKey] && [self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context])
     {
-        CFErrorRef *subError;
+        CFErrorRef *subError = NULL;
         NSData *ecSignature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
                                                                         kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
                                                                         (__bridge CFDataRef)digest,

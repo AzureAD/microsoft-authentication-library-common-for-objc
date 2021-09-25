@@ -22,6 +22,6 @@
 + (NSData * _Nullable)getSignedDigestWithKey:(NSData * _Nonnull)rawData
                                   privateKey:(_Nonnull SecKeyRef)privateKey
                                      context:(_Nullable id<MSIDRequestContext>)context
-                                       error:(_Nullable NSError **)error;
+                                       error:(NSError * _Nullable * _Nullable)error;
 
 @end
