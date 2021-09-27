@@ -196,7 +196,7 @@
         return anchor;
     }
     
-    return self.requestParameters.parentViewController.view.window;
+    return self.requestParameters.parentViewController ? self.requestParameters.parentViewController.view.window : self.requestParameters.presentationAnchorWindow;
 }
 
 #pragma mark - Dealloc
