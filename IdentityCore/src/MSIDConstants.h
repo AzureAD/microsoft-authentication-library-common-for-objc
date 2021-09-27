@@ -89,16 +89,10 @@ typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullab
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 @compatibility_alias MSIDViewController UIViewController;
-#else
-#import <AppKit/AppKit.h>
-@compatibility_alias MSIDViewController NSViewController;
-#endif
-
-#if TARGET_OS_IPHONE
-#import <UIKit/UIKit.h>
 @compatibility_alias MSIDWindow UIWindow;
 #else
 #import <AppKit/AppKit.h>
+@compatibility_alias MSIDViewController NSViewController;
 @compatibility_alias MSIDWindow NSWindow;
 #endif
 
