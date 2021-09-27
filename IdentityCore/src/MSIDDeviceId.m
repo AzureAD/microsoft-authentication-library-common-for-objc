@@ -91,13 +91,18 @@ void CopySerialNumber(CFStringRef *serialNumber)
     
     dispatch_once(&deviceIdOnce, ^{
 #if TARGET_OS_IPHONE
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+        NSString * deviceModel = [NSString stringWithFormat:@"iOSSimulatorCompanion=%@", [[UIDevice currentDevice] model]];
+#else
+        NSString * deviceModel = [[UIDevice currentDevice] model];
+#endif
         //iOS:
         NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:
                                        @{
                                          MSID_PLATFORM_KEY: [MSIDVersion platformName],
                                          MSID_VERSION_KEY: [MSIDVersion sdkVersion],
                                          MSID_OS_VER_KEY: [self deviceOSVersion],
-                                         MSID_DEVICE_MODEL_KEY: [UIDevice currentDevice].model,
+                                         MSID_DEVICE_MODEL_KEY: deviceModel,
                                          }];
 #else
         NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:

@@ -24,10 +24,18 @@
 #import <Foundation/Foundation.h>
 #import "MSIDChallengeHandling.h"
 
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
+typedef NSString * (^MSIDGetRemotePkeyAuthResponse)(NSString * challengeUrl);
+#endif
+
 @interface MSIDPKeyAuthHandler : NSObject
 
 + (BOOL)handleChallenge:(NSString *)challengeUrl
                 context:(id<MSIDRequestContext>)context
       completionHandler:(void (^)(NSURLRequest *challengeResponse, NSError *error))completionHandler;
+
+#if MS_REMOTE_PKEYAUTH_CALLBACK && TARGET_OS_SIMULATOR
++ (void)setRemotePkeyAuthCallback:(MSIDGetRemotePkeyAuthResponse)callback;
+#endif
 
 @end
