@@ -71,38 +71,41 @@
 
 - (void)startOperationWithType:(MSIDBackgroundTaskType)type
 {
-    MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
-    
-    if (backgroundTaskData)
+    @synchronized (self.taskCache)
     {
-        // A background task was already started for this type, updating count
-        backgroundTaskData.callerReferenceCount++;
-        return;
+        __weak MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        if (backgroundTaskData)
+        {
+            // A background task was already started for this type, updating count
+            backgroundTaskData.callerReferenceCount++;
+            return;
+        }
+        UIBackgroundTaskIdentifier backgroundTaskId = [[MSIDAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
+                                                                                                          expirationHandler:^{
+                                                                        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Background task expired for type %ld.", (long)type);
+                                                                    // If a task took too long & OS has decided to kill it, end bg task for that type regardless of other requsts relying on bg protection.
+                                                                        [self expireOperationWithType:type];
+                                                                    }];
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Start background app task with type %ld & taskId : %lu", (long)type, (unsigned long)backgroundTaskId);
+        [self setBackgroundTask:[[MSIDBackgroundTaskData alloc] initWithTaskId:backgroundTaskId] forType:type];
     }
-    
-    UIBackgroundTaskIdentifier backgroundTaskId = [[MSIDAppExtensionUtil sharedApplication] beginBackgroundTaskWithName:@"Interactive login"
-                                                                  expirationHandler:^{
-                                                                      MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Background task expired for type %ld.", (long)type);
-                                                                // If a task took too long & OS has decided to kill it, end bg task for that type regardless of other requsts relying on bg protection.
-                                                                      [self expireOperationWithType:type];
-                                                                  }];
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Start background app task with type %ld & taskId : %lu", (long)type, (unsigned long)backgroundTaskId);
-    [self setBackgroundTask:[[MSIDBackgroundTaskData alloc] initWithTaskId:backgroundTaskId] forType:type];
 }
 
 - (void)stopOperationWithType:(MSIDBackgroundTaskType)type
 {
-    MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
-    backgroundTaskData.callerReferenceCount--;
-    if (!backgroundTaskData || backgroundTaskData.callerReferenceCount > 0)
+    @synchronized (self.taskCache)
     {
-        // No background task found in task cache for specified type or there are still other tasks relying on background protection.
-        return;
+        __weak MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        backgroundTaskData.callerReferenceCount--;
+        if (!backgroundTaskData || backgroundTaskData.callerReferenceCount > 0)
+        {
+            // No background task found in task cache for specified type or there are still other tasks relying on background protection.
+            return;
+        }
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Stop background task with type %ld & taskId : %lu", (long)type, backgroundTaskData.backgroundTaskId);
+        [[MSIDAppExtensionUtil sharedApplication] endBackgroundTask:backgroundTaskData.backgroundTaskId];
+        [self.taskCache removeObjectForKey:@(type)];
     }
-    
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Stop background task with type %ld & taskId : %lu", (long)type, backgroundTaskData.backgroundTaskId);
-    [[MSIDAppExtensionUtil sharedApplication] endBackgroundTask:backgroundTaskData.backgroundTaskId];
-    [self.taskCache removeObjectForKey:@(type)];
 }
 
 - (void)expireOperationWithType:(MSIDBackgroundTaskType)type
