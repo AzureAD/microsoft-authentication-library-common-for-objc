@@ -89,9 +89,11 @@ typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullab
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 @compatibility_alias MSIDViewController UIViewController;
+@compatibility_alias MSIDWindow UIWindow;
 #else
 #import <AppKit/AppKit.h>
 @compatibility_alias MSIDViewController NSViewController;
+@compatibility_alias MSIDWindow NSWindow;
 #endif
 
 extern NSString * _Nonnull const MSID_PLATFORM_KEY;//The SDK platform. iOS or OSX
