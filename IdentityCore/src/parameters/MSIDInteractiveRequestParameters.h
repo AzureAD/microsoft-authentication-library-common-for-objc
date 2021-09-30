@@ -24,6 +24,7 @@
 #import "MSIDRequestParameters.h"
 #import "MSIDConstants.h"
 #import "MSIDBrokerInvocationOptions.h"
+#import "MSIDConstants.h"
 
 @class WKWebView;
 #if TARGET_OS_IPHONE
@@ -39,6 +40,10 @@
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIModalPresentationStyle presentationType;
 #endif
+/* Use presentationAnchorWindow as a fallback if parentViewController is
+   not provided, so that Sso extension UI can attach to the provided window
+*/
+@property (nonatomic) MSIDWindow *presentationAnchorWindow;
 @property (nonatomic) BOOL prefersEphemeralWebBrowserSession;
 @property (nonatomic) NSString *telemetryWebviewType;
 
