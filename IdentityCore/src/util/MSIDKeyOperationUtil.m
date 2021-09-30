@@ -25,35 +25,53 @@
     return NO;
 }
 
-+ (BOOL)isOperationSupportedByKey:(SecKeyOperationType)operation algorithm:(SecKeyAlgorithm)algorithm key:(SecKeyRef)key context:(id<MSIDRequestContext> _Nullable)context
++ (BOOL)isOperationSupportedByKey:(SecKeyOperationType)operation algorithm:(SecKeyAlgorithm)algorithm key:(SecKeyRef)key context:(id<MSIDRequestContext> _Nullable)context error:(NSError * _Nullable __autoreleasing *)error
 {
+    if (key == NULL)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key passed in to check operation is not defined.", nil, nil, nil, context.correlationId, nil, YES);
+            return NO;
+        }
+    }
     BOOL isSupported = SecKeyIsAlgorithmSupported(key, operation, algorithm);
     if (!isSupported)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Key does not support %ld with %@", (long)operation, algorithm);
+        if (error)
+        {
+            NSString *errorMessage = [NSString stringWithFormat:@"Key does not support %ld with %@", (long)operation, algorithm];
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
+        }
     }
     return isSupported;
 }
 
-+ (MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef)key context:(id<MSIDRequestContext> _Nullable)context
++ (MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef)privateKey context:(id<MSIDRequestContext> _Nullable)context error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
-    if (!key)
+    if (privateKey == NULL)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Supplied key not defined");
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No key to determine signing algorithm", nil, nil, nil, context.correlationId, nil, YES);
+        }
         return nil;
     }
     
-    if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:key context:context])
+    if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:privateKey context:context error:error])
     {
         return MSID_JWT_ALG_ES256;
     }
     
-    if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:key context:context])
+    if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
     {
         return MSID_JWT_ALG_RS256;
     }
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Key does not support signing any supported algorithms or key is public key");
+    if (error)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelError, context, @"Key does not support signing any supported algorithms or key is public key");
+    }
     return nil;
 }
 
@@ -68,7 +86,7 @@
         }
     }
     
-    if (!privateKey)
+    if (privateKey == NULL)
     {
         if (error)
         {
@@ -79,7 +97,7 @@
     
     NSData *digest = [rawData msidSHA256];
     // Since Secure enclave only supports ECC NIST P-256 curve key we can assume key is used for ECDSA
-    if ([self.class isKeyFromSecureEnclave:privateKey] && [self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context])
+    if ([self.class isKeyFromSecureEnclave:privateKey] && [self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context error:error])
     {
         CFErrorRef *subError = NULL;
         NSData *ecSignature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
@@ -96,7 +114,7 @@
         }
         return ecSignature;
     }
-    else if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context])
+    else if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
     {
         NSData *rsaSignature = [digest msidSignHashWithPrivateKey:privateKey];
         if (!rsaSignature)

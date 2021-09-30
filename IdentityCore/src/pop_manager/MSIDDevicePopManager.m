@@ -171,7 +171,7 @@
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"MSIDDevicePopManager: createSignedAccessToken nonce is empty");
     }
     
-    MSIDJwtAlgorithm alg = [MSIDKeyOperationUtil getJwtAlgorithmForKey:self.keyPair.privateKeyRef context:nil];
+    MSIDJwtAlgorithm alg = [MSIDKeyOperationUtil getJwtAlgorithmForKey:self.keyPair.privateKeyRef context:nil error:error];
     if ([NSString msidIsStringNilOrBlank:alg])
     {
         [self logAndFillError:@"Key signing algorithm not supported." error:error];

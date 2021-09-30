@@ -15,9 +15,12 @@
 + (BOOL)isOperationSupportedByKey:(SecKeyOperationType)operation
                         algorithm:(_Nonnull SecKeyAlgorithm)algorithm
                               key:(_Nonnull SecKeyRef)key
-                          context:(_Nullable id<MSIDRequestContext>)context;
+                          context:(_Nullable id<MSIDRequestContext>)context
+                            error:(NSError * _Nullable * _Nullable)error;
 
-+ (_Nullable MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef _Nonnull )key context:(_Nullable id<MSIDRequestContext>)context;
++ (_Nullable MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef _Nonnull )key
+                                            context:(_Nullable id<MSIDRequestContext>)context
+                                              error:(NSError * _Nullable * _Nullable)error;
 
 + (NSData * _Nullable)getSignedDigestWithKey:(NSData * _Nonnull)rawData
                                   privateKey:(_Nonnull SecKeyRef)privateKey
