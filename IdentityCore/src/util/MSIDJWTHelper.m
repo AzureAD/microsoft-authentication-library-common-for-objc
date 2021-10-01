@@ -80,7 +80,7 @@
 + (NSData *)sign:(SecKeyRef)privateKey
             data:(NSData *)plainData
 {
-    return [MSIDKeyOperationUtil getSignedDigestWithKey:plainData privateKey:privateKey context:nil error:nil];
+    return [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:plainData privateKey:privateKey context:nil error:nil];
 }
 
 + (NSString *)JSONFromDictionary:(NSDictionary *)dictionary

@@ -5,11 +5,13 @@
 //  Created by Ameya Patil on 9/29/21.
 //  Copyright © 2021 Microsoft. All rights reserved.
 //
-
+#if !TARGET_OS_SIMULATOR
 #import <XCTest/XCTest.h>
 #import "MSIDKeyOperationUtil.h"
 #import "MSIDJwtAlgorithm.h"
 #import "NSData+MSIDTestUtil.h"
+#import "NSData+JWT.h"
+#import "NSData+MSIDExtensions.h"
 
 @interface MSIDKeyOperationUtilTest : XCTestCase
     @property (nonatomic) SecKeyRef eccPrivateKey;
@@ -42,11 +44,11 @@
 - (void)testIfKeyIsFromSecureEnclave_shouldReturnTrueForSECKeys
 {
     XCTAssertTrue(self.eccPrivateKey != NULL);
-    XCTAssertTrue([MSIDKeyOperationUtil isKeyFromSecureEnclave:self.eccPrivateKey]);
-    XCTAssertFalse([MSIDKeyOperationUtil isKeyFromSecureEnclave:self.eccPublicKey]);
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.eccPrivateKey]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.eccPublicKey]);
     // RSA keys can't be in secure enclave
-    XCTAssertFalse([MSIDKeyOperationUtil isKeyFromSecureEnclave:self.rsaPrivateKey]);
-    XCTAssertFalse([MSIDKeyOperationUtil isKeyFromSecureEnclave:self.rsaPublicKey]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.rsaPrivateKey]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:self.rsaPublicKey]);
 }
 
 - (void)testIfOperationIsSupportedByKey
@@ -60,54 +62,95 @@
     // Private key tests
     
     // ECC private key should be able to sign artifacts with ECDSA
-    XCTAssertTrue([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.eccPrivateKey context:nil error:&error]);
-    XCTAssertTrue([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:self.eccPrivateKey context:nil error:&error]);
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.eccPrivateKey context:nil error:&error]);
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:self.eccPrivateKey context:nil error:&error]);
     // ECC private key should not be able to sign artifacts with RSA key algorithms
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:self.eccPrivateKey context:nil error:&error]);
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureRaw key:self.eccPrivateKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:self.eccPrivateKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureRaw key:self.eccPrivateKey context:nil error:&error]);
     // RSA private key should be able to sign artifacts with RSA key algorithms
-    XCTAssertTrue([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:self.rsaPrivateKey context:nil error:&error]);
-    XCTAssertTrue([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureRaw key:self.rsaPrivateKey context:nil error:&error]);
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:self.rsaPrivateKey context:nil error:&error]);
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureRaw key:self.rsaPrivateKey context:nil error:&error]);
     // RSA private key should be able to sign artifacts with ECDSA
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.rsaPrivateKey context:nil error:&error]);
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:self.rsaPrivateKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.rsaPrivateKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:self.rsaPrivateKey context:nil error:&error]);
 #if TARGET_OS_IPHONE  // Fails on macOS but passes on iOS. Opened FB https://feedbackassistant.apple.com/feedback/9665871
     // Private key should not be used to verify
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeVerify algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.eccPrivateKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeVerify algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.eccPrivateKey context:nil error:&error]);
 #endif
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeVerify algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:self.rsaPrivateKey context:nil error:&error]);
-    
     // Testing private key cannot be used to encrypt (kSecAttrCanEncrypt of private key is set to NO)
 #if TARGET_OS_IPHONE  // Fails on macOS but passes on iOS. Opened FB : https://feedbackassistant.apple.com/feedback/9665871
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeEncrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPrivateKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeEncrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPrivateKey context:nil error:&error]);
 #endif
     // Testing private key can be used to decrypt (kSecAttrCanDecrypt of private key is set to YES)
-    XCTAssertTrue([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeDecrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPrivateKey context:nil error:&error]);
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeDecrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPrivateKey context:nil error:&error]);
     
     // Public key tests
     
     // Testing public key can be used to encrypt (kSecAttrCanEncrypt of public key set to YES)
-    XCTAssertTrue([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeEncrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPublicKey context:nil error:&error]);
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeEncrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPublicKey context:nil error:&error]);
     // Testing public key cannot be used to decrypt (kSecAttrCanDecrypt of public key set to NO)
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeDecrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPublicKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeDecrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPublicKey context:nil error:&error]);
     // Any public key should not be able to sign an artifact
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.eccPublicKey context:nil error:&error]);
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.rsaPublicKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.eccPublicKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.rsaPublicKey context:nil error:&error]);
     
     // Operation not supported for NULL key
     SecKeyRef nullKey = NULL;
-    XCTAssertFalse([MSIDKeyOperationUtil isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureRaw key:nullKey context:nil error:&error]);
+    XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureRaw key:nullKey context:nil error:&error]);
 }
 
 - (void)testCorrectJwtalgorithmIsReturnedForAKey
 {
     XCTAssertNotEqual(self.eccPrivateKey, NULL);
     // Return ES256 for ECC private key
-    XCTAssertEqual([MSIDKeyOperationUtil getJwtAlgorithmForKey:self.eccPrivateKey context:nil error:nil], MSID_JWT_ALG_ES256);
+    XCTAssertEqual([[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:self.eccPrivateKey context:nil error:nil], MSID_JWT_ALG_ES256);
     NSError *error;
     // Passing public key should not return a Jwt alg
-    XCTAssertNil([MSIDKeyOperationUtil getJwtAlgorithmForKey:self.eccPublicKey context:nil error:&error]);
+    XCTAssertNil([[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:self.eccPublicKey context:nil error:&error]);
     XCTAssertNotNil(error);
+}
+
+- (void)testSigningRawDataWithKey
+{
+    NSData *dataToBeSigned = [@"TEST" dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *dataDigest = [dataToBeSigned msidSHA256];
+    NSError *error;
+    NSData *signature = nil;
+    
+    // Valid signature with ECC private key via secure enclave
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataToBeSigned privateKey:self.eccPrivateKey context:nil error:&error];
+    XCTAssertNotNil(signature);
+    XCTAssertNil(error);
+
+    CFErrorRef verifyingError = NULL;
+    BOOL isVerified = SecKeyVerifySignature(self.eccPublicKey,
+                                            kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
+                                            (__bridge CFDataRef) dataToBeSigned,
+                                            (__bridge CFDataRef) signature,
+                                            &verifyingError);
+    XCTAssertTrue(isVerified);
+    XCTAssertTrue(verifyingError == NULL);
+    
+    // Valid signature with RSA private key
+    signature = [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataToBeSigned privateKey:self.rsaPrivateKey context:nil error:&error];
+    XCTAssertNotNil(signature);
+    XCTAssertNil(error);
+
+    verifyingError = NULL;
+    isVerified = SecKeyVerifySignature(self.rsaPublicKey,
+                                       kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256,
+                                       (__bridge CFDataRef) dataToBeSigned,
+                                       (__bridge CFDataRef) signature,
+                                       &verifyingError);
+    XCTAssertTrue(isVerified);
+    XCTAssertTrue(verifyingError == NULL);
+    
+    [[MSIDKeyOperationUtil sharedInstance] getSignatureForDataWithKey:dataDigest privateKey:self.eccPrivateKey context:nil error:&error];
+    
+    // Checking RSA signature generated by MSIDKeyOperationUtil matches signature generated with NSData+JWT
+    NSData *rsaDataSignature = [dataDigest msidSignHashWithPrivateKey:self.rsaPrivateKey];
+    XCTAssertEqualObjects([rsaDataSignature msidBase64UrlEncodedString], [signature msidBase64UrlEncodedString]);
+
 }
 
 #pragma mark -- Test Utility
@@ -205,3 +248,4 @@
     }
 }
 @end
+#endif

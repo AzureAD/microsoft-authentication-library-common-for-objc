@@ -137,7 +137,7 @@
         return nil;
     }
     NSArray *arrayOfStrings = @[[NSString stringWithFormat:@"%@", [[identity certificateData] base64EncodedStringWithOptions:0]]];
-    MSIDJwtAlgorithm alg = [MSIDKeyOperationUtil getJwtAlgorithmForKey:identity.privateKeyRef context:nil error:nil];
+    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:identity.privateKeyRef context:nil error:nil];
     if ([NSString msidIsStringNilOrBlank:alg])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelError, nil, @"Key signing algorithm not supported");

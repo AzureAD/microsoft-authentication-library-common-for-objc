@@ -268,7 +268,7 @@
     CFRelease(data);
     CFRelease(certificate);
     
-    MSIDJwtAlgorithm alg = [MSIDKeyOperationUtil getJwtAlgorithmForKey:privateKey context:nil];
+    MSIDJwtAlgorithm alg = [[MSIDKeyOperationUtil sharedInstance] getJwtAlgorithmForKey:privateKey context:nil];
     if ([NSString msidIsStringNilOrBlank:alg])
     {
         NSLog(@"Signing algorithm not supported by key");
