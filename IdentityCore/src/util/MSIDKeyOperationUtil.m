@@ -13,7 +13,17 @@
 
 @implementation MSIDKeyOperationUtil
 
-+ (BOOL)isKeyFromSecureEnclave:(SecKeyRef)key
++ (MSIDKeyOperationUtil *)sharedInstance
+{
+    static dispatch_once_t once;
+    static MSIDKeyOperationUtil *s_keyOperationUtil = nil;
+    dispatch_once(&once, ^{
+        s_keyOperationUtil = [[MSIDKeyOperationUtil alloc] init];
+    });
+    return s_keyOperationUtil;
+}
+
+- (BOOL)isKeyFromSecureEnclave:(SecKeyRef)key
 {
     if (key)
     {
@@ -25,7 +35,7 @@
     return NO;
 }
 
-+ (BOOL)isOperationSupportedByKey:(SecKeyOperationType)operation algorithm:(SecKeyAlgorithm)algorithm key:(SecKeyRef)key context:(id<MSIDRequestContext> _Nullable)context error:(NSError * _Nullable __autoreleasing *)error
+- (BOOL)isOperationSupportedByKey:(SecKeyOperationType)operation algorithm:(SecKeyAlgorithm)algorithm key:(SecKeyRef)key context:(id<MSIDRequestContext> _Nullable)context error:(NSError * _Nullable __autoreleasing *)error
 {
     if (key == NULL)
     {
@@ -47,7 +57,7 @@
     return isSupported;
 }
 
-+ (MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef)privateKey context:(id<MSIDRequestContext> _Nullable)context error:(NSError * _Nullable __autoreleasing * _Nullable)error
+- (MSIDJwtAlgorithm)getJwtAlgorithmForKey:(SecKeyRef)privateKey context:(id<MSIDRequestContext> _Nullable)context error:(NSError * _Nullable __autoreleasing * _Nullable)error
 {
     if (privateKey == NULL)
     {
@@ -58,12 +68,12 @@
         return nil;
     }
     
-    if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:privateKey context:context error:error])
+    if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:privateKey context:context error:error])
     {
         return MSID_JWT_ALG_ES256;
     }
     
-    if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
+    if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
     {
         return MSID_JWT_ALG_RS256;
     }
@@ -75,7 +85,7 @@
     return nil;
 }
 
-+ (NSData *)getSignedDigestWithKey:(NSData *)rawData privateKey:(SecKeyRef)privateKey context:(id<MSIDRequestContext>)context error:(NSError * _Nullable __autoreleasing *)error
+- (NSData *)getSignatureForDataWithKey:(NSData *)rawData privateKey:(SecKeyRef)privateKey context:(id<MSIDRequestContext>)context error:(NSError * _Nullable __autoreleasing *)error
 {
     if (!rawData)
     {
@@ -95,44 +105,38 @@
         }
     }
     
-    NSData *digest = [rawData msidSHA256];
+    SecKeyAlgorithm algorithm = nil;
     // Since Secure enclave only supports ECC NIST P-256 curve key we can assume key is used for ECDSA
-    if ([self.class isKeyFromSecureEnclave:privateKey] && [self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context error:error])
+    if ([[MSIDKeyOperationUtil sharedInstance] isKeyFromSecureEnclave:privateKey] && [[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmECDSASignatureMessageX962SHA256 key:privateKey context:context error:error])
     {
-        CFErrorRef *subError = NULL;
-        NSData *ecSignature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
-                                                                        kSecKeyAlgorithmECDSASignatureMessageX962SHA256,
-                                                                        (__bridge CFDataRef)digest,
-                                                                                subError));
-        if (!ecSignature)
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to sign hash with key from secure enclave", nil, nil, CFBridgingRelease(subError), context.correlationId, nil, YES);
-                return nil;
-            }
-        }
-        return ecSignature;
+        algorithm = kSecKeyAlgorithmECDSASignatureMessageX962SHA256;
     }
-    else if ([self.class isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:privateKey context:context error:error])
+    else if ([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeSign algorithm:kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256 key:privateKey context:context error:error])
     {
-        NSData *rsaSignature = [digest msidSignHashWithPrivateKey:privateKey];
-        if (!rsaSignature)
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to sign hash with RSA key", nil, nil, nil, context.correlationId, nil, YES);
-                return nil;
-            }
-        }
-        return rsaSignature;
+        algorithm = kSecKeyAlgorithmRSASignatureMessagePKCS1v15SHA256;
     }
     
-    if (error)
+    if (algorithm == NULL)
     {
-        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Signing digest failed because algorithm not supported or key was probably a public key.", nil, nil, nil, context.correlationId, nil, YES);
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Signing algorithm could not be determined for supplied key because key is not of supported type or it is a public key.", nil, nil, nil, context.correlationId, nil, YES);
+            return nil;
+        }
     }
-    return nil;
+    CFErrorRef *subError = NULL;
+    NSData *signature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
+                                                                          algorithm,
+                                                                          (__bridge CFDataRef)rawData,
+                                                                          subError));
+    if (!signature)
+    {
+        if (error)
+        {
+            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to sign data with key.", nil, nil, CFBridgingRelease(subError), context.correlationId, nil, YES);
+        }
+    }
+    return signature;
 }
 
 @end
