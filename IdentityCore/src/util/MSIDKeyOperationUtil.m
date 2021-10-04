@@ -39,20 +39,14 @@
 {
     if (key == NULL)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Key passed in to check operation is not defined.", nil, nil, nil, context.correlationId, nil, YES);
-            return NO;
-        }
+        [self generateErrorWithMessage:@"Key passed in to check operation is not defined." underlyingError:nil context:context error:error];
+        return NO;
     }
     BOOL isSupported = SecKeyIsAlgorithmSupported(key, operation, algorithm);
     if (!isSupported)
     {
-        if (error)
-        {
-            NSString *errorMessage = [NSString stringWithFormat:@"Key does not support %ld with %@", (long)operation, algorithm];
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, nil, context.correlationId, nil, YES);
-        }
+        NSString *errorMessage = [NSString stringWithFormat:@"Key does not support %ld with %@", (long)operation, algorithm];
+        [self generateErrorWithMessage:errorMessage underlyingError:nil context:context error:error];
     }
     return isSupported;
 }
@@ -61,10 +55,7 @@
 {
     if (privateKey == NULL)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No key to determine signing algorithm", nil, nil, nil, context.correlationId, nil, YES);
-        }
+        [self generateErrorWithMessage:@"No key to determine signing algorithm" underlyingError:nil context:context error:error];
         return nil;
     }
     
@@ -89,20 +80,14 @@
 {
     if (!rawData)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No data to sign", nil, nil, nil, context.correlationId, nil, YES);
-            return nil;
-        }
+        [self generateErrorWithMessage: @"No data to sign" underlyingError:nil context:context error:error];
+        return nil;
     }
     
     if (privateKey == NULL)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"No key defined to sign data with", nil, nil, nil, context.correlationId, nil, YES);
-            return nil;
-        }
+        [self generateErrorWithMessage:@"No key defined to sign data with" underlyingError:nil context:context error:error];
+        return nil;
     }
     
     SecKeyAlgorithm algorithm = nil;
@@ -118,11 +103,8 @@
     
     if (algorithm == NULL)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Signing algorithm could not be determined for supplied key because key is not of supported type or it is a public key.", nil, nil, nil, context.correlationId, nil, YES);
-            return nil;
-        }
+        [self generateErrorWithMessage:@"Signing algorithm could not be determined for supplied key because key is not of supported type or it is a public key." underlyingError:nil context:context error:error];
+        return nil;
     }
     CFErrorRef *subError = NULL;
     NSData *signature = (NSData *)CFBridgingRelease(SecKeyCreateSignature(privateKey,
@@ -131,12 +113,17 @@
                                                                           subError));
     if (!signature)
     {
-        if (error)
-        {
-            *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Failed to sign data with key.", nil, nil, CFBridgingRelease(subError), context.correlationId, nil, YES);
-        }
+        [self generateErrorWithMessage:@"Failed to sign data with key." underlyingError:CFBridgingRelease(subError) context:context error:error];
     }
     return signature;
+}
+
+- (void) generateErrorWithMessage:(NSString *)errorMessage underlyingError:(NSError *)underlyingError context:(id<MSIDRequestContext> _Nullable)context error:(NSError **)error
+{
+    if (error)
+    {
+        *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, errorMessage, nil, nil, underlyingError, context.correlationId, nil, YES);
+    }
 }
 
 @end
