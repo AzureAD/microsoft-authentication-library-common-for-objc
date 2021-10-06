@@ -84,7 +84,7 @@
 - (NSString *)aadApiVersionWithDelimiter
 {
     __auto_type apiVersion = MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion ?: @"";
-    __auto_type delimiter = MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion ? @"/" : @"";
+    __auto_type delimiter = MSIDAADNetworkConfiguration.defaultConfiguration.aadApiVersion ? @"" : @"";
     
     return [NSString stringWithFormat:@"%@%@", apiVersion, delimiter];
 }
