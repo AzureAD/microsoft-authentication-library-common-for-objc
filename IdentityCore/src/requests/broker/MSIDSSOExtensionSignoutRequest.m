@@ -84,8 +84,9 @@
                 MSID_LOG_WITH_CTX_PII(MSIDLogLevelError, parameters, @"Finished logout request with error %@", MSID_PII_LOG_MASKABLE(error));
             }
             
-            MSIDSignoutRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
+            __typeof__(self) strongSelf = weakSelf;
+            MSIDSignoutRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
             
             if (completionBlock) completionBlock(operationResponse.success, error);
         };

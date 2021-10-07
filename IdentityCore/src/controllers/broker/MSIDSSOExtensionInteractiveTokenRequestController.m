@@ -61,20 +61,21 @@
 
     MSIDRequestCompletionBlock completionBlockWrapper = ^(MSIDTokenResult *result, NSError *error)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
+        __typeof__(self) strongSelf = weakSelf;
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.requestParameters, @"Interactive broker extension flow finished. Result %@, error: %ld error domain: %@", _PII_NULLIFY(result), (long)error.code, error.domain);
         if (!error)
         {
             /**
              Throttling service: when an interactive token succeed, we update the last refresh time of the throttling service
              */
-            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache context:weakSelf.interactiveRequestParamaters error:nil];
+            [MSIDThrottlingService updateLastRefreshTimeDatasource:request.extendedTokenCache context:strongSelf.interactiveRequestParamaters error:nil];
            
         }
-        else if ([weakSelf shouldFallback:error])
+        else if ([strongSelf shouldFallback:error])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, weakSelf.requestParameters, @"Falling back to local controller.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, strongSelf.requestParameters, @"Falling back to local controller.");
             
-            [weakSelf.fallbackController acquireToken:completionBlock];
+            [strongSelf.fallbackController acquireToken:completionBlock];
             return;
         }
         
