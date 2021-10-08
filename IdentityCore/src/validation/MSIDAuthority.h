@@ -43,15 +43,15 @@ typedef void(^MSIDOpenIdConfigurationInfoBlock)(MSIDOpenIdProviderMetadata * _Nu
 
 @property (class, readonly, nonnull) MSIDCache *openIdConfigurationCache;
 
-@property (readonly, nonnull) NSURL *url;
+@property (atomic, readonly, nonnull) NSURL *url;
 
-@property (readonly, nonnull) NSString *environment;
+@property (atomic, readonly, nonnull) NSString *environment;
 
-@property (readonly, nonnull) NSString *realm;
+@property (atomic, readonly, nonnull) NSString *realm;
 
-@property (readonly, nullable) NSURL *openIdConfigurationEndpoint;
+@property (atomic, readonly, nullable) NSURL *openIdConfigurationEndpoint;
 
-@property (readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
+@property (atomic, readonly, nullable) MSIDOpenIdProviderMetadata *metadata;
 
 @property (nonatomic) BOOL isDeveloperKnown;
 

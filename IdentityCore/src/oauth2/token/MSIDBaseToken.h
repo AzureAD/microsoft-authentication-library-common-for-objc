@@ -49,13 +49,13 @@
  We can not use 'environment' because cache item could be saved with
  'preferred authority' and it might not be equal to provided 'authority'.
  */
-@property (readwrite) NSString *storageEnvironment;
-@property (readwrite) NSString *environment;
-@property (readwrite) NSString *realm;
-@property (readwrite) NSString *clientId;
-@property (readwrite) NSDictionary *additionalServerInfo;
-@property (readwrite) MSIDAccountIdentifier *accountIdentifier;
-@property (readwrite) NSString *speInfo;
+@property (atomic, readwrite) NSString *storageEnvironment;
+@property (atomic, readwrite) NSString *environment;
+@property (atomic, readwrite) NSString *realm;
+@property (atomic, readwrite) NSString *clientId;
+@property (atomic, readwrite) NSDictionary *additionalServerInfo;
+@property (atomic, readwrite) MSIDAccountIdentifier *accountIdentifier;
+@property (atomic, readwrite) NSString *speInfo;
 
 - (instancetype)initWithTokenCacheItem:(MSIDCredentialCacheItem *)tokenCacheItem;
 - (MSIDCredentialCacheItem *)tokenCacheItem;

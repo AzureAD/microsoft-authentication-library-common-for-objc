@@ -35,7 +35,7 @@ static NSUInteger s_expirationBuffer = 300;
 
 @interface MSIDAccessToken()
 
-@property (readwrite) NSString *target;
+@property (atomic, readwrite) NSString *target;
 
 @end
 

@@ -52,7 +52,7 @@ MSIDWebviewUIController <MSIDWebviewInteracting, WKNavigationDelegate>
                                 webview:(WKWebView *)webView
                         decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
 
-@property (readonly) NSURL *startURL;
+@property (atomic, readonly) NSURL *startURL;
 
 @end
 

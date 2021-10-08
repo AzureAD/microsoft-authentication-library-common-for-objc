@@ -31,8 +31,8 @@
 
 @interface MSIDWebWPJResponse : MSIDWebviewResponse
 
-@property (readonly) NSString *upn;
-@property (readonly) NSString *appInstallLink;
-@property (readonly) MSIDClientInfo *clientInfo;
+@property (atomic, readonly) NSString *upn;
+@property (atomic, readonly) NSString *appInstallLink;
+@property (atomic, readonly) MSIDClientInfo *clientInfo;
 
 @end
