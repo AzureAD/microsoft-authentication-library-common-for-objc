@@ -99,8 +99,14 @@
 
 - (void)presentResults:(NSString *)resultJson logs:(NSString *)resultLogs
 {
-    [self performSegueWithIdentifier:MSID_SHOW_RESULT_SEGUE sender:@{MSID_RESULT_INFO_SEGUE_KEY:resultJson ? resultJson : @"",
-                                                                     MSID_RESULT_LOGS_SEGUE_KEY:resultLogs ? resultLogs : @""}];
+    NSString *simulatorSharedDir = [NSProcessInfo processInfo].environment[@"SIMULATOR_SHARED_RESOURCES_DIRECTORY"];
+    NSURL *simulatorHomeDirUrl = [[NSURL alloc] initFileURLWithPath:simulatorSharedDir];
+    NSURL *cachesDirUrl = [simulatorHomeDirUrl URLByAppendingPathComponent:@"Library/Caches"];
+    NSURL *resultFileUrl = [cachesDirUrl URLByAppendingPathComponent:@"ui_atomation_result_pipeline.txt"];
+    NSURL *logsFileUrl = [cachesDirUrl URLByAppendingPathComponent:@"ui_atomation_logs_pipeline.txt"];
+    
+    [resultJson writeToFile:resultFileUrl.path atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    [resultLogs writeToFile:logsFileUrl.path atomically:YES encoding:NSUTF8StringEncoding error:nil];
 }
 
 - (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context
@@ -218,8 +224,21 @@ static NSMutableString *s_resultLogs = nil;
 
         [self performAction:action parameters:requestParams];
     };
+    
+    NSString *jsonString = [self getConfigJsonString];
+    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
+    if (!params)
+    {
+        completionBlock(nil);
+        return;
+    }
 
-    [self performSegueWithIdentifier:MSID_SHOW_REQUEST_SEGUE sender:@{MSID_COMPLETION_BLOCK_SEGUE_KEY : completionBlock}];
+    MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
+    request.parentController = self;
+    
+    sleep(1);
+    
+    completionBlock(request);
 }
 
 - (void)performAction:(id<MSIDAutomationTestAction>)action parameters:(MSIDAutomationTestRequest *)parameters
@@ -231,6 +250,20 @@ static NSMutableString *s_resultLogs = nil;
                             [self showResultViewWithResult:result.jsonDictionary logs:self.class.resultLogs];
 
                         }];
+}
+
+#pragma mark - Private
+
+- (NSString *)getConfigJsonString
+{
+    NSString *simulatorSharedDir = [NSProcessInfo processInfo].environment[@"SIMULATOR_SHARED_RESOURCES_DIRECTORY"];
+    NSURL *simulatorHomeDirUrl = [[NSURL alloc] initFileURLWithPath:simulatorSharedDir];
+    NSURL *cachesDirUrl = [simulatorHomeDirUrl URLByAppendingPathComponent:@"Library/Caches"];
+    NSURL *fileUrl = [cachesDirUrl URLByAppendingPathComponent:@"ui_atomation_request_pipeline.txt"];
+
+    NSString *jsonString = [NSString stringWithContentsOfFile:fileUrl.path encoding:NSUTF8StringEncoding error:nil];
+    
+    return jsonString;
 }
 
 @end

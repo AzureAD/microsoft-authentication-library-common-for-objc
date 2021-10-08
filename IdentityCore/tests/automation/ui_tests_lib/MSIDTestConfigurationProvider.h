@@ -67,4 +67,21 @@
 - (NSString *)scopesForEnvironment:(NSString *)environment type:(NSString *)type;
 - (NSString *)resourceForEnvironment:(NSString *)environment type:(NSString *)type;
 
+- (void)configureResourceInRequest:(MSIDAutomationTestRequest *)request
+               forEnvironment:(NSString *)environment
+                                     type:(NSString *)type
+                            suportsScopes:(BOOL)suportsScopes;
+
+- (void)configureScopesInRequest:(MSIDAutomationTestRequest *)request
+               forEnvironment:(NSString *)environment
+                      scopesType:(NSString *)scopesType
+                    resourceType:(NSString *)resourceType
+                   suportsScopes:(BOOL)suportsScopes;
+
+- (void)configureAuthorityInRequest:(MSIDAutomationTestRequest *)request
+                     forEnvironment:(NSString *)environment
+                           tenantId:(NSString *)tenantId
+                    accountTenantId:(NSString *)accountTenantId
+supportsTenantSpecificResultAuthority:(BOOL)supportsTenantSpecificResultAuthority;
+
 @end

@@ -45,8 +45,8 @@
     self.requestGo.enabled = NO;
     [self.requestGo setTitle:@"Running..." forState:UIControlStateDisabled];
 
-    NSError *error = nil;
-    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[self.requestInfo.text dataUsingEncoding:NSUTF8StringEncoding] options:0 error:&error];
+    NSString *jsonString = [self getConfigJsonString];
+    NSDictionary *params = [NSJSONSerialization JSONObjectWithData:[jsonString dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil];
     if (!params)
     {
         self.completionBlock(nil);
@@ -57,6 +57,20 @@
     request.parentController = self;
     
     self.completionBlock(request);
+}
+
+#pragma mark - Private
+
+- (NSString *)getConfigJsonString
+{
+    NSString *simulatorSharedDir = [NSProcessInfo processInfo].environment[@"SIMULATOR_SHARED_RESOURCES_DIRECTORY"];
+    NSURL *simulatorHomeDirUrl = [[NSURL alloc] initFileURLWithPath:simulatorSharedDir];
+    NSURL *cachesDirUrl = [simulatorHomeDirUrl URLByAppendingPathComponent:@"Library/Caches"];
+    NSURL *fileUrl = [cachesDirUrl URLByAppendingPathComponent:@"ui_atomation_request_pipeline.txt"];
+
+    NSString *jsonString = [NSString stringWithContentsOfFile:fileUrl.path encoding:NSUTF8StringEncoding error:nil];
+    
+    return jsonString;
 }
 
 @end

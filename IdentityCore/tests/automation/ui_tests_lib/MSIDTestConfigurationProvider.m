@@ -176,21 +176,25 @@
     
     NSString *testEnvironment = environment ? environment : self.wwEnvironment;
     
-    request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
-    request.requestResource = [self resourceForEnvironment:testEnvironment type:@"ms_graph"];
-    
     if (scopesSupported)
     {
         request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
+        request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
+        
+        // TODO: use supportsTenantSpecificResultAuthority
         request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
     }
     else
     {
-        NSString *resourceGuid = [self resourceForEnvironment:testEnvironment type:@"ms_graph_guid"];
-        request.expectedResultScopes = [NSString stringWithFormat:@"%@/.default", resourceGuid];
+        request.requestResource = [self resourceForEnvironment:testEnvironment type:@"ms_graph"];
         
+        request.expectedResultScopes = request.requestResource;
+        request.requestScopes = [NSString stringWithFormat:@"%@/.default", request.requestResource];
+        
+        // TODO: use supportsTenantSpecificResultAuthority
         request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
     }
+    
     request.configurationAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
     
     request.cacheAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
@@ -264,6 +268,70 @@
     if (!request.clientId) request.clientId = appConfig.appId;
     if (!request.redirectUri) request.redirectUri = appConfig.defaultRedirectUri;
     return request;
+}
+
+- (void)configureResourceInRequest:(MSIDAutomationTestRequest *)request
+               forEnvironment:(NSString *)environment
+                                     type:(NSString *)type
+                            suportsScopes:(BOOL)suportsScopes
+{
+    NSString *resource = [self resourceForEnvironment:environment type:type];
+    request.requestScopes = [resource stringByAppendingString:@"/.default"];
+    request.requestResource = [self resourceForEnvironment:environment type:type];;
+    
+    if (suportsScopes)
+    {
+        request.expectedResultScopes = request.requestScopes;
+    }
+    else
+    {
+        request.expectedResultScopes = request.requestResource;
+    }
+}
+
+- (void)configureScopesInRequest:(MSIDAutomationTestRequest *)request
+               forEnvironment:(NSString *)environment
+                      scopesType:(NSString *)scopesType
+                    resourceType:(NSString *)resourceType
+                   suportsScopes:(BOOL)suportsScopes
+{
+    if (suportsScopes)
+    {
+        request.requestScopes = [self scopesForEnvironment:environment type:scopesType];
+        
+        if ([scopesType isEqualToString:@"ms_graph"] || [scopesType isEqualToString:@"ms_graph_static"])
+        {
+            request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:self.oidcScopes];
+        }
+        else
+        {
+            request.expectedResultScopes = request.requestScopes;
+        }
+    }
+    else
+    {
+        request.requestResource = [self resourceForEnvironment:environment type:resourceType];
+        request.requestScopes = [request.requestResource stringByAppendingString:@"/.default"];
+        request.expectedResultScopes = request.requestResource;
+    }
+}
+
+- (void)configureAuthorityInRequest:(MSIDAutomationTestRequest *)request
+                     forEnvironment:(NSString *)environment
+                           tenantId:(NSString *)tenantId
+                    accountTenantId:(NSString *)accountTenantId
+supportsTenantSpecificResultAuthority:(BOOL)supportsTenantSpecificResultAuthority
+{
+    request.configurationAuthority = [self defaultAuthorityForIdentifier:environment tenantId:tenantId];
+    
+    if (supportsTenantSpecificResultAuthority)
+    {
+        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:environment tenantId:accountTenantId];
+    }
+    else
+    {
+        request.expectedResultAuthority = request.configurationAuthority;
+    }
 }
 
 @end
