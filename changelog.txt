@@ -1,3 +1,7 @@
+Version 1.0.22
+-------------
+* Fix for ADAL apps that send passed In view to show spinner while blocked from showing SSO UI prompt on mac
+
 Version 1.0.21
 -------------
 * Fix showing smart card's cert on macOS (ADAL hotfix). #1022
