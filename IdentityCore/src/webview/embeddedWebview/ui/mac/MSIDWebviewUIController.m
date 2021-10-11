@@ -74,6 +74,8 @@ static WKWebViewConfiguration *s_webConfig;
 {
     if (_webView)
     {
+        _loadingIndicator = [self prepareLoadingIndicator];
+        [_webView addSubview:_loadingIndicator];
         return YES;
     }
     
