@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,33 +20,17 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
+
 
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MSIDAutomationActionConstants : NSObject
+@interface MSIDTestsConfig : NSObject
 
-extern NSString *const MSID_AUTO_CLEAR_CACHE_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_CLEAR_COOKIES_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_OPEN_URL_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_ACQUIRE_TOKEN_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_ACQUIRE_TOKEN_SILENT_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_EXPIRE_AT_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_INVALIDATE_RT_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_REMOVE_ACCOUNT_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_REMOVE_ACCOUNT_FROM_BROKER_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_REMOVE_ACCOUNT_FROM_DEVICE_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_READ_ACCOUNTS_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_ACQUIRE_TOKEN_WITH_RT_IDENTIFIER;
-extern NSString *const MSID_AUTO_EMPTY_STRESS_TEST_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_NON_EMPTY_STRESS_TEST_ACTION_IDENTIFIER;
-extern NSString *const MSID_AUTO_INTERACTIVE_STRESS_TEST_ACTION_IDENTIFIER;
-
-+ (NSString *)requestPipelinePath;
-+ (NSString *)resultPipelinePath;
-+ (NSString *)logsPipelinePath;
+@property (nonatomic) BOOL scopesSupported;
+@property (nonatomic) BOOL tenantSpecificResultAuthoritySupported;
 
 @end
 

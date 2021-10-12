@@ -31,6 +31,7 @@
 #import "MSIDLogger+Internal.h"
 #import "MSIDAutomationTestRequest.h"
 #import <WebKit/WebKit.h>
+#import "MSIDAutomationActionConstants.h"
 
 @interface MSIDAutomationMainViewController ()
 
@@ -98,15 +99,9 @@
 }
 
 - (void)presentResults:(NSString *)resultJson logs:(NSString *)resultLogs
-{
-    NSString *simulatorSharedDir = [NSProcessInfo processInfo].environment[@"SIMULATOR_SHARED_RESOURCES_DIRECTORY"];
-    NSURL *simulatorHomeDirUrl = [[NSURL alloc] initFileURLWithPath:simulatorSharedDir];
-    NSURL *cachesDirUrl = [simulatorHomeDirUrl URLByAppendingPathComponent:@"Library/Caches"];
-    NSURL *resultFileUrl = [cachesDirUrl URLByAppendingPathComponent:@"ui_atomation_result_pipeline.txt"];
-    NSURL *logsFileUrl = [cachesDirUrl URLByAppendingPathComponent:@"ui_atomation_logs_pipeline.txt"];
-    
-    [resultJson writeToFile:resultFileUrl.path atomically:YES encoding:NSUTF8StringEncoding error:nil];
-    [resultLogs writeToFile:logsFileUrl.path atomically:YES encoding:NSUTF8StringEncoding error:nil];
+{   
+    [resultJson writeToFile:[MSIDAutomationActionConstants resultPipelinePath] atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    [resultLogs writeToFile:[MSIDAutomationActionConstants logsPipelinePath] atomically:YES encoding:NSUTF8StringEncoding error:nil];
 }
 
 - (void)showPassedInWebViewControllerWithContext:(NSDictionary *)context
@@ -236,8 +231,6 @@ static NSMutableString *s_resultLogs = nil;
     MSIDAutomationTestRequest *request = [[MSIDAutomationTestRequest alloc] initWithJSONDictionary:params error:nil];
     request.parentController = self;
     
-    sleep(1);
-    
     completionBlock(request);
 }
 
@@ -256,12 +249,7 @@ static NSMutableString *s_resultLogs = nil;
 
 - (NSString *)getConfigJsonString
 {
-    NSString *simulatorSharedDir = [NSProcessInfo processInfo].environment[@"SIMULATOR_SHARED_RESOURCES_DIRECTORY"];
-    NSURL *simulatorHomeDirUrl = [[NSURL alloc] initFileURLWithPath:simulatorSharedDir];
-    NSURL *cachesDirUrl = [simulatorHomeDirUrl URLByAppendingPathComponent:@"Library/Caches"];
-    NSURL *fileUrl = [cachesDirUrl URLByAppendingPathComponent:@"ui_atomation_request_pipeline.txt"];
-
-    NSString *jsonString = [NSString stringWithContentsOfFile:fileUrl.path encoding:NSUTF8StringEncoding error:nil];
+    NSString *jsonString = [NSString stringWithContentsOfFile:[MSIDAutomationActionConstants requestPipelinePath] encoding:NSUTF8StringEncoding error:nil];
     
     return jsonString;
 }

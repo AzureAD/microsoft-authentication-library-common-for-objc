@@ -26,6 +26,7 @@
 #import "MSIDAutomationOperationAPIRequestHandler.h"
 #import "MSIDAutomationPasswordRequestHandler.h"
 #import "MSIDTestAutomationAppConfigurationRequest.h"
+#import "MSIDTestsConfig.h"
 
 @class MSIDTestAutomationApplication;
 
@@ -39,16 +40,15 @@
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (instancetype)initWithConfigurationPath:(NSString *)configurationPath;
+- (instancetype)initWithConfigurationPath:(NSString *)configurationPath
+                              testsConfig:(MSIDTestsConfig *)testsConfig;
+
+- (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
+                                  targetTenantId:(NSString *)targetTenantId;
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
                                   targetTenantId:(NSString *)targetTenantId
-                                 scopesSupported:(BOOL)scopesSupported;
-
-- (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
-                                  targetTenantId:(NSString *)targetTenantId
-                                   brokerEnabled:(BOOL)brokerEnabled
-                                 scopesSupported:(BOOL)scopesSupported;
+                                   brokerEnabled:(BOOL)brokerEnabled;
 
 - (NSDictionary *)appInstallForConfiguration:(NSString *)appId;
 

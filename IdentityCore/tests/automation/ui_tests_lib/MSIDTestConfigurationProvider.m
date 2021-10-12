@@ -44,6 +44,8 @@
 @property (nonatomic, readwrite) MSIDAutomationOperationAPIRequestHandler *operationAPIRequestHandler;
 @property (nonatomic, readwrite) MSIDAutomationPasswordRequestHandler *passwordRequestHandler;
 
+@property (nonatomic) MSIDTestsConfig *testsConfig;
+
 @end
 
 @implementation MSIDTestConfigurationProvider
@@ -84,7 +86,11 @@
 }
 
 - (instancetype)initWithConfigurationPath:(NSString *)configurationPath
+                              testsConfig:(MSIDTestsConfig *)testsConfig
 {
+    _testsConfig = testsConfig;
+    NSParameterAssert(testsConfig);
+    
     NSData *configurationData = [NSData dataWithContentsOfFile:configurationPath];
 
     if (!configurationData)
@@ -160,15 +166,15 @@
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
                                   targetTenantId:(NSString *)targetTenantId
-                                 scopesSupported:(BOOL)scopesSupported
 {
-    return [self defaultAppRequest:environment targetTenantId:targetTenantId brokerEnabled:NO scopesSupported:scopesSupported];
+    return [self defaultAppRequest:environment
+                    targetTenantId:targetTenantId
+                     brokerEnabled:NO];
 }
 
 - (MSIDAutomationTestRequest *)defaultAppRequest:(NSString *)environment
                                   targetTenantId:(NSString *)targetTenantId
                                    brokerEnabled:(BOOL)brokerEnabled
-                                 scopesSupported:(BOOL)scopesSupported
 {
     MSIDAutomationTestRequest *request = [MSIDAutomationTestRequest new];
     request.validateAuthority = YES;
@@ -176,13 +182,10 @@
     
     NSString *testEnvironment = environment ? environment : self.wwEnvironment;
     
-    if (scopesSupported)
+    if (self.testsConfig.scopesSupported)
     {
         request.expectedResultScopes = [NSString msidCombinedScopes:request.requestScopes withScopes:[self scopesForEnvironment:testEnvironment type:@"oidc"]];
         request.requestScopes = [self scopesForEnvironment:testEnvironment type:@"ms_graph"];
-        
-        // TODO: use supportsTenantSpecificResultAuthority
-        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
     }
     else
     {
@@ -190,8 +193,14 @@
         
         request.expectedResultScopes = request.requestResource;
         request.requestScopes = [NSString stringWithFormat:@"%@/.default", request.requestResource];
-        
-        // TODO: use supportsTenantSpecificResultAuthority
+    }
+    
+    if (self.testsConfig.tenantSpecificResultAuthoritySupported)
+    {
+        request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment tenantId:targetTenantId];
+    }
+    else
+    {
         request.expectedResultAuthority = [self defaultAuthorityForIdentifier:testEnvironment];
     }
     
