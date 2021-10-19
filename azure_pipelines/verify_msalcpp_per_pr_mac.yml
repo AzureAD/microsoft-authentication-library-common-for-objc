@@ -10,7 +10,7 @@ pr:
     - '*'
 
 pool:
-  vmImage: 'macOS-10.15'
+  vmImage: 'macOS-11'
 
 resources:
  repositories:
@@ -51,8 +51,8 @@ jobs:
   - task: UsePythonVersion@0
     displayName: 'Use Python 3.x'
   - script: |
-     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_12.app"
-    displayName: 'Switch to use Xcode 12'
+     /bin/bash -c "sudo xcode-select -s /Applications/Xcode_13.0.app"
+    displayName: 'Switch to use Xcode 13'
 
   - template: azure_pipelines/templates/macos-setup.yml@microsoft-authentication-library-for-cpp
 

@@ -1,3 +1,8 @@
+Version 1.7.1
+* Add helper function used by cross cloud B2B support (#957)
+* Add support of "create" prompt (#1039)
+* Fix for ADAL apps that send passed In view to show spinner while blocked from showing SSO UI prompt on mac
+
 Version 1.7.0
 * Added more logging in the throttling logic & fixed throttling logic's handling of LRU cache errors. (#1032)
 

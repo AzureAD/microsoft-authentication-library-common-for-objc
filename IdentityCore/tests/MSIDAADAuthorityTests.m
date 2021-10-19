@@ -650,6 +650,26 @@
     XCTAssertEqualObjects(aliases, expectedAliases);
 }
 
+#pragma mark - isSameEnvironmentAsAuthority
+
+- (void)testIsSameEnvironmentAsAuthority_whenAuthoritySameAliases_shouldReturnTrue
+{
+    [self setupAADAuthorityCache];
+    
+    MSIDAuthority *authority1 = [@"https://login.microsoftonline.com/1.com" aadAuthority];
+    MSIDAuthority *authority2 = [@"https://login.microsoftonline.com/2.com" aadAuthority];
+    MSIDAuthority *authority3 = [@"https://login.microsoft.com/3.com" aadAuthority];
+    MSIDAuthority *authority4 = [@"https://login.contoso.com/4.com" aadAuthority];
+    MSIDAuthority *authority5 = nil;
+    MSIDAuthority *authority6 = (MSIDAuthority *)[NSNull null];
+    
+    XCTAssertTrue([authority1 isSameEnvironmentAsAuthority:authority2]);
+    XCTAssertTrue([authority1 isSameEnvironmentAsAuthority:authority3]);
+    XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority4]);
+    XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority5]);
+    XCTAssertFalse([authority1 isSameEnvironmentAsAuthority:authority6]);
+}
+
 #pragma mark - NSCopying
 
 - (void)testCopy_whenAllPropertiesAreSet_shouldReturnEqualCopy
