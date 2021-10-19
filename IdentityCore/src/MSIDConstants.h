@@ -26,6 +26,7 @@
 @class MSIDTokenResult;
 @class MSIDAccount;
 @class MSIDDeviceInfo;
+@class MSIDCredentialHeader;
 
 typedef NS_ENUM(NSInteger, MSIDWebviewType)
 {
@@ -85,6 +86,10 @@ typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, N
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
 typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
+typedef void (^MSIDGetSsoCookiesRequestCompletionBlock)(NSArray<MSIDCredentialHeader *> * _Nullable prtHeaders, NSArray<MSIDCredentialHeader *> * _Nullable deviceHeaders, NSError * _Nullable error);
+
+typedef void (^MSIDSsoExtenionWrapperContinueBlock)(void);
+typedef void (^MSIDSsoExtenionWrapperErrorBlock)(NSError * _Nullable error);
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
