@@ -63,7 +63,7 @@
             return nil;
         }
         
-        _correlationId = json[MSID_BROKER_CORRELATION_ID_KEY];
+        _correlationId = [[NSUUID alloc] initWithUUIDString:[json msidStringObjectForKey:MSID_BROKER_CORRELATION_ID_KEY]];
         if(!_correlationId)
         {
             if (error)
@@ -73,22 +73,15 @@
             return nil;
         }
         
-        if (!json[MSID_BROKER_ACCOUNT_IDENTIFIER])
+        _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:nil];
+        if (_accountIdentifier && [NSString msidIsStringNilOrBlank:self.accountIdentifier.homeAccountId])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"account_identifier is not provided from calling app, this is not an error case");
-        }
-        else
-        {
-            _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json[MSID_BROKER_ACCOUNT_IDENTIFIER] error:error];
-            if ([NSString msidIsStringNilOrBlank:self.accountIdentifier.homeAccountId])
+            if (error)
             {
-                if (error)
-                {
-                    *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account is provided, but homeAccountId is missing from account identifier.", nil, nil, nil, nil, nil, YES);
-                }
-                
-                return  nil;
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Account is provided, but homeAccountId is missing from account identifier.", nil, nil, nil, nil, nil, YES);
             }
+            
+            return  nil;
         }
     }
     
@@ -97,6 +90,7 @@
 
 - (NSDictionary *)jsonDictionary
 {
+    if (self.accountIdentifier &&[NSString msidIsStringNilOrBlank:self.accountIdentifier.homeAccountId]) return nil;
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if (!json) return nil;
 
@@ -106,15 +100,14 @@
     
     // Map to correlationId
     if (!self.correlationId) return nil;
-    json[MSID_BROKER_CORRELATION_ID_KEY] = self.correlationId;
+    json[MSID_BROKER_CORRELATION_ID_KEY] = self.correlationId.UUIDString;
     
     // Map to account identifier, it is nullable.
     // homeAccountId is needed to query Sso Cookies.
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
     if (accountIdentifierJson)
     {
-        if ([NSString msidIsStringNilOrBlank:self.accountIdentifier.homeAccountId]) return nil;
-        json[MSID_BROKER_ACCOUNT_IDENTIFIER] = accountIdentifierJson;
+        [json addEntriesFromDictionary:accountIdentifierJson];
     }
 
     return json;

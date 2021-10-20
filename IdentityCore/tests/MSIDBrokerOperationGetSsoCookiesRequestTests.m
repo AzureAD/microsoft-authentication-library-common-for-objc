@@ -124,10 +124,8 @@
     
     NSDictionary *expectedJson = @{@"sso_url": @"www.contoso.com",
                                    @"broker_key": @"key",
-                                   @"account_identifier": @{
-                                       @"home_account_id": @"uid.utid",
-                                       @"username": @"test@contoso.com"
-                                   },
+                                   @"home_account_id": @"uid.utid",
+                                   @"username": @"test@contoso.com",
                                    @"msg_protocol_ver": @"99",
                                    @"correlation_id": correlationId
     };
@@ -175,9 +173,7 @@
         @"broker_key": @"broker_key_value",
         @"msg_protocol_ver": @"99",
         @"correlation_id": [NSUUID UUID],
-        @"account_identifier": @{
-            @"username": @"test@contoso.com"
-        }
+        @"username": @"test@contoso.com"
     };
     
     NSError *error;
@@ -211,10 +207,8 @@
         @"sso_url": @"www.contoso.com",
         @"broker_key": @"broker_key_value",
         @"msg_protocol_ver": @"99",
-        @"account_identifier": @{
-            @"home_account_id": @"uid.utid",
-            @"username": @"test@contoso.com"
-        },
+        @"home_account_id": @"uid.utid",
+        @"username": @"test@contoso.com",
         @"correlation_id": correlationId
     };
     

@@ -34,6 +34,9 @@
 // TODO: This file can be refactored and confined with other Sso Ext request file
 @interface MSIDSSOExtensionGetSsoCookiesRequest()
 
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *ssoUrl;
+@property (nonatomic) NSUUID *correlationId;
 @property (nonatomic) ASAuthorizationController *authorizationController;
 @property (nonatomic, copy) MSIDGetSsoCookiesRequestCompletionBlock requestCompletionBlock;
 @property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
@@ -44,12 +47,17 @@
 @implementation MSIDSSOExtensionGetSsoCookiesRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError * _Nullable * _Nullable)error
-{
+                                 accountIdentifier: (nullable MSIDAccountIdentifier *)accountIdentifier
+                                            ssoUrl:(NSString *)ssoUrl
+                                     correlationId:(NSUUID *)correlationId
+                                             error:(NSError * _Nullable * _Nullable)error{
     self = [super initWithRequestParameters:requestParameters error:error];
-    
     if (self)
     {
+        _accountIdentifier = accountIdentifier;
+        _ssoUrl = ssoUrl;
+        _correlationId = correlationId;
+        
         __typeof__(self) __weak weakSelf = self;
         _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
@@ -87,7 +95,9 @@
 - (void)executeRequestWithCompletion:(nonnull MSIDGetSsoCookiesRequestCompletionBlock)completionBlock
 {
     MSIDBrokerOperationGetSsoCookiesRequest *getSsoCookiesRequest = [MSIDBrokerOperationGetSsoCookiesRequest new];
-    getSsoCookiesRequest.accountIdentifier = self.requestParameters.accountIdentifier;
+    getSsoCookiesRequest.accountIdentifier = self.accountIdentifier;
+    getSsoCookiesRequest.ssoUrl = self.ssoUrl;
+    getSsoCookiesRequest.correlationId = self.correlationId;
     
     __typeof__(self) __weak weakSelf = self;
     [self executeBrokerOperationRequest:getSsoCookiesRequest continueBlock:^{
