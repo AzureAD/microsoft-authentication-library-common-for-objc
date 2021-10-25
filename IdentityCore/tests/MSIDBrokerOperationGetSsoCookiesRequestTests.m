@@ -181,7 +181,7 @@
     
     XCTAssertNil(request);
     XCTAssertNotNil(error);
-    XCTAssertEqualObjects(@"Account is provided, but homeAccountId is missing from account identifier.", error.userInfo[MSIDErrorDescriptionKey]);
+    XCTAssertEqualObjects(@"Account is provided, but no homeAccountId is provided from account identifier.", error.userInfo[MSIDErrorDescriptionKey]);
 }
 
 - (void)testInitWithJSONDictionary_whenNoAccountIdentifier_shouldNoReturnError
