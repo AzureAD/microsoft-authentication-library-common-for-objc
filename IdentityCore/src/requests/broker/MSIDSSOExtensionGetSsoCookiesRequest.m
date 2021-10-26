@@ -28,6 +28,7 @@
 #import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
 
 @interface MSIDSSOExtensionGetSsoCookiesRequest()
+
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) NSString *ssoUrl;
 @property (nonatomic) NSUUID *correlationId;
@@ -38,12 +39,17 @@
 @implementation MSIDSSOExtensionGetSsoCookiesRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError * _Nullable * _Nullable)error
-{
+                                 accountIdentifier: (MSIDAccountIdentifier *)accountIdentifier
+                                            ssoUrl:(NSString *)ssoUrl
+                                     correlationId:(NSUUID *)correlationId
+                                             error:(NSError **)error{
     self = [super initWithRequestParameters:requestParameters error:error];
-    
     if (self)
     {
+        _accountIdentifier = accountIdentifier;
+        _ssoUrl = ssoUrl;
+        _correlationId = correlationId;
+        
         __typeof__(self) __weak weakSelf = self;
         self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
@@ -81,7 +87,9 @@
 - (void)executeRequestWithCompletion:(nonnull MSIDGetSsoCookiesRequestCompletionBlock)completionBlock
 {
     MSIDBrokerOperationGetSsoCookiesRequest *getSsoCookiesRequest = [MSIDBrokerOperationGetSsoCookiesRequest new];
-    getSsoCookiesRequest.accountIdentifier = self.requestParameters.accountIdentifier;
+    getSsoCookiesRequest.accountIdentifier = self.accountIdentifier;
+    getSsoCookiesRequest.ssoUrl = self.ssoUrl;
+    getSsoCookiesRequest.correlationId = self.correlationId ?: [NSUUID UUID];
     
     __typeof__(self) __weak weakSelf = self;
     [self executeBrokerOperationRequest:getSsoCookiesRequest continueBlock:^{

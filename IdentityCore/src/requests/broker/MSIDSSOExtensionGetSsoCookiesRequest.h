@@ -27,11 +27,22 @@
 #if MSID_ENABLE_SSO_EXTENSION
 
 @class MSIDRequestParameters;
+@class MSIDAccountIdentifier;
 
 NS_ASSUME_NONNULL_BEGIN
 
 API_AVAILABLE(ios(13.0), macos(10.15))
-@interface MSIDSSOExtensionGetSsoCookiesRequest : MSIDSSOExtensionGetDataBaseRequest
+@interface MSIDSSOExtensionGetSsoCookiesRequest: MSIDSSOExtensionGetDataBaseRequest
+
+@property (nonatomic, readonly) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic, readonly) NSString *ssoUrl;
+@property (nonatomic, readonly) NSUUID *correlationId;
+
+- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                 accountIdentifier: (nullable MSIDAccountIdentifier *)accountIdentifier
+                                            ssoUrl:(NSString *)ssoUrl
+                                     correlationId:(nullable NSUUID *)correlationId
+                                             error:(NSError * _Nullable * _Nullable)error;
 
 - (void)executeRequestWithCompletion:(nonnull MSIDGetSsoCookiesRequestCompletionBlock)completionBlock;
 
