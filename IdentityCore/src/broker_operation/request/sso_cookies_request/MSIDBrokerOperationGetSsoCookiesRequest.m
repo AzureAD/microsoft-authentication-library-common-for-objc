@@ -53,7 +53,7 @@
     if (self)
     {
         _ssoUrl = [json msidStringObjectForKey:MSID_BROKER_SSO_URL];
-        if ([NSString msidIsStringNilOrBlank:self.ssoUrl])
+        if ([NSString msidIsStringNilOrBlank:_ssoUrl])
         {
             if (error)
             {
@@ -63,18 +63,8 @@
             return nil;
         }
         
-        _correlationId = [[NSUUID alloc] initWithUUIDString:[json msidStringObjectForKey:MSID_BROKER_CORRELATION_ID_KEY]];
-        if(!_correlationId)
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"correlation_id is missing in get Sso Cookies operation call.", nil, nil, nil, nil, nil, YES);
-            }
-            return nil;
-        }
-        
         _accountIdentifier = [[MSIDAccountIdentifier alloc] initWithJSONDictionary:json error:nil];
-        if (_accountIdentifier && [NSString msidIsStringNilOrBlank:self.accountIdentifier.homeAccountId])
+        if (_accountIdentifier && [NSString msidIsStringNilOrBlank:_accountIdentifier.homeAccountId])
         {
             if (error)
             {
@@ -99,10 +89,6 @@
     // Map to Sso Url
     if ([NSString msidIsStringNilOrBlank:self.ssoUrl]) return nil;
     json[MSID_BROKER_SSO_URL] = self.ssoUrl;
-    
-    // Map to correlationId
-    if (!self.correlationId) return nil;
-    json[MSID_BROKER_CORRELATION_ID_KEY] = self.correlationId.UUIDString;
     
     // Map to account identifier, it is nullable.
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];

@@ -97,7 +97,7 @@
     XCTAssertNil(json);
 }
 
-- (void)testJsonDictionary_whenEmptyCorrelationId_shouldReturnNilJson
+- (void)testJsonDictionary_whenEmptyCorrelationId_shouldReturnValidJson
 {
     MSIDBrokerOperationGetSsoCookiesRequest *request = [MSIDBrokerOperationGetSsoCookiesRequest new];
     request.accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"test@contoso.com" homeAccountId:@"uid.utid"];
@@ -106,7 +106,7 @@
     request.ssoUrl = @"www.contoso.com";
     
     NSDictionary *json = [request jsonDictionary];
-    XCTAssertNil(json);
+    XCTAssertNotNil(json);
 }
 
 - (void)testJsonDictionary_shouldEqualToExpectedJson
