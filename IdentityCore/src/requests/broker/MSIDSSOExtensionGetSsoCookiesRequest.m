@@ -30,14 +30,14 @@
 #import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
 #import "MSIDBrokerNativeAppOperationResponse.h"
 #import "MSIDSSOExtensionOperationRequestDelegate.h"
+#import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
 
 // TODO: This file can be refactored and confined with other Sso Ext request file
 @interface MSIDSSOExtensionGetSsoCookiesRequest()
-
-@property (nonatomic) ASAuthorizationController *authorizationController;
+@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *ssoUrl;
+@property (nonatomic) NSUUID *correlationId;
 @property (nonatomic, copy) MSIDGetSsoCookiesRequestCompletionBlock requestCompletionBlock;
-@property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
-@property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
  
 @end
 
@@ -51,7 +51,7 @@
     if (self)
     {
         __typeof__(self) __weak weakSelf = self;
-        _extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
+        self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
             NSArray *prtHeaders = nil;
             NSArray *deviceHeaders = nil;
@@ -78,7 +78,7 @@
             if (completionBlock) completionBlock(prtHeaders, deviceHeaders, resultError);
         };
         
-        _ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
+        self.ssoProvider = [ASAuthorizationSingleSignOnProvider msidSharedProvider];
     }
     
     return self;

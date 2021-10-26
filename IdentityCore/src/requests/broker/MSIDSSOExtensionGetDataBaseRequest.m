@@ -24,21 +24,7 @@
 
 
 #import "MSIDSSOExtensionGetDataBaseRequest.h"
-#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDRequestParameters.h"
-#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDBrokerNativeAppOperationResponse.h"
-#import "MSIDSSOExtensionOperationRequestDelegate.h"
-
-@interface MSIDSSOExtensionGetDataBaseRequest()
-
-@property (nonatomic) ASAuthorizationController *authorizationController;
-@property (nonatomic, copy) MSIDGetSsoCookiesRequestCompletionBlock requestCompletionBlock;
-@property (nonatomic) MSIDSSOExtensionOperationRequestDelegate *extensionDelegate;
-@property (nonatomic) ASAuthorizationSingleSignOnProvider *ssoProvider;
-@property (nonatomic) MSIDRequestParameters *requestParameters;
- 
-@end
+#import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
 
 @implementation MSIDSSOExtensionGetDataBaseRequest
 
