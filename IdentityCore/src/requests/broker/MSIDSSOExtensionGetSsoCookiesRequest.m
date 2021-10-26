@@ -39,7 +39,7 @@
 @implementation MSIDSSOExtensionGetSsoCookiesRequest
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                 accountIdentifier: (MSIDAccountIdentifier *)accountIdentifier
+                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                             ssoUrl:(NSString *)ssoUrl
                                      correlationId:(NSUUID *)correlationId
                                              error:(NSError **)error{

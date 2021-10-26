@@ -39,7 +39,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 @property (nonatomic, readonly) NSUUID *correlationId;
 
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                 accountIdentifier: (nullable MSIDAccountIdentifier *)accountIdentifier
+                                 accountIdentifier:(nullable MSIDAccountIdentifier *)accountIdentifier
                                             ssoUrl:(NSString *)ssoUrl
                                      correlationId:(nullable NSUUID *)correlationId
                                              error:(NSError * _Nullable * _Nullable)error;
