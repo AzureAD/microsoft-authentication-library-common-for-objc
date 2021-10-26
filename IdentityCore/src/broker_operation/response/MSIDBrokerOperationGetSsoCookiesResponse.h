@@ -31,8 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationGetSsoCookiesResponse : MSIDBrokerNativeAppOperationResponse
 
-@property (nonatomic) NSArray<MSIDCredentialHeader*> *prtHeaders;
-@property (nonatomic) NSArray<MSIDCredentialHeader*> *deviceHeaders;
+@property (nonatomic, nullable) NSArray<MSIDCredentialHeader*> *prtHeaders;
+@property (nonatomic, nullable) NSArray<MSIDCredentialHeader*> *deviceHeaders;
 
 @end
 

@@ -26,6 +26,8 @@
 #import <XCTest/XCTest.h>
 #import "MSIDBrokerOperationGetSsoCookiesResponse.h"
 #import "MSIDBrokerConstants.h"
+#import "MSIDJsonObject.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 @interface MSIDBrokerOperationGetSsoCookiesResponseTests : XCTestCase
 
@@ -41,7 +43,7 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValid_shouldInitWithJson {
+- (void)testInitWithJSONDictionary_whenJsonValid_shouldReturnValidResult {
     
     NSDictionary *ssoCookies =
     @{
@@ -49,17 +51,17 @@
             @[
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential1": @"Base 64 Encoded JWT1"},
-                  @"account_identifier": @"uid.utid1",
+                  @"home_account_id": @"uid.utid1",
                   @"displayable_id": @"demo1@contoso.com"
               },
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential2": @"Base 64 Encoded JWT2"},
-                  @"account_identifier": @"uid.utid2",
+                  @"home_account_id": @"uid.utid2",
                   @"displayable_id": @"demo2@contoso.com"
               },
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential3": @"Base 64 Encoded JWT3"},
-                  @"account_identifier": @"uid.utid3",
+                  @"home_account_id": @"uid.utid3",
                   @"displayable_id":@"demo3@contoso.com"
               }
             ],
@@ -76,7 +78,7 @@
             ]
     };
     
-    NSString *ssoCookiesJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:ssoCookies options:0 error:nil] encoding:NSUTF8StringEncoding];
+    NSString *ssoCookiesJsonString = [ssoCookies msidJSONSerializeWithContext:nil];
     
     NSDictionary *json = @{
         @"operation" : @"get_sso_cookies",
@@ -93,9 +95,10 @@
     XCTAssertEqual(response.success, YES);
     XCTAssertEqual(response.prtHeaders.count, 3);
     XCTAssertEqual(response.deviceHeaders.count, 2);
+    XCTAssertTrue([ssoCookiesJsonString isEqualToString:response.jsonDictionary[@"sso_cookies"]]);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValid_EmptyDeviceHeader_shouldInitWithJson {
+- (void)testInitWithJSONDictionary_whenJsonValid_EmptyDeviceHeader_shouldReturnValidResult {
     
     NSDictionary *ssoCookies =
     @{
@@ -103,24 +106,24 @@
             @[
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential1": @"Base 64 Encoded JWT1"},
-                  @"account_identifier": @"uid.utid1",
+                  @"home_account_id": @"uid.utid1",
                   @"displayable_id": @"demo1@contoso.com"
               },
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential2": @"Base 64 Encoded JWT2"},
-                  @"account_identifier": @"uid.utid2",
+                  @"home_account_id": @"uid.utid2",
                   @"displayable_id": @"demo2@contoso.com"
               },
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential3": @"Base 64 Encoded JWT3"},
-                  @"account_identifier": @"uid.utid3",
+                  @"home_account_id": @"uid.utid3",
                   @"displayable_id":@"demo3@contoso.com"
               }
             ],
          @"device_headers":@[]
     };
     
-    NSString *ssoCookiesJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:ssoCookies options:0 error:nil] encoding:NSUTF8StringEncoding];
+    NSString *ssoCookiesJsonString = [ssoCookies msidJSONSerializeWithContext:nil];
     
     NSDictionary *json = @{
         @"operation" : @"get_sso_cookies",
@@ -139,7 +142,7 @@
     XCTAssertEqual(response.deviceHeaders.count, 0);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValid_EmptyDeviceHeader_oneMissingAccounIdentifier_oneNoAccountIdentifier_shouldInitWithJson {
+- (void)testInitWithJSONDictionary_whenJsonValid_EmptyDeviceHeader_oneMissingAccounIdentifier_oneNoAccountIdentifier_shouldReturnValidResult {
     
     NSDictionary *ssoCookies =
     @{
@@ -147,7 +150,7 @@
             @[
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential1": @"Base 64 Encoded JWT1"},
-                  @"account_identifier": @"uid.utid1",
+                  @"home_account_id": @"uid.utid1",
                   @"displayable_id": @"demo1@contoso.com"
               },
               @{
@@ -156,18 +159,18 @@
               },
               @{
                   @"header": @{@"x-ms-RefreshTokenCredential3": @"Base 64 Encoded JWT3"},
-                  @"account_identifier": @"",
+                  @"home_account_id": @"",
                   @"displayable_id":@"demo3@contoso.com"
               }
             ],
          @"device_headers":@[]
     };
     
-    NSString *ssoCookiesJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:ssoCookies options:0 error:nil] encoding:NSUTF8StringEncoding];
+    NSString *ssoCookiesJsonString = [ssoCookies msidJSONSerializeWithContext:nil];
     
     NSDictionary *json = @{
         @"operation" : @"get_sso_cookies",
-        @"success" : @0,
+        @"success" : @1,
         MSID_BROKER_DEVICE_MODE_KEY : @"shared",
         MSID_BROKER_WPJ_STATUS_KEY : @"joined",
         MSID_BROKER_BROKER_VERSION_KEY : @"1.2.3",
@@ -176,13 +179,12 @@
     
     NSError *error;
     MSIDBrokerOperationGetSsoCookiesResponse *response = [[MSIDBrokerOperationGetSsoCookiesResponse alloc] initWithJSONDictionary:json error:&error];
-    XCTAssertNotNil(error);
-    XCTAssertEqual(response.success, NO);
-    XCTAssertEqual(response.prtHeaders.count, 0);
-    XCTAssertEqual(response.deviceHeaders.count, 0);
+    XCTAssertEqual(response.success, YES);
+    XCTAssertEqual(response.prtHeaders.count, 3);
+    XCTAssertNil(response.deviceHeaders);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValid_EmptyPrtHeader_shouldInitWithJson {
+- (void)testInitWithJSONDictionary_whenJsonValid_EmptyPrtHeader_shouldReturnValidResult {
     
     NSDictionary *ssoCookies =
     @{
@@ -201,7 +203,7 @@
             ]
     };
     
-    NSString *ssoCookiesJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:ssoCookies options:0 error:nil] encoding:NSUTF8StringEncoding];
+    NSString *ssoCookiesJsonString = [ssoCookies msidJSONSerializeWithContext:nil];
     
     NSDictionary *json = @{
         @"operation" : @"get_sso_cookies",
@@ -220,7 +222,7 @@
     XCTAssertEqual(response.deviceHeaders.count, 2);
 }
 
-- (void)testInitWithJSONDictionary_whenJsonValid_emptyPrtHeader_oneMissingTenantId_oneNoTenantId_shouldInitWithJson {
+- (void)testInitWithJSONDictionary_whenJsonValid_emptyPrtHeader_oneMissingTenantId_oneNoTenantId_shouldValidResult {
     
     NSDictionary *ssoCookies =
     @{
@@ -242,7 +244,7 @@
             ]
     };
     
-    NSString *ssoCookiesJsonString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:ssoCookies options:0 error:nil] encoding:NSUTF8StringEncoding];
+    NSString *ssoCookiesJsonString = [ssoCookies msidJSONSerializeWithContext:nil];
     
     NSDictionary *json = @{
         @"operation" : @"get_sso_cookies",
@@ -255,10 +257,10 @@
     
     NSError *error;
     MSIDBrokerOperationGetSsoCookiesResponse *response = [[MSIDBrokerOperationGetSsoCookiesResponse alloc] initWithJSONDictionary:json error:&error];
-    XCTAssertNotNil(error);
     XCTAssertEqual(response.success, NO);
+    XCTAssertNil(response.prtHeaders);
     XCTAssertEqual(response.prtHeaders.count, 0);
-    XCTAssertEqual(response.deviceHeaders.count, 0);
+    XCTAssertEqual(response.deviceHeaders.count, 3);
 }
 
 @end

@@ -25,7 +25,7 @@
 
 #import "MSIDPrtHeader.h"
 
-static NSString *const MSID_PRT_HEADER_ACCOUNT_IDENTIFIER = @"account_identifier";
+static NSString *const MSID_PRT_HEADER_HOME_ACCOUNT_ID = @"home_account_id";
 static NSString *const MSID_PRT_HEADER_DISPLAYABLE_ID = @"displayable_id";
 
 @implementation MSIDPrtHeader
@@ -38,17 +38,7 @@ static NSString *const MSID_PRT_HEADER_DISPLAYABLE_ID = @"displayable_id";
     
     if (self)
     {
-        _accountIdentifier = json[MSID_PRT_HEADER_ACCOUNT_IDENTIFIER];
-        if ([NSString msidIsStringNilOrBlank:_accountIdentifier])
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"account_identifier is not presented from json", nil, nil, nil, nil, nil, YES);
-            }
-            
-            return nil;
-        }
-        
+        _homeAccountId = json[MSID_PRT_HEADER_HOME_ACCOUNT_ID];
         _displayableId = json[MSID_PRT_HEADER_DISPLAYABLE_ID];
     }
     
@@ -60,14 +50,22 @@ static NSString *const MSID_PRT_HEADER_DISPLAYABLE_ID = @"displayable_id";
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if(!json) return nil;
     
-    if ([NSString msidIsStringNilOrBlank:self.accountIdentifier])
+    if ([NSString msidIsStringNilOrBlank:self.homeAccountId])
     {
         MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"account_identifier is not provided from prt header");
         return nil;
     }
     
-    json[MSID_PRT_HEADER_ACCOUNT_IDENTIFIER] = self.accountIdentifier;
-    json[MSID_PRT_HEADER_DISPLAYABLE_ID] = self.displayableId;
+    if (![NSString msidIsStringNilOrBlank:self.homeAccountId])
+    {
+        json[MSID_PRT_HEADER_HOME_ACCOUNT_ID] = self.homeAccountId;
+    }
+    
+    if (![NSString msidIsStringNilOrBlank:self.displayableId])
+    {
+        json[MSID_PRT_HEADER_DISPLAYABLE_ID] = self.displayableId;
+    }
+    
     return json;
 }
 

@@ -36,15 +36,6 @@ static NSString *const MSID_PRT_HEADER_TENANT_ID = @"tenant_id";
     if (self)
     {
         _tenantId = json[MSID_PRT_HEADER_TENANT_ID];
-        if ([NSString msidIsStringNilOrBlank:_tenantId])
-        {
-            if (error)
-            {
-                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"tenant_id is not presented from json", nil, nil, nil, nil, nil, YES);
-            }
-            
-            return nil;
-        }
     }
     
     return self;
@@ -55,13 +46,11 @@ static NSString *const MSID_PRT_HEADER_TENANT_ID = @"tenant_id";
     NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
     if(!json) return nil;
     
-    if ([NSString msidIsStringNilOrBlank:self.tenantId])
+    if (![NSString msidIsStringNilOrBlank:self.tenantId])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"tenant_id is not provided from credential header");
-        return nil;
+        json[MSID_PRT_HEADER_TENANT_ID] = self.tenantId;
     }
     
-    json[MSID_PRT_HEADER_TENANT_ID] = self.tenantId;
     return json;
 }
 

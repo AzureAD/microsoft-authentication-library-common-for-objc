@@ -29,6 +29,8 @@
 #import "MSIDJsonSerializableFactory.h"
 #import "MSIDJsonSerializableTypes.h"
 #import "MSIDJsonSerializer.h"
+#import "NSString+MSIDExtensions.h"
+#import "NSDictionary+MSIDExtensions.h"
 
 static NSString *const MSID_PRT_HEADERS = @"prt_headers";
 static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
@@ -62,32 +64,17 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
         
         if ([NSString msidIsStringNilOrBlank:ssoCookiesString])
         {
-            self.prtHeaders = @[];
-            self.deviceHeaders = @[];
+            self.prtHeaders = nil;
+            self.deviceHeaders = nil;
             self.success = YES;
             return self;
         }
         
-        NSData *jsonData = [ssoCookiesString dataUsingEncoding:NSUTF8StringEncoding];
-        NSDictionary *ssoCookiesJson = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:error];
+        NSDictionary *ssoCookiesJson = [ssoCookiesString msidJson];
         
         _prtHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:error];
-        if(!_prtHeaders)
-        {
-            if (error)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"prt_header cannot be read from json. Error: %@", *error);
-            }
-        }
         
         _deviceHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:error];
-        if(!_deviceHeaders)
-        {
-            if (error)
-            {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"device_header cannot be read from json. Error: %@", *error);
-            }
-        }
     }
     
     return self;
@@ -101,18 +88,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     NSMutableDictionary *cookiesJson = [NSMutableDictionary new];
     cookiesJson[MSID_PRT_HEADERS] = [self convertToJsonFrom:self.prtHeaders];
     cookiesJson[MSID_DEVICE_HEADERS] = [self convertToJsonFrom:self.deviceHeaders];
-
-    NSError *jsonError;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:cookiesJson options:0 error:&jsonError];
-    
-    if (jsonError)
-    {
-        MSID_LOG_WITH_CTX_PII(MSIDLogLevelWarning, nil, @"Failed to serialize sso cookies with error %@", MSID_PII_LOG_MASKABLE(jsonError));
-    }
-    else if (jsonData)
-    {
-        json[@"sso_cookies"] = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
+    json[@"sso_cookies"] = [cookiesJson msidJSONSerializeWithContext:nil];
     return json;
 }
 
@@ -125,10 +101,11 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     {
         [headersJson addObject:[credentialHeader jsonDictionary]];
     }
-    return headersJson;
+    
+    return headersJson.count > 0 ? headersJson : nil;
 }
 
-- (NSArray<MSIDCredentialHeader*> *)convertToCredentialHeaderObjectFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
+- (nullable NSArray<MSIDCredentialHeader*> *)convertToCredentialHeaderObjectFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
 {
     if(!json[name]) return nil;
 
@@ -166,7 +143,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     }
     
     // Empty headers is a valid case
-    return headers;
+    return headers.count > 0 ? headers : nil;
 }
 
 @end

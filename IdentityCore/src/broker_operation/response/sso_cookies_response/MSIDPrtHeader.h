@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDPrtHeader : MSIDCredentialHeader
 
-@property (nonatomic) NSString *accountIdentifier;
+@property (nonatomic, nullable) NSString *homeAccountId;
 @property (nonatomic, nullable) NSString *displayableId;
 
 @end

@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDDeviceHeader : MSIDCredentialHeader
 
-@property (nonatomic) NSString *tenantId;
+@property (nonatomic, nullable) NSString *tenantId;
 
 @end
 
