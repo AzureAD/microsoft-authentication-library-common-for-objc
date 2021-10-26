@@ -22,17 +22,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.  
 
-//#import <AuthenticationServices/AuthenticationServices.h>
-#import "MSIDRequestParameters.h"
 #import "MSIDSSOExtensionGetSsoCookiesRequest.h"
 #import "MSIDBrokerOperationGetSsoCookiesRequest.h"
 #import "MSIDBrokerOperationGetSsoCookiesResponse.h"
-#import "ASAuthorizationSingleSignOnProvider+MSIDExtensions.h"
-#import "MSIDBrokerNativeAppOperationResponse.h"
-#import "MSIDSSOExtensionOperationRequestDelegate.h"
 #import "MSIDSSOExtensionGetDataBaseRequest+Internal.h"
 
-// TODO: This file can be refactored and confined with other Sso Ext request file
 @interface MSIDSSOExtensionGetSsoCookiesRequest()
 @property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic) NSString *ssoUrl;
