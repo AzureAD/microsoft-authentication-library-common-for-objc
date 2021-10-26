@@ -84,7 +84,7 @@ static MSIDWebviewSession *s_currentSession = nil;
     }
     
     void (^startCompletionBlock)(NSURL *, NSError *) = ^void(NSURL *callbackURL, NSError *error) {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Result from authorization session callback url: %@ , has error: %@", callbackURL.absoluteString, error ? @"YES" : @"NO");
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"Result from authorization session callbackURL host: %@ , has error: %@", callbackURL.host, error ? @"YES" : @"NO");
 
         if (error) {
             [MSIDWebviewAuthorization clearCurrentWebAuthSessionAndFactory];
