@@ -54,7 +54,7 @@
     
     if (!jsonDictionary)
     {
-        NSError *ssoError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, @"Failed to serialize SSO request dictionary for get accounts request", nil, nil, nil, requestParameters.correlationId, nil, YES);
+        NSError *ssoError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidInternalParameter, [NSString stringWithFormat:@"Failed to serialize SSO request dictionary for %@", [[operationRequest class] operation]], nil, nil, nil, requestParameters.correlationId, nil, YES);
         if (error) *error = ssoError;
         return nil;
     }
