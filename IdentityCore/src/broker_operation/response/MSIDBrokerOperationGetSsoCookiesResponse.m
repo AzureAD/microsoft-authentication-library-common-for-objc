@@ -72,9 +72,9 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
         
         NSDictionary *ssoCookiesJson = [ssoCookiesString msidJson];
         
-        _prtHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:error];
+        _prtHeaders = (NSArray<MSIDPrtHeader *> *)[self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:error];
         
-        _deviceHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:error];
+        _deviceHeaders = (NSArray<MSIDDeviceHeader *> *)[self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:error];
     }
     
     return self;

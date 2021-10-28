@@ -25,14 +25,15 @@
 
 #import "MSIDBrokerNativeAppOperationResponse.h"
 
-@class MSIDCredentialHeader;
+@class MSIDPrtHeader;
+@class MSIDDeviceHeader;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MSIDBrokerOperationGetSsoCookiesResponse : MSIDBrokerNativeAppOperationResponse
 
-@property (nonatomic, nullable) NSArray<MSIDCredentialHeader*> *prtHeaders;
-@property (nonatomic, nullable) NSArray<MSIDCredentialHeader*> *deviceHeaders;
+@property (nonatomic, nullable) NSArray<MSIDPrtHeader*> *prtHeaders;
+@property (nonatomic, nullable) NSArray<MSIDDeviceHeader*> *deviceHeaders;
 
 @end
 

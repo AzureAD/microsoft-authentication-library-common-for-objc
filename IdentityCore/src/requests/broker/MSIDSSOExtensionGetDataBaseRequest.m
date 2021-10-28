@@ -28,8 +28,8 @@
 
 @implementation MSIDSSOExtensionGetDataBaseRequest
 
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                             error:(NSError * _Nullable * _Nullable)error
+- (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                             error:(NSError **)error
 {
     if (!requestParameters)
     {

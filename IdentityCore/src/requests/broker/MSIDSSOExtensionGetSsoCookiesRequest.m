@@ -29,11 +29,8 @@
 
 @interface MSIDSSOExtensionGetSsoCookiesRequest()
 
-@property (nonatomic) MSIDAccountIdentifier *accountIdentifier;
-@property (nonatomic) NSString *ssoUrl;
-@property (nonatomic) NSUUID *correlationId;
 @property (nonatomic, copy) MSIDGetSsoCookiesRequestCompletionBlock requestCompletionBlock;
- 
+
 @end
 
 @implementation MSIDSSOExtensionGetSsoCookiesRequest
