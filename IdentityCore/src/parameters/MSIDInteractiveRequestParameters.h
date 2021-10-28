@@ -36,7 +36,7 @@
 @property (nonatomic) MSIDWebviewType webviewType;
 @property (nonatomic) WKWebView *customWebview;
 @property (atomic, readwrite) NSDictionary<NSString *, NSString *> *customWebviewHeaders;
-@property (nonatomic) MSIDViewController *parentViewController;
+@property (nonatomic, weak) MSIDViewController *parentViewController;
 #if TARGET_OS_IPHONE
 @property (nonatomic) UIModalPresentationStyle presentationType;
 #endif

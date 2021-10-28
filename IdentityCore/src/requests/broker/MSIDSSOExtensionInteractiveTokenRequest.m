@@ -197,7 +197,8 @@
         return anchor;
     }
     
-    return self.requestParameters.parentViewController ? self.requestParameters.parentViewController.view.window : self.requestParameters.presentationAnchorWindow;
+    __typeof__(self.requestParameters.parentViewController) parentViewController = self.requestParameters.parentViewController;
+    return parentViewController ? parentViewController.view.window : self.requestParameters.presentationAnchorWindow;
 }
 
 #pragma mark - Dealloc
