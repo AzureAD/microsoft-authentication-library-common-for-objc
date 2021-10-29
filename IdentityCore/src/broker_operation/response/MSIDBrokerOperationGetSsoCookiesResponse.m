@@ -61,20 +61,34 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
         }
         
         NSString *ssoCookiesString = json[@"sso_cookies"];
-        
         if ([NSString msidIsStringNilOrBlank:ssoCookiesString])
         {
-            self.prtHeaders = nil;
-            self.deviceHeaders = nil;
-            self.success = YES;
             return self;
         }
         
         NSDictionary *ssoCookiesJson = [ssoCookiesString msidJson];
+        NSError *convertPrtHeaderError = nil;
+        NSError *convertDeviceHeaderError = nil;
+        _prtHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:&convertPrtHeaderError];
+        _deviceHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:&convertDeviceHeaderError];
         
-        _prtHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:error];
-        
-        _deviceHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:error];
+        if(convertPrtHeaderError && convertDeviceHeaderError)
+        {
+            if(error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, [NSString stringWithFormat:@"Cannot convert credential headers from json response. PrtHeader error is %@. Device header error is %@", convertPrtHeaderError.description, convertDeviceHeaderError.description], nil, nil, nil, nil, nil, YES);
+            }
+            
+            self.success = NO;
+        }
+        else if (convertPrtHeaderError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot convert Prt Header from json response. Error: %@", convertPrtHeaderError.description);
+        }
+        else
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot convert device Header from json response. Error: %@", convertDeviceHeaderError.description);
+        }
     }
     
     return self;
