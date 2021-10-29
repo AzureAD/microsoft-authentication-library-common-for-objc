@@ -1,3 +1,6 @@
+Version 1.7.2
+* Use base64URLEncoding for RSA modules (#1058)
+
 Version 1.7.1
 * Add helper function used by cross cloud B2B support (#957)
 * Add support of "create" prompt (#1039)
