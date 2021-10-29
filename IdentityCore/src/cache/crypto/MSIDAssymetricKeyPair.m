@@ -92,7 +92,7 @@ static NSString *s_kidTemplate = @"{\"kid\":\"%@\"}";
         iterator++; // TYPE - bit stream exp
         int exp_size = [self derEncodingGetSizeFrom:publicKeyBits at:&iterator];
         
-        _keyExponent = [[publicKeyBits subdataWithRange:NSMakeRange(iterator, exp_size)] base64EncodedStringWithOptions:0];
+        _keyExponent = [[publicKeyBits subdataWithRange:NSMakeRange(iterator, exp_size)] msidBase64UrlEncodedString];
     }
     
     return _keyExponent;
