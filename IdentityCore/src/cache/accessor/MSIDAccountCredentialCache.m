@@ -102,7 +102,7 @@
                                            environment:cacheQuery.environment
                                     environmentAliases:cacheQuery.environmentAliases])
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) cached item had mismatching homeAccountID or environment/aliases with the credential query. excluding from the results.", className);
+                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(%@) cached item had mismatching homeAccountID or environment/aliases with the credential query. excluding from the results.", className);
                 continue;
             }
 
@@ -114,7 +114,7 @@
                               targetMatching:cacheQuery.targetMatchingOptions
                             clientIdMatching:cacheQuery.clientIdMatchingOptions])
             {
-                MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(%@) cached item had mismatching realm/clientId/familyId/target/requestedClaims with the credential query. excluding from the results.", className);
+                MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(%@) cached item had mismatching realm/clientId/familyId/target/requestedClaims with the credential query. excluding from the results.", className);
                 continue;
             }
             
