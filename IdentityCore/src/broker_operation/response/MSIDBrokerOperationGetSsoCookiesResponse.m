@@ -121,9 +121,9 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
 
 - (nullable NSArray<MSIDCredentialHeader*> *)convertToCredentialHeaderObjectFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
 {
-    if(!json[name]) return nil;
+    if(!json || !json[name]) return nil;
 
-    if (json[name] && ![json[name] isKindOfClass:NSArray.class])
+    if (![json[name] isKindOfClass:NSArray.class])
     {
         if (error)
         {
@@ -133,7 +133,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
         return nil;
     }
     
-    NSMutableArray<MSIDCredentialHeader*> *headers = [NSMutableArray new];
+    NSMutableArray<MSIDCredentialHeader *> *headers = [NSMutableArray new];
     for (NSDictionary *headerBlob in (NSArray *)json[name])
     {
         MSIDCredentialHeader *header = nil;
@@ -157,7 +157,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     }
     
     // Empty headers is a valid case
-    return headers.count > 0 ? headers : nil;
+    return headers.count ? headers : nil;
 }
 
 @end
