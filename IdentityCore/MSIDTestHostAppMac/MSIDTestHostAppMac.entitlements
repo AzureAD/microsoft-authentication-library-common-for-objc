@@ -5,7 +5,7 @@
 	<key>keychain-access-groups</key>
 	<array>
 		<string>$(AppIdentifierPrefix)com.microsoft.MSIDTestHostAppMac</string>
-		<string>$(AppIdentifierPrefix)com.microsoft.MSIDTestHostApp</string>
+		<string>$(AppIdentifierPrefix)com.microsoft.MSIDTestsHostApp</string>
 	</array>
 </dict>
 </plist>

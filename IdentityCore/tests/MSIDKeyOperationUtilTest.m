@@ -18,14 +18,20 @@
     @property (nonatomic) SecKeyRef eccPublicKey;
     @property (nonatomic) SecKeyRef rsaPrivateKey;
     @property (nonatomic) SecKeyRef rsaPublicKey;
-    @property (nonatomic,nullable) NSString *sharedAccessGroup;
+    @property (nonatomic) NSString *testApplicationTag;
+    @property (nonatomic) NSString *sharedAccessGroup ;
 @end
 
 @implementation MSIDKeyOperationUtilTest
 
 - (void)setUp
 {
-    _sharedAccessGroup = @"SGGM6D27TK.com.microsoft.MSIDTestsHostApp";
+    _testApplicationTag = @"Microsoft ECC Test App";
+    NSString *prefix = @"SGGM6D27TK";
+#if TARGET_OS_IPHONE
+    prefix = @"UBF8T346G9";
+#endif
+    _sharedAccessGroup = [NSString stringWithFormat:@"%@.%@", prefix, @"com.microsoft.MSIDTestsHostApp"]; // Using SGGM6D27TK as prefix for complete shared group
     if (!self.eccPublicKey)
     {
         [self populateTestKeys];
@@ -38,7 +44,10 @@
 
 - (void)tearDown
 {
-    
+    if (self.eccPublicKey)
+    {
+        CFRelease(self.eccPublicKey);
+    }
 }
 
 - (void)testIfKeyIsFromSecureEnclave_shouldReturnTrueForSECKeys
@@ -77,6 +86,7 @@
     // Private key should not be used to verify
     XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeVerify algorithm:kSecKeyAlgorithmECDSASignatureDigestX962SHA256 key:self.eccPrivateKey context:nil error:&error]);
 #endif
+    XCTAssertTrue([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeVerify algorithm:kSecKeyAlgorithmRSASignatureDigestPKCS1v15SHA256 key:self.rsaPrivateKey context:nil error:&error]);
     // Testing private key cannot be used to encrypt (kSecAttrCanEncrypt of private key is set to NO)
 #if TARGET_OS_IPHONE  // Fails on macOS but passes on iOS. Opened FB : https://feedbackassistant.apple.com/feedback/9665871
     XCTAssertFalse([[MSIDKeyOperationUtil sharedInstance] isOperationSupportedByKey:kSecKeyOperationTypeEncrypt algorithm:kSecKeyAlgorithmECIESEncryptionCofactorX963SHA256AESGCM key:self.eccPrivateKey context:nil error:&error]);
@@ -166,12 +176,13 @@
 
 - (void)fetchKeys
 {
-    NSData *tag = [self.sharedAccessGroup dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *tag = [self.testApplicationTag dataUsingEncoding:NSUTF8StringEncoding];
     NSMutableDictionary * queryPrivateKey = [[NSMutableDictionary alloc] init];
 
     // Set the private key query dictionary.
     [queryPrivateKey setObject:(__bridge id)kSecClassKey forKey:(__bridge id)kSecClass];
     [queryPrivateKey setObject:tag forKey:(__bridge id)kSecAttrApplicationTag];
+    [queryPrivateKey setObject:self.sharedAccessGroup forKey:(__bridge id)kSecAttrAccessGroup];
     [queryPrivateKey setObject:(__bridge id)kSecAttrKeyTypeEC forKey:(__bridge id)kSecAttrKeyType];
     [queryPrivateKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)kSecReturnRef];
     OSStatus status= noErr;
@@ -199,7 +210,7 @@
                                                  NULL);
     }
     
-    NSData *tag = [self.sharedAccessGroup dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *tag = [self.testApplicationTag dataUsingEncoding:NSUTF8StringEncoding];
     NSDictionary* attributes =
       @{ (id)kSecAttrKeyType:(id)kSecAttrKeyTypeECSECPrimeRandom,
          (id)kSecAttrKeySizeInBits:@256,
@@ -208,6 +219,7 @@
              @{
                  (id)kSecAttrIsPermanent:@YES,
                  (id)kSecAttrApplicationTag:tag,
+                 (id)kSecAttrAccessGroup:self.sharedAccessGroup,
                  (id)kSecAttrAccessControl:(__bridge id)access,
                  (id)kSecAttrCanEncrypt:@NO
              }
