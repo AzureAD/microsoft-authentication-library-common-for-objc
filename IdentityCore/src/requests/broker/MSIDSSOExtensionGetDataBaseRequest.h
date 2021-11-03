@@ -43,8 +43,9 @@ API_AVAILABLE(ios(13.0), macos(10.15))
                                              error:(NSError * _Nullable * _Nullable)error;
 
 - (void)executeBrokerOperationRequest:(MSIDBrokerOperationRequest *)request
-                        continueBlock:(MSIDSsoExtenionWrapperContinueBlock)continueBlock
-                           errorBlock:(MSIDSsoExtenionWrapperErrorBlock)errorBlock;
+                           requiresUI:(BOOL)requiresUI
+                        continueBlock:(MSIDSsoExtensionWrapperContinueBlock)continueBlock
+                           errorBlock:(MSIDSsoExtensionWrapperErrorBlock)errorBlock;
 
 + (BOOL)canPerformRequest;
 

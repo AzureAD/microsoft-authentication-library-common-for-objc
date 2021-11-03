@@ -54,18 +54,19 @@
 }
 
 - (void)executeBrokerOperationRequest:(MSIDBrokerOperationRequest *)request
-                        continueBlock:(MSIDSsoExtenionWrapperContinueBlock)continueBlock
-                           errorBlock:(MSIDSsoExtenionWrapperErrorBlock)errorBlock
+                           requiresUI:(BOOL)requiresUI
+                        continueBlock:(MSIDSsoExtensionWrapperContinueBlock)continueBlock
+                           errorBlock:(MSIDSsoExtensionWrapperErrorBlock)errorBlock
 {
     NSError *error;
     ASAuthorizationSingleSignOnRequest *ssoRequest = [self.ssoProvider createSSORequestWithOperationRequest:request
                                                                                           requestParameters:self.requestParameters
-                                                                                                 requiresUI:NO
+                                                                                                 requiresUI:requiresUI
                                                                                                       error:&error];
 
     if (!ssoRequest)
     {
-        errorBlock(error);
+        if(errorBlock) errorBlock(error);
         return;
     }
 
@@ -73,7 +74,7 @@
     self.authorizationController.delegate = self.extensionDelegate;
     [self.authorizationController performRequests];
 
-    continueBlock();
+    if(continueBlock) continueBlock();
 }
 
 #pragma mark - AuthenticationServices

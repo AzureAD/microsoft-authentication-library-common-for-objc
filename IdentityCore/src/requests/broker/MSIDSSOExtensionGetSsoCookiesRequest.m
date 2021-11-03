@@ -35,7 +35,7 @@
 
 @implementation MSIDSSOExtensionGetSsoCookiesRequest
 
-- (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+- (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
                                  accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                             ssoUrl:(NSString *)ssoUrl
                                      correlationId:(NSUUID *)correlationId
@@ -81,7 +81,7 @@
     return self;
 }
 
-- (void)executeRequestWithCompletion:(nonnull MSIDGetSsoCookiesRequestCompletionBlock)completionBlock
+- (void)executeRequestWithCompletion:(MSIDGetSsoCookiesRequestCompletionBlock)completionBlock
 {
     MSIDBrokerOperationGetSsoCookiesRequest *getSsoCookiesRequest = [MSIDBrokerOperationGetSsoCookiesRequest new];
     getSsoCookiesRequest.accountIdentifier = self.accountIdentifier;
@@ -89,10 +89,10 @@
     getSsoCookiesRequest.correlationId = self.correlationId ?: [NSUUID UUID];
     
     __typeof__(self) __weak weakSelf = self;
-    [self executeBrokerOperationRequest:getSsoCookiesRequest continueBlock:^{
+    [self executeBrokerOperationRequest:getSsoCookiesRequest requiresUI:NO continueBlock:^{
         weakSelf.requestCompletionBlock = completionBlock;
     } errorBlock:^(NSError *error) {
-        completionBlock(nil, nil, error);
+        if(completionBlock) completionBlock(nil, nil, error);
     }];
 }
 

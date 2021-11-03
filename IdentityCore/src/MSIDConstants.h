@@ -89,8 +89,8 @@ typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _
 typedef void (^MSIDGetDeviceInfoRequestCompletionBlock)(MSIDDeviceInfo * _Nullable deviceInfo, NSError * _Nullable error);
 typedef void (^MSIDGetSsoCookiesRequestCompletionBlock)(NSArray<MSIDPrtHeader *> * _Nullable prtHeaders, NSArray<MSIDDeviceHeader *> * _Nullable deviceHeaders, NSError * _Nullable error);
 
-typedef void (^MSIDSsoExtenionWrapperContinueBlock)(void);
-typedef void (^MSIDSsoExtenionWrapperErrorBlock)(NSError * _Nullable error);
+typedef void (^MSIDSsoExtensionWrapperContinueBlock)(void);
+typedef void (^MSIDSsoExtensionWrapperErrorBlock)(NSError * _Nullable error);
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
