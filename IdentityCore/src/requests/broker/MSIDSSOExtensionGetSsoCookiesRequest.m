@@ -36,16 +36,18 @@
 @implementation MSIDSSOExtensionGetSsoCookiesRequest
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                                 accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
-                                            ssoUrl:(NSString *)ssoUrl
-                                     correlationId:(NSUUID *)correlationId
-                                             error:(NSError **)error{
+                            typesOfHeader:(NSArray<NSNumber *>*)typesOfHeader
+                        accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
+                                   ssoUrl:(NSString *)ssoUrl
+                            correlationId:(NSUUID *)correlationId
+                                    error:(NSError **)error{
     self = [super initWithRequestParameters:requestParameters error:error];
     if (self)
     {
         _accountIdentifier = accountIdentifier;
         _ssoUrl = ssoUrl;
         _correlationId = correlationId;
+        _typesOfHeader = [typesOfHeader componentsJoinedByString:@", "];
         
         __typeof__(self) __weak weakSelf = self;
         self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
@@ -87,6 +89,7 @@
     getSsoCookiesRequest.accountIdentifier = self.accountIdentifier;
     getSsoCookiesRequest.ssoUrl = self.ssoUrl;
     getSsoCookiesRequest.correlationId = self.correlationId ?: [NSUUID UUID];
+    getSsoCookiesRequest.typesOfHeader = self.typesOfHeader;
     
     __typeof__(self) __weak weakSelf = self;
     [self executeBrokerOperationRequest:getSsoCookiesRequest requiresUI:NO continueBlock:^{

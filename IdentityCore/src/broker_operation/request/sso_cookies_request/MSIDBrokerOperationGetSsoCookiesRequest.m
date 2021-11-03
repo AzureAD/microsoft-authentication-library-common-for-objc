@@ -73,6 +73,18 @@
             
             return  nil;
         }
+        
+        NSString *typesOfHeaderStr = json[MSID_BROKER_TYPES_OF_HEADER];
+        if ([NSString msidIsStringNilOrBlank:typesOfHeaderStr])
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Types of header for sso cookie request is missing.", nil, nil, nil, nil, nil, YES);
+            }
+            
+            return  nil;
+        }
+        _typesOfHeader = typesOfHeaderStr;
     }
     
     return self;
@@ -89,6 +101,10 @@
     // Map to Sso Url
     if ([NSString msidIsStringNilOrBlank:self.ssoUrl]) return nil;
     json[MSID_BROKER_SSO_URL] = self.ssoUrl;
+    
+    // Map to types of header
+    if ([NSString msidIsStringNilOrBlank:self.typesOfHeader]) return nil;
+    json[MSID_BROKER_TYPES_OF_HEADER] = self.typesOfHeader;
     
     // Map to account identifier, it is nullable.
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];

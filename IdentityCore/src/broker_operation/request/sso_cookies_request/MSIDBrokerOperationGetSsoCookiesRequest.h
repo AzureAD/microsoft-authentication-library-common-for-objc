@@ -33,6 +33,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) NSString *ssoUrl;
 @property (nonatomic, nullable) MSIDAccountIdentifier *accountIdentifier;
+@property (nonatomic) NSString *typesOfHeader;
+
 // TODO add remidiateUri for Sso Cookies
 
 @end

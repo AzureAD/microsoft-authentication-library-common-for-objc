@@ -37,8 +37,21 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 @property (nonatomic, readonly) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic, readonly) NSString *ssoUrl;
 @property (nonatomic, readonly) NSUUID *correlationId;
+@property (nonatomic, readonly) NSString *typesOfHeader;
 
+
+/**
+ This is to init get sso cookies request
+ @param requestParameters the MSIDRequestParameters
+ @param typesOfHeader an array of type of header the request is looking for, please refers to MSIDGetHeaderType
+ @param accountIdentifier MSIDAccountIdentifier, it is optional
+ @param ssoUrl NSString, this is required, and will be used to filter out Prts
+ @param correlationId NSUUID, Passed from upper layer for end to end trace
+ @param error NSErrorr possible errors during the request
+ @returns instance of MSIDSSOExtensionGetSsoCookiesRequest
+ */
 - (nullable instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
+                                     typesOfHeader:(NSArray<NSNumber *>*)typesOfHeader
                                  accountIdentifier:(nullable MSIDAccountIdentifier *)accountIdentifier
                                             ssoUrl:(NSString *)ssoUrl
                                      correlationId:(nullable NSUUID *)correlationId

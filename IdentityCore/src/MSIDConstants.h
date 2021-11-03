@@ -83,6 +83,14 @@ typedef NS_ENUM(NSInteger, MSIDAuthScheme)
     MSIDAuthSchemePop,
 };
 
+typedef NS_ENUM(NSInteger, MSIDGetHeaderType)
+{
+    MSIDGetAllHeader = 0,
+    MSIDGetPrtHeader,
+    MSIDGetDeviceHeader
+};
+
+
 typedef void (^MSIDRequestCompletionBlock)(MSIDTokenResult * _Nullable result, NSError * _Nullable error);
 typedef void (^MSIDSignoutRequestCompletionBlock)(BOOL success, NSError * _Nullable error);
 typedef void (^MSIDGetAccountsRequestCompletionBlock)(NSArray<MSIDAccount *> * _Nullable accounts, BOOL returnBrokerAccountsOnly, NSError * _Nullable error);
