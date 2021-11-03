@@ -32,10 +32,11 @@ MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_SIGNOUT_ACCOUNT = @"si
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_ACCOUNTS = @"get_accounts_operation";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_DEVICE_INFO = @"get_device_info";
 MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_PRT = @"get_prt";
-
+MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_SSO_COOKIES = @"get_sso_cookies";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_ACCOUNTS_RESPONSE = @"operation_get_accounts_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GENERIC_RESPONSE = @"operation_generic_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_TOKEN_RESPONSE = @"operation_token_response";
+MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_SSO_COOKIES_RESPONSE = @"operation_get_sso_cookies_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV1 = @"provider_aad_v1";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV2 = @"provider_aad_v2";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_B2C = @"provider_b2c";
