@@ -36,7 +36,7 @@ static NSString *const MSID_CREDENTIAL_HEADER_JSON_KEY = @"header";
     
     if (self)
     {
-        if (!json[MSID_CREDENTIAL_HEADER_JSON_KEY]) return nil;
+        if (!json || !json[MSID_CREDENTIAL_HEADER_JSON_KEY]) return nil;
         if (![json[MSID_CREDENTIAL_HEADER_JSON_KEY] isKindOfClass:NSDictionary.class]) return nil;
         _info = [[MSIDCredentialInfo alloc] initWithJSONDictionary:json[MSID_CREDENTIAL_HEADER_JSON_KEY] error:error];
         if (!_info) return nil;
