@@ -46,8 +46,35 @@
             
             return nil;
         }
-        _name = json.allKeys.firstObject;
-        _value = json[_name];
+        
+        if ([json.allKeys.firstObject isKindOfClass:[NSString class]])
+        {
+            _name = json.allKeys.firstObject;
+        }
+        else
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected type for credential header name", nil, nil, nil, nil, nil, YES);
+            }
+            
+            return nil;
+        }
+         
+        if ([json[_name] isKindOfClass:[NSString class]])
+        {
+            _value = json[_name];
+        }
+        else
+        {
+            if (error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, @"Unexpected type for credential header value", nil, nil, nil, nil, nil, YES);
+            }
+            
+            return nil;
+        }
+        
         if ([NSString msidIsStringNilOrBlank:_value])
         {
             if (error)
@@ -67,8 +94,7 @@
     NSMutableDictionary *json = [NSMutableDictionary new];
     
     // Map to credentialInfo dictionary
-    if ([NSString msidIsStringNilOrBlank:self.name]) return nil;
-    if ([NSString msidIsStringNilOrBlank:self.value]) return nil;
+    if ([NSString msidIsStringNilOrBlank:self.name] || [NSString msidIsStringNilOrBlank:self.value]) return nil;
     json[self.name] = self.value;
     
     return json;

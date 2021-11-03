@@ -69,7 +69,7 @@ keychainAccessGroup:(NSString *)keychainAccessGroup
         _clientAppName = [json msidStringObjectForKey:MSID_BROKER_CLIENT_APP_NAME_KEY];
         
         NSString *uuidString = [json msidStringObjectForKey:MSID_BROKER_CORRELATION_ID_KEY];
-        if(![NSString msidIsStringNilOrBlank:uuidString])
+        if (![NSString msidIsStringNilOrBlank:uuidString])
         {
             _correlationId = [[NSUUID alloc] initWithUUIDString:uuidString];
         }

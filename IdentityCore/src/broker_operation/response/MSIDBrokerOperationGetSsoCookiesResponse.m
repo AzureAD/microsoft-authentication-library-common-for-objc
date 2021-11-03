@@ -34,6 +34,7 @@
 
 static NSString *const MSID_PRT_HEADERS = @"prt_headers";
 static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
+static NSString *const MSID_SSO_COOKIES = @"sso_cookies";
 
 @implementation MSIDBrokerOperationGetSsoCookiesResponse
 
@@ -55,26 +56,39 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:@"sso_cookies" required:NO error:error])
+        if (![json msidAssertType:NSString.class ofKey:MSID_SSO_COOKIES required:NO error:error])
         {
             return nil;
         }
         
-        NSString *ssoCookiesString = json[@"sso_cookies"];
-        
+        NSString *ssoCookiesString = json[MSID_SSO_COOKIES];
         if ([NSString msidIsStringNilOrBlank:ssoCookiesString])
         {
-            self.prtHeaders = nil;
-            self.deviceHeaders = nil;
-            self.success = YES;
             return self;
         }
         
         NSDictionary *ssoCookiesJson = [ssoCookiesString msidJson];
-        
-        _prtHeaders = (NSArray<MSIDPrtHeader *> *)[self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:error];
-        
-        _deviceHeaders = (NSArray<MSIDDeviceHeader *> *)[self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:error];
+        NSError *convertPrtHeaderError = nil;
+        NSError *convertDeviceHeaderError = nil;
+        _prtHeaders = (NSArray<MSIDPrtHeader *> *)[self parseCredentialHeaderFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:error];
+        _deviceHeaders = (NSArray<MSIDDeviceHeader *> *)[self parseCredentialHeaderFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:error];
+        if(convertPrtHeaderError && convertDeviceHeaderError)
+        {
+            if(error)
+            {
+                *error = MSIDCreateError(MSIDErrorDomain, MSIDErrorInternal, [NSString stringWithFormat:@"Cannot convert credential headers from json response. PrtHeader error is %@. Device header error is %@", convertPrtHeaderError.description, convertDeviceHeaderError.description], nil, nil, nil, nil, nil, YES);
+            }
+            
+            self.success = NO;
+        }
+        else if (convertPrtHeaderError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot convert Prt Header from json response. Error: %@", convertPrtHeaderError.description);
+        }
+        else if (convertDeviceHeaderError)
+        {
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot convert device Header from json response. Error: %@", convertDeviceHeaderError.description);
+        }
     }
     
     return self;
@@ -88,7 +102,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     NSMutableDictionary *cookiesJson = [NSMutableDictionary new];
     cookiesJson[MSID_PRT_HEADERS] = [self convertToJsonFrom:self.prtHeaders];
     cookiesJson[MSID_DEVICE_HEADERS] = [self convertToJsonFrom:self.deviceHeaders];
-    json[@"sso_cookies"] = [cookiesJson msidJSONSerializeWithContext:nil];
+    json[MSID_SSO_COOKIES] = [cookiesJson msidJSONSerializeWithContext:nil];
     return json;
 }
 
@@ -105,11 +119,11 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     return headersJson.count > 0 ? headersJson : nil;
 }
 
-- (nullable NSArray<MSIDCredentialHeader*> *)convertToCredentialHeaderObjectFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
+- (nullable NSArray<MSIDCredentialHeader*> *)parseCredentialHeaderFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
 {
-    if(!json[name]) return nil;
+    if(!json || !json[name]) return nil;
 
-    if (json[name] && ![json[name] isKindOfClass:NSArray.class])
+    if (![json[name] isKindOfClass:NSArray.class])
     {
         if (error)
         {
@@ -119,7 +133,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
         return nil;
     }
     
-    NSMutableArray<MSIDCredentialHeader*> *headers = [NSMutableArray new];
+    NSMutableArray<MSIDCredentialHeader *> *headers = [NSMutableArray new];
     for (NSDictionary *headerBlob in (NSArray *)json[name])
     {
         MSIDCredentialHeader *header = nil;
@@ -143,7 +157,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     }
     
     // Empty headers is a valid case
-    return headers.count > 0 ? headers : nil;
+    return headers.count ? headers : nil;
 }
 
 @end
