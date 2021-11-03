@@ -410,8 +410,7 @@
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Get accounts.");
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
@@ -438,6 +437,7 @@
     NSError *localError;
     if (signedInAccountsOnly)
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) signedInAccountsOnly Enabled. retrieve account IDs from RT.");
         accountIdsFromRT = [self homeAccountIdsFromRTsWithAuthority:authority
                                                            clientId:clientId
                                                            familyId:familyId
@@ -461,6 +461,8 @@
                                                           clientId:clientId
                                                            context:context
                                                              error:nil];
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) %ld id tokens found with given authority.",idTokens.count);
     
     NSMutableSet<NSString *> *noReturnAccountUPNSet;
     NSMutableSet<MSIDAccount *> *returnAccountsSet = [self filterAndFillIdTokenClaimsForAccounts:allAccounts
@@ -563,6 +565,7 @@
          */
         if (realmHint && [account.realm isEqualToString:realmHint])
         {
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) found an account that has matching realmHint: %@.", realmHint);
             return account;
         }
         
@@ -927,6 +930,7 @@
 
     if ([accountCacheItems count])
     {
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) found %ld accounts with legacy account id. returning first account.",accountCacheItems.count);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
         MSIDAccountCacheItem *accountCacheItem = accountCacheItems[0];
         return accountCacheItem.homeAccountId;
@@ -997,13 +1001,14 @@
     }
 
     NSMutableArray<MSIDBaseToken *> *resultTokens = [NSMutableArray new];
+    
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Found %lu cached credentials", (unsigned long)[cacheItems count]);
     for (MSIDCredentialCacheItem *cacheItem in cacheItems)
     {
         MSIDBaseToken *resultToken = [cacheItem tokenWithType:cacheQuery.credentialType];
 
         if (resultToken)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Found %lu tokens", (unsigned long)[cacheItems count]);
             resultToken.storageEnvironment = resultToken.environment;
             
             if (requestedEnvironment)
@@ -1014,6 +1019,7 @@
         }
     }
     
+    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Found %lu tokens with environment", (unsigned long)[resultTokens count]);
     return resultTokens;
 }
 

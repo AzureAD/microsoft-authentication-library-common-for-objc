@@ -315,25 +315,25 @@
 {
     if (realm && ![self.realm.msidNormalizedString isEqualToString:realm.msidNormalizedString])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have a valid realm. Actual: %@, expected: %@", NSStringFromClass(self.class), self.realm, realm);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item did not have a valid realm. Actual: %@, expected: %@", NSStringFromClass(self.class), self.realm, realm);
         return NO;
     }
 
     if (![self matchesTarget:target comparisonOptions:matchingOptions])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have a valid target value. %@", NSStringFromClass(self.class), target);
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item did not have a valid target value. %@", NSStringFromClass(self.class), target);
         return NO;
     }
 
     if (!clientId && !familyId)
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item had neither clientID nor family Id.", NSStringFromClass(self.class));
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item had neither clientID nor family Id.", NSStringFromClass(self.class));
         return YES;
     }
     
     if (!([NSString msidIsStringNilOrBlank:self.requestedClaims] && [NSString msidIsStringNilOrBlank:requestedClaims]) && !([self.requestedClaims isEqualToString:requestedClaims]))
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item did not have valid requestedClaims.", NSStringFromClass(self.class));
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item did not have valid requestedClaims.", NSStringFromClass(self.class));
         return NO;
     }
 
@@ -342,24 +342,24 @@
         if ((clientId && [self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
             || (familyId && [self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString]))
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item supserset match; actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.clientId, clientId, self.familyId, familyId);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item supserset match; actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.clientId, clientId, self.familyId, familyId);
             return YES;       
         }
         
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item superset mismatch; cached item had both invalid clientID and familyID. actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.clientId, clientId, self.familyId, familyId);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item superset mismatch; cached item had both invalid clientID and familyID. actual client ID: %@, expected client ID: %@, actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.clientId, clientId, self.familyId, familyId);
         return NO;
     }
     else
     {
         if (clientId && ![self.clientId.msidNormalizedString isEqualToString:clientId.msidNormalizedString])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item clientID mismatch; actual client ID: %@, expected client ID: %@", NSStringFromClass(self.class), self.clientId, clientId);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item clientID mismatch; actual client ID: %@, expected client ID: %@", NSStringFromClass(self.class), self.clientId, clientId);
             return NO;
         }
 
         if (familyId && ![self.familyId.msidNormalizedString isEqualToString:familyId.msidNormalizedString])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(%@) cached item familyID mismatch; actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.familyId, familyId);
+            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(%@) cached item familyID mismatch; actual family ID: %@, expected family ID: %@", NSStringFromClass(self.class), self.familyId, familyId);
             return NO;
         }
     }
