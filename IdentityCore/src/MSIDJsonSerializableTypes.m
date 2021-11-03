@@ -36,6 +36,7 @@ MSIDJsonSerializableType MSID_JSON_TYPE_OPERATION_REQUEST_GET_SSO_COOKIES = @"ge
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_ACCOUNTS_RESPONSE = @"operation_get_accounts_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GENERIC_RESPONSE = @"operation_generic_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_TOKEN_RESPONSE = @"operation_token_response";
+MSIDJsonSerializableType MSID_JSON_TYPE_BROKER_OPERATION_GET_SSO_COOKIES_RESPONSE = @"operation_get_sso_cookies_response";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV1 = @"provider_aad_v1";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_AADV2 = @"provider_aad_v2";
 MSIDJsonSerializableType MSID_JSON_TYPE_PROVIDER_B2C = @"provider_b2c";
