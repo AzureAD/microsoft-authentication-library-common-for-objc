@@ -164,18 +164,20 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (void)dismissWebview:(void (^)(void))completion
 {
+    __typeof__(self.parentController) parentController = self.parentController;
+    
     //if webview is created by us, dismiss and then complete and return;
     //otherwise just complete and return.
-    if (_parentController && self.presentInParentController)
+    if (parentController && self.presentInParentController)
     {
-        [_parentController dismissViewControllerAnimated:YES completion:completion];
+        [parentController dismissViewControllerAnimated:YES completion:completion];
     }
     else
     {
         completion();
     }
     
-    _parentController = nil;
+    self.parentController = nil;
 }
 
 - (void)showLoadingIndicator
@@ -192,13 +194,15 @@ static WKWebViewConfiguration *s_webConfig;
 
 - (BOOL)obtainParentController
 {
-    if (self.parentController) return YES;
+    __typeof__(self.parentController) parentController = self.parentController;
+    
+    if (parentController) return YES;
     
     if (@available(iOS 13.0, *)) return NO;
     
-    self.parentController = [UIApplication msidCurrentViewController:self.parentController];
+    parentController = [UIApplication msidCurrentViewController:parentController];
     
-    return self.parentController != nil;
+    return parentController != nil;
 }
 
 - (void)setupCancelButton

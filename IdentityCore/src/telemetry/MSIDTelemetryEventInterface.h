@@ -23,8 +23,8 @@
 
 @protocol MSIDTelemetryEventInterface <NSObject>
 
-@property (readonly) NSDictionary *propertyMap;
-@property (assign) BOOL errorInEvent;
+@property (atomic, readonly) NSDictionary *propertyMap;
+@property (atomic, assign) BOOL errorInEvent;
 
 - (void)setProperty:(NSString *)name value:(NSString *)value;
 - (NSString *)propertyWithName:(NSString *)name;

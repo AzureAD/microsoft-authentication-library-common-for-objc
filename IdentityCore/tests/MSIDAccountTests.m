@@ -189,7 +189,7 @@
     XCTAssertEqualObjects(cacheItem.environment, @"login.windows.net");
 }
 
-#pragma serialization/deserialization
+#pragma mark - serialization/deserialization
 
 - (void)testJsonDictionary_whenDeserialize_shouldGenerateCorrectJson {
     MSIDAccount *account = [self createAccount];

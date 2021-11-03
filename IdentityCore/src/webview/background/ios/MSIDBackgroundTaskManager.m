@@ -73,7 +73,7 @@
 {
     @synchronized (self.taskCache)
     {
-        __weak MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
         if (backgroundTaskData)
         {
             // A background task was already started for this type, updating count
@@ -95,7 +95,7 @@
 {
     @synchronized (self.taskCache)
     {
-        __weak MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
+        MSIDBackgroundTaskData *backgroundTaskData = [self backgroundTaskWithType:type];
         backgroundTaskData.callerReferenceCount--;
         if (!backgroundTaskData || backgroundTaskData.callerReferenceCount > 0)
         {

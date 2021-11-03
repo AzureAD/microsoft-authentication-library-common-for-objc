@@ -25,7 +25,7 @@
 
 @implementation MSIDAutomationResetAPIRequest
 
-#pragma - Lab Request
+#pragma mark - Lab Request
 
 - (NSString *)requestOperationPath
 {

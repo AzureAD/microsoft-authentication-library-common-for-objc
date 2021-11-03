@@ -36,7 +36,7 @@
            presentationType:(UIModalPresentationStyle)presentationType
                     context:(id<MSIDRequestContext>)context;
 
-@property (readonly) NSURL *startURL;
+@property (atomic, readonly) NSURL *startURL;
 @property (weak, nonatomic) UIViewController *parentController;
 @property (nonatomic) NSArray<UIActivity *> *appActivities;
 
