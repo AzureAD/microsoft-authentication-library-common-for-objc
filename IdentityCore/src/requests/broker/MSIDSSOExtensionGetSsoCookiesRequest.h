@@ -37,8 +37,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 @property (nonatomic, readonly) MSIDAccountIdentifier *accountIdentifier;
 @property (nonatomic, readonly) NSString *ssoUrl;
 @property (nonatomic, readonly) NSUUID *correlationId;
-@property (nonatomic, readonly) NSString *typesOfHeader;
-
+@property (nonatomic, readonly) NSString *types;
 
 /**
  This is to init get sso cookies request

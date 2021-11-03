@@ -47,7 +47,7 @@
         _accountIdentifier = accountIdentifier;
         _ssoUrl = ssoUrl;
         _correlationId = correlationId;
-        _typesOfHeader = [typesOfHeader componentsJoinedByString:@", "];
+        _types = [typesOfHeader componentsJoinedByString:@", "];
         
         __typeof__(self) __weak weakSelf = self;
         self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
@@ -89,7 +89,7 @@
     getSsoCookiesRequest.accountIdentifier = self.accountIdentifier;
     getSsoCookiesRequest.ssoUrl = self.ssoUrl;
     getSsoCookiesRequest.correlationId = self.correlationId ?: [NSUUID UUID];
-    getSsoCookiesRequest.typesOfHeader = self.typesOfHeader;
+    getSsoCookiesRequest.typesOfHeader = self.types;
     
     __typeof__(self) __weak weakSelf = self;
     [self executeBrokerOperationRequest:getSsoCookiesRequest requiresUI:NO continueBlock:^{
