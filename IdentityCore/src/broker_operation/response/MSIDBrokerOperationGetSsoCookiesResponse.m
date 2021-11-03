@@ -34,6 +34,7 @@
 
 static NSString *const MSID_PRT_HEADERS = @"prt_headers";
 static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
+static NSString *const MSID_SSO_COOKIES = @"sso_cookies";
 
 @implementation MSIDBrokerOperationGetSsoCookiesResponse
 
@@ -55,12 +56,12 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     
     if (self)
     {
-        if (![json msidAssertType:NSString.class ofKey:@"sso_cookies" required:NO error:error])
+        if (![json msidAssertType:NSString.class ofKey:MSID_SSO_COOKIES required:NO error:error])
         {
             return nil;
         }
         
-        NSString *ssoCookiesString = json[@"sso_cookies"];
+        NSString *ssoCookiesString = json[MSID_SSO_COOKIES];
         if ([NSString msidIsStringNilOrBlank:ssoCookiesString])
         {
             return self;
@@ -69,8 +70,8 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
         NSDictionary *ssoCookiesJson = [ssoCookiesString msidJson];
         NSError *convertPrtHeaderError = nil;
         NSError *convertDeviceHeaderError = nil;
-        _prtHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:&convertPrtHeaderError];
-        _deviceHeaders = [self convertToCredentialHeaderObjectFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:&convertDeviceHeaderError];
+        _prtHeaders = [self parseCredentialHeaderFrom:ssoCookiesJson credentialName:MSID_PRT_HEADERS error:&convertPrtHeaderError];
+        _deviceHeaders = [self parseCredentialHeaderFrom:ssoCookiesJson credentialName:MSID_DEVICE_HEADERS error:&convertDeviceHeaderError];
         
         if(convertPrtHeaderError && convertDeviceHeaderError)
         {
@@ -85,7 +86,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot convert Prt Header from json response. Error: %@", convertPrtHeaderError.description);
         }
-        else
+        else if (convertDeviceHeaderError)
         {
             MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"Cannot convert device Header from json response. Error: %@", convertDeviceHeaderError.description);
         }
@@ -102,7 +103,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     NSMutableDictionary *cookiesJson = [NSMutableDictionary new];
     cookiesJson[MSID_PRT_HEADERS] = [self convertToJsonFrom:self.prtHeaders];
     cookiesJson[MSID_DEVICE_HEADERS] = [self convertToJsonFrom:self.deviceHeaders];
-    json[@"sso_cookies"] = [cookiesJson msidJSONSerializeWithContext:nil];
+    json[MSID_SSO_COOKIES] = [cookiesJson msidJSONSerializeWithContext:nil];
     return json;
 }
 
@@ -119,7 +120,7 @@ static NSString *const MSID_DEVICE_HEADERS = @"device_headers";
     return headersJson.count > 0 ? headersJson : nil;
 }
 
-- (nullable NSArray<MSIDCredentialHeader*> *)convertToCredentialHeaderObjectFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
+- (nullable NSArray<MSIDCredentialHeader*> *)parseCredentialHeaderFrom:(NSDictionary *)json credentialName:(NSString *)name error:(NSError **)error
 {
     if(!json || !json[name]) return nil;
 

@@ -30,7 +30,8 @@ static NSString *const MSID_CREDENTIAL_HEADER_JSON_KEY = @"header";
 
 @implementation MSIDCredentialHeader
 
-- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error {
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
     self = [super init];
     
     if (self)
@@ -44,7 +45,8 @@ static NSString *const MSID_CREDENTIAL_HEADER_JSON_KEY = @"header";
     return self;
 }
 
-- (NSDictionary *)jsonDictionary {
+- (NSDictionary *)jsonDictionary
+{
     NSMutableDictionary *json = [NSMutableDictionary new];
     NSDictionary *credentialInfoJson = [self.info jsonDictionary];
     if (!credentialInfoJson)
