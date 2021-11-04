@@ -36,7 +36,7 @@
 @implementation MSIDSSOExtensionGetSsoCookiesRequest
 
 - (instancetype)initWithRequestParameters:(MSIDRequestParameters *)requestParameters
-                            typesOfHeader:(NSArray<NSNumber *>*)typesOfHeader
+                            headerTypes:(NSArray<NSNumber *>*)headerTypes
                         accountIdentifier:(MSIDAccountIdentifier *)accountIdentifier
                                    ssoUrl:(NSString *)ssoUrl
                             correlationId:(NSUUID *)correlationId
@@ -47,7 +47,7 @@
         _accountIdentifier = accountIdentifier;
         _ssoUrl = ssoUrl;
         _correlationId = correlationId;
-        _types = [typesOfHeader componentsJoinedByString:@", "];
+        _types = [headerTypes componentsJoinedByString:@", "];
         
         __typeof__(self) __weak weakSelf = self;
         self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
@@ -90,13 +90,9 @@
     getSsoCookiesRequest.accountIdentifier = self.accountIdentifier;
     getSsoCookiesRequest.ssoUrl = self.ssoUrl;
     getSsoCookiesRequest.correlationId = self.correlationId ?: [NSUUID UUID];
-    getSsoCookiesRequest.typesOfHeader = self.types;
-    
-    __typeof__(self) __weak weakSelf = self;
-    [self executeBrokerOperationRequest:getSsoCookiesRequest requiresUI:NO continueBlock:^{
-        __strong typeof(self) strongSelf = weakSelf;
-        strongSelf.requestCompletionBlock = completionBlock;
-    } errorBlock:^(NSError *error) {
+    getSsoCookiesRequest.headerTypes = self.types;
+    self.requestCompletionBlock = completionBlock;
+    [self executeBrokerOperationRequest:getSsoCookiesRequest requiresUI:NO errorBlock:^(NSError *error) {
         if(completionBlock) completionBlock(nil, nil, error);
     }];
 }

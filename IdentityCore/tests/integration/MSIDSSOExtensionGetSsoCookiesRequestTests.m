@@ -53,7 +53,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     NSError *error;
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequest *request = [[MSIDSSOExtensionGetSsoCookiesRequest alloc] initWithRequestParameters:params
-                                                                                                              typesOfHeader:@[@(MSIDGetAllHeader)]
+                                                                                                              headerTypes:@[@(MSIDGetAllHeader)]
                                                                                                           accountIdentifier:accountIdentifier
                                                                                                                      ssoUrl:@""
                                                                                                               correlationId:[NSUUID UUID]
@@ -77,7 +77,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      typesOfHeader:@[@(MSIDGetAllHeader)]
+                                                                                                                      headerTypes:@[@(MSIDGetAllHeader)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
@@ -112,7 +112,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     NSError *msidError = MSIDCreateError(MSIDErrorDomain, MSIDErrorInvalidDeveloperParameter, @"Invalid param", @"invalid_grant", @"bad_token", nil, nil, nil, NO);
     NSError *error = [NSError errorWithDomain:ASAuthorizationErrorDomain code:MSIDSSOExtensionUnderlyingError userInfo:@{NSUnderlyingErrorKey : msidError}];
     
-    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
+    __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
+    [delegate authorizationController:authorizationControllerMock didCompleteWithError:error];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
 
@@ -122,7 +123,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      typesOfHeader:@[@(MSIDGetAllHeader)]
+                                                                                                                      headerTypes:@[@(MSIDGetAllHeader)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
@@ -161,7 +162,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
     
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
-    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
+    __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
+    [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
 
@@ -171,7 +173,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      typesOfHeader:@[@(MSIDGetPrtHeader), @(MSIDGetDeviceHeader)]
+                                                                                                                      headerTypes:@[@(MSIDGetPrtHeader), @(MSIDGetDeviceHeader)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
@@ -247,7 +249,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
     
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
-    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
+    __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
+    [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
 
@@ -257,7 +260,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     
     MSIDAccountIdentifier *accountIdentifier = [[MSIDAccountIdentifier alloc] initWithDisplayableId:@"demouser1@contoso.com" homeAccountId:@"uid.utid"];
     MSIDSSOExtensionGetSsoCookiesRequestMock *request = [[MSIDSSOExtensionGetSsoCookiesRequestMock alloc] initWithRequestParameters:params
-                                                                                                                      typesOfHeader:@[@(MSIDGetAllHeader)]
+                                                                                                                      headerTypes:@[@(MSIDGetAllHeader)]
                                                                                                                   accountIdentifier:accountIdentifier
                                                                                                                              ssoUrl:@"https://www.contoso.com"
                                                                                                                       correlationId:[NSUUID UUID]
@@ -296,7 +299,8 @@ API_AVAILABLE(ios(13.0), macos(10.15))
     ASAuthorizationSingleSignOnCredentialMock *credential = [[ASAuthorizationSingleSignOnCredentialMock alloc] initResponseHeaders:responseJSON];
     
     ASAuthorizationMock *authorization = [[ASAuthorizationMock alloc] initWithCredential:credential];
-    [authorizationControllerMock.delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
+    __typeof__(authorizationControllerMock.delegate) delegate = authorizationControllerMock.delegate;
+    [delegate authorizationController:authorizationControllerMock didCompleteWithAuthorization:authorization];
     [self waitForExpectations:@[executeRequestExpectation] timeout:1];
 }
 

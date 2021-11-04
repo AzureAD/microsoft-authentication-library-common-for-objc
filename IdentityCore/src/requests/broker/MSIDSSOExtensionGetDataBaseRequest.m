@@ -55,7 +55,6 @@
 
 - (void)executeBrokerOperationRequest:(MSIDBrokerOperationRequest *)request
                            requiresUI:(BOOL)requiresUI
-                        continueBlock:(MSIDSsoExtensionWrapperContinueBlock)continueBlock
                            errorBlock:(MSIDSsoExtensionWrapperErrorBlock)errorBlock
 {
     NSError *error;
@@ -73,8 +72,6 @@
     self.authorizationController = [self controllerWithRequest:ssoRequest];
     self.authorizationController.delegate = self.extensionDelegate;
     [self.authorizationController performRequests];
-
-    if(continueBlock) continueBlock();
 }
 
 #pragma mark - AuthenticationServices

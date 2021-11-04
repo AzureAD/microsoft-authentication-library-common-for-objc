@@ -41,7 +41,7 @@
     request.correlationId = [NSUUID UUID];
     request.brokerKey = @"key";
     request.protocolVersion = 99;
-    request.typesOfHeader = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -55,7 +55,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"";
-    request.typesOfHeader = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -68,8 +68,8 @@
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
     request.correlationId = [NSUUID UUID];
-    request.typesOfHeader = @"0";
-    request.typesOfHeader = @"0";
+    request.headerTypes = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -83,7 +83,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
-    request.typesOfHeader = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -97,7 +97,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
-    request.typesOfHeader = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNil(json);
@@ -110,7 +110,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
-    request.typesOfHeader = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -125,7 +125,7 @@
     request.brokerKey = @"key";
     request.protocolVersion = 99;
     request.ssoUrl = @"www.contoso.com";
-    request.typesOfHeader = @"0";
+    request.headerTypes = @"0";
     
     NSDictionary *json = [request jsonDictionary];
     XCTAssertNotNil(json);
@@ -253,7 +253,7 @@
     XCTAssertEqualObjects(request.accountIdentifier.displayableId, @"test@contoso.com");
     XCTAssertEqualObjects(request.accountIdentifier.homeAccountId, @"uid.utid");
     XCTAssertEqualObjects(request.correlationId, correlationId);
-    XCTAssertEqualObjects(request.typesOfHeader, @"1, 2");
+    XCTAssertEqualObjects(request.headerTypes, @"1, 2");
 }
 
 @end

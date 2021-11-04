@@ -74,8 +74,8 @@
             return  nil;
         }
         
-        NSString *typesOfHeaderStr = json[MSID_BROKER_TYPES_OF_HEADER];
-        if ([NSString msidIsStringNilOrBlank:typesOfHeaderStr])
+        NSString *headerTypesStr = json[MSID_BROKER_TYPES_OF_HEADER];
+        if ([NSString msidIsStringNilOrBlank:headerTypesStr])
         {
             if (error)
             {
@@ -84,7 +84,7 @@
             
             return  nil;
         }
-        _typesOfHeader = typesOfHeaderStr;
+        _headerTypes = headerTypesStr;
     }
     
     return self;
@@ -103,8 +103,8 @@
     json[MSID_BROKER_SSO_URL] = self.ssoUrl;
     
     // Map to types of header
-    if ([NSString msidIsStringNilOrBlank:self.typesOfHeader]) return nil;
-    json[MSID_BROKER_TYPES_OF_HEADER] = self.typesOfHeader;
+    if ([NSString msidIsStringNilOrBlank:self.headerTypes]) return nil;
+    json[MSID_BROKER_TYPES_OF_HEADER] = self.headerTypes;
     
     // Map to account identifier, it is nullable.
     NSDictionary *accountIdentifierJson = [self.accountIdentifier jsonDictionary];
