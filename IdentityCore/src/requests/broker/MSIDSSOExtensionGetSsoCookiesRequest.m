@@ -52,6 +52,7 @@
         __typeof__(self) __weak weakSelf = self;
         self.extensionDelegate.completionBlock = ^(MSIDBrokerNativeAppOperationResponse *operationResponse, NSError *error)
         {
+            __strong typeof(self) strongSelf = weakSelf;
             NSArray *prtHeaders = nil;
             NSArray *deviceHeaders = nil;
             NSError *resultError = error;
@@ -71,8 +72,8 @@
                 deviceHeaders = response.deviceHeaders;
             }
             
-            MSIDGetSsoCookiesRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
+            MSIDGetSsoCookiesRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
             
             if (completionBlock) completionBlock(prtHeaders, deviceHeaders, resultError);
         };
