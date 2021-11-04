@@ -42,7 +42,7 @@ API_AVAILABLE(ios(13.0), macos(10.15))
 /**
  This is to init get sso cookies request
  @param requestParameters the MSIDRequestParameters
- @param headerTypes an array of type of header the request is looking for, please refers to MSIDGetHeaderType
+ @param headerTypes an array of type of header the request is looking for, please refers to MSIDHeaderType
  @param accountIdentifier MSIDAccountIdentifier, it is optional
  @param ssoUrl NSString, this is required, and will be used to filter out Prts
  @param correlationId NSUUID, Passed from upper layer for end to end trace

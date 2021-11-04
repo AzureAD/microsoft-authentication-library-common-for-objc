@@ -83,11 +83,11 @@ typedef NS_ENUM(NSInteger, MSIDAuthScheme)
     MSIDAuthSchemePop,
 };
 
-typedef NS_ENUM(NSInteger, MSIDGetHeaderType)
+typedef NS_ENUM(NSInteger, MSIDHeaderType)
 {
-    MSIDGetAllHeader = 0,
-    MSIDGetPrtHeader,
-    MSIDGetDeviceHeader
+    MSIDHeaderTypeAll = 0,
+    MSIDHeaderTypePrt,
+    MSIDHeaderTypeDeviceRegistration
 };
 
 
