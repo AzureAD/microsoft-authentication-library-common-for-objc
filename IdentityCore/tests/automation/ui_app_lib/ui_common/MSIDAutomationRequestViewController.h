@@ -32,6 +32,6 @@
 @property (strong, nonatomic) IBOutlet NSTextView *requestInfo;
 #endif
 
-@property MSIDAutoParamBlock completionBlock;
+@property (atomic) MSIDAutoParamBlock completionBlock;
 
 @end

@@ -69,9 +69,10 @@
 {
     MSIDTestURLResponse *response = [MSIDTestURLSession removeResponseForRequest:self.request];
     
+    __typeof__(self.session) session = self.session;
     if (!response)
     {
-        [self.session dispatchIfNeed:^{
+        [session dispatchIfNeed:^{
             NSError* error = [NSError errorWithDomain:NSURLErrorDomain
                                                  code:NSURLErrorNotConnectedToInternet
                                              userInfo:nil];
@@ -85,7 +86,7 @@
         return;
     }
     
-    [self.session dispatchIfNeed:^{
+    [session dispatchIfNeed:^{
         if (self.completionHandler) self.completionHandler(response->_responseData, response->_response, response->_error);
     }];
 
@@ -96,7 +97,7 @@
     
     if (response->_error)
     {
-        [self.session dispatchIfNeed:^{
+        [session dispatchIfNeed:^{
             [self.delegate URLSession:(NSURLSession *)self.session
                                  task:(NSURLSessionDataTask *)self
                  didCompleteWithError:response->_error];
@@ -127,7 +128,7 @@
         
         if (failed)
         {
-            [self.session dispatchIfNeed:^{
+            [session dispatchIfNeed:^{
                 __auto_type error = [NSError errorWithDomain:NSURLErrorDomain
                                                         code:NSURLErrorNotConnectedToInternet
                                                     userInfo:nil];
@@ -144,7 +145,7 @@
     
     if (response->_response)
     {
-        [self.session dispatchIfNeed:^{
+        [session dispatchIfNeed:^{
             [self.delegate URLSession:(NSURLSession *)self.session
                              dataTask:(NSURLSessionDataTask *)self
                    didReceiveResponse:response->_response
@@ -157,12 +158,12 @@
     
     if (response->_responseData)
     {
-        [self.session dispatchIfNeed:^{
+        [session dispatchIfNeed:^{
             [self.delegate URLSession:(NSURLSession *)self.session dataTask:(NSURLSessionDataTask *)self didReceiveData:response->_responseData];
         }];
     }
     
-    [self.session dispatchIfNeed:^{
+    [session dispatchIfNeed:^{
         [self.delegate URLSession:(NSURLSession *)self.session
                              task:(NSURLSessionDataTask *)self
              didCompleteWithError:nil];

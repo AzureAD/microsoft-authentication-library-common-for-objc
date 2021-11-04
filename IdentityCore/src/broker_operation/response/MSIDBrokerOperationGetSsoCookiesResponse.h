@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -21,37 +22,18 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-#import <Foundation/Foundation.h>
 
-@class MSIDTestURLResponse;
+#import "MSIDBrokerNativeAppOperationResponse.h"
 
-@interface MSIDTestURLSession : NSObject
+@class MSIDCredentialHeader;
 
-@property (atomic) id delegate;
-@property (atomic) NSOperationQueue* delegateQueue;
+NS_ASSUME_NONNULL_BEGIN
 
-- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
+@interface MSIDBrokerOperationGetSsoCookiesResponse : MSIDBrokerNativeAppOperationResponse
 
-// This adds an expected request, and response to it.
-+ (void)addResponse:(MSIDTestURLResponse *)response;
-
-// If you need to test a series of requests and responses use this API
-+ (void)addResponses:(NSArray *)responses;
-
-// Helper methods for common responses
-+ (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (BOOL)noResponsesLeft;
-+ (void)clearResponses;
-
-// Helper method to retrieve a response for a request
-+ (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
-
-+ (NSURLSession *)createMockSession;
-
-// Helper dispatch method that URLSessionTask can utilize
-- (void)dispatchIfNeed:(void (^)(void))block;
-
-// Required method to mock NSURLSession on iOS 13.
-- (void)defaultTaskGroup;
+@property (nonatomic, nullable) NSArray<MSIDCredentialHeader*> *prtHeaders;
+@property (nonatomic, nullable) NSArray<MSIDCredentialHeader*> *deviceHeaders;
 
 @end
+
+NS_ASSUME_NONNULL_END

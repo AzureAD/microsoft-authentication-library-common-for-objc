@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,39 +20,43 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-@class MSIDTestURLResponse;
+#import "MSIDCredentialHeader.h"
+#import "MSIDCredentialInfo.h"
 
-@interface MSIDTestURLSession : NSObject
+static NSString *const MSID_CREDENTIAL_HEADER_JSON_KEY = @"header";
 
-@property (atomic) id delegate;
-@property (atomic) NSOperationQueue* delegateQueue;
+@implementation MSIDCredentialHeader
 
-- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super init];
+    
+    if (self)
+    {
+        if (!json || !json[MSID_CREDENTIAL_HEADER_JSON_KEY]) return nil;
+        if (![json[MSID_CREDENTIAL_HEADER_JSON_KEY] isKindOfClass:NSDictionary.class]) return nil;
+        _info = [[MSIDCredentialInfo alloc] initWithJSONDictionary:json[MSID_CREDENTIAL_HEADER_JSON_KEY] error:error];
+        if (!_info) return nil;
+    }
+    
+    return self;
+}
 
-// This adds an expected request, and response to it.
-+ (void)addResponse:(MSIDTestURLResponse *)response;
-
-// If you need to test a series of requests and responses use this API
-+ (void)addResponses:(NSArray *)responses;
-
-// Helper methods for common responses
-+ (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (BOOL)noResponsesLeft;
-+ (void)clearResponses;
-
-// Helper method to retrieve a response for a request
-+ (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
-
-+ (NSURLSession *)createMockSession;
-
-// Helper dispatch method that URLSessionTask can utilize
-- (void)dispatchIfNeed:(void (^)(void))block;
-
-// Required method to mock NSURLSession on iOS 13.
-- (void)defaultTaskGroup;
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [NSMutableDictionary new];
+    NSDictionary *credentialInfoJson = [self.info jsonDictionary];
+    if (!credentialInfoJson)
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"header is not provided from credential header");
+        return nil;
+    }
+    
+    json[MSID_CREDENTIAL_HEADER_JSON_KEY] = credentialInfoJson;
+    return json;
+}
 
 @end

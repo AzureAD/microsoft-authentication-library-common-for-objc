@@ -83,21 +83,22 @@
 #if TARGET_OS_IPHONE
             [[MSIDBackgroundTaskManager sharedInstance] stopOperationWithType:MSIDBackgroundTaskTypeInteractiveRequest];
 #endif
+            __typeof__(self) strongSelf = weakSelf;
             
 #if TARGET_OS_OSX
-            weakSelf.ssoTokenResponseHandler.externalCacheSeeder = weakSelf.externalCacheSeeder;
+            strongSelf.ssoTokenResponseHandler.externalCacheSeeder = strongSelf.externalCacheSeeder;
 #endif
-            [weakSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
-                                                    requestParameters:weakSelf.requestParameters
-                                               tokenResponseValidator:weakSelf.tokenResponseValidator
-                                                         oauthFactory:weakSelf.oauthFactory
-                                                           tokenCache:weakSelf.tokenCache
-                                                 accountMetadataCache:weakSelf.accountMetadataCache
-                                                      validateAccount:weakSelf.requestParameters.shouldValidateResultAccount
-                                                                error:error
-                                                      completionBlock:^(MSIDTokenResult *result, NSError *error)
+            [strongSelf.ssoTokenResponseHandler handleOperationResponse:operationResponse
+                                                      requestParameters:strongSelf.requestParameters
+                                                 tokenResponseValidator:strongSelf.tokenResponseValidator
+                                                           oauthFactory:strongSelf.oauthFactory
+                                                             tokenCache:strongSelf.tokenCache
+                                                   accountMetadataCache:strongSelf.accountMetadataCache
+                                                        validateAccount:strongSelf.requestParameters.shouldValidateResultAccount
+                                                                  error:error
+                                                        completionBlock:^(MSIDTokenResult *result, NSError *error)
              {
-                MSIDInteractiveRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
+                MSIDInteractiveRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
                 weakSelf.requestCompletionBlock = nil;
                 if (completionBlock) completionBlock(result, error, nil);
             }];
@@ -196,7 +197,8 @@
         return anchor;
     }
     
-    return self.requestParameters.parentViewController ? self.requestParameters.parentViewController.view.window : self.requestParameters.presentationAnchorWindow;
+    __typeof__(self.requestParameters.parentViewController) parentViewController = self.requestParameters.parentViewController;
+    return parentViewController ? parentViewController.view.window : self.requestParameters.presentationAnchorWindow;
 }
 
 #pragma mark - Dealloc

@@ -410,7 +410,6 @@
                                           context:(id<MSIDRequestContext>)context
                                             error:(NSError **)error
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) Get accounts.");
     MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default accessor) Get accounts with environment %@, clientId %@, familyId %@, account %@, username %@", authority.environment, clientId, familyId, accountIdentifier.maskedHomeAccountId, accountIdentifier.maskedDisplayableId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
@@ -435,7 +434,7 @@
     
     else
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) found %ld accounts before additional filtering",  (long)allAccounts.count);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) found %ld accounts before additional filtering",  (long)allAccounts.count);
     }
     
     // we only need it if returning signed in accounts only
@@ -469,7 +468,7 @@
                                                              error:nil];
     
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) %ld id tokens found with given authority.",idTokens.count);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) %ld id tokens found with given authority.",idTokens.count);
     
     NSMutableSet<NSString *> *noReturnAccountUPNSet;
     NSMutableSet<MSIDAccount *> *returnAccountsSet = [self filterAndFillIdTokenClaimsForAccounts:allAccounts
@@ -537,7 +536,7 @@
                                  context:(id<MSIDRequestContext>)context
                                    error:(NSError **)error
 {
-    MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Default accessor) Looking for account with authority %@, legacy user ID %@, home account ID %@", authority.url, accountIdentifier.maskedDisplayableId, accountIdentifier.maskedHomeAccountId);
+    MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Default accessor) Looking for account with authority %@, legacy user ID %@, home account ID %@", authority.url, accountIdentifier.maskedDisplayableId, accountIdentifier.maskedHomeAccountId);
 
     MSIDTelemetryCacheEvent *event = [MSIDTelemetry startCacheEventWithName:MSID_TELEMETRY_EVENT_TOKEN_CACHE_LOOKUP context:context];
 
@@ -564,7 +563,7 @@
     
     MSIDAccount *firstAccount = nil;
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) %ld accounts found with account identifier and authority.",accountCacheItems.count);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) %ld accounts found with account identifier and authority.",accountCacheItems.count);
 
     for (MSIDAccountCacheItem *cacheItem in accountCacheItems)
     {
@@ -576,7 +575,7 @@
          */
         if (realmHint && [account.realm isEqualToString:realmHint])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) found an account that has matching realmHint: %@.", realmHint);
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) found an account that has matching realmHint: %@.", realmHint);
             return account;
         }
         
@@ -943,7 +942,7 @@
 
     if ([accountCacheItems count])
     {
-        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Default accessor) found %ld accounts with legacy account id. returning first account.",accountCacheItems.count);
+        MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Default accessor) found %ld accounts with legacy account id. returning first account.",accountCacheItems.count);
         [MSIDTelemetry stopCacheEvent:event withItem:nil success:YES context:context];
         MSIDAccountCacheItem *accountCacheItem = accountCacheItems[0];
         return accountCacheItem.homeAccountId;
@@ -1240,7 +1239,7 @@
                                                  noReturnAccountUPNs:(NSSet<NSString *> *)noReturnAccountUPNSet
                                                  knownReturnAccounts:(NSSet<MSIDAccount *> *)knownReturnAccounts
 {
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(Default accessor) filter signed out accounts from other accessor. initially with %ld accounts", (unsigned long)[accounts count]);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(Default accessor) filter signed out accounts from other accessor. initially with %ld accounts", (unsigned long)[accounts count]);
     NSMutableArray *returnAccounts = [NSMutableArray new];
     for (MSIDAccount *account in accounts)
     {
@@ -1263,7 +1262,7 @@
     }
     
     
-    MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"(Default accessor) found %ld accounts after filtering signed out accounts", (unsigned long)[returnAccounts count]);
+    MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, nil, @"(Default accessor) found %ld accounts after filtering signed out accounts", (unsigned long)[returnAccounts count]);
     
     return returnAccounts;
 }

@@ -29,7 +29,7 @@
 
 @interface MSIDLegacyRefreshToken : MSIDRefreshToken <MSIDLegacyCredentialCacheCompatible>
 
-@property (readwrite) NSString *idToken;
-@property (readonly) MSIDIdTokenClaims *idTokenClaims;
+@property (atomic, readwrite) NSString *idToken;
+@property (atomic, readonly) MSIDIdTokenClaims *idTokenClaims;
 
 @end

@@ -260,37 +260,37 @@
     BOOL (^filterBlock)(MSIDCredentialCacheItem *tokenCacheItem) = ^BOOL(MSIDCredentialCacheItem *tokenCacheItem) {
         if ([environmentAliases count] && ![tokenCacheItem.environment msidIsEquivalentWithAnyAlias:environmentAliases])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Legacy accessor) cached account environment not found in the environment alias list.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Legacy accessor) cached account environment not found in the environment alias list.");
             return NO;
         }
         if (tokenCacheItem.credentialType == MSIDPrimaryRefreshTokenType)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Legacy accessor) Credential type is PriamryRefreshToken.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Legacy accessor) Credential type is PriamryRefreshToken.");
             return YES;
         }
         
         if (accountIdentifier.homeAccountId && ![tokenCacheItem.homeAccountId isEqualToString:accountIdentifier.homeAccountId])
         {
-            MSID_LOG_WITH_CTX_PII(MSIDLogLevelInfo, context, @"(Legacy accessor) cached home account id mismatches account identifier value. cached: %@, actual: %@",MSID_PII_LOG_TRACKABLE(tokenCacheItem.homeAccountId),MSID_PII_LOG_TRACKABLE(accountIdentifier.homeAccountId));
+            MSID_LOG_WITH_CTX_PII(MSIDLogLevelVerbose, context, @"(Legacy accessor) cached home account id mismatches account identifier value. cached: %@, actual: %@",MSID_PII_LOG_TRACKABLE(tokenCacheItem.homeAccountId),MSID_PII_LOG_TRACKABLE(accountIdentifier.homeAccountId));
             return NO;
         }
         
         if (!clientId && !familyId)
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Legacy accessor) Neither client id nor family id found.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Legacy accessor) Neither client id nor family id found.");
             // Nothing else to match by as neither clientId or familyId have been provided
             return YES;
         }
         
         if (clientId && [tokenCacheItem.clientId isEqualToString:clientId])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Legacy accessor) Cached client id matches actual client id.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Legacy accessor) Cached client id matches actual client id.");
             return YES;
         }
 
         if (familyId && [tokenCacheItem.familyId isEqualToString:familyId])
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Legacy accessor) Cached family id matches actual family id.");
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Legacy accessor) Cached family id matches actual family id.");
             return YES;
         }
         
@@ -349,7 +349,7 @@
         
         else
         {
-            MSID_LOG_WITH_CTX(MSIDLogLevelInfo, context, @"(Legacy accessor) account has mismatching client id. Excluding idTokenClaims. token client id: %@, actual client id: %@",refreshToken.clientId,clientId);
+            MSID_LOG_WITH_CTX(MSIDLogLevelVerbose, context, @"(Legacy accessor) account has mismatching client id. Excluding idTokenClaims. token client id: %@, actual client id: %@",refreshToken.clientId,clientId);
         }
         
         [resultAccounts addObject:account];

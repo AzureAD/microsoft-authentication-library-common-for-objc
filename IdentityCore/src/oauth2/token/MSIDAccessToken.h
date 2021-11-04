@@ -30,30 +30,30 @@
     NSString *_kid;
 }
 
-@property (readwrite) NSDate *expiresOn;
-@property (readwrite) NSDate *extendedExpiresOn;
-@property (readwrite) NSDate *refreshOn;
-@property (readwrite) NSDate *cachedAt;
-@property (readwrite) NSString *accessToken;
+@property (atomic, readwrite) NSDate *expiresOn;
+@property (atomic, readwrite) NSDate *extendedExpiresOn;
+@property (atomic, readwrite) NSDate *refreshOn;
+@property (atomic, readwrite) NSDate *cachedAt;
+@property (atomic, readwrite) NSString *accessToken;
 
 // v1 access tokens are scoped down to resources
-@property (readwrite) NSString *resource;
+@property (atomic, readwrite) NSString *resource;
 
 // v2 access tokens are scoped down to resources
-@property (readwrite) NSOrderedSet<NSString *> *scopes;
+@property (atomic, readwrite) NSOrderedSet<NSString *> *scopes;
 
 // Intune Enrollment ID. Application trying to retrieve access token from cache will need to present a valid intune enrollment ID to complete cache lookup.
-@property (readwrite) NSString *enrollmentId;
+@property (atomic, readwrite) NSString *enrollmentId;
 
 // Unique app identifier used for cases when access token storage needs to be partitioned per application
-@property (readwrite) NSString *applicationIdentifier;
+@property (atomic, readwrite) NSString *applicationIdentifier;
 
 // Public key identifier used to bound the access tokens.
 @property (nonatomic) NSString *kid;
 @property (nonatomic) NSString *tokenType;
 
 // Claims string sent to the server to produce this AT. Used by MSAL C++
-@property (readwrite) NSString *requestedClaims;
+@property (atomic, readwrite) NSString *requestedClaims;
 
 - (BOOL)isExpired;
 - (BOOL)isExpiredWithExpiryBuffer:(NSUInteger)expiryBuffer;

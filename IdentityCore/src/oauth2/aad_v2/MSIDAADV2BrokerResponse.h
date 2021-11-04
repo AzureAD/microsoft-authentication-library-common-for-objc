@@ -25,12 +25,12 @@
 
 @interface MSIDAADV2BrokerResponse : MSIDBrokerResponse
 
-@property (readonly) NSString *scope;
-@property (readonly) NSDictionary *errorMetadata;
+@property (atomic, readonly) NSString *scope;
+@property (atomic, readonly) NSDictionary *errorMetadata;
 
-@property (readonly) NSString *oauthErrorCode;
-@property (readonly) NSString *errorDescription;
-@property (readonly) NSString *subError;
-@property (readonly) NSDictionary *httpHeaders;
+@property (atomic, readonly) NSString *oauthErrorCode;
+@property (atomic, readonly) NSString *errorDescription;
+@property (atomic, readonly) NSString *subError;
+@property (atomic, readonly) NSDictionary *httpHeaders;
 
 @end

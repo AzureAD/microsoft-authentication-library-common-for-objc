@@ -148,10 +148,12 @@
         return anchor;
     }
     
+    __typeof__(self.parentController) parentController = self.parentController;
+    
 #if TARGET_OS_OSX
-    return self.parentController ? self.parentController.view.window : [NSApplication sharedApplication].keyWindow;
+    return parentController ? parentController.view.window : [NSApplication sharedApplication].keyWindow;
 #else
-    return self.parentController.view.window;
+    return parentController.view.window;
 #endif
 }
 

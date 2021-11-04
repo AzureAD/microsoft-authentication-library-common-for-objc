@@ -31,8 +31,8 @@ static dispatch_queue_t s_defaultSynchronizationQueue;
 
 @interface MSIDMacACLKeychainAccessor ()
 
-@property (readwrite, nonnull) id accessControlForSharedItems;
-@property (readwrite, nonnull) id accessControlForNonSharedItems;
+@property (atomic, readwrite, nonnull) id accessControlForSharedItems;
+@property (atomic, readwrite, nonnull) id accessControlForNonSharedItems;
 
 @end
 

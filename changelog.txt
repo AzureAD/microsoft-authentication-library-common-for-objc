@@ -1,4 +1,6 @@
-TBD
+Version 1.7.2
+* Enable additional warnings (#1042)
+* Use base64URLEncoding for RSA modules (#1058)
 * Added more logging in default accessor, legacy accessor, and account credential cache logic.
 
 Version 1.7.1

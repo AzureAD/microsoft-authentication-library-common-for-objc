@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,47 +20,53 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import "MSIDAutomationDeleteDeviceAPIRequest.h"
 
-@implementation MSIDAutomationDeleteDeviceAPIRequest
+#import "MSIDPrtHeader.h"
 
-#pragma mark - Lab Request
+static NSString *const MSID_PRT_HEADER_HOME_ACCOUNT_ID = @"home_account_id";
+static NSString *const MSID_PRT_HEADER_DISPLAYABLE_ID = @"displayable_id";
 
-- (NSString *)requestOperationPath
+@implementation MSIDPrtHeader
+
+#pragma mark - MSIDJsonSerializable
+
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
 {
-    return @"DeleteDevice";
-}
-
-- (NSString *)httpMethod
-{
-    return @"DELETE";
-}
-
-- (NSArray<NSURLQueryItem *> *)queryItems
-{
-    NSMutableArray *queryItems = [NSMutableArray array];
+    self = [super initWithJSONDictionary:json error:error];
     
-    if (self.userUPN)
+    if (self)
     {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"upn" value:self.userUPN]];
+        _homeAccountId = json[MSID_PRT_HEADER_HOME_ACCOUNT_ID];
+        _displayableId = json[MSID_PRT_HEADER_DISPLAYABLE_ID];
     }
     
-    if (self.deviceGUID)
-    {
-        [queryItems addObject:[[NSURLQueryItem alloc] initWithName:@"deviceid" value:self.deviceGUID]];
-    }
-    
-    return queryItems;
+    return self;
 }
 
-- (NSUInteger)hash
+- (NSDictionary *)jsonDictionary
 {
-    NSUInteger hash = self.userUPN.hash;
-    hash ^= self.deviceGUID.hash;
-
-    return hash;
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if(!json) return nil;
+    
+    if ([NSString msidIsStringNilOrBlank:self.homeAccountId])
+    {
+        MSID_LOG_WITH_CTX(MSIDLogLevelInfo, nil, @"account_identifier is not provided from prt header");
+        return nil;
+    }
+    
+    if (![NSString msidIsStringNilOrBlank:self.homeAccountId])
+    {
+        json[MSID_PRT_HEADER_HOME_ACCOUNT_ID] = self.homeAccountId;
+    }
+    
+    if (![NSString msidIsStringNilOrBlank:self.displayableId])
+    {
+        json[MSID_PRT_HEADER_DISPLAYABLE_ID] = self.displayableId;
+    }
+    
+    return json;
 }
 
 @end

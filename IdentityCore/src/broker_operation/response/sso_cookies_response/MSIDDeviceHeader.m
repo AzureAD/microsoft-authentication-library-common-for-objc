@@ -1,3 +1,4 @@
+//
 // Copyright (c) Microsoft Corporation.
 // All rights reserved.
 //
@@ -19,39 +20,38 @@
 // AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// THE SOFTWARE.  
 
-#import <Foundation/Foundation.h>
 
-@class MSIDTestURLResponse;
+#import "MSIDDeviceHeader.h"
 
-@interface MSIDTestURLSession : NSObject
+static NSString *const MSID_PRT_HEADER_TENANT_ID = @"tenant_id";
 
-@property (atomic) id delegate;
-@property (atomic) NSOperationQueue* delegateQueue;
+@implementation MSIDDeviceHeader
 
-- (id)initWithDelegate:(id)delegate delegateQueue:(NSOperationQueue *)delegateQueue;
+- (instancetype)initWithJSONDictionary:(NSDictionary *)json error:(NSError **)error
+{
+    self = [super initWithJSONDictionary:json error:error];
+    
+    if (self)
+    {
+        _tenantId = json[MSID_PRT_HEADER_TENANT_ID];
+    }
+    
+    return self;
+}
 
-// This adds an expected request, and response to it.
-+ (void)addResponse:(MSIDTestURLResponse *)response;
-
-// If you need to test a series of requests and responses use this API
-+ (void)addResponses:(NSArray *)responses;
-
-// Helper methods for common responses
-+ (void)addNotFoundResponseForURLString:(NSString *)URLString;
-+ (BOOL)noResponsesLeft;
-+ (void)clearResponses;
-
-// Helper method to retrieve a response for a request
-+ (MSIDTestURLResponse *)removeResponseForRequest:(NSURLRequest *)request;
-
-+ (NSURLSession *)createMockSession;
-
-// Helper dispatch method that URLSessionTask can utilize
-- (void)dispatchIfNeed:(void (^)(void))block;
-
-// Required method to mock NSURLSession on iOS 13.
-- (void)defaultTaskGroup;
+- (NSDictionary *)jsonDictionary
+{
+    NSMutableDictionary *json = [[super jsonDictionary] mutableCopy];
+    if(!json) return nil;
+    
+    if (![NSString msidIsStringNilOrBlank:self.tenantId])
+    {
+        json[MSID_PRT_HEADER_TENANT_ID] = self.tenantId;
+    }
+    
+    return json;
+}
 
 @end

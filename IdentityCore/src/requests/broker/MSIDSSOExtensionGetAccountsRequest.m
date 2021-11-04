@@ -92,8 +92,10 @@
                 returnBrokerAccountsOnly = operationResponse.deviceInfo.deviceMode == MSIDDeviceModeShared;
             }
             
-            MSIDGetAccountsRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
+            __typeof__(self) strongSelf = weakSelf;
+            
+            MSIDGetAccountsRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
             
             if (completionBlock) completionBlock(resultAccounts, returnBrokerAccountsOnly, resultError);
         };
