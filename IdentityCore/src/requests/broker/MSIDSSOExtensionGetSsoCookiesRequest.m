@@ -93,7 +93,8 @@
     
     __typeof__(self) __weak weakSelf = self;
     [self executeBrokerOperationRequest:getSsoCookiesRequest requiresUI:NO continueBlock:^{
-        weakSelf.requestCompletionBlock = completionBlock;
+        __strong typeof(self) strongSelf = weakSelf;
+        strongSelf.requestCompletionBlock = completionBlock;
     } errorBlock:^(NSError *error) {
         if(completionBlock) completionBlock(nil, nil, error);
     }];
