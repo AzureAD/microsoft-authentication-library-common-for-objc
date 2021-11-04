@@ -302,12 +302,12 @@ static NSString *kLoginKeychainEmptyKey = @"LoginKeychainEmpty";
 
 @interface MSIDMacKeychainTokenCache ()
 
-@property (readwrite, nonnull) NSString *keychainGroup;
-@property (readwrite, nonnull) NSDictionary *defaultCacheQuery;
-@property (readwrite, nonnull) NSString *appIdentifier;
-@property MSIDMacCredentialStorageItem *appStorageItem;
-@property MSIDMacCredentialStorageItem *sharedStorageItem;
-@property MSIDCacheItemJsonSerializer *serializer;
+@property (atomic, readwrite, nonnull) NSString *keychainGroup;
+@property (atomic, readwrite, nonnull) NSDictionary *defaultCacheQuery;
+@property (atomic, readwrite, nonnull) NSString *appIdentifier;
+@property (atomic) MSIDMacCredentialStorageItem *appStorageItem;
+@property (atomic) MSIDMacCredentialStorageItem *sharedStorageItem;
+@property (atomic) MSIDCacheItemJsonSerializer *serializer;
 
 @end
 

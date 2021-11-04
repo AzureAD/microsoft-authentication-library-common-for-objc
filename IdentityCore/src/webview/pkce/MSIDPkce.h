@@ -29,8 +29,8 @@
 
 @interface MSIDPkce : NSObject<NSCopying>
 
-@property (readonly) NSString *codeVerifier;
-@property (readonly) NSString *codeChallenge;
-@property (readonly) NSString *codeChallengeMethod;
+@property (atomic, readonly) NSString *codeVerifier;
+@property (atomic, readonly) NSString *codeChallenge;
+@property (atomic, readonly) NSString *codeChallengeMethod;
 
 @end

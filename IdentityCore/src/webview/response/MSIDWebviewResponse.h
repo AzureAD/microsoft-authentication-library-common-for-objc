@@ -31,8 +31,8 @@
 
 @interface MSIDWebviewResponse : NSObject
 
-@property (readonly) NSDictionary *parameters;
-@property (readonly) NSURL *url;
+@property (atomic, readonly) NSDictionary *parameters;
+@property (atomic, readonly) NSURL *url;
 @property (nonatomic, class, readonly) NSString *operation;
 
 - (instancetype)initWithURL:(NSURL *)url

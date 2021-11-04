@@ -28,12 +28,12 @@
 
 // Time after which the start call will return a successful response.
 // If set to zero, will indicate unsuccessful response.
-@property NSTimeInterval successAfterInterval;
+@property (atomic) NSTimeInterval successAfterInterval;
 
 // BOOL to indicate whether or not this class will act as MSIDSafariViewController
-@property BOOL actAsSafariViewController;
-@property BOOL actAsAuthenticationSession;
+@property (atomic) BOOL actAsSafariViewController;
+@property (atomic) BOOL actAsAuthenticationSession;
 
-@property NSURL *startURL;
+@property (atomic) NSURL *startURL;
 
 @end

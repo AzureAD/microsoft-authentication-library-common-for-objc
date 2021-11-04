@@ -83,8 +83,10 @@
                 resultDeviceInfo = response.deviceInfo;
             }
             
-            MSIDGetDeviceInfoRequestCompletionBlock completionBlock = weakSelf.requestCompletionBlock;
-            weakSelf.requestCompletionBlock = nil;
+            __typeof__(self) strongSelf = weakSelf;
+            
+            MSIDGetDeviceInfoRequestCompletionBlock completionBlock = strongSelf.requestCompletionBlock;
+            strongSelf.requestCompletionBlock = nil;
             
             if (completionBlock) completionBlock(resultDeviceInfo, resultError);
         };
